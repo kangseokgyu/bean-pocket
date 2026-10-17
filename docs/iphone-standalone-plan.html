@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>bean-pocket · iPhone 독립 실행 계획</title>
+<style>
+:root{--ink:#203e34;--muted:#63736b;--paper:#f6f3eb;--card:#fffef9;--line:#dcded1;--green:#235943;--lime:#d9edb8;--amber:#f3e5c6}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:24px}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.8 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}a{color:var(--green);text-underline-offset:4px}main{max-width:1100px;padding:48px 28px 70px;margin:auto}header{border-bottom:1px solid var(--line);padding-bottom:32px}.eyebrow{font-size:12px;letter-spacing:2px;font-weight:750;color:var(--muted)}h1{font-size:clamp(32px,5.5vw,62px);letter-spacing:-2px;line-height:1.22;margin:18px 0}h2{font-size:27px;line-height:1.4;letter-spacing:-.7px;margin:0 0 16px}h3{font-size:18px;margin:0 0 8px}p{margin:8px 0 14px}.intro{max-width:800px;font-size:19px}.meta,.small{font-size:13px;color:var(--muted)}nav{display:flex;flex-wrap:wrap;gap:10px;margin:24px 0}nav a{padding:7px 13px;border:1px solid var(--line);border-radius:30px;text-decoration:none;font-size:14px;background:var(--card)}section{margin-top:44px}.num{color:#879773;font-size:13px;font-weight:700;display:block;margin-bottom:8px}.callout{padding:22px 25px;border-radius:16px;background:var(--lime);margin:20px 0}.callout.amber{background:var(--amber)}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px}.tag{font-size:12px;background:#e8eee0;border-radius:20px;padding:3px 9px;display:inline-block;margin-bottom:12px}.flow{display:grid;grid-template-columns:1fr 36px 1.3fr 36px 1fr;align-items:center;gap:8px;margin:22px 0}.node{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;text-align:center}.node.focus{background:var(--green);color:white}.node strong{display:block;font-size:18px}.node span{font-size:14px}.arrow{text-align:center;font-size:24px}.subflow{border-left:3px solid #9eb78b;padding:0 0 0 18px;margin:18px 0}.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--card)}table{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}th,td{padding:15px 18px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}th{background:#e9eddf;font-weight:700}tr:last-child td{border-bottom:0}td:first-child{width:23%;font-weight:650}code{font:13px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere;background:#e9ede3;border-radius:4px;padding:2px 5px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#1f382f;color:#edf3df;padding:24px;border-radius:14px;font:13px/1.8 ui-monospace,SFMono-Regular,Menlo,monospace}pre code{background:none;color:inherit;padding:0}ol,ul{padding-left:23px;margin:10px 0}li{margin:8px 0}.phase{display:grid;grid-template-columns:130px 1fr;gap:20px;padding:24px 0;border-top:1px solid var(--line)}.phase strong{font-size:18px}.phase .time{font-size:13px;color:var(--muted)}details{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:15px 20px;margin:12px 0}summary{cursor:pointer;font-weight:650}.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}.phone{max-width:310px;border:7px solid var(--ink);border-radius:34px;padding:26px 20px;margin:auto;background:var(--card)}.phone .pill{width:70px;height:6px;border-radius:20px;background:var(--ink);margin:-10px auto 25px}.phone .input{border:1px solid var(--line);border-radius:8px;padding:10px 12px;color:var(--muted);font-size:14px;margin:8px 0 16px}.phone .btn{background:var(--green);border-radius:9px;padding:10px;color:white;text-align:center}.sources li{font-size:14px}footer{border-top:1px solid var(--line);margin-top:44px;padding-top:20px;font-size:13px;color:var(--muted)}@media(max-width:700px){main{padding:28px 18px 50px}.grid,.two{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.arrow{transform:rotate(90deg);height:30px}.phase{grid-template-columns:1fr;gap:8px}h2{font-size:24px}.card{padding:18px}.intro{font-size:17px}}@media print{body{background:white}main{max-width:none;padding:0}nav{display:none}section,.card,.phase{break-inside:avoid}a{color:inherit}details>*{display:block}h1{font-size:40px}}
+</style>
+</head>
+<body><main>
+<header>
+<div class="eyebrow">bean-pocket / IMPLEMENTATION PLAN</div>
+<h1>내 아이폰에서 여는<br>나만의 레시피 북.</h1>
+<p class="intro">웹 화면과 실행 코드는 아이폰에 저장하고, 사용자가 입력한 토큰으로 노션에 직접 연결합니다. <strong>개인용 PWA</strong>를 우선안으로 제안합니다.</p>
+<p class="meta">2026. 10. 17 · 현재 저장소 코드와 공식 문서 기반 · 계획서이며 앱 구현·배포·실제 노션 연결은 수행하지 않음</p>
+</header>
+<nav aria-label="계획서 목차"><a href="#decision">가능한 방식</a><a href="#architecture">실행 구조</a><a href="#token">토큰 보관</a><a href="#migration">코드 이전</a><a href="#steps">구현 순서</a><a href="#acceptance">완료 기준</a><a href="#sources">확인 근거</a></nav>
+
+<section id="decision"><span class="num">01 / DECISION</span><h2>가능합니다. 실행용 백엔드를 없애는 방식입니다.</h2>
+<div class="callout"><strong>권장 구성: HTTPS 정적 웹사이트 + 홈 화면 PWA + 브라우저의 Notion REST API 직접 호출</strong><p>PC에서 <code>node server.mjs</code>를 켜둘 필요가 없어집니다. 정적 호스팅은 HTML·JS·CSS를 배포하고 업데이트하는 역할만 맡습니다. 노션 조회·저장은 아이폰에서 노션으로 직접 전송합니다.</p></div>
+<p>최신 <a href="https://github.com/makenotion/notion-sdk-js#browser-usage">노션 공식 SDK 문서</a>는 API의 CORS 지원과 브라우저 직접 호출을 안내합니다. 다만 SDK는 토큰의 브라우저 사용을 기본 차단하므로 SDK를 도입하면 명시적 허용이 필요합니다. 현재 프로젝트의 REST <code>fetch</code> 구현을 재사용하면 SDK 도입은 필요하지 않습니다. 실제 iPhone·배포 출처에서의 동작은 첫 기술 검증으로 확인합니다.</p>
+<div class="grid">
+<article class="card"><span class="tag">우선안</span><h3>개인용 PWA</h3><p>Safari에서 주소 열기 → 홈 화면에 추가 → 앱처럼 실행. 기존 화면을 활용하고 백엔드 운영을 없앱니다.</p><p class="small">최초 설치·업데이트는 정적 호스팅에 접근. 실시간 노션 연결에는 인터넷 필요.</p></article>
+<article class="card"><span class="tag">조건부 대안</span><h3>iOS 앱으로 묶기</h3><p>파일 배포처에도 의존하지 않는 설치 패키지가 꼭 필요하면 Capacitor와 네이티브 HTTP·Keychain을 검토합니다.</p><p class="small">Mac·Xcode·서명·기기 배포 및 업데이트 관리 필요. 단순 WebView 포장만으로 네이티브 통신·보안 저장이 생기지는 않음.</p></article>
+<article class="card"><span class="tag">별도 요구사항</span><h3>완전한 오프라인</h3><p>인터넷 없이 노션의 최신 데이터를 읽거나 저장할 수는 없습니다. 최근 데이터 조회는 기기 캐시로 확장할 수 있습니다.</p><p class="small">오프라인 입력·자동 동기화는 별도 단계로 분리. 1차 버전은 온라인 저장에 집중.</p></article>
+</div>
+<details><summary>“서버 없이”의 정확한 범위</summary><ul><li><strong>내 PC·별도 API 서버 없이:</strong> 권장 PWA로 충족할 수 있습니다.</li><li><strong>설치 후 정적 호스팅에 연결되지 않아도 실행:</strong> Service Worker 캐시가 유지되고 설치가 완료됐다면 화면을 열 수 있습니다. 저장소 삭제·재설치 때는 다시 다운로드해야 합니다.</li><li><strong>최초 실행부터 어떠한 파일 서버도 사용하지 않기:</strong> 네이티브 앱 패키지 배포를 검토해야 합니다.</li><li><strong>노션 서버에도 연결하지 않기:</strong> 로컬 데이터만 사용할 수 있으며 실시간 노션 연동과는 양립하지 않습니다.</li></ul><p><code>file://</code> HTML을 파일 앱에서 여는 방식은 모듈·출처·PWA 설치 제약 때문에 운영 경로로 삼지 않습니다. 이 설명용 HTML 자체는 외부 라이브러리 없이 열립니다.</p></details>
+</section>
+
+<section id="architecture"><span class="num">02 / ARCHITECTURE</span><h2>화면은 아이폰에서, 원본 데이터는 노션에서.</h2>
+<p class="small">아래는 제안 구조입니다. 현재 구조는 <code>public/app.js → /api/* → server.mjs → lib/notion.mjs → Notion</code>입니다.</p>
+<div class="flow" aria-label="정적 호스팅에서 아이폰으로 앱 파일 배포, 아이폰에서 노션으로 직접 통신">
+<div class="node"><strong>정적 호스팅</strong><span>HTML · JS · CSS · 아이콘<br>설치 및 업데이트 때 파일 배포</span></div><div class="arrow" aria-hidden="true">→</div>
+<div class="node focus"><strong>iPhone PWA</strong><span>화면 · 입력 검증 · 토큰 잠금 해제<br>NotionClient · NotionRepository</span></div><div class="arrow" aria-hidden="true">⇄</div>
+<div class="node"><strong>Notion API</strong><span>원두 · 봉지 · 레시피<br>물 붓기 단계 · 추출 기록</span></div>
+</div>
+<div class="two"><article class="card"><h3>기기 안에 보관</h3><ul><li>Cache API: 버전이 정해진 앱 파일만.</li><li>IndexedDB: 암호화한 토큰과 연결 설정.</li><li>메모리: 잠금 해제 중인 토큰과 조회 데이터.</li><li>IndexedDB: 중복 제출·부분 저장 확인용 작업 상태. 토큰과 민감한 본문은 로그에 넣지 않기.</li></ul></article><article class="card"><h3>노션 연결 후 실행 순서</h3><ol><li>암호로 저장된 토큰 잠금 해제.</li><li>5개 데이터 소스의 권한·속성 확인.</li><li>페이지네이션으로 데이터를 끝까지 조회.</li><li>원두·레시피·단계·기록을 관계 ID로 결합.</li><li>원두 목록 → 레시피 → 추출 방법·평가 표시.</li></ol></article></div>
+<div class="subflow"><strong>저장 흐름</strong><p>입력 검증 → 최신 관련 데이터 확인 → 추출 당시 조건 생성 → 노션 저장 → 결과 재조회 → 성공 표시. 기존 서버의 업무 규칙까지 브라우저로 옮겨야 합니다.</p></div>
+<p>기존 <code>DATA_SOURCES</code>의 5개 ID와 속성 매핑을 재사용합니다. 토큰 교체 시 이전 조회 데이터·진행 상태를 연결별로 격리하고 새 연결 검증이 끝난 뒤 전환합니다. ID가 공개되는 것과 접근 권한이 생기는 것은 별개이며, 실제 권한은 노션 토큰과 공유 설정이 결정합니다.</p>
+</section>
+
+<section id="token"><span class="num">03 / CREDENTIALS</span><h2>토큰은 한 번 입력하고, 기기에서 잠금 해제합니다.</h2>
+<div class="two"><div>
+<p><strong>권장 기본값은 암호화 보관입니다.</strong> 토큰을 매번 붙여 넣지 않되, 재실행할 때 저장용 암호로 잠금을 해제합니다. 계정 가입은 추가하지 않습니다.</p>
+<ol><li>노션에서 레시피 북 전용 내부 연결을 만들고 해당 페이지와 필요한 하위 DB만 공유합니다. 읽기·삽입·수정 권한은 기존 저장·복구 동작에 맞춥니다.</li><li>아이폰에서 토큰과 저장용 암호를 입력합니다. 연결이 검증된 뒤 저장합니다.</li><li>Web Crypto의 PBKDF2로 암호에서 키를 유도하고 AES-GCM으로 토큰을 암호화합니다. 무작위 salt·매 암호화마다 새 IV·알고리즘 버전을 암호문과 함께 IndexedDB에 보관합니다. 반복 횟수는 대상 아이폰 성능을 확인해 정합니다.</li><li>암호·복호화 키는 영구 저장하지 않습니다. 닫기·수동 잠금·설정한 비활성 시간 후 메모리 참조를 해제하고 다시 잠급니다.</li><li>연결 해제 시 토큰과 연결별 로컬 데이터를 삭제합니다. 암호를 잊으면 저장본을 지우고 토큰을 다시 입력합니다.</li></ol>
+</div><div class="phone" aria-label="연결 설정 제안 화면, 실제 입력 폼이 아닌 정적 예시"><div class="pill"></div><div class="eyebrow">bean-pocket</div><h3>나의 노션 연결</h3><p class="small">화면 구성 예시 · 입력 기능 없음</p><div class="small">Notion API 토큰</div><div class="input">••••••••••••••••••••</div><div class="small">이 기기의 저장용 암호</div><div class="input">다음 실행 시 잠금 해제에 사용</div><p class="small">✓ 이 기기에 암호화하여 저장<br>✓ 레시피 북 데이터 접근 확인</p><div class="btn">연결 확인 후 저장</div><p class="small">다음 실행: 토큰 대신 암호 입력</p></div></div>
+<div class="callout amber"><strong>자동 열기와 비밀 보관 사이의 선택</strong><p>암호화해도 실행 중의 토큰은 같은 출처의 코드가 사용할 수 있습니다. 키까지 함께 저장하는 “완전 자동 잠금 해제”는 토큰 탈취 방어 효과가 제한적입니다. 기본안은 암호 입력이며, Face ID·Keychain 중심의 자동 해제가 핵심이면 네이티브 앱 경로를 별도 설계합니다.</p></div>
+<p>토큰을 소스·URL·정적 파일·서비스 워커 캐시·로그에 포함하지 않습니다. 노션의 텍스트는 HTML로 신뢰하지 않고 이스케이프합니다. 외부 CDN 스크립트·분석 도구를 배제하고 CSP는 <code>connect-src 'self' https://api.notion.com</code> 등 필요한 출처만 허용합니다. 정적 호스팅 계정과 배포 코드의 통제도 토큰 보호의 일부입니다.</p>
+<p class="small">개인 사용을 전제로 한 절충안입니다. 여러 사람에게 배포하는 서비스로 확장할 경우 공유 토큰을 웹에 싣지 않고 별도 인증 구조를 검토합니다. 암호화는 이 계획의 설계 제안이며 현재 구현된 기능이 아닙니다.</p>
+</section>
+
+<section id="migration"><span class="num">04 / CODE MIGRATION</span><h2>현재 코드에서 무엇을 옮길 것인가.</h2>
+<div class="table-wrap"><table><thead><tr><th>확인한 현재 코드</th><th>현재 역할</th><th>계획한 변경</th></tr></thead><tbody>
+<tr><td><code>public/app.js</code></td><td><code>api()</code>·<code>loadData()</code>가 <code>/api/*</code> 호출. 원두·레시피·기록 렌더링.</td><td>화면은 재사용하고 연결·조회·저장은 브라우저용 서비스로 호출. 초기 <code>/api/status</code> 의존도 제거. 잠금·온라인·실패 상태를 표시.</td></tr>
+<tr><td><code>lib/notion.mjs</code></td><td><code>NotionClient</code>, <code>NotionRepository</code>, 속성 변환·전체 조회·레시피 부분 저장 복구.</td><td>브라우저에서 import할 수 있게 배포. 직접 <code>fetch</code>·오류 처리 재사용. 재시작하면 사라지는 미완성 작업 상태를 영속화.</td></tr>
+<tr><td><code>lib/domain.mjs</code></td><td>입력 검증, 단계 계산, 복사, <code>createSnapshot()</code>, 별점 집계.</td><td>순수 함수 재사용. 현재 <code>/domain.mjs</code>를 서버가 제공하므로 정적 산출물에도 실제 파일을 포함.</td></tr>
+<tr><td><code>server.mjs</code></td><td><code>save()</code>의 관계 검증·스냅샷 생성. 제출 키·fingerprint 관리. CSP와 파일 제공.</td><td>저장 규칙은 제안 파일 <code>public/recipe-service.mjs</code>로 이전. 중복 제출 관리는 브라우저 작업 저장소로 이전. 헤더는 정적 호스팅에 구성. iPhone 실행 경로에서 서버 의존 제거.</td></tr>
+<tr><td><code>public/submission.mjs</code></td><td><code>createSubmissionKeys()</code>가 같은 폼 입력에 같은 키를 반환.</td><td>키 생성 재사용. 키만으로 노션이 중복을 막는다고 가정하지 않고 진행 상태·결과 ID와 연결.</td></tr>
+<tr><td><code>public/index.html</code> · CSS</td><td>모바일 대응 화면. 루트 기준 파일 경로 사용.</td><td>manifest·아이콘·Service Worker 등록 추가. 하위 경로 배포에서도 모듈·CSS·<code>start_url</code>·<code>scope</code>가 일치하게 수정.</td></tr>
+<tr><td>새로 추가할 파일</td><td>현재 없는 PWA·기기 보관 기능.</td><td><code>manifest.webmanifest</code>, <code>sw.js</code>, 아이콘, <code>token-vault.mjs</code>, <code>operation-store.mjs</code>. 이름은 제안.</td></tr>
+</tbody></table></div>
+<details><summary>직접 통신의 최소 형태 — 구현 방향 예시</summary><pre><code>// 실제 토큰을 파일에 쓰지 않고, 잠금 해제한 메모리에서 받는다.
+const response = await fetch(
+  `https://api.notion.com/v1/data_sources/${dataSourceId}/query`,
+  {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${unlockedToken}`,
+      'Notion-Version': '2025-09-03',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ page_size: 100 }),
+    cache: 'no-store',
+    redirect: 'error'
+  }
+);
+// 예시 생략 부분: 오류 분기, 제한 시간, 페이지네이션, 재조회.</code></pre><p class="small">기존 버전 헤더를 유지해 이전과 API 버전 변경을 분리합니다. 해당 버전의 지원·필요한 엔드포인트는 구현 시 확인합니다. <code>mode: 'no-cors'</code>는 응답을 읽을 수 없어 대안이 아닙니다.</p></details>
+<div class="callout amber"><strong>가장 주의할 이전 항목: 중복 저장과 부분 저장</strong><p>현재 서버의 <code>Idempotency-Key</code> 처리와 메모리 Map은 노션 자체의 보장이 아닙니다. 브라우저에 전송 전 작업 상태와 확인된 페이지 ID를 보관하고, 앱 재실행 시 미완료 작업을 먼저 확인해야 합니다. 응답이 유실된 생성 요청은 결과를 모르면 자동 재전송하지 않습니다. 같은 날짜·같은 레시피라는 이유로 별개의 추출 기록을 합쳐서도 안 됩니다.</p><p>레시피와 여러 단계 저장 중 실패하면 확인된 생성 페이지의 보관 처리를 시도합니다. 보관 처리 실패·응답 유실은 “확인 필요”로 남깁니다. 로컬 상태만으로 기기 간 중복이나 모든 불확실성을 해결할 수는 없으며, 자동 복구까지 원하면 노션에 작업 ID·완료 상태를 추가하는 스키마 변경을 별도 검토합니다.</p></div>
+</section>
+
+<section id="steps"><span class="num">05 / DELIVERY PLAN</span><h2>연결 가능성부터 확인하고, 작은 단계로 이전합니다.</h2>
+<div class="phase"><div><strong>0. 기술 확인</strong><div class="time">첫 번째 통과 조건</div></div><div><h3>실제 iPhone에서 직접 읽고 쓰기</h3><p>토큰을 내장하지 않은 작은 HTTPS 테스트 페이지에서 <code>Authorization</code>·<code>Notion-Version</code>·JSON 헤더를 사용합니다. Safari와 홈 화면 모드에서 preflight, 데이터 소스 조회, POST query를 확인합니다. 쓰기 검증은 분리된 테스트 데이터에서 생성·재조회·보관 처리까지 확인합니다.</p><p class="small">통과: 프록시 없이 필요한 GET·POST·PATCH 응답을 읽음. 실패: 출처·헤더·권한·브라우저를 구분해 진단하고, API CORS 제약으로 확정되면 네이티브 HTTP 대안으로 전환. 현시점 실제 기기 검증은 미수행.</p></div></div>
+<div class="phase"><div><strong>1. 서비스 이전</strong><div class="time">현재 기능 유지</div></div><div><h3>서버의 저장 규칙을 브라우저 서비스로 이동</h3><p>동작 테스트를 먼저 작성해 새 경계에서 의도대로 실패하는지 확인합니다. 이후 조회·원두·봉지·레시피 복사·단계 저장·추출 기록을 이전합니다. 기존 관계 검증과 스냅샷 보존을 유지합니다.</p><p class="small">통과: 브라우저에서 기존 사용자 흐름 완료. 실행 중 <code>/api/*</code> 요청 없음. 기존 도메인·노션 테스트와 이전된 사용자 흐름 테스트 통과.</p></div></div>
+<div class="phase"><div><strong>2. 토큰·실패 처리</strong><div class="time">재실행 가능하게</div></div><div><h3>암호화 저장과 작업 상태 복구</h3><p>암호 잠금·연결 교체·연결 해제를 구현합니다. 쓰기 직전 작업을 기록하고 확정·확인 필요 상태를 구분합니다. 401·403·404·429 및 통신 실패를 사용자 상태로 처리합니다. 요청 큐와 상한 있는 재시도 정책을 두고, 429는 노션의 대기 안내를 따릅니다. 응답 불명인 쓰기는 자동 반복하지 않습니다.</p><p class="small">통과: 앱을 닫았다 다시 열어 토큰 재입력 없이 암호로 연결. 저장 도중 종료·잘못된 암호·취소·저장소 오류 테스트에서 중복과 거짓 성공 표시 방지.</p></div></div>
+<div class="phase"><div><strong>3. PWA 배포</strong><div class="time">아이폰에서 독립 실행</div></div><div><h3>홈 화면 설치와 앱 파일 캐시</h3><p>완성된 정적 산출물만 HTTPS 호스팅에 배포합니다. manifest와 아이콘을 제공하고 Service Worker는 앱 파일만 버전별 캐시합니다. 설치 파일 전체가 준비된 뒤 오프라인 준비 완료를 표시합니다. 노션 API와 토큰은 Cache API 대상에서 제외합니다.</p><p class="small">통과: PC 서버를 켜지 않고 휴대전화 통신망에서 조회·저장. 기존 버전 사용 중 새 배포가 생기면 저장 작업 종료 후 업데이트. 하위 경로·처음 방문·재설치·캐시 삭제도 확인.</p></div></div>
+<div class="phase"><div><strong>4. 선택 확장</strong><div class="time">1차 완료 후</div></div><div><h3>최근 레시피의 오프라인 조회</h3><p>노션 원본은 유지하고 최근 조회 데이터를 기기에 암호화 저장하는 옵션을 추가합니다. 비행기 모드에서 마지막 조회 시각과 “이전 데이터” 표시 후 읽기만 허용합니다. 오프라인 작성·백그라운드 동기화는 별도 요구사항으로 남깁니다.</p><p class="small">브라우저 저장소는 영구 보존이 보장되지 않습니다. <code>navigator.storage.persist()</code> 요청 결과를 확인하고, 삭제됐을 때 재연결·재조회할 수 있게 합니다. Safari와 홈 화면 간 저장소 공유도 가정하지 않습니다.</p></div></div>
+<p class="small">기간은 0단계 결과와 암호화·복구 범위 확인 후 산정합니다. 1차 완료 범위는 0~3단계이며 4단계는 선택입니다.</p>
+</section>
+
+<section id="acceptance"><span class="num">06 / ACCEPTANCE</span><h2>“독립 실행 완료”의 확인 기준.</h2>
+<div class="table-wrap"><table><thead><tr><th>상황</th><th>기대 결과</th></tr></thead><tbody>
+<tr><td>PC 서버를 사용하지 않고 iPhone 셀룰러망에서 실행</td><td>정적 배포 주소 또는 홈 화면 아이콘으로 열리고 노션 원두·레시피 표시. API 통신 대상은 <code>api.notion.com</code>.</td></tr>
+<tr><td>최초 연결 후 앱 종료·재실행</td><td>저장용 암호로 해제. 토큰 다시 붙여 넣기 불필요. 잘못된 암호는 연결·복호화를 허용하지 않음.</td></tr>
+<tr><td>원두 → 봉지 → 레시피·단계 → 추출 기록</td><td>노션 저장 후 재조회해 데이터·관계·단계·별점·스냅샷 확인. 기존 복사 독립성·과거 조건 보존 시나리오 유지.</td></tr>
+<tr><td>저장 버튼 연속 탭·통신 끊김·저장 중 앱 종료</td><td>확정된 작업은 결과를 재사용. 불확실한 생성은 자동 재전송하지 않고 확인 필요 표시. 동일 날짜의 독립 기록은 각각 허용.</td></tr>
+<tr><td>부분 저장·권한 철회·잘못된 토큰·요청 제한</td><td>거짓 성공 없음. 가능한 복구 및 재연결·대기 안내. 401/403/404/429와 네트워크 오류를 구분.</td></tr>
+<tr><td>앱 파일 설치 완료 후 비행기 모드</td><td>화면과 설정은 열림. 1차 버전의 노션 조회·저장은 연결 필요 표시. 선택 캐시 확장 시에만 최근 레시피 읽기 제공.</td></tr>
+<tr><td>로컬 저장소 삭제·용량 부족·배포 주소 변경</td><td>데이터가 보존됐다고 오표시하지 않음. 토큰 재입력·재연결 안내. 노션 원본으로 복구. 다른 출처로 토큰이 자동 이동하지 않음.</td></tr>
+<tr><td>정적 산출물·앱 캐시·로그 검사</td><td>토큰·암호·복호화 키가 포함되지 않음. 노션 텍스트가 스크립트로 실행되지 않음. 업데이트가 저장 작업을 중단하지 않음.</td></tr>
+</tbody></table></div>
+<p>검증은 모의 API를 이용한 자동 테스트와 실제 iPhone·테스트용 노션 데이터에서의 확인을 구분해 기록합니다. 기존 <code>test/http.test.mjs</code>의 서버 요청 전용 검증은 새 브라우저 서비스와 공개 사용자 흐름에 맞게 옮기고, <code>test/domain.test.mjs</code>·<code>test/notion.test.mjs</code>의 유효한 규칙 검증은 재사용합니다.</p>
+</section>
+
+<section id="sources"><span class="num">07 / EVIDENCE</span><h2>근거와 아직 확인할 부분.</h2>
+<p><strong>현재 코드에서 확인:</strong> <code>server.mjs</code>, <code>lib/notion.mjs</code>, <code>lib/domain.mjs</code>, <code>public/app.js</code>, <code>public/submission.mjs</code>, <code>public/index.html</code>, <code>package.json</code>, 테스트 파일과 <code>SPEC.md</code>의 검증 기준.</p>
+<p class="small">문서에는 구현 이전 설명이 일부 남아 있어 현재 동작 판단은 실행 코드를 우선했습니다. 기존 스펙의 서버 토큰 관리·오프라인 제외는 이번 요청에 따라 변경 검토할 항목입니다. 앱 구현 때 스펙·README도 갱신합니다.</p>
+<ol class="sources">
+<li><a href="https://github.com/makenotion/notion-sdk-js#browser-usage">Notion 공식 JavaScript SDK — Browser usage</a>: 브라우저 CORS, 토큰 사용의 제약, SDK의 명시적 허용 옵션. OAuth 토큰 교환은 별도 서버가 필요하므로 이번 개인용 토큰 방식에서 제외.</li>
+<li><a href="https://developers.notion.com/guides/get-started/internal-connections">Notion — Internal connections</a>: 토큰 발급, 페이지 공유, 연결 권한.</li>
+<li><a href="https://developers.notion.com/reference/request-limits">Notion — Request limits</a>: 요청 제한, 대기 안내, 재시도와 쓰기 결과 불확실성 처리.</li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API">MDN — Service Worker API</a>: HTTPS 보안 문맥과 오프라인 앱 파일 제공.</li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/deriveKey">MDN — SubtleCrypto.deriveKey()</a>: PBKDF2와 대칭 암호 키 유도.</li>
+<li><a href="https://webkit.org/blog/14403/updates-to-storage-policy/">WebKit — Updates to Storage Policy</a>: 기기 저장소 삭제 가능성과 영속성 요청.</li>
+<li><a href="https://capacitorjs.com/docs/apis/http">Capacitor — Http</a>: 네이티브 HTTP가 필요한 대안 경로의 근거.</li>
+</ol>
+<div class="callout"><strong>이 계획에서 확정한 제안</strong><p>개인용 PWA, 직접 REST 호출, 토큰 암호화 저장, 온라인 조회·저장을 1차 범위로 삼습니다. 실제 기기 CORS 확인, 배포 출처 선정, 저장용 암호 사용 경험, 업데이트·저장 복구 검증은 구현 단계에서 확인합니다.</p></div>
+</section>
+<footer>bean-pocket · iPhone 독립 실행 계획 / 이 HTML은 외부 폰트·스크립트·네트워크 요청 없이 열립니다. 출처 링크를 선택하면 해당 사이트로 이동합니다.</footer>
+</main></body></html>

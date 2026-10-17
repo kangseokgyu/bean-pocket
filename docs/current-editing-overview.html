@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>현재 입력과 저장 방식</title>
+<style>body{font:16px/1.7 system-ui,sans-serif;color:#203e34;background:#f6f3eb;margin:0}main{max-width:850px;margin:auto;padding:28px}h1{font-size:28px}.flow{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:20px 0}.box{background:white;border:1px solid #b6c7b6;border-radius:12px;padding:16px;flex:1;min-width:160px}table{border-collapse:collapse;width:100%;background:white}th,td{padding:12px;text-align:left;border:1px solid #ccd4c8}code{overflow-wrap:anywhere}small{color:#526659}</style>
+<main><h1>현재는 새 항목 등록과 레시피 복사만 지원</h1><p>2026-10-17 코드 정적 확인. 기존 항목 편집 기능과 실제 Notion 저장을 실행 검증한 결과가 아니다.</p>
+<div class="flow" aria-label="신규 저장 흐름"><div class="box">새 항목 입력 또는<br>레시피 복사 후 입력 변경<br><code>public/app.js</code></div><span>→</span><div class="box">입력·관계 검증<br><code>server.mjs: save()</code></div><span>→</span><div class="box">Notion 새 페이지 생성<br><code>NotionRepository.create()</code><br><code>createRecipe()</code></div></div>
+<table><thead><tr><th>대상</th><th>현재 지원</th><th>저장 후 기존 항목 편집</th></tr></thead><tbody>
+<tr><td>원두</td><td>이름·로스터리·원산지/농장·품종·가공 방식·향미 노트 신규 등록</td><td>미지원</td></tr>
+<tr><td>원두 봉지</td><td>봉지 이름·로스팅 날짜 신규 등록. 원두는 등록 화면의 대상에 연결</td><td>미지원</td></tr>
+<tr><td>레시피</td><td>이름·추출 조건·분쇄 관련 정보·물 붓기 단계 신규 등록 및 복사</td><td>미지원. 복사는 별도 레시피 생성</td></tr>
+<tr><td>추출 기록</td><td>날짜·별점·컵노트·사용 봉지 신규 등록. 당시 레시피 조건 보존</td><td>미지원</td></tr></tbody></table>
+<p>아직 저장하지 않은 양식의 값을 고치는 것과, 이미 저장된 데이터의 수정은 다르다. 현재 UI는 전자만 지원한다.</p>
+<small>근거: public/app.js의 openBean(), openBag(), openRecipe(), openRecord(), saveData(); server.mjs의 save(); lib/notion.mjs의 createPage(), create(), createRecipe(). Notion PATCH는 실패한 생성 작업의 보관 처리에 사용되며 일반 편집 API가 아니다.</small></main></html>

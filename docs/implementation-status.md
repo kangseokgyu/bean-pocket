@@ -9,9 +9,9 @@
 | 초기 변경 보존 | 완료 | `cc8bd76`: 기존 변경 10개만 선택 커밋 |
 | T00 게시 준비 | 완료 | [조사](pages-readiness.md). 사용자 승인 후 PUBLIC 전환, Pages workflow·HTTPS 및 main 환경 제한 확인 |
 | T01 최소 PWA | 완료 | `5134656`. [증거](evidence/T01/README.md). 빌드 `6738e488ff5e`, 전체 테스트 40 통과, 로컬 하위 경로 화면·자원 확인, 독립 재검토 PASS |
-| T02 게시 자동화 | 완료 | 이 상태 문서와 함께 커밋한 수동 workflow와 절차. [증거](evidence/T02/README.md). 실제 workflow 실행은 T03 |
-| T03 첫 게시 | 차단 | 통합 merge 승인 필요. [미실행 기록](evidence/T03/README.md) |
-| T04 iPhone 첫 실행 | 대기 | 실제 T03 주소가 필요. Safari・홈 화면 실기기 미검증 |
+| T02 게시 자동화 | 완료 | `231f1d3`. 수동 workflow와 절차. [증거](evidence/T02/README.md) |
+| T03 첫 게시 | 완료 | 승인 후 main 통합·수동 게시 성공. 실제 HTTPS 8개 경로 200 및 승인 산출물 일치. [게시 기록](evidence/T03/README.md) |
+| T04 iPhone 첫 실행 | 검증 대기 | 실제 주소·절차 전달 완료. [Safari·홈 화면 실기기 결과 대기](evidence/T04/README.md) |
 | T05 테스트 DB | 대기 | T00 후 별도 테스트 DB 5개와 관계 확인. 운영 DB 쓰기 미수행 |
 | T06 직접 통신 | 대기 | T04・T05 후 실제 iPhone 조회・생성・오류 확인 |
 | T07 파일 보관 후보 | 대기 | T04 후 기기별 파일 읽기・쓰기 확인 |
@@ -33,10 +33,10 @@
 
 ## 다음 실행과 남은 범위
 
-- 초기 변경 `cc8bd76`, T00 조사 `bed40a4`, 공개 전환·Pages 준비 기록 `954188c`, T01 `5134656`, T02는 이 문서를 포함한 커밋이다. `git log`로 최종 SHA를 확인한다.
-- 현재 새 브랜치는 **로컬 커밋만 존재**한다. 원격 main에는 기존 `4561a9e`만 있고 새 기능을 push·merge·게시하지 않았다.
-- 사용자에게 변경·테스트·독립 검토와 로컬 미리보기를 제시한 후 main merge 승인을 받는다. 승인 후 이번 브랜치만 게시하고 기본 브랜치 통합·수동 workflow 실행·실제 URL 검증(T03)을 진행한다. 개인 식별자가 있던 이전 로컬 브랜치를 함께 push하지 않는다.
-- 로컬 미리보기: `http://localhost:4188/bean-pocket/`. 임시 정적 서버가 살아 있는 동안 이 PC에서만 사용 가능하다. 실제 iPhone용 주소가 아니다.
+- 초기 변경 `cc8bd76`, T00 조사 `bed40a4`, 공개 전환·Pages 준비 기록 `954188c`, T01 `5134656`, T02 `231f1d3`를 사용자 명시적 승인 후 main에 fast-forward 통합하고 원격에 반영했다.
+- 첫 게시 커밋 `231f1d3`, 빌드 `6738e488ff5e`, [Actions 실행](https://github.com/kangseokgyu/bean-pocket/actions/runs/39044921398) success. 이 문서와 T03/T04 증거는 별도 보고용 커밋이다. 앱 파일은 게시 이후 변경하지 않았다.
+- 이전 로컬 main은 `codex/local-main-before-pages`에 보존했다. 개인 식별자가 있던 과거 로컬 이력은 원격에 push하지 않았다.
+- 실제 접속 주소: https://kangseokgyu.github.io/bean-pocket/ . 사용자에게 전달했으며 T04 실제 기종·iOS·Safari·홈 화면 결과 대기다.
 - 테스트 증거: [T01 전체 테스트 원문](evidence/T01/npm-test.txt), [T01 HTTP 결과](evidence/T01/http-resources.txt), [화면](evidence/T01/local-preview.png). 전체 테스트 40 통과, 종료 0.
 - 자동 업데이트는 최종 검증하지 않았다. 중간 빌드가 기존 출처의 즉시 재실행에서 남은 관찰을 [T01 증거](evidence/T01/README.md)에 기록했다. 새 버전 첫 실행과 안전한 업데이트 통과를 구분한다.
 - T04 지정 아이폰 실측, T05 테스트 DB, T06 통신, T07/T08 저장 수명과 T09 판정은 남아 있다. T10 이후 전체 기능 이전을 시작하지 않았다.

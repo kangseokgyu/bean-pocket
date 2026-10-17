@@ -1,0 +1,71 @@
+{
+  "url": "https://kangseokgyu.github.io/bean-pocket/",
+  "checkedAt": "2026-10-17T15:25:49.817Z",
+  "build": "6738e488ff5e",
+  "results": [
+    {
+      "path": "(project root)",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 1164,
+      "sha256": "1cfff6152a182c0bef29dd3af2b3ea42a95a6e03a41603c5f870df4a5dbd07c4",
+      "matchesApprovedArtifact": true
+    },
+    {
+      "path": "index.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 1164,
+      "sha256": "1cfff6152a182c0bef29dd3af2b3ea42a95a6e03a41603c5f870df4a5dbd07c4",
+      "matchesApprovedArtifact": true
+    },
+    {
+      "path": "app.mjs",
+      "status": 200,
+      "contentType": "text/javascript; charset=utf-8",
+      "bytes": 137,
+      "sha256": "6d16aa17c8a35bb530a09720b51e73a1cac8bd4ec19a9d0d4b885ba7f0ebc7de",
+      "matchesApprovedArtifact": true
+    },
+    {
+      "path": "styles.css",
+      "status": 200,
+      "contentType": "text/css; charset=utf-8",
+      "bytes": 1386,
+      "sha256": "0f936281ee307bd76d35c7832dbf9a5fe34a9d57cc5639c6e9dc6f7b8282e6b3",
+      "matchesApprovedArtifact": true
+    },
+    {
+      "path": "manifest.webmanifest",
+      "status": 200,
+      "contentType": "application/manifest+json; charset=utf-8",
+      "bytes": 402,
+      "sha256": "83dc529ee8004d5aa06cf728873d97c04ece2143d3026f275780f293dedb1bdb",
+      "matchesApprovedArtifact": true
+    },
+    {
+      "path": "sw.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=utf-8",
+      "bytes": 1219,
+      "sha256": "e3719a22962abe152feacebccc4603c59fe6af3cb10530f349fb5da04905c617",
+      "matchesApprovedArtifact": true
+    },
+    {
+      "path": "icons/icon-192.png",
+      "status": 200,
+      "contentType": "image/png",
+      "bytes": 1942,
+      "sha256": "fed6a73c7549eae8cb25324bab6e5d9f831120b8db329cfa7a66e3bda4296761",
+      "matchesApprovedArtifact": true
+    },
+    {
+      "path": "icons/icon-512.png",
+      "status": 200,
+      "contentType": "image/png",
+      "bytes": 6181,
+      "sha256": "0b0197281031a51957ae1c3a43037dcef08eb8d8d187f4b6df5eb212d0303316",
+      "matchesApprovedArtifact": true
+    }
+  ]
+}

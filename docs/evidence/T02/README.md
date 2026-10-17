@@ -4,7 +4,7 @@
 - 환경: macOS, Node v22.17.0, Ruby 내장 YAML parser
 - 범위: `.github/workflows/pages.yml`, `docs/pages-deploy.md`, README의 최소 PWA 안내
 - 검증 대상: T01 `5134656` 위에 이 증거와 함께 커밋한 T02 설정·문서
-- 상태: 로컬 설정 검증. 실제 Actions 실행·배포는 T03 미실행
+- 상태: T02 로컬 설정 검증 완료. 이후 실제 Actions 실행·배포는 [T03에서 통과](../T03/README.md)
 
 ## 설정 검사
 
@@ -25,4 +25,4 @@ Ruby의 YAML 1.1 parser가 `on`을 boolean 키로 읽는 차이는 `workflow["on
 
 ## 다음 단계
 
-사용자에게 구현·검증·독립 검토와 커밋을 제시해 merge 승인을 받는다. 승인 후 통합 및 수동 게시, 실제 URL 검증을 수행한다. 아이폰 Safari·홈 화면 결과는 T04에서 실제로 확인해야 한다.
+사용자에게 구현·검증·독립 검토와 커밋을 제시해 merge 승인을 받았고 T03 통합·수동 게시·실제 URL 검증을 완료했다. 아이폰 Safari·홈 화면 결과는 T04에서 실제로 확인해야 한다.

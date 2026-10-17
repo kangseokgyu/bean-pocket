@@ -1,0 +1,5 @@
+build	Run regression tests	2026-10-17T15:24:53.1304192Z # tests 40
+build	Run regression tests	2026-10-17T15:24:53.1306550Z # pass 40
+build	Run regression tests	2026-10-17T15:24:53.1307327Z # fail 0
+build	Build static PWA	2026-10-17T15:24:53.3125870Z Pages 산출물 생성 완료 (6738e488ff5e)
+build	Check publish artifact	2026-10-17T15:24:53.4784350Z Pages 산출물 검사 통과

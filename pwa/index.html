@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#224b3c">
+  <meta name="description" content="나의 핸드드립 커피 노트">
+  <title>bean-pocket · 나의 커피 노트</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+  <main class="page">
+    <header class="site-header">
+      <span class="eyebrow">BEAN POCKET</span>
+      <p class="build-version">빌드 <span id="build-version">__BUILD_VERSION__</span></p>
+    </header>
+    <section aria-labelledby="beans-title" class="bean-section">
+      <h1 id="beans-title">원두 목록</h1>
+      <p class="connection-note" role="status">Notion 연결 전입니다. 연결 기능이 준비되면 원두 목록을 불러올 수 있습니다.</p>
+      <ul id="bean-list" aria-label="원두 목록"></ul>
+    </section>
+    <footer>BREW, TASTE, REMEMBER.</footer>
+  </main>
+</body>
+</html>

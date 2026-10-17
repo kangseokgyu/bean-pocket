@@ -1,0 +1,8 @@
+200 (project root) text/html
+200 index.html text/html
+200 app.mjs text/javascript
+200 styles.css text/css
+200 manifest.webmanifest application/manifest+json
+200 sw.js text/javascript
+200 icons/icon-192.png image/png
+200 icons/icon-512.png image/png

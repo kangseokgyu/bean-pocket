@@ -11,7 +11,7 @@
 | T01 최소 PWA | 완료 | `5134656`. [증거](evidence/T01/README.md). 빌드 `6738e488ff5e`, 전체 테스트 40 통과, 로컬 하위 경로 화면·자원 확인, 독립 재검토 PASS |
 | T02 게시 자동화 | 완료 | `231f1d3`. 수동 workflow와 절차. [증거](evidence/T02/README.md) |
 | T03 첫 게시 | 완료 | 승인 후 main 통합·수동 게시 성공. 실제 HTTPS 8개 경로 200 및 승인 산출물 일치. [게시 기록](evidence/T03/README.md) |
-| T04 iPhone 첫 실행 | 검증 대기 | 실제 주소·절차 전달 완료. [Safari·홈 화면 실기기 결과 대기](evidence/T04/README.md) |
+| T04 iPhone 첫 실행 | 검증 대기 | 사용자 Safari·홈 화면 실행·재실행 정상 보고. [실제 기종·iOS 등 추가 결과 대기](evidence/T04/README.md) |
 | T05 테스트 DB | 대기 | T00 후 별도 테스트 DB 5개와 관계 확인. 운영 DB 쓰기 미수행 |
 | T06 직접 통신 | 대기 | T04・T05 후 실제 iPhone 조회・생성・오류 확인 |
 | T07 파일 보관 후보 | 대기 | T04 후 기기별 파일 읽기・쓰기 확인 |

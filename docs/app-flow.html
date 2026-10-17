@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>bean-pocket 실행 흐름</title>
+<style>
+:root{font-family:system-ui,sans-serif;color:#263b31;background:#f8f5ef}body{max-width:1000px;margin:60px auto;padding:0 24px}h1{font-family:Georgia,serif;font-size:40px;font-weight:500}p{line-height:1.8;color:#637167}.flow{display:grid;grid-template-columns:1fr 40px 1fr;align-items:center;gap:10px}.card{border:1px solid #d8ded4;background:#fffef9;border-radius:18px;padding:24px}.card h2{font-size:18px;margin:0 0 12px}.card code{display:block;font-size:12px;overflow-wrap:anywhere;color:#52785f;margin-top:12px}.arrow{text-align:center;font-size:28px;color:#73856a}.wide{grid-column:1/-1}.note{background:#ecf0e6;border-radius:16px;padding:22px;margin-top:24px}li{margin:12px 0;line-height:1.6}@media(max-width:650px){body{margin-top:28px}.flow{display:flex;flex-direction:column;align-items:stretch}.arrow{transform:rotate(90deg)}h1{font-size:30px}}
+</style>
+<body><p>bean-pocket · 구현 근거</p><h1>한 잔의 기록이 저장되는 흐름</h1>
+<p>실제 서버와 모듈의 함수 이름을 기준으로 정리했습니다. 노션 연결 키가 설정된 경우의 흐름이며, 연결 전에는 실제 노션 저장을 진행하지 않습니다.</p>
+<div class="flow">
+<section class="card"><h2>1. 로컬 웹 요청</h2><p>원두·봉지·레시피·추출 기록을 등록합니다. 단계 배열까지 포함한 요청 전체로 중복 방지 키를 정하고, 서버는 출처와 JSON 형식을 확인합니다.</p><code>public/submission.mjs · createSubmissionKeys()<br>server.mjs · createApp() / readJson()</code></section><div class="arrow">→</div>
+<section class="card"><h2>2. 저장 대상과 입력 확인</h2><p>실제로 조회한 원두·레시피·봉지를 대상으로 검증합니다. 추출 조건은 클라이언트 입력 대신 서버가 조회한 레시피를 사용합니다.</p><code>server.mjs · save() / requireItem()</code></section>
+<section class="card"><h2>3. 계산과 당시 조건 보존</h2><p>단계별 시간·간격·물 양을 계산하고 총량을 확인합니다. 평가 저장 시 레시피와 모든 단계를 독립된 복사본으로 보존합니다.</p><code>lib/domain.mjs · calculateSteps() / validateRecipe() / validateRecord() / createSnapshot()</code></section><div class="arrow">→</div>
+<section class="card"><h2>4. 노션에 저장</h2><p>확정된 데이터 소스와 속성에 맞춰 저장합니다. 여러 단계 저장 중 실패하면 확인된 생성 페이지를 역순으로 보관해 취소합니다.</p><code>lib/notion.mjs · encodeProperties() / NotionRepository.create() / createRecipe()</code></section>
+<section class="card wide"><h2>5. 다시 읽고 확인</h2><p>페이지네이션으로 전체 기록을 읽고 레시피별 단계와 평가를 묶습니다. 같은 별점이 반복되어도 각각의 기록으로 집계합니다.</p><code>lib/notion.mjs · NotionClient.queryAll() / NotionRepository.all()<br>lib/domain.mjs · summarizeRatings()</code></section>
+</div>
+<div class="note"><strong>검증과 연결의 경계</strong><ul><li>단위·HTTP 테스트는 모의 노션 응답으로 계산, 저장 형태, 재조회와 실패 처리를 검증합니다.</li><li>실제 노션 통신은 서버 연결 키와 페이지 접근 설정이 필요합니다. 모의 테스트 통과가 실제 저장 검증을 대신하지는 않습니다.</li><li>웹사이트 로그인은 없으며, 서버는 모든 네트워크 인터페이스에서 수신하고 모든 호스트 이름을 허용합니다. 변경 요청은 같은 출처에서만 허용합니다.</li></ul></div>
+</body></html>

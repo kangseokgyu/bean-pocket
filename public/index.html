@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#224b3c">
+  <title>bean-pocket · 나의 커피 노트</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="#">bean-<br>pocket<span>나의 커피 노트</span></a>
+    <div class="sidebar-rule"></div>
+    <nav aria-label="기본 메뉴"><a class="nav-item" href="#"><span aria-hidden="true">◉</span> 원두 보관함</a></nav>
+    <p class="sidebar-note">한 잔의 취향을,<br>차곡차곡 쌓아두는 곳.</p>
+    <a class="notion-link" href="https://www.notion.so" target="_blank" rel="noreferrer">노션 열기 ↗</a>
+  </aside>
+  <div class="workspace">
+    <header class="topbar"><span id="today"></span><div class="connection"><span id="connection-state">연결 확인 중</span><button class="button small secondary" id="connect-button">노션 연결</button></div></header>
+    <div id="notice" role="status" aria-live="polite" hidden></div>
+    <main id="main" tabindex="-1"><p class="loading">커피 노트를 불러오고 있어요…</p></main>
+    <footer>BREW, TASTE, REMEMBER.<span>당신의 한 잔을 위한 작은 아카이브</span></footer>
+  </div>
+  <dialog id="form-dialog" aria-labelledby="dialog-title"><div class="dialog-header"><h2 id="dialog-title"></h2><button id="close-dialog" class="icon-button" aria-label="창 닫기">×</button></div><div id="dialog-content"></div></dialog>
+</body>
+</html>

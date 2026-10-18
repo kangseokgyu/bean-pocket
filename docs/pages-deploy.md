@@ -12,7 +12,7 @@ npm run build:pages
 npm run check:pages
 ```
 
-정적 앱만 `dist/`에 생성한다. 저장소 루트, 기존 서버의 `public/`, `.env.local`, 실제 Notion 연결 설정을 업로드하지 않는다. 앱의 빌드 표시는 PWA 소스와 빌더 코드의 내용 해시를 사용한다. 배포 증거에 이 값과 Git 커밋을 함께 기록한다.
+정적 앱만 `dist/`에 생성한다. 저장소 루트, 기존 서버의 `public/`, `.env.local`, 실제 Notion 연결 설정을 업로드하지 않는다. 앱의 빌드 표시는 PWA 소스·도메인 원본 `lib/domain.mjs`·빌더 코드의 내용 해시를 사용한다. 배포 증거에 이 값과 Git 커밋을 함께 기록한다.
 
 프로젝트 경로 확인 시 임시 정적 서버에서 `dist/`를 `/bean-pocket/`에 배치한다. `index.html`, 모듈·CSS·manifest·아이콘·SW가 모두 같은 하위 경로에서 HTTP 200으로 로드되는지 확인한다. `file://`로 연 결과는 SW나 HTTPS 설치 검증을 대신하지 않는다.
 
@@ -32,7 +32,7 @@ npm run check:pages
 1. 직전 성공한 배포 실행·커밋과 현재 문제를 확인한다. 먼저 해당 버전이 실제 정상 동작한 기록을 찾는다.
 2. 별도 수정 브랜치에서 문제를 만든 변경만 되돌린다. 기존 사용자 변경과 관계없는 커밋까지 일괄 되돌리지 않는다. `reset --hard`나 강제 push로 이력을 재작성하지 않는다.
 3. 동일한 로컬 검사와 독립 검토를 수행한다. 사용자 merge 승인 후 복귀 커밋을 기본 브랜치에 통합한다.
-4. 기본 브랜치의 워크플로를 다시 수동 실행한다. 복원한 PWA 소스와 빌더 코드의 내용 해시에 맞는 빌드 식별자와 SW 버전으로 게시한다. 해시 입력이 모두 같으면 같은 버전이 된다.
+4. 기본 브랜치의 워크플로를 다시 수동 실행한다. 복원한 PWA 소스·도메인 원본 `lib/domain.mjs`·빌더 코드의 내용 해시에 맞는 빌드 식별자와 SW 버전으로 게시한다. 해시 입력이 모두 같으면 같은 버전이 된다.
 5. 실제 URL에서 표시 버전과 자원을 확인하고 Safari·홈 화면 종료 후 재실행도 확인한다. 실행 중인 클라이언트가 즉시 새 버전으로 바뀐다고 가정하지 않는다.
 
 기본 브랜치로 통합된 workflow를 기능 브랜치에서 실행하거나 임의 ref를 주입해 승인 절차를 우회하지 않는다. 게시 실패와 새 버전의 클라이언트 적용 실패를 구분해 기록한다.
@@ -48,3 +48,13 @@ npm run check:pages
 ## 공식 근거
 
 2026-10-18 확인: [custom workflows](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages), [게시 소스 설정](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
+
+## T06/T07 실험판 빌드 선택
+
+일반 배포는 `npm run build:pages` → `npm run check:pages`다. 일반 산출물에는 실험 페이지를 포함하지 않으며 실험 폴더가 섞이면 검사에서 거부한다.
+
+명시적 실험판은 `npm run build:probes` → `npm run check:probes`로 만든다. 이 빌드만 Notion·파일 보관 HTML/모듈 4개를 정확한 허용 목록으로 공급한다. 실험 폴더도 누락·추가 파일·symlink·비밀값·외부 URL을 검사한다. 실험 페이지는 앱 SW 캐시에 넣지 않는다. 일반 빌드를 다시 만들면 이전 실험 파일은 제거된다.
+
+워크플로의 Run workflow에서 `probes`를 선택한 경우에만 실험판을 게시한다(기본 false). CLI는 `gh workflow run pages.yml --ref main -f probes=true`다. 일반판으로 돌아가려면 false로 실행한다. Notion 토큰이나 실제 데이터 소스 ID는 workflow 입력에 넣지 않는다.
+
+로컬 확인은 `./run-preview.sh`를 사용한다. 최신 실험판을 빌드·검사한 뒤 전용 임시 폴더의 `/bean-pocket/`에서만 제공한다. 포트 변경은 `./run-preview.sh 4189`처럼 지정한다. 이 localhost 미리보기는 실제 Pages·iPhone 결과를 대체하지 않는다.

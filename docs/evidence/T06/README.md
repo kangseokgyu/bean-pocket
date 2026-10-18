@@ -1,6 +1,6 @@
 # T06 Notion 직접 통신 — 실험판 준비 및 PC 일부 검증
 
-2026-10-18 (Asia/Seoul). 실험판은 작업 브랜치에만 있으며 현재 Pages에 게시된 것으로 보고하지 않는다. iPhone 12 / iOS 27.0.1의 Safari·홈 화면 통신 검증은 대기다.
+2026-10-18 (Asia/Seoul). 사용자 명시적 승인 후 실험판을 main에 통합하고 Pages에 게시했다. [게시 기록](pages-deploy.md). iPhone 12 / iOS 27.0.1의 Safari·홈 화면 통신 검증은 대기다.
 
 ## 구현과 실행 절차
 

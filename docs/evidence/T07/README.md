@@ -18,3 +18,5 @@
 - 수정 전 회귀 테스트: 종료 1, 25통과·3실패. [RED](fingerprint-red.txt).
 - 수정 후 전용·빌드 테스트: 종료 0, 34통과. [GREEN](fingerprint-green.txt).
 - 최종 전체 테스트: 종료 0, 79통과. [전체 로그](../T11/npm-test.txt).
+
+실험판은 사용자 승인 후 Pages에 게시했다. [게시 기록](../T06/pages-deploy.md). 실기기 보관 수명 판정은 여전히 대기다.

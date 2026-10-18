@@ -4,5 +4,6 @@ dist/
 !.env.example
 .state/
 state/
+!pwa/state/
 *.log
 .DS_Store

@@ -4,7 +4,7 @@
 
 | 필수 조건 | 현재 증거 | 판정 / 남은 범위 |
 |---|---|---|
-| T06 Notion 직접 통신 | PC의 로컬·Pages 출처에서 가짜 인증값 HTTP 401 표시. 테스트 연결의 Node GET 5개 성공은 별도 증거 | 미검증: iPhone Safari·홈 화면의 실제 조회·명시적 생성·재조회·인증/권한 오류 식별과 PC 정상 인증 통신 |
+| T06 Notion 직접 통신 | PC의 로컬·Pages 출처에서 가짜 인증값 HTTP 401 표시. iPhone 12 / iOS 27.0.1의 Safari·홈 화면 모두 빌드 `7a9015e1e222`·HTTP 401 사용자 확인. Node GET 5개 성공은 별도 증거 | 미검증: iPhone Safari·홈 화면의 정상 인증 조회·명시적 생성·재조회·권한 오류 식별과 PC 정상 인증 통신 |
 | T08 파일 보관 수명 | PC 로컬 OPFS 작성·새로고침·같은 SHA-256 읽기 | 미검증: T07 실기기 파일 지원·종료 후 재실행, A/B 업데이트 유지, 홈 화면 완전 삭제·재설치 후 부재 |
 
 - [T06 증거](evidence/T06/README.md), [게시 기록](evidence/T06/pages-deploy.md)

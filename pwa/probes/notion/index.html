@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>원두 앱 · 직접 통신 준비</title>
+  <style>
+    :root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, sans-serif; color: #233b31; background: #f5f2eb; }
+    body { max-width: 40rem; margin: auto; padding: 1.3rem; line-height: 1.65; } h1 { font-size: 1.5rem; } h2 { font-size: 1.1rem; }
+    section { background: #fffdf8; border: 1px solid #d6dfd5; border-radius: 1rem; padding: 1rem; margin: 1rem 0; }
+    label { display: block; margin-top: .8rem; } input:not([type=checkbox]), button { box-sizing: border-box; width: 100%; padding: .8rem; border-radius: .6rem; font: inherit; margin-top: .5rem; }
+    input { border: 1px solid #899d8e; } input[type=checkbox] { width: 1.3rem; height: 1.3rem; vertical-align: middle; }
+    button { border: 1px solid #224b3c; background: #224b3c; color: white; } button:disabled { opacity: .45; }
+    :focus-visible { outline: 3px solid #b47625; outline-offset: 2px; } small { color: #53685b; } #runtime { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .8rem; }
+    li { margin-bottom: .8rem; } .notice { border-left: .3rem solid #b47625; padding-left: .8rem; }
+  </style>
+</head>
+<body>
+  <header><small>원두 앱 · T06 사전 실험</small><h1>Notion 직접 통신</h1>
+    <p>조회·잘못된 인증·생성을 각각 실행합니다. 아직 iPhone 실기기 통과를 뜻하지 않습니다.</p>
+    <p>빌드 <span id="build-version">__BUILD_VERSION__</span></p>
+  </header>
+  <section aria-labelledby="connection">
+    <h2 id="connection">테스트 원두 연결</h2>
+    <p>입력은 이 화면의 메모리에만 둡니다. 운영 DB를 사용하지 마세요. 생성 대상이 별도 테스트 원두 DB인지 Notion에서 직접 확인해 주세요.</p>
+    <label for="token">앱 integration 토큰</label>
+    <input id="token" type="password" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="256">
+    <label for="dataSourceId">테스트 원두 데이터 소스 ID · UUID</label>
+    <input id="dataSourceId" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="36" placeholder="하이픈이 포함된 UUID">
+    <button id="btnRead" type="button">원두 스키마 조회</button>
+    <button id="btnAuth" type="button">잘못된 인증으로 401 확인</button>
+    <p><small>401 확인은 별도 가짜 인증값을 사용합니다. 통신 실패만으로 네트워크와 교차 출처 정책 문제를 구분하지 않습니다.</small></p>
+  </section>
+  <section aria-labelledby="creation">
+    <h2 id="creation">명시적 테스트 원두 생성</h2>
+    <p>만들 이름: <strong>T06 사용자가 생성한 테스트 원두</strong>. 버튼 한 번으로 생성 요청 한 번을 보냅니다. 자동 정리·삭제는 하지 않습니다.</p>
+    <label><input id="confirmTarget" type="checkbox"> 입력한 대상이 운영과 분리된 테스트 원두 DB임을 직접 확인했습니다.</label>
+    <button id="btnCreate" type="button" disabled>테스트 원두 1개 생성</button>
+    <p id="lockStatus" class="notice" role="status">원본 확인 잠금 없음</p>
+    <label><input id="confirmOriginal" type="checkbox" disabled> Notion의 원래 테스트 대상에서 생성 여부를 직접 확인했습니다. 원본 확인 후 다시 조회하겠습니다.</label>
+    <p><small>응답을 잃거나 생성 결과가 불확실하면 재전송하지 마세요. 설정을 유지하고 원본 확인 체크 → 스키마 조회를 완료하세요. 상태는 메모리에만 있으므로 새로고침·종료 전에 원본을 확인하고 결과를 기록해 주세요.</small></p>
+  </section>
+  <section><h2>결과</h2><ol id="results" aria-live="polite"></ol></section>
+  <section><h2>실행 환경 기록</h2><p id="runtime"></p><p>사용자가 보고한 기종·OS와 표시된 환경, 빌드, 화면 증거를 함께 기록해 주세요.</p></section>
+  <script type="module" src="./probe.mjs"></script>
+</body>
+</html>

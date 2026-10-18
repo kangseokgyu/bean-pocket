@@ -1,1 +1,16 @@
-{"name":"bean-pocket","private":true,"type":"module","engines":{"node":">=22.9"},"scripts":{"start":"node --env-file-if-exists=.env.local server.mjs","test":"node --test","build:pages":"node scripts/build-pages.mjs","check:pages":"node scripts/check-pages.mjs"}}
+{
+  "name": "bean-pocket",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.9"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env.local server.mjs",
+    "test": "node --test",
+    "build:pages": "node scripts/build-pages.mjs",
+    "check:pages": "node scripts/check-pages.mjs",
+    "build:probes": "node scripts/build-probes.mjs",
+    "check:probes": "node scripts/check-pages.mjs --probes"
+  }
+}

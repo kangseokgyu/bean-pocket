@@ -1,8 +1,8 @@
 import { createHash } from 'node:crypto';
-import { lstat, mkdir, readFile, realpath, rm, writeFile } from 'node:fs/promises';
+import { lstat, mkdir, readFile, readdir, realpath, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { checkPages } from './check-pages.mjs';
+import { checkPages, probeFiles } from './check-pages.mjs';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const sourceFiles = [
@@ -44,7 +44,7 @@ async function assertNoOverlap(sourceDir, outputDir) {
   }
 }
 
-async function readSourceFiles(sourceDir) {
+async function readSourceFiles(sourceDir, includeProbes) {
   const sourceInfo = await lstat(sourceDir).catch(error => {
     if (error.code === 'ENOENT') throw new Error(`PWA 소스 디렉터리가 없습니다: ${sourceDir}`);
     throw error;
@@ -60,8 +60,22 @@ async function readSourceFiles(sourceDir) {
   if (iconInfo.isSymbolicLink()) throw new Error('PWA 아이콘 디렉터리는 심볼릭 링크일 수 없습니다.');
   if (!iconInfo.isDirectory()) throw new Error('PWA 아이콘 경로는 디렉터리여야 합니다.');
 
+  if (includeProbes) {
+    for (const [directory, permitted] of [
+      ['probes', ['notion', 'storage']],
+      ['probes/notion', ['index.html', 'probe.mjs']],
+      ['probes/storage', ['index.html', 'probe.mjs']],
+    ]) {
+      const target = path.join(sourceDir, directory);
+      const info = await lstat(target);
+      if (info.isSymbolicLink() || !info.isDirectory()) throw new Error(`실험 소스 디렉터리는 심볼릭 링크일 수 없습니다: ${directory}`);
+      const names = await readdir(target);
+      if (names.some(name => !permitted.includes(name))) throw new Error(`허용하지 않은 실험 소스 파일: ${directory}`);
+    }
+  }
+
   const files = new Map();
-  for (const relativePath of sourceFiles) {
+  for (const relativePath of [...sourceFiles, ...(includeProbes ? probeFiles : [])]) {
     const sourcePath = path.join(sourceDir, relativePath);
     const info = await lstat(sourcePath).catch(error => {
       if (error.code === 'ENOENT') throw new Error(`필수 PWA 소스 파일이 없습니다: ${relativePath}`);
@@ -89,9 +103,10 @@ function hashSources(files, builderSource) {
 }
 
 function applyBuildVersion(files, version) {
-  for (const relativePath of ['index.html', 'sw.js']) {
-    const contents = files.get(relativePath).toString('utf8');
-    if (!contents.includes('__BUILD_VERSION__')) {
+  for (const [relativePath, buffer] of files) {
+    if (!relativePath.endsWith('.html') && relativePath !== 'sw.js') continue;
+    const contents = buffer.toString('utf8');
+    if (['index.html', 'sw.js'].includes(relativePath) && !contents.includes('__BUILD_VERSION__')) {
       throw new Error(`빌드 버전 자리표시자가 없습니다: ${relativePath}`);
     }
     files.set(relativePath, Buffer.from(contents.replaceAll('__BUILD_VERSION__', version)));
@@ -101,9 +116,24 @@ function applyBuildVersion(files, version) {
 export async function buildPages({
   sourceDir = path.join(projectRoot, 'pwa'),
   outputDir = path.join(projectRoot, 'dist'),
+  domainSource = path.join(projectRoot, 'lib', 'domain.mjs'),
+  includeProbes = false,
 } = {}) {
   await assertNoOverlap(sourceDir, outputDir);
-  const files = await readSourceFiles(sourceDir);
+  if (containsPath(await canonicalPath(outputDir), await canonicalPath(domainSource))) {
+    throw new Error('도메인 원본을 포함한 디렉터리는 출력 경로로 사용할 수 없습니다.');
+  }
+  const files = await readSourceFiles(sourceDir, includeProbes);
+  const domainInfo = await lstat(domainSource);
+  if (domainInfo.isSymbolicLink() || !domainInfo.isFile()) {
+    throw new Error('도메인 원본은 심볼릭 링크가 아닌 일반 파일이어야 합니다.');
+  }
+  files.set('domain.mjs', await readFile(domainSource));
+  if (includeProbes) {
+    const html = files.get('index.html').toString('utf8');
+    if (!html.includes('</header>')) throw new Error('실험판 진입점을 삽입할 header가 없습니다.');
+    files.set('index.html', Buffer.from(html.replace('</header>', '</header>\n<nav aria-label="기술 실험"><p>기술 검증 실험판</p><a href="./probes/notion/">Notion 직접 통신</a> · <a href="./probes/storage/">파일 보관 실험</a></nav>')));
+  }
   const version = hashSources(files, await readFile(fileURLToPath(import.meta.url)));
   applyBuildVersion(files, version);
 
@@ -116,7 +146,7 @@ export async function buildPages({
   if (outputInfo) {
     if (outputInfo.isSymbolicLink()) throw new Error('dist 경로는 심볼릭 링크일 수 없습니다.');
     if (!outputInfo.isDirectory()) throw new Error('dist 경로는 디렉터리여야 합니다.');
-    await checkPages(outputDir, { allowIncomplete: true });
+    await checkPages(outputDir, { allowIncomplete: true, includeProbes: true });
     await rm(outputDir, { recursive: true });
   }
 
@@ -126,13 +156,14 @@ export async function buildPages({
     await mkdir(path.dirname(outputPath), { recursive: true });
     await writeFile(outputPath, contents);
   }
-  await checkPages(outputDir);
+  await checkPages(outputDir, { includeProbes });
   return version;
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
-    const version = await buildPages();
+    if (process.argv.slice(2).some(arg => arg !== '--probes')) throw new Error('알 수 없는 빌드 옵션입니다.');
+    const version = await buildPages({ includeProbes: process.argv.includes('--probes') });
     console.log(`Pages 산출물 생성 완료 (${version})`);
   } catch (error) {
     console.error(`Pages 산출물 생성 실패: ${error.message}`);

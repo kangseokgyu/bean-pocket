@@ -4,8 +4,13 @@ import { fileURLToPath } from 'node:url';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const defaultOutputDir = path.join(projectRoot, 'dist');
+export const probeFiles = [
+  'probes/notion/index.html', 'probes/notion/probe.mjs',
+  'probes/storage/index.html', 'probes/storage/probe.mjs',
+];
 const allowedFiles = new Set([
   'app.mjs',
+  'domain.mjs',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'index.html',
@@ -17,13 +22,16 @@ const requiredCacheFiles = [
   './',
   './index.html',
   './app.mjs',
+  './domain.mjs',
   './styles.css',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
 ];
 
-async function collectFiles(directory, allowIncomplete) {
+async function collectFiles(directory, allowIncomplete, includeProbes) {
+  const permittedFiles = new Set([...allowedFiles, ...(includeProbes ? probeFiles : [])]);
+  const permittedDirectories = new Set(['icons', ...(includeProbes ? ['probes', 'probes/notion', 'probes/storage'] : [])]);
   const rootInfo = await lstat(directory).catch(error => {
     if (error.code === 'ENOENT') throw new Error(`산출물 디렉터리가 없습니다: ${directory}`);
     throw error;
@@ -40,18 +48,18 @@ async function collectFiles(directory, allowIncomplete) {
       const info = await lstat(absolutePath);
       if (info.isSymbolicLink()) throw new Error(`산출물에 심볼릭 링크가 있습니다: ${relativePath}`);
       if (info.isDirectory()) {
-        if (relativePath !== 'icons') throw new Error(`예상하지 않은 산출물 디렉터리: ${relativePath}`);
+        if (!permittedDirectories.has(relativePath)) throw new Error(`예상하지 않은 산출물 디렉터리: ${relativePath}`);
         await visit(relativePath);
         continue;
       }
       if (!info.isFile()) throw new Error(`산출물은 일반 파일이어야 합니다: ${relativePath}`);
-      if (!allowedFiles.has(relativePath)) throw new Error(`예상하지 않은 산출물: ${relativePath}`);
+      if (!permittedFiles.has(relativePath)) throw new Error(`예상하지 않은 산출물: ${relativePath}`);
       found.add(relativePath);
     }
   }
   await visit();
 
-  const missing = [...allowedFiles].filter(relativePath => !found.has(relativePath));
+  const missing = [...permittedFiles].filter(relativePath => !found.has(relativePath));
   if (missing.length && !allowIncomplete) throw new Error(`필수 산출물이 없습니다: ${missing.join(', ')}`);
   return { found, missing };
 }
@@ -83,16 +91,41 @@ function rejectUnsafeContents(textFiles) {
   if (joined.includes('__BUILD_VERSION__')) throw new Error('빌드 버전이 치환되지 않았습니다.');
 }
 
-export async function checkPages(directory = defaultOutputDir, { allowIncomplete = false } = {}) {
-  const { found, missing } = await collectFiles(directory, allowIncomplete);
+export async function checkPages(directory = defaultOutputDir, { allowIncomplete = false, includeProbes = false } = {}) {
+  const { found, missing } = await collectFiles(directory, allowIncomplete, includeProbes);
   if (allowIncomplete) return true;
   if (missing.length) return true;
 
   const textFiles = new Map();
-  for (const relativePath of ['app.mjs', 'index.html', 'manifest.webmanifest', 'styles.css', 'sw.js']) {
+  for (const relativePath of ['app.mjs', 'domain.mjs', 'index.html', 'manifest.webmanifest', 'styles.css', 'sw.js']) {
     textFiles.set(relativePath, (await readFile(path.join(directory, relativePath))).toString('utf8'));
   }
   rejectUnsafeContents(textFiles);
+
+  if (includeProbes) {
+    const texts = new Map();
+    for (const file of probeFiles) {
+      const contents = await readFile(path.join(directory, file), 'utf8');
+      // Only this experiment may reference the fixed Notion API and Authorization.
+      if (file.startsWith('probes/storage/') && /api\.notion\.com|Authorization/i.test(contents)) {
+        throw new Error('파일 보관 실험에 Notion 통신 참조가 있습니다.');
+      }
+      const normalized = contents.replaceAll('https://api.notion.com/v1', 'NOTION_API')
+        .replaceAll('Authorization', 'AUTH_HEADER');
+      texts.set(file, normalized);
+      if (/\b(?:innerHTML|outerHTML|localStorage|sessionStorage|indexedDB|removeEntry)\b/.test(contents)) {
+        throw new Error('실험 산출물에 안전하지 않은 출력·영속 보관·삭제 참조가 있습니다.');
+      }
+      if (file.endsWith('.html') && !contents.includes('src="./probe.mjs"')) {
+        throw new Error('실험 HTML은 상대 경로 모듈을 사용해야 합니다.');
+      }
+    }
+    rejectUnsafeContents(texts);
+    const root = textFiles.get('index.html');
+    if (!root.includes('href="./probes/notion/"') || !root.includes('href="./probes/storage/"')) {
+      throw new Error('실험판 홈 화면에 기술 실험 진입점이 없습니다.');
+    }
+  }
 
   const html = textFiles.get('index.html');
   if (!html.includes('href="./styles.css"') ||
@@ -149,13 +182,16 @@ export async function checkPages(directory = defaultOutputDir, { allowIncomplete
       !/\.filter\(name => name\.startsWith\(CACHE_PREFIX\) && name !== CACHE_NAME\)/.test(worker)) {
     throw new Error('화면 빌드 버전과 scope별 Service Worker 캐시 namespace가 일치하지 않습니다.');
   }
-  if (found.size !== allowedFiles.size) throw new Error('산출물 허용 목록이 일치하지 않습니다.');
+  if (found.size !== allowedFiles.size + (includeProbes ? probeFiles.length : 0)) throw new Error('산출물 허용 목록이 일치하지 않습니다.');
   return true;
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
-    await checkPages(process.argv[2] ? path.resolve(process.argv[2]) : defaultOutputDir);
+    const args = process.argv.slice(2);
+    const directory = args.find(arg => !arg.startsWith('--'));
+    if (args.some(arg => arg.startsWith('--') && arg !== '--probes')) throw new Error('알 수 없는 검사 옵션입니다.');
+    await checkPages(directory ? path.resolve(directory) : defaultOutputDir, { includeProbes: args.includes('--probes') });
     console.log('Pages 산출물 검사 통과');
   } catch (error) {
     console.error(`Pages 산출물 검사 실패: ${error.message}`);

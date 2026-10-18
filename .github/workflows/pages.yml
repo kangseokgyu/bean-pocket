@@ -2,6 +2,11 @@ name: Deploy minimal PWA to Pages
 
 on:
   workflow_dispatch:
+    inputs:
+      probes:
+        description: 'Include T06/T07 experiment pages (no credentials embedded)'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -27,9 +32,17 @@ jobs:
       - name: Run regression tests
         run: npm test
       - name: Build static PWA
+        if: ${{ ! inputs.probes }}
         run: npm run build:pages
+      - name: Build experiment PWA
+        if: ${{ inputs.probes }}
+        run: npm run build:probes
       - name: Check publish artifact
+        if: ${{ ! inputs.probes }}
         run: npm run check:pages
+      - name: Check experiment artifact
+        if: ${{ inputs.probes }}
+        run: npm run check:probes
       - name: Upload only static output
         uses: actions/upload-pages-artifact@v4
         with:

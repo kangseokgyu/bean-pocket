@@ -1,0 +1,98 @@
+TAP version 13
+# Subtest: 공용 데이터 모듈 두 개를 실제 산출물과 앱 캐시에 공급한다
+not ok 1 - 공용 데이터 모듈 두 개를 실제 산출물과 앱 캐시에 공급한다
+  ---
+  duration_ms: 44.199125
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-data-build.test.mjs:22:1'
+  failureType: 'testCodeFailure'
+  error: '실제 배포용 데이터 모듈이 필요하다'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-data-build.test.mjs:25:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: 데이터 모듈 변경은 앱 빌드 버전을 바꾼다
+not ok 2 - 데이터 모듈 변경은 앱 빌드 버전을 바꾼다
+  ---
+  duration_ms: 22.221709
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-data-build.test.mjs:33:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected "actual" to be strictly unequal to:
+    
+    '0c1d6e2a1967'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '0c1d6e2a1967'
+  actual: '0c1d6e2a1967'
+  operator: 'notStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-data-build.test.mjs:37:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: Notion 고정 origin 예외는 클라이언트에만 허용하며 추가 URL·비밀값은 거부한다
+not ok 3 - Notion 고정 origin 예외는 클라이언트에만 허용하며 추가 URL·비밀값은 거부한다
+  ---
+  duration_ms: 11.077292
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-data-build.test.mjs:40:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /외부 URL|비밀값|토큰/. Input:
+    
+    'Error: 예상하지 않은 산출물 디렉터리: data'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+  error: '예상하지 않은 산출물 디렉터리: data'
+  stack: |-
+    visit (file:///Users/kangseokgyu/workspace/AX-1day/scripts/check-pages.mjs:51:60)
+    async collectFiles (file:///Users/kangseokgyu/workspace/AX-1day/scripts/check-pages.mjs:60:3)
+    async checkPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/check-pages.mjs:95:30)
+    async waitForActual (node:assert:565:5)
+    async Function.rejects (node:assert:686:25)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-data-build.test.mjs:47:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  operator: 'rejects'
+  stack: |-
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-data-build.test.mjs:47:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 데이터 디렉터리 symlink를 통해 소스 허용 목록을 우회할 수 없다
+not ok 4 - 데이터 디렉터리 symlink를 통해 소스 허용 목록을 우회할 수 없다
+  ---
+  duration_ms: 13.574541
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-data-build.test.mjs:54:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected rejection.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  operator: 'rejects'
+  stack: |-
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-data-build.test.mjs:61:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 0
+# fail 4
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 151.574666

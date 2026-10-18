@@ -58,3 +58,7 @@ npm run check:pages
 워크플로의 Run workflow에서 `probes`를 선택한 경우에만 실험판을 게시한다(기본 false). CLI는 `gh workflow run pages.yml --ref main -f probes=true`다. 일반판으로 돌아가려면 false로 실행한다. Notion 토큰이나 실제 데이터 소스 ID는 workflow 입력에 넣지 않는다.
 
 로컬 확인은 `./run-preview.sh`를 사용한다. 최신 실험판을 빌드·검사한 뒤 전용 임시 폴더의 `/bean-pocket/`에서만 제공한다. 포트 변경은 `./run-preview.sh 4189`처럼 지정한다. 이 localhost 미리보기는 실제 Pages·iPhone 결과를 대체하지 않는다.
+
+## T12/T13 모듈 공급
+
+일반·실험 빌드는 `data/notion-client.mjs`, `data/notion-properties.mjs`, `platform/connection-file.mjs`를 허용 목록과 앱 파일 캐시에 포함한다. Notion 고정 API·Authorization 참조 예외는 지정된 통신 모듈에만 적용한다. 실제 토큰·Notion 응답·연결 파일은 산출물에 포함하지 않는다. 개발용 foundation-check.html은 임시 로컬 검증 페이지이며 업로드 대상 dist에 포함하지 않는다. 모듈 공급은 실제 앱 화면 연결 완료와 구분한다.

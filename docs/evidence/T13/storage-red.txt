@@ -1,0 +1,549 @@
+TAP version 13
+# Subtest: 모듈은 factory와 readConnection/writeConnection만 제공한다
+ok 1 - 모듈은 factory와 readConnection/writeConnection만 제공한다
+  ---
+  duration_ms: 0.818334
+  type: 'test'
+  ...
+# Subtest: readConnection은 전용 경로를 생성하지 않고 실제 부재만 null로 반환한다
+not ok 2 - readConnection은 전용 경로를 생성하지 않고 실제 부재만 null로 반환한다
+  ---
+  duration_ms: 0.49825
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:147:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - null
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: ~
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:150:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: write/read 재실행은 고정 경로의 schema v1 연결을 정규화해 깊은 복사·불변 반환한다
+not ok 3 - write/read 재실행은 고정 경로의 schema v1 연결을 정규화해 깊은 복사·불변 반환한다
+  ---
+  duration_ms: 0.178333
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:162:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'revision')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:171:22)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: writeConnection snapshots input before awaiting native staging
+not ok 4 - writeConnection snapshots input before awaiting native staging
+  ---
+  duration_ms: 0.101625
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:187:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'token')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:198:22)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 잘못된 입력은 native 파일 접근 전에 안전 오류로 거부한다
+not ok 5 - 잘못된 입력은 native 파일 접근 전에 안전 오류로 거부한다
+  ---
+  duration_ms: 0.207583
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:202:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected rejection.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  stack: |-
+    async rejectedWith (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:126:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:218:32)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: write 단계의 close 전 실패는 abort를 시도하고 기존 유효 바이트를 보존한다
+    # Subtest: createWritable
+    not ok 1 - createWritable
+      ---
+      duration_ms: 0.1495
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:224:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async rejectedWith (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:126:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:229:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:224:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: write
+    not ok 2 - write
+      ---
+      duration_ms: 0.075709
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:224:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async rejectedWith (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:126:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:229:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:224:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..2
+not ok 6 - write 단계의 close 전 실패는 abort를 시도하고 기존 유효 바이트를 보존한다
+  ---
+  duration_ms: 0.424709
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:222:1'
+  failureType: 'subtestsFailed'
+  error: '2 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: close를 시작한 뒤 예외가 나면 저장 여부를 unknown으로 표시하고 차단 정보를 준다
+not ok 7 - close를 시작한 뒤 예외가 나면 저장 여부를 unknown으로 표시하고 차단 정보를 준다
+  ---
+  duration_ms: 0.907292
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:239:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - 'save-uncertain'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'save-uncertain'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:247:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: close가 commit 전에 실패해도 기존 파일 보존을 단정하지 않고 unknown을 반환한다
+not ok 8 - close가 commit 전에 실패해도 기존 파일 보존을 단정하지 않고 unknown을 반환한다
+  ---
+  duration_ms: 0.326333
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:257:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - 'save-uncertain'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'save-uncertain'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:266:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: commit 후 readback 오류나 불일치는 save-uncertain/unknown으로 보고한다
+    # Subtest: readback-error
+    not ok 1 - readback-error
+      ---
+      duration_ms: 0.120542
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:276:13'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly equal:
+        + actual - expected
+        
+        + undefined
+        - 'save-uncertain'
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: 'save-uncertain'
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:284:14)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:276:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: mismatch
+    not ok 2 - mismatch
+      ---
+      duration_ms: 0.062959
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:276:13'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly equal:
+        + actual - expected
+        
+        + undefined
+        - 'save-uncertain'
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: 'save-uncertain'
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:284:14)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:276:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..2
+not ok 9 - commit 후 readback 오류나 불일치는 save-uncertain/unknown으로 보고한다
+  ---
+  duration_ms: 0.344
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:274:1'
+  failureType: 'subtestsFailed'
+  error: '2 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: 최초 저장의 close 전 실패로 남은 0바이트 파일은 다음 읽기에서 손상으로 구분한다
+not ok 10 - 최초 저장의 close 전 실패로 남은 0바이트 파일은 다음 읽기에서 손상으로 구분한다
+  ---
+  duration_ms: 0.17625
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:294:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected rejection.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  stack: |-
+    async rejectedWith (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:126:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:298:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: read 오류는 부재와 구분하고 원문 NotFound는 storage-error로 안전 변환한다
+    # Subtest: NotAllowedError
+    not ok 1 - NotAllowedError
+      ---
+      duration_ms: 0.102292
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:309:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async rejectedWith (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:126:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:313:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:309:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: SecurityError
+    not ok 2 - SecurityError
+      ---
+      duration_ms: 0.058209
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:309:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async rejectedWith (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:126:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:313:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:309:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: QuotaExceededError
+    not ok 3 - QuotaExceededError
+      ---
+      duration_ms: 0.057666
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:309:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async rejectedWith (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:126:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:313:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:309:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: NotSupportedError
+    not ok 4 - NotSupportedError
+      ---
+      duration_ms: 0.103541
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:309:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async rejectedWith (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:126:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:313:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:309:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: TypeMismatchError
+    not ok 5 - TypeMismatchError
+      ---
+      duration_ms: 0.109417
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:309:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async rejectedWith (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:126:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:313:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:309:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: UnknownError
+    not ok 6 - UnknownError
+      ---
+      duration_ms: 0.061084
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:309:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async rejectedWith (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:126:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:313:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:309:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..6
+not ok 11 - read 오류는 부재와 구분하고 원문 NotFound는 storage-error로 안전 변환한다
+  ---
+  duration_ms: 0.686792
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:304:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected rejection.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  stack: |-
+    async rejectedWith (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:126:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:319:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 파일 손상과 미지원 schema version을 서로 구분한다
+    # Subtest: corrupt
+    not ok 1 - corrupt
+      ---
+      duration_ms: 0.074708
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:330:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async rejectedWith (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:126:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:332:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:330:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: corrupt
+    not ok 2 - corrupt
+      ---
+      duration_ms: 0.046833
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:330:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async rejectedWith (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:126:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:332:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:330:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: corrupt
+    not ok 3 - corrupt
+      ---
+      duration_ms: 0.0445
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:330:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async rejectedWith (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:126:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:332:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:330:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: unsupported-version
+    not ok 4 - unsupported-version
+      ---
+      duration_ms: 0.051959
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:330:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async rejectedWith (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:126:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:332:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:330:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: corrupt
+    not ok 5 - corrupt
+      ---
+      duration_ms: 0.048625
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:330:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async rejectedWith (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:126:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:332:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:330:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: corrupt
+    not ok 6 - corrupt
+      ---
+      duration_ms: 0.048708
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:330:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async rejectedWith (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:126:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:332:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:330:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: corrupt
+    not ok 7 - corrupt
+      ---
+      duration_ms: 0.046083
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:330:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async rejectedWith (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:126:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:332:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:330:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..7
+not ok 12 - 파일 손상과 미지원 schema version을 서로 구분한다
+  ---
+  duration_ms: 0.542041
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:322:1'
+  failureType: 'subtestsFailed'
+  error: '7 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: 미지원 OPFS는 안전 오류로 실패하며 fallback 경로나 브라우저 저장소를 쓰지 않는다
+not ok 13 - 미지원 OPFS는 안전 오류로 실패하며 fallback 경로나 브라우저 저장소를 쓰지 않는다
+  ---
+  duration_ms: 0.067875
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:337:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected rejection.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  stack: |-
+    async rejectedWith (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:126:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:339:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: native 접근 오류 레코드는 code/writeState만 노출하고 원문·token·ID·cause·stack을 숨긴다
+not ok 14 - native 접근 오류 레코드는 code/writeState만 노출하고 원문·token·ID·cause·stack을 숨긴다
+  ---
+  duration_ms: 0.077416
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:343:1'
+  failureType: 'testCodeFailure'
+  error: 'Cannot convert undefined or null to object'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    Function.keys (<anonymous>)
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection-file.test.mjs:349:27)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..14
+# tests 31
+# suites 0
+# pass 1
+# fail 30
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 58.333791

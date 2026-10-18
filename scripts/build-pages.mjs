@@ -7,10 +7,13 @@ import { checkPages, probeFiles } from './check-pages.mjs';
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const sourceFiles = [
   'app.mjs',
+  'data/notion-client.mjs',
+  'data/notion-properties.mjs',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'index.html',
   'manifest.webmanifest',
+  'platform/connection-file.mjs',
   'styles.css',
   'sw.js',
 ];
@@ -59,6 +62,15 @@ async function readSourceFiles(sourceDir, includeProbes) {
   });
   if (iconInfo.isSymbolicLink()) throw new Error('PWA 아이콘 디렉터리는 심볼릭 링크일 수 없습니다.');
   if (!iconInfo.isDirectory()) throw new Error('PWA 아이콘 경로는 디렉터리여야 합니다.');
+
+  const dataInfo = await lstat(path.join(sourceDir, 'data'));
+  if (dataInfo.isSymbolicLink() || !dataInfo.isDirectory()) {
+    throw new Error('PWA 데이터 모듈 디렉터리는 심볼릭 링크가 아닌 디렉터리여야 합니다.');
+  }
+  const platformInfo = await lstat(path.join(sourceDir, 'platform'));
+  if (platformInfo.isSymbolicLink() || !platformInfo.isDirectory()) {
+    throw new Error('PWA 파일 보관 모듈 디렉터리는 심볼릭 링크가 아닌 디렉터리여야 합니다.');
+  }
 
   if (includeProbes) {
     for (const [directory, permitted] of [

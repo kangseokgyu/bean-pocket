@@ -17,7 +17,7 @@
 | T07 파일 보관 후보 | 일부 실기기 확인, 나머지 검증 대기 | iPhone Safari 탭 종료·재접속 및 홈 화면 앱 종료·재실행 후 각각 동일 지문 사용자 보고. 모드별 기준 지문 확보. [증거](evidence/T07/README.md) |
 | T08 저장 수명 | 지정 환경·경로 한정 통과 | 전과정 사용자 보고와 [파일 없음·standalone 사진](evidence/T08/iphone-standalone-missing.png)을 종합. 사용자 확인 iPhone 12 / iOS 27.0.1, 해당 주소 A→B, 북마크 삭제·웹 앱 재설치 경로 한정. [증거](evidence/T08/README.md). T29 실제 연결 파일 수명 재검증 유지 |
 | T09 기술 게이트 | 완료 — 지정 범위 M2 통과 | [최신 판정](technical-gates.md). 실기기 사진 보완 및 독립 최종 검토 PASS |
-| T10 브라우저 계약 | 최종 확정 착수 허용 판정 | 기존 초안을 바탕으로 계약 확정 가능. T09 독립 최종 검토 PASS. T10 자체 확정 완료로 기록하지 않는다 |
+| T10 브라우저 계약 | 완료 | [확정 계약](pwa-contracts.md). 연결 세대·조회 일관성·SW 입력 경쟁 3건 보완 후 독립 재검토 PASS. [기록](evidence/T10/README.md) |
 | T11 순수 도메인 로직 공급 | 사전 준비 검증 | `lib/domain.mjs` 원본을 빌드에 공급, 실제 배포 모듈 테스트. [증거](evidence/T11/README.md) |
 | T12~T30 전체 이전 | 후속 착수 허용 판정 | T09 독립 최종 검토 PASS. 실제 작업은 T10 계약 확정과 PLAN의 개별 선행 조건을 따른다. T29 최종 재검증 유지 |
 

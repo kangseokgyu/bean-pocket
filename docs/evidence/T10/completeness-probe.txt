@@ -1,0 +1,2 @@
+Existing tolerance permits a forward-created prefix without its tiny final stage.
+Reverse-created intermediate stages reject; full stages accept. Original validation unchanged.

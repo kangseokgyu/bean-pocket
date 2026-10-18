@@ -12,12 +12,14 @@ const allowedFiles = new Set([
   'app.mjs',
   'data/notion-client.mjs',
   'data/notion-properties.mjs',
+  'data/read-repository.mjs',
   'domain.mjs',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'index.html',
   'manifest.webmanifest',
   'platform/connection-file.mjs',
+  'state/submission-state.mjs',
   'styles.css',
   'sw.js',
 ]);
@@ -27,8 +29,10 @@ const requiredCacheFiles = [
   './app.mjs',
   './data/notion-client.mjs',
   './data/notion-properties.mjs',
+  './data/read-repository.mjs',
   './domain.mjs',
   './platform/connection-file.mjs',
+  './state/submission-state.mjs',
   './styles.css',
   './manifest.webmanifest',
   './icons/icon-192.png',
@@ -37,7 +41,7 @@ const requiredCacheFiles = [
 
 async function collectFiles(directory, allowIncomplete, includeProbes) {
   const permittedFiles = new Set([...allowedFiles, ...(includeProbes ? probeFiles : [])]);
-  const permittedDirectories = new Set(['icons', 'data', 'platform', ...(includeProbes ? ['probes', 'probes/notion', 'probes/storage'] : [])]);
+  const permittedDirectories = new Set(['icons', 'data', 'platform', 'state', ...(includeProbes ? ['probes', 'probes/notion', 'probes/storage'] : [])]);
   const rootInfo = await lstat(directory).catch(error => {
     if (error.code === 'ENOENT') throw new Error(`산출물 디렉터리가 없습니다: ${directory}`);
     throw error;
@@ -103,7 +107,7 @@ export async function checkPages(directory = defaultOutputDir, { allowIncomplete
   if (missing.length) return true;
 
   const textFiles = new Map();
-  for (const relativePath of ['app.mjs', 'data/notion-client.mjs', 'data/notion-properties.mjs', 'domain.mjs', 'index.html', 'manifest.webmanifest', 'platform/connection-file.mjs', 'styles.css', 'sw.js']) {
+  for (const relativePath of ['app.mjs', 'data/notion-client.mjs', 'data/notion-properties.mjs', 'data/read-repository.mjs', 'domain.mjs', 'index.html', 'manifest.webmanifest', 'platform/connection-file.mjs', 'state/submission-state.mjs', 'styles.css', 'sw.js']) {
     textFiles.set(relativePath, (await readFile(path.join(directory, relativePath))).toString('utf8'));
   }
   const checkedText = new Map(textFiles);

@@ -14,12 +14,14 @@ const expectedFiles = [
   'app.mjs',
   'data/notion-client.mjs',
   'data/notion-properties.mjs',
+  'data/read-repository.mjs',
   'domain.mjs',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'index.html',
   'manifest.webmanifest',
   'platform/connection-file.mjs',
+  'state/submission-state.mjs',
   'styles.css',
   'sw.js',
 ];
@@ -46,7 +48,10 @@ async function writeSourceFixture(sourceDir) {
   await mkdir(path.join(sourceDir, 'icons'), { recursive: true });
   await mkdir(path.join(sourceDir, 'data'), { recursive: true });
   await mkdir(path.join(sourceDir, 'platform'), { recursive: true });
+  await mkdir(path.join(sourceDir, 'state'), { recursive: true });
   const files = {
+    'state/submission-state.mjs': 'export const state = {};',
+    'data/read-repository.mjs': 'export const repository = {};',
     'platform/connection-file.mjs': 'export const storage = {};',
     'data/notion-client.mjs': 'export class NotionClient {}',
     'data/notion-properties.mjs': 'export const schemas = {};',
@@ -61,7 +66,7 @@ async function writeSourceFixture(sourceDir) {
         { src: './icons/icon-512.png', sizes: '512x512', type: 'image/png' },
       ],
     }),
-    'sw.js': `const BUILD_VERSION = '__BUILD_VERSION__';\nconst SCOPE_KEY = encodeURIComponent(new URL(self.registration.scope).pathname);\nconst CACHE_PREFIX = \`bean-pocket-shell-\${SCOPE_KEY}-\`;\nconst CACHE_NAME = \`\${CACHE_PREFIX}\${BUILD_VERSION}\`;\nconst APP_FILES = ${JSON.stringify(['./', './index.html', './app.mjs', './data/notion-client.mjs', './data/notion-properties.mjs', './domain.mjs', './platform/connection-file.mjs', './styles.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'])};\nself.addEventListener('install', event => event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES))));\nself.addEventListener('activate', event => event.waitUntil(caches.keys().then(names => Promise.all(names.filter(name => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME).map(name => caches.delete(name))))));`,
+    'sw.js': `const BUILD_VERSION = '__BUILD_VERSION__';\nconst SCOPE_KEY = encodeURIComponent(new URL(self.registration.scope).pathname);\nconst CACHE_PREFIX = \`bean-pocket-shell-\${SCOPE_KEY}-\`;\nconst CACHE_NAME = \`\${CACHE_PREFIX}\${BUILD_VERSION}\`;\nconst APP_FILES = ${JSON.stringify(['./', './index.html', './app.mjs', './data/notion-client.mjs', './data/notion-properties.mjs', './data/read-repository.mjs', './domain.mjs', './platform/connection-file.mjs', './state/submission-state.mjs', './styles.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'])};\nself.addEventListener('install', event => event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES))));\nself.addEventListener('activate', event => event.waitUntil(caches.keys().then(names => Promise.all(names.filter(name => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME).map(name => caches.delete(name))))));`,
   };
   for (const [name, contents] of Object.entries(files)) await writeFile(path.join(sourceDir, name), contents);
   await writeFile(path.join(sourceDir, 'icons/icon-192.png'), pngHeader(192));
@@ -310,7 +315,7 @@ test('Service Worker install·activate·fetch는 scope를 격리하고 앱 파�
   assert.ok(!remaining.includes(staleA), '자기 scope의 이전 버전 캐시는 정리해야 한다');
   assert.notEqual(cacheA, cacheB, '같은 출처의 서로 다른 scope는 별도 namespace를 사용해야 한다');
 
-  const appFiles = ['./', './index.html', './app.mjs', './data/notion-client.mjs', './data/notion-properties.mjs', './domain.mjs', './platform/connection-file.mjs', './styles.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
+  const appFiles = ['./', './index.html', './app.mjs', './data/notion-client.mjs', './data/notion-properties.mjs', './data/read-repository.mjs', './domain.mjs', './platform/connection-file.mjs', './state/submission-state.mjs', './styles.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
   assert.deepEqual(cacheStorage.stores.get(cacheA).files, appFiles);
   assert.deepEqual(cacheStorage.stores.get(cacheB).files, appFiles);
   assert.ok(!appFiles.includes('./sw.js'));

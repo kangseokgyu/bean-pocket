@@ -2,7 +2,7 @@ const BUILD_VERSION = '__BUILD_VERSION__';
 const SCOPE_KEY = encodeURIComponent(new URL(self.registration.scope).pathname);
 const CACHE_PREFIX = `bean-pocket-shell-${SCOPE_KEY}-`;
 const CACHE_NAME = `${CACHE_PREFIX}${BUILD_VERSION}`;
-const APP_FILES = ["./", "./index.html", "./app.mjs", "./data/notion-client.mjs", "./data/notion-properties.mjs", "./domain.mjs", "./platform/connection-file.mjs", "./styles.css", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
+const APP_FILES = ["./", "./index.html", "./app.mjs", "./data/notion-client.mjs", "./data/notion-properties.mjs", "./data/read-repository.mjs", "./domain.mjs", "./platform/connection-file.mjs", "./state/submission-state.mjs", "./styles.css", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES)));

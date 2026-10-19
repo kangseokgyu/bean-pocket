@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { NotionClient } from '../pwa/data/notion-client.mjs';
+import { NotionClient, validateCreatePayload } from '../pwa/data/notion-client.mjs';
 import { schemas, encodeProperties, decodePage } from '../pwa/data/notion-properties.mjs';
 import { encodeProperties as serverEncode, decodePage as serverDecode } from '../lib/notion.mjs';
 
@@ -46,6 +46,19 @@ function safe(error, state, code) {
   return true;
 }
 const rejected = (promise, state, code) => assert.rejects(promise, error => safe(error, state, code));
+
+test('validateCreatePayload reuses the create transport limits without issuing a request', () => {
+  assert.equal(validateCreatePayload('beans', { name: '원두' }, SOURCES), true);
+  for (const [kind, data, sources] of [
+    ['unknown', { name: '원두' }, SOURCES],
+    ['beans', { name: '원두' }, { ...SOURCES, beans: 'invalid' }],
+    ['beans', { name: '가'.repeat(200001) }, SOURCES],
+    ['beans', { name: 'a'.repeat(500000) }, SOURCES],
+    ['recipes', { temperature: Number.NaN }, SOURCES],
+  ]) {
+    assert.throws(() => validateCreatePayload(kind, data, sources), error => safe(error, 'not-sent'));
+  }
+});
 
 test('verify는 설정된 다섯 스키마와 forward 관계 타입·대상을 읽기만 검증한다', async () => {
   const { client, calls } = harness(url => {

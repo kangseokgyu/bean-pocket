@@ -1,0 +1,154 @@
+TAP version 13
+# Subtest: critic create failure point 1 / not-sent
+ok 1 - critic create failure point 1 / not-sent
+  ---
+  duration_ms: 14.9305
+  type: 'test'
+  ...
+# Subtest: critic create failure point 1 / rejected
+ok 2 - critic create failure point 1 / rejected
+  ---
+  duration_ms: 4.412667
+  type: 'test'
+  ...
+# Subtest: critic create failure point 1 / unknown
+ok 3 - critic create failure point 1 / unknown
+  ---
+  duration_ms: 1.515375
+  type: 'test'
+  ...
+# Subtest: critic create failure point 2 / not-sent
+ok 4 - critic create failure point 2 / not-sent
+  ---
+  duration_ms: 2.298
+  type: 'test'
+  ...
+# Subtest: critic create failure point 2 / rejected
+ok 5 - critic create failure point 2 / rejected
+  ---
+  duration_ms: 1.483666
+  type: 'test'
+  ...
+# Subtest: critic create failure point 2 / unknown
+ok 6 - critic create failure point 2 / unknown
+  ---
+  duration_ms: 3.690083
+  type: 'test'
+  ...
+# Subtest: critic create failure point 3 / not-sent
+ok 7 - critic create failure point 3 / not-sent
+  ---
+  duration_ms: 3.148459
+  type: 'test'
+  ...
+# Subtest: critic create failure point 3 / rejected
+ok 8 - critic create failure point 3 / rejected
+  ---
+  duration_ms: 2.493583
+  type: 'test'
+  ...
+# Subtest: critic create failure point 3 / unknown
+ok 9 - critic create failure point 3 / unknown
+  ---
+  duration_ms: 2.85675
+  type: 'test'
+  ...
+# Subtest: critic create failure point 4 / not-sent
+ok 10 - critic create failure point 4 / not-sent
+  ---
+  duration_ms: 3.25325
+  type: 'test'
+  ...
+# Subtest: critic create failure point 4 / rejected
+ok 11 - critic create failure point 4 / rejected
+  ---
+  duration_ms: 1.524375
+  type: 'test'
+  ...
+# Subtest: critic create failure point 4 / unknown
+ok 12 - critic create failure point 4 / unknown
+  ---
+  duration_ms: 1.422417
+  type: 'test'
+  ...
+# Subtest: critic archive failure point 1 / rejected
+ok 13 - critic archive failure point 1 / rejected
+  ---
+  duration_ms: 1.141041
+  type: 'test'
+  ...
+# Subtest: critic archive failure point 1 / unknown
+ok 14 - critic archive failure point 1 / unknown
+  ---
+  duration_ms: 1.402708
+  type: 'test'
+  ...
+# Subtest: critic archive failure point 2 / rejected
+ok 15 - critic archive failure point 2 / rejected
+  ---
+  duration_ms: 1.063375
+  type: 'test'
+  ...
+# Subtest: critic archive failure point 2 / unknown
+ok 16 - critic archive failure point 2 / unknown
+  ---
+  duration_ms: 1.263458
+  type: 'test'
+  ...
+# Subtest: critic archive failure point 3 / rejected
+ok 17 - critic archive failure point 3 / rejected
+  ---
+  duration_ms: 1.02775
+  type: 'test'
+  ...
+# Subtest: critic archive failure point 3 / unknown
+ok 18 - critic archive failure point 3 / unknown
+  ---
+  duration_ms: 1.3865
+  type: 'test'
+  ...
+# Subtest: critic Bag rejects fresh read failure or deleted relation
+ok 19 - critic Bag rejects fresh read failure or deleted relation
+  ---
+  duration_ms: 1.132667
+  type: 'test'
+  ...
+# Subtest: critic Recipe rejects fresh read failure or deleted relation
+ok 20 - critic Recipe rejects fresh read failure or deleted relation
+  ---
+  duration_ms: 0.370375
+  type: 'test'
+  ...
+# Subtest: critic Record rejects fresh read failure or deleted relation
+ok 21 - critic Record rejects fresh read failure or deleted relation
+  ---
+  duration_ms: 0.462625
+  type: 'test'
+  ...
+# Subtest: critic Copy rejects fresh read failure or deleted relation
+ok 22 - critic Copy rejects fresh read failure or deleted relation
+  ---
+  duration_ms: 0.599833
+  type: 'test'
+  ...
+# Subtest: critic record preflight rejects oversized snapshot without a create
+ok 23 - critic record preflight rejects oversized snapshot without a create
+  ---
+  duration_ms: 3.019625
+  type: 'test'
+  ...
+# Subtest: critic recipe preflight rejects oversized parent without a create
+ok 24 - critic recipe preflight rejects oversized parent without a create
+  ---
+  duration_ms: 1.793584
+  type: 'test'
+  ...
+1..24
+# tests 24
+# suites 0
+# pass 24
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 122.856083

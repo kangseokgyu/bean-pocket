@@ -54,6 +54,30 @@ function serialize(body) {
     throw failure('invalid-input', 'not-sent');
   }
 }
+
+function createPayload(kind, data, dataSources) {
+  try {
+    if (typeof kind !== 'string' || !KINDS.includes(kind) || !record(data) || !record(dataSources) ||
+        Object.keys(dataSources).length !== KINDS.length || !KINDS.every(key => Object.hasOwn(dataSources, key) && uuid(dataSources[key])) ||
+        new Set(KINDS.map(key => uuid(dataSources[key]))).size !== KINDS.length) {
+      throw failure('invalid-input', 'not-sent');
+    }
+    return {
+      sourceId: uuid(dataSources[kind]),
+      properties: encodeProperties(kind, data),
+    };
+  } catch (error) {
+    if (ownErrors.has(error)) throw error;
+    throw failure('invalid-input', 'not-sent');
+  }
+}
+
+export function validateCreatePayload(kind, data, dataSources) {
+  const { sourceId, properties } = createPayload(kind, data, dataSources);
+  serialize({ parent: { type: 'data_source_id', data_source_id: sourceId }, properties });
+  return true;
+}
+
 function retryAfter(response) {
   try {
     const value = response.headers?.get('Retry-After');
@@ -216,14 +240,13 @@ export class NotionClient {
 
   async createPage(kind, domainData) {
     const sourceId = this.#source(kind);
-    let properties;
+    let payload;
     try {
-      if (!record(domainData)) throw failure('invalid-input', 'not-sent');
-      properties = encodeProperties(kind, domainData);
+      payload = createPayload(kind, domainData, this.#dataSources);
     } catch { throw failure('invalid-input', 'not-sent'); }
     return this.#request('/pages', {
       method: 'POST', writing: true,
-      body: { parent: { type: 'data_source_id', data_source_id: sourceId }, properties },
+      body: { parent: { type: 'data_source_id', data_source_id: sourceId }, properties: payload.properties },
       validate: data => validPage(data, undefined, sourceId) && data.in_trash !== true && data.archived !== true,
     });
   }

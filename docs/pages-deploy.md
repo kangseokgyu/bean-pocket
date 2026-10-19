@@ -62,3 +62,6 @@ npm run check:pages
 ## T12/T13 모듈 공급
 
 일반·실험 빌드는 `data/notion-client.mjs`, `data/notion-properties.mjs`, `platform/connection-file.mjs`를 허용 목록과 앱 파일 캐시에 포함한다. Notion 고정 API·Authorization 참조 예외는 지정된 통신 모듈에만 적용한다. 실제 토큰·Notion 응답·연결 파일은 산출물에 포함하지 않는다. 개발용 foundation-check.html은 임시 로컬 검증 페이지이며 업로드 대상 dist에 포함하지 않는다. 모듈 공급은 실제 앱 화면 연결 완료와 구분한다.
+
+
+T14/T15 배포 통합은 `state/submission-state.mjs`와 `data/read-repository.mjs`를 명시적인 앱 파일·버전 해시·SW 캐시 허용 목록에 추가했다. `state/` 소스 디렉터리도 symlink를 거부한다. 작업 journal과 연결 파일은 OPFS 런타임 파일이며 앱 캐시나 공개 dist에 포함하지 않는다. 개발 소스의 `pwa/domain.mjs`는 원본 re-export이고, dist에는 기존처럼 `lib/domain.mjs`의 원본 바이트를 공급한다. 임시 foundation-check 검증 페이지는 공개 산출물에 포함하지 않는다. 최종 검증 빌드는 일반 `78f28362747b`, 실험 `b73e072fd802`이며 실제 Pages 게시 버전은 별도 승인·게시 기록을 따른다.

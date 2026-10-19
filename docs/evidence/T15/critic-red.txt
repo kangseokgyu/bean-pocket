@@ -1,0 +1,897 @@
+TAP version 13
+# Subtest: 모듈은 공개 factory와 두 읽기 메서드만 제공한다
+ok 1 - 모듈은 공개 factory와 두 읽기 메서드만 제공한다
+  ---
+  duration_ms: 3.92775
+  type: 'test'
+  ...
+# Subtest: factory는 다섯 source ID를 검증하고 생성 시점 값을 복사한다
+ok 2 - factory는 다섯 source ID를 검증하고 생성 시점 값을 복사한다
+  ---
+  duration_ms: 7.7695
+  type: 'test'
+  ...
+# Subtest: 다섯 source를 모두 읽고 단계 정렬·기록 snapshot·별점 집계를 만든 뒤 깊게 고정한다
+ok 3 - 다섯 source를 모두 읽고 단계 정렬·기록 snapshot·별점 집계를 만든 뒤 깊게 고정한다
+  ---
+  duration_ms: 1.062792
+  type: 'test'
+  ...
+# Subtest: 진짜 빈 다섯 source는 빈 데이터로 반환하고 조회 실패와 구분한다
+ok 4 - 진짜 빈 다섯 source는 빈 데이터로 반환하고 조회 실패와 구분한다
+  ---
+  duration_ms: 1.469958
+  type: 'test'
+  ...
+# Subtest: queryAll beans 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+ok 5 - queryAll beans 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+  ---
+  duration_ms: 0.280083
+  type: 'test'
+  ...
+# Subtest: queryAll bags 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+ok 6 - queryAll bags 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+  ---
+  duration_ms: 0.2585
+  type: 'test'
+  ...
+# Subtest: queryAll recipes 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+ok 7 - queryAll recipes 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+  ---
+  duration_ms: 0.32425
+  type: 'test'
+  ...
+# Subtest: queryAll steps 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+ok 8 - queryAll steps 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+  ---
+  duration_ms: 0.286
+  type: 'test'
+  ...
+# Subtest: queryAll records 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+ok 9 - queryAll records 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+  ---
+  duration_ms: 0.49
+  type: 'test'
+  ...
+# Subtest: 삭제·잘못된 ID·source·parent 페이지는 codec 전에 제외한다
+ok 10 - 삭제·잘못된 ID·source·parent 페이지는 codec 전에 제외한다
+  ---
+  duration_ms: 0.888958
+  type: 'test'
+  ...
+# Subtest: 잘리거나 다중이거나 없는 필수 관계와 선택 봉지 불일치는 decode 전에 제외한다
+ok 11 - 잘리거나 다중이거나 없는 필수 관계와 선택 봉지 불일치는 decode 전에 제외한다
+  ---
+  duration_ms: 0.952833
+  type: 'test'
+  ...
+# Subtest: 기록의 선택 봉지는 존재해야 하고 snapshot 원두와 같아야 한다
+ok 12 - 기록의 선택 봉지는 존재해야 하고 snapshot 원두와 같아야 한다
+  ---
+  duration_ms: 0.728291
+  type: 'test'
+  ...
+# Subtest: 버전 1 snapshot 전체·기록 날짜·별점을 검증한다
+ok 13 - 버전 1 snapshot 전체·기록 날짜·별점을 검증한다
+  ---
+  duration_ms: 0.560458
+  type: 'test'
+  ...
+# Subtest: 잘못된 property type과 payload는 decode 전에 해당 페이지만 제외한다
+ok 14 - 잘못된 property type과 payload는 decode 전에 해당 페이지만 제외한다
+  ---
+  duration_ms: 0.278583
+  type: 'test'
+  ...
+# Subtest: order 1 부재·순서 gap/중복·파생값 손상·tiny-water 자식 삭제는 완성 레시피로 노출하지 않는다
+ok 15 - order 1 부재·순서 gap/중복·파생값 손상·tiny-water 자식 삭제는 완성 레시피로 노출하지 않는다
+  ---
+  duration_ms: 1.590208
+  type: 'test'
+  ...
+# Subtest: epsilon 경계에서 손상된 마지막 자식이 남은 prefix를 완성 레시피로 만들지 않는다
+not ok 16 - epsilon 경계에서 손상된 마지막 자식이 남은 prefix를 완성 레시피로 만들지 않는다
+  ---
+  duration_ms: 2.046208
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:380:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+    + [
+    +   {
+    +     beanId: '[LONG-ID-REDACTED]',
+    +     dose: 15,
+    +     dripper: 'V60',
+    +     grind: '중간',
+    +     grinder: '그라인더',
+    +     grinderSetting: '20',
+    +     id: '[LONG-ID-REDACTED]',
+    +     microns: null,
+    +     name: 'V60',
+    +     stats: {
+    +       average: null,
+    +       count: 0
+    +     },
+    +     steps: [
+    +       {
+    +         cumulativeWater: 50,
+    +         id: '[LONG-ID-REDACTED]',
+    +         interval: 0,
+    +         name: '거의 전량',
+    +         order: 1,
+    +         recipeId: '[LONG-ID-REDACTED]',
+    +         seconds: 0,
+    +         water: 49.9999995
+    +       }
+    +     ],
+    +     temperature: 93,
+    +     totalWater: 50
+    +   }
+    + ]
+    - []
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+    0:
+      id: '[LONG-ID-REDACTED]'
+      name: 'V60'
+      beanId: '[LONG-ID-REDACTED]'
+      dripper: 'V60'
+      dose: 15
+      grind: '중간'
+      grinder: '그라인더'
+      grinderSetting: '20'
+      microns: ~
+      temperature: 93
+      totalWater: 50
+      steps:
+        0:
+          id: '[LONG-ID-REDACTED]'
+          name: '거의 전량'
+          recipeId: '[LONG-ID-REDACTED]'
+          order: 1
+          seconds: 0
+          interval: 0
+          water: 49.9999995
+          cumulativeWater: 50
+      stats:
+        count: 0
+        average: ~
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:386:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 식별 가능한 부모 관계가 있는 잘못된 자식은 그 부모를 taint한다
+    # Subtest: 잘못된 number 값
+    not ok 1 - 잘못된 number 값
+      ---
+      duration_ms: 0.611666
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:403:13'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly deep-equal:
+        + actual - expected
+        
+        + [
+        +   {
+        +     beanId: '[LONG-ID-REDACTED]',
+        +     dose: 15,
+        +     dripper: 'V60',
+        +     grind: '중간',
+        +     grinder: '그라인더',
+        +     grinderSetting: '20',
+        +     id: '[LONG-ID-REDACTED]',
+        +     microns: null,
+        +     name: 'V60',
+        +     stats: {
+        +       average: null,
+        +       count: 0
+        +     },
+        +     steps: [
+        +       {
+        +         cumulativeWater: 50,
+        +         id: '[LONG-ID-REDACTED]',
+        +         interval: 0,
+        +         name: '거의 전량',
+        +         order: 1,
+        +         recipeId: '[LONG-ID-REDACTED]',
+        +         seconds: 0,
+        +         water: 49.9999995
+        +       }
+        +     ],
+        +     temperature: 93,
+        +     totalWater: 50
+        +   }
+        + ]
+        - []
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      actual:
+        0:
+          id: '[LONG-ID-REDACTED]'
+          name: 'V60'
+          beanId: '[LONG-ID-REDACTED]'
+          dripper: 'V60'
+          dose: 15
+          grind: '중간'
+          grinder: '그라인더'
+          grinderSetting: '20'
+          microns: ~
+          temperature: 93
+          totalWater: 50
+          steps:
+            0:
+              id: '[LONG-ID-REDACTED]'
+              name: '거의 전량'
+              recipeId: '[LONG-ID-REDACTED]'
+              order: 1
+              seconds: 0
+              interval: 0
+              water: 49.9999995
+              cumulativeWater: 50
+          stats:
+            count: 0
+            average: ~
+      operator: 'deepStrictEqual'
+      stack: |-
+        TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:409:14)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:403:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: 잘못된 property type
+    not ok 2 - 잘못된 property type
+      ---
+      duration_ms: 0.428792
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:403:13'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly deep-equal:
+        + actual - expected
+        
+        + [
+        +   {
+        +     beanId: '[LONG-ID-REDACTED]',
+        +     dose: 15,
+        +     dripper: 'V60',
+        +     grind: '중간',
+        +     grinder: '그라인더',
+        +     grinderSetting: '20',
+        +     id: '[LONG-ID-REDACTED]',
+        +     microns: null,
+        +     name: 'V60',
+        +     stats: {
+        +       average: null,
+        +       count: 0
+        +     },
+        +     steps: [
+        +       {
+        +         cumulativeWater: 50,
+        +         id: '[LONG-ID-REDACTED]',
+        +         interval: 0,
+        +         name: '거의 전량',
+        +         order: 1,
+        +         recipeId: '[LONG-ID-REDACTED]',
+        +         seconds: 0,
+        +         water: 49.9999995
+        +       }
+        +     ],
+        +     temperature: 93,
+        +     totalWater: 50
+        +   }
+        + ]
+        - []
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      actual:
+        0:
+          id: '[LONG-ID-REDACTED]'
+          name: 'V60'
+          beanId: '[LONG-ID-REDACTED]'
+          dripper: 'V60'
+          dose: 15
+          grind: '중간'
+          grinder: '그라인더'
+          grinderSetting: '20'
+          microns: ~
+          temperature: 93
+          totalWater: 50
+          steps:
+            0:
+              id: '[LONG-ID-REDACTED]'
+              name: '거의 전량'
+              recipeId: '[LONG-ID-REDACTED]'
+              order: 1
+              seconds: 0
+              interval: 0
+              water: 49.9999995
+              cumulativeWater: 50
+          stats:
+            count: 0
+            average: ~
+      operator: 'deepStrictEqual'
+      stack: |-
+        TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:409:14)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:403:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: 복수 부모 관계
+    not ok 3 - 복수 부모 관계
+      ---
+      duration_ms: 0.397208
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:403:13'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly deep-equal:
+        + actual - expected
+        
+        + [
+        +   {
+        +     beanId: '[LONG-ID-REDACTED]',
+        +     dose: 15,
+        +     dripper: 'V60',
+        +     grind: '중간',
+        +     grinder: '그라인더',
+        +     grinderSetting: '20',
+        +     id: '[LONG-ID-REDACTED]',
+        +     microns: null,
+        +     name: 'V60',
+        +     stats: {
+        +       average: null,
+        +       count: 0
+        +     },
+        +     steps: [
+        +       {
+        +         cumulativeWater: 50,
+        +         id: '[LONG-ID-REDACTED]',
+        +         interval: 0,
+        +         name: '거의 전량',
+        +         order: 1,
+        +         recipeId: '[LONG-ID-REDACTED]',
+        +         seconds: 0,
+        +         water: 49.9999995
+        +       }
+        +     ],
+        +     temperature: 93,
+        +     totalWater: 50
+        +   }
+        + ]
+        - []
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      actual:
+        0:
+          id: '[LONG-ID-REDACTED]'
+          name: 'V60'
+          beanId: '[LONG-ID-REDACTED]'
+          dripper: 'V60'
+          dose: 15
+          grind: '중간'
+          grinder: '그라인더'
+          grinderSetting: '20'
+          microns: ~
+          temperature: 93
+          totalWater: 50
+          steps:
+            0:
+              id: '[LONG-ID-REDACTED]'
+              name: '거의 전량'
+              recipeId: '[LONG-ID-REDACTED]'
+              order: 1
+              seconds: 0
+              interval: 0
+              water: 49.9999995
+              cumulativeWater: 50
+          stats:
+            count: 0
+            average: ~
+      operator: 'deepStrictEqual'
+      stack: |-
+        TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:409:14)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:403:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: 잘린 부모 관계
+    not ok 4 - 잘린 부모 관계
+      ---
+      duration_ms: 0.401917
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:403:13'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly deep-equal:
+        + actual - expected
+        
+        + [
+        +   {
+        +     beanId: '[LONG-ID-REDACTED]',
+        +     dose: 15,
+        +     dripper: 'V60',
+        +     grind: '중간',
+        +     grinder: '그라인더',
+        +     grinderSetting: '20',
+        +     id: '[LONG-ID-REDACTED]',
+        +     microns: null,
+        +     name: 'V60',
+        +     stats: {
+        +       average: null,
+        +       count: 0
+        +     },
+        +     steps: [
+        +       {
+        +         cumulativeWater: 50,
+        +         id: '[LONG-ID-REDACTED]',
+        +         interval: 0,
+        +         name: '거의 전량',
+        +         order: 1,
+        +         recipeId: '[LONG-ID-REDACTED]',
+        +         seconds: 0,
+        +         water: 49.9999995
+        +       }
+        +     ],
+        +     temperature: 93,
+        +     totalWater: 50
+        +   }
+        + ]
+        - []
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      actual:
+        0:
+          id: '[LONG-ID-REDACTED]'
+          name: 'V60'
+          beanId: '[LONG-ID-REDACTED]'
+          dripper: 'V60'
+          dose: 15
+          grind: '중간'
+          grinder: '그라인더'
+          grinderSetting: '20'
+          microns: ~
+          temperature: 93
+          totalWater: 50
+          steps:
+            0:
+              id: '[LONG-ID-REDACTED]'
+              name: '거의 전량'
+              recipeId: '[LONG-ID-REDACTED]'
+              order: 1
+              seconds: 0
+              interval: 0
+              water: 49.9999995
+              cumulativeWater: 50
+          stats:
+            count: 0
+            average: ~
+      operator: 'deepStrictEqual'
+      stack: |-
+        TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:409:14)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:403:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: 관계 배열이 남은 잘못된 relation type
+    not ok 5 - 관계 배열이 남은 잘못된 relation type
+      ---
+      duration_ms: 0.380042
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:403:13'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly deep-equal:
+        + actual - expected
+        
+        + [
+        +   {
+        +     beanId: '[LONG-ID-REDACTED]',
+        +     dose: 15,
+        +     dripper: 'V60',
+        +     grind: '중간',
+        +     grinder: '그라인더',
+        +     grinderSetting: '20',
+        +     id: '[LONG-ID-REDACTED]',
+        +     microns: null,
+        +     name: 'V60',
+        +     stats: {
+        +       average: null,
+        +       count: 0
+        +     },
+        +     steps: [
+        +       {
+        +         cumulativeWater: 50,
+        +         id: '[LONG-ID-REDACTED]',
+        +         interval: 0,
+        +         name: '거의 전량',
+        +         order: 1,
+        +         recipeId: '[LONG-ID-REDACTED]',
+        +         seconds: 0,
+        +         water: 49.9999995
+        +       }
+        +     ],
+        +     temperature: 93,
+        +     totalWater: 50
+        +   }
+        + ]
+        - []
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      actual:
+        0:
+          id: '[LONG-ID-REDACTED]'
+          name: 'V60'
+          beanId: '[LONG-ID-REDACTED]'
+          dripper: 'V60'
+          dose: 15
+          grind: '중간'
+          grinder: '그라인더'
+          grinderSetting: '20'
+          microns: ~
+          temperature: 93
+          totalWater: 50
+          steps:
+            0:
+              id: '[LONG-ID-REDACTED]'
+              name: '거의 전량'
+              recipeId: '[LONG-ID-REDACTED]'
+              order: 1
+              seconds: 0
+              interval: 0
+              water: 49.9999995
+              cumulativeWater: 50
+          stats:
+            count: 0
+            average: ~
+      operator: 'deepStrictEqual'
+      stack: |-
+        TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:409:14)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:403:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: 관계 배열이 남은 잘못된 child ID
+    not ok 6 - 관계 배열이 남은 잘못된 child ID
+      ---
+      duration_ms: 0.815708
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:403:13'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly deep-equal:
+        + actual - expected
+        
+        + [
+        +   {
+        +     beanId: '[LONG-ID-REDACTED]',
+        +     dose: 15,
+        +     dripper: 'V60',
+        +     grind: '중간',
+        +     grinder: '그라인더',
+        +     grinderSetting: '20',
+        +     id: '[LONG-ID-REDACTED]',
+        +     microns: null,
+        +     name: 'V60',
+        +     stats: {
+        +       average: null,
+        +       count: 0
+        +     },
+        +     steps: [
+        +       {
+        +         cumulativeWater: 50,
+        +         id: '[LONG-ID-REDACTED]',
+        +         interval: 0,
+        +         name: '거의 전량',
+        +         order: 1,
+        +         recipeId: '[LONG-ID-REDACTED]',
+        +         seconds: 0,
+        +         water: 49.9999995
+        +       }
+        +     ],
+        +     temperature: 93,
+        +     totalWater: 50
+        +   }
+        + ]
+        - []
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      actual:
+        0:
+          id: '[LONG-ID-REDACTED]'
+          name: 'V60'
+          beanId: '[LONG-ID-REDACTED]'
+          dripper: 'V60'
+          dose: 15
+          grind: '중간'
+          grinder: '그라인더'
+          grinderSetting: '20'
+          microns: ~
+          temperature: 93
+          totalWater: 50
+          steps:
+            0:
+              id: '[LONG-ID-REDACTED]'
+              name: '거의 전량'
+              recipeId: '[LONG-ID-REDACTED]'
+              order: 1
+              seconds: 0
+              interval: 0
+              water: 49.9999995
+              cumulativeWater: 50
+          stats:
+            count: 0
+            average: ~
+      operator: 'deepStrictEqual'
+      stack: |-
+        TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:409:14)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:403:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: 관계 배열이 남은 잘못된 child source
+    not ok 7 - 관계 배열이 남은 잘못된 child source
+      ---
+      duration_ms: 3.7
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:403:13'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly deep-equal:
+        + actual - expected
+        
+        + [
+        +   {
+        +     beanId: '[LONG-ID-REDACTED]',
+        +     dose: 15,
+        +     dripper: 'V60',
+        +     grind: '중간',
+        +     grinder: '그라인더',
+        +     grinderSetting: '20',
+        +     id: '[LONG-ID-REDACTED]',
+        +     microns: null,
+        +     name: 'V60',
+        +     stats: {
+        +       average: null,
+        +       count: 0
+        +     },
+        +     steps: [
+        +       {
+        +         cumulativeWater: 50,
+        +         id: '[LONG-ID-REDACTED]',
+        +         interval: 0,
+        +         name: '거의 전량',
+        +         order: 1,
+        +         recipeId: '[LONG-ID-REDACTED]',
+        +         seconds: 0,
+        +         water: 49.9999995
+        +       }
+        +     ],
+        +     temperature: 93,
+        +     totalWater: 50
+        +   }
+        + ]
+        - []
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      actual:
+        0:
+          id: '[LONG-ID-REDACTED]'
+          name: 'V60'
+          beanId: '[LONG-ID-REDACTED]'
+          dripper: 'V60'
+          dose: 15
+          grind: '중간'
+          grinder: '그라인더'
+          grinderSetting: '20'
+          microns: ~
+          temperature: 93
+          totalWater: 50
+          steps:
+            0:
+              id: '[LONG-ID-REDACTED]'
+              name: '거의 전량'
+              recipeId: '[LONG-ID-REDACTED]'
+              order: 1
+              seconds: 0
+              interval: 0
+              water: 49.9999995
+              cumulativeWater: 50
+          stats:
+            count: 0
+            average: ~
+      operator: 'deepStrictEqual'
+      stack: |-
+        TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:409:14)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:403:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..7
+not ok 17 - 식별 가능한 부모 관계가 있는 잘못된 자식은 그 부모를 taint한다
+  ---
+  duration_ms: 7.071708
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:391:1'
+  failureType: 'subtestsFailed'
+  error: '7 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: parent 조회 뒤 parent archive 또는 조건·bean·last_edited_time 변경은 전체 조회를 stale-read로 끝낸다
+    # Subtest: archive
+    ok 1 - archive
+      ---
+      duration_ms: 0.554084
+      type: 'test'
+      ...
+    # Subtest: trash
+    ok 2 - trash
+      ---
+      duration_ms: 0.394208
+      type: 'test'
+      ...
+    # Subtest: name
+    ok 3 - name
+      ---
+      duration_ms: 0.333667
+      type: 'test'
+      ...
+    # Subtest: dripper
+    ok 4 - dripper
+      ---
+      duration_ms: 0.383208
+      type: 'test'
+      ...
+    # Subtest: dose
+    ok 5 - dose
+      ---
+      duration_ms: 0.324209
+      type: 'test'
+      ...
+    # Subtest: grind
+    ok 6 - grind
+      ---
+      duration_ms: 0.53525
+      type: 'test'
+      ...
+    # Subtest: grinder
+    ok 7 - grinder
+      ---
+      duration_ms: 0.3345
+      type: 'test'
+      ...
+    # Subtest: grinder setting
+    ok 8 - grinder setting
+      ---
+      duration_ms: 0.319458
+      type: 'test'
+      ...
+    # Subtest: microns
+    ok 9 - microns
+      ---
+      duration_ms: 0.434167
+      type: 'test'
+      ...
+    # Subtest: temperature
+    ok 10 - temperature
+      ---
+      duration_ms: 0.438125
+      type: 'test'
+      ...
+    # Subtest: total water
+    ok 11 - total water
+      ---
+      duration_ms: 0.343917
+      type: 'test'
+      ...
+    # Subtest: bean relation
+    ok 12 - bean relation
+      ---
+      duration_ms: 0.517708
+      type: 'test'
+      ...
+    # Subtest: last edited
+    ok 13 - last edited
+      ---
+      duration_ms: 0.404792
+      type: 'test'
+      ...
+    # Subtest: source
+    ok 14 - source
+      ---
+      duration_ms: 0.745542
+      type: 'test'
+      ...
+    1..14
+ok 18 - parent 조회 뒤 parent archive 또는 조건·bean·last_edited_time 변경은 전체 조회를 stale-read로 끝낸다
+  ---
+  duration_ms: 6.586792
+  type: 'test'
+  ...
+# Subtest: parent 비교는 첫 rich text 조각 뒤의 변경도 stale-read로 감지한다
+ok 19 - parent 비교는 첫 rich text 조각 뒤의 변경도 stale-read로 감지한다
+  ---
+  duration_ms: 0.560292
+  type: 'test'
+  ...
+# Subtest: parent 최종 getPage 실패와 ID 불일치는 안전 stale-read로 전환한다
+    # Subtest: failure
+    ok 1 - failure
+      ---
+      duration_ms: 0.462
+      type: 'test'
+      ...
+    # Subtest: id-mismatch
+    ok 2 - id-mismatch
+      ---
+      duration_ms: 0.432084
+      type: 'test'
+      ...
+    1..2
+ok 20 - parent 최종 getPage 실패와 ID 불일치는 안전 stale-read로 전환한다
+  ---
+  duration_ms: 1.024584
+  type: 'test'
+  ...
+# Subtest: 현재 recipe가 삭제되어도 유효한 과거 record snapshot은 저장된 값 그대로 읽는다
+ok 21 - 현재 recipe가 삭제되어도 유효한 과거 record snapshot은 저장된 값 그대로 읽는다
+  ---
+  duration_ms: 0.552083
+  type: 'test'
+  ...
+# Subtest: 손상되거나 버전이 다른 record snapshot은 제외하고 원본을 공개하지 않는다
+ok 22 - 손상되거나 버전이 다른 record snapshot은 제외하고 원본을 공개하지 않는다
+  ---
+  duration_ms: 1.280625
+  type: 'test'
+  ...
+# Subtest: readRecipeForSnapshot은 매 호출마다 다섯 source와 parent를 새로 확인한다
+ok 23 - readRecipeForSnapshot은 매 호출마다 다섯 source와 parent를 새로 확인한다
+  ---
+  duration_ms: 1.60325
+  type: 'test'
+  ...
+# Subtest: 관계 부재와 완전 조회 실패는 빈 collection으로 위장하지 않는다
+ok 24 - 관계 부재와 완전 조회 실패는 빈 collection으로 위장하지 않는다
+  ---
+  duration_ms: 0.259917
+  type: 'test'
+  ...
+1..24
+# tests 47
+# suites 0
+# pass 38
+# fail 9
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 113.950208

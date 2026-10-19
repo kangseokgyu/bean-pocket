@@ -1,0 +1,49 @@
+TAP version 13
+# Subtest: 조회·작업 상태 모듈은 앱 파일로만 공급하고 변경을 버전에 반영한다
+not ok 1 - 조회·작업 상태 모듈은 앱 파일로만 공급하고 변경을 버전에 반영한다
+  ---
+  duration_ms: 57.413625
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-state-read-build.test.mjs:21:1'
+  failureType: 'testCodeFailure'
+  error: "ENOENT: no such file or directory, open '/var/folders/5m/5sdskqts1vg88sqkvbq3t0sw0000gn/T/bean-pocket-state-read-VlDP4V/dist/data/read-repository.mjs'"
+  code: 'ENOENT'
+  stack: |-
+    async open (node:internal/fs/promises:639:25)
+    async readFile (node:internal/fs/promises:1243:14)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-state-read-build.test.mjs:25:22)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: state 소스 디렉터리 symlink를 통한 허용 목록 우회는 차단한다
+not ok 2 - state 소스 디렉터리 symlink를 통한 허용 목록 우회는 차단한다
+  ---
+  duration_ms: 26.19075
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-state-read-build.test.mjs:40:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected rejection.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  operator: 'rejects'
+  stack: |-
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-state-read-build.test.mjs:46:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 소스의 개발용 도메인 경유 모듈과 배포 원본은 같은 함수다
+ok 3 - 소스의 개발용 도메인 경유 모듈과 배포 원본은 같은 함수다
+  ---
+  duration_ms: 1.994375
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 1
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 151.980834

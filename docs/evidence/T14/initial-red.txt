@@ -1,0 +1,411 @@
+TAP version 13
+# Subtest: draft canonical hash, isolated deep freeze, new intent key and ordered arrays
+not ok 1 - draft canonical hash, isolated deep freeze, new intent key and ordered arrays
+  ---
+  duration_ms: 1.116709
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:77:1'
+  failureType: 'testCodeFailure'
+  error: 'The "string" argument must be of type string. Received type undefined (undefined)'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:81:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: draft rejects non-JSON/getters/cycles and invalid target/revision without exposing input
+not ok 2 - draft rejects non-JSON/getters/cycles and invalid target/revision without exposing input
+  ---
+  duration_ms: 0.453584
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:91:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected rejection.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  stack: |-
+    async rejectsCode (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:65:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:93:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: processing and known ID durable before subsequent dispatch, exact secret-free journal, success
+not ok 3 - processing and known ID durable before subsequent dispatch, exact secret-free journal, success
+  ---
+  duration_ms: 0.457541
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:100:1'
+  failureType: 'testCodeFailure'
+  error: 'ctx.runOperation is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:74:41
+    Object.withWriteLock (file:///Users/kangseokgyu/workspace/AX-1day/pwa/state/submission-state.mjs:3:49)
+    execute (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:74:16)
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:102:24)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: same succeeded key never reruns, fresh intent same payload allowed
+not ok 4 - same succeeded key never reruns, fresh intent same payload allowed
+  ---
+  duration_ms: 0.10475
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:120:1'
+  failureType: 'testCodeFailure'
+  error: 'ctx.runOperation is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:74:41
+    Object.withWriteLock (file:///Users/kangseokgyu/workspace/AX-1day/pwa/state/submission-state.mjs:3:49)
+    execute (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:74:16)
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:123:9)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: failed key never reruns; altered or forged same-key payload rejected
+not ok 5 - failed key never reruns; altered or forged same-key payload rejected
+  ---
+  duration_ms: 0.09325
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:129:1'
+  failureType: 'testCodeFailure'
+  error: 'ctx.runOperation is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:74:41
+    Object.withWriteLock (file:///Users/kangseokgyu/workspace/AX-1day/pwa/state/submission-state.mjs:3:49)
+    execute (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:74:16)
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:131:23)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: native contention, unsupported locks, lock failure, reentry and expired context fail closed
+not ok 6 - native contention, unsupported locks, lock failure, reentry and expired context fail closed
+  ---
+  duration_ms: 0.11775
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:137:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected rejection.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  stack: |-
+    async rejectsCode (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:65:3)
+    async file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:141:5
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:139:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: storage failure at root prevents network and fails closed
+ok 7 - storage failure at root prevents network and fails closed
+  ---
+  duration_ms: 0.105958
+  type: 'test'
+  ...
+# Subtest: storage failure at directory prevents network and fails closed
+ok 8 - storage failure at directory prevents network and fails closed
+  ---
+  duration_ms: 0.10775
+  type: 'test'
+  ...
+# Subtest: storage failure at handle prevents network and fails closed
+ok 9 - storage failure at handle prevents network and fails closed
+  ---
+  duration_ms: 0.269334
+  type: 'test'
+  ...
+# Subtest: storage failure at createWritable prevents network and fails closed
+ok 10 - storage failure at createWritable prevents network and fails closed
+  ---
+  duration_ms: 0.335875
+  type: 'test'
+  ...
+# Subtest: storage failure at write prevents network and fails closed
+ok 11 - storage failure at write prevents network and fails closed
+  ---
+  duration_ms: 0.110375
+  type: 'test'
+  ...
+# Subtest: storage failure at close prevents network and fails closed
+ok 12 - storage failure at close prevents network and fails closed
+  ---
+  duration_ms: 0.061208
+  type: 'test'
+  ...
+# Subtest: storage failure at afterClose prevents network and fails closed
+ok 13 - storage failure at afterClose prevents network and fails closed
+  ---
+  duration_ms: 0.103459
+  type: 'test'
+  ...
+# Subtest: storage failure at getFile prevents network and fails closed
+ok 14 - storage failure at getFile prevents network and fails closed
+  ---
+  duration_ms: 0.04875
+  type: 'test'
+  ...
+# Subtest: storage failure at text prevents network and fails closed
+ok 15 - storage failure at text prevents network and fails closed
+  ---
+  duration_ms: 0.08575
+  type: 'test'
+  ...
+# Subtest: result persistence failure latches memory and restart processing becomes unknown
+not ok 16 - result persistence failure latches memory and restart processing becomes unknown
+  ---
+  duration_ms: 0.61325
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:158:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - 'invalid-draft'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'invalid-draft'
+  operator: 'strictEqual'
+  stack: |-
+    Object.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:66:12)
+    expectedException (node:assert:498:17)
+    expectsError (node:assert:621:3)
+    Function.rejects (node:assert:686:3)
+    async rejectsCode (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:65:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:164:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: unknown and partial globally block new keys and connection changes, no auto retry
+not ok 17 - unknown and partial globally block new keys and connection changes, no auto retry
+  ---
+  duration_ms: 0.090208
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:172:1'
+  failureType: 'testCodeFailure'
+  error: 'ctx.runOperation is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:74:41
+    Object.withWriteLock (file:///Users/kangseokgyu/workspace/AX-1day/pwa/state/submission-state.mjs:3:49)
+    execute (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:74:16)
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:175:26)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: connection and journal revision reread before every write blocks stale client/draft
+not ok 18 - connection and journal revision reread before every write blocks stale client/draft
+  ---
+  duration_ms: 0.218708
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:188:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - 'stale-connection'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'stale-connection'
+  operator: 'strictEqual'
+  stack: |-
+    Object.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:66:12)
+    expectedException (node:assert:498:17)
+    expectsError (node:assert:621:3)
+    Function.rejects (node:assert:686:3)
+    async rejectsCode (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:65:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:190:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: one file missing refuses first connection and mutation: connection.json
+not ok 19 - one file missing refuses first connection and mutation: connection.json
+  ---
+  duration_ms: 0.104458
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:201:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - 'connection-mismatch'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'connection-mismatch'
+  operator: 'strictEqual'
+  stack: |-
+    Object.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:66:12)
+    expectedException (node:assert:498:17)
+    expectsError (node:assert:621:3)
+    Function.rejects (node:assert:686:3)
+    async rejectsCode (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:65:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:203:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: one file missing refuses first connection and mutation: submission-journal.json
+not ok 20 - one file missing refuses first connection and mutation: submission-journal.json
+  ---
+  duration_ms: 0.072375
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:201:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - 'connection-mismatch'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'connection-mismatch'
+  operator: 'strictEqual'
+  stack: |-
+    Object.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:66:12)
+    expectedException (node:assert:498:17)
+    expectsError (node:assert:621:3)
+    Function.rejects (node:assert:686:3)
+    async rejectsCode (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:65:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:203:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: first connection guard, commit readback, replacement, stale old client and interrupted guard
+not ok 21 - first connection guard, commit readback, replacement, stale old client and interrupted guard
+  ---
+  duration_ms: 0.083083
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:208:1'
+  failureType: 'testCodeFailure'
+  error: 'ctx.beginConnectionChange is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:211:15
+    Object.withWriteLock (file:///Users/kangseokgyu/workspace/AX-1day/pwa/state/submission-state.mjs:3:49)
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:210:20)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: close/readback uncertainty in connection change retains blocking guard
+not ok 22 - close/readback uncertainty in connection change retains blocking guard
+  ---
+  duration_ms: 0.207458
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:229:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - 'state-blocked'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'state-blocked'
+  operator: 'strictEqual'
+  stack: |-
+    Object.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:66:12)
+    expectedException (node:assert:498:17)
+    expectsError (node:assert:621:3)
+    Function.rejects (node:assert:686:3)
+    async rejectsCode (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:65:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:236:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: resolution requires original confirmation, concrete decision and fresh same-target read callback
+not ok 23 - resolution requires original confirmation, concrete decision and fresh same-target read callback
+  ---
+  duration_ms: 0.067791
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:240:1'
+  failureType: 'testCodeFailure'
+  error: 'ctx.runOperation is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:74:41
+    Object.withWriteLock (file:///Users/kangseokgyu/workspace/AX-1day/pwa/state/submission-state.mjs:3:49)
+    execute (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:74:16)
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:242:9)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: archive only current-operation known pages; rejected archive preserves partial and unknown archive blocks
+not ok 24 - archive only current-operation known pages; rejected archive preserves partial and unknown archive blocks
+  ---
+  duration_ms: 0.059458
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:253:1'
+  failureType: 'testCodeFailure'
+  error: 'ctx.runOperation is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:74:41
+    Object.withWriteLock (file:///Users/kangseokgyu/workspace/AX-1day/pwa/state/submission-state.mjs:3:49)
+    execute (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:74:16)
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:255:24)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: corrupt/extra-field journal never overwritten or exposed
+not ok 25 - corrupt/extra-field journal never overwritten or exposed
+  ---
+  duration_ms: 0.187959
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:265:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - 'journal-corrupt'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'journal-corrupt'
+  operator: 'strictEqual'
+  stack: |-
+    Object.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:66:12)
+    expectedException (node:assert:498:17)
+    expectsError (node:assert:621:3)
+    Function.rejects (node:assert:686:3)
+    async rejectsCode (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:65:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-submission-state.test.mjs:268:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..25
+# tests 25
+# suites 0
+# pass 9
+# fail 16
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 86.021875

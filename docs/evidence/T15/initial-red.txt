@@ -1,0 +1,428 @@
+TAP version 13
+# Subtest: 모듈은 공개 factory와 두 읽기 메서드만 제공한다
+ok 1 - 모듈은 공개 factory와 두 읽기 메서드만 제공한다
+  ---
+  duration_ms: 4.184417
+  type: 'test'
+  ...
+# Subtest: 다섯 source를 모두 읽고 단계 정렬·기록 snapshot·별점 집계를 만든 뒤 깊게 고정한다
+not ok 2 - 다섯 source를 모두 읽고 단계 정렬·기록 snapshot·별점 집계를 만든 뒤 깊게 고정한다
+  ---
+  duration_ms: 2.447542
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:180:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+    + []
+    - [
+    -   'beans',
+    -   'bags',
+    -   'recipes',
+    -   'steps',
+    -   'records'
+    - ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: 'beans'
+    1: 'bags'
+    2: 'recipes'
+    3: 'steps'
+    4: 'records'
+  actual:
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:186:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 진짜 빈 다섯 source는 빈 데이터로 반환하고 조회 실패와 구분한다
+not ok 3 - 진짜 빈 다섯 source는 빈 데이터로 반환하고 조회 실패와 구분한다
+  ---
+  duration_ms: 0.564583
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:201:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+    + undefined
+    - {
+    -   bags: [],
+    -   beans: [],
+    -   excluded: {
+    -     bags: 0,
+    -     recipes: 0,
+    -     records: 0,
+    -     steps: 0
+    -   },
+    -   recipes: [],
+    -   records: []
+    - }
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    beans:
+    bags:
+    recipes:
+    records:
+    excluded:
+      bags: 0
+      recipes: 0
+      records: 0
+      steps: 0
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:203:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: queryAll beans 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+not ok 4 - queryAll beans 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+  ---
+  duration_ms: 0.434792
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:211:3'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected rejection.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  stack: |-
+    async expectSafeFailure (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:150:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:213:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: queryAll bags 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+not ok 5 - queryAll bags 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+  ---
+  duration_ms: 0.21475
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:211:3'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected rejection.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  stack: |-
+    async expectSafeFailure (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:150:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:213:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: queryAll recipes 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+not ok 6 - queryAll recipes 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+  ---
+  duration_ms: 0.180834
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:211:3'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected rejection.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  stack: |-
+    async expectSafeFailure (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:150:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:213:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: queryAll steps 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+not ok 7 - queryAll steps 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+  ---
+  duration_ms: 0.242083
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:211:3'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected rejection.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  stack: |-
+    async expectSafeFailure (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:150:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:213:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: queryAll records 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+not ok 8 - queryAll records 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+  ---
+  duration_ms: 0.580542
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:211:3'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected rejection.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  stack: |-
+    async expectSafeFailure (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:150:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:213:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 삭제·잘못된 ID·source·parent 페이지는 codec 전에 제외한다
+not ok 9 - 삭제·잘못된 ID·source·parent 페이지는 codec 전에 제외한다
+  ---
+  duration_ms: 0.824916
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:217:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'beans')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:230:27)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 잘리거나 다중이거나 없는 필수 관계와 선택 봉지 불일치는 decode 전에 제외한다
+not ok 10 - 잘리거나 다중이거나 없는 필수 관계와 선택 봉지 불일치는 decode 전에 제외한다
+  ---
+  duration_ms: 0.686583
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:238:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'bags')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:256:27)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: order 1 부재·순서 gap/중복·파생값 손상·tiny-water 자식 삭제는 완성 레시피로 노출하지 않는다
+not ok 11 - order 1 부재·순서 gap/중복·파생값 손상·tiny-water 자식 삭제는 완성 레시피로 노출하지 않는다
+  ---
+  duration_ms: 0.60875
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:262:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'recipes')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:291:27)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: parent 조회 뒤 parent archive 또는 조건·bean·last_edited_time 변경은 전체 조회를 stale-read로 끝낸다
+    # Subtest: archive
+    not ok 1 - archive
+      ---
+      duration_ms: 0.228167
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:305:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async expectSafeFailure (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:150:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:309:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:305:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: field
+    not ok 2 - field
+      ---
+      duration_ms: 0.261084
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:305:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async expectSafeFailure (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:150:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:309:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:305:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: bean relation
+    not ok 3 - bean relation
+      ---
+      duration_ms: 0.168916
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:305:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async expectSafeFailure (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:150:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:309:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:305:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: last edited
+    not ok 4 - last edited
+      ---
+      duration_ms: 0.168
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:305:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async expectSafeFailure (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:150:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:309:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:305:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: source
+    not ok 5 - source
+      ---
+      duration_ms: 0.218709
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:305:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async expectSafeFailure (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:150:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:309:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:305:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..5
+not ok 12 - parent 조회 뒤 parent archive 또는 조건·bean·last_edited_time 변경은 전체 조회를 stale-read로 끝낸다
+  ---
+  duration_ms: 1.320083
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:296:1'
+  failureType: 'subtestsFailed'
+  error: '5 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: parent 최종 getPage 실패와 ID 불일치는 안전 stale-read로 전환한다
+    # Subtest: failure
+    not ok 1 - failure
+      ---
+      duration_ms: 0.366625
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:317:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async expectSafeFailure (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:150:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:322:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:317:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: id-mismatch
+    not ok 2 - id-mismatch
+      ---
+      duration_ms: 0.15425
+      type: 'test'
+      location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:317:13'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        async expectSafeFailure (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:150:3)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:322:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:317:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..2
+not ok 13 - parent 최종 getPage 실패와 ID 불일치는 안전 stale-read로 전환한다
+  ---
+  duration_ms: 0.603375
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:315:1'
+  failureType: 'subtestsFailed'
+  error: '2 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: 현재 recipe가 삭제되어도 유효한 과거 record snapshot은 저장된 값 그대로 읽는다
+not ok 14 - 현재 recipe가 삭제되어도 유효한 과거 record snapshot은 저장된 값 그대로 읽는다
+  ---
+  duration_ms: 0.204791
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:327:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'recipes')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:335:23)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 손상되거나 버전이 다른 record snapshot은 제외하고 원본을 공개하지 않는다
+not ok 15 - 손상되거나 버전이 다른 record snapshot은 제외하고 원본을 공개하지 않는다
+  ---
+  duration_ms: 0.216583
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:342:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'records')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:350:27)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: readRecipeForSnapshot은 매 호출마다 다섯 source와 parent를 새로 확인한다
+not ok 16 - readRecipeForSnapshot은 매 호출마다 다섯 source와 parent를 새로 확인한다
+  ---
+  duration_ms: 0.179958
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:355:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'id')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:358:22)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 관계 부재와 완전 조회 실패는 빈 collection으로 위장하지 않는다
+not ok 17 - 관계 부재와 완전 조회 실패는 빈 collection으로 위장하지 않는다
+  ---
+  duration_ms: 0.157041
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:371:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected rejection.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  stack: |-
+    async expectSafeFailure (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:150:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-read-repository.test.mjs:373:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..17
+# tests 24
+# suites 0
+# pass 1
+# fail 23
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 104.821417

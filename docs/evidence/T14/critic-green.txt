@@ -1,0 +1,234 @@
+TAP version 13
+# Subtest: draft canonical hash, isolated deep freeze, new intent key and ordered arrays
+ok 1 - draft canonical hash, isolated deep freeze, new intent key and ordered arrays
+  ---
+  duration_ms: 11.791125
+  type: 'test'
+  ...
+# Subtest: draft rejects non-JSON/getters/cycles and invalid target/revision without exposing input
+ok 2 - draft rejects non-JSON/getters/cycles and invalid target/revision without exposing input
+  ---
+  duration_ms: 1.627708
+  type: 'test'
+  ...
+# Subtest: processing and known ID durable before subsequent dispatch, exact secret-free journal, success
+ok 3 - processing and known ID durable before subsequent dispatch, exact secret-free journal, success
+  ---
+  duration_ms: 4.428541
+  type: 'test'
+  ...
+# Subtest: same succeeded key never reruns, fresh intent same payload allowed
+ok 4 - same succeeded key never reruns, fresh intent same payload allowed
+  ---
+  duration_ms: 2.853834
+  type: 'test'
+  ...
+# Subtest: failed key never reruns; altered or forged same-key payload rejected
+ok 5 - failed key never reruns; altered or forged same-key payload rejected
+  ---
+  duration_ms: 2.460459
+  type: 'test'
+  ...
+# Subtest: native contention, unsupported locks, lock failure, reentry and expired context fail closed
+ok 6 - native contention, unsupported locks, lock failure, reentry and expired context fail closed
+  ---
+  duration_ms: 0.600375
+  type: 'test'
+  ...
+# Subtest: distinct state instances contend through the shared native lock
+ok 7 - distinct state instances contend through the shared native lock
+  ---
+  duration_ms: 0.144958
+  type: 'test'
+  ...
+# Subtest: callback return closes context admission and drains admitted work before native unlock
+ok 8 - callback return closes context admission and drains admitted work before native unlock
+  ---
+  duration_ms: 1.236
+  type: 'test'
+  ...
+# Subtest: runOperation drains an in-flight hook and expires escaped hooks before releasing the lock
+ok 9 - runOperation drains an in-flight hook and expires escaped hooks before releasing the lock
+  ---
+  duration_ms: 2.525541
+  type: 'test'
+  ...
+# Subtest: storage failure at root prevents network and fails closed
+ok 10 - storage failure at root prevents network and fails closed
+  ---
+  duration_ms: 1.102708
+  type: 'test'
+  ...
+# Subtest: storage failure at directory prevents network and fails closed
+ok 11 - storage failure at directory prevents network and fails closed
+  ---
+  duration_ms: 1.329667
+  type: 'test'
+  ...
+# Subtest: storage failure at handle prevents network and fails closed
+ok 12 - storage failure at handle prevents network and fails closed
+  ---
+  duration_ms: 0.64875
+  type: 'test'
+  ...
+# Subtest: storage failure at createWritable prevents network and fails closed
+ok 13 - storage failure at createWritable prevents network and fails closed
+  ---
+  duration_ms: 0.422875
+  type: 'test'
+  ...
+# Subtest: storage failure at write prevents network and fails closed
+ok 14 - storage failure at write prevents network and fails closed
+  ---
+  duration_ms: 0.72425
+  type: 'test'
+  ...
+# Subtest: storage failure at close prevents network and fails closed
+ok 15 - storage failure at close prevents network and fails closed
+  ---
+  duration_ms: 0.396458
+  type: 'test'
+  ...
+# Subtest: storage failure at afterClose prevents network and fails closed
+ok 16 - storage failure at afterClose prevents network and fails closed
+  ---
+  duration_ms: 0.3665
+  type: 'test'
+  ...
+# Subtest: storage failure at getFile prevents network and fails closed
+ok 17 - storage failure at getFile prevents network and fails closed
+  ---
+  duration_ms: 0.25375
+  type: 'test'
+  ...
+# Subtest: storage failure at text prevents network and fails closed
+ok 18 - storage failure at text prevents network and fails closed
+  ---
+  duration_ms: 0.329292
+  type: 'test'
+  ...
+# Subtest: result persistence failure latches memory and restart processing becomes unknown
+ok 19 - result persistence failure latches memory and restart processing becomes unknown
+  ---
+  duration_ms: 0.873958
+  type: 'test'
+  ...
+# Subtest: successful close with altered readback blocks dispatch and latches uncertainty
+ok 20 - successful close with altered readback blocks dispatch and latches uncertainty
+  ---
+  duration_ms: 1.25325
+  type: 'test'
+  ...
+# Subtest: unknown and partial globally block new keys and connection changes, no auto retry
+ok 21 - unknown and partial globally block new keys and connection changes, no auto retry
+  ---
+  duration_ms: 1.931958
+  type: 'test'
+  ...
+# Subtest: caught write errors retain unknown or rejected outcome instead of succeeding
+ok 22 - caught write errors retain unknown or rejected outcome instead of succeeding
+  ---
+  duration_ms: 1.307625
+  type: 'test'
+  ...
+# Subtest: connection and journal revision reread before every write blocks stale client/draft
+ok 23 - connection and journal revision reread before every write blocks stale client/draft
+  ---
+  duration_ms: 1.698833
+  type: 'test'
+  ...
+# Subtest: one file missing refuses first connection and mutation: connection.json
+ok 24 - one file missing refuses first connection and mutation: connection.json
+  ---
+  duration_ms: 0.576834
+  type: 'test'
+  ...
+# Subtest: one file missing refuses first connection and mutation: submission-journal.json
+ok 25 - one file missing refuses first connection and mutation: submission-journal.json
+  ---
+  duration_ms: 0.405834
+  type: 'test'
+  ...
+# Subtest: first connection guard, commit readback, replacement, stale old client and interrupted guard
+ok 26 - first connection guard, commit readback, replacement, stale old client and interrupted guard
+  ---
+  duration_ms: 1.169333
+  type: 'test'
+  ...
+# Subtest: connection recovery requires a persisted guard and both files
+ok 27 - connection recovery requires a persisted guard and both files
+  ---
+  duration_ms: 0.398417
+  type: 'test'
+  ...
+# Subtest: confirmConnection adopts the original active revision after an interrupted replacement
+ok 28 - confirmConnection adopts the original active revision after an interrupted replacement
+  ---
+  duration_ms: 1.975291
+  type: 'test'
+  ...
+# Subtest: close/readback uncertainty in connection change retains blocking guard
+ok 29 - close/readback uncertainty in connection change retains blocking guard
+  ---
+  duration_ms: 0.935208
+  type: 'test'
+  ...
+# Subtest: resolution requires original confirmation, concrete decision and fresh same-target read callback
+ok 30 - resolution requires original confirmation, concrete decision and fresh same-target read callback
+  ---
+  duration_ms: 1.429625
+  type: 'test'
+  ...
+# Subtest: resolution compares the original durable connection snapshot after fresh read
+ok 31 - resolution compares the original durable connection snapshot after fresh read
+  ---
+  duration_ms: 1.100709
+  type: 'test'
+  ...
+# Subtest: journal UUID identity is canonical and returned snapshots are deeply immutable
+ok 32 - journal UUID identity is canonical and returned snapshots are deeply immutable
+  ---
+  duration_ms: 0.496917
+  type: 'test'
+  ...
+# Subtest: raw Error returned from a dispatched callback is redacted and marked unknown
+ok 33 - raw Error returned from a dispatched callback is redacted and marked unknown
+  ---
+  duration_ms: 0.462917
+  type: 'test'
+  ...
+# Subtest: clock and crypto feature failures use fixed safe errors
+ok 34 - clock and crypto feature failures use fixed safe errors
+  ---
+  duration_ms: 0.441542
+  type: 'test'
+  ...
+# Subtest: archive only current-operation known pages; rejected archive preserves partial and unknown archive blocks
+ok 35 - archive only current-operation known pages; rejected archive preserves partial and unknown archive blocks
+  ---
+  duration_ms: 0.78925
+  type: 'test'
+  ...
+# Subtest: uncertain archive callback durably changes the page archive state to unknown
+ok 36 - uncertain archive callback durably changes the page archive state to unknown
+  ---
+  duration_ms: 1.284042
+  type: 'test'
+  ...
+# Subtest: corrupt/extra-field journal never overwritten or exposed
+ok 37 - corrupt/extra-field journal never overwritten or exposed
+  ---
+  duration_ms: 0.727667
+  type: 'test'
+  ...
+1..37
+# tests 37
+# suites 0
+# pass 37
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 127.26425
+
+command_exit_code=0

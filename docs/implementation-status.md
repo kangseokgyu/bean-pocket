@@ -1,6 +1,8 @@
 # PLAN 실행 상태
 
-갱신일: 2026-10-19 (Asia/Seoul). 명세 기준: `cc8bd76`의 PLAN・SPEC・ADR-0003・GLOSSARY。
+최신 인계: **2026-10-20 [handoff.md](../handoff.md)**. 구현 `9ab8f53`: UI 5건·T27 N1·client종료 추가P1·동시시작 경합을 수정하고 최종 독립검토 PASS. 전체 **354/354**, 일반 **4e7b1268f15d** / 실험 **4a0d23ec358e** 빌드/검사 PASS. [최종 증거](evidence/T28/resume-20261020/README.md). 아래 이전 중단기록은 이력이다. 제품배포·실기기 완료는 아니다.
+
+갱신일: 2026-10-20 (Asia/Seoul). 명세 기준: `cc8bd76`의 PLAN・SPEC・ADR-0003・GLOSSARY。
 
 사용자 최신 지시에 따라 `codex/pages-first-implementation` 단일 브랜치에서 현재 변경을 먼저 커밋하고, 이어 작업 단위별로 커밋한다. PLAN의 작업별 별도 브랜치 기본값 대신 이번 지시를 적용한다. merge의 명시적 승인과 T09 기술 게이트는 그대로 따른다.
 
@@ -23,7 +25,12 @@
 | T13 연결 파일 저장소 | 완료 — 어댑터 범위 | 전용 33 테스트, 로컬 브라우저 fake 연결 보관·재접속 확인, 독립 검토 PASS. [증거](evidence/T13/README.md) |
 | T14 저장 작업 상태 | 완료 — 모듈 범위 | `cd9ebe1`, 전용 37개 통과·독립 재검토 PASS. [증거](evidence/T14/README.md). 전체 245개·로컬 native 저장/잠금 검증 통과 |
 | T15 최신 조회 저장소 | 완료 — 모듈 범위 | `2c61cbe`, 전용 47개·별도 재현 7건·독립 재검토 PASS. [증거](evidence/T15/README.md) |
-| T16~T30 후속 기능 | 대기 | T14/T15 통합 후 생성 명령·연결/조회 화면. 실제 Notion/최종 파일 수명(T29)은 후속 검증 |
+| T16~T20 생성·복사 명령 | 완료 — 명령 모듈 범위 | `153167f`, 관련 152개 통과·독립 검토 PASS. [근거](evidence/T16/README.md). 제품 화면·실제 Notion 검증과 구분 |
+| T21~T26 연결·조회·입력 화면 | 로컬 구현 완료 | `9ab8f53`, 최종 UI 독립37/37·추가시작경계3/3 PASS. 초안·복구·양수·완전성·동시초기화 보완. native 공개흐름은 합성Notion |
+| T27 안전 업데이트 | 로컬 구현·독립검토 완료 | `9ab8f53`, 42개+기존7개+N1원문+추가client종료원문 PASS. 실제제품두문서전환·초안보류·잠금해제 확인. native SW강제종료는 미검증 |
+| T28 공개 흐름 검증 | 로컬 통합 완료 | 전체354/354·일반/실험빌드검사·독립UI/빌드검토 PASS. 합성native공개흐름/unknown·partial복구/두문서업데이트 확인. [최종증거](evidence/T28/resume-20261020/README.md) |
+| T29 실기기 통합 | 대기 | 실제 Pages·Notion·iPhone·PC·셀룰러·최종 파일 수명 미검증. [체크리스트](evidence/T29/README.md) |
+| T30 운영 연결·인수인계 | 대기 | [안내 초안](pwa-usage.md) 작성. T29 통과 전 운영 연결 미실행 |
 
 ## 에이전트 실행 설정
 
@@ -106,3 +113,38 @@ T12 `21ce8ec`, T13 `0e2450f`, 배포 통합 `843a886`을 작업별 커밋했다.
 기존 worker들의 사용량 한도 및 worker-3의 429 중단으로 worker-4에게 순차 인계했으며, 새 생성은 부모 도구에서 모두 `gpt-6-luna`·`max`를 명시했다. 독립 critic은 기존 Nietzsche(`gpt-6.1-sol`·`medium`)를 재사용했다. 역할·실제 별칭·ID와 실패·인계 기록은 각 증거 문서에 보존했다.
 
 현재 Pages는 B `0f0ea09f28a8`이며 이 변경을 main에 통합·게시하지 않았다. 다음 생성 명령과 연결·조회 화면은 PLAN 의존 순서 및 이번 확정 모듈을 기준으로 진행한다.
+
+## 2026-10-19 T16 이후 실행·중단 인계
+
+최신 완료 코드 커밋은 `153167f` (`feat(T16-T20): add browser creation and copy commands`)다. 명령 모듈·preflight·전용 테스트·독립 검토 증거만 선별했다. 변경 전 작업 트리는 깨끗했다. 이후 변경은 미커밋으로 남아 있으며 merge·push·Pages 게시·실제 Notion 쓰기는 하지 않았다.
+
+미커밋 범위: `pwa/app.mjs`·`index.html`·`ui/controller.mjs`·`ui/view.mjs`·두 lifecycle 모듈·`sw.js`, 빌드/검사기, UI/흐름/배포 테스트와 모의 fixture, README·사용 안내·T27~T29 증거 및 이 상태 문서. UI는 초안이며 T21~T26 독립 검토와 최종 브라우저 검증이 없다. T27은 독립 검토 FAIL이며 배포 대상으로 승인하지 않는다.
+
+최종 기본 테스트는 **294/294 통과**, 일반 `7d0a034d9089`·실험 `cde21edbe947` 빌드/검사 통과, diff 검사 통과다. [중단 시점 원문](evidence/T28/README.md)을 따른다. 이에 별도로 T27의 7개 안전 assertion 실패와 정상 대조군 3개 통과가 있으며 [독립 재현](evidence/T27/critic-review.md)에 보존했다. timeout 뒤 동결 잔류, 무효화 뒤 활성화, 세대 취소/해제 간섭, 열린 앱의 새 실행 버전 전환 부재, checker의 handshake 밖/계산형 skipWaiting 허용을 수정해야 한다. 기본 테스트 통과만으로 완료로 바꾸지 않는다.
+
+### 에이전트 설정·실패 기록
+
+아래 모델·추론값은 부모가 **생성 도구 인자에 실제로 지정한 설정**이다. 도구에 이름 인자가 없으므로 역할은 업무상 호칭이고 앱 별칭은 별도다. critic 보고서에서 자기 설정을 조회하지 못했다고 적은 문구는 부모의 생성 인자 기록과 구분한다.
+
+| 역할 | 실제 별칭 / ID | 생성 설정 | 결과 |
+|---|---|---|---|
+| orchestrator | Euler / `01a151fa-b3c0-7633-885c-123240c3b258` | gpt-6.1-sol / medium | 순서·범위·완료 기준 정리 |
+| worker-1 | Hume / `01a151ff-4f99-7860-bbc6-cd9ea767dd4e` | gpt-6-luna / max | T16~T20 완료 |
+| worker-2 | Ampere / `01a151ff-50b7-7ad1-ad2e-2d61fd93e15d` | gpt-6-luna / max | 429 중단, 재개 불가 |
+| worker-3 | Hilbert / `01a15200-59e4-7d63-946a-f6f6a14ff2f3` | gpt-6-luna / max | T27 RED 테스트 뒤 429 |
+| critic | Socrates / `01a1528c-7813-7b71-bf79-dc9259e6eb03` | gpt-6.1-sol / medium | 명령 PASS, 후속 검토 진행·429 이력. 후속 지적도 증거에 보존 |
+| worker-4 | Pasteur / `01a15285-06a2-7611-a371-ef0ca6228d36` | gpt-6-luna / medium | 사용자 설정 변경 승인 후 UI 초안, 429 |
+| worker-5 | Tesla / `01a15285-0772-72f3-a3a7-62ecbb0402fb` | gpt-6-luna / medium | T27 구현·13개 테스트, 독립 검토 수정 필요 |
+| worker-6 | Hypatia / `01a152af-68c2-7ee3-b490-95b02be77daa` | gpt-6-luna / medium | 동시 부하 감소 후 한 차례 인계, UI 통합 초안·테스트 추가 뒤 429 |
+| critic-2 | Herschel / `01a152b0-44e1-7b52-a961-072b3856f810` | gpt-6.1-sol / medium | T27 FAIL·재현과 증거 보존 |
+
+사용자는 max의 429 후 worker를 luna/medium으로 변경했고, medium에서도 중단되자 sol 대체 대신 **luna 사용 가능할 때 재개**를 선택했다. 승인되지 않은 sol worker 대체는 하지 않았다. 같은 상태의 짧은 재시도를 반복하지 않는다.
+
+### 다음 작업
+
+1. 가용한 기존 luna worker를 우선 재사용하고, 복원이 불가능하면 luna/medium으로 담당 UI를 인계한다. T21~T26 원문과 현 초안을 직접 대조해 빠진 요구·화면/복구/입력 보존·좁은 화면·dirty/pending/frozen 연결을 마무리한다.
+2. T27은 기존 담당 맥락을 우선 재사용해 독립 재현의 실패 테스트를 제품 테스트로 옮기고 원인을 수정한다. checker 부정 사례도 회귀 테스트로 추가한다. 독립 critic sol/medium 재검토 PASS 전에는 완료 처리하지 않는다.
+3. T28의 실제 dist 브라우저 공개 흐름과 A→B 업데이트를 검증한다. 이번 임시 브라우저는 이전 최소 화면 관찰만 했으며 제품 통과가 아니다. 모의 검증과 실제 Notion 결과를 구분한다.
+4. 변경 후 영향 테스트·전체 회귀·일반/실험 빌드/검사·독립 검토를 갱신하고 작업별 커밋한다. 사용자에게 구체 결과를 제시한 뒤 merge 명시 승인을 받는다. T29 실기기·T30 운영 연결은 선행 통과 후 진행한다.
+
+자동 재개 등록은 승인되지 않았다. 시간별 heartbeat 생성 시 자동 승인 검토가 ‘명시적인 일정 승인 없이 코드/작업 트리를 반복 수정하는 범위가 넓다’는 이유로 거절했다. 자동화는 생성되지 않았으며 우회 등록하지 않았다. 후속 사용자 재개 요청 또는 명시적인 예약 승인 전에는 자동 실행하지 않는다.

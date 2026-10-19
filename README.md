@@ -4,7 +4,7 @@
 
 ## GitHub Pages PWA 준비
 
-`PLAN.md`에 따라 서버 없이 열리는 최소 PWA부터 준비한다. 현재 PWA는 원두 목록 자리·연결 전 안내를 제공하는 첫 화면이며, Notion 조회·저장은 아직 연결하지 않았다. 기존 서버 실행 방법은 아래에 유지한다.
+`PLAN.md`에 따라 기존 서버 기능을 서버 없이 실행하는 PWA로 이전하고 있다. Notion 직접 통신·기기 파일·조회·저장 상태와 생성/복사 명령을 구현했으며, 화면 통합과 최종 실기기 검증은 [현재 구현 상태](docs/implementation-status.md)를 따른다. 기존 서버 실행 방법은 아래에 유지한다.
 
 ```sh
 npm run build:pages
@@ -13,7 +13,9 @@ npm run check:pages
 
 게시 대상은 생성된 `dist/`뿐이다. `.env.local`이나 Notion 토큰을 빌드에 전달하지 않는다. [게시 준비 상태](docs/pages-readiness.md)와 [수동 게시·복귀·아이폰 확인 절차](docs/pages-deploy.md)를 따른다. 로컬 검증을 실제 Pages 게시나 iPhone 실기기 통과로 해석하지 않는다.
 
-## 로컬 실행
+PWA의 기기별 연결·입력·불확실 저장 복구는 [PWA 사용 안내](docs/pwa-usage.md)를 참고한다. 실제 운영 데이터 소스 연결은 테스트 DB의 최종 실기기 검증 후 수행한다. 아래 환경변수와 서버 메모리 토큰 설명은 기존 Node 서버에만 해당한다.
+
+## 기존 Node 서버 로컬 실행
 
 Node.js 22.9 이상에서 실행한다. 외부 패키지 설치 없이 실행하도록 구성한다.
 
@@ -53,4 +55,4 @@ npm test
 
 단계 시간·물 양, 날짜·별점, 봉지와 원두 관계, 레시피 복사와 당시 조건 보존, 노션 통신의 오류 처리를 검증한다. 모의 통신 테스트와 실제 노션 저장 검증은 구분한다.
 
-최종 자동 테스트는 24개, 소스 구문 검사는 8개 파일이 통과했다. 브라우저와 크리틱 검토 결과는 [검증 기록](docs/verification.md)에 있다. [구현 흐름 HTML](docs/app-flow.html)은 네트워크 없이 파일로 열 수 있다.
+최신 PWA 자동 테스트·독립 검토·미검증 범위는 [실행 상태](docs/implementation-status.md)와 각 작업의 증거를 따른다. 기존 서버의 브라우저 검증은 [검증 기록](docs/verification.md)에 있으며, [기존 서버 구현 흐름 HTML](docs/app-flow.html)은 네트워크 없이 파일로 열 수 있다.

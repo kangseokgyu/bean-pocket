@@ -1,0 +1,15 @@
+
+> build:pages
+> node scripts/build-pages.mjs
+
+Pages 산출물 생성 완료 (4063a267e227)
+
+> check:pages
+> node scripts/check-pages.mjs
+
+Pages 산출물 검사 통과
+
+> build:pages
+> node scripts/build-pages.mjs
+
+Pages 산출물 생성 완료 (4063a267e227)

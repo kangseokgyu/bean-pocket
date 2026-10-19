@@ -1,0 +1,148 @@
+TAP version 13
+# Subtest: module round-trip/hash/cache and required output: commands/index.mjs
+ok 1 - module round-trip/hash/cache and required output: commands/index.mjs
+  ---
+  duration_ms: 85.305917
+  type: 'test'
+  ...
+# Subtest: source leaf symlink: commands/index.mjs
+ok 2 - source leaf symlink: commands/index.mjs
+  ---
+  duration_ms: 12.07025
+  type: 'test'
+  ...
+# Subtest: output leaf symlink rejects check and rebuild without modifying target: commands/index.mjs
+ok 3 - output leaf symlink rejects check and rebuild without modifying target: commands/index.mjs
+  ---
+  duration_ms: 22.797958
+  type: 'test'
+  ...
+# Subtest: cache omission rejected: commands/index.mjs
+ok 4 - cache omission rejected: commands/index.mjs
+  ---
+  duration_ms: 24.857084
+  type: 'test'
+  ...
+# Subtest: module round-trip/hash/cache and required output: ui/controller.mjs
+ok 5 - module round-trip/hash/cache and required output: ui/controller.mjs
+  ---
+  duration_ms: 43.596958
+  type: 'test'
+  ...
+# Subtest: source leaf symlink: ui/controller.mjs
+ok 6 - source leaf symlink: ui/controller.mjs
+  ---
+  duration_ms: 13.333417
+  type: 'test'
+  ...
+# Subtest: output leaf symlink rejects check and rebuild without modifying target: ui/controller.mjs
+ok 7 - output leaf symlink rejects check and rebuild without modifying target: ui/controller.mjs
+  ---
+  duration_ms: 23.031833
+  type: 'test'
+  ...
+# Subtest: cache omission rejected: ui/controller.mjs
+ok 8 - cache omission rejected: ui/controller.mjs
+  ---
+  duration_ms: 22.393292
+  type: 'test'
+  ...
+# Subtest: module round-trip/hash/cache and required output: ui/view.mjs
+ok 9 - module round-trip/hash/cache and required output: ui/view.mjs
+  ---
+  duration_ms: 44.069291
+  type: 'test'
+  ...
+# Subtest: source leaf symlink: ui/view.mjs
+ok 10 - source leaf symlink: ui/view.mjs
+  ---
+  duration_ms: 13.073458
+  type: 'test'
+  ...
+# Subtest: output leaf symlink rejects check and rebuild without modifying target: ui/view.mjs
+ok 11 - output leaf symlink rejects check and rebuild without modifying target: ui/view.mjs
+  ---
+  duration_ms: 22.383417
+  type: 'test'
+  ...
+# Subtest: cache omission rejected: ui/view.mjs
+ok 12 - cache omission rejected: ui/view.mjs
+  ---
+  duration_ms: 21.8345
+  type: 'test'
+  ...
+# Subtest: module round-trip/hash/cache and required output: platform/app-lifecycle.mjs
+ok 13 - module round-trip/hash/cache and required output: platform/app-lifecycle.mjs
+  ---
+  duration_ms: 41.423333
+  type: 'test'
+  ...
+# Subtest: source leaf symlink: platform/app-lifecycle.mjs
+ok 14 - source leaf symlink: platform/app-lifecycle.mjs
+  ---
+  duration_ms: 13.137875
+  type: 'test'
+  ...
+# Subtest: output leaf symlink rejects check and rebuild without modifying target: platform/app-lifecycle.mjs
+ok 15 - output leaf symlink rejects check and rebuild without modifying target: platform/app-lifecycle.mjs
+  ---
+  duration_ms: 21.316458
+  type: 'test'
+  ...
+# Subtest: cache omission rejected: platform/app-lifecycle.mjs
+ok 16 - cache omission rejected: platform/app-lifecycle.mjs
+  ---
+  duration_ms: 22.201542
+  type: 'test'
+  ...
+# Subtest: module round-trip/hash/cache and required output: platform/update-coordinator.mjs
+ok 17 - module round-trip/hash/cache and required output: platform/update-coordinator.mjs
+  ---
+  duration_ms: 43.390875
+  type: 'test'
+  ...
+# Subtest: source leaf symlink: platform/update-coordinator.mjs
+ok 18 - source leaf symlink: platform/update-coordinator.mjs
+  ---
+  duration_ms: 13.502333
+  type: 'test'
+  ...
+# Subtest: output leaf symlink rejects check and rebuild without modifying target: platform/update-coordinator.mjs
+ok 19 - output leaf symlink rejects check and rebuild without modifying target: platform/update-coordinator.mjs
+  ---
+  duration_ms: 22.089
+  type: 'test'
+  ...
+# Subtest: cache omission rejected: platform/update-coordinator.mjs
+ok 20 - cache omission rejected: platform/update-coordinator.mjs
+  ---
+  duration_ms: 23.154875
+  type: 'test'
+  ...
+# Subtest: output directory symlink: commands
+ok 21 - output directory symlink: commands
+  ---
+  duration_ms: 23.89675
+  type: 'test'
+  ...
+# Subtest: output directory symlink: ui
+ok 22 - output directory symlink: ui
+  ---
+  duration_ms: 25.88725
+  type: 'test'
+  ...
+# Subtest: output directory symlink: platform
+ok 23 - output directory symlink: platform
+  ---
+  duration_ms: 23.403167
+  type: 'test'
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 681.74575

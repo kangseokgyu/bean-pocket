@@ -1,0 +1,5 @@
+{
+  "pwa/platform/app-lifecycle.mjs": "56db8dc5be9f4ab24b640b891d2e01dbb463235b418a50bb6d17c4548159440b",
+  "pwa/platform/update-coordinator.mjs": "cfb1313a7d6d4628d64ab4d38e59bdbf50714740ba0beece0df076c7081a272b",
+  "pwa/sw.js": "e4bd894a4ff33824b983344d6e7519fa80c928e7f5b395cfba4d0651dad95133"
+}

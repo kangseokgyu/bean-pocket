@@ -1,0 +1,192 @@
+// Copy to /tmp/critic2-t27-repro.test.mjs; node --test /tmp/critic2-t27-repro.test.mjs
+// Safety assertions intentionally fail on the reviewed implementation. Synthetic data only.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import { readFile, writeFile, mkdtemp, rm } from 'node:fs/promises';
+import { createUpdateCoordinator } from '/Users/kangseokgyu/workspace/AX-1day/pwa/platform/update-coordinator.mjs';
+import { createSubmissionState } from '/Users/kangseokgyu/workspace/AX-1day/pwa/state/submission-state.mjs';
+import { memoryPlatform } from '/Users/kangseokgyu/workspace/AX-1day/test/fixtures/pwa-environment.mjs';
+import { buildPages } from '/Users/kangseokgyu/workspace/AX-1day/scripts/build-pages.mjs';
+import { checkPages } from '/Users/kangseokgyu/workspace/AX-1day/scripts/check-pages.mjs';
+const ROOT = '/Users/kangseokgyu/workspace/AX-1day';
+const scope = 'https://example.test/pwa/';
+const protocol = 'bean-pocket-update-v1';
+const turn = () => new Promise(r => setImmediate(r));
+function gate() { let resolve; const promise = new Promise(r => { resolve = r; }); return { promise, resolve }; }
+function page({ inspect = async () => ({ blocked: false }), freeze, native } = {}) {
+  let listener, frozen = false, held = false;
+  const state = { dirty: false, pending: false };
+  const owner = { scriptURL: scope + 'sw.js' };
+  const registration = { scope, waiting: owner, active: null, installing: null };
+  const serviceWorker = {
+    getRegistration: async () => registration,
+    addEventListener(_type, fn) { listener = fn; },
+    removeEventListener() { listener = undefined; },
+  };
+  const submissionState = native ? createSubmissionState(native) : {
+    async withWriteLock(fn) {
+      if (held) throw Error('busy');
+      held = true;
+      try { return await fn({ inspect }); } finally { held = false; }
+    },
+  };
+  const coordinator = createUpdateCoordinator({ getState: () => state,
+    setFrozen: async value => { if (freeze) await freeze(value); frozen = value; return true; },
+    submissionState, serviceWorker, timeoutMs: 5000 });
+  coordinator.start();
+  async function send(type, generation = 'g1', source = owner) {
+    let ack;
+    await listener?.({ source, data: { protocol, type, generation },
+      ports: [{ postMessage(value) { ack = value; } }] });
+    await turn();
+    return ack;
+  }
+  return { coordinator, state, send, get frozen() { return frozen; }, get held() { return held; },
+    receive(data, ports = []) { return listener?.({ source: owner, data, ports }); } };
+}
+class Port {
+  postMessage(data) { queueMicrotask(() => { if (!this.peer.closed) this.peer.onmessage?.({ data }); }); }
+  close() { this.closed = true; }
+}
+class Channel {
+  constructor() { this.port1 = new Port(); this.port2 = new Port(); this.port1.peer = this.port2; this.port2.peer = this.port1; }
+}
+async function worker(p, { onMatch, onSkip } = {}) {
+  const events = new Map(), timers = new Map(), messages = [], tasks = [];
+  let calls = 0, skipped = 0, timerId = 0;
+  const client = { id: 'window-1', url: scope + 'index.html', postMessage(data, ports) {
+    messages.push(data.type); tasks.push(p.receive(data, ports));
+  } };
+  const self = { registration: { scope }, location: { origin: 'https://example.test' },
+    clients: { async matchAll() { await onMatch?.(++calls); return [client]; } },
+    async skipWaiting() { skipped++; onSkip?.(); },
+    addEventListener(type, fn) { events.set(type, fn); } };
+  const source = await readFile(ROOT + '/pwa/sw.js', 'utf8');
+  vm.runInNewContext(source, { self, URL, MessageChannel: Channel,
+    crypto: { randomUUID: () => 'g1' },
+    caches: { async open() { return { async addAll() {} }; }, async keys() { return []; } },
+    setTimeout(fn) { const id = ++timerId; timers.set(id, fn); return id; },
+    clearTimeout(id) { timers.delete(id); } });
+  function dispatch(type) { let pending; events.get(type)({ waitUntil(p) { pending = p; } }); return pending; }
+  return { dispatch, messages, tasks, expire() { for (const [id, fn] of [...timers]) { timers.delete(id); fn(); } },
+    get skipped() { return skipped; } };
+}
+
+test('R1: SW prepare timeout must unfreeze the recipient even when inspect completes late', async () => {
+  const entered = gate(), release = gate();
+  const p = page({ inspect: async () => { entered.resolve(); await release.promise; return { blocked: false }; } });
+  const w = await worker(p);
+  const installing = w.dispatch('install');
+  await entered.promise;
+  assert.equal(p.frozen, true);
+  w.expire(); // fire actual worker timeout callback without a wall-clock delay
+  await installing;
+  release.resolve(); await Promise.all(w.tasks); await turn();
+  const actual = { frozen: p.frozen, messages: w.messages, skipped: w.skipped };
+  await p.send('abort'); await p.coordinator.stop();
+  assert.equal(actual.frozen, false, JSON.stringify(actual));
+});
+
+test('R2: abort received during a pending prepare must tombstone the generation', async () => {
+  const entered = gate(), release = gate();
+  const p = page({ freeze: async value => { if (value) { entered.resolve(); await release.promise; } } });
+  const preparing = p.send('prepare'); await entered.promise;
+  const aborting = p.send('abort'); await turn();
+  release.resolve(); const [ack] = await Promise.all([preparing, aborting]);
+  const actual = { frozen: p.frozen, ack };
+  await p.send('abort'); await p.coordinator.stop();
+  assert.equal(actual.frozen, false, JSON.stringify(actual));
+});
+
+test('R3: stop while prepare is awaiting setFrozen must not leave a live freeze', async () => {
+  const entered = gate(), release = gate();
+  const p = page({ freeze: async value => { if (value) { entered.resolve(); await release.promise; } } });
+  const preparing = p.send('prepare'); await entered.promise;
+  const stopping = p.coordinator.stop(); await turn();
+  release.resolve(); await Promise.all([preparing, stopping]);
+  const actual = p.frozen; await p.send('abort'); await p.coordinator.stop();
+  assert.equal(actual, false);
+});
+
+test('R4: invalidation after recheck must prevent skipWaiting with an unfrozen, unlocked dirty leader', async () => {
+  const p = page(); let atSkip;
+  const w = await worker(p, {
+    async onMatch(call) { if (call === 3) { p.state.dirty = true; p.coordinator.notifyStateChange(); await turn(); } },
+    onSkip() { atSkip = { dirty: p.state.dirty, frozen: p.frozen, held: p.held }; },
+  });
+  await w.dispatch('install'); await w.dispatch('activate'); await Promise.all(w.tasks);
+  await p.send('abort'); await p.coordinator.stop();
+  assert.equal(w.skipped, 0, JSON.stringify({ skipped: w.skipped, atSkip, messages: w.messages }));
+});
+
+test('R5: activation from an unrelated generation must not release current freeze/leader lock', async () => {
+  const p = page(); await p.send('prepare', 'new-generation'); await p.send('lock', 'new-generation');
+  await p.send('activate', 'old-generation');
+  const actual = { frozen: p.frozen, held: p.held };
+  await p.send('abort','new-generation'); await p.coordinator.stop();
+  assert.equal(actual.frozen && actual.held, true, JSON.stringify(actual));
+});
+
+test('R6: checker must reject moving the single activation call outside the handshake', async () => {
+  const outputDir = await mkdtemp('/tmp/critic2-t27-checker-');
+  try {
+    await buildPages({ outputDir });
+    const file = outputDir + '/sw.js'; const source = await readFile(file, 'utf8');
+    const changed = source.replace('    await self.skipWaiting();', '    // activation moved outside handshake') + '\nself.skipWaiting();\n';
+    assert.notEqual(changed, source); await writeFile(file, changed);
+    await assert.rejects(checkPages(outputDir), /skipWaiting|업데이트|activation/);
+  } finally { await rm(outputDir, { recursive: true, force: true }); }
+});
+
+test('R7: aborting an older overlapping generation must not unfreeze an ACKed newer one', async () => {
+  const p = page();
+  await p.send('prepare', 'old'); await p.send('prepare', 'new');
+  await p.send('abort', 'old');
+  const ack = await p.send('recheck', 'new');
+  const actual = { frozen: p.frozen, ack };
+  await p.send('abort'); await p.coordinator.stop();
+  assert.equal(actual.frozen || actual.ack.ok === false, true, JSON.stringify(actual));
+});
+
+test('C1: real submission-state blocks incoherent/guarded/unknown/processing journals, and accepts empty first run', async () => {
+  for (const condition of ['empty', 'clean', 'guard', 'unknown', 'processing', 'partial', 'connection-only', 'journal-only', 'corrupt']) {
+    const native = memoryPlatform({ initialized: condition !== 'empty' });
+    if (['guard', 'unknown', 'processing', 'partial'].includes(condition)) {
+      const journal = native.journal();
+      if (condition === 'guard') journal.connectionGuard = { phase: 'processing',
+        candidateRevision: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', targetFingerprint: 'a'.repeat(64) };
+      else journal.operations = [{ key: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', kind: 'bean',
+        connectionRevision: journal.activeConnectionRevision, targetFingerprint: 'a'.repeat(64),
+        payloadFingerprint: 'b'.repeat(64), status: condition, createdPages: [], updatedAt: '2026-10-19T00:00:00.000Z' }];
+      native.files.set('submission-journal.json', JSON.stringify(journal));
+    }
+    if (condition === 'connection-only') native.files.delete('submission-journal.json');
+    if (condition === 'journal-only') native.files.delete('connection.json');
+    if (condition === 'corrupt') native.files.set('submission-journal.json', '{');
+    const p = page({ native }); const ack = await p.send('prepare');
+    const allowed = ['empty', 'clean'].includes(condition);
+    assert.equal(ack.ok, allowed, condition); assert.equal(p.frozen, allowed, condition);
+    await p.send('abort'); await p.coordinator.stop();
+  }
+});
+
+test('C2: source validation rejects foreign origin and a sibling scope worker', async () => {
+  const p = page();
+  for (const scriptURL of ['https://foreign.test/pwa/sw.js', 'https://example.test/other/sw.js']) {
+    assert.equal(await p.send('prepare', 'g1', { scriptURL }), undefined); assert.equal(p.frozen, false);
+  }
+  await p.send('abort'); await p.coordinator.stop();
+});
+
+test('C3: actual submission-state holds shared lock adapter until activation and blocks another instance', async () => {
+  const native = memoryPlatform(); const p = page({ native }); const other = createSubmissionState(native);
+  const w = await worker(p);
+  await w.dispatch('install');
+  let blocked = false;
+  try { await other.withWriteLock(context => context.inspect()); } catch { blocked = true; }
+  assert.equal(blocked, true); assert.equal(p.frozen, true);
+  await w.dispatch('activate'); await Promise.all(w.tasks); await turn();
+  assert.equal((await other.withWriteLock(context => context.inspect())).blocked, false);
+  assert.equal(p.frozen, false); await p.send('abort'); await p.coordinator.stop();
+});

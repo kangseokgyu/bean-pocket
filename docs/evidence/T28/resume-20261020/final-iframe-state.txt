@@ -1,0 +1,58 @@
+Browser tab: 2, Title: "390px product QA", URL: "http://127.0.0.1:4196/phone-resume.html".
+0 AXWebArea 390px product QA, URL: 127.0.0.1:4196/phone-resume.html
+	1 heading 390px product QA, Value: 1
+		2 text 390px product QA
+	3 container 390px product
+		4 AXWebArea bean-pocket · 나의 커피 노트, URL: 127.0.0.1:4196/candidate-resume/#/beans
+			5 container
+				6 text BEAN POCKET
+				7 container
+					8 text 빌드 
+					9 text 08bac8c084c9
+				10 container Description: 나의 커피 노트, ID: app-root
+					11 container
+						12 text 최신 목록을 불러왔습니다.
+						13 button (collapsed) Notion 연결 설정, Secondary Actions: Expand
+							14 text Notion 연결 설정
+						15 container 커피 기록 메뉴
+							16 button 원두
+							17 button 봉지
+							18 button 레시피 작성
+							19 button 추출 기록
+						20 container 커피 기록
+							21 heading 원두, Value: 2
+								22 text 원두
+							23 button 최신 목록 새로고침
+							24 container
+								25 heading 새 원두, Value: 2
+									26 text 새 원두
+								27 container 원두 정보
+									28 text 원두 정보
+									29 container
+										30 text 원두 이름
+										31 text field (settable) 원두 이름
+									32 container
+										33 text 로스터리
+										34 text field (settable) 로스터리
+									35 container
+										36 text 원산지·농장
+										37 text field (settable) 원산지·농장
+									38 container
+										39 text 품종
+										40 text field (settable) 품종
+									41 container
+										42 text 가공 방식
+										43 text field (settable) 가공 방식
+									44 container
+										45 text 향미 노트
+										46 text entry area (settable) 향미 노트
+								47 button 원두 저장
+								48 button 입력 취소
+							49 container
+								50 heading 재개 검증 원두, Value: 3
+									51 text 재개 검증 원두
+								52 text 시다마 · 합성 농장 향미 노트: 기록 없음 레시피 2개
+								53 button 이 원두의 레시피 보기
+				54 text BREW, TASTE, REMEMBER.
+
+The focused UI element is 4 AXWebArea bean-pocket · 나의 커피 노트, URL: 127.0.0.1:4196/candidate-resume/#/beans

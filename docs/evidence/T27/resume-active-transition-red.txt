@@ -1,0 +1,82 @@
+TAP version 13
+# Subtest: N1: restarted active worker explicitly recovers two product controllers and the shared write lock
+not ok 1 - N1: restarted active worker explicitly recovers two product controllers and the shared write lock
+  ---
+  duration_ms: 10.959834
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:98:1'
+  failureType: 'testCodeFailure'
+  error: '[{"client":0,"protocol":"bean-pocket-update-v1","type":"recover","generation":"generation-2","buildVersion":"__BUILD_VERSION__"},{"client":1,"protocol":"bean-pocket-update-v1","type":"recover","generation":"generation-2","buildVersion":"__BUILD_VERSION__"},{"client":0,"protocol":"bean-pocket-update-v1","type":"abort","generation":"generation-1","buildVersion":"__BUILD_VERSION__"},{"client":1,"protocol":"bean-pocket-update-v1","type":"abort","generation":"generation-1","buildVersion":"__BUILD_VERSION__"},{"client":0,"protocol":"bean-pocket-update-v1","type":"recover","generation":"generation-3","buildVersion":"__BUILD_VERSION__"},{"client":1,"protocol":"bean-pocket-update-v1","type":"recover","generation":"generation-3","buildVersion":"__BUILD_VERSION__"}]'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:105:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: late retry delivered to an already active worker cannot freeze a product controller without a new activation
+ok 2 - late retry delivered to an already active worker cannot freeze a product controller without a new activation
+  ---
+  duration_ms: 1.498917
+  type: 'test'
+  ...
+# Subtest: waiting-worker restart aborts its old owned generation before preparing a fresh generation
+ok 3 - waiting-worker restart aborts its old owned generation before preparing a fresh generation
+  ---
+  duration_ms: 3.018458
+  type: 'test'
+  ...
+# Subtest: recovery from a different worker instance cannot release the owned generation
+ok 4 - recovery from a different worker instance cannot release the owned generation
+  ---
+  duration_ms: 1.592208
+  type: 'test'
+  ...
+# Subtest: recovery releases only the lifecycle lock and preserves an unresolved journal barrier without navigation
+ok 5 - recovery releases only the lifecycle lock and preserves an unresolved journal barrier without navigation
+  ---
+  duration_ms: 2.220834
+  type: 'test'
+  ...
+# Subtest: controllerchange and the committed watchdog ask the active owner for explicit recovery without local thaw
+ok 6 - controllerchange and the committed watchdog ask the active owner for explicit recovery without local thaw
+  ---
+  duration_ms: 34.667625
+  type: 'test'
+  ...
+# Subtest: safe activation reloads a hash-routed product document instead of completing a same-document fragment replace
+ok 7 - safe activation reloads a hash-routed product document instead of completing a same-document fragment replace
+  ---
+  duration_ms: 2.375292
+  type: 'test'
+  ...
+# Subtest: active recovery defers a new document transition if the product becomes dirty after thaw, then resumes on clean
+not ok 8 - active recovery defers a new document transition if the product becomes dirty after thaw, then resumes on clean
+  ---
+  duration_ms: 3.467709
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:199:1'
+  failureType: 'testCodeFailure'
+  error: 'clean notification must still reach active B after explicit recovery abort'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:212:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 6
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 108.621709

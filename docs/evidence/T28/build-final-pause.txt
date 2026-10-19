@@ -1,0 +1,20 @@
+
+> build:probes
+> node scripts/build-probes.mjs
+
+실험판 산출물 생성 완료 (cde21edbe947)
+
+> check:probes
+> node scripts/check-pages.mjs --probes
+
+Pages 산출물 검사 통과
+
+> build:pages
+> node scripts/build-pages.mjs
+
+Pages 산출물 생성 완료 (7d0a034d9089)
+
+> check:pages
+> node scripts/check-pages.mjs
+
+Pages 산출물 검사 통과

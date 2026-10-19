@@ -1,0 +1,99 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import { readFile, writeFile, mkdtemp, rm } from 'node:fs/promises';
+import { createUpdateCoordinator } from '/Users/kangseokgyu/workspace/AX-1day/pwa/platform/update-coordinator.mjs';
+import { createSubmissionState } from '/Users/kangseokgyu/workspace/AX-1day/pwa/state/submission-state.mjs';
+import { memoryPlatform } from '/Users/kangseokgyu/workspace/AX-1day/test/fixtures/pwa-environment.mjs';
+const ROOT = '/Users/kangseokgyu/workspace/AX-1day';
+const scope = 'https://example.test/pwa/';
+const protocol = 'bean-pocket-update-v1';
+const turn = () => new Promise(r => setImmediate(r));
+function gate() { let resolve; const promise = new Promise(r => { resolve = r; }); return { promise, resolve }; }
+function page({ inspect = async () => ({ blocked: false }), freeze, native, navigate, controller } = {}) {
+  let listener, frozen = false, held = false;
+  const owner = { scriptURL: scope + 'sw.js' };
+  const registration = { scope, installing: null, waiting: owner, active: null };
+  const state = { dirty: false, pending: false };
+  const serviceWorker = {
+    controller,
+    getRegistration: async () => registration,
+    addEventListener(_type, fn) { listener = fn; },
+    removeEventListener() { listener = undefined; },
+  };
+  const submissionState = native ? createSubmissionState(native) : {
+    async withWriteLock(fn) {
+      if (held) throw Error('busy');
+      held = true;
+      try { return await fn({ inspect }); } finally { held = false; }
+    },
+  };
+  const coordinator = createUpdateCoordinator({ getState: () => state,
+    setFrozen: async value => { if (freeze) await freeze(value); frozen = value; return true; },
+    submissionState, serviceWorker, navigate, timeoutMs: 100 });
+  coordinator.start();
+  async function send(type, generation = 'g1', source = owner) {
+    let ack;
+    await listener?.({ source, data: { protocol, type, generation },
+      ports: [{ postMessage(value) { ack = value; } }] });
+    await turn();
+    return ack;
+  }
+  return { coordinator, state, send, owner, registration, serviceWorker, get frozen() { return frozen; }, get held() { return held; },
+    receive(data, ports = []) { return listener?.({ source: owner, data, ports }); } };
+}
+class Port {
+  postMessage(data) { queueMicrotask(() => { if (!this.peer.closed) this.peer.onmessage?.({ data }); }); }
+  close() { this.closed = true; }
+}
+class Channel {
+  constructor() { this.port1 = new Port(); this.port2 = new Port(); this.port1.peer = this.port2; this.port2.peer = this.port1; }
+}
+let generationSequence=0;
+async function worker(p, { onMatch, onSkip, onMessage } = {}) {
+  const events = new Map(), timers = new Map(), messages = [], tasks = [];
+  let calls = 0, skipped = 0, timerId = 0;
+  const client = { id: 'window-1', url: scope + 'index.html', postMessage(data, ports) {
+    messages.push(data.type); tasks.push(p.receive(data, ports));
+    onMessage?.(data);
+  } };
+  const self = { registration: { scope }, location: { origin: 'https://example.test' },
+    clients: { async matchAll() { await onMatch?.(++calls); return [client]; } },
+    async skipWaiting() { skipped++; onSkip?.(); },
+    addEventListener(type, fn) { events.set(type, fn); } };
+  const source = await readFile(ROOT + '/pwa/sw.js', 'utf8');
+  vm.runInNewContext(source, { self, URL, MessageChannel: Channel,
+    crypto: { randomUUID: () => 'g' + (++generationSequence) },
+    caches: { async open() { return { async addAll() {} }; }, async keys() { return []; } },
+    setTimeout(fn) { const id = ++timerId; timers.set(id, fn); return id; },
+    clearTimeout(id) { timers.delete(id); } });
+  function dispatch(type) {
+    if (type === 'activate') { p.registration.waiting = null; p.registration.active = p.owner; }
+    let pending; events.get(type)({ waitUntil(p) { pending = p; } }); return pending;
+  }
+  return { dispatch, messages, tasks, retry() { let pending; events.get('message')({ data: { protocol, type: 'retry' }, source: client, waitUntil(value) { pending=value; } }); return pending; }, expire() { for (const [id, fn] of [...timers]) { timers.delete(id); fn(); } },
+    get skipped() { return skipped; } };
+}
+
+
+test('new N1: worker context restart after commit must recover the still-frozen page',async()=>{
+  const native=memoryPlatform();
+  let navigations=0;
+  const p=page({native,navigate:()=>{navigations++;return true;}});
+  const nativeProbe=createSubmissionState(native);
+  const w1=await worker(p);
+  await w1.dispatch('install'); await Promise.all(w1.tasks); await turn();
+  assert.equal(w1.skipped,1);assert.equal(p.frozen,true);
+  // Preserve the page and ServiceWorker identity, re-evaluate identical worker
+  // source in a fresh global for activation. No product source is edited.
+  const w2=await worker(p);
+  await w2.dispatch('activate'); await Promise.all(w2.tasks); await turn();
+  await w2.retry(); await Promise.all(w2.tasks); await turn();
+  let blocked=false;
+  try { await nativeProbe.withWriteLock(context=>context.inspect()); } catch { blocked=true; }
+  const actual={frozen:p.frozen,blocked,navigations,messages:w2.messages};
+  // Explicit cleanup belongs to the test, not the observed product behavior.
+  await p.send('abort','g1'); await p.coordinator.stop();
+  console.log('N1 observation',JSON.stringify(actual));
+  assert.equal(actual.navigations > 0 || (!actual.frozen && !actual.blocked),true,'restarted worker must safely navigate or abort the stale frozen/locked session');
+});

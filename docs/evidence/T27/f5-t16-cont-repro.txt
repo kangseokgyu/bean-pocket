@@ -1,0 +1,53 @@
+TAP version 13
+# Subtest: fixed regression: original R3 computed call
+ok 1 - fixed regression: original R3 computed call
+  ---
+  duration_ms: 127.704541
+  type: 'test'
+  ...
+# Subtest: fixed regression: original F5 call moved
+ok 2 - fixed regression: original F5 call moved
+  ---
+  duration_ms: 84.967584
+  type: 'test'
+  ...
+# Subtest: fixed regression: alias call
+ok 3 - fixed regression: alias call
+  ---
+  duration_ms: 60.485583
+  type: 'test'
+  ...
+# Subtest: fixed regression: condition removal
+ok 4 - fixed regression: condition removal
+  ---
+  duration_ms: 74.797958
+  type: 'test'
+  ...
+# marker-free modified artifact result true
+# Subtest: canonical comparison cannot be disabled by removing artifact marker literals
+not ok 5 - canonical comparison cannot be disabled by removing artifact marker literals
+  ---
+  duration_ms: 62.956833
+  type: 'test'
+  location: '/private/tmp/critic-f5-recheck.test.mjs:16:1'
+  failureType: 'testCodeFailure'
+  error: 'modified release worker must not opt out of canonical integrity comparison'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: true
+  operator: 'notStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/critic-f5-recheck.test.mjs:26:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 4
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 536.272083

@@ -1,0 +1,47 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createAppController } from '/Users/kangseokgyu/workspace/AX-1day/pwa/ui/controller.mjs';
+
+const CONNECTION = { token: 'secret-token', dataSources: { beans: '11111111-1111-4111-8111-111111111111', bags: '22222222-2222-4222-8222-222222222222', recipes: '33333333-3333-4333-8333-333333333333', steps: '44444444-4444-4444-8444-444444444444', records: '55555555-5555-4555-8555-555555555555' } };
+const REVISION = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+function harness({ verify = async () => true, readAll = async () => ({ beans: [], bags: [], recipes: [], records: [] }),
+  connection = null, inspection = { initialized: false, blocked: false },
+  journal = { operations: [], connectionGuard: null, activeConnectionRevision: null }, resolutionOperation = null,
+  lockBusyCount = 0, lockBusyAlways = false, inspectionError = null } = {}) {
+  const events = [];
+  let lockAttempts = 0;
+  const view = { showConnection(value) { events.push(['connection', value]); }, showStatus(value) { events.push(['status', value]); }, renderData() {}, clearSecret() { events.push(['clear']); } };
+  const context = { async inspect() { events.push(['inspect']); if (inspectionError) throw Object.freeze({ code: inspectionError }); return inspection; }, async readJournal() { return journal; }, async beginConnectionChange(value) { events.push(['begin', value.revision]); }, async commitConnectionChange() { events.push(['commit']); }, async confirmConnection(value) { events.push(['confirm', value.originalConfirmed]); }, async confirmResolution(key, options) { events.push(['confirm-resolution']); return options.freshRead(resolutionOperation); } };
+  const state = { async withWriteLock(action) {
+    events.push(['lock']);
+    lockAttempts++;
+    if (lockBusyAlways || lockAttempts <= lockBusyCount) throw Object.freeze({ code: 'lock-busy' });
+    return action(context);
+  } };
+  const file = { async readConnection() { return connection; } };
+  const controller = createAppController({ view, state, file, makeClient: () => ({ async verify() { events.push(['verify']); return verify(); } }), makeRepository: () => ({ readAll }), makeCommands: () => ({}), uuid: () => REVISION });
+  return { controller, events, get lockAttempts() { return lockAttempts; } };
+}
+
+
+const saved = {connection:{...CONNECTION,revision:REVISION},inspection:{initialized:true,blocked:false},journal:{operations:[],connectionGuard:null,activeConnectionRevision:REVISION}};
+test('independent: sixth acquisition can succeed with only one Notion verification',async()=>{
+ const env=harness({...saved,lockBusyCount:5});
+ assert.equal(await env.controller.initialize(),true);
+ assert.equal(env.lockAttempts,6);
+ assert.equal(env.events.filter(x=>x[0]==='verify').length,1);
+});
+test('independent: verification throwing lock-busy is never retried after admission',async()=>{
+ let calls=0;
+ const env=harness({...saved,verify:async()=>{calls++;throw {code:'lock-busy'};}});
+ assert.equal(await env.controller.initialize(),false);
+ assert.equal(env.lockAttempts,1);assert.equal(calls,1);
+});
+test('independent: failed first full read is not retried or reclassified as a lost connection',async()=>{
+ let calls=0;
+ const env=harness({...saved,readAll:async()=>{calls++;throw {httpStatus:503};}});
+ assert.equal(await env.controller.initialize(),true);
+ assert.equal(env.controller.getState().connected,true);
+ assert.equal(env.lockAttempts,1);assert.equal(calls,1);
+ assert.equal(env.events.filter(x=>x[0]==='verify').length,1);
+});

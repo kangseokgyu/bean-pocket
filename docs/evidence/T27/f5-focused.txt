@@ -1,0 +1,434 @@
+TAP version 13
+# Subtest: Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록을 만든다
+ok 1 - Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록을 만든다
+  ---
+  duration_ms: 55.334333
+  type: 'test'
+  ...
+# Subtest: 검사기는 누락 파일과 허용 목록 밖 산출물을 거부한다
+ok 2 - 검사기는 누락 파일과 허용 목록 밖 산출물을 거부한다
+  ---
+  duration_ms: 33.485541
+  type: 'test'
+  ...
+# Subtest: 검사기는 루트 절대 경로와 허용 파일 안의 비밀값을 거부한다
+ok 3 - 검사기는 루트 절대 경로와 허용 파일 안의 비밀값을 거부한다
+  ---
+  duration_ms: 36.311625
+  type: 'test'
+  ...
+# Subtest: 검사기는 Service Worker가 API 경로를 앱 캐시에 넣는 변경을 거부한다
+ok 4 - 검사기는 Service Worker가 API 경로를 앱 캐시에 넣는 변경을 거부한다
+  ---
+  duration_ms: 20.1895
+  type: 'test'
+  ...
+# Subtest: 검사기는 scope별 캐시 namespace가 빠진 Service Worker를 거부한다
+not ok 5 - 검사기는 scope별 캐시 namespace가 빠진 Service Worker를 거부한다
+  ---
+  duration_ms: 17.724208
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:233:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /scope|namespace|캐시/. Input:
+    
+    'Error: 업데이트 Service Worker 산출물이 원본과 다릅니다.'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+  error: '업데이트 Service Worker 산출물이 원본과 다릅니다.'
+  stack: |-
+    checkPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/check-pages.mjs:209:13)
+    async waitForActual (node:assert:565:5)
+    async Function.rejects (node:assert:686:25)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:238:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  operator: 'rejects'
+  stack: |-
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:238:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 빌더는 필수 소스 누락과 소스 심볼릭 링크를 거부한다
+ok 6 - 빌더는 필수 소스 누락과 소스 심볼릭 링크를 거부한다
+  ---
+  duration_ms: 35.51075
+  type: 'test'
+  ...
+# Subtest: 빌더는 symlink 부모 경로로 소스를 출력 경로로 지정해도 원본을 보존한다
+ok 7 - 빌더는 symlink 부모 경로로 소스를 출력 경로로 지정해도 원본을 보존한다
+  ---
+  duration_ms: 5.47825
+  type: 'test'
+  ...
+# Subtest: 검사기는 산출물 심볼릭 링크와 잘못된 dist 루트를 거부한다
+ok 8 - 검사기는 산출물 심볼릭 링크와 잘못된 dist 루트를 거부한다
+  ---
+  duration_ms: 20.78225
+  type: 'test'
+  ...
+# Subtest: 실제 PWA 소스에는 API 호출이나 외부 요청이 없고 하위 경로 자원만 쓴다
+ok 9 - 실제 PWA 소스에는 API 호출이나 외부 요청이 없고 하위 경로 자원만 쓴다
+  ---
+  duration_ms: 10.327791
+  type: 'test'
+  ...
+# Subtest: Service Worker install·activate·fetch는 scope를 격리하고 앱 파일만 다룬다
+ok 10 - Service Worker install·activate·fetch는 scope를 격리하고 앱 파일만 다룬다
+  ---
+  duration_ms: 14.14525
+  type: 'test'
+  ...
+# Subtest: 빌드 hash는 같은 소스에서 재현되고 소스 변경 시 바뀐다
+ok 11 - 빌드 hash는 같은 소스에서 재현되고 소스 변경 시 바뀐다
+  ---
+  duration_ms: 31.063458
+  type: 'test'
+  ...
+# Subtest: product commands, UI and lifecycle ship byte-for-byte and all affect the release version
+ok 12 - product commands, UI and lifecycle ship byte-for-byte and all affect the release version
+  ---
+  duration_ms: 137.193125
+  type: 'test'
+  ...
+# Subtest: commands/UI directory symlinks cannot bypass the source boundary
+ok 13 - commands/UI directory symlinks cannot bypass the source boundary
+  ---
+  duration_ms: 33.927208
+  type: 'test'
+  ...
+# Subtest: release checker rejects activation moved outside the handshake, aliases and removed guards
+not ok 14 - release checker rejects activation moved outside the handshake, aliases and removed guards
+  ---
+  duration_ms: 42.387208
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-product-build.test.mjs:46:1'
+  failureType: 'testCodeFailure'
+  error: 'the fixture must actually change the worker'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: |-
+    const BUILD_VERSION = '395367d2033b';
+    const SCOPE_KEY = encodeURIComponent(new URL(self.registration.scope).pathname);
+    const CACHE_PREFIX = `bean-pocket-shell-${SCOPE_KEY}-`;
+    const CACHE_NAME = `${CACHE_PREFIX}${BUILD_VERSION}`;
+    const APP_FILES = ["./", "./index.html", "./app.mjs", "./commands/index.mjs", "./ui/controller.mjs", "./ui/view.mjs", "./data/notion-client.mjs", "./data/notion-properties.mjs", "./data/read-repository.mjs", "./domain.mjs", "./platform/app-lifecycle.mjs", "./platform/connection-file.mjs", "./platform/update-coordinator.mjs", "./state/submission-state.mjs", "./styles.css", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
+    
+    const UPDATE_PROTOCOL = 'bean-pocket-update-v1';
+    const UPDATE_TIMEOUT_MS = 5000;
+    let safeApplyPromise;
+    let activeAttempt;
+    
+    self.addEventListener('install', event => {
+      event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES)).then(() => requestSafeApply()));
+    });
+    
+    function clientMessage(client, type, generation, attempt) {
+      return new Promise(resolve => {
+        const channel = new MessageChannel();
+        let settled = false;
+        const finish = value => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          if (type !== 'prepare') channel.port1.close();
+          resolve(value);
+        };
+        const timer = setTimeout(() => finish(null), UPDATE_TIMEOUT_MS);
+        channel.port1.onmessage = event => {
+          const data = event.data;
+          if (data?.protocol === UPDATE_PROTOCOL && data.generation === generation && data.type === 'invalidate') {
+            attempt.invalid = true;
+            return;
+          }
+          finish(data);
+        };
+        attempt.ports.push(channel.port1);
+        try { client.postMessage({ protocol: UPDATE_PROTOCOL, type, generation, buildVersion: BUILD_VERSION }, [channel.port2]); }
+        catch { finish(null); }
+      });
+    }
+    
+    function requestSafeApply() {
+      if (safeApplyPromise) return safeApplyPromise;
+      if (activeAttempt) return Promise.resolve();
+      safeApplyPromise = performSafeApply().finally(() => { safeApplyPromise = undefined; });
+      return safeApplyPromise;
+    }
+    
+    async function abortAttempt(attempt) {
+      attempt.invalid = true;
+      await Promise.all(attempt.clients.map(client => clientMessage(client, 'abort', attempt.generation, attempt)));
+      for (const port of attempt.ports) port.close();
+      if (activeAttempt === attempt) activeAttempt = undefined;
+    }
+    
+    async function phase(attempt, type, clients = attempt.clients) {
+      const acks = await Promise.all(clients.map(client => clientMessage(client, type, attempt.generation, attempt)));
+      return !attempt.invalid && acks.every(ack => validAck(ack, attempt.generation, type !== 'abort'));
+    }
+    
+    async function performSafeApply() {
+      const attempt = { generation: crypto.randomUUID(), clients: [], ports: [], invalid: false, committed: false };
+      activeAttempt = attempt;
+      try {
+        const first = await scopedWindowClients();
+        if (!first.length) return;
+        const ids = first.map(client => client.id).sort();
+        for (const client of first) {
+          // Include every contacted client, even when its prepare ACK is lost or delayed.
+          attempt.clients.push(client);
+          if (!await phase(attempt, 'prepare', [client])) return;
+        }
+        if (!await phase(attempt, 'lock', [first[0]])) return;
+        if (!sameClients(ids, await scopedWindowClients())) return;
+        if (!await phase(attempt, 'recheck')) return;
+        if (!sameClients(ids, await scopedWindowClients())) return;
+        // Commit seals the generation; every participant retains freeze and the leader lock.
+        // Invalidation uses the retained prepare channel and never locally drops that lock.
+        if (!await phase(attempt, 'commit')) return;
+        if (attempt.invalid) return;
+        attempt.committed = true;
+        await self.skipWaiting();
+      } catch { attempt.committed = false; }
+      finally { if (!attempt.committed) await abortAttempt(attempt); }
+    }
+    
+    async function scopedWindowClients() {
+      const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      return clients.filter(sourceInScope);
+    }
+    
+    function sourceInScope(source) {
+      try {
+        const scope = new URL(self.registration.scope);
+        const url = new URL(source.url);
+        return url.origin === scope.origin && url.pathname.startsWith(scope.pathname);
+      } catch { return false; }
+    }
+    
+    function validAck(ack, generation, needsClean = false) {
+      return ack?.protocol === UPDATE_PROTOCOL && ack.type === 'ack' && ack.generation === generation &&
+        ack.ok === true && (!needsClean || (ack.frozen === true && ack.clean === true));
+    }
+    
+    function sameClients(ids, clients) {
+      const current = clients.map(client => client.id).sort();
+      return ids.length === current.length && ids.every((id, index) => id === current[index]);
+    }
+    
+    self.addEventListener('message', event => {
+      if (event.data?.protocol === UPDATE_PROTOCOL && event.data.type === 'retry' && sourceInScope(event.source)) {
+        event.waitUntil?.(requestSafeApply());
+      }
+    });
+    
+    self.addEventListener('activate', event => {
+      event.waitUntil(Promise.all([
+        caches.keys().then(names => Promise.all(names
+          .filter(name => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME)
+          .map(name => caches.delete(name)))),
+        transitionOpenApps(),
+      ]));
+    });
+    
+    async function transitionOpenApps() {
+      const attempt = activeAttempt;
+      // A restarted worker without the commit evidence cannot authorize navigation.
+      if (!attempt?.committed) return;
+      try {
+        const ids = attempt.clients.map(client => client.id).sort();
+        if (attempt.invalid || !sameClients(ids, await scopedWindowClients())) return;
+        if (!await phase(attempt, 'activate')) return;
+        if (!await phase(attempt, 'navigate')) return;
+        attempt.finished = true;
+        for (const port of attempt.ports) port.close();
+      } finally {
+        if (!attempt.finished) await abortAttempt(attempt);
+      }
+    }
+    
+    self.addEventListener('fetch', event => {
+      const request = event.request;
+      const url = new URL(request.url);
+      const appUrls = APP_FILES.map(file => new URL(file, self.registration.scope).href);
+      if (request.method !== 'GET' || url.origin !== self.location.origin || !appUrls.includes(url.href)) return;
+    
+      event.respondWith(caches.open(CACHE_NAME).then(async cache => {
+        const cached = await cache.match(request);
+        return cached || fetch(request);
+      }));
+    });
+    
+  actual: |-
+    const BUILD_VERSION = '395367d2033b';
+    const SCOPE_KEY = encodeURIComponent(new URL(self.registration.scope).pathname);
+    const CACHE_PREFIX = `bean-pocket-shell-${SCOPE_KEY}-`;
+    const CACHE_NAME = `${CACHE_PREFIX}${BUILD_VERSION}`;
+    const APP_FILES = ["./", "./index.html", "./app.mjs", "./commands/index.mjs", "./ui/controller.mjs", "./ui/view.mjs", "./data/notion-client.mjs", "./data/notion-properties.mjs", "./data/read-repository.mjs", "./domain.mjs", "./platform/app-lifecycle.mjs", "./platform/connection-file.mjs", "./platform/update-coordinator.mjs", "./state/submission-state.mjs", "./styles.css", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
+    
+    const UPDATE_PROTOCOL = 'bean-pocket-update-v1';
+    const UPDATE_TIMEOUT_MS = 5000;
+    let safeApplyPromise;
+    let activeAttempt;
+    
+    self.addEventListener('install', event => {
+      event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES)).then(() => requestSafeApply()));
+    });
+    
+    function clientMessage(client, type, generation, attempt) {
+      return new Promise(resolve => {
+        const channel = new MessageChannel();
+        let settled = false;
+        const finish = value => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          if (type !== 'prepare') channel.port1.close();
+          resolve(value);
+        };
+        const timer = setTimeout(() => finish(null), UPDATE_TIMEOUT_MS);
+        channel.port1.onmessage = event => {
+          const data = event.data;
+          if (data?.protocol === UPDATE_PROTOCOL && data.generation === generation && data.type === 'invalidate') {
+            attempt.invalid = true;
+            return;
+          }
+          finish(data);
+        };
+        attempt.ports.push(channel.port1);
+        try { client.postMessage({ protocol: UPDATE_PROTOCOL, type, generation, buildVersion: BUILD_VERSION }, [channel.port2]); }
+        catch { finish(null); }
+      });
+    }
+    
+    function requestSafeApply() {
+      if (safeApplyPromise) return safeApplyPromise;
+      if (activeAttempt) return Promise.resolve();
+      safeApplyPromise = performSafeApply().finally(() => { safeApplyPromise = undefined; });
+      return safeApplyPromise;
+    }
+    
+    async function abortAttempt(attempt) {
+      attempt.invalid = true;
+      await Promise.all(attempt.clients.map(client => clientMessage(client, 'abort', attempt.generation, attempt)));
+      for (const port of attempt.ports) port.close();
+      if (activeAttempt === attempt) activeAttempt = undefined;
+    }
+    
+    async function phase(attempt, type, clients = attempt.clients) {
+      const acks = await Promise.all(clients.map(client => clientMessage(client, type, attempt.generation, attempt)));
+      return !attempt.invalid && acks.every(ack => validAck(ack, attempt.generation, type !== 'abort'));
+    }
+    
+    async function performSafeApply() {
+      const attempt = { generation: crypto.randomUUID(), clients: [], ports: [], invalid: false, committed: false };
+      activeAttempt = attempt;
+      try {
+        const first = await scopedWindowClients();
+        if (!first.length) return;
+        const ids = first.map(client => client.id).sort();
+        for (const client of first) {
+          // Include every contacted client, even when its prepare ACK is lost or delayed.
+          attempt.clients.push(client);
+          if (!await phase(attempt, 'prepare', [client])) return;
+        }
+        if (!await phase(attempt, 'lock', [first[0]])) return;
+        if (!sameClients(ids, await scopedWindowClients())) return;
+        if (!await phase(attempt, 'recheck')) return;
+        if (!sameClients(ids, await scopedWindowClients())) return;
+        // Commit seals the generation; every participant retains freeze and the leader lock.
+        // Invalidation uses the retained prepare channel and never locally drops that lock.
+        if (!await phase(attempt, 'commit')) return;
+        if (attempt.invalid) return;
+        attempt.committed = true;
+        await self.skipWaiting();
+      } catch { attempt.committed = false; }
+      finally { if (!attempt.committed) await abortAttempt(attempt); }
+    }
+    
+    async function scopedWindowClients() {
+      const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      return clients.filter(sourceInScope);
+    }
+    
+    function sourceInScope(source) {
+      try {
+        const scope = new URL(self.registration.scope);
+        const url = new URL(source.url);
+        return url.origin === scope.origin && url.pathname.startsWith(scope.pathname);
+      } catch { return false; }
+    }
+    
+    function validAck(ack, generation, needsClean = false) {
+      return ack?.protocol === UPDATE_PROTOCOL && ack.type === 'ack' && ack.generation === generation &&
+        ack.ok === true && (!needsClean || (ack.frozen === true && ack.clean === true));
+    }
+    
+    function sameClients(ids, clients) {
+      const current = clients.map(client => client.id).sort();
+      return ids.length === current.length && ids.every((id, index) => id === current[index]);
+    }
+    
+    self.addEventListener('message', event => {
+      if (event.data?.protocol === UPDATE_PROTOCOL && event.data.type === 'retry' && sourceInScope(event.source)) {
+        event.waitUntil?.(requestSafeApply());
+      }
+    });
+    
+    self.addEventListener('activate', event => {
+      event.waitUntil(Promise.all([
+        caches.keys().then(names => Promise.all(names
+          .filter(name => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME)
+          .map(name => caches.delete(name)))),
+        transitionOpenApps(),
+      ]));
+    });
+    
+    async function transitionOpenApps() {
+      const attempt = activeAttempt;
+      // A restarted worker without the commit evidence cannot authorize navigation.
+      if (!attempt?.committed) return;
+      try {
+        const ids = attempt.clients.map(client => client.id).sort();
+        if (attempt.invalid || !sameClients(ids, await scopedWindowClients())) return;
+        if (!await phase(attempt, 'activate')) return;
+        if (!await phase(attempt, 'navigate')) return;
+        attempt.finished = true;
+        for (const port of attempt.ports) port.close();
+      } finally {
+        if (!attempt.finished) await abortAttempt(attempt);
+      }
+    }
+    
+    self.addEventListener('fetch', event => {
+      const request = event.request;
+      const url = new URL(request.url);
+      const appUrls = APP_FILES.map(file => new URL(file, self.registration.scope).href);
+      if (request.method !== 'GET' || url.origin !== self.location.origin || !appUrls.includes(url.href)) return;
+    
+      event.respondWith(caches.open(CACHE_NAME).then(async cache => {
+        const cached = await cache.match(request);
+        return cached || fetch(request);
+      }));
+    });
+    
+  operator: 'notStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-product-build.test.mjs:59:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 12
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 330.585792

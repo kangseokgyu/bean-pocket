@@ -1,0 +1,118 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile, mkdtemp, rm, writeFile, cp, symlink} from 'node:fs/promises';
+import vm from 'node:vm';
+import path from 'node:path';
+import os from 'node:os';
+import {createUpdateCoordinator} from '/Users/kangseokgyu/workspace/AX-1day/pwa/platform/update-coordinator.mjs';
+import {createSubmissionState} from '/Users/kangseokgyu/workspace/AX-1day/pwa/state/submission-state.mjs';
+import {memoryPlatform} from '/Users/kangseokgyu/workspace/AX-1day/test/fixtures/pwa-environment.mjs';
+import {buildPages} from '/Users/kangseokgyu/workspace/AX-1day/scripts/build-pages.mjs';
+import {checkPages} from '/Users/kangseokgyu/workspace/AX-1day/scripts/check-pages.mjs';
+const root='/Users/kangseokgyu/workspace/AX-1day';
+const protocol='bean-pocket-update-v1';
+const scope='https://example.test/pwa/';
+const generation='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+const tick=()=>new Promise(r=>setImmediate(r));
+class Port {
+  postMessage(data) {queueMicrotask(()=>{if(!this.closed&&!this.peer.closed)this.peer.onmessage?.({data});});}
+  close(){this.closed=true;}
+}
+class Channel {constructor(){this.port1=new Port();this.port2=new Port();this.port1.peer=this.port2;this.port2.peer=this.port1;}}
+async function workerHarness({beforeFinalEnumeration,delayInspect=false}={}) {
+  const state={dirty:false,pending:false};
+  const native=memoryPlatform();
+  const submissionState=createSubmissionState(native);
+  const originalGetDirectory=native.storage.getDirectory;
+  let resolveInspect, inspectEntered;
+  const entered=new Promise(r=>{inspectEntered=r;});
+  const gate=new Promise(r=>{resolveInspect=r;});
+  if(delayInspect)native.storage.getDirectory=async()=>{inspectEntered();await gate;return originalGetDirectory();};
+  let pageHandler, frozen=false;
+  const pageWorker={
+    getRegistration:async()=>({scope}),
+    addEventListener(type,fn){if(type==='message')pageHandler=fn;},
+    removeEventListener(){pageHandler=undefined;},
+  };
+  const coordinator=createUpdateCoordinator({getState:()=>state,
+    setFrozen:async v=>{frozen=v;return true;},submissionState,serviceWorker:pageWorker});
+  coordinator.start();
+  const tasks=[];
+  const messages=[];
+  const client={id:'client-a',url:scope+'index.html',postMessage(data,ports=[]){
+    messages.push(data.type);
+    if(pageHandler)tasks.push(pageHandler({data,ports,source:{scriptURL:scope+'sw.js'}}));
+  }};
+  const events=new Map();
+  let matchCalls=0,skipCalls=0,atSkip;
+  const self={registration:{scope},location:{origin:'https://example.test'},
+    clients:{async matchAll(){matchCalls++;if(matchCalls===3)await beforeFinalEnumeration?.({state,coordinator,submissionState});return [client];}},
+    async skipWaiting(){skipCalls++;atSkip={state:{...state},frozen};},
+    addEventListener(type,fn){events.set(type,fn);},
+  };
+  const source=await readFile(root+'/pwa/sw.js','utf8');
+  vm.runInNewContext(source,{self,URL,MessageChannel:Channel,
+    crypto:{randomUUID:()=>generation},caches:{open:async()=>({addAll:async()=>{}}),keys:async()=>[]},
+    setTimeout:(fn,ms)=>setTimeout(fn,Math.min(ms,20)),clearTimeout,Promise});
+  let installing;
+  events.get('install')({waitUntil(p){installing=p;}});
+  if(delayInspect)await entered;
+  await installing;
+  // Unlike the existing fixture, do not fabricate activation after a refused update.
+  resolveInspect();
+  await Promise.all(tasks);
+  await tick();
+  return {coordinator,state,messages,atSkip,skipCalls,isFrozen:()=>frozen,submissionState,events,self};
+}
+
+test('R1: invalidation after clean recheck must prevent skipWaiting',async()=>{
+  const h=await workerHarness({beforeFinalEnumeration:async({state,coordinator})=>{
+    state.dirty=true;
+    coordinator.notifyStateChange();
+    await tick();
+  }});
+  console.log('R1 observation',JSON.stringify({skipCalls:h.skipCalls,atSkip:h.atSkip,messages:h.messages}));
+  await h.coordinator.stop();
+  assert.equal(h.skipCalls,0,'must not apply after generation invalidated and write lock/freeze released');
+});
+
+test('R2: timed-out prepare must release a delayed frozen participant',async()=>{
+  const h=await workerHarness({delayInspect:true});
+  console.log('R2 observation',JSON.stringify({skipCalls:h.skipCalls,frozen:h.isFrozen(),messages:h.messages}));
+  const observed=h.isFrozen();
+  await h.coordinator.stop();
+  assert.equal(h.skipCalls,0);
+  assert.equal(observed,false,'a prepare timeout must abort the attempted client and discard late prepare completion');
+});
+
+test('R3: checker must reject a second unconditional computed skipWaiting call',async t=>{
+  const dir=await mkdtemp(path.join(os.tmpdir(),'critic-t27-check-'));
+  t.after(()=>rm(dir,{recursive:true,force:true}));
+  const outputDir=path.join(dir,'dist');
+  await buildPages({outputDir});
+  const file=path.join(outputDir,'sw.js');
+  await writeFile(file,(await readFile(file,'utf8'))+"\nself['skipWaiting']();\n");
+  let result='accepted';
+  try{await checkPages(outputDir);}catch(e){result='rejected';}
+  console.log('R3 observation',result);
+  assert.equal(result,'rejected','single-call policy must reject another activation site');
+});
+
+test('R2b: stop must cancel a prepare whose freeze callback has not finished',async()=>{
+  let resolveGate,entered,handler,frozen=false,response;
+  const gate=new Promise(r=>{resolveGate=r;});const began=new Promise(r=>{entered=r;});
+  const coordinator=createUpdateCoordinator({getState:()=>({dirty:false,pending:false}),
+    setFrozen:async v=>{if(v){entered();await gate;}frozen=v;return true;},
+    submissionState:createSubmissionState(memoryPlatform()),
+    serviceWorker:{getRegistration:async()=>({scope}),addEventListener(type,fn){handler=fn;},removeEventListener(){}}});
+  coordinator.start();
+  const handling=handler({data:{protocol,type:'prepare',generation},
+    source:{scriptURL:scope+'sw.js'},ports:[{postMessage(v){response=v;}}]});
+  await began;
+  await coordinator.stop();
+  resolveGate();await handling;
+  console.log('R2b observation',JSON.stringify({frozen,response}));
+  const observed=frozen;
+  await coordinator.stop();
+  assert.equal(observed,false,'stopped coordinator must not acknowledge or resurrect an old prepare');
+});

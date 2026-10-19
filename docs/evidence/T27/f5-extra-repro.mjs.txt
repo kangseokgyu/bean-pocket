@@ -1,0 +1,50 @@
+// Copy to /tmp/critic2-f5-extra.test.mjs and run node --test on that file.
+// Only temporary build artifacts are mutated. No lifecycle/UI behavior is tested.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
+import { buildPages } from '/Users/kangseokgyu/workspace/AX-1day/scripts/build-pages.mjs';
+import { checkPages } from '/Users/kangseokgyu/workspace/AX-1day/scripts/check-pages.mjs';
+const computedCall = "self['skip' + 'Waiting']();\n";
+async function fixture(t) {
+  const outputDir = await mkdtemp('/tmp/critic2-f5-extra-');
+  t.after(() => rm(outputDir, { recursive: true, force: true }));
+  await buildPages({ outputDir });
+  const file = outputDir + '/sw.js'; const source = await readFile(file, 'utf8');
+  return { outputDir, file, source };
+}
+function assertUnconditionalActivation(source) {
+  let calls = 0;
+  vm.runInNewContext(source, { URL, self: {
+    registration: { scope: 'https://example.test/pwa/' },
+    addEventListener() {}, skipWaiting() { calls++; },
+  } });
+  assert.equal(calls, 1, 'the mutation must execute activation immediately at top level');
+}
+
+test('F5-A: removing comparison discriminators must not bypass artifact integrity', async t => {
+  const f = await fixture(t);
+  const changed = f.source.replaceAll('bean-pocket-update-v1', 'legacy-fixture')
+    .replaceAll('self.skipWaiting()', "self['skip' + 'Waiting']()") + computedCall;
+  assert.doesNotMatch(changed, /skipWaiting|bean-pocket-update-v1/);
+  assertUnconditionalActivation(changed);
+  await writeFile(f.file, changed);
+  await assert.rejects(checkPages(f.outputDir), /업데이트|원본|skipWaiting/);
+});
+
+test('F5-B: legacy custom worker stays compatible, but an appended computed activation must be rejected', async t => {
+  const f = await fixture(t);
+  const header = f.source.slice(0, f.source.indexOf(';', f.source.indexOf('const APP_FILES')) + 1);
+  const legacy = header + `
+self.addEventListener('install', event => event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES))));
+self.addEventListener('activate', event => event.waitUntil(caches.keys().then(names => Promise.all(names.filter(name => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME).map(name => caches.delete(name))))));
+`;
+  await writeFile(f.file, legacy);
+  assert.equal(await checkPages(f.outputDir), true, 'valid legacy custom fixture must remain accepted');
+  const changed = legacy + computedCall;
+  assert.doesNotMatch(changed, /skipWaiting|bean-pocket-update-v1/);
+  assertUnconditionalActivation(changed);
+  await writeFile(f.file, changed);
+  await assert.rejects(checkPages(f.outputDir), /업데이트|원본|skipWaiting/);
+});

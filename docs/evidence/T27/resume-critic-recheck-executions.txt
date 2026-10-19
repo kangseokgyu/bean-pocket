@@ -1,0 +1,14 @@
+Working directory: /Users/kangseokgyu/workspace/AX-1day
+node --test test/pwa-lifecycle.test.mjs test/pwa-lifecycle-regression.test.mjs test/pwa-lifecycle-recovery.test.mjs
+exit 0; 42 pass, 0 fail; focused-42.tap
+node --test --test-name-pattern='^R[1-7]:' /tmp/critic-t27-final-4L9tzv/original-seven.test.mjs
+exit 0; 7 pass, 0 fail; original-seven.tap
+node --test /tmp/critic-t27-final-4L9tzv/n1-original.test.mjs
+exit 0; 1 pass, 0 fail; n1-original.tap
+node --test /tmp/critic-t27-final-4L9tzv/additional.test.mjs
+exit 0; 1 pass, 0 fail; membership-original.tap
+All three original reproduction files cmp equal to repository evidence: exit 0
+cmp start-hashes.txt end-hashes.txt: exit 0 (three lifecycle/SW source files, recovery tests, current UI controller)
+git diff --check: exit 0
+Scope: T27 source/Node-VM independent re-review. UI final review, new final builds/full suite and native forced worker termination are outside this run.
+No repository files changed. Temporary logs only.

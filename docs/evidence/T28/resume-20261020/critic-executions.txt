@@ -1,0 +1,16 @@
+Working directory: /Users/kangseokgyu/workspace/AX-1day
+node --test docs/evidence/T26/critic-ui-repro.test.mjs test/pwa-ui.view.test.mjs test/pwa-connection.test.mjs test/pwa-ui.integration.test.mjs
+exit 0; 37 pass, 0 fail; ui-37.tap
+node --test test/pwa-build.test.mjs test/pwa-product-build.test.mjs test/pwa-probes-build.test.mjs test/pwa-connection-build.test.mjs test/pwa-state-read-build.test.mjs test/pwa-data-build.test.mjs
+exit 0; 28 pass, 0 fail; build-tests.tap
+node --test /tmp/critic-ui-integrated-ha4krt/independent-startup.test.mjs
+exit 0; 3 pass, 0 fail; independent-startup.tap
+Direct node module invocation: buildPages({outputDir,includeProbes}) followed by checkPages(outputDir,{includeProbes}), false then true.
+exit 0; builds.log; ordinary 4e7b1268f15d, probes 4a0d23ec358e; output artifacts under ordinary/ and probes/
+cmp start-hashes.txt end-hashes.txt: exit 0 (8 reviewed product/build source files)
+git diff --check: exit 0
+Parent evidence inspected (not rerun by critic): docs/evidence/T28/resume-20261020/final-test-after-followups.txt: npm test, 354 pass, 0 fail/cancelled/skipped. final-build-check.txt: same general/probe build versions. final-local-b-build.txt: synthetic B 08bac8c084c9, HTML comment only according to parent's build record.
+Native evidence read: final-main-state.txt, final-iframe-state.txt, final-registration-state.txt, final-dirty-state.txt. All three images opened: final-main-b.png, final-iframe-b.png, final-dirty-deferred.png.
+Directly visible evidence: main B+ready; iframe AX B+ready+settable controls; dirty A preserved draft+settable controls; final native held/pending arrays empty. Hidden-iframe/check-update/cancel sequence and waiting deferral are parent-provided observations, not an independent critic browser replay.
+Source/Node/build scope PASS, no new actionable findings. Earlier T27 42+7+N1+membership re-review remains at matching source hashes; see /tmp/critic-t27-recheck-FxlLsE/.
+No repository file edits, merge, publication or real Notion operations. No independent native forced-worker termination, iPhone/Safari/homescreen/cellular/real Pages validation.

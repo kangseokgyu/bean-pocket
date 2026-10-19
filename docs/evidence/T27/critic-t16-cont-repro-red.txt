@@ -1,0 +1,104 @@
+TAP version 13
+# R1 observation {"skipCalls":1,"atSkip":{"state":{"dirty":true,"pending":false},"frozen":false},"messages":["prepare","lock","recheck"]}
+# Subtest: R1: invalidation after clean recheck must prevent skipWaiting
+not ok 1 - R1: invalidation after clean recheck must prevent skipWaiting
+  ---
+  duration_ms: 7.911375
+  type: 'test'
+  location: '/private/tmp/critic-t27-repro.test.mjs:68:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    must not apply after generation invalidated and write lock/freeze released
+    
+    1 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/critic-t27-repro.test.mjs:76:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# R2 observation {"skipCalls":0,"frozen":true,"messages":["prepare"]}
+# Subtest: R2: timed-out prepare must release a delayed frozen participant
+not ok 2 - R2: timed-out prepare must release a delayed frozen participant
+  ---
+  duration_ms: 23.848458
+  type: 'test'
+  location: '/private/tmp/critic-t27-repro.test.mjs:79:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    a prepare timeout must abort the attempted client and discard late prepare completion
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/critic-t27-repro.test.mjs:85:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# R3 observation accepted
+# R2b observation {"frozen":true,"response":{"protocol":"bean-pocket-update-v1","type":"ack","generation":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa","ok":true,"frozen":true,"clean":true}}
+# Subtest: R3: checker must reject a second unconditional computed skipWaiting call
+not ok 3 - R3: checker must reject a second unconditional computed skipWaiting call
+  ---
+  duration_ms: 51.679209
+  type: 'test'
+  location: '/private/tmp/critic-t27-repro.test.mjs:88:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    single-call policy must reject another activation site
+    + actual - expected
+    
+    + 'accepted'
+    - 'rejected'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'rejected'
+  actual: 'accepted'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/critic-t27-repro.test.mjs:98:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: R2b: stop must cancel a prepare whose freeze callback has not finished
+not ok 4 - R2b: stop must cancel a prepare whose freeze callback has not finished
+  ---
+  duration_ms: 0.566834
+  type: 'test'
+  location: '/private/tmp/critic-t27-repro.test.mjs:101:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    stopped coordinator must not acknowledge or resurrect an old prepare
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/critic-t27-repro.test.mjs:117:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 0
+# fail 4
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 152.198459

@@ -1,0 +1,33 @@
+TAP version 13
+# N1 observation {"frozen":true,"blocked":true,"navigations":0,"messages":["prepare","abort"]}
+# Subtest: new N1: worker context restart after commit must recover the still-frozen page
+not ok 1 - new N1: worker context restart after commit must recover the still-frozen page
+  ---
+  duration_ms: 7.829542
+  type: 'test'
+  location: '/private/tmp/critic-t27-final-extra.test.mjs:79:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    restarted worker must safely navigate or abort the stale frozen/locked session
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/critic-t27-final-extra.test.mjs:98:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 56.958833

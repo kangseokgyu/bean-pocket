@@ -1,0 +1,263 @@
+TAP version 13
+# Subtest: fixed regression: original R3 computed call
+ok 1 - fixed regression: original R3 computed call
+  ---
+  duration_ms: 147.776625
+  type: 'test'
+  ...
+# Subtest: fixed regression: original F5 call moved
+ok 2 - fixed regression: original F5 call moved
+  ---
+  duration_ms: 215.920125
+  type: 'test'
+  ...
+# Subtest: fixed regression: alias call
+ok 3 - fixed regression: alias call
+  ---
+  duration_ms: 159.143
+  type: 'test'
+  ...
+# Subtest: fixed regression: condition removal
+ok 4 - fixed regression: condition removal
+  ---
+  duration_ms: 130.228042
+  type: 'test'
+  ...
+# marker-free modified artifact result 업데이트 Service Worker 산출물이 원본과 다릅니다.
+# Subtest: canonical comparison cannot be disabled by removing artifact marker literals
+ok 5 - canonical comparison cannot be disabled by removing artifact marker literals
+  ---
+  duration_ms: 236.246166
+  type: 'test'
+  ...
+# Subtest: module round-trip/hash/cache and required output: commands/index.mjs
+ok 6 - module round-trip/hash/cache and required output: commands/index.mjs
+  ---
+  duration_ms: 523.173875
+  type: 'test'
+  ...
+# Subtest: source leaf symlink: commands/index.mjs
+ok 7 - source leaf symlink: commands/index.mjs
+  ---
+  duration_ms: 90.855
+  type: 'test'
+  ...
+# Subtest: output leaf symlink rejects check and rebuild without modifying target: commands/index.mjs
+ok 8 - output leaf symlink rejects check and rebuild without modifying target: commands/index.mjs
+  ---
+  duration_ms: 396.152792
+  type: 'test'
+  ...
+# Subtest: cache omission rejected: commands/index.mjs
+ok 9 - cache omission rejected: commands/index.mjs
+  ---
+  duration_ms: 173.799166
+  type: 'test'
+  ...
+# Subtest: module round-trip/hash/cache and required output: ui/controller.mjs
+ok 10 - module round-trip/hash/cache and required output: ui/controller.mjs
+  ---
+  duration_ms: 344.869292
+  type: 'test'
+  ...
+# Subtest: source leaf symlink: ui/controller.mjs
+ok 11 - source leaf symlink: ui/controller.mjs
+  ---
+  duration_ms: 51.305834
+  type: 'test'
+  ...
+# Subtest: output leaf symlink rejects check and rebuild without modifying target: ui/controller.mjs
+ok 12 - output leaf symlink rejects check and rebuild without modifying target: ui/controller.mjs
+  ---
+  duration_ms: 132.156625
+  type: 'test'
+  ...
+# Subtest: cache omission rejected: ui/controller.mjs
+ok 13 - cache omission rejected: ui/controller.mjs
+  ---
+  duration_ms: 118.990084
+  type: 'test'
+  ...
+# Subtest: module round-trip/hash/cache and required output: ui/view.mjs
+ok 14 - module round-trip/hash/cache and required output: ui/view.mjs
+  ---
+  duration_ms: 141.586458
+  type: 'test'
+  ...
+# Subtest: source leaf symlink: ui/view.mjs
+ok 15 - source leaf symlink: ui/view.mjs
+  ---
+  duration_ms: 51.722208
+  type: 'test'
+  ...
+# Subtest: output leaf symlink rejects check and rebuild without modifying target: ui/view.mjs
+ok 16 - output leaf symlink rejects check and rebuild without modifying target: ui/view.mjs
+  ---
+  duration_ms: 85.849333
+  type: 'test'
+  ...
+# Subtest: cache omission rejected: ui/view.mjs
+ok 17 - cache omission rejected: ui/view.mjs
+  ---
+  duration_ms: 156.469875
+  type: 'test'
+  ...
+# Subtest: module round-trip/hash/cache and required output: platform/app-lifecycle.mjs
+ok 18 - module round-trip/hash/cache and required output: platform/app-lifecycle.mjs
+  ---
+  duration_ms: 229.632916
+  type: 'test'
+  ...
+# Subtest: source leaf symlink: platform/app-lifecycle.mjs
+ok 19 - source leaf symlink: platform/app-lifecycle.mjs
+  ---
+  duration_ms: 129.2325
+  type: 'test'
+  ...
+# Subtest: output leaf symlink rejects check and rebuild without modifying target: platform/app-lifecycle.mjs
+ok 20 - output leaf symlink rejects check and rebuild without modifying target: platform/app-lifecycle.mjs
+  ---
+  duration_ms: 104.142875
+  type: 'test'
+  ...
+# Subtest: cache omission rejected: platform/app-lifecycle.mjs
+ok 21 - cache omission rejected: platform/app-lifecycle.mjs
+  ---
+  duration_ms: 80.394375
+  type: 'test'
+  ...
+# Subtest: module round-trip/hash/cache and required output: platform/update-coordinator.mjs
+ok 22 - module round-trip/hash/cache and required output: platform/update-coordinator.mjs
+  ---
+  duration_ms: 227.183667
+  type: 'test'
+  ...
+# Subtest: source leaf symlink: platform/update-coordinator.mjs
+ok 23 - source leaf symlink: platform/update-coordinator.mjs
+  ---
+  duration_ms: 120.118708
+  type: 'test'
+  ...
+# Subtest: output leaf symlink rejects check and rebuild without modifying target: platform/update-coordinator.mjs
+ok 24 - output leaf symlink rejects check and rebuild without modifying target: platform/update-coordinator.mjs
+  ---
+  duration_ms: 181.485958
+  type: 'test'
+  ...
+# Subtest: cache omission rejected: platform/update-coordinator.mjs
+ok 25 - cache omission rejected: platform/update-coordinator.mjs
+  ---
+  duration_ms: 235.509041
+  type: 'test'
+  ...
+# Subtest: output directory symlink: commands
+ok 26 - output directory symlink: commands
+  ---
+  duration_ms: 82.712625
+  type: 'test'
+  ...
+# Subtest: output directory symlink: ui
+ok 27 - output directory symlink: ui
+  ---
+  duration_ms: 220.070334
+  type: 'test'
+  ...
+# Subtest: output directory symlink: platform
+ok 28 - output directory symlink: platform
+  ---
+  duration_ms: 97.915834
+  type: 'test'
+  ...
+# Subtest: Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록을 만든다
+ok 29 - Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록을 만든다
+  ---
+  duration_ms: 156.423125
+  type: 'test'
+  ...
+# Subtest: 검사기는 누락 파일과 허용 목록 밖 산출물을 거부한다
+ok 30 - 검사기는 누락 파일과 허용 목록 밖 산출물을 거부한다
+  ---
+  duration_ms: 409.239417
+  type: 'test'
+  ...
+# Subtest: 검사기는 루트 절대 경로와 허용 파일 안의 비밀값을 거부한다
+ok 31 - 검사기는 루트 절대 경로와 허용 파일 안의 비밀값을 거부한다
+  ---
+  duration_ms: 420.582125
+  type: 'test'
+  ...
+# Subtest: 검사기는 Service Worker가 API 경로를 앱 캐시에 넣는 변경을 거부한다
+ok 32 - 검사기는 Service Worker가 API 경로를 앱 캐시에 넣는 변경을 거부한다
+  ---
+  duration_ms: 130.649667
+  type: 'test'
+  ...
+# Subtest: 검사기는 scope별 캐시 namespace가 빠진 Service Worker를 거부한다
+ok 33 - 검사기는 scope별 캐시 namespace가 빠진 Service Worker를 거부한다
+  ---
+  duration_ms: 64.096125
+  type: 'test'
+  ...
+# Subtest: 빌더는 필수 소스 누락과 소스 심볼릭 링크를 거부한다
+ok 34 - 빌더는 필수 소스 누락과 소스 심볼릭 링크를 거부한다
+  ---
+  duration_ms: 204.33575
+  type: 'test'
+  ...
+# Subtest: 빌더는 symlink 부모 경로로 소스를 출력 경로로 지정해도 원본을 보존한다
+ok 35 - 빌더는 symlink 부모 경로로 소스를 출력 경로로 지정해도 원본을 보존한다
+  ---
+  duration_ms: 62.871584
+  type: 'test'
+  ...
+# Subtest: 검사기는 산출물 심볼릭 링크와 잘못된 dist 루트를 거부한다
+ok 36 - 검사기는 산출물 심볼릭 링크와 잘못된 dist 루트를 거부한다
+  ---
+  duration_ms: 102.286334
+  type: 'test'
+  ...
+# Subtest: 실제 PWA 소스에는 API 호출이나 외부 요청이 없고 하위 경로 자원만 쓴다
+ok 37 - 실제 PWA 소스에는 API 호출이나 외부 요청이 없고 하위 경로 자원만 쓴다
+  ---
+  duration_ms: 59.314334
+  type: 'test'
+  ...
+# Subtest: Service Worker install·activate·fetch는 scope를 격리하고 앱 파일만 다룬다
+ok 38 - Service Worker install·activate·fetch는 scope를 격리하고 앱 파일만 다룬다
+  ---
+  duration_ms: 55.189667
+  type: 'test'
+  ...
+# Subtest: 빌드 hash는 같은 소스에서 재현되고 소스 변경 시 바뀐다
+ok 39 - 빌드 hash는 같은 소스에서 재현되고 소스 변경 시 바뀐다
+  ---
+  duration_ms: 158.724
+  type: 'test'
+  ...
+# Subtest: product commands, UI and lifecycle ship byte-for-byte and all affect the release version
+ok 40 - product commands, UI and lifecycle ship byte-for-byte and all affect the release version
+  ---
+  duration_ms: 1101.498417
+  type: 'test'
+  ...
+# Subtest: commands/UI directory symlinks cannot bypass the source boundary
+ok 41 - commands/UI directory symlinks cannot bypass the source boundary
+  ---
+  duration_ms: 115.5125
+  type: 'test'
+  ...
+# Subtest: release checker rejects activation moved outside the handshake, aliases and removed guards
+ok 42 - release checker rejects activation moved outside the handshake, aliases and removed guards
+  ---
+  duration_ms: 350.945625
+  type: 'test'
+  ...
+1..42
+# tests 42
+# suites 0
+# pass 42
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4090.187167

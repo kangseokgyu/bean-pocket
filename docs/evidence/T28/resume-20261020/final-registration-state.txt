@@ -1,0 +1,4 @@
+- heading "Local product diagnostics" [level=1]
+- button "Inspect registration" [active]
+- button "Check candidate update"
+- generic: "{ \"registration\": { \"scope\": \"http://127.0.0.1:4196/candidate-resume/\", \"active\": \"activated\" }, \"locks\": { \"held\": [], \"pending\": [] } }"

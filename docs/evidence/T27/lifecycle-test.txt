@@ -1,0 +1,88 @@
+TAP version 13
+# Subtest: prepare freezes first and ACKs only after a clean-state recheck
+ok 1 - prepare freezes first and ACKs only after a clean-state recheck
+  ---
+  duration_ms: 1.588208
+  type: 'test'
+  ...
+# Subtest: dirty state or failed freeze refuses prepare and leaves no window frozen
+ok 2 - dirty state or failed freeze refuses prepare and leaves no window frozen
+  ---
+  duration_ms: 0.264167
+  type: 'test'
+  ...
+# Subtest: prepare checks journal under lock, then native write lock stays held through recheck and releases on apply or abort
+ok 3 - prepare checks journal under lock, then native write lock stays held through recheck and releases on apply or abort
+  ---
+  duration_ms: 3.906791
+  type: 'test'
+  ...
+# Subtest: journal with unresolved work refuses prepare and leaves the window unfrozen
+ok 4 - journal with unresolved work refuses prepare and leaves the window unfrozen
+  ---
+  duration_ms: 0.193667
+  type: 'test'
+  ...
+# Subtest: a clean first-run state with no connection or journal can safely update
+ok 5 - a clean first-run state with no connection or journal can safely update
+  ---
+  duration_ms: 0.19475
+  type: 'test'
+  ...
+# Subtest: a dirty transition after prepare invalidates that generation before apply
+ok 6 - a dirty transition after prepare invalidates that generation before apply
+  ---
+  duration_ms: 0.33725
+  type: 'test'
+  ...
+# Subtest: worker source must match the registered scope exactly
+ok 7 - worker source must match the registered scope exactly
+  ---
+  duration_ms: 3.538333
+  type: 'test'
+  ...
+# Subtest: install applies only after every window is clean, frozen, rechecked, and lock-protected
+ok 8 - install applies only after every window is clean, frozen, rechecked, and lock-protected
+  ---
+  duration_ms: 3.795667
+  type: 'test'
+  ...
+# Subtest: two scoped windows freeze and recheck while only one holds the origin-wide native lock
+ok 9 - two scoped windows freeze and recheck while only one holds the origin-wide native lock
+  ---
+  duration_ms: 1.521959
+  type: 'test'
+  ...
+# Subtest: dirty, unresolved, or membership-changing windows abort without skipWaiting
+ok 10 - dirty, unresolved, or membership-changing windows abort without skipWaiting
+  ---
+  duration_ms: 3.903875
+  type: 'test'
+  ...
+# Subtest: unresponsive windows time out, abort, and never trigger skipWaiting
+ok 11 - unresponsive windows time out, abort, and never trigger skipWaiting
+  ---
+  duration_ms: 5004.854167
+  type: 'test'
+  ...
+# Subtest: app lifecycle retries a waiting worker on start and state changes, without forcing reload
+ok 12 - app lifecycle retries a waiting worker on start and state changes, without forcing reload
+  ---
+  duration_ms: 1.746584
+  type: 'test'
+  ...
+# Subtest: app lifecycle start wires the coordinator into the service worker handshake
+ok 13 - app lifecycle start wires the coordinator into the service worker handshake
+  ---
+  duration_ms: 0.691583
+  type: 'test'
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5093.376792

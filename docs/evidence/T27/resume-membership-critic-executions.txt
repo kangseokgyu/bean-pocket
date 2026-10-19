@@ -1,0 +1,16 @@
+Working directory: /Users/kangseokgyu/workspace/AX-1day
+node --test test/pwa-lifecycle.test.mjs test/pwa-lifecycle-regression.test.mjs test/pwa-lifecycle-recovery.test.mjs
+exit 0; 38 pass, 0 fail; focused-38.tap
+node --test --test-name-pattern='^R[1-7]:' /tmp/critic-t27-final-4L9tzv/original-seven.test.mjs
+exit 0; 7 pass, 0 fail; original-seven.tap
+node --test /tmp/critic-t27-final-4L9tzv/n1-original.test.mjs
+exit 0; 1 pass, 0 fail; n1-original.tap
+node --test /tmp/critic-t27-final-4L9tzv/additional.test.mjs
+exit 1; 0 pass, 1 assertion fail; additional.tap
+node --test test/pwa-build.test.mjs test/pwa-product-build.test.mjs
+exit 0; see build-tests.tap
+Build/check module execution via node --input-type=module: buildPages({outputDir,includeProbes}) then checkPages(outputDir,{includeProbes}), for includeProbes false/true.
+exit 0; ordinary=4063a267e227, probes=a2d12bd29cb7; builds.log
+cmp start-hashes.txt end-hashes.txt: exit 0
+Both copied original reproduction sources cmp equal to repository evidence: exit 0
+No repository source/evidence files modified by critic. Temporary artifacts only in this directory; R6 uses its own temporary build fixture.

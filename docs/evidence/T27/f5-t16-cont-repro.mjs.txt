@@ -1,0 +1,27 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtemp,readFile,writeFile,rm} from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import {buildPages} from '/Users/kangseokgyu/workspace/AX-1day/scripts/build-pages.mjs';
+import {checkPages} from '/Users/kangseokgyu/workspace/AX-1day/scripts/check-pages.mjs';
+const mutations=[
+  ['original R3 computed call',s=>s+"\nself['skipWaiting']();\n"],
+  ['original F5 call moved',s=>s.replace('await self.skipWaiting();','')+'\nself.skipWaiting();\n'],
+  ['alias call',s=>s+'\nconst activateNow=self.skipWaiting.bind(self); activateNow();\n'],
+  ['condition removal',s=>s.replace(/if \(!sameClients\(ids,[^\n]+\)\) return;/,'')],
+];
+async function fixture(t){const dir=await mkdtemp(path.join(os.tmpdir(),'critic-f5-'));t.after(()=>rm(dir,{recursive:true,force:true}));await buildPages({outputDir:dir});const file=path.join(dir,'sw.js');return{dir,file,original:await readFile(file,'utf8')};}
+for(const[name,mutate] of mutations){test('fixed regression: '+name,async t=>{const f=await fixture(t);const changed=mutate(f.original);assert.notEqual(changed,f.original);await writeFile(f.file,changed);await assert.rejects(checkPages(f.dir),/원본과 다릅니다/);});}
+test('canonical comparison cannot be disabled by removing artifact marker literals',async t=>{
+  const f=await fixture(t);
+  const changed=f.original.replaceAll('bean-pocket-update-v1','bean-pocket-update-v2')
+    .replaceAll('self.skipWaiting',"self['skip' + 'Waiting']")+"\nself['skip' + 'Waiting']();\n";
+  assert.doesNotMatch(changed,/skipWaiting|bean-pocket-update-v1/);
+  assert.notEqual(changed,f.original);
+  await writeFile(f.file,changed);
+  let result;
+  try{result=await checkPages(f.dir);}catch(e){result=e.message;}
+  console.log('marker-free modified artifact result',result);
+  assert.notEqual(result,true,'modified release worker must not opt out of canonical integrity comparison');
+});

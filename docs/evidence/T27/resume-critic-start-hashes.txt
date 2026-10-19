@@ -1,0 +1,5 @@
+40a6425f8b06d8d56645bb24a60c516fee0b0b6a8bc132a81e0c532416a237cb  pwa/sw.js
+6e80462b8be54364ee3f257ba114b1c81e24b5b915ef05decaa9c9e3135d658b  pwa/platform/app-lifecycle.mjs
+56015c1ff7738219e963bd29e9b5c77b73d043cf76b6f1698c692b9f4d32bbe7  pwa/platform/update-coordinator.mjs
+f9200fe62fc6ab643acbc65c03f91a10cde5321e8e24563ccec76f1bb62ebfd4  test/pwa-lifecycle-recovery.test.mjs
+79c896847c583d8bfe8aace49780b71f5486728fc924aa86ebc5be5eea8a3b24  pwa/ui/controller.mjs

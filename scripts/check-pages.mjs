@@ -10,6 +10,9 @@ export const probeFiles = [
 ];
 const allowedFiles = new Set([
   'app.mjs',
+  'commands/index.mjs',
+  'ui/controller.mjs',
+  'ui/view.mjs',
   'data/notion-client.mjs',
   'data/notion-properties.mjs',
   'data/read-repository.mjs',
@@ -18,7 +21,9 @@ const allowedFiles = new Set([
   'icons/icon-512.png',
   'index.html',
   'manifest.webmanifest',
+  'platform/app-lifecycle.mjs',
   'platform/connection-file.mjs',
+  'platform/update-coordinator.mjs',
   'state/submission-state.mjs',
   'styles.css',
   'sw.js',
@@ -27,11 +32,16 @@ const requiredCacheFiles = [
   './',
   './index.html',
   './app.mjs',
+  './commands/index.mjs',
+  './ui/controller.mjs',
+  './ui/view.mjs',
   './data/notion-client.mjs',
   './data/notion-properties.mjs',
   './data/read-repository.mjs',
   './domain.mjs',
+  './platform/app-lifecycle.mjs',
   './platform/connection-file.mjs',
+  './platform/update-coordinator.mjs',
   './state/submission-state.mjs',
   './styles.css',
   './manifest.webmanifest',
@@ -41,7 +51,7 @@ const requiredCacheFiles = [
 
 async function collectFiles(directory, allowIncomplete, includeProbes) {
   const permittedFiles = new Set([...allowedFiles, ...(includeProbes ? probeFiles : [])]);
-  const permittedDirectories = new Set(['icons', 'data', 'platform', 'state', ...(includeProbes ? ['probes', 'probes/notion', 'probes/storage'] : [])]);
+  const permittedDirectories = new Set(['icons', 'data', 'platform', 'state', 'commands', 'ui', ...(includeProbes ? ['probes', 'probes/notion', 'probes/storage'] : [])]);
   const rootInfo = await lstat(directory).catch(error => {
     if (error.code === 'ENOENT') throw new Error(`산출물 디렉터리가 없습니다: ${directory}`);
     throw error;
@@ -107,7 +117,7 @@ export async function checkPages(directory = defaultOutputDir, { allowIncomplete
   if (missing.length) return true;
 
   const textFiles = new Map();
-  for (const relativePath of ['app.mjs', 'data/notion-client.mjs', 'data/notion-properties.mjs', 'data/read-repository.mjs', 'domain.mjs', 'index.html', 'manifest.webmanifest', 'platform/connection-file.mjs', 'state/submission-state.mjs', 'styles.css', 'sw.js']) {
+  for (const relativePath of ['app.mjs', 'commands/index.mjs', 'ui/controller.mjs', 'ui/view.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs', 'data/notion-client.mjs', 'data/notion-properties.mjs', 'data/read-repository.mjs', 'domain.mjs', 'index.html', 'manifest.webmanifest', 'platform/connection-file.mjs', 'state/submission-state.mjs', 'styles.css', 'sw.js']) {
     textFiles.set(relativePath, (await readFile(path.join(directory, relativePath))).toString('utf8'));
   }
   const checkedText = new Map(textFiles);
@@ -184,10 +194,14 @@ export async function checkPages(directory = defaultOutputDir, { allowIncomplete
       cacheWrites.length !== 1 || cacheWrites[0][1].trim() !== 'APP_FILES') {
     throw new Error('Service Worker는 허용된 앱 파일만 캐시해야 합니다.');
   }
-  if (/\bcache\.(?:add|put)\s*\(/.test(worker) || /skipWaiting|location\.reload|clients\.claim/i.test(worker)) {
+  if (/\bcache\.(?:add|put)\s*\(/.test(worker) || /location\.reload|clients\.claim/i.test(worker)) {
     throw new Error('Service Worker에 임의 캐시 쓰기 또는 강제 업데이트 동작이 있습니다.');
   }
-
+  // The build only substitutes the version in this reviewed source. Comparing
+  // the whole worker also catches computed/aliased calls and removed guards;
+  // counting a particular call spelling cannot establish that boundary.
+  // Source-level protocol correctness is separately covered by lifecycle tests
+  // and independent review; this is an artifact integrity check.
   const versionMatch = html.match(/id="build-version">([a-f0-9]{12})<\/span>/);
   const workerVersionMatch = worker.match(/const BUILD_VERSION = '([a-f0-9]{12})';/);
   if (!versionMatch || !workerVersionMatch || workerVersionMatch[1] !== versionMatch[1] ||
@@ -195,6 +209,10 @@ export async function checkPages(directory = defaultOutputDir, { allowIncomplete
       !/const CACHE_PREFIX = `bean-pocket-shell-\$\{SCOPE_KEY\}-`;\s*const CACHE_NAME = `\$\{CACHE_PREFIX\}\$\{BUILD_VERSION\}`;/.test(worker) ||
       !/\.filter\(name => name\.startsWith\(CACHE_PREFIX\) && name !== CACHE_NAME\)/.test(worker)) {
     throw new Error('화면 빌드 버전과 scope별 Service Worker 캐시 namespace가 일치하지 않습니다.');
+  }
+  const workerSource = await readFile(path.join(projectRoot, 'pwa', 'sw.js'), 'utf8');
+  if (worker !== workerSource.replaceAll('__BUILD_VERSION__', workerVersionMatch[1])) {
+    throw new Error('업데이트 Service Worker 산출물이 원본과 다릅니다.');
   }
   if (found.size !== allowedFiles.size + (includeProbes ? probeFiles.length : 0)) throw new Error('산출물 허용 목록이 일치하지 않습니다.');
   return true;

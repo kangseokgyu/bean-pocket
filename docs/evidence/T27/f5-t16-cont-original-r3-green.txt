@@ -1,0 +1,17 @@
+TAP version 13
+# R3 observation rejected
+# Subtest: R3: checker must reject a second unconditional computed skipWaiting call
+ok 1 - R3: checker must reject a second unconditional computed skipWaiting call
+  ---
+  duration_ms: 116.647333
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 244.163416

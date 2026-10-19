@@ -1,0 +1,46 @@
+import http from 'node:http';
+import { readFile, writeFile, mkdir, cp } from 'node:fs/promises';
+import path from 'node:path';
+import { fakePwaNotion } from '/Users/kangseokgyu/workspace/AX-1day/test/fixtures/pwa-environment.mjs';
+const project = '/Users/kangseokgyu/workspace/AX-1day';
+const root = '/tmp/bean-pocket-browser-qa';
+await mkdir(root, {recursive:true});
+await cp(path.join(project,'dist'), path.join(root,'bean-pocket'), {recursive:true});
+const fake = fakePwaNotion();
+let mode = 'normal';
+const types = {'.html':'text/html; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css','.png':'image/png','.webmanifest':'application/manifest+json'};
+const boot = `const realFetch = globalThis.fetch.bind(globalThis); globalThis.fetch = (url, options={}) => { if(String(url).startsWith('https://api.notion.com/v1/')) return realFetch('/__mock__',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:String(url),method:options.method||'GET',body:options.body}),signal:options.signal}); return realFetch(url,options); }; await import('./app.mjs');`;
+fake.intercept = call => {
+ if (mode==='read-error' && call.pathname.includes('/query')) return Response.json({}, {status:503});
+ if (mode==='reject' && call.pathname==='/v1/pages') { mode='normal'; return Response.json({}, {status:429}); }
+ if (mode==='unknown' && call.pathname==='/v1/pages') { mode='normal'; return Response.json({}, {status:503}); }
+};
+const server = http.createServer(async(req,res)=>{
+ try {
+  const url = new URL(req.url,'http://127.0.0.1:4196');
+  if(url.pathname==='/__mock__' && req.method==='POST') {
+   let data='';for await(const chunk of req) data+=chunk;
+   const args=JSON.parse(data);
+   if(!/^https:\/\/api\.notion\.com\/v1\/(data_sources|pages)(\/|$)/.test(args.url)) throw Error('invalid mock endpoint');
+   const result=await fake.fetch(args.url,{method:args.method,body:args.body});
+   res.writeHead(result.status,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(await result.text());return;
+  }
+  if(url.pathname==='/__control__' && req.method==='POST') {
+   let data='';for await(const chunk of req) data+=chunk;
+   const action=JSON.parse(data);
+   if(action.mode) mode=action.mode;
+   if(action.temperature) { const row=fake.rows.find(row=>row.properties['물 온도(℃)']);if(row){row.properties['물 온도(℃)'].number=action.temperature;row.last_edited_time=new Date().toISOString();}}
+   res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({mode, rows:fake.rows.length, calls:fake.calls.length}));return;
+  }
+  if(url.pathname==='/__summary__') {
+   res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({mode,rows:fake.rows.map(row=>({id:row.id,source:row.parent.data_source_id,in_trash:row.in_trash,properties:row.properties})),calls:fake.calls.length}));return;
+  }
+  let name=decodeURIComponent(url.pathname);if(name.endsWith('/'))name+='index.html';
+  const file=path.resolve(root,'.'+name);if(!file.startsWith(root+path.sep))throw Error('invalid path');
+  let bytes=await readFile(file);
+  if(name.endsWith('/index.html'))bytes=Buffer.from(bytes.toString().replace('<script type="module" src="./app.mjs"></script>','<script type="module" src="./qa-boot.mjs"></script>'));
+  res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream','Cache-Control':'no-store'});res.end(bytes);
+ } catch {res.writeHead(404);res.end('Not found');}
+});
+await writeFile(path.join(root,'bean-pocket','qa-boot.mjs'),boot);
+server.listen(4196,'127.0.0.1',()=>console.log('Synthetic Notion QA at http://127.0.0.1:4196/bean-pocket/; no external requests'));

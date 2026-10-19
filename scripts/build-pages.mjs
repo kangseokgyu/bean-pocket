@@ -7,6 +7,9 @@ import { checkPages, probeFiles } from './check-pages.mjs';
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const sourceFiles = [
   'app.mjs',
+  'commands/index.mjs',
+  'ui/controller.mjs',
+  'ui/view.mjs',
   'data/notion-client.mjs',
   'data/notion-properties.mjs',
   'data/read-repository.mjs',
@@ -14,7 +17,9 @@ const sourceFiles = [
   'icons/icon-512.png',
   'index.html',
   'manifest.webmanifest',
+  'platform/app-lifecycle.mjs',
   'platform/connection-file.mjs',
+  'platform/update-coordinator.mjs',
   'state/submission-state.mjs',
   'styles.css',
   'sw.js',
@@ -77,6 +82,11 @@ async function readSourceFiles(sourceDir, includeProbes) {
   const stateInfo = await lstat(path.join(sourceDir, 'state'));
   if (stateInfo.isSymbolicLink() || !stateInfo.isDirectory()) {
     throw new Error('PWA 작업 상태 디렉터리는 심볼릭 링크가 아닌 디렉터리여야 합니다.');
+  }
+
+  for (const directory of ['commands', 'ui']) {
+    const info = await lstat(path.join(sourceDir, directory));
+    if (info.isSymbolicLink() || !info.isDirectory()) throw new Error(`PWA 모듈 디렉터리는 심볼릭 링크일 수 없습니다: ${directory}`);
   }
 
   if (includeProbes) {

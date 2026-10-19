@@ -1,0 +1,160 @@
+TAP version 13
+# Subtest: N1: restarted active worker explicitly recovers two product controllers and the shared write lock
+not ok 1 - N1: restarted active worker explicitly recovers two product controllers and the shared write lock
+  ---
+  duration_ms: 9.595625
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:96:1'
+  failureType: 'testCodeFailure'
+  error: '[{"client":0,"protocol":"bean-pocket-update-v1","type":"prepare","generation":"generation-2","buildVersion":"__BUILD_VERSION__"},{"client":0,"protocol":"bean-pocket-update-v1","type":"abort","generation":"generation-2","buildVersion":"__BUILD_VERSION__"}]'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:103:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: late retry delivered to an already active worker cannot freeze a product controller without a new activation
+not ok 2 - late retry delivered to an already active worker cannot freeze a product controller without a new activation
+  ---
+  duration_ms: 2.297833
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:110:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    1 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:114:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: waiting-worker restart aborts its old owned generation before preparing a fresh generation
+not ok 3 - waiting-worker restart aborts its old owned generation before preparing a fresh generation
+  ---
+  duration_ms: 2.619625
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:121:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:127:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: recovery from a different worker instance cannot release the owned generation
+not ok 4 - recovery from a different worker instance cannot release the owned generation
+  ---
+  duration_ms: 1.719958
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:133:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:139:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: recovery releases only the lifecycle lock and preserves an unresolved journal barrier without navigation
+not ok 5 - recovery releases only the lifecycle lock and preserves an unresolved journal barrier without navigation
+  ---
+  duration_ms: 2.182541
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:145:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:154:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: controllerchange and the committed watchdog ask the active owner for explicit recovery without local thaw
+not ok 6 - controllerchange and the committed watchdog ask the active owner for explicit recovery without local thaw
+  ---
+  duration_ms: 6.308375
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:160:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(p.requests.some(message => message.type === 'retry'))
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:167:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: safe activation reloads a hash-routed product document instead of completing a same-document fragment replace
+not ok 7 - safe activation reloads a hash-routed product document instead of completing a same-document fragment replace
+  ---
+  duration_ms: 1.936208
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:176:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    the committed update must replace the running document even when its URL has a fragment
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:191:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 0
+# fail 7
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 70.896709

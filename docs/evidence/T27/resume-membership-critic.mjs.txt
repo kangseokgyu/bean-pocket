@@ -1,0 +1,110 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import { readFile } from 'node:fs/promises';
+import { createAppLifecycle } from '/Users/kangseokgyu/workspace/AX-1day/pwa/platform/app-lifecycle.mjs';
+import { createAppController } from '/Users/kangseokgyu/workspace/AX-1day/pwa/ui/controller.mjs';
+import { createSubmissionState } from '/Users/kangseokgyu/workspace/AX-1day/pwa/state/submission-state.mjs';
+import { memoryPlatform } from '/Users/kangseokgyu/workspace/AX-1day/test/fixtures/pwa-environment.mjs';
+
+const protocol = 'bean-pocket-update-v1';
+const scope = 'https://example.test/candidate/';
+const turn = () => new Promise(resolve => setImmediate(resolve));
+class Port {
+  postMessage(data) { queueMicrotask(() => { if (!this.peer.closed) this.peer.onmessage?.({ data }); }); }
+  close() { this.closed = true; }
+}
+class Channel {
+  constructor() { this.port1 = new Port(); this.port2 = new Port(); this.port1.peer = this.port2; this.port2.peer = this.port1; }
+}
+
+async function productPage(native, { active = false, timeoutMs = 5000, window = null, defaultNavigation = false, initialized = true } = {}) {
+  const listeners = new Map(), requests = [], navigations = [], freezes = [];
+  let onThaw;
+  const owner = { scriptURL: scope + 'sw.js', postMessage(data) { requests.push(data); } };
+  const registration = { scope, waiting: active ? null : owner, active: active ? owner : null, installing: null };
+  const serviceWorker = {
+    getRegistration: async () => registration,
+    addEventListener(type, fn) { if (!listeners.has(type)) listeners.set(type, new Set()); listeners.get(type).add(fn); },
+    removeEventListener(type, fn) { listeners.get(type)?.delete(fn); },
+  };
+  const state = createSubmissionState(native);
+  let lifecycle;
+  const app = createAppController({ state,
+    file: { readConnection: async () => JSON.parse(native.files.get('connection.json')) },
+    view: { setFrozen(value) { freezes.push(value); if (!value) onThaw?.(); }, setState() {}, renderData() {}, showStatus() {}, showConnection() {} },
+    onStateChange: () => lifecycle?.notifyStateChange(),
+    makeClient: () => ({ verify: async () => true }),
+    makeRepository: () => ({ readAll: async () => ({ beans: [], bags: [], recipes: [], records: [] }) }),
+    makeCommands: () => ({}),
+  });
+  assert.equal(await app.initialize(), initialized);
+  lifecycle = createAppLifecycle({ getState: app.getState, setFrozen: app.setFrozen, submissionState: state,
+    serviceWorker, document: null, window, timeoutMs,
+    ...(defaultNavigation ? {} : { navigate(details) { navigations.push({ ...details, ...app.getState() }); return true; } }) });
+  await lifecycle.start();
+  async function receive(data, ports, source = owner) {
+    await Promise.all([...(listeners.get('message') ?? [])].map(fn => fn({ data, ports, source })));
+  }
+  return { owner, registration, app, lifecycle, state, requests, navigations, freezes, receive,
+    onThaw(fn) { onThaw = fn; },
+    async send(type, generation = 'probe', source = owner) {
+      let ack;
+      await receive({ protocol, type, generation }, [{ postMessage(value) { ack = value; } }], source);
+      await turn(); return ack;
+    },
+    async emit(type) { await Promise.all([...(listeners.get(type) ?? [])].map(fn => fn())); await turn(); },
+  };
+}
+
+let generationSequence = 0;
+async function worker(pages) {
+  const events = new Map(), timers = new Map(), messages = [], tasks = [], generations = [];
+  let skipped = 0;
+  const clients = pages.map((p, index) => ({ id: `client-${index}`, url: scope + (index ? 'frame.html' : 'index.html'),
+    postMessage(data, ports) { messages.push({ client: index, ...data }); tasks.push(p.receive(data, ports)); },
+  }));
+  const self = { registration: { scope }, location: { origin: 'https://example.test' },
+    clients: { matchAll: async () => clients },
+    skipWaiting: async () => { skipped++; },
+    addEventListener(type, fn) { events.set(type, fn); },
+  };
+  vm.runInNewContext(await readFile(new URL('/Users/kangseokgyu/workspace/AX-1day/pwa/sw.js', import.meta.url), 'utf8'), {
+    self, URL, MessageChannel: Channel,
+    crypto: { randomUUID() { const generation = `generation-${++generationSequence}`; generations.push(generation); return generation; } },
+    caches: { open: async () => ({ addAll: async () => {} }), keys: async () => [] },
+    setTimeout(fn) { const key = {}; timers.set(key, fn); return key; }, clearTimeout(key) { timers.delete(key); },
+  });
+  return { messages, generations, clients, get skipped() { return skipped; },
+    async dispatch(type) {
+      if (type === 'activate') for (const p of pages) { p.registration.waiting = null; p.registration.active = p.owner; }
+      let pending; events.get(type)({ waitUntil(value) { pending = value; } });
+      await pending; await Promise.all(tasks); await turn();
+    },
+    async retry() {
+      let pending; events.get('message')({ data: { protocol, type: 'retry' }, source: clients[0], waitUntil(value) { pending = value; } });
+      await pending; await Promise.all(tasks); await turn();
+    },
+  };
+}
+
+async function cleanup(pages, ...workers) {
+  for (const p of pages) {
+    for (const generation of new Set(workers.flatMap(w => w.generations))) await p.send('abort', generation);
+    await p.lifecycle.stop();
+  }
+}
+
+
+test('C-final-1: client close after commit must preserve a recoverable active document transition', async () => {
+ const native=memoryPlatform(), leader=await productPage(native), frame=await productPage(native);
+ const w=await worker([leader,frame]);
+ try {
+  await w.dispatch('install'); assert.equal(w.skipped,1);
+  w.clients.splice(1,1); // The iframe/window closes after commit, before activation.
+  await w.dispatch('activate');
+  await w.retry(); await w.retry();
+  console.log('membership observation',JSON.stringify({frozen:leader.app.getState().frozen,navigations:leader.navigations.length,messages:w.messages.map(x=>x.type)}));
+  assert.equal(leader.navigations.length,1,'remaining clean old document must still transition to active B after explicit retries');
+ } finally {await cleanup([leader,frame],w);}
+});

@@ -1,0 +1,52 @@
+TAP version 13
+# Subtest: R1: SW prepare timeout must unfreeze the recipient even when inspect completes late
+ok 1 - R1: SW prepare timeout must unfreeze the recipient even when inspect completes late
+  ---
+  duration_ms: 7.803625
+  type: 'test'
+  ...
+# Subtest: R2: abort received during a pending prepare must tombstone the generation
+ok 2 - R2: abort received during a pending prepare must tombstone the generation
+  ---
+  duration_ms: 2.322459
+  type: 'test'
+  ...
+# Subtest: R3: stop while prepare is awaiting setFrozen must not leave a live freeze
+ok 3 - R3: stop while prepare is awaiting setFrozen must not leave a live freeze
+  ---
+  duration_ms: 1.258875
+  type: 'test'
+  ...
+# Subtest: R4: invalidation after recheck must prevent skipWaiting with an unfrozen, unlocked dirty leader
+ok 4 - R4: invalidation after recheck must prevent skipWaiting with an unfrozen, unlocked dirty leader
+  ---
+  duration_ms: 4.294208
+  type: 'test'
+  ...
+# Subtest: R5: activation from an unrelated generation must not release current freeze/leader lock
+ok 5 - R5: activation from an unrelated generation must not release current freeze/leader lock
+  ---
+  duration_ms: 1.709125
+  type: 'test'
+  ...
+# Subtest: R6: checker must reject moving the single activation call outside the handshake
+ok 6 - R6: checker must reject moving the single activation call outside the handshake
+  ---
+  duration_ms: 42.711917
+  type: 'test'
+  ...
+# Subtest: R7: aborting an older overlapping generation must not unfreeze an ACKed newer one
+ok 7 - R7: aborting an older overlapping generation must not unfreeze an ACKed newer one
+  ---
+  duration_ms: 0.476625
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 136.02425

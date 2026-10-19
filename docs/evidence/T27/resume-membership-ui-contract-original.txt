@@ -1,0 +1,17 @@
+TAP version 13
+# membership observation {"frozen":true,"navigations":1,"messages":["prepare","prepare","lock","recheck","recheck","commit","commit","abort","abort","recover","prepare","lock","recheck","commit","activate","navigate"]}
+# Subtest: C-final-1: client close after commit must preserve a recoverable active document transition
+ok 1 - C-final-1: client close after commit must preserve a recoverable active document transition
+  ---
+  duration_ms: 10.162958
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 60.242333

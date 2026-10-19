@@ -1,0 +1,170 @@
+TAP version 13
+# Subtest: the shipped page has a real UI mount point
+ok 1 - the shipped page has a real UI mount point
+  ---
+  duration_ms: 2.128916
+  type: 'test'
+  ...
+# Subtest: controller public flows use real Notion, repository, commands and journal adapters
+ok 2 - controller public flows use real Notion, repository, commands and journal adapters
+  ---
+  duration_ms: 40.568583
+  type: 'test'
+  ...
+# Subtest: unknown writes preserve the draft state and prevent a second UI submission
+ok 3 - unknown writes preserve the draft state and prevent a second UI submission
+  ---
+  duration_ms: 3.615667
+  type: 'test'
+  ...
+# Subtest: unknown write resolution requires explicit confirmation and a fresh read before writes resume
+ok 4 - unknown write resolution requires explicit confirmation and a fresh read before writes resume
+  ---
+  duration_ms: 4.811042
+  type: 'test'
+  ...
+# Subtest: saved resolution rejects a recipe parent that is absent from the complete fresh projection
+not ok 5 - saved resolution rejects a recipe parent that is absent from the complete fresh projection
+  ---
+  duration_ms: 5.826417
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-ui.integration.test.mjs:106:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected rejection.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  operator: 'rejects'
+  stack: |-
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-ui.integration.test.mjs:132:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: draft values survive tab navigation and a fresh data render
+ok 6 - draft values survive tab navigation and a fresh data render
+  ---
+  duration_ms: 4.073667
+  type: 'test'
+  ...
+# Subtest: bean, recipe, and record detail text is rendered as text and retains brew details
+ok 7 - bean, recipe, and record detail text is rendered as text and retains brew details
+  ---
+  duration_ms: 1.421125
+  type: 'test'
+  ...
+# Subtest: resolution controls follow the native journal page-list contract
+ok 8 - resolution controls follow the native journal page-list contract
+  ---
+  duration_ms: 0.865083
+  type: 'test'
+  ...
+# Subtest: the bean origin label uses user-facing wording rather than the storage field name
+ok 9 - the bean origin label uses user-facing wording rather than the storage field name
+  ---
+  duration_ms: 1.037709
+  type: 'test'
+  ...
+# Subtest: the record date default follows the device calendar across the KST UTC boundary
+ok 10 - the record date default follows the device calendar across the KST UTC boundary
+  ---
+  duration_ms: 1.798792
+  type: 'test'
+  ...
+# Subtest: checked connection-recovery checkbox reaches the current-connection verifier
+not ok 11 - checked connection-recovery checkbox reaches the current-connection verifier
+  ---
+  duration_ms: 0.859417
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-ui.view.test.mjs:209:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-ui.view.test.mjs:221:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: successful connection replacement preserves the active product draft
+not ok 12 - successful connection replacement preserves the active product draft
+  ---
+  duration_ms: 2.286334
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-ui.view.test.mjs:224:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + ''
+    - 'active unsaved bean'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'active unsaved bean'
+  actual: ''
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-ui.view.test.mjs:234:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: successful connection replacement preserves hidden drafts and their dirty signal
+not ok 13 - successful connection replacement preserves hidden drafts and their dirty signal
+  ---
+  duration_ms: 2.34925
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-ui.view.test.mjs:237:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-ui.view.test.mjs:250:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: recipe input minimums allow every positive sub-cent value accepted by the domain
+not ok 14 - recipe input minimums allow every positive sub-cent value accepted by the domain
+  ---
+  duration_ms: 2.152833
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-ui.view.test.mjs:254:1'
+  failureType: 'testCodeFailure'
+  error: "dose must not use a native minimum above the domain's positive-number boundary"
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-ui.view.test.mjs:266:12)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 9
+# fail 5
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 105.608083

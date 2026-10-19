@@ -12,6 +12,7 @@ const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const sourceRoot = path.join(projectRoot, 'pwa');
 const expectedFiles = [
   'app.mjs',
+  'commands/index.mjs',
   'data/notion-client.mjs',
   'data/notion-properties.mjs',
   'data/read-repository.mjs',
@@ -20,10 +21,14 @@ const expectedFiles = [
   'icons/icon-512.png',
   'index.html',
   'manifest.webmanifest',
+  'platform/app-lifecycle.mjs',
   'platform/connection-file.mjs',
+  'platform/update-coordinator.mjs',
   'state/submission-state.mjs',
   'styles.css',
   'sw.js',
+  'ui/controller.mjs',
+  'ui/view.mjs',
 ];
 
 async function makeTempDirectory(t) {
@@ -49,7 +54,14 @@ async function writeSourceFixture(sourceDir) {
   await mkdir(path.join(sourceDir, 'data'), { recursive: true });
   await mkdir(path.join(sourceDir, 'platform'), { recursive: true });
   await mkdir(path.join(sourceDir, 'state'), { recursive: true });
+  await mkdir(path.join(sourceDir, 'commands'), { recursive: true });
+  await mkdir(path.join(sourceDir, 'ui'), { recursive: true });
   const files = {
+    'commands/index.mjs': 'export const commands = {};',
+    'ui/controller.mjs': 'export const controller = {};',
+    'ui/view.mjs': 'export const view = {};',
+    'platform/app-lifecycle.mjs': 'export const lifecycle = {};',
+    'platform/update-coordinator.mjs': 'export const coordinator = {};',
     'state/submission-state.mjs': 'export const state = {};',
     'data/read-repository.mjs': 'export const repository = {};',
     'platform/connection-file.mjs': 'export const storage = {};',
@@ -66,7 +78,7 @@ async function writeSourceFixture(sourceDir) {
         { src: './icons/icon-512.png', sizes: '512x512', type: 'image/png' },
       ],
     }),
-    'sw.js': `const BUILD_VERSION = '__BUILD_VERSION__';\nconst SCOPE_KEY = encodeURIComponent(new URL(self.registration.scope).pathname);\nconst CACHE_PREFIX = \`bean-pocket-shell-\${SCOPE_KEY}-\`;\nconst CACHE_NAME = \`\${CACHE_PREFIX}\${BUILD_VERSION}\`;\nconst APP_FILES = ${JSON.stringify(['./', './index.html', './app.mjs', './data/notion-client.mjs', './data/notion-properties.mjs', './data/read-repository.mjs', './domain.mjs', './platform/connection-file.mjs', './state/submission-state.mjs', './styles.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'])};\nself.addEventListener('install', event => event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES))));\nself.addEventListener('activate', event => event.waitUntil(caches.keys().then(names => Promise.all(names.filter(name => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME).map(name => caches.delete(name))))));`,
+    'sw.js': await readFile(path.join(sourceRoot, 'sw.js'), 'utf8'),
   };
   for (const [name, contents] of Object.entries(files)) await writeFile(path.join(sourceDir, name), contents);
   await writeFile(path.join(sourceDir, 'icons/icon-192.png'), pngHeader(192));
@@ -118,6 +130,7 @@ async function loadWorker(workerSource, scope, cacheStorage, networkCalls) {
   const self = {
     location: { origin: scopeUrl.origin },
     registration: { scope },
+    clients: { async matchAll() { return []; } },
     addEventListener(name, listener) { listeners.set(name, listener); },
   };
   vm.runInNewContext(workerSource, {
@@ -125,6 +138,9 @@ async function loadWorker(workerSource, scope, cacheStorage, networkCalls) {
     caches: cacheStorage,
     URL,
     Promise,
+    crypto: globalThis.crypto,
+    setTimeout,
+    clearTimeout,
     fetch: async request => { networkCalls.push(request.url); return { network: request.url }; },
   });
   return listeners;
@@ -178,7 +194,8 @@ test('Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록
   assert.ok(manifest.icons.every(icon => icon.src.startsWith('./')));
   assert.match(worker, /cache\.addAll/);
   assert.match(worker, new RegExp(version));
-  assert.doesNotMatch(worker, /skipWaiting|location\.reload|clients\.claim/i);
+  assert.doesNotMatch(worker, /location\.reload|clients\.claim/i);
+  assert.equal(worker, (await readFile(path.join(sourceRoot, 'sw.js'), 'utf8')).replaceAll('__BUILD_VERSION__', version));
   assert.doesNotMatch(`${html}\n${app}\n${worker}`, /https?:\/\//i);
 });
 
@@ -282,7 +299,9 @@ test('실제 PWA 소스에는 API 호출이나 외부 요청이 없고 하위 �
   const app = await readFile(path.join(outputDir, 'app.mjs'), 'utf8');
   const worker = await readFile(path.join(outputDir, 'sw.js'), 'utf8');
   assert.doesNotMatch(`${html}\n${app}\n${worker}`, /\/api\/|https?:\/\//i);
-  assert.doesNotMatch(worker, /skipWaiting|location\.reload/i);
+  assert.doesNotMatch(worker, /location\.reload|clients\.claim/i);
+  assert.match(worker, /function requestSafeApply\(/);
+  assert.match(worker, /sameClients\(/);
   assert.doesNotMatch(await readFile(path.join(outputDir, 'index.html'), 'utf8'), /ntn_secret_/i);
 });
 
@@ -315,7 +334,7 @@ test('Service Worker install·activate·fetch는 scope를 격리하고 앱 파�
   assert.ok(!remaining.includes(staleA), '자기 scope의 이전 버전 캐시는 정리해야 한다');
   assert.notEqual(cacheA, cacheB, '같은 출처의 서로 다른 scope는 별도 namespace를 사용해야 한다');
 
-  const appFiles = ['./', './index.html', './app.mjs', './data/notion-client.mjs', './data/notion-properties.mjs', './data/read-repository.mjs', './domain.mjs', './platform/connection-file.mjs', './state/submission-state.mjs', './styles.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
+  const appFiles = ['./', './index.html', './app.mjs', './commands/index.mjs', './ui/controller.mjs', './ui/view.mjs', './data/notion-client.mjs', './data/notion-properties.mjs', './data/read-repository.mjs', './domain.mjs', './platform/app-lifecycle.mjs', './platform/connection-file.mjs', './platform/update-coordinator.mjs', './state/submission-state.mjs', './styles.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
   assert.deepEqual(cacheStorage.stores.get(cacheA).files, appFiles);
   assert.deepEqual(cacheStorage.stores.get(cacheB).files, appFiles);
   assert.ok(!appFiles.includes('./sw.js'));

@@ -1,0 +1,258 @@
+TAP version 13
+# Subtest: connection verifies under the write lock before durable commit and never exposes the token
+ok 1 - connection verifies under the write lock before durable commit and never exposes the token
+  ---
+  duration_ms: 1.099084
+  type: 'test'
+  ...
+# Subtest: a rejected connection replacement keeps the previously verified connection active
+ok 2 - a rejected connection replacement keeps the previously verified connection active
+  ---
+  duration_ms: 0.341792
+  type: 'test'
+  ...
+# Subtest: a verification failure never writes or reports an active connection
+ok 3 - a verification failure never writes or reports an active connection
+  ---
+  duration_ms: 0.19425
+  type: 'test'
+  ...
+# Subtest: a successful connection remains active when the first full read fails
+ok 4 - a successful connection remains active when the first full read fails
+  ---
+  duration_ms: 0.146667
+  type: 'test'
+  ...
+# Subtest: lifecycle freeze refuses dirty or pending work and freezes clean state
+ok 5 - lifecycle freeze refuses dirty or pending work and freezes clean state
+  ---
+  duration_ms: 0.148292
+  type: 'test'
+  ...
+# Subtest: frozen lifecycle rejects refresh and connection replacement before side effects
+ok 6 - frozen lifecycle rejects refresh and connection replacement before side effects
+  ---
+  duration_ms: 0.19625
+  type: 'test'
+  ...
+# Subtest: dirty drafts prevent lifecycle freeze and are reported to the coordinator
+ok 7 - dirty drafts prevent lifecycle freeze and are reported to the coordinator
+  ---
+  duration_ms: 0.138833
+  type: 'test'
+  ...
+# Subtest: manual refresh owns the pending state and refuses a second read until it finishes
+ok 8 - manual refresh owns the pending state and refuses a second read until it finishes
+  ---
+  duration_ms: 3.848917
+  type: 'test'
+  ...
+# Subtest: initialization fails closed when state is blocked without a journal-visible recovery
+ok 9 - initialization fails closed when state is blocked without a journal-visible recovery
+  ---
+  duration_ms: 0.577167
+  type: 'test'
+  ...
+# Subtest: initialization does not offer a fresh connection setup for an unexplained blocked state
+ok 10 - initialization does not offer a fresh connection setup for an unexplained blocked state
+  ---
+  duration_ms: 0.450959
+  type: 'test'
+  ...
+# Subtest: initialization keeps the verified connection available to resolve a journaled unknown write
+ok 11 - initialization keeps the verified connection available to resolve a journaled unknown write
+  ---
+  duration_ms: 0.419792
+  type: 'test'
+  ...
+# Subtest: initialization retries only startup lock acquisition and becomes ready when the lock clears
+not ok 12 - initialization retries only startup lock acquisition and becomes ready when the lock clears
+  ---
+  duration_ms: 0.542125
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection.test.mjs:153:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection.test.mjs:159:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: exhausted startup lock contention offers a saved-state retry without connection entry
+not ok 13 - exhausted startup lock contention offers a saved-state retry without connection entry
+  ---
+  duration_ms: 0.1595
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection.test.mjs:166:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    1 !== 6
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 6
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection.test.mjs:171:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: resolution rejects extra page IDs when the journal already records created pages
+ok 14 - resolution rejects extra page IDs when the journal already records created pages
+  ---
+  duration_ms: 0.827708
+  type: 'test'
+  ...
+# Subtest: the shipped page has a real UI mount point
+ok 15 - the shipped page has a real UI mount point
+  ---
+  duration_ms: 2.750417
+  type: 'test'
+  ...
+# Subtest: controller public flows use real Notion, repository, commands and journal adapters
+ok 16 - controller public flows use real Notion, repository, commands and journal adapters
+  ---
+  duration_ms: 44.705583
+  type: 'test'
+  ...
+# Subtest: unknown writes preserve the draft state and prevent a second UI submission
+ok 17 - unknown writes preserve the draft state and prevent a second UI submission
+  ---
+  duration_ms: 2.922916
+  type: 'test'
+  ...
+# Subtest: unknown write resolution requires explicit confirmation and a fresh read before writes resume
+ok 18 - unknown write resolution requires explicit confirmation and a fresh read before writes resume
+  ---
+  duration_ms: 3.8795
+  type: 'test'
+  ...
+# Subtest: a second native UI client waits for startup lock release and reads the saved connection
+not ok 19 - a second native UI client waits for startup lock release and reads the saved connection
+  ---
+  duration_ms: 0.772834
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-ui.integration.test.mjs:106:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-ui.integration.test.mjs:130:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: saved resolution rejects a recipe parent that is absent from the complete fresh projection
+ok 20 - saved resolution rejects a recipe parent that is absent from the complete fresh projection
+  ---
+  duration_ms: 7.680583
+  type: 'test'
+  ...
+# Subtest: draft values survive tab navigation and a fresh data render
+ok 21 - draft values survive tab navigation and a fresh data render
+  ---
+  duration_ms: 5.201083
+  type: 'test'
+  ...
+# Subtest: bean, recipe, and record detail text is rendered as text and retains brew details
+ok 22 - bean, recipe, and record detail text is rendered as text and retains brew details
+  ---
+  duration_ms: 2.484375
+  type: 'test'
+  ...
+# Subtest: resolution controls follow the native journal page-list contract
+ok 23 - resolution controls follow the native journal page-list contract
+  ---
+  duration_ms: 1.061958
+  type: 'test'
+  ...
+# Subtest: the bean origin label uses user-facing wording rather than the storage field name
+ok 24 - the bean origin label uses user-facing wording rather than the storage field name
+  ---
+  duration_ms: 0.582417
+  type: 'test'
+  ...
+# Subtest: the record date default follows the device calendar across the KST UTC boundary
+ok 25 - the record date default follows the device calendar across the KST UTC boundary
+  ---
+  duration_ms: 1.787
+  type: 'test'
+  ...
+# Subtest: checked connection-recovery checkbox reaches the current-connection verifier
+ok 26 - checked connection-recovery checkbox reaches the current-connection verifier
+  ---
+  duration_ms: 0.564334
+  type: 'test'
+  ...
+# Subtest: startup lock contention hides connection entry and retries the saved connection read
+not ok 27 - startup lock contention hides connection entry and retries the saved connection read
+  ---
+  duration_ms: 0.873458
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-ui.view.test.mjs:224:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-ui.view.test.mjs:231:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: successful connection replacement preserves the active product draft
+ok 28 - successful connection replacement preserves the active product draft
+  ---
+  duration_ms: 2.079
+  type: 'test'
+  ...
+# Subtest: successful connection replacement preserves hidden drafts and their dirty signal
+ok 29 - successful connection replacement preserves hidden drafts and their dirty signal
+  ---
+  duration_ms: 2.811083
+  type: 'test'
+  ...
+# Subtest: recipe input minimums allow every positive sub-cent value accepted by the domain
+ok 30 - recipe input minimums allow every positive sub-cent value accepted by the domain
+  ---
+  duration_ms: 2.977834
+  type: 'test'
+  ...
+1..30
+# tests 30
+# suites 0
+# pass 26
+# fail 4
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 130.746167

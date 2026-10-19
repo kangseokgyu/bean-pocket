@@ -1,0 +1,202 @@
+TAP version 13
+# Subtest: C3-R1 checked connection-recovery checkbox reaches confirmCurrent
+ok 1 - C3-R1 checked connection-recovery checkbox reaches confirmCurrent
+  ---
+  duration_ms: 1.568459
+  type: 'test'
+  ...
+# Subtest: C3-R2 successful token replacement preserves the active unsaved product form
+ok 2 - C3-R2 successful token replacement preserves the active unsaved product form
+  ---
+  duration_ms: 4.028125
+  type: 'test'
+  ...
+# Subtest: C3-R2b hidden drafts must still prevent update freezing after token replacement
+ok 3 - C3-R2b hidden drafts must still prevent update freezing after token replacement
+  ---
+  duration_ms: 5.417708
+  type: 'test'
+  ...
+# Subtest: C3-R3 positive sub-cent values accepted by domain remain valid UI input
+ok 4 - C3-R3 positive sub-cent values accepted by domain remain valid UI input
+  ---
+  duration_ms: 6.776542
+  type: 'test'
+  ...
+# Subtest: C3-R4 incomplete partial recipe cannot be confirmed as fully saved
+ok 5 - C3-R4 incomplete partial recipe cannot be confirmed as fully saved
+  ---
+  duration_ms: 40.130917
+  type: 'test'
+  ...
+# Subtest: C3-native fresh-read failure keeps unknown journal locked
+ok 6 - C3-native fresh-read failure keeps unknown journal locked
+  ---
+  duration_ms: 4.790375
+  type: 'test'
+  ...
+# Subtest: connection verifies under the write lock before durable commit and never exposes the token
+ok 7 - connection verifies under the write lock before durable commit and never exposes the token
+  ---
+  duration_ms: 1.615542
+  type: 'test'
+  ...
+# Subtest: a rejected connection replacement keeps the previously verified connection active
+ok 8 - a rejected connection replacement keeps the previously verified connection active
+  ---
+  duration_ms: 1.034542
+  type: 'test'
+  ...
+# Subtest: a verification failure never writes or reports an active connection
+ok 9 - a verification failure never writes or reports an active connection
+  ---
+  duration_ms: 0.247833
+  type: 'test'
+  ...
+# Subtest: a successful connection remains active when the first full read fails
+ok 10 - a successful connection remains active when the first full read fails
+  ---
+  duration_ms: 0.155875
+  type: 'test'
+  ...
+# Subtest: lifecycle freeze refuses dirty or pending work and freezes clean state
+ok 11 - lifecycle freeze refuses dirty or pending work and freezes clean state
+  ---
+  duration_ms: 0.159333
+  type: 'test'
+  ...
+# Subtest: frozen lifecycle rejects refresh and connection replacement before side effects
+ok 12 - frozen lifecycle rejects refresh and connection replacement before side effects
+  ---
+  duration_ms: 0.221833
+  type: 'test'
+  ...
+# Subtest: dirty drafts prevent lifecycle freeze and are reported to the coordinator
+ok 13 - dirty drafts prevent lifecycle freeze and are reported to the coordinator
+  ---
+  duration_ms: 0.146542
+  type: 'test'
+  ...
+# Subtest: manual refresh owns the pending state and refuses a second read until it finishes
+ok 14 - manual refresh owns the pending state and refuses a second read until it finishes
+  ---
+  duration_ms: 3.971125
+  type: 'test'
+  ...
+# Subtest: initialization fails closed when state is blocked without a journal-visible recovery
+ok 15 - initialization fails closed when state is blocked without a journal-visible recovery
+  ---
+  duration_ms: 0.569041
+  type: 'test'
+  ...
+# Subtest: initialization does not offer a fresh connection setup for an unexplained blocked state
+ok 16 - initialization does not offer a fresh connection setup for an unexplained blocked state
+  ---
+  duration_ms: 0.55775
+  type: 'test'
+  ...
+# Subtest: initialization keeps the verified connection available to resolve a journaled unknown write
+ok 17 - initialization keeps the verified connection available to resolve a journaled unknown write
+  ---
+  duration_ms: 0.211708
+  type: 'test'
+  ...
+# Subtest: resolution rejects extra page IDs when the journal already records created pages
+ok 18 - resolution rejects extra page IDs when the journal already records created pages
+  ---
+  duration_ms: 0.776208
+  type: 'test'
+  ...
+# Subtest: the shipped page has a real UI mount point
+ok 19 - the shipped page has a real UI mount point
+  ---
+  duration_ms: 2.3695
+  type: 'test'
+  ...
+# Subtest: controller public flows use real Notion, repository, commands and journal adapters
+ok 20 - controller public flows use real Notion, repository, commands and journal adapters
+  ---
+  duration_ms: 60.283
+  type: 'test'
+  ...
+# Subtest: unknown writes preserve the draft state and prevent a second UI submission
+ok 21 - unknown writes preserve the draft state and prevent a second UI submission
+  ---
+  duration_ms: 4.022708
+  type: 'test'
+  ...
+# Subtest: unknown write resolution requires explicit confirmation and a fresh read before writes resume
+ok 22 - unknown write resolution requires explicit confirmation and a fresh read before writes resume
+  ---
+  duration_ms: 4.9065
+  type: 'test'
+  ...
+# Subtest: saved resolution rejects a recipe parent that is absent from the complete fresh projection
+ok 23 - saved resolution rejects a recipe parent that is absent from the complete fresh projection
+  ---
+  duration_ms: 7.141833
+  type: 'test'
+  ...
+# Subtest: draft values survive tab navigation and a fresh data render
+ok 24 - draft values survive tab navigation and a fresh data render
+  ---
+  duration_ms: 5.204042
+  type: 'test'
+  ...
+# Subtest: bean, recipe, and record detail text is rendered as text and retains brew details
+ok 25 - bean, recipe, and record detail text is rendered as text and retains brew details
+  ---
+  duration_ms: 1.595334
+  type: 'test'
+  ...
+# Subtest: resolution controls follow the native journal page-list contract
+ok 26 - resolution controls follow the native journal page-list contract
+  ---
+  duration_ms: 0.913375
+  type: 'test'
+  ...
+# Subtest: the bean origin label uses user-facing wording rather than the storage field name
+ok 27 - the bean origin label uses user-facing wording rather than the storage field name
+  ---
+  duration_ms: 0.586
+  type: 'test'
+  ...
+# Subtest: the record date default follows the device calendar across the KST UTC boundary
+ok 28 - the record date default follows the device calendar across the KST UTC boundary
+  ---
+  duration_ms: 6.0605
+  type: 'test'
+  ...
+# Subtest: checked connection-recovery checkbox reaches the current-connection verifier
+ok 29 - checked connection-recovery checkbox reaches the current-connection verifier
+  ---
+  duration_ms: 1.210584
+  type: 'test'
+  ...
+# Subtest: successful connection replacement preserves the active product draft
+ok 30 - successful connection replacement preserves the active product draft
+  ---
+  duration_ms: 3.250834
+  type: 'test'
+  ...
+# Subtest: successful connection replacement preserves hidden drafts and their dirty signal
+ok 31 - successful connection replacement preserves hidden drafts and their dirty signal
+  ---
+  duration_ms: 6.112917
+  type: 'test'
+  ...
+# Subtest: recipe input minimums allow every positive sub-cent value accepted by the domain
+ok 32 - recipe input minimums allow every positive sub-cent value accepted by the domain
+  ---
+  duration_ms: 4.669834
+  type: 'test'
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 32
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 137.784708

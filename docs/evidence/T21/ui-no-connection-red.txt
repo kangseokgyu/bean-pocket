@@ -1,0 +1,33 @@
+TAP version 13
+# Subtest: initialization does not offer a fresh connection setup for an unexplained blocked state
+not ok 1 - initialization does not offer a fresh connection setup for an unexplained blocked state
+  ---
+  duration_ms: 1.3135
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection.test.mjs:122:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    null !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: ~
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection.test.mjs:126:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 54.42175
+exit=1

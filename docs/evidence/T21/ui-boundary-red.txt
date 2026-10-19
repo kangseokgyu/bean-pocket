@@ -1,0 +1,53 @@
+TAP version 13
+# Subtest: initialization fails closed when state is blocked without a journal-visible recovery
+not ok 1 - initialization fails closed when state is blocked without a journal-visible recovery
+  ---
+  duration_ms: 1.607917
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection.test.mjs:111:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection.test.mjs:116:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: resolution rejects extra page IDs when the journal already records created pages
+not ok 2 - resolution rejects extra page IDs when the journal already records created pages
+  ---
+  duration_ms: 0.959959
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-connection.test.mjs:135:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The validation function is expected to return "true". Received false
+    
+    Caught error:
+    
+    TypeError: freshStack.nextClient.getPage is not a function
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  stack: |-
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-connection.test.mjs:146:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 0
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 65.573
+exit=1

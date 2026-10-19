@@ -1,0 +1,33 @@
+TAP version 13
+# membership observation {"frozen":false,"navigations":0,"messages":["prepare","prepare","lock","recheck","recheck","commit","commit","abort","abort","recover","recover"]}
+# Subtest: C-final-1: client close after commit must preserve a recoverable active document transition
+not ok 1 - C-final-1: client close after commit must preserve a recoverable active document transition
+  ---
+  duration_ms: 9.701167
+  type: 'test'
+  location: '/private/tmp/critic-t27-final-4L9tzv/additional.test.mjs:99:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    remaining clean old document must still transition to active B after explicit retries
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/critic-t27-final-4L9tzv/additional.test.mjs:108:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 56.749792

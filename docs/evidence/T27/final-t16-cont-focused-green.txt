@@ -1,0 +1,184 @@
+TAP version 13
+# Subtest: R1: SW prepare timeout must unfreeze the recipient even when inspect completes late
+ok 1 - R1: SW prepare timeout must unfreeze the recipient even when inspect completes late
+  ---
+  duration_ms: 5.089625
+  type: 'test'
+  ...
+# Subtest: R2: abort received during a pending prepare must tombstone the generation
+ok 2 - R2: abort received during a pending prepare must tombstone the generation
+  ---
+  duration_ms: 0.440083
+  type: 'test'
+  ...
+# Subtest: R3: stop while prepare is awaiting setFrozen must not leave a live freeze
+ok 3 - R3: stop while prepare is awaiting setFrozen must not leave a live freeze
+  ---
+  duration_ms: 0.335625
+  type: 'test'
+  ...
+# Subtest: R4: invalidation after recheck must prevent skipWaiting with an unfrozen, unlocked dirty leader
+ok 4 - R4: invalidation after recheck must prevent skipWaiting with an unfrozen, unlocked dirty leader
+  ---
+  duration_ms: 1.73175
+  type: 'test'
+  ...
+# Subtest: R5: activation from an unrelated generation must not release current freeze/leader lock
+ok 5 - R5: activation from an unrelated generation must not release current freeze/leader lock
+  ---
+  duration_ms: 0.440208
+  type: 'test'
+  ...
+# Subtest: R7: aborting an older overlapping generation must not unfreeze an ACKed newer one
+ok 6 - R7: aborting an older overlapping generation must not unfreeze an ACKed newer one
+  ---
+  duration_ms: 0.466958
+  type: 'test'
+  ...
+# Subtest: R8: activation from newly active B is accepted while the open A page still has controller A
+ok 7 - R8: activation from newly active B is accepted while the open A page still has controller A
+  ---
+  duration_ms: 0.436208
+  type: 'test'
+  ...
+# Subtest: R9: stop waits for an in-flight freeze and applies its unfreeze after the late completion
+ok 8 - R9: stop waits for an in-flight freeze and applies its unfreeze after the late completion
+  ---
+  duration_ms: 0.308833
+  type: 'test'
+  ...
+# Subtest: R10: invalidation racing the commit ACK prevents skipWaiting and releases only after abort
+ok 9 - R10: invalidation racing the commit ACK prevents skipWaiting and releases only after abort
+  ---
+  duration_ms: 1.419542
+  type: 'test'
+  ...
+# Subtest: C1: real submission-state blocks incoherent/guarded/unknown/processing journals, and accepts empty first run
+ok 10 - C1: real submission-state blocks incoherent/guarded/unknown/processing journals, and accepts empty first run
+  ---
+  duration_ms: 6.805833
+  type: 'test'
+  ...
+# Subtest: C2: source validation rejects foreign origin and a sibling scope worker
+ok 11 - C2: source validation rejects foreign origin and a sibling scope worker
+  ---
+  duration_ms: 0.417042
+  type: 'test'
+  ...
+# Subtest: C3: actual submission-state holds shared lock adapter until activation and blocks another instance
+ok 12 - C3: actual submission-state holds shared lock adapter until activation and blocks another instance
+  ---
+  duration_ms: 1.577625
+  type: 'test'
+  ...
+# Subtest: F3: committed active build B conditionally replaces the open build A while still frozen
+ok 13 - F3: committed active build B conditionally replaces the open build A while still frozen
+  ---
+  duration_ms: 1.335417
+  type: 'test'
+  ...
+# Subtest: same script URL with a different worker instance cannot abort an owned generation
+ok 14 - same script URL with a different worker instance cannot abort an owned generation
+  ---
+  duration_ms: 0.487084
+  type: 'test'
+  ...
+# Subtest: abort before prepare leaves a tombstone that prevents a late prepare from freezing
+ok 15 - abort before prepare leaves a tombstone that prevents a late prepare from freezing
+  ---
+  duration_ms: 0.804833
+  type: 'test'
+  ...
+# Subtest: dirty invalidation after commit retains freeze and native lock until a terminal abort
+ok 16 - dirty invalidation after commit retains freeze and native lock until a terminal abort
+  ---
+  duration_ms: 0.747917
+  type: 'test'
+  ...
+# Subtest: prepare freezes first and ACKs only after a clean-state recheck
+ok 17 - prepare freezes first and ACKs only after a clean-state recheck
+  ---
+  duration_ms: 1.490708
+  type: 'test'
+  ...
+# Subtest: dirty state or failed freeze refuses prepare and leaves no window frozen
+ok 18 - dirty state or failed freeze refuses prepare and leaves no window frozen
+  ---
+  duration_ms: 0.403709
+  type: 'test'
+  ...
+# Subtest: prepare checks journal under lock, then native write lock stays held through recheck and releases on apply or abort
+ok 19 - prepare checks journal under lock, then native write lock stays held through recheck and releases on apply or abort
+  ---
+  duration_ms: 3.192208
+  type: 'test'
+  ...
+# Subtest: journal with unresolved work refuses prepare and leaves the window unfrozen
+ok 20 - journal with unresolved work refuses prepare and leaves the window unfrozen
+  ---
+  duration_ms: 0.248833
+  type: 'test'
+  ...
+# Subtest: a clean first-run state with no connection or journal can safely update
+ok 21 - a clean first-run state with no connection or journal can safely update
+  ---
+  duration_ms: 0.209333
+  type: 'test'
+  ...
+# Subtest: a dirty transition after prepare invalidates that generation before apply
+ok 22 - a dirty transition after prepare invalidates that generation before apply
+  ---
+  duration_ms: 0.4965
+  type: 'test'
+  ...
+# Subtest: worker source must match the registered scope exactly
+ok 23 - worker source must match the registered scope exactly
+  ---
+  duration_ms: 0.201084
+  type: 'test'
+  ...
+# Subtest: install applies only after every window is clean, frozen, rechecked, and lock-protected
+ok 24 - install applies only after every window is clean, frozen, rechecked, and lock-protected
+  ---
+  duration_ms: 3.093167
+  type: 'test'
+  ...
+# Subtest: two scoped windows freeze and recheck while only one holds the origin-wide native lock
+ok 25 - two scoped windows freeze and recheck while only one holds the origin-wide native lock
+  ---
+  duration_ms: 1.716917
+  type: 'test'
+  ...
+# Subtest: dirty, unresolved, or membership-changing windows abort without skipWaiting
+ok 26 - dirty, unresolved, or membership-changing windows abort without skipWaiting
+  ---
+  duration_ms: 3.473958
+  type: 'test'
+  ...
+# Subtest: unresponsive windows time out, abort, and never trigger skipWaiting
+ok 27 - unresponsive windows time out, abort, and never trigger skipWaiting
+  ---
+  duration_ms: 10004.435458
+  type: 'test'
+  ...
+# Subtest: app lifecycle retries a waiting worker on start and state changes, without forcing reload
+ok 28 - app lifecycle retries a waiting worker on start and state changes, without forcing reload
+  ---
+  duration_ms: 0.748416
+  type: 'test'
+  ...
+# Subtest: app lifecycle start wires the coordinator into the service worker handshake
+ok 29 - app lifecycle start wires the coordinator into the service worker handshake
+  ---
+  duration_ms: 0.466333
+  type: 'test'
+  ...
+1..29
+# tests 29
+# suites 0
+# pass 29
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 10068.882333

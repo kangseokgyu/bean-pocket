@@ -1,0 +1,185 @@
+TAP version 13
+# Subtest: Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록을 만든다
+not ok 1 - Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록을 만든다
+  ---
+  duration_ms: 48.693541
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:168:1'
+  failureType: 'testCodeFailure'
+  error: 'Service Worker는 허용된 앱 파일만 캐시해야 합니다.'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    checkPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/check-pages.mjs:185:11)
+    async buildPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/build-pages.mjs:178:3)
+    async buildFixture (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:92:19)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:169:34)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: 검사기는 누락 파일과 허용 목록 밖 산출물을 거부한다
+not ok 2 - 검사기는 누락 파일과 허용 목록 밖 산출물을 거부한다
+  ---
+  duration_ms: 14.102125
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:195:1'
+  failureType: 'testCodeFailure'
+  error: 'Service Worker는 허용된 앱 파일만 캐시해야 합니다.'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    checkPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/check-pages.mjs:185:11)
+    async buildPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/build-pages.mjs:178:3)
+    async buildFixture (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:92:19)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:196:25)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 검사기는 루트 절대 경로와 허용 파일 안의 비밀값을 거부한다
+not ok 3 - 검사기는 루트 절대 경로와 허용 파일 안의 비밀값을 거부한다
+  ---
+  duration_ms: 10.504084
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:205:1'
+  failureType: 'testCodeFailure'
+  error: 'Service Worker는 허용된 앱 파일만 캐시해야 합니다.'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    checkPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/check-pages.mjs:185:11)
+    async buildPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/build-pages.mjs:178:3)
+    async buildFixture (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:92:19)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:206:24)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 검사기는 Service Worker가 API 경로를 앱 캐시에 넣는 변경을 거부한다
+not ok 4 - 검사기는 Service Worker가 API 경로를 앱 캐시에 넣는 변경을 거부한다
+  ---
+  duration_ms: 9.653459
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:219:1'
+  failureType: 'testCodeFailure'
+  error: 'Service Worker는 허용된 앱 파일만 캐시해야 합니다.'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    checkPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/check-pages.mjs:185:11)
+    async buildPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/build-pages.mjs:178:3)
+    async buildFixture (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:92:19)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:220:25)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 검사기는 scope별 캐시 namespace가 빠진 Service Worker를 거부한다
+not ok 5 - 검사기는 scope별 캐시 namespace가 빠진 Service Worker를 거부한다
+  ---
+  duration_ms: 10.127042
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:227:1'
+  failureType: 'testCodeFailure'
+  error: 'Service Worker에 임의 캐시 쓰기 또는 강제 업데이트 동작이 있습니다.'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    checkPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/check-pages.mjs:188:11)
+    async buildPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/build-pages.mjs:178:3)
+    async buildProductionFixture (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:99:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:228:25)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 빌더는 필수 소스 누락과 소스 심볼릭 링크를 거부한다
+not ok 6 - 빌더는 필수 소스 누락과 소스 심볼릭 링크를 거부한다
+  ---
+  duration_ms: 10.987916
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:235:1'
+  failureType: 'testCodeFailure'
+  error: 'Service Worker는 허용된 앱 파일만 캐시해야 합니다.'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    checkPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/check-pages.mjs:185:11)
+    async buildPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/build-pages.mjs:178:3)
+    async buildFixture (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:92:19)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:236:19)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 빌더는 symlink 부모 경로로 소스를 출력 경로로 지정해도 원본을 보존한다
+ok 7 - 빌더는 symlink 부모 경로로 소스를 출력 경로로 지정해도 원본을 보존한다
+  ---
+  duration_ms: 4.98925
+  type: 'test'
+  ...
+# Subtest: 검사기는 산출물 심볼릭 링크와 잘못된 dist 루트를 거부한다
+not ok 8 - 검사기는 산출물 심볼릭 링크와 잘못된 dist 루트를 거부한다
+  ---
+  duration_ms: 9.631416
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:272:1'
+  failureType: 'testCodeFailure'
+  error: 'Service Worker는 허용된 앱 파일만 캐시해야 합니다.'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    checkPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/check-pages.mjs:185:11)
+    async buildPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/build-pages.mjs:178:3)
+    async buildFixture (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:92:19)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:273:18)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 실제 PWA 소스에는 API 호출이나 외부 요청이 없고 하위 경로 자원만 쓴다
+not ok 9 - 실제 PWA 소스에는 API 호출이나 외부 요청이 없고 하위 경로 자원만 쓴다
+  ---
+  duration_ms: 7.9555
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:287:1'
+  failureType: 'testCodeFailure'
+  error: 'Service Worker에 임의 캐시 쓰기 또는 강제 업데이트 동작이 있습니다.'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    checkPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/check-pages.mjs:188:11)
+    async buildPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/build-pages.mjs:178:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:290:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: Service Worker install·activate·fetch는 scope를 격리하고 앱 파일만 다룬다
+not ok 10 - Service Worker install·activate·fetch는 scope를 격리하고 앱 파일만 다룬다
+  ---
+  duration_ms: 7.519625
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:299:1'
+  failureType: 'testCodeFailure'
+  error: 'Service Worker에 임의 캐시 쓰기 또는 강제 업데이트 동작이 있습니다.'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    checkPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/check-pages.mjs:188:11)
+    async buildPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/build-pages.mjs:178:3)
+    async buildProductionFixture (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:99:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:300:25)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 빌드 hash는 같은 소스에서 재현되고 소스 변경 시 바뀐다
+not ok 11 - 빌드 hash는 같은 소스에서 재현되고 소스 변경 시 바뀐다
+  ---
+  duration_ms: 10.196542
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:347:1'
+  failureType: 'testCodeFailure'
+  error: 'Service Worker는 허용된 앱 파일만 캐시해야 합니다.'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    checkPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/check-pages.mjs:185:11)
+    async buildPages (file:///Users/kangseokgyu/workspace/AX-1day/scripts/build-pages.mjs:178:3)
+    async buildFixture (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:92:19)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:348:31)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 1
+# fail 10
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 210.378084

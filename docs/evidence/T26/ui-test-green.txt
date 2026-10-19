@@ -1,0 +1,137 @@
+TAP version 13
+# Subtest: connection verifies under the write lock before durable commit and never exposes the token
+ok 1 - connection verifies under the write lock before durable commit and never exposes the token
+  ---
+  duration_ms: 1.8825
+  type: 'test'
+  ...
+# Subtest: a rejected connection replacement keeps the previously verified connection active
+ok 2 - a rejected connection replacement keeps the previously verified connection active
+  ---
+  duration_ms: 0.441208
+  type: 'test'
+  ...
+# Subtest: a verification failure never writes or reports an active connection
+ok 3 - a verification failure never writes or reports an active connection
+  ---
+  duration_ms: 0.240458
+  type: 'test'
+  ...
+# Subtest: a successful connection remains active when the first full read fails
+ok 4 - a successful connection remains active when the first full read fails
+  ---
+  duration_ms: 0.155708
+  type: 'test'
+  ...
+# Subtest: lifecycle freeze refuses dirty or pending work and freezes clean state
+ok 5 - lifecycle freeze refuses dirty or pending work and freezes clean state
+  ---
+  duration_ms: 0.240459
+  type: 'test'
+  ...
+# Subtest: frozen lifecycle rejects refresh and connection replacement before side effects
+ok 6 - frozen lifecycle rejects refresh and connection replacement before side effects
+  ---
+  duration_ms: 0.235541
+  type: 'test'
+  ...
+# Subtest: dirty drafts prevent lifecycle freeze and are reported to the coordinator
+ok 7 - dirty drafts prevent lifecycle freeze and are reported to the coordinator
+  ---
+  duration_ms: 0.155
+  type: 'test'
+  ...
+# Subtest: manual refresh owns the pending state and refuses a second read until it finishes
+ok 8 - manual refresh owns the pending state and refuses a second read until it finishes
+  ---
+  duration_ms: 4.196875
+  type: 'test'
+  ...
+# Subtest: initialization fails closed when state is blocked without a journal-visible recovery
+ok 9 - initialization fails closed when state is blocked without a journal-visible recovery
+  ---
+  duration_ms: 0.591958
+  type: 'test'
+  ...
+# Subtest: initialization does not offer a fresh connection setup for an unexplained blocked state
+ok 10 - initialization does not offer a fresh connection setup for an unexplained blocked state
+  ---
+  duration_ms: 0.459458
+  type: 'test'
+  ...
+# Subtest: initialization keeps the verified connection available to resolve a journaled unknown write
+ok 11 - initialization keeps the verified connection available to resolve a journaled unknown write
+  ---
+  duration_ms: 0.191417
+  type: 'test'
+  ...
+# Subtest: resolution rejects extra page IDs when the journal already records created pages
+ok 12 - resolution rejects extra page IDs when the journal already records created pages
+  ---
+  duration_ms: 0.775208
+  type: 'test'
+  ...
+# Subtest: the shipped page has a real UI mount point
+ok 13 - the shipped page has a real UI mount point
+  ---
+  duration_ms: 3.498625
+  type: 'test'
+  ...
+# Subtest: controller public flows use real Notion, repository, commands and journal adapters
+ok 14 - controller public flows use real Notion, repository, commands and journal adapters
+  ---
+  duration_ms: 42.23275
+  type: 'test'
+  ...
+# Subtest: unknown writes preserve the draft state and prevent a second UI submission
+ok 15 - unknown writes preserve the draft state and prevent a second UI submission
+  ---
+  duration_ms: 2.482041
+  type: 'test'
+  ...
+# Subtest: unknown write resolution requires explicit confirmation and a fresh read before writes resume
+ok 16 - unknown write resolution requires explicit confirmation and a fresh read before writes resume
+  ---
+  duration_ms: 4.134208
+  type: 'test'
+  ...
+# Subtest: draft values survive tab navigation and a fresh data render
+ok 17 - draft values survive tab navigation and a fresh data render
+  ---
+  duration_ms: 4.926625
+  type: 'test'
+  ...
+# Subtest: bean, recipe, and record detail text is rendered as text and retains brew details
+ok 18 - bean, recipe, and record detail text is rendered as text and retains brew details
+  ---
+  duration_ms: 1.537708
+  type: 'test'
+  ...
+# Subtest: resolution controls follow the native journal page-list contract
+ok 19 - resolution controls follow the native journal page-list contract
+  ---
+  duration_ms: 1.282292
+  type: 'test'
+  ...
+# Subtest: the bean origin label uses user-facing wording rather than the storage field name
+ok 20 - the bean origin label uses user-facing wording rather than the storage field name
+  ---
+  duration_ms: 1.512291
+  type: 'test'
+  ...
+# Subtest: the record date default follows the device calendar across the KST UTC boundary
+ok 21 - the record date default follows the device calendar across the KST UTC boundary
+  ---
+  duration_ms: 1.517791
+  type: 'test'
+  ...
+1..21
+# tests 21
+# suites 0
+# pass 21
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 107.467083
+exit=0

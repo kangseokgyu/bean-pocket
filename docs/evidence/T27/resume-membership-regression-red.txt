@@ -1,0 +1,98 @@
+TAP version 13
+# Subtest: membership abort after commit preserves active transition intent and revalidates clean state
+not ok 1 - membership abort after commit preserves active transition intent and revalidates clean state
+  ---
+  duration_ms: 9.304792
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:237:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    remaining document must transition after a fresh safe active handshake
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:276:14)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: membership abort after commit preserves active transition intent and revalidates dirty state
+not ok 2 - membership abort after commit preserves active transition intent and revalidates dirty state
+  ---
+  duration_ms: 4.304708
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:237:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    remaining document must transition after a fresh safe active handshake
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:276:14)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: membership abort after commit preserves active transition intent and revalidates pending state
+not ok 3 - membership abort after commit preserves active transition intent and revalidates pending state
+  ---
+  duration_ms: 2.803166
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:237:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    remaining document must transition after a fresh safe active handshake
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:276:14)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: membership abort after commit preserves active transition intent and revalidates journal state
+not ok 4 - membership abort after commit preserves active transition intent and revalidates journal state
+  ---
+  duration_ms: 3.122583
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:237:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    remaining document must transition after a fresh safe active handshake
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-lifecycle-recovery.test.mjs:276:14)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 0
+# fail 4
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 65.154417

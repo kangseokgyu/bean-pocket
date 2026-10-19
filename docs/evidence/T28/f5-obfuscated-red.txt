@@ -1,0 +1,39 @@
+TAP version 13
+# Subtest: product commands, UI and lifecycle ship byte-for-byte and all affect the release version
+ok 1 - product commands, UI and lifecycle ship byte-for-byte and all affect the release version
+  ---
+  duration_ms: 491.962792
+  type: 'test'
+  ...
+# Subtest: commands/UI directory symlinks cannot bypass the source boundary
+ok 2 - commands/UI directory symlinks cannot bypass the source boundary
+  ---
+  duration_ms: 133.518667
+  type: 'test'
+  ...
+# Subtest: release checker rejects activation moved outside the handshake, aliases and removed guards
+not ok 3 - release checker rejects activation moved outside the handshake, aliases and removed guards
+  ---
+  duration_ms: 175.304292
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-product-build.test.mjs:46:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected rejection.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  operator: 'rejects'
+  stack: |-
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-product-build.test.mjs:66:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 2
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 944.837125

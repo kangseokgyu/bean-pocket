@@ -1,0 +1,11 @@
+Worker targeted verification — 2026-10-20
+
+Command:
+node --test test/pwa-update-discovery.test.mjs test/pwa-lifecycle.test.mjs test/pwa-lifecycle-regression.test.mjs test/pwa-lifecycle-recovery.test.mjs test/pwa-build.test.mjs
+
+Exit code: 0
+Result: 59/59 passed; 0 failed, 0 cancelled (10.12 seconds).
+
+Coverage includes registration-result handoff, startup and foreground update checks, update-check deduplication, installed-worker retry, retry after update() rejection, stop/listener cleanup, Request cache mode reload for every scoped app-shell URL, and existing lifecycle/recovery/build regressions.
+
+This is targeted Node test evidence. The full test suite and final product build/check remain with the parent. Native localhost:4200 ingress confirmation was performed by the parent; see stale-shell-before.png and cache-fixed-ingress.png in this directory.

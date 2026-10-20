@@ -10,7 +10,8 @@ let safeApplyPromise;
 let activeAttempt;
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES)).then(() => requestSafeApply()));
+  const APP_REQUESTS = APP_FILES.map(file => new Request(new URL(file, self.registration.scope), { cache: 'reload' }));
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_REQUESTS)).then(() => requestSafeApply()));
 });
 
 function clientMessage(client, type, generation, attempt) {

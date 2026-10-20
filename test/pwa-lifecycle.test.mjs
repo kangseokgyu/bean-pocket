@@ -135,6 +135,7 @@ async function runInstall({ state, blocked = false, freezeResult = true, mutateC
   const context = vm.createContext({
     self,
     URL,
+    Request,
     MessageChannel: TestMessageChannel,
     crypto: { randomUUID: () => GENERATION },
     caches: { async open() { return cache; }, async keys() { return []; } },

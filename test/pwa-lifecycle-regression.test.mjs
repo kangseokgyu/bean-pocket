@@ -62,6 +62,7 @@ async function worker(p, { onMatch, onSkip, onMessage } = {}) {
     addEventListener(type, fn) { events.set(type, fn); } };
   const source = await readFile(ROOT + '/pwa/sw.js', 'utf8');
   vm.runInNewContext(source, { self, URL, MessageChannel: Channel,
+    Request,
     crypto: { randomUUID: () => 'g1' },
     caches: { async open() { return { async addAll() {} }; }, async keys() { return []; } },
     setTimeout(fn) { const id = ++timerId; timers.set(id, fn); return id; },

@@ -189,9 +189,12 @@ export async function checkPages(directory = defaultOutputDir, { allowIncomplete
   } catch {
     throw new Error('Service Worker 캐시 허용 목록이 JSON 배열이 아닙니다.');
   }
+  if (!/const APP_REQUESTS = APP_FILES\.map\(file => new Request\(new URL\(file, self\.registration\.scope\), \{ cache: 'reload' \}\)\);/.test(worker)) {
+    throw new Error('Service Worker 설치 캐시는 HTTP 캐시를 우회해야 합니다.');
+  }
   const cacheWrites = [...worker.matchAll(/\bcache\.addAll\s*\(([^)]*)\)/g)];
   if (JSON.stringify(cacheFiles) !== JSON.stringify(requiredCacheFiles) ||
-      cacheWrites.length !== 1 || cacheWrites[0][1].trim() !== 'APP_FILES') {
+      cacheWrites.length !== 1 || cacheWrites[0][1].trim() !== 'APP_REQUESTS') {
     throw new Error('Service Worker는 허용된 앱 파일만 캐시해야 합니다.');
   }
   if (/\bcache\.(?:add|put)\s*\(/.test(worker) || /location\.reload|clients\.claim/i.test(worker)) {

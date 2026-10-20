@@ -1,0 +1,413 @@
+Command: node --test test/pwa-update-discovery.test.mjs test/pwa-build.test.mjs
+Exit code: 1
+
+TAP version 13
+# Subtest: Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록을 만든다
+not ok 1 - Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록을 만든다
+  ---
+  duration_ms: 35.762833
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:182:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /\.then\(registration => lifecycle\.start\(registration\)\)/. Input:
+    
+    "if ('serviceWorker' in navigator) navigator.serviceWorker.register(new URL('./sw.js', import.meta.url)).catch(() => {});"
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: "if ('serviceWorker' in navigator) navigator.serviceWorker.register(new URL('./sw.js', import.meta.url)).catch(() => {});"
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:199:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: 검사기는 누락 파일과 허용 목록 밖 산출물을 거부한다
+ok 2 - 검사기는 누락 파일과 허용 목록 밖 산출물을 거부한다
+  ---
+  duration_ms: 28.996667
+  type: 'test'
+  ...
+# Subtest: 검사기는 루트 절대 경로와 허용 파일 안의 비밀값을 거부한다
+ok 3 - 검사기는 루트 절대 경로와 허용 파일 안의 비밀값을 거부한다
+  ---
+  duration_ms: 31.657792
+  type: 'test'
+  ...
+# Subtest: 검사기는 Service Worker가 API 경로를 앱 캐시에 넣는 변경을 거부한다
+ok 4 - 검사기는 Service Worker가 API 경로를 앱 캐시에 넣는 변경을 거부한다
+  ---
+  duration_ms: 15.271042
+  type: 'test'
+  ...
+# Subtest: 검사기는 scope별 캐시 namespace가 빠진 Service Worker를 거부한다
+ok 5 - 검사기는 scope별 캐시 namespace가 빠진 Service Worker를 거부한다
+  ---
+  duration_ms: 17.826333
+  type: 'test'
+  ...
+# Subtest: 빌더는 필수 소스 누락과 소스 심볼릭 링크를 거부한다
+ok 6 - 빌더는 필수 소스 누락과 소스 심볼릭 링크를 거부한다
+  ---
+  duration_ms: 28.084833
+  type: 'test'
+  ...
+# Subtest: 빌더는 symlink 부모 경로로 소스를 출력 경로로 지정해도 원본을 보존한다
+ok 7 - 빌더는 symlink 부모 경로로 소스를 출력 경로로 지정해도 원본을 보존한다
+  ---
+  duration_ms: 5.541042
+  type: 'test'
+  ...
+# Subtest: 검사기는 산출물 심볼릭 링크와 잘못된 dist 루트를 거부한다
+ok 8 - 검사기는 산출물 심볼릭 링크와 잘못된 dist 루트를 거부한다
+  ---
+  duration_ms: 17.035833
+  type: 'test'
+  ...
+# Subtest: 실제 PWA 소스에는 API 호출이나 외부 요청이 없고 하위 경로 자원만 쓴다
+ok 9 - 실제 PWA 소스에는 API 호출이나 외부 요청이 없고 하위 경로 자원만 쓴다
+  ---
+  duration_ms: 11.121
+  type: 'test'
+  ...
+# Subtest: Service Worker install·activate·fetch는 scope를 격리하고 앱 파일만 다룬다
+not ok 10 - Service Worker install·activate·fetch는 scope를 격리하고 앱 파일만 다룬다
+  ---
+  duration_ms: 15.904042
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:317:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      [
+        [
+    +     undefined,
+    +     undefined
+    -     'https://example.test/repo/a/',
+    -     'reload'
+        ],
+        [
+    +     undefined,
+    +     undefined
+    -     'https://example.test/repo/a/index.html',
+    -     'reload'
+        ],
+        [
+    +     undefined,
+    +     undefined
+    -     'https://example.test/repo/a/app.mjs',
+    -     'reload'
+        ],
+        [
+    +     undefined,
+    +     undefined
+    -     'https://example.test/repo/a/commands/index.mjs',
+    -     'reload'
+        ],
+        [
+    +     undefined,
+    +     undefined
+    -     'https://example.test/repo/a/ui/controller.mjs',
+    -     'reload'
+        ],
+        [
+    +     undefined,
+    +     undefined
+    -     'https://example.test/repo/a/ui/view.mjs',
+    -     'reload'
+        ],
+        [
+    +     undefined,
+    +     undefined
+    -     'https://example.test/repo/a/data/notion-client.mjs',
+    -     'reload'
+        ],
+        [
+    +     undefined,
+    +     undefined
+    -     'https://example.test/repo/a/data/notion-properties.mjs',
+    -     'reload'
+        ],
+        [
+    +     undefined,
+    +     undefined
+    -     'https://example.test/repo/a/data/read-repository.mjs',
+    -     'reload'
+        ],
+        [
+    +     undefined,
+    +     undefined
+    -     'https://example.test/repo/a/domain.mjs',
+    -     'reload'
+        ],
+        [
+    +     undefined,
+    +     undefined
+    -     'https://example.test/repo/a/platform/app-lifecycle.mjs',
+    -     'reload'
+        ],
+        [
+    +     undefined,
+    +     undefined
+    -     'https://example.test/repo/a/platform/connection-file.mjs',
+    -     'reload'
+        ],
+        [
+    +     undefined,
+    +     undefined
+    -     'https://example.test/repo/a/platform/update-coordinator.mjs',
+    -     'reload'
+        ],
+        [
+    +     undefined,
+    +     undefined
+    -     'https://example.test/repo/a/state/submission-state.mjs',
+    -     'reload'
+        ],
+        [
+    +     undefined,
+    +     undefined
+    -     'https://example.test/repo/a/styles.css',
+    -     'reload'
+        ],
+        [
+    +     undefined,
+    +     undefined
+    -     'https://example.test/repo/a/manifest.webmanifest',
+    -     'reload'
+        ],
+        [
+    +     undefined,
+    +     undefined
+    -     'https://example.test/repo/a/icons/icon-192.png',
+    -     'reload'
+        ],
+        [
+    +     undefined,
+    +     undefined
+    -     'https://example.test/repo/a/icons/icon-512.png',
+    -     'reload'
+        ]
+      ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0:
+      0: 'https://example.test/repo/a/'
+      1: 'reload'
+    1:
+      0: 'https://example.test/repo/a/index.html'
+      1: 'reload'
+    2:
+      0: 'https://example.test/repo/a/app.mjs'
+      1: 'reload'
+    3:
+      0: 'https://example.test/repo/a/commands/index.mjs'
+      1: 'reload'
+    4:
+      0: 'https://example.test/repo/a/ui/controller.mjs'
+      1: 'reload'
+    5:
+      0: 'https://example.test/repo/a/ui/view.mjs'
+      1: 'reload'
+    6:
+      0: 'https://example.test/repo/a/data/notion-client.mjs'
+      1: 'reload'
+    7:
+      0: 'https://example.test/repo/a/data/notion-properties.mjs'
+      1: 'reload'
+    8:
+      0: 'https://example.test/repo/a/data/read-repository.mjs'
+      1: 'reload'
+    9:
+      0: 'https://example.test/repo/a/domain.mjs'
+      1: 'reload'
+    10:
+      0: 'https://example.test/repo/a/platform/app-lifecycle.mjs'
+      1: 'reload'
+    11:
+      0: 'https://example.test/repo/a/platform/connection-file.mjs'
+      1: 'reload'
+    12:
+      0: 'https://example.test/repo/a/platform/update-coordinator.mjs'
+      1: 'reload'
+    13:
+      0: 'https://example.test/repo/a/state/submission-state.mjs'
+      1: 'reload'
+    14:
+      0: 'https://example.test/repo/a/styles.css'
+      1: 'reload'
+    15:
+      0: 'https://example.test/repo/a/manifest.webmanifest'
+      1: 'reload'
+    16:
+      0: 'https://example.test/repo/a/icons/icon-192.png'
+      1: 'reload'
+    17:
+      0: 'https://example.test/repo/a/icons/icon-512.png'
+      1: 'reload'
+  actual:
+    0:
+    1:
+    2:
+    3:
+    4:
+    5:
+    6:
+    7:
+    8:
+    9:
+    10:
+    11:
+    12:
+    13:
+    14:
+    15:
+    16:
+    17:
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-build.test.mjs:347:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 빌드 hash는 같은 소스에서 재현되고 소스 변경 시 바뀐다
+ok 11 - 빌드 hash는 같은 소스에서 재현되고 소스 변경 시 바뀐다
+  ---
+  duration_ms: 31.342125
+  type: 'test'
+  ...
+# Subtest: startup uses the register() result and checks for an update once
+not ok 12 - startup uses the register() result and checks for an update once
+  ---
+  duration_ms: 1.002792
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-update-discovery.test.mjs:62:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    1 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-update-discovery.test.mjs:65:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: installed worker retries safe apply after updatefound and statechange
+not ok 13 - installed worker retries safe apply after updatefound and statechange
+  ---
+  duration_ms: 3.544542
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-update-discovery.test.mjs:70:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+    + []
+    - [
+    -   {
+    -     protocol: 'bean-pocket-update-v1',
+    -     type: 'retry'
+    -   }
+    - ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0:
+      protocol: 'bean-pocket-update-v1'
+      type: 'retry'
+  actual:
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-update-discovery.test.mjs:81:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: startup and one visibility return coalesce overlapping update checks
+not ok 14 - startup and one visibility return coalesce overlapping update checks
+  ---
+  duration_ms: 0.506333
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-update-discovery.test.mjs:85:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-update-discovery.test.mjs:95:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: a rejected update check can be retried after returning to the app
+not ok 15 - a rejected update check can be retried after returning to the app
+  ---
+  duration_ms: 0.279875
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-update-discovery.test.mjs:112:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 2
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 2
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-update-discovery.test.mjs:123:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: stop removes registration and installing-worker listeners and closes a pending update race
+not ok 16 - stop removes registration and installing-worker listeners and closes a pending update race
+  ---
+  duration_ms: 0.683292
+  type: 'test'
+  location: '/Users/kangseokgyu/workspace/AX-1day/test/pwa-update-discovery.test.mjs:127:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/test/pwa-update-discovery.test.mjs:137:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 9
+# fail 7
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 286.594542

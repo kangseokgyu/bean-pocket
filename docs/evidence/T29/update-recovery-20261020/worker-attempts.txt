@@ -1,0 +1,15 @@
+Worker test-first and repair notes — 2026-10-20
+
+RED:
+node --test test/pwa-update-discovery.test.mjs test/pwa-build.test.mjs
+Exit code: 1; 9 passed, 7 failed, 0 cancelled. Failures showed missing register-result handoff, no installed-worker retry or explicit update checks/recovery, no precache Request cache:reload, and no app-to-lifecycle handoff.
+
+First implementation check:
+The focused lifecycle/build command exited 1 because the pre-existing artifact checker only accepted cache.addAll(APP_FILES), and three SW VM fixtures did not supply the browser Request global. The checker was narrowed to require the explicit reload-mode Request list, and the fixtures were updated.
+
+Second implementation check:
+The same focused command had 56 passes and 3 cancelled tests. The tests awaited visibility handlers while deliberately holding registration.update() pending, so the test harness itself deadlocked. The visibility promises are now awaited after releasing the update gate.
+
+The initial attempt to capture the RED output used zsh's reserved variable name status and failed after the test process had finished. The output was retained in /tmp and copied into worker-red.txt with the known exit code 1.
+
+Final focused verification and its result are in worker-green.txt.

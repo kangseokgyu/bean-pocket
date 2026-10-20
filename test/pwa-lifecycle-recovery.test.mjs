@@ -72,7 +72,7 @@ async function worker(pages) {
     addEventListener(type, fn) { events.set(type, fn); },
   };
   vm.runInNewContext(await readFile(new URL('../pwa/sw.js', import.meta.url), 'utf8'), {
-    self, URL, MessageChannel: Channel,
+    self, URL, Request, MessageChannel: Channel,
     crypto: { randomUUID() { const generation = `generation-${++generationSequence}`; generations.push(generation); return generation; } },
     caches: { open: async () => ({ addAll: async () => {} }), keys: async () => [] },
     setTimeout(fn) { const key = {}; timers.set(key, fn); return key; }, clearTimeout(key) { timers.delete(key); },

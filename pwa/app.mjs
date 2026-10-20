@@ -7,7 +7,9 @@ import { createAppLifecycle } from './platform/app-lifecycle.mjs';
 import { createAppController } from './ui/controller.mjs';
 import { createAppView } from './ui/view.mjs';
 
-if ('serviceWorker' in navigator) navigator.serviceWorker.register(new URL('./sw.js', import.meta.url)).catch(() => {});
+const registrationPromise = 'serviceWorker' in navigator
+  ? navigator.serviceWorker.register(new URL('./sw.js', import.meta.url)).catch(() => undefined)
+  : undefined;
 const view = createAppView(document);
 const state = createSubmissionState();
 const file = createConnectionFile();
@@ -21,6 +23,6 @@ const app = createAppController({
 app.bind();
 if (navigator.serviceWorker) {
   lifecycle = createAppLifecycle({ getState: app.getState, setFrozen: app.setFrozen, submissionState: state, serviceWorker: navigator.serviceWorker });
-  void lifecycle.start();
+  void registrationPromise.then(registration => lifecycle.start(registration));
 }
 void app.initialize();

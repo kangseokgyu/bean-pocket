@@ -54,7 +54,8 @@ test('release checker rejects activation moved outside the handshake, aliases an
     source => source + '\nconst activateNow = self.skipWaiting.bind(self); activateNow();\n',
     source => source.replace(/if \(!sameClients\(ids,[^\n]+\)\) return;/, ''),
     source => source.slice(0, source.indexOf("\n\n")) + `
-self.addEventListener('install', event => event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES))));
+const APP_REQUESTS = APP_FILES.map(file => new Request(new URL(file, self.registration.scope), { cache: 'reload' }));
+self.addEventListener('install', event => event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_REQUESTS))));
 self.addEventListener('activate', event => event.waitUntil(caches.keys().then(names => Promise.all(names.filter(name => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME).map(name => caches.delete(name))))));
 self['skip' + 'Waiting']();
 `,

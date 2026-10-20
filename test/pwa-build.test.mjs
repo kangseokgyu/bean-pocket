@@ -68,7 +68,7 @@ async function writeSourceFixture(sourceDir) {
     'data/notion-client.mjs': 'export class NotionClient {}',
     'data/notion-properties.mjs': 'export const schemas = {};',
     'index.html': '<!doctype html><html lang="ko"><head><link rel="stylesheet" href="./styles.css"><link rel="manifest" href="./manifest.webmanifest"><script type="module" src="./app.mjs"></script></head><body><h1>원두 목록</h1><p>Notion 연결 전입니다</p><ul id="bean-list"></ul><p>빌드 <span id="build-version">__BUILD_VERSION__</span></p></body></html>',
-    'app.mjs': "if ('serviceWorker' in navigator) navigator.serviceWorker.register(new URL('./sw.js', import.meta.url)).catch(() => {});",
+    'app.mjs': "const registrationPromise = navigator.serviceWorker.register(new URL('./sw.js', import.meta.url)).catch(() => undefined); void registrationPromise.then(registration => lifecycle.start(registration));",
     'styles.css': 'body { color: #224b3c; }',
     'manifest.webmanifest': JSON.stringify({
       start_url: './',
@@ -124,6 +124,13 @@ function makeCacheStorage() {
   };
 }
 
+class TestRequest {
+  constructor(input, options = {}) {
+    this.url = String(input);
+    this.cache = options.cache ?? 'default';
+  }
+}
+
 async function loadWorker(workerSource, scope, cacheStorage, networkCalls) {
   const listeners = new Map();
   const scopeUrl = new URL(scope);
@@ -137,6 +144,7 @@ async function loadWorker(workerSource, scope, cacheStorage, networkCalls) {
     self,
     caches: cacheStorage,
     URL,
+    Request: TestRequest,
     Promise,
     crypto: globalThis.crypto,
     setTimeout,
@@ -188,6 +196,7 @@ test('Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록
   assert.match(html, /src="\.\/app\.mjs"/);
   assert.doesNotMatch(html, /<li\b[^>]*>\s*[^<]/i, '예시 원두가 없어야 한다');
   assert.match(app, /new URL\('\.\/sw\.js', import\.meta\.url\)/);
+  assert.match(app, /\.then\(registration => lifecycle\.start\(registration\)\)/);
   assert.doesNotMatch(app, /\/api\//i);
   assert.deepEqual([manifest.start_url, manifest.scope], ['./', './']);
   assert.equal(manifest.version, undefined);
@@ -237,6 +246,14 @@ test('검사기는 scope별 캐시 namespace가 빠진 Service Worker를 거부�
   const worker = await readFile(workerPath, 'utf8');
   await writeFile(workerPath, worker.replace(/const CACHE_PREFIX = .*;\n/, "const CACHE_PREFIX = 'bean-pocket-shell-';\n"));
   await assert.rejects(checkPages(outputDir), /scope|namespace|캐시/);
+});
+
+test('검사기는 HTTP 캐시를 우회하지 않는 Service Worker precache를 거부한다', async t => {
+  const { outputDir } = await buildProductionFixture(t);
+  const workerPath = path.join(outputDir, 'sw.js');
+  const worker = await readFile(workerPath, 'utf8');
+  await writeFile(workerPath, worker.replace("{ cache: 'reload' }", '{}'));
+  await assert.rejects(checkPages(outputDir), /HTTP 캐시를 우회/);
 });
 
 test('빌더는 필수 소스 누락과 소스 심볼릭 링크를 거부한다', async t => {
@@ -335,8 +352,10 @@ test('Service Worker install·activate·fetch는 scope를 격리하고 앱 파�
   assert.notEqual(cacheA, cacheB, '같은 출처의 서로 다른 scope는 별도 namespace를 사용해야 한다');
 
   const appFiles = ['./', './index.html', './app.mjs', './commands/index.mjs', './ui/controller.mjs', './ui/view.mjs', './data/notion-client.mjs', './data/notion-properties.mjs', './data/read-repository.mjs', './domain.mjs', './platform/app-lifecycle.mjs', './platform/connection-file.mjs', './platform/update-coordinator.mjs', './state/submission-state.mjs', './styles.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
-  assert.deepEqual(cacheStorage.stores.get(cacheA).files, appFiles);
-  assert.deepEqual(cacheStorage.stores.get(cacheB).files, appFiles);
+  assert.deepEqual(cacheStorage.stores.get(cacheA).files.map(request => [request.url, request.cache]),
+    appFiles.map(file => [new URL(file, scopeA).href, 'reload']));
+  assert.deepEqual(cacheStorage.stores.get(cacheB).files.map(request => [request.url, request.cache]),
+    appFiles.map(file => [new URL(file, scopeB).href, 'reload']));
   assert.ok(!appFiles.includes('./sw.js'));
 
   for (const [url, method] of [

@@ -328,3 +328,53 @@ test('recipe records distinguish selected bags, no selection, and unavailable ba
     '원두 봉지: 선택 안 함', '원두 봉지: 조회할 수 없는 봉지',
   ]);
 });
+
+test('bean creation starts hidden, opens from the plus button, and closes on cancel', async () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  const dirty = [];
+  view.bind({ setDirty: (...args) => dirty.push(args) });
+  view.renderData(data());
+  const click = async target => {
+    for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target });
+  };
+  let form = document.root.querySelector('form[data-form="beans"]');
+  assert.equal(form.hidden, true);
+  let add = document.root.querySelector('[data-action="show-bean-form"]');
+  assert.ok(add);
+  assert.equal(add.getAttribute('aria-label'), '새 원두 추가');
+  assert.equal(add.getAttribute('aria-controls'), form.id);
+  assert.equal(add.getAttribute('aria-expanded'), 'false');
+  await click(add);
+  assert.equal(form.hidden, false);
+  assert.equal(add.getAttribute('aria-expanded'), 'true');
+  assert.equal(dirty.length, 0);
+  form.elements.name.value = '보존할 원두';
+  view.renderData(data());
+  view.renderRoute('/bags');
+  view.renderRoute('/beans');
+  form = document.root.querySelector('form[data-form="beans"]');
+  assert.equal(form.hidden, false);
+  assert.equal(form.elements.name.value, '보존할 원두');
+  await click(form.querySelector('[data-action="cancel-form"]'));
+  form = document.root.querySelector('form[data-form="beans"]');
+  assert.equal(form.hidden, true);
+  assert.equal(form.elements.name.value, '');
+  assert.deepEqual(dirty, [[false, 'beans']]);
+});
+
+test('refresh uses an accessible icon button and retains the refresh action', async () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  let refreshes = 0;
+  view.bind({ refresh: async () => { refreshes++; } });
+  view.renderData(data());
+  const refresh = document.root.querySelector('[data-action="refresh"]');
+  assert.equal(refresh.getAttribute('aria-label'), '최신 목록 새로고침');
+  assert.equal(refresh.querySelector('[aria-hidden="true"]').textContent, '↻');
+  for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: refresh });
+  assert.equal(refreshes, 1);
+  view.setState({ pending: true });
+  assert.equal(refresh.disabled, true);
+  assert.equal(document.root.querySelector('[data-action="show-bean-form"]').disabled, true);
+});

@@ -9,6 +9,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 
 body {
   min-width: 320px;
@@ -198,6 +199,10 @@ button:focus-visible, .table-scroll:focus-visible {
 
 .data-panel { padding: 16px; }
 .list-view { display: grid; gap: 16px; min-width: 0; }
+.list-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.list-header h2 { margin: 0; }
+.list-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.icon-button { display: inline-flex; align-items: center; justify-content: center; width: 46px; padding: 8px; font-size: 1.5rem; }
 .bean-card, .bag-group, .recipe-card, .resolution-card {
   min-width: 0;
   padding: 15px;

@@ -24,6 +24,17 @@ const button = (document, text, type = 'submit', action) => {
   return node;
 };
 
+const iconButton = (document, icon, title, action) => {
+  const node = button(document, '', 'button', action);
+  node.className = 'button icon-button';
+  node.setAttribute('aria-label', title);
+  node.title = title;
+  const glyph = make(document, 'span', icon);
+  glyph.setAttribute('aria-hidden', 'true');
+  node.append(glyph);
+  return node;
+};
+
 const idOf = value => String(value ?? '');
 const FORM_KINDS = new Set(['beans', 'bags', 'recipes', 'records']);
 const SOURCE_FIELDS = Object.freeze([
@@ -41,6 +52,7 @@ export function createAppView(document = globalThis.document) {
   let currentData = null;
   let route = globalThis.location?.hash?.slice(1) || '/beans';
   const drafts = new Map();
+  let beanFormOpen = false;
 
   const status = make(document, 'p', '연결 정보를 확인하고 있습니다.', 'app-status');
   status.setAttribute('role', 'status');
@@ -142,22 +154,31 @@ export function createAppView(document = globalThis.document) {
     },
     clearDraft(kind) {
       drafts.delete(kind);
-      if (currentData) renderPane(content, currentData, document, route, drafts);
+      if (kind === 'beans') beanFormOpen = false;
+      if (currentData) renderPane(content, currentData, document, route, drafts, beanFormOpen);
       applyState(page, currentState);
     },
     renderData(nextData) {
       saveActiveDraft(content, drafts);
       currentData = nextData;
-      renderPane(content, nextData, document, route, drafts);
+      renderPane(content, nextData, document, route, drafts, beanFormOpen);
       applyState(page, currentState);
     },
     renderRoute(nextRoute) {
       route = nextRoute || '/beans';
       if (currentData) {
         saveActiveDraft(content, drafts);
-        renderPane(content, currentData, document, route, drafts);
+        renderPane(content, currentData, document, route, drafts, beanFormOpen);
         applyState(page, currentState);
       }
+    },
+    showBeanForm() {
+      const form = content.querySelector('form[data-form="beans"]');
+      if (!form) return;
+      beanFormOpen = true;
+      form.hidden = false;
+      content.querySelector('[data-action="show-bean-form"]')?.setAttribute('aria-expanded', 'true');
+      form.elements.name.focus?.();
     },
     showUnresolved(items = []) {
       unresolved.replaceChildren(make(document, 'h2', '확인 대기 중인 저장', 'unresolved-title'));
@@ -204,21 +225,31 @@ function formBase(document, kind, title) {
   return form;
 }
 
-function renderPane(parent, data, document, route = '/beans', drafts = new Map()) {
+function renderPane(parent, data, document, route = '/beans', drafts = new Map(), beanFormOpen = false) {
   const parts = route.split('/').filter(Boolean);
   const section = parts[0] ?? 'beans';
   const pane = make(document, 'div', undefined, 'list-view');
   pane.dataset.section = section;
   const titles = { beans: '원두', bags: '봉지', recipes: '레시피', records: '추출 기록' };
-  pane.append(make(document, 'h2', titles[section] ?? '커피 기록'));
-  pane.append(button(document, '최신 목록 새로고침', 'button', 'refresh'));
+  const header = make(document, 'div', undefined, 'list-header');
+  header.append(make(document, 'h2', titles[section] ?? '커피 기록'));
+  const actions = make(document, 'div', undefined, 'list-actions');
+  if (section === 'beans' && !parts[1]) {
+    const add = iconButton(document, '+', '새 원두 추가', 'show-bean-form');
+    add.setAttribute('aria-controls', 'new-bean-form');
+    add.setAttribute('aria-expanded', String(beanFormOpen));
+    actions.append(add);
+  }
+  actions.append(iconButton(document, '↻', '최신 목록 새로고침', 'refresh'));
+  header.append(actions);
+  pane.append(header);
 
   if (section === 'beans' && parts[1]) {
     renderBeanDetail(pane, data, document, parts[1]);
   } else if (section === 'recipes' && parts[1] && parts[1] !== 'new') {
     renderRecipeDetail(pane, data, document, parts[1]);
   } else if (section === 'beans') {
-    renderBeans(pane, data, document);
+    renderBeans(pane, data, document, beanFormOpen);
   } else if (section === 'bags') {
     renderBags(pane, data, document);
   } else if (section === 'recipes') {
@@ -239,8 +270,10 @@ function renderPane(parent, data, document, route = '/beans', drafts = new Map()
   updateNavigationCurrent(parent.ownerDocument, route);
 }
 
-function renderBeans(pane, data, document) {
+function renderBeans(pane, data, document, formOpen) {
   const form = formBase(document, 'beans', '새 원두');
+  form.id = 'new-bean-form';
+  form.hidden = !formOpen;
   addFieldset(document, form, '원두 정보', [
     ['원두 이름', 'name', 'text', true, { autocomplete: 'off' }],
     ['로스터리', 'roaster', 'text', false],
@@ -538,6 +571,10 @@ function bindEvents({ page, connectionForm, originalConnectionCheck, content, ac
       connectionForm.reset();
       actions.setDirty(false, 'connection');
       view.showStatus({ type: 'cancelled', message: '연결 입력을 취소했습니다.' });
+      return;
+    }
+    if (action === 'show-bean-form') {
+      view.showBeanForm();
       return;
     }
     if (action === 'cancel-form') {

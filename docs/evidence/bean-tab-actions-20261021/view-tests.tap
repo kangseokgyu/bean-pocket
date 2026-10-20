@@ -1,0 +1,94 @@
+TAP version 13
+# Subtest: draft values survive tab navigation and a fresh data render
+ok 1 - draft values survive tab navigation and a fresh data render
+  ---
+  duration_ms: 8.368708
+  type: 'test'
+  ...
+# Subtest: bean, recipe, and record detail text is rendered as text and retains brew details
+ok 2 - bean, recipe, and record detail text is rendered as text and retains brew details
+  ---
+  duration_ms: 2.978834
+  type: 'test'
+  ...
+# Subtest: resolution controls follow the native journal page-list contract
+ok 3 - resolution controls follow the native journal page-list contract
+  ---
+  duration_ms: 1.216
+  type: 'test'
+  ...
+# Subtest: recipe step time permits a keyboard with colon while retaining minute-second validation
+ok 4 - recipe step time permits a keyboard with colon while retaining minute-second validation
+  ---
+  duration_ms: 1.800584
+  type: 'test'
+  ...
+# Subtest: the bean origin label uses user-facing wording rather than the storage field name
+ok 5 - the bean origin label uses user-facing wording rather than the storage field name
+  ---
+  duration_ms: 0.459208
+  type: 'test'
+  ...
+# Subtest: the record date default follows the device calendar across the KST UTC boundary
+ok 6 - the record date default follows the device calendar across the KST UTC boundary
+  ---
+  duration_ms: 4.692667
+  type: 'test'
+  ...
+# Subtest: checked connection-recovery checkbox reaches the current-connection verifier
+ok 7 - checked connection-recovery checkbox reaches the current-connection verifier
+  ---
+  duration_ms: 0.504666
+  type: 'test'
+  ...
+# Subtest: startup lock contention hides connection entry and retries the saved connection read
+ok 8 - startup lock contention hides connection entry and retries the saved connection read
+  ---
+  duration_ms: 0.364375
+  type: 'test'
+  ...
+# Subtest: successful connection replacement preserves the active product draft
+ok 9 - successful connection replacement preserves the active product draft
+  ---
+  duration_ms: 2.752875
+  type: 'test'
+  ...
+# Subtest: successful connection replacement preserves hidden drafts and their dirty signal
+ok 10 - successful connection replacement preserves hidden drafts and their dirty signal
+  ---
+  duration_ms: 3.315292
+  type: 'test'
+  ...
+# Subtest: recipe input minimums allow every positive sub-cent value accepted by the domain
+ok 11 - recipe input minimums allow every positive sub-cent value accepted by the domain
+  ---
+  duration_ms: 1.951542
+  type: 'test'
+  ...
+# Subtest: recipe records distinguish selected bags, no selection, and unavailable bags
+ok 12 - recipe records distinguish selected bags, no selection, and unavailable bags
+  ---
+  duration_ms: 17.087083
+  type: 'test'
+  ...
+# Subtest: bean creation starts hidden, opens from the plus button, and closes on cancel
+ok 13 - bean creation starts hidden, opens from the plus button, and closes on cancel
+  ---
+  duration_ms: 2.264375
+  type: 'test'
+  ...
+# Subtest: refresh uses an accessible icon button and retains the refresh action
+ok 14 - refresh uses an accessible icon button and retains the refresh action
+  ---
+  duration_ms: 0.496709
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 107.95675

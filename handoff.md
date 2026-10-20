@@ -1,3 +1,11 @@
+# 최신 게시 상태 — 2026-10-20
+
+사용자 명시 승인 후 main 병합·push·일반판 Pages 게시 완료. 게시 커밋 `0ce1996`, 빌드 `4e7b1268f15d`. Actions 39347188137 성공, HTTPS 18개 파일 후보와 일치, 기존 탭 종료·재접속 후 PC 초기 화면 확인. UTC 날짜 테스트의 환경 의존만 수정했고 UTC 전체354/354 통과. [게시 증거](docs/evidence/T29/pages-deploy-20261020.md).
+
+T29의 Notion·iPhone·셀룰러·파일 수명은 대기, T30 운영 연결도 대기다. 아래 게시 미실행·승인 대기 표기는 이전 이력이다.
+
+---
+
 # 작업 인수인계 — 최신 2026-10-20
 
 이 절이 아래 과거 인계보다 우선한다. 브랜치 `codex/pages-first-implementation`, 최신 구현 커밋 **`9ab8f53`** (`feat(T21-T28): complete product UI and recover safe updates`). 아래 과거 미해결 UI 5건·T27 N1·추가 client 종료 P1과 동시 시작 잠금 경합을 수정하고 독립 재검토를 통과했다.

@@ -1,0 +1,130 @@
+TAP version 13
+# Subtest: Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록을 만든다
+ok 1 - Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록을 만든다
+  ---
+  duration_ms: 58.966417
+  type: 'test'
+  ...
+# Subtest: 검사기는 누락 파일과 허용 목록 밖 산출물을 거부한다
+ok 2 - 검사기는 누락 파일과 허용 목록 밖 산출물을 거부한다
+  ---
+  duration_ms: 34.5605
+  type: 'test'
+  ...
+# Subtest: 검사기는 루트 절대 경로와 허용 파일 안의 비밀값을 거부한다
+ok 3 - 검사기는 루트 절대 경로와 허용 파일 안의 비밀값을 거부한다
+  ---
+  duration_ms: 40.455375
+  type: 'test'
+  ...
+# Subtest: 검사기는 Service Worker가 API 경로를 앱 캐시에 넣는 변경을 거부한다
+ok 4 - 검사기는 Service Worker가 API 경로를 앱 캐시에 넣는 변경을 거부한다
+  ---
+  duration_ms: 18.400458
+  type: 'test'
+  ...
+# Subtest: 검사기는 scope별 캐시 namespace가 빠진 Service Worker를 거부한다
+ok 5 - 검사기는 scope별 캐시 namespace가 빠진 Service Worker를 거부한다
+  ---
+  duration_ms: 17.849708
+  type: 'test'
+  ...
+# Subtest: 검사기는 HTTP 캐시를 우회하지 않는 Service Worker precache를 거부한다
+ok 6 - 검사기는 HTTP 캐시를 우회하지 않는 Service Worker precache를 거부한다
+  ---
+  duration_ms: 17.735625
+  type: 'test'
+  ...
+# Subtest: 빌더는 필수 소스 누락과 소스 심볼릭 링크를 거부한다
+ok 7 - 빌더는 필수 소스 누락과 소스 심볼릭 링크를 거부한다
+  ---
+  duration_ms: 29.991458
+  type: 'test'
+  ...
+# Subtest: 빌더는 symlink 부모 경로로 소스를 출력 경로로 지정해도 원본을 보존한다
+ok 8 - 빌더는 symlink 부모 경로로 소스를 출력 경로로 지정해도 원본을 보존한다
+  ---
+  duration_ms: 6.367833
+  type: 'test'
+  ...
+# Subtest: 검사기는 산출물 심볼릭 링크와 잘못된 dist 루트를 거부한다
+ok 9 - 검사기는 산출물 심볼릭 링크와 잘못된 dist 루트를 거부한다
+  ---
+  duration_ms: 21.09325
+  type: 'test'
+  ...
+# Subtest: 실제 PWA 소스에는 API 호출이나 외부 요청이 없고 하위 경로 자원만 쓴다
+ok 10 - 실제 PWA 소스에는 API 호출이나 외부 요청이 없고 하위 경로 자원만 쓴다
+  ---
+  duration_ms: 10.981833
+  type: 'test'
+  ...
+# Subtest: Service Worker install·activate·fetch는 scope를 격리하고 앱 파일만 다룬다
+ok 11 - Service Worker install·activate·fetch는 scope를 격리하고 앱 파일만 다룬다
+  ---
+  duration_ms: 14.307583
+  type: 'test'
+  ...
+# Subtest: 빌드 hash는 같은 소스에서 재현되고 소스 변경 시 바뀐다
+ok 12 - 빌드 hash는 같은 소스에서 재현되고 소스 변경 시 바뀐다
+  ---
+  duration_ms: 35.208834
+  type: 'test'
+  ...
+# Subtest: product commands, UI and lifecycle ship byte-for-byte and all affect the release version
+ok 13 - product commands, UI and lifecycle ship byte-for-byte and all affect the release version
+  ---
+  duration_ms: 144.997834
+  type: 'test'
+  ...
+# Subtest: commands/UI directory symlinks cannot bypass the source boundary
+ok 14 - commands/UI directory symlinks cannot bypass the source boundary
+  ---
+  duration_ms: 28.972292
+  type: 'test'
+  ...
+# Subtest: release checker rejects activation moved outside the handshake, aliases and removed guards
+ok 15 - release checker rejects activation moved outside the handshake, aliases and removed guards
+  ---
+  duration_ms: 55.039667
+  type: 'test'
+  ...
+# Subtest: startup uses the register() result and checks for an update once
+ok 16 - startup uses the register() result and checks for an update once
+  ---
+  duration_ms: 0.920084
+  type: 'test'
+  ...
+# Subtest: installed worker retries safe apply after updatefound and statechange
+ok 17 - installed worker retries safe apply after updatefound and statechange
+  ---
+  duration_ms: 4.061167
+  type: 'test'
+  ...
+# Subtest: startup and one visibility return coalesce overlapping update checks
+ok 18 - startup and one visibility return coalesce overlapping update checks
+  ---
+  duration_ms: 0.573458
+  type: 'test'
+  ...
+# Subtest: a rejected update check can be retried after returning to the app
+ok 19 - a rejected update check can be retried after returning to the app
+  ---
+  duration_ms: 0.231208
+  type: 'test'
+  ...
+# Subtest: stop removes registration and installing-worker listeners and closes a pending update race
+ok 20 - stop removes registration and installing-worker listeners and closes a pending update race
+  ---
+  duration_ms: 0.617167
+  type: 'test'
+  ...
+1..20
+# tests 20
+# suites 0
+# pass 20
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 368.78675

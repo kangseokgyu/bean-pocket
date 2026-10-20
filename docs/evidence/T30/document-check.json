@@ -1,0 +1,28 @@
+{
+  "checked_files": [
+    "README.md",
+    "docs/evidence/T29/README.md",
+    "docs/evidence/T29/resume-20261020.md",
+    "docs/evidence/T29/update-recovery-20261020/deployment.md",
+    "docs/evidence/T29/update-recovery-20261020/published-https.txt",
+    "docs/evidence/T29/update-recovery-20261020/safe-transition-candidate-tests.tap",
+    "docs/evidence/T29/update-recovery-20261020/safe-transition-deployment.md",
+    "docs/evidence/T29/update-recovery-20261020/safe-transition-published-https.txt",
+    "docs/evidence/T29/update-recovery-20261020/two-tab-candidate-tests.tap",
+    "docs/evidence/T29/update-recovery-20261020/two-tab-deployment.md",
+    "docs/evidence/T29/update-recovery-20261020/two-tab-published-https.txt",
+    "docs/evidence/T30/README.md",
+    "docs/evidence/T30/document-check.json",
+    "docs/evidence/T30/publication-check.json",
+    "docs/implementation-status.md",
+    "docs/pwa-usage.md",
+    "handoff.md"
+  ],
+  "local_links_checked": 129,
+  "broken_links": [],
+  "credential_format_matches": 0,
+  "matching_paths": [],
+  "diff_check_exit": 0,
+  "runtime_tests": "Not repeated: documentation changes only; latest recorded published workflow 362/362 passed",
+  "command": "python3 local Markdown link and credential-format check; git diff --check"
+}

@@ -4,7 +4,7 @@
 
 ## GitHub Pages PWA 준비
 
-`PLAN.md`에 따라 기존 서버 기능을 서버 없이 실행하는 PWA로 이전하고 있다. Notion 직접 통신·기기 파일·조회·저장 상태와 생성/복사 명령을 구현했으며, 화면 통합과 최종 실기기 검증은 [현재 구현 상태](docs/implementation-status.md)를 따른다. 기존 서버 실행 방법은 아래에 유지한다.
+`PLAN.md`에 따른 GitHub Pages PWA 이전을 완료했다. Notion 직접 통신·기기 파일·조회·저장 상태와 생성/복사 화면을 구현했다. 2026-10-21 지정 실기기 시나리오와 기존 운영 연결·읽기를 사용자 보고 범위에서 확인했다. 최종 상태는 [현재 구현 상태](docs/implementation-status.md)를 따른다. 기존 서버 실행 방법은 아래에 유지한다.
 
 ```sh
 npm run build:pages
@@ -13,7 +13,7 @@ npm run check:pages
 
 게시 대상은 생성된 `dist/`뿐이다. `.env.local`이나 Notion 토큰을 빌드에 전달하지 않는다. [게시 준비 상태](docs/pages-readiness.md)와 [수동 게시·복귀·아이폰 확인 절차](docs/pages-deploy.md)를 따른다. 로컬 검증을 실제 Pages 게시나 iPhone 실기기 통과로 해석하지 않는다.
 
-PWA의 기기별 연결·입력·불확실 저장 복구는 [PWA 사용 안내](docs/pwa-usage.md)를 참고한다. 실제 운영 데이터 소스 연결은 테스트 DB의 최종 실기기 검증 후 수행한다. 아래 환경변수와 서버 메모리 토큰 설명은 기존 Node 서버에만 해당한다.
+PWA의 기기별 연결·입력·불확실 저장 복구는 [PWA 사용 안내](docs/pwa-usage.md)를 참고한다. 기존 운영 연결·읽기는 사용자 확인을 완료했으며, [최종 인계](docs/evidence/T30/README.md)에 범위와 검증 근거를 기록했다. 아래 환경변수와 서버 메모리 토큰 설명은 기존 Node 서버에만 해당한다.
 
 ## 기존 Node 서버 로컬 실행
 

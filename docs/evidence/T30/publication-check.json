@@ -1,0 +1,8 @@
+{
+  "credential_format_matches": 0,
+  "matching_paths": [],
+  "dist_file_count": 18,
+  "tracked_env_files": [
+    ".env.example"
+  ]
+}

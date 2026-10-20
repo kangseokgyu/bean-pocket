@@ -9,3 +9,5 @@
 - `git diff --check`: 추적 중 구현·테스트 변경 exit 0. 전체 staged 검사에서는 RED TAP 원문의 공백 줄 4곳이 지적됐다. 원문은 보존하고 `git diff --cached --check -- . ':!docs/evidence/**'`로 구현·테스트·일반 문서의 공백을 검사했다(exit 0).
 
 이번 변경은 로컬 구현·자동 검증 결과다. 실제 브라우저 시각 검사·iPhone 조작·Notion 쓰기·push·Pages 게시를 수행하지 않았다. 공개 버전은 기존 `f0eb42cdb763`이며 이 변경은 아직 반영되지 않았다.
+
+후속: 사용자 승인 후 push·일반판 게시·HTTPS18개 일치 확인을 완료했다. 위 미실행 표기는 로컬 구현 당시 상태이며 [게시 결과](deployment.md)를 따른다.

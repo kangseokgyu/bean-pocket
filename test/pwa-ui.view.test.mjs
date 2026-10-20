@@ -307,3 +307,24 @@ test('recipe input minimums allow every positive sub-cent value accepted by the 
       `${name} must not use a native minimum above the domain's positive-number boundary`);
   }
 });
+
+test('recipe records distinguish selected bags, no selection, and unavailable bags', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  const rows = data();
+  rows.bags.push({ id: 'second-bag', name: '7월 봉지', beanId: BEAN });
+  rows.records = [
+    { ...rows.records[0], bagId: rows.bags[0].id },
+    { ...rows.records[0], id: 'second-record', bagId: 'second-bag' },
+    { ...rows.records[0], id: 'unselected-record', bagId: null },
+    { ...rows.records[0], id: 'unavailable-record', bagId: 'missing-bag' },
+  ];
+  view.renderData(rows);
+  view.renderRoute(`/recipes/${RECIPE}`);
+  const detail = document.root.querySelector('.recipe-card');
+  const labels = detail.querySelectorAll('.record-bag').map(node => node.textContent);
+  assert.deepEqual(labels, [
+    '원두 봉지: 6월 봉지', '원두 봉지: 7월 봉지',
+    '원두 봉지: 선택 안 함', '원두 봉지: 조회할 수 없는 봉지',
+  ]);
+});

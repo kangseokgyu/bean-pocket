@@ -346,6 +346,9 @@ function recipeCard(document, recipe, data, detailed = false) {
   if (!records.length) article.append(make(document, 'p', '기록 없음'));
   for (const record of records) {
     article.append(make(document, 'p', `${record.date} · ${'★'.repeat(record.rating)}${record.cupNote ? ` · 컵노트: ${record.cupNote}` : ''}`));
+    const bag = data.bags.find(item => item.id === record.bagId);
+    const bagName = record.bagId ? (bag?.name || '조회할 수 없는 봉지') : '선택 안 함';
+    article.append(make(document, 'p', `원두 봉지: ${bagName}`, 'record-bag'));
     const snapshot = record.snapshot;
     if (snapshot) {
       article.append(make(document, 'p', `기록 당시 조건: ${snapshot.dripper || '드리퍼 미기록'} · ${snapshot.dose}g · ${snapshot.temperature}℃ · 물 ${snapshot.totalWater}g`));

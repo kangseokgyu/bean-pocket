@@ -668,7 +668,7 @@ function addStep(content, document) {
   row.append(make(document, 'legend', `단계 ${index}`));
   row.append(label(document, '단계 이름 (선택)', 'stepName', 'text', false));
   row.append(label(document, '누적 시간 (분:초)', 'time', 'text', true,
-    { placeholder: index === 1 ? '0:00' : '0:30', inputMode: 'numeric', pattern: '\\d+:[0-5]\\d' }));
+    { placeholder: index === 1 ? '0:00' : '0:30', inputMode: 'text', pattern: '\\d+:[0-5]\\d' }));
   row.append(label(document, '이번 물 양 (g)', 'water', 'number', true, { min: 0, step: 'any' }));
   row.append(button(document, '단계 제거', 'button', 'remove-step'));
   wrap.append(row);

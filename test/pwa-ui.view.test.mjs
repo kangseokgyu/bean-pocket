@@ -179,6 +179,21 @@ test('resolution controls follow the native journal page-list contract', () => {
   assert.equal(unknownForm.elements.decision.querySelectorAll('option').some(option => option.value === 'not-saved'), true);
 });
 
+test('recipe step time permits a keyboard with colon while retaining minute-second validation', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.renderData(data());
+  view.renderRoute('/recipes/new');
+  const input = document.root.querySelector('[name="time"]');
+  assert.ok(input);
+  assert.equal(input.inputMode, 'text');
+  const pattern = new RegExp(`^(?:${input.pattern})$`);
+  assert.equal(pattern.test('0:30'), true);
+  assert.equal(pattern.test('1:10'), true);
+  assert.equal(pattern.test('030'), false);
+  assert.equal(pattern.test('0:60'), false);
+});
+
 test('the bean origin label uses user-facing wording rather than the storage field name', () => {
   const document = new TestDocument();
   const view = createAppView(document);

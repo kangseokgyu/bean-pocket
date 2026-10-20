@@ -191,6 +191,8 @@ test('the bean origin label uses user-facing wording rather than the storage fie
 
 test('the record date default follows the device calendar across the KST UTC boundary', () => {
   const RealDate = globalThis.Date;
+  const originalTimezone = process.env.TZ;
+  process.env.TZ = 'Asia/Seoul';
   globalThis.Date = class extends RealDate {
     constructor(...args) { super(...(args.length ? args : ['2026-01-01T00:30:00+09:00'])); }
   };
@@ -203,6 +205,8 @@ test('the record date default follows the device calendar across the KST UTC bou
     assert.equal(document.root.querySelector('form[data-form="records"]').elements.date.value, '2026-01-01');
   } finally {
     globalThis.Date = RealDate;
+    if (originalTimezone === undefined) delete process.env.TZ;
+    else process.env.TZ = originalTimezone;
   }
 });
 

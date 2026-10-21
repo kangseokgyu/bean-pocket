@@ -1,0 +1,60 @@
+[
+  {
+    "width": 320,
+    "animation": "pull-refresh-spin",
+    "label": "inset(50%)",
+    "overflow": false,
+    "center": 0,
+    "retryVisible": false,
+    "formVisible": false
+  },
+  {
+    "width": 390,
+    "animation": "pull-refresh-spin",
+    "label": "inset(50%)",
+    "overflow": false,
+    "center": 0,
+    "retryVisible": false,
+    "formVisible": false
+  },
+  {
+    "width": 768,
+    "animation": "pull-refresh-spin",
+    "label": "inset(50%)",
+    "overflow": false,
+    "center": 0,
+    "retryVisible": false,
+    "formVisible": false
+  },
+  {
+    "width": 1024,
+    "animation": "pull-refresh-spin",
+    "label": "inset(50%)",
+    "overflow": false,
+    "center": 0,
+    "retryVisible": false,
+    "formVisible": false
+  },
+  {
+    "width": 1440,
+    "animation": "pull-refresh-spin",
+    "label": "inset(50%)",
+    "overflow": false,
+    "center": 0,
+    "retryVisible": false,
+    "formVisible": false
+  },
+  {
+    "shippedPage": "connection form visible after no saved connection",
+    "reducedMotion": "none",
+    "outcomes": [
+      "saved",
+      "missing",
+      "error",
+      "recovery",
+      "busy"
+    ],
+    "errors": [],
+    "badResponses": []
+  }
+]

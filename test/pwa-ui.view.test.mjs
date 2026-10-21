@@ -125,6 +125,79 @@ test('connection settings open only after no saved connection is found', () => {
   assert.equal(document.root.querySelector('.connection-details').open, true);
 });
 
+test('startup checking shows only an accessible spinner until retry is needed', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.showConnection({ connected: false, checkingInitialization: true });
+  view.showStatus({ type: 'startup-checking', message: '저장된 연결 확인 중' });
+  const status = document.root.querySelector('.app-status');
+  const spinner = status.querySelector('.startup-spinner');
+  assert.ok(spinner);
+  assert.equal(spinner.getAttribute('aria-hidden'), 'true');
+  assert.equal(spinner.children.length, 12);
+  assert.equal(status.getAttribute('role'), 'status');
+  assert.equal(status.querySelector('.visually-hidden').textContent, '저장된 연결 확인 중');
+  assert.equal(document.root.querySelector('.connection-panel').hidden, true);
+  assert.equal(document.root.querySelector('.connection-details').hidden, true);
+  assert.equal(document.root.querySelector('.startup-retry-panel').hidden, true);
+  assert.equal(document.root.querySelector('.connection-toggle').disabled, true);
+
+  view.showStatus({ type: 'startup-busy', message: '잠시 후 다시 시도해 주세요.' });
+  view.showConnection({ connected: false, retryInitialization: true });
+  assert.equal(status.querySelector('.startup-spinner'), null);
+  assert.equal(status.textContent, '잠시 후 다시 시도해 주세요.');
+  assert.equal(document.root.querySelector('.startup-retry-panel').hidden, false);
+
+  view.showConnection({ connected: false, checkingInitialization: true });
+  view.showStatus({ type: 'startup-checking', message: '저장된 연결 확인 중' });
+  assert.ok(status.querySelector('.startup-spinner'));
+  assert.equal(document.root.querySelector('.startup-retry-panel').hidden, true);
+  view.showConnection({ connected: false });
+  view.showStatus({ type: 'disconnected', message: 'Notion 연결 정보를 입력해 주세요.' });
+  assert.equal(status.querySelector('.startup-spinner'), null);
+  assert.equal(document.root.querySelector('.connection-details').hidden, false);
+  assert.equal(document.root.querySelector('.connection-toggle').disabled, false);
+});
+
+for (const outcome of ['saved', 'missing', 'error', 'recovery', 'busy']) {
+  test(`initialization spinner ends on ${outcome}`, async () => {
+    const document = new TestDocument();
+    const view = createAppView(document);
+    let finishRead;
+    const connectionRead = new Promise(resolve => { finishRead = resolve; });
+    const context = {
+      async inspect() { return { initialized: true, blocked: false }; },
+      async readJournal() { return { operations: [], activeConnectionRevision: 1 }; },
+    };
+    const app = createAppController({ view,
+      state: { withWriteLock: action => action(context) },
+      file: { async readConnection() {
+        await connectionRead;
+        if (outcome === 'error') throw { code: 'read-failed' };
+        if (outcome === 'busy') throw { code: 'lock-busy' };
+        if (outcome === 'missing') return null;
+        return { ...CONNECTION, revision: outcome === 'recovery' ? 2 : 1 };
+      } },
+      makeClient: () => ({ async verify() {} }),
+      makeRepository: () => ({ async readAll() { return data(); } }),
+      makeCommands: () => ({}),
+    });
+    const initializing = app.initialize();
+    const status = document.root.querySelector('.app-status');
+    assert.ok(status.querySelector('.startup-spinner'));
+    assert.equal(document.root.querySelector('.startup-retry-panel').hidden, true);
+    assert.equal(document.root.querySelector('.connection-panel').hidden, true);
+    finishRead();
+    assert.equal(await initializing, outcome === 'saved' ? true : outcome === 'missing' ? null : false);
+    assert.equal(status.querySelector('.startup-spinner'), null);
+    assert.equal(status.dataset.state, { saved: 'ready', missing: 'disconnected', error: 'connection-error',
+      recovery: 'connection-error', busy: 'startup-busy' }[outcome]);
+    assert.equal(document.root.querySelector('.startup-retry-panel').hidden, outcome !== 'busy');
+    assert.equal(document.root.querySelector('.repair-panel').hidden, outcome !== 'recovery');
+    assert.equal(document.root.querySelector('.connection-details').hidden, outcome === 'busy');
+  });
+}
+
 test('saved connection leaves a header icon that toggles settings without losing input', async () => {
   const document = new TestDocument();
   const tools = document.createElement('div');

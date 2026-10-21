@@ -106,6 +106,57 @@ const data = () => ({
 
 const CONNECTION = { token: 'test-only-token', dataSources: {} };
 
+test('successful status messages stay visible for three seconds then hide', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const document = new TestDocument();
+  const view = createAppView(document);
+  const status = document.root.querySelector('.app-status');
+  for (const type of ['ready', 'connected', 'saved', 'resolved', 'cancelled']) {
+    view.showStatus({ type, message: '완료했습니다.' });
+    assert.equal(status.hidden, false);
+    assert.equal(status.textContent, '완료했습니다.');
+    t.mock.timers.tick(2999);
+    assert.equal(status.hidden, false);
+    t.mock.timers.tick(1);
+    assert.equal(status.hidden, true, type);
+  }
+});
+
+test('errors, recovery notices and pending work stay visible after replacing success', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const document = new TestDocument();
+  const view = createAppView(document);
+  const status = document.root.querySelector('.app-status');
+  for (const type of ['error', 'read-error', 'connection-error', 'validation-error', 'resolution-error',
+    'saved-read-error', 'unknown', 'partial', 'failed', 'resolution-required', 'startup-busy',
+    'disconnected', 'checking', 'saving']) {
+    view.showStatus({ type: 'ready', message: '완료' });
+    t.mock.timers.tick(1000);
+    view.showStatus({ type, message: '확인이 필요합니다.' });
+    t.mock.timers.tick(10000);
+    assert.equal(status.hidden, false, type);
+    assert.equal(status.textContent, '확인이 필요합니다.');
+  }
+});
+
+test('a new success gets a full display interval and empty messages hide immediately', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const document = new TestDocument();
+  const view = createAppView(document);
+  const status = document.root.querySelector('.app-status');
+  view.showStatus({ type: 'saved', message: '저장했습니다.' });
+  t.mock.timers.tick(2000);
+  view.showStatus({ type: 'ready', message: '조회했습니다.' });
+  t.mock.timers.tick(1000);
+  assert.equal(status.hidden, false);
+  t.mock.timers.tick(2000);
+  assert.equal(status.hidden, true);
+  view.showStatus({ type: 'error', message: '오류' });
+  assert.equal(status.hidden, false);
+  view.showStatus();
+  assert.equal(status.hidden, true);
+});
+
 function controllerFor(view) {
   const context = {
     async inspect() { return { initialized: false, blocked: false }; },

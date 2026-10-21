@@ -37,6 +37,8 @@ const iconButton = (document, icon, title, action) => {
 
 const idOf = value => String(value ?? '');
 const FORM_KINDS = new Set(['beans', 'bags', 'recipes', 'records']);
+const AUTO_HIDE_STATUS_TYPES = new Set(['ready', 'connected', 'saved', 'resolved', 'cancelled']);
+const STATUS_DISPLAY_MS = 3000;
 const SOURCE_FIELDS = Object.freeze([
   ['beans', '원두'], ['bags', '원두 봉지'], ['recipes', '레시피'],
   ['steps', '레시피 단계'], ['records', '추출 기록'],
@@ -53,6 +55,7 @@ export function createAppView(document = globalThis.document) {
   let route = globalThis.location?.hash?.slice(1) || '/beans';
   const drafts = new Map();
   let beanFormOpen = false;
+  let statusHideTimer;
 
   const status = make(document, 'p', '연결 정보를 확인하고 있습니다.', 'app-status');
   status.setAttribute('role', 'status');
@@ -117,8 +120,13 @@ export function createAppView(document = globalThis.document) {
 
   const view = {
     showStatus(value) {
+      clearTimeout(statusHideTimer);
       status.textContent = value?.message ?? '';
       status.dataset.state = value?.type ?? '';
+      status.hidden = !status.textContent;
+      if (!status.hidden && AUTO_HIDE_STATUS_TYPES.has(value?.type)) {
+        statusHideTimer = setTimeout(() => { status.hidden = true; }, STATUS_DISPLAY_MS);
+      }
     },
     showConnection(value) {
       const connected = !!value?.connected;

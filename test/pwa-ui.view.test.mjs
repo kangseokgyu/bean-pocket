@@ -135,6 +135,9 @@ test('startup checking shows only an accessible spinner until retry is needed', 
   assert.ok(spinner);
   assert.equal(spinner.getAttribute('aria-hidden'), 'true');
   assert.equal(spinner.children.length, 12);
+  const shades = spinner.children.map(spoke => Number(spoke.getAttribute('style').match(/opacity: ([\d.]+)/)?.[1]));
+  assert.ok(shades.every(shade => shade > 0 && shade <= 1));
+  assert.equal(new Set(shades).size, 12, 'stepped rotation needs fading spokes to remain visible');
   assert.equal(status.getAttribute('role'), 'status');
   assert.equal(status.querySelector('.visually-hidden').textContent, '저장된 연결 확인 중');
   assert.equal(document.root.querySelector('.connection-panel').hidden, true);

@@ -55,6 +55,7 @@ export function createAppView(document = globalThis.document) {
   let route = globalThis.location?.hash?.slice(1) || '/beans';
   const drafts = new Map();
   let beanFormOpen = false;
+  let bagFormOpen = false;
   let recipeFormOpen = route === '/recipes/new';
   let statusHideTimer;
 
@@ -179,14 +180,15 @@ export function createAppView(document = globalThis.document) {
     clearDraft(kind) {
       drafts.delete(kind);
       if (kind === 'beans') beanFormOpen = false;
+      if (kind === 'bags') bagFormOpen = false;
       if (kind === 'recipes') recipeFormOpen = false;
-      if (currentData) renderPane(content, currentData, document, route, drafts, beanFormOpen, recipeFormOpen);
+      if (currentData) renderPane(content, currentData, document, route, drafts, beanFormOpen, recipeFormOpen, bagFormOpen);
       applyState(page, currentState);
     },
     renderData(nextData) {
       saveActiveDraft(content, drafts);
       currentData = nextData;
-      renderPane(content, nextData, document, route, drafts, beanFormOpen, recipeFormOpen);
+      renderPane(content, nextData, document, route, drafts, beanFormOpen, recipeFormOpen, bagFormOpen);
       applyState(page, currentState);
     },
     renderRoute(nextRoute) {
@@ -194,7 +196,7 @@ export function createAppView(document = globalThis.document) {
       if (route === '/recipes/new') recipeFormOpen = true;
       if (currentData) {
         saveActiveDraft(content, drafts);
-        renderPane(content, currentData, document, route, drafts, beanFormOpen, recipeFormOpen);
+        renderPane(content, currentData, document, route, drafts, beanFormOpen, recipeFormOpen, bagFormOpen);
         applyState(page, currentState);
       }
     },
@@ -204,6 +206,14 @@ export function createAppView(document = globalThis.document) {
       beanFormOpen = true;
       form.hidden = false;
       content.querySelector('[data-action="show-bean-form"]')?.setAttribute('aria-expanded', 'true');
+      form.elements.name.focus?.();
+    },
+    showBagForm() {
+      const form = content.querySelector('form[data-form="bags"]');
+      if (!form) return;
+      bagFormOpen = true;
+      form.hidden = false;
+      content.querySelector('[data-action="show-bag-form"]')?.setAttribute('aria-expanded', 'true');
       form.elements.name.focus?.();
     },
     showRecipeForm() {
@@ -378,7 +388,7 @@ function formBase(document, kind, title) {
   return form;
 }
 
-function renderPane(parent, data, document, route = '/beans', drafts = new Map(), beanFormOpen = false, recipeFormOpen = false) {
+function renderPane(parent, data, document, route = '/beans', drafts = new Map(), beanFormOpen = false, recipeFormOpen = false, bagFormOpen = false) {
   const parts = route.split('/').filter(Boolean);
   const section = parts[0] ?? 'beans';
   const pane = make(document, 'div', undefined, 'list-view');
@@ -391,6 +401,12 @@ function renderPane(parent, data, document, route = '/beans', drafts = new Map()
     const add = iconButton(document, '+', '새 원두 추가', 'show-bean-form');
     add.setAttribute('aria-controls', 'new-bean-form');
     add.setAttribute('aria-expanded', String(beanFormOpen));
+    actions.append(add);
+  }
+  if (section === 'bags') {
+    const add = iconButton(document, '+', '새 봉지 추가', 'show-bag-form');
+    add.setAttribute('aria-controls', 'new-bag-form');
+    add.setAttribute('aria-expanded', String(bagFormOpen));
     actions.append(add);
   }
   if (section === 'recipes' && (!parts[1] || parts[1] === 'new')) {
@@ -410,7 +426,7 @@ function renderPane(parent, data, document, route = '/beans', drafts = new Map()
   } else if (section === 'beans') {
     renderBeans(pane, data, document, beanFormOpen);
   } else if (section === 'bags') {
-    renderBags(pane, data, document);
+    renderBags(pane, data, document, bagFormOpen);
   } else if (section === 'recipes') {
     const form = buildRecipeForm(document, data);
     form.id = 'new-recipe-form';
@@ -508,8 +524,10 @@ function renderRecipeDetail(pane, data, document, recipeId) {
   pane.append(recipeCard(document, recipe, data, true));
 }
 
-function renderBags(pane, data, document) {
+function renderBags(pane, data, document, formOpen) {
   const form = formBase(document, 'bags', '새 봉지');
+  form.id = 'new-bag-form';
+  form.hidden = !formOpen;
   addFieldset(document, form, '봉지 정보', [
     ['봉지 이름', 'name', 'text', true],
     ['원두', 'beanId', 'select', true],
@@ -746,6 +764,10 @@ function bindEvents({ page, connectionForm, originalConnectionCheck, content, ac
     }
     if (action === 'show-bean-form') {
       view.showBeanForm();
+      return;
+    }
+    if (action === 'show-bag-form') {
+      view.showBagForm();
       return;
     }
     if (action === 'show-recipe-form') {

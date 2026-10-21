@@ -458,6 +458,50 @@ test('bean creation starts hidden, opens from the plus button, and closes on can
   assert.deepEqual(dirty, [[false, 'beans']]);
 });
 
+test('bag creation starts hidden, opens from the plus button, and closes on cancel', async () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  const dirty = [];
+  view.bind({ setDirty: (...args) => dirty.push(args) });
+  view.renderData(data());
+  view.renderRoute('/bags');
+  const click = async target => {
+    for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target });
+  };
+  let form = document.root.querySelector('form[data-form="bags"]');
+  assert.equal(form.hidden, true);
+  let add = document.root.querySelector('[data-action="show-bag-form"]');
+  assert.ok(add);
+  assert.equal(add.getAttribute('aria-label'), '새 봉지 추가');
+  assert.equal(add.getAttribute('aria-controls'), form.id);
+  assert.equal(add.getAttribute('aria-expanded'), 'false');
+  await click(add);
+  assert.equal(form.hidden, false);
+  assert.equal(add.getAttribute('aria-expanded'), 'true');
+  assert.equal(dirty.length, 0);
+  form.elements.name.value = '보존할 봉지';
+  view.renderData(data());
+  view.renderRoute('/beans');
+  view.renderRoute('/bags');
+  form = document.root.querySelector('form[data-form="bags"]');
+  assert.equal(form.hidden, false);
+  assert.equal(form.elements.name.value, '보존할 봉지');
+  await click(form.querySelector('[data-action="cancel-form"]'));
+  form = document.root.querySelector('form[data-form="bags"]');
+  assert.equal(form.hidden, true);
+  assert.equal(form.elements.name.value, '');
+  assert.deepEqual(dirty, [[false, 'bags']]);
+  await click(document.root.querySelector('[data-action="show-bag-form"]'));
+  view.setState({ pending: true });
+  assert.equal(document.root.querySelector('[data-action="show-bag-form"]').disabled, true);
+  view.setState({ pending: false });
+  view.clearDraft('bags');
+  assert.equal(document.root.querySelector('form[data-form="bags"]').hidden, true);
+  assert.equal(document.root.querySelector('[data-action="show-bag-form"]').getAttribute('aria-expanded'), 'false');
+  view.renderData({ ...data(), bags: [] });
+  assert.equal(document.root.querySelector('.empty-state').textContent, '등록된 봉지가 없습니다.');
+});
+
 test('recipe creation opens from plus, preserves drafts, and closes on cancel', async () => {
   const document = new TestDocument();
   const view = createAppView(document);

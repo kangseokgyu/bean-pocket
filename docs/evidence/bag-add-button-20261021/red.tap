@@ -1,0 +1,80 @@
+✔ connection settings open only after no saved connection is found (2.943334ms)
+✔ saved connection leaves a header icon that toggles settings without losing input (0.373083ms)
+✔ successful status messages stay visible for three seconds then hide (1.280208ms)
+✔ errors, recovery notices and pending work stay visible after replacing success (0.327417ms)
+✔ a new success gets a full display interval and empty messages hide immediately (0.318375ms)
+✔ draft values survive tab navigation and a fresh data render (2.634041ms)
+✔ bean, recipe, and record detail text is rendered as text and retains brew details (1.239209ms)
+✔ resolution controls follow the native journal page-list contract (0.649458ms)
+✔ recipe step time permits a keyboard with colon while retaining minute-second validation (2.748042ms)
+✔ the bean origin label uses user-facing wording rather than the storage field name (0.657042ms)
+✔ the record date default follows the device calendar across the KST UTC boundary (3.490875ms)
+✔ checked connection-recovery checkbox reaches the current-connection verifier (0.550833ms)
+✔ startup lock contention hides connection entry and retries the saved connection read (0.348916ms)
+✔ successful connection replacement preserves the active product draft (2.6905ms)
+✔ successful connection replacement preserves hidden drafts and their dirty signal (1.920958ms)
+✔ recipe input minimums allow every positive sub-cent value accepted by the domain (1.384792ms)
+✔ recipe records distinguish selected bags, no selection, and unavailable bags (15.302792ms)
+✔ bean creation starts hidden, opens from the plus button, and closes on cancel (2.296667ms)
+✖ bag creation starts hidden, opens from the plus button, and closes on cancel (1.310042ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/bag-add-button/AX-1day/test/pwa-ui.view.test.mjs:472:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual'
+  }
+
+✔ recipe creation opens from plus, preserves drafts, and closes on cancel (10.388333ms)
+✔ refresh uses an accessible icon button and retains the refresh action (1.034875ms)
+✔ pulling from the top reloads the entire page once on release (1.0515ms)
+✔ pulling progressively reveals a twelve-spoke spinner and moves the page down (0.481291ms)
+✔ work starting while the released spinner paints cancels the scheduled reload (1.056083ms)
+✔ short pulls, retracted pulls and cancelled gestures do not reload (0.893333ms)
+✔ normal scrolling and horizontal or upward swipes do not trigger reload (1.643916ms)
+✔ multitouch never reloads and a later single finger gesture can refresh (0.281792ms)
+✔ downward pulls from controls and their child elements reload the whole page (2.672125ms)
+✔ control taps keep their normal action and short drags suppress accidental taps (0.331333ms)
+✔ horizontal gestures and scrollable controls away from their top keep native scrolling (1.533209ms)
+✔ saving and update freeze prevent a reload even when they begin during a pull (0.778917ms)
+✔ refresh requires a 240px downward pull and checks the release position (1.640333ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 31
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3144.8615
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:461:1
+✖ bag creation starts hidden, opens from the plus button, and closes on cancel (1.310042ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/bag-add-button/AX-1day/test/pwa-ui.view.test.mjs:472:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual'
+  }

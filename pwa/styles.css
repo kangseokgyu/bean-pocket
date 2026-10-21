@@ -215,6 +215,14 @@ p { line-height: 1.6; }
   color: #203d32;
 }
 
+/* Avoid iOS native date controls adding padding outside their declared width. */
+.form-field input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
 .form-field textarea { min-height: 92px; resize: vertical; }
 .form-field input:focus, .form-field select:focus, .form-field textarea:focus,
 button:focus-visible, .table-scroll:focus-visible {

@@ -1,0 +1,145 @@
+FAIL webkit 320 /records/new empty date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":248,"parentWidth":248,"left":36,"right":284,"parentLeft":36,"parentRight":284,"peerWidth":248,"boxSizing":"border-box","appearance":"auto","scrollWidth":320,"viewport":320,"type":"date","value":""}
+FAIL webkit 320 /records/new 2026-10-21 date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":248,"parentWidth":248,"left":36,"right":284,"parentLeft":36,"parentRight":284,"peerWidth":248,"boxSizing":"border-box","appearance":"auto","scrollWidth":320,"viewport":320,"type":"date","value":"2026-10-21"}
+FAIL webkit 320 /bags empty date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":248,"parentWidth":248,"left":36,"right":284,"parentLeft":36,"parentRight":284,"peerWidth":248,"boxSizing":"border-box","appearance":"auto","scrollWidth":320,"viewport":320,"type":"date","value":""}
+FAIL webkit 320 /bags 2026-10-21 date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":248,"parentWidth":248,"left":36,"right":284,"parentLeft":36,"parentRight":284,"peerWidth":248,"boxSizing":"border-box","appearance":"auto","scrollWidth":320,"viewport":320,"type":"date","value":"2026-10-21"}
+FAIL webkit 390 /records/new empty date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":310,"parentWidth":310,"left":40,"right":350,"parentLeft":40,"parentRight":350,"peerWidth":310,"boxSizing":"border-box","appearance":"auto","scrollWidth":390,"viewport":390,"type":"date","value":""}
+FAIL webkit 390 /records/new 2026-10-21 date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":310,"parentWidth":310,"left":40,"right":350,"parentLeft":40,"parentRight":350,"peerWidth":310,"boxSizing":"border-box","appearance":"auto","scrollWidth":390,"viewport":390,"type":"date","value":"2026-10-21"}
+FAIL webkit 390 /bags empty date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":310,"parentWidth":310,"left":40,"right":350,"parentLeft":40,"parentRight":350,"peerWidth":310,"boxSizing":"border-box","appearance":"auto","scrollWidth":390,"viewport":390,"type":"date","value":""}
+FAIL webkit 390 /bags 2026-10-21 date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":310,"parentWidth":310,"left":40,"right":350,"parentLeft":40,"parentRight":350,"peerWidth":310,"boxSizing":"border-box","appearance":"auto","scrollWidth":390,"viewport":390,"type":"date","value":"2026-10-21"}
+FAIL webkit 430 /records/new empty date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":350,"parentWidth":350,"left":40,"right":390,"parentLeft":40,"parentRight":390,"peerWidth":350,"boxSizing":"border-box","appearance":"auto","scrollWidth":430,"viewport":430,"type":"date","value":""}
+FAIL webkit 430 /records/new 2026-10-21 date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":350,"parentWidth":350,"left":40,"right":390,"parentLeft":40,"parentRight":390,"peerWidth":350,"boxSizing":"border-box","appearance":"auto","scrollWidth":430,"viewport":430,"type":"date","value":"2026-10-21"}
+FAIL webkit 430 /bags empty date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":350,"parentWidth":350,"left":40,"right":390,"parentLeft":40,"parentRight":390,"peerWidth":350,"boxSizing":"border-box","appearance":"auto","scrollWidth":430,"viewport":430,"type":"date","value":""}
+FAIL webkit 430 /bags 2026-10-21 date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":350,"parentWidth":350,"left":40,"right":390,"parentLeft":40,"parentRight":390,"peerWidth":350,"boxSizing":"border-box","appearance":"auto","scrollWidth":430,"viewport":430,"type":"date","value":"2026-10-21"}
+FAIL webkit 768 /records/new empty date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":327,"parentWidth":327,"left":49,"right":376,"parentLeft":49,"parentRight":376,"peerWidth":327,"boxSizing":"border-box","appearance":"auto","scrollWidth":768,"viewport":768,"type":"date","value":""}
+FAIL webkit 768 /records/new 2026-10-21 date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":327,"parentWidth":327,"left":49,"right":376,"parentLeft":49,"parentRight":376,"peerWidth":327,"boxSizing":"border-box","appearance":"auto","scrollWidth":768,"viewport":768,"type":"date","value":"2026-10-21"}
+FAIL webkit 768 /bags empty date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":327,"parentWidth":327,"left":49,"right":376,"parentLeft":49,"parentRight":376,"peerWidth":327,"boxSizing":"border-box","appearance":"auto","scrollWidth":768,"viewport":768,"type":"date","value":""}
+FAIL webkit 768 /bags 2026-10-21 date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":327,"parentWidth":327,"left":49,"right":376,"parentLeft":49,"parentRight":376,"peerWidth":327,"boxSizing":"border-box","appearance":"auto","scrollWidth":768,"viewport":768,"type":"date","value":"2026-10-21"}
+FAIL chromium 320 /records/new empty date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":248,"parentWidth":248,"left":36,"right":284,"parentLeft":36,"parentRight":284,"peerWidth":248,"boxSizing":"border-box","appearance":"auto","scrollWidth":320,"viewport":320,"type":"date","value":""}
+FAIL chromium 320 /records/new 2026-10-21 date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":248,"parentWidth":248,"left":36,"right":284,"parentLeft":36,"parentRight":284,"peerWidth":248,"boxSizing":"border-box","appearance":"auto","scrollWidth":320,"viewport":320,"type":"date","value":"2026-10-21"}
+FAIL chromium 320 /bags empty date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":248,"parentWidth":248,"left":36,"right":284,"parentLeft":36,"parentRight":284,"peerWidth":248,"boxSizing":"border-box","appearance":"auto","scrollWidth":320,"viewport":320,"type":"date","value":""}
+FAIL chromium 320 /bags 2026-10-21 date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":248,"parentWidth":248,"left":36,"right":284,"parentLeft":36,"parentRight":284,"peerWidth":248,"boxSizing":"border-box","appearance":"auto","scrollWidth":320,"viewport":320,"type":"date","value":"2026-10-21"}
+FAIL chromium 390 /records/new empty date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":310,"parentWidth":310,"left":40,"right":350,"parentLeft":40,"parentRight":350,"peerWidth":310,"boxSizing":"border-box","appearance":"auto","scrollWidth":390,"viewport":390,"type":"date","value":""}
+FAIL chromium 390 /records/new 2026-10-21 date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":310,"parentWidth":310,"left":40,"right":350,"parentLeft":40,"parentRight":350,"peerWidth":310,"boxSizing":"border-box","appearance":"auto","scrollWidth":390,"viewport":390,"type":"date","value":"2026-10-21"}
+FAIL chromium 390 /bags empty date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":310,"parentWidth":310,"left":40,"right":350,"parentLeft":40,"parentRight":350,"peerWidth":310,"boxSizing":"border-box","appearance":"auto","scrollWidth":390,"viewport":390,"type":"date","value":""}
+FAIL chromium 390 /bags 2026-10-21 date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":310,"parentWidth":310,"left":40,"right":350,"parentLeft":40,"parentRight":350,"peerWidth":310,"boxSizing":"border-box","appearance":"auto","scrollWidth":390,"viewport":390,"type":"date","value":"2026-10-21"}
+FAIL chromium 430 /records/new empty date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":350,"parentWidth":350,"left":40,"right":390,"parentLeft":40,"parentRight":390,"peerWidth":350,"boxSizing":"border-box","appearance":"auto","scrollWidth":430,"viewport":430,"type":"date","value":""}
+FAIL chromium 430 /records/new 2026-10-21 date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":350,"parentWidth":350,"left":40,"right":390,"parentLeft":40,"parentRight":390,"peerWidth":350,"boxSizing":"border-box","appearance":"auto","scrollWidth":430,"viewport":430,"type":"date","value":"2026-10-21"}
+FAIL chromium 430 /bags empty date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":350,"parentWidth":350,"left":40,"right":390,"parentLeft":40,"parentRight":390,"peerWidth":350,"boxSizing":"border-box","appearance":"auto","scrollWidth":430,"viewport":430,"type":"date","value":""}
+FAIL chromium 430 /bags 2026-10-21 date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":350,"parentWidth":350,"left":40,"right":390,"parentLeft":40,"parentRight":390,"peerWidth":350,"boxSizing":"border-box","appearance":"auto","scrollWidth":430,"viewport":430,"type":"date","value":"2026-10-21"}
+FAIL chromium 768 /records/new empty date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":327,"parentWidth":327,"left":49,"right":376,"parentLeft":49,"parentRight":376,"peerWidth":327,"boxSizing":"border-box","appearance":"auto","scrollWidth":768,"viewport":768,"type":"date","value":""}
+FAIL chromium 768 /records/new 2026-10-21 date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":327,"parentWidth":327,"left":49,"right":376,"parentLeft":49,"parentRight":376,"peerWidth":327,"boxSizing":"border-box","appearance":"auto","scrollWidth":768,"viewport":768,"type":"date","value":"2026-10-21"}
+FAIL chromium 768 /bags empty date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":327,"parentWidth":327,"left":49,"right":376,"parentLeft":49,"parentRight":376,"peerWidth":327,"boxSizing":"border-box","appearance":"auto","scrollWidth":768,"viewport":768,"type":"date","value":""}
+FAIL chromium 768 /bags 2026-10-21 date input uses app sizing instead of the iOS native control appearance
+
+'auto' !== 'none'
+ {"width":327,"parentWidth":327,"left":49,"right":376,"parentLeft":49,"parentRight":376,"peerWidth":327,"boxSizing":"border-box","appearance":"auto","scrollWidth":768,"viewport":768,"type":"date","value":"2026-10-21"}
+node:internal/modules/run_main:104
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: 32 layout checks failed
+
+32 !== 0
+
+    at file:///Users/kangseokgyu/.codex/worktrees/date-input-containment/AX-1day/docs/evidence/date-input-containment-20261021/browser-check.mjs:64:8 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 32,
+  expected: 0,
+  operator: 'strictEqual'
+}
+
+Node.js v23.4.0

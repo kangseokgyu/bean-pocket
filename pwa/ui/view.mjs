@@ -248,7 +248,7 @@ function bindPullToRefresh({ page, document, actions }) {
   indicator.append(spinner, label);
   indicator.hidden = true;
   (document.body ?? page).append(indicator);
-  const threshold = 80;
+  const threshold = 240;
   let start;
   let distance = 0;
   let dragging = false;

@@ -552,7 +552,7 @@ function pullHarness() {
   };
   const paint = () => frames.splice(0).forEach(callback => callback());
   const finishReload = () => { paint(); timers.splice(0).forEach(timer => timer.callback()); };
-  const pull = () => { fire('touchstart'); fire('touchmove', 20, 190); fire('touchend', 20, 190); finishReload(); };
+  const pull = () => { fire('touchstart'); fire('touchmove', 20, 350); fire('touchend', 20, 350); finishReload(); };
   return { document, view, state, fire, pull, get reloads() { return reloads; }, get reads() { return reads; },
     paint, finishReload, timers,
     indicator: () => document.root.querySelector('.pull-refresh') };
@@ -565,10 +565,10 @@ test('pulling from the top reloads the entire page once on release', () => {
   assert.equal(env.fire('touchmove', 20, 140).defaultPrevented, true);
   assert.equal(env.indicator().hidden, false);
   assert.match(env.indicator().textContent, /아래로 당겨/);
-  env.fire('touchmove', 20, 190);
+  env.fire('touchmove', 20, 350);
   assert.match(env.indicator().textContent, /놓으면/);
   assert.equal(env.reloads, 0);
-  env.fire('touchend', 20, 190);
+  env.fire('touchend', 20, 350);
   assert.equal(env.reloads, 0, 'the spinning state must paint before navigation');
   assert.equal(env.indicator().dataset.state, 'reloading');
   env.paint();
@@ -594,7 +594,7 @@ test('pulling progressively reveals a twelve-spoke spinner and moves the page do
   assert.equal(indicator.dataset.state, 'pulling');
   const earlyOffset = Number.parseFloat(env.document.root.firstElementChild.style['--pull-offset']);
   const earlyOpacity = Number(spinner.children[6].style.opacity);
-  env.fire('touchmove', 20, 190);
+  env.fire('touchmove', 20, 350);
   assert.equal(indicator.dataset.state, 'armed');
   assert.ok(Number.parseFloat(env.document.root.firstElementChild.style['--pull-offset']) > earlyOffset);
   assert.ok(Number(spinner.children[6].style.opacity) > earlyOpacity);
@@ -610,8 +610,8 @@ test('work starting while the released spinner paints cancels the scheduled relo
   for (const field of ['pending', 'frozen']) {
     const env = pullHarness();
     env.fire('touchstart');
-    env.fire('touchmove', 20, 190);
-    env.fire('touchend', 20, 190);
+    env.fire('touchmove', 20, 350);
+    env.fire('touchend', 20, 350);
     env.state[field] = true;
     env.finishReload();
     assert.equal(env.reloads, 0, field);
@@ -627,7 +627,7 @@ test('short pulls, retracted pulls and cancelled gestures do not reload', () => 
   for (const ending of ['short', 'retracted', 'cancelled']) {
     const env = pullHarness();
     env.fire('touchstart');
-    env.fire('touchmove', 20, ending === 'short' ? 140 : 190);
+    env.fire('touchmove', 20, ending === 'short' ? 140 : 350);
     if (ending === 'retracted') env.fire('touchmove', 20, 140);
     env.fire(ending === 'cancelled' ? 'touchcancel' : 'touchend', 20, 140);
     assert.equal(env.reloads, 0, ending);
@@ -643,9 +643,9 @@ test('normal scrolling and horizontal or upward swipes do not trigger reload', (
     if (scenario === 'scrolled') env.document.scrollingElement.scrollTop = 50;
     env.fire('touchstart');
     if (scenario === 'scroll-during-pull') env.document.scrollingElement.scrollTop = 50;
-    const event = env.fire('touchmove', scenario === 'horizontal' ? 150 : 20,
-      scenario === 'upward' ? 60 : 190, { cancelable: scenario !== 'uncancelable' });
-    env.fire('touchend', 20, 190);
+    const event = env.fire('touchmove', scenario === 'horizontal' ? 400 : 20,
+      scenario === 'upward' ? 60 : 350, { cancelable: scenario !== 'uncancelable' });
+    env.fire('touchend', 20, 350);
     assert.equal(event.defaultPrevented, false, scenario);
     assert.equal(env.reloads, 0, scenario);
   }
@@ -654,9 +654,9 @@ test('normal scrolling and horizontal or upward swipes do not trigger reload', (
 test('multitouch never reloads and a later single finger gesture can refresh', () => {
   const env = pullHarness();
   env.fire('touchstart');
-  env.fire('touchmove', 20, 190);
-  env.fire('touchstart', 20, 190, { touches: [{ identifier: 1 }, { identifier: 2 }] });
-  env.fire('touchend', 20, 190);
+  env.fire('touchmove', 20, 350);
+  env.fire('touchstart', 20, 350, { touches: [{ identifier: 1 }, { identifier: 2 }] });
+  env.fire('touchend', 20, 350);
   assert.equal(env.reloads, 0);
   assert.equal(env.indicator().hidden, true);
   env.pull();
@@ -675,8 +675,8 @@ test('downward pulls from controls and their child elements reload the whole pag
     if (kind === 'button-child') { origin = env.document.createElement('span'); target.append(origin); }
     const options = { target: origin };
     assert.equal(env.fire('touchstart', 20, 100, options).defaultPrevented, false, kind);
-    assert.equal(env.fire('touchmove', 20, 190, options).defaultPrevented, true, kind);
-    assert.equal(env.fire('touchend', 20, 190, options).defaultPrevented, true, kind);
+    assert.equal(env.fire('touchmove', 20, 350, options).defaultPrevented, true, kind);
+    assert.equal(env.fire('touchend', 20, 350, options).defaultPrevented, true, kind);
     env.finishReload();
     assert.equal(env.reloads, 1, kind);
   }
@@ -710,8 +710,8 @@ test('horizontal gestures and scrollable controls away from their top keep nativ
     if (kind === 'scrolled-parent') { origin = env.document.createElement('button'); target.append(origin); }
     const options = { target: origin };
     env.fire('touchstart', 20, 100, options);
-    const event = env.fire('touchmove', horizontal ? 150 : 20, 190, options);
-    env.fire('touchend', horizontal ? 150 : 20, 190, options);
+    const event = env.fire('touchmove', horizontal ? 400 : 20, 350, options);
+    env.fire('touchend', horizontal ? 400 : 20, 350, options);
     env.finishReload();
     assert.equal(event.defaultPrevented, false, kind);
     assert.equal(env.reloads, 0, kind);
@@ -724,13 +724,32 @@ test('saving and update freeze prevent a reload even when they begin during a pu
       const env = pullHarness();
       env.state[field] = !duringPull;
       env.fire('touchstart');
-      env.fire('touchmove', 20, 190);
+      env.fire('touchmove', 20, 350);
       env.state[field] = true;
-      env.fire('touchend', 20, 190);
+      env.fire('touchend', 20, 350);
       assert.equal(env.reloads, 0, field);
       env.state[field] = false;
       env.pull();
       assert.equal(env.reloads, 1, field);
     }
   }
+});
+
+
+test('refresh requires a 240px downward pull and checks the release position', () => {
+  for (const distance of [80, 90, 239, 240, 241]) {
+    const env = pullHarness();
+    env.fire('touchstart');
+    env.fire('touchmove', 20, 100 + distance);
+    assert.equal(env.indicator().dataset.state, distance >= 240 ? 'armed' : 'pulling', String(distance));
+    env.fire('touchend', 20, 100 + distance);
+    env.finishReload();
+    assert.equal(env.reloads, distance >= 240 ? 1 : 0, String(distance));
+  }
+  const env = pullHarness();
+  env.fire('touchstart');
+  env.fire('touchmove', 20, 350);
+  env.fire('touchend', 20, 339);
+  env.finishReload();
+  assert.equal(env.reloads, 0, 'retracting below 240px at release must cancel');
 });

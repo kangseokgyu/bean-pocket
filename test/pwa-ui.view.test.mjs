@@ -21,6 +21,7 @@ class TestElement {
     this.selected = false;
     this.text = '';
     this.listeners = new Map();
+    this.style = { setProperty(name, value) { this[name] = value; } };
   }
   append(...nodes) {
     for (const node of nodes) {
@@ -437,8 +438,12 @@ function pullHarness() {
   document.scrollingElement = { scrollTop: 0 };
   let reloads = 0;
   let reads = 0;
+  const frames = [];
+  const timers = [];
   const state = { pending: false, frozen: false, dirty: false };
-  document.defaultView = { location: { reload() { reloads++; } } };
+  document.defaultView = { location: { reload() { reloads++; } },
+    requestAnimationFrame(callback) { frames.push(callback); },
+    setTimeout(callback, delay) { timers.push({ callback, delay }); } };
   const view = createAppView(document);
   view.renderData(data());
   view.bind({ getState: () => state, refresh: async () => { reads++; } });
@@ -450,8 +455,11 @@ function pullHarness() {
     for (const listener of document.documentElement.listeners.get(type) ?? []) listener(event);
     return event;
   };
-  const pull = () => { fire('touchstart'); fire('touchmove', 20, 190); fire('touchend', 20, 190); };
+  const paint = () => frames.splice(0).forEach(callback => callback());
+  const finishReload = () => { paint(); timers.splice(0).forEach(timer => timer.callback()); };
+  const pull = () => { fire('touchstart'); fire('touchmove', 20, 190); fire('touchend', 20, 190); finishReload(); };
   return { document, view, state, fire, pull, get reloads() { return reloads; }, get reads() { return reads; },
+    paint, finishReload, timers,
     indicator: () => document.root.querySelector('.pull-refresh') };
 }
 
@@ -466,11 +474,58 @@ test('pulling from the top reloads the entire page once on release', () => {
   assert.match(env.indicator().textContent, /놓으면/);
   assert.equal(env.reloads, 0);
   env.fire('touchend', 20, 190);
+  assert.equal(env.reloads, 0, 'the spinning state must paint before navigation');
+  assert.equal(env.indicator().dataset.state, 'reloading');
+  env.paint();
+  assert.equal(env.reloads, 0);
+  assert.equal(env.timers[0].delay, 240);
+  env.finishReload();
   assert.equal(env.reloads, 1);
   assert.equal(env.reads, 0);
   assert.match(env.indicator().textContent, /새로고침 중/);
   env.pull();
   assert.equal(env.reloads, 1);
+});
+
+test('pulling progressively reveals a twelve-spoke spinner and moves the page down', () => {
+  const env = pullHarness();
+  const indicator = env.indicator();
+  const spinner = indicator.querySelector('.pull-refresh-spinner');
+  assert.ok(spinner);
+  assert.equal(spinner.getAttribute('aria-hidden'), 'true');
+  assert.equal(spinner.children.length, 12);
+  env.fire('touchstart');
+  env.fire('touchmove', 20, 120);
+  assert.equal(indicator.dataset.state, 'pulling');
+  const earlyOffset = Number.parseFloat(env.document.root.firstElementChild.style['--pull-offset']);
+  const earlyOpacity = Number(spinner.children[6].style.opacity);
+  env.fire('touchmove', 20, 190);
+  assert.equal(indicator.dataset.state, 'armed');
+  assert.ok(Number.parseFloat(env.document.root.firstElementChild.style['--pull-offset']) > earlyOffset);
+  assert.ok(Number(spinner.children[6].style.opacity) > earlyOpacity);
+  assert.match(indicator.querySelector('.pull-refresh-label').textContent, /놓으면/);
+  env.fire('touchmove', 20, 125);
+  assert.equal(indicator.dataset.state, 'pulling');
+  env.fire('touchcancel');
+  assert.equal(indicator.hidden, true);
+  assert.equal(env.document.root.firstElementChild.style['--pull-offset'], '0px');
+});
+
+test('work starting while the released spinner paints cancels the scheduled reload', () => {
+  for (const field of ['pending', 'frozen']) {
+    const env = pullHarness();
+    env.fire('touchstart');
+    env.fire('touchmove', 20, 190);
+    env.fire('touchend', 20, 190);
+    env.state[field] = true;
+    env.finishReload();
+    assert.equal(env.reloads, 0, field);
+    assert.equal(env.indicator().hidden, true);
+    assert.equal(env.document.root.firstElementChild.style['--pull-offset'], '0px');
+    env.state[field] = false;
+    env.pull();
+    assert.equal(env.reloads, 1);
+  }
 });
 
 test('short pulls, retracted pulls and cancelled gestures do not reload', () => {

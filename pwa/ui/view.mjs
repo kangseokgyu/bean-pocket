@@ -206,24 +206,52 @@ export function createAppView(document = globalThis.document) {
 
 function bindPullToRefresh({ page, document, actions }) {
   const surface = document.documentElement ?? page;
-  const indicator = make(document, 'p', undefined, 'pull-refresh');
+  const pullContent = document.querySelector('.page') ?? page;
+  const indicator = make(document, 'div', undefined, 'pull-refresh');
   indicator.setAttribute('role', 'status');
   indicator.setAttribute('aria-live', 'polite');
+  const spinner = make(document, 'span', undefined, 'pull-refresh-spinner');
+  spinner.setAttribute('aria-hidden', 'true');
+  const spokes = Array.from({ length: 12 }, (_, index) => {
+    const spoke = make(document, 'span', undefined, 'pull-refresh-spoke');
+    spoke.setAttribute('style', `transform: rotate(${index * 30}deg)`);
+    spinner.append(spoke);
+    return spoke;
+  });
+  const label = make(document, 'span', '', 'pull-refresh-label');
+  indicator.append(spinner, label);
   indicator.hidden = true;
-  page.append(indicator);
+  (document.body ?? page).append(indicator);
   const threshold = 80;
   let start;
   let distance = 0;
   let reloading = false;
   const atTop = () => (document.scrollingElement?.scrollTop ?? 0) <= 0;
-  const available = () => {
+  const blocked = () => {
     const state = actions.getState?.();
-    return !reloading && !state?.pending && !state?.frozen;
+    return state?.pending || state?.frozen;
+  };
+  const available = () => !reloading && !blocked();
+  const showPull = distance => {
+    const progress = Math.min(distance / threshold, 1);
+    pullContent.dataset.pullState = 'pulling';
+    pullContent.style.setProperty('--pull-offset', `${Math.min(distance * 0.65, 96)}px`);
+    indicator.style.setProperty('--pull-progress', String(progress));
+    spinner.style.setProperty('--pull-angle', `${progress * 180}deg`);
+    spokes.forEach((spoke, index) => { spoke.style.opacity = String(Math.max(0, Math.min(1, progress * 12 - index))); });
+    indicator.dataset.state = progress >= 1 ? 'armed' : 'pulling';
+    indicator.hidden = false;
+    const message = progress >= 1 ? '놓으면 새로고침합니다.' : '아래로 당겨 새로고침';
+    if (label.textContent !== message) label.textContent = message;
   };
   const reset = () => {
     start = undefined;
     distance = 0;
-    if (!reloading) indicator.hidden = true;
+    if (!reloading) {
+      indicator.hidden = true;
+      pullContent.dataset.pullState = 'idle';
+      pullContent.style.setProperty('--pull-offset', '0px');
+    }
   };
   const excluded = target => {
     if (['input', 'textarea', 'select', 'button', 'a', 'summary', '[contenteditable]', '.table-scroll']
@@ -250,11 +278,14 @@ function bindPullToRefresh({ page, document, actions }) {
     const dy = touch.clientY - start.y;
     if (dy < -8 || (dx > 8 && dx >= dy)) return reset();
     distance = Math.max(0, dy);
-    if (dy <= 0 || dy <= dx) { indicator.hidden = true; return; }
+    if (dy <= 0 || dy <= dx) {
+      indicator.hidden = true;
+      pullContent.dataset.pullState = 'idle';
+      pullContent.style.setProperty('--pull-offset', '0px');
+      return;
+    }
     event.preventDefault();
-    indicator.hidden = false;
-    const message = distance >= threshold ? '놓으면 새로고침합니다.' : '아래로 당겨 새로고침';
-    if (indicator.textContent !== message) indicator.textContent = message;
+    showPull(distance);
   }, { passive: false });
 
   surface.addEventListener('touchend', event => {
@@ -265,9 +296,24 @@ function bindPullToRefresh({ page, document, actions }) {
     if (!shouldReload) return;
     if (event.cancelable) event.preventDefault();
     reloading = true;
-    indicator.textContent = '새로고침 중…';
+    indicator.dataset.state = 'reloading';
+    label.textContent = '새로고침 중…';
+    pullContent.dataset.pullState = 'reloading';
+    pullContent.style.setProperty('--pull-offset', '56px');
+    indicator.style.setProperty('--pull-progress', '1');
+    spokes.forEach((spoke, index) => { spoke.style.opacity = String((index + 1) / 12); });
     indicator.hidden = false;
-    document.defaultView.location.reload();
+    // Let the rotating spinner paint before replacing the document.
+    document.defaultView.requestAnimationFrame(() => {
+      document.defaultView.setTimeout(() => {
+        if (blocked()) {
+          reloading = false;
+          reset();
+          return;
+        }
+        document.defaultView.location.reload();
+      }, 240);
+    });
   }, { passive: false });
   surface.addEventListener('touchcancel', reset, { passive: true });
 }

@@ -63,6 +63,20 @@ export function createAppView(document = globalThis.document) {
   page.append(status);
 
   const connection = make(document, 'section', undefined, 'panel connection-panel');
+  connection.id = 'connection-settings';
+  connection.hidden = true;
+  const connectionToggle = iconButton(document, '⚙', 'Notion 연결 설정', 'toggle-connection');
+  connectionToggle.className = 'button icon-button connection-toggle';
+  connectionToggle.setAttribute('aria-controls', connection.id);
+  connectionToggle.setAttribute('aria-expanded', 'false');
+  connectionToggle.disabled = true;
+  (document.querySelector('#connection-tools') ?? page).append(connectionToggle);
+  function showConnectionPanel(visible) {
+    connection.hidden = !visible;
+    connectionDetails.open = visible;
+    connectionToggle.setAttribute('aria-expanded', String(visible));
+  }
+  connectionToggle.addEventListener('click', () => showConnectionPanel(connection.hidden));
   const connectionDetails = make(document, 'details', undefined, 'connection-details');
   connectionDetails.open = true;
   connectionDetails.append(make(document, 'summary', 'Notion 연결 설정'));
@@ -132,14 +146,15 @@ export function createAppView(document = globalThis.document) {
       const connected = !!value?.connected;
       const retryInitialization = !!value?.retryInitialization;
       connection.dataset.connected = connected ? 'true' : 'false';
+      connectionToggle.disabled = retryInitialization;
       connectionDetails.hidden = retryInitialization;
       startupRetry.hidden = !retryInitialization;
       repair.hidden = !value?.needsRecovery;
       nav.hidden = !connected;
       unresolved.hidden = !connected || unresolved.dataset.count === '0';
       content.hidden = !connected;
-      if (connected && !value?.needsRecovery) connectionDetails.open = false;
-      if (!connected && !retryInitialization) connectionDetails.open = true;
+      showConnectionPanel(!connected || !!value?.needsRecovery || retryInitialization);
+      if (retryInitialization) connectionDetails.open = false;
     },
     clearSecret() { connectionForm.elements.token.value = ''; },
     setState(value) {

@@ -107,6 +107,49 @@ const data = () => ({
 
 const CONNECTION = { token: 'test-only-token', dataSources: {} };
 
+test('connection settings open only after no saved connection is found', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  const panel = document.root.querySelector('.connection-panel');
+  assert.equal(panel.hidden, true);
+  view.showConnection({ connected: false, retryInitialization: true });
+  assert.equal(document.root.querySelector('.connection-details').hidden, true);
+  view.showConnection({ connected: false });
+  assert.equal(panel.hidden, false);
+  assert.equal(document.root.querySelector('.connection-details').open, true);
+});
+
+test('saved connection leaves a header icon that toggles settings without losing input', async () => {
+  const document = new TestDocument();
+  const tools = document.createElement('div');
+  const querySelector = document.querySelector.bind(document);
+  document.querySelector = selector => selector === '#connection-tools' ? tools : querySelector(selector);
+  const view = createAppView(document);
+  const icon = tools.querySelector('button');
+  assert.ok(icon, 'settings icon belongs in the header slot before build information');
+  assert.equal(icon.getAttribute('aria-label'), 'Notion 연결 설정');
+  const panel = document.root.querySelector('.connection-panel');
+  assert.equal(icon.disabled, true);
+  view.showConnection({ connected: true });
+  assert.equal(panel.hidden, true);
+  assert.equal(icon.getAttribute('aria-expanded'), 'false');
+  for (const listener of icon.listeners.get('click')) await listener();
+  assert.equal(panel.hidden, false);
+  assert.equal(icon.getAttribute('aria-expanded'), 'true');
+  const token = panel.querySelector('input[name="token"]');
+  token.value = 'unsaved-test-token';
+  for (const listener of icon.listeners.get('click')) await listener();
+  assert.equal(panel.hidden, true);
+  for (const listener of icon.listeners.get('click')) await listener();
+  assert.equal(panel.hidden, false);
+  assert.equal(token.value, 'unsaved-test-token');
+  view.showConnection({ connected: true });
+  assert.equal(panel.hidden, true, 'successful save collapses settings again');
+  view.showConnection({ connected: false, needsRecovery: true });
+  assert.equal(panel.hidden, false);
+  assert.equal(panel.querySelector('.repair-panel').hidden, false);
+});
+
 test('successful status messages stay visible for three seconds then hide', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const document = new TestDocument();

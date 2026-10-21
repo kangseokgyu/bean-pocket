@@ -113,6 +113,19 @@ button { touch-action: manipulation; }
   font-variant-numeric: tabular-nums;
 }
 
+.header-tools { display: flex; align-items: center; gap: 8px; }
+#connection-tools { display: flex; }
+.button.connection-toggle {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 6px;
+  background: transparent;
+  border-color: transparent;
+  color: #587464;
+  font-size: 1.25rem;
+}
+.connection-toggle[aria-expanded="true"] { background: #e8eee7; }
+
 .bean-section {
   flex: 1;
   min-width: 0;

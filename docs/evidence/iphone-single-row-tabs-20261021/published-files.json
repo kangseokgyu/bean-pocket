@@ -1,0 +1,92 @@
+[
+  {
+    "file": "app.mjs",
+    "status": 200,
+    "matches": true
+  },
+  {
+    "file": "commands/index.mjs",
+    "status": 200,
+    "matches": true
+  },
+  {
+    "file": "data/notion-client.mjs",
+    "status": 200,
+    "matches": true
+  },
+  {
+    "file": "data/notion-properties.mjs",
+    "status": 200,
+    "matches": true
+  },
+  {
+    "file": "data/read-repository.mjs",
+    "status": 200,
+    "matches": true
+  },
+  {
+    "file": "domain.mjs",
+    "status": 200,
+    "matches": true
+  },
+  {
+    "file": "icons/icon-192.png",
+    "status": 200,
+    "matches": true
+  },
+  {
+    "file": "icons/icon-512.png",
+    "status": 200,
+    "matches": true
+  },
+  {
+    "file": "index.html",
+    "status": 200,
+    "matches": true
+  },
+  {
+    "file": "manifest.webmanifest",
+    "status": 200,
+    "matches": true
+  },
+  {
+    "file": "platform/app-lifecycle.mjs",
+    "status": 200,
+    "matches": true
+  },
+  {
+    "file": "platform/connection-file.mjs",
+    "status": 200,
+    "matches": true
+  },
+  {
+    "file": "platform/update-coordinator.mjs",
+    "status": 200,
+    "matches": true
+  },
+  {
+    "file": "state/submission-state.mjs",
+    "status": 200,
+    "matches": true
+  },
+  {
+    "file": "styles.css",
+    "status": 200,
+    "matches": true
+  },
+  {
+    "file": "sw.js",
+    "status": 200,
+    "matches": true
+  },
+  {
+    "file": "ui/controller.mjs",
+    "status": 200,
+    "matches": true
+  },
+  {
+    "file": "ui/view.mjs",
+    "status": 200,
+    "matches": true
+  }
+]

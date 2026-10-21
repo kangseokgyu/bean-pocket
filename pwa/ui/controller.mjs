@@ -149,8 +149,8 @@ export function createAppController({
     if (pending) throw Object.freeze({ code: 'lock-unavailable' });
     pending = true;
     stateChanged();
-    view.showConnection?.({ connected: !!activeConnection, retryInitialization: !activeConnection });
-    view.showStatus?.({ type: 'checking', message: '기기 저장소의 연결 정보를 확인하고 있습니다.' });
+    view.showConnection?.({ connected: !!activeConnection, checkingInitialization: true });
+    view.showStatus?.({ type: 'startup-checking', message: '저장된 연결 확인 중' });
     try {
       const loaded = await withStartupLock(async context => {
         const connection = await file.readConnection();

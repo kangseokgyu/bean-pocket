@@ -35,6 +35,17 @@ const iconButton = (document, icon, title, action) => {
   return node;
 };
 
+const makeSpinner = document => {
+  const spinner = make(document, 'span', undefined, 'pull-refresh-spinner');
+  spinner.setAttribute('aria-hidden', 'true');
+  for (let index = 0; index < 12; index++) {
+    const spoke = make(document, 'span', undefined, 'pull-refresh-spoke');
+    spoke.setAttribute('style', `transform: rotate(${index * 30}deg)`);
+    spinner.append(spoke);
+  }
+  return spinner;
+};
+
 const idOf = value => String(value ?? '');
 const FORM_KINDS = new Set(['beans', 'bags', 'recipes', 'records']);
 const AUTO_HIDE_STATUS_TYPES = new Set(['ready', 'connected', 'saved', 'resolved', 'cancelled']);
@@ -60,7 +71,8 @@ export function createAppView(document = globalThis.document) {
   let recordFormOpen = route === '/records/new';
   let statusHideTimer;
 
-  const status = make(document, 'p', '연결 정보를 확인하고 있습니다.', 'app-status');
+  const status = make(document, 'p', '', 'app-status');
+  status.hidden = true;
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
   page.append(status);
@@ -98,8 +110,8 @@ export function createAppView(document = globalThis.document) {
 
   const startupRetry = make(document, 'section', undefined, 'startup-retry-panel');
   startupRetry.hidden = true;
-  startupRetry.append(make(document, 'h2', '저장된 연결 확인 중'));
-  startupRetry.append(make(document, 'p', '기기 저장소의 연결 정보를 확인하고 있습니다. 다른 창이 저장소를 사용 중이면 잠시 기다립니다. 연결 정보를 입력하지 말고 다시 시도해 주세요.'));
+  startupRetry.append(make(document, 'h2', '저장된 연결을 확인하지 못했습니다'));
+  startupRetry.append(make(document, 'p', '다른 창이 저장소를 사용 중이면 잠시 기다린 뒤, 연결 정보를 입력하지 말고 다시 시도해 주세요.'));
   startupRetry.append(button(document, '저장된 연결 다시 읽기', 'button', 'retry-initialize'));
   connection.append(startupRetry);
 
@@ -154,6 +166,11 @@ export function createAppView(document = globalThis.document) {
       clearTimeout(statusHideTimer);
       status.textContent = value?.message ?? '';
       status.dataset.state = value?.type ?? '';
+      if (value?.type === 'startup-checking') {
+        const spinner = makeSpinner(document);
+        spinner.className += ' startup-spinner';
+        status.replaceChildren(spinner, make(document, 'span', value.message, 'visually-hidden'));
+      }
       status.hidden = !status.textContent;
       if (!status.hidden && AUTO_HIDE_STATUS_TYPES.has(value?.type)) {
         statusHideTimer = setTimeout(() => { status.hidden = true; }, STATUS_DISPLAY_MS);
@@ -162,15 +179,16 @@ export function createAppView(document = globalThis.document) {
     showConnection(value) {
       const connected = !!value?.connected;
       const retryInitialization = !!value?.retryInitialization;
+      const checkingInitialization = !!value?.checkingInitialization;
       connection.dataset.connected = connected ? 'true' : 'false';
-      connectionToggle.disabled = retryInitialization;
-      connectionDetails.hidden = retryInitialization;
+      connectionToggle.disabled = retryInitialization || checkingInitialization;
+      connectionDetails.hidden = retryInitialization || checkingInitialization;
       startupRetry.hidden = !retryInitialization;
       repair.hidden = !value?.needsRecovery;
       nav.hidden = !connected;
       unresolved.hidden = !connected || unresolved.dataset.count === '0';
       content.hidden = !connected;
-      showConnectionPanel(!connected || !!value?.needsRecovery || retryInitialization);
+      showConnectionPanel(!checkingInitialization && (!connected || !!value?.needsRecovery || retryInitialization));
       if (retryInitialization) connectionDetails.open = false;
     },
     clearSecret() { connectionForm.elements.token.value = ''; },
@@ -271,14 +289,8 @@ function bindPullToRefresh({ page, document, actions }) {
   const indicator = make(document, 'div', undefined, 'pull-refresh');
   indicator.setAttribute('role', 'status');
   indicator.setAttribute('aria-live', 'polite');
-  const spinner = make(document, 'span', undefined, 'pull-refresh-spinner');
-  spinner.setAttribute('aria-hidden', 'true');
-  const spokes = Array.from({ length: 12 }, (_, index) => {
-    const spoke = make(document, 'span', undefined, 'pull-refresh-spoke');
-    spoke.setAttribute('style', `transform: rotate(${index * 30}deg)`);
-    spinner.append(spoke);
-    return spoke;
-  });
+  const spinner = makeSpinner(document);
+  const spokes = [...spinner.children];
   const label = make(document, 'span', '', 'pull-refresh-label');
   indicator.append(spinner, label);
   indicator.hidden = true;

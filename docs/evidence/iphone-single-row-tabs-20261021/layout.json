@@ -1,0 +1,282 @@
+[
+  {
+    "width": 320,
+    "labels": [
+      "원두",
+      "봉지",
+      "레시피",
+      "추출 기록"
+    ],
+    "rects": [
+      {
+        "x": 10,
+        "y": 978.546875,
+        "width": 72,
+        "height": 50,
+        "overflow": false
+      },
+      {
+        "x": 86,
+        "y": 978.546875,
+        "width": 72,
+        "height": 50,
+        "overflow": false
+      },
+      {
+        "x": 162,
+        "y": 978.546875,
+        "width": 72,
+        "height": 50,
+        "overflow": false
+      },
+      {
+        "x": 238,
+        "y": 978.546875,
+        "width": 72,
+        "height": 50,
+        "overflow": false
+      }
+    ],
+    "pageOverflow": false
+  },
+  {
+    "width": 360,
+    "labels": [
+      "원두",
+      "봉지",
+      "레시피",
+      "추출 기록"
+    ],
+    "rects": [
+      {
+        "x": 10,
+        "y": 952.953125,
+        "width": 82,
+        "height": 50,
+        "overflow": false
+      },
+      {
+        "x": 96,
+        "y": 952.953125,
+        "width": 82,
+        "height": 50,
+        "overflow": false
+      },
+      {
+        "x": 182,
+        "y": 952.953125,
+        "width": 82,
+        "height": 50,
+        "overflow": false
+      },
+      {
+        "x": 268,
+        "y": 952.953125,
+        "width": 82,
+        "height": 50,
+        "overflow": false
+      }
+    ],
+    "pageOverflow": false
+  },
+  {
+    "width": 375,
+    "labels": [
+      "원두",
+      "봉지",
+      "레시피",
+      "추출 기록"
+    ],
+    "rects": [
+      {
+        "x": 12,
+        "y": 956.953125,
+        "width": 84.75,
+        "height": 50,
+        "overflow": false
+      },
+      {
+        "x": 100.75,
+        "y": 956.953125,
+        "width": 84.75,
+        "height": 50,
+        "overflow": false
+      },
+      {
+        "x": 189.5,
+        "y": 956.953125,
+        "width": 84.75,
+        "height": 50,
+        "overflow": false
+      },
+      {
+        "x": 278.25,
+        "y": 956.953125,
+        "width": 84.75,
+        "height": 50,
+        "overflow": false
+      }
+    ],
+    "pageOverflow": false
+  },
+  {
+    "width": 390,
+    "labels": [
+      "원두",
+      "봉지",
+      "레시피",
+      "추출 기록"
+    ],
+    "rects": [
+      {
+        "x": 12,
+        "y": 956.953125,
+        "width": 88.5,
+        "height": 50,
+        "overflow": false
+      },
+      {
+        "x": 104.5,
+        "y": 956.953125,
+        "width": 88.5,
+        "height": 50,
+        "overflow": false
+      },
+      {
+        "x": 197,
+        "y": 956.953125,
+        "width": 88.5,
+        "height": 50,
+        "overflow": false
+      },
+      {
+        "x": 289.5,
+        "y": 956.953125,
+        "width": 88.5,
+        "height": 50,
+        "overflow": false
+      }
+    ],
+    "pageOverflow": false
+  },
+  {
+    "width": 430,
+    "labels": [
+      "원두",
+      "봉지",
+      "레시피",
+      "추출 기록"
+    ],
+    "rects": [
+      {
+        "x": 12,
+        "y": 956.953125,
+        "width": 98.5,
+        "height": 50,
+        "overflow": false
+      },
+      {
+        "x": 114.5,
+        "y": 956.953125,
+        "width": 98.5,
+        "height": 50,
+        "overflow": false
+      },
+      {
+        "x": 217,
+        "y": 956.953125,
+        "width": 98.5,
+        "height": 50,
+        "overflow": false
+      },
+      {
+        "x": 319.5,
+        "y": 956.953125,
+        "width": 98.5,
+        "height": 50,
+        "overflow": false
+      }
+    ],
+    "pageOverflow": false
+  },
+  {
+    "width": 600,
+    "labels": [
+      "원두",
+      "봉지",
+      "레시피",
+      "추출 기록"
+    ],
+    "rects": [
+      {
+        "x": 12,
+        "y": 956.953125,
+        "width": 141,
+        "height": 50,
+        "overflow": false
+      },
+      {
+        "x": 157,
+        "y": 956.953125,
+        "width": 141,
+        "height": 50,
+        "overflow": false
+      },
+      {
+        "x": 302,
+        "y": 956.953125,
+        "width": 141,
+        "height": 50,
+        "overflow": false
+      },
+      {
+        "x": 447,
+        "y": 956.953125,
+        "width": 141,
+        "height": 50,
+        "overflow": false
+      }
+    ],
+    "pageOverflow": false
+  },
+  {
+    "width": 768,
+    "labels": [
+      "원두",
+      "봉지",
+      "레시피",
+      "추출 기록"
+    ],
+    "rects": [
+      {
+        "x": 16,
+        "y": 994.953125,
+        "width": 178,
+        "height": 48,
+        "overflow": false
+      },
+      {
+        "x": 202,
+        "y": 994.953125,
+        "width": 178,
+        "height": 48,
+        "overflow": false
+      },
+      {
+        "x": 388,
+        "y": 994.953125,
+        "width": 178,
+        "height": 48,
+        "overflow": false
+      },
+      {
+        "x": 574,
+        "y": 994.953125,
+        "width": 178,
+        "height": 48,
+        "overflow": false
+      }
+    ],
+    "pageOverflow": false
+  }
+]

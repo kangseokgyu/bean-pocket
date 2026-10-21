@@ -446,7 +446,6 @@ function renderPane(parent, data, document, route = '/beans', drafts = new Map()
     add.setAttribute('aria-expanded', String(recordFormOpen));
     actions.append(add);
   }
-  actions.append(iconButton(document, '↻', '최신 목록 새로고침', 'refresh'));
   header.append(actions);
   pane.append(header);
 
@@ -829,10 +828,6 @@ function bindEvents({ page, connectionForm, originalConnectionCheck, content, ac
         updateBagChoices(form, windowData);
         actions.setDirty(true, 'records');
       }
-      return;
-    }
-    if (action === 'refresh') {
-      try { await actions.refresh(); } catch { /* The status region explains read failures. */ }
       return;
     }
     if (action === 'confirm-connection') {

@@ -14,3 +14,32 @@
 - merge와 게시는 사용자 상시 승인에 따라 추가 승인 요청 없이 진행한다. 기능별 워크트리·브랜치, 변경 선별, 필수 검증과 게시 후 공개 반영 확인은 유지한다.
 - 테스트·빌드·배포 실패는 원인을 확인하고 해결한다. 게시 완료 후 실행 결과, 공개 빌드 버전과 파일 반영을 확인하고 검증 근거를 기록한다.
 - 최종 보고에는 게시 주소·빌드 버전·테스트 결과와 실제로 확인하지 못한 범위를 포함한다.
+
+## Addy Osmani Agent Skills (프로젝트 로컬)
+
+- `.agents/skills/<skill-name>/SKILL.md`를 Codex 기본 탐색으로 사용한다. 요청과 스킬의 `description`·트리거를 대조해 관련 스킬만 자동 선택하고, 상세 내용과 참조는 필요한 시점에 읽는다. 여러 스킬은 작업 단계에 따라 순차 적용한다.
+- 별도 라우터·시작 훅을 만들거나 `SKILL.md` 전체를 이 문서에 복사하지 않는다. `using-agent-skills`는 설치 상태로 유지하되 상시 로드하지 않는다.
+- 우선순위: 현재 작업의 사용자 명시 요구사항 → 기존 프로젝트 필수 정책 및 AGENTS.md → 기술적 제약·코딩 컨벤션 → 스킬 워크플로. 충돌 시 차이와 영향을 설명하고, 상위 규칙으로 해결되지 않는 판단만 사용자에게 요청한다.
+- 기존 아키텍처, 테스트 프레임워크(`node --test`), 기능별 워크트리·`codex/` 브랜치 전략, 커밋·merge·CI·게시 정책을 유지한다. 스킬의 도구·테스트 비율·커밋 빈도·배포 권장사항으로 이를 대체하지 않는다. 에이전트 구성·모델·추론 수준도 기존 사용자 지침을 따른다.
+
+| 작업 | 기본 적용 스킬 |
+| --- | --- |
+| 요구사항 분석 | `interview-me`, `spec-driven-development` |
+| 개발 계획 | `planning-and-task-breakdown` |
+| 기능 구현 | `incremental-implementation` |
+| 테스트 | `test-driven-development` |
+| 버그 수정 | `debugging-and-error-recovery` |
+| 코드 리뷰 | `code-review-and-quality` |
+| 리팩터링 | `code-simplification` |
+| 보안 검토 | `security-and-hardening` |
+| 성능 최적화 | `performance-optimization` |
+| Git 작업 | `git-workflow-and-versioning` |
+| 문서화 | `documentation-and-adrs` |
+| 배포 | `shipping-and-launch` |
+
+- 위 매핑은 기본 가이드다. 실제 트리거와 작업 범위에 따라 선택하며 불명확한 요구사항만 질문한다. 작은 작업에 불필요한 전체 워크플로를 강제하지 않는다.
+- 복잡한 기능은 요구사항·완료 조건을 먼저 정하고 작고 검증 가능한 단위로 구현한다. 동작 변경은 기존 환경에서 테스트를 먼저 작성하고 의도한 실패를 확인한 뒤 구현한다. 버그는 재현 → 원인 분석 → 수정 → 회귀 테스트 순서로 처리한다.
+- 변경에 맞는 테스트·빌드·정적 분석과 프로젝트 필수 검증을 실제 실행한다. 미실행·실패·미검증 범위는 명시하고 성공으로 보고하지 않는다. 문서·설정만 바꾸는 작업은 그에 맞는 검증을 적용한다.
+- 기존 코드베이스 도입은 `context-engineering`으로 구조·관례 파악 → `code-review-and-quality`로 변경 검토 → 필요한 버그에 `debugging-and-error-recovery` → 변경할 영역부터 점진적 TDD 순서로 진행한다. 도입만을 위한 전체 리팩터링, 무관한 문서·추상화·테스트 인프라 추가는 하지 않는다.
+- 새 기능부터 Spec → Plan → Build → Verify → Review 흐름을 작업 규모에 맞게 적용한다. 기존 동작·컨벤션을 우선 존중하고 요청 밖 리팩터링을 하지 않는다.
+- 공통 참조는 `.agents/references/`에 보관한다. `../../references/`는 각 스킬 디렉터리 기준으로 해석한다. 설치 출처·보완 경로는 `.agents/README.md`를 참고한다. 전역 스킬·전역 AGENTS.md·홈 Codex 설정이나 다른 프로젝트로 전파하지 않는다.

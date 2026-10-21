@@ -611,20 +611,18 @@ test('record creation opens from plus, preserves drafts, and closes on cancel or
   assert.equal(form.elements.recipeId.value, RECIPE);
 });
 
-test('refresh uses an accessible icon button and retains the refresh action', async () => {
+test('collection headers omit refresh and retain their add buttons', () => {
   const document = new TestDocument();
   const view = createAppView(document);
-  let refreshes = 0;
-  view.bind({ refresh: async () => { refreshes++; } });
   view.renderData(data());
-  const refresh = document.root.querySelector('[data-action="refresh"]');
-  assert.equal(refresh.getAttribute('aria-label'), '최신 목록 새로고침');
-  assert.equal(refresh.querySelector('[aria-hidden="true"]').textContent, '↻');
-  for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: refresh });
-  assert.equal(refreshes, 1);
-  view.setState({ pending: true });
-  assert.equal(refresh.disabled, true);
-  assert.equal(document.root.querySelector('[data-action="show-bean-form"]').disabled, true);
+  for (const [section, kind] of [['beans', 'bean'], ['bags', 'bag'], ['recipes', 'recipe'], ['records', 'record']]) {
+    view.renderRoute(`/${section}`);
+    assert.ok(document.root.querySelector('[data-action="refresh"]') === null, `${section}: refresh button must be absent`);
+    assert.ok(document.root.querySelector(`[data-action="show-${kind}-form"]`), section);
+    view.setState({ pending: true });
+    assert.equal(document.root.querySelector(`[data-action="show-${kind}-form"]`).disabled, true, section);
+    view.setState({ pending: false });
+  }
 });
 
 function pullHarness() {
@@ -785,12 +783,13 @@ test('downward pulls from controls and their child elements reload the whole pag
 
 test('control taps keep their normal action and short drags suppress accidental taps', async () => {
   const env = pullHarness();
-  const target = env.document.root.querySelector('[data-action="refresh"]');
+  const target = env.document.root.querySelector('[data-action="show-bean-form"]');
   assert.equal(env.fire('touchstart', 20, 100, { target }).defaultPrevented, false);
   assert.equal(env.fire('touchmove', 20, 105, { target }).defaultPrevented, false);
   assert.equal(env.fire('touchend', 20, 105, { target }).defaultPrevented, false);
   for (const listener of env.document.root.firstElementChild.listeners.get('click')) await listener({ target });
-  assert.equal(env.reads, 1);
+  assert.equal(env.document.root.querySelector('form[data-form="beans"]').hidden, false);
+  assert.equal(env.reads, 0);
   assert.equal(env.reloads, 0);
   env.fire('touchstart', 20, 100, { target });
   env.fire('touchmove', 20, 140, { target });

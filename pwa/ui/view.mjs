@@ -225,6 +225,7 @@ function bindPullToRefresh({ page, document, actions }) {
   const threshold = 80;
   let start;
   let distance = 0;
+  let dragging = false;
   let reloading = false;
   const atTop = () => (document.scrollingElement?.scrollTop ?? 0) <= 0;
   const blocked = () => {
@@ -247,43 +248,44 @@ function bindPullToRefresh({ page, document, actions }) {
   const reset = () => {
     start = undefined;
     distance = 0;
+    dragging = false;
     if (!reloading) {
       indicator.hidden = true;
       pullContent.dataset.pullState = 'idle';
       pullContent.style.setProperty('--pull-offset', '0px');
     }
   };
-  const excluded = target => {
-    if (['input', 'textarea', 'select', 'button', 'a', 'summary', '[contenteditable]', '.table-scroll']
-      .some(selector => target?.closest?.(selector))) return true;
+  const scrolledInside = target => {
     for (let node = target; node && node !== document.body && node !== surface; node = node.parentElement) {
-      if (node.scrollHeight > node.clientHeight) return true;
+      if (node.scrollHeight > node.clientHeight && node.scrollTop > 0) return true;
     }
     return false;
   };
 
   surface.addEventListener('touchstart', event => {
     reset();
-    if (!available() || !atTop() || event.touches.length !== 1 || excluded(event.target)) return;
+    if (!available() || !atTop() || event.touches.length !== 1 || scrolledInside(event.target)) return;
     const touch = event.touches[0];
     start = { id: touch.identifier, x: touch.clientX, y: touch.clientY };
   }, { passive: true });
 
   surface.addEventListener('touchmove', event => {
     if (!start) return;
-    if (!available() || !atTop() || event.touches.length !== 1 || !event.cancelable) return reset();
+    if (!available() || !atTop() || scrolledInside(event.target) || event.touches.length !== 1 || !event.cancelable) return reset();
     const touch = event.touches[0];
     if (touch.identifier !== start.id) return reset();
     const dx = Math.abs(touch.clientX - start.x);
     const dy = touch.clientY - start.y;
     if (dy < -8 || (dx > 8 && dx >= dy)) return reset();
     distance = Math.max(0, dy);
+    if (!dragging && dy <= 8) return;
     if (dy <= 0 || dy <= dx) {
       indicator.hidden = true;
       pullContent.dataset.pullState = 'idle';
       pullContent.style.setProperty('--pull-offset', '0px');
       return;
     }
+    dragging = true;
     event.preventDefault();
     showPull(distance);
   }, { passive: false });
@@ -292,6 +294,8 @@ function bindPullToRefresh({ page, document, actions }) {
     const touch = Array.from(event.changedTouches).find(item => item.identifier === start?.id);
     const shouldReload = start && touch && event.touches.length === 0 && available() && atTop() &&
       distance >= threshold && touch.clientY - start.y >= threshold;
+    // A drag on a control must not become a tap when released below the refresh threshold.
+    if (start && dragging && event.cancelable) event.preventDefault();
     reset();
     if (!shouldReload) return;
     if (event.cancelable) event.preventDefault();

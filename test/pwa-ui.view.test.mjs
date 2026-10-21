@@ -568,16 +568,56 @@ test('multitouch never reloads and a later single finger gesture can refresh', (
   assert.equal(env.reloads, 1);
 });
 
-test('pulls starting in controls, tables and nested scrolling regions are ignored', () => {
-  for (const kind of ['input', 'textarea', 'select', 'button', 'a', 'summary', 'table', 'scroll']) {
+test('downward pulls from controls and their child elements reload the whole page', () => {
+  for (const kind of ['input', 'textarea', 'select', 'button', 'a', 'summary', 'editable', 'button-child', 'table', 'scroll']) {
     const env = pullHarness();
-    const target = env.document.createElement(['table', 'scroll'].includes(kind) ? 'div' : kind);
+    const target = env.document.createElement(['table', 'scroll', 'editable'].includes(kind) ? 'div' : kind === 'button-child' ? 'button' : kind);
+    if (kind === 'editable') target.setAttribute('contenteditable', 'true');
     if (kind === 'table') target.className = 'table-scroll';
-    if (kind === 'scroll') { target.scrollHeight = 300; target.clientHeight = 100; }
+    if (['scroll', 'textarea'].includes(kind)) { target.scrollHeight = 300; target.clientHeight = 100; target.scrollTop = 0; }
     env.document.root.append(target);
-    env.fire('touchstart', 20, 100, { target });
-    const event = env.fire('touchmove', 20, 190, { target });
-    env.fire('touchend', 20, 190, { target });
+    let origin = target;
+    if (kind === 'button-child') { origin = env.document.createElement('span'); target.append(origin); }
+    const options = { target: origin };
+    assert.equal(env.fire('touchstart', 20, 100, options).defaultPrevented, false, kind);
+    assert.equal(env.fire('touchmove', 20, 190, options).defaultPrevented, true, kind);
+    assert.equal(env.fire('touchend', 20, 190, options).defaultPrevented, true, kind);
+    env.finishReload();
+    assert.equal(env.reloads, 1, kind);
+  }
+});
+
+test('control taps keep their normal action and short drags suppress accidental taps', async () => {
+  const env = pullHarness();
+  const target = env.document.root.querySelector('[data-action="refresh"]');
+  assert.equal(env.fire('touchstart', 20, 100, { target }).defaultPrevented, false);
+  assert.equal(env.fire('touchmove', 20, 105, { target }).defaultPrevented, false);
+  assert.equal(env.fire('touchend', 20, 105, { target }).defaultPrevented, false);
+  for (const listener of env.document.root.firstElementChild.listeners.get('click')) await listener({ target });
+  assert.equal(env.reads, 1);
+  assert.equal(env.reloads, 0);
+  env.fire('touchstart', 20, 100, { target });
+  env.fire('touchmove', 20, 140, { target });
+  assert.equal(env.fire('touchend', 20, 140, { target }).defaultPrevented, true);
+  env.finishReload();
+  assert.equal(env.reloads, 0);
+});
+
+test('horizontal gestures and scrollable controls away from their top keep native scrolling', () => {
+  for (const kind of ['table', 'input', 'textarea', 'scroll', 'scrolled-parent']) {
+    const env = pullHarness();
+    const target = env.document.createElement(['table', 'scroll', 'scrolled-parent'].includes(kind) ? 'div' : kind);
+    if (kind === 'table') target.className = 'table-scroll';
+    const horizontal = ['table', 'input'].includes(kind);
+    if (!horizontal) { target.scrollHeight = 300; target.clientHeight = 100; target.scrollTop = 50; }
+    env.document.root.append(target);
+    let origin = target;
+    if (kind === 'scrolled-parent') { origin = env.document.createElement('button'); target.append(origin); }
+    const options = { target: origin };
+    env.fire('touchstart', 20, 100, options);
+    const event = env.fire('touchmove', horizontal ? 150 : 20, 190, options);
+    env.fire('touchend', horizontal ? 150 : 20, 190, options);
+    env.finishReload();
     assert.equal(event.defaultPrevented, false, kind);
     assert.equal(env.reloads, 0, kind);
   }

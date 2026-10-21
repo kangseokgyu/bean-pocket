@@ -458,6 +458,58 @@ test('bean creation starts hidden, opens from the plus button, and closes on can
   assert.deepEqual(dirty, [[false, 'beans']]);
 });
 
+test('recipe creation opens from plus, preserves drafts, and closes on cancel', async () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  const dirty = [];
+  view.bind({ setDirty: (...args) => dirty.push(args) });
+  view.renderData(data());
+  const tab = document.root.querySelector('.tabs').querySelectorAll('[data-route]')
+    .find(item => item.dataset.route === '/recipes');
+  assert.ok(tab);
+  assert.equal(tab.textContent, '레시피');
+  const click = async target => {
+    for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target });
+  };
+  await click(tab);
+  let form = document.root.querySelector('form[data-form="recipes"]');
+  assert.equal(form.hidden, true);
+  const add = document.root.querySelector('[data-action="show-recipe-form"]');
+  assert.equal(add.getAttribute('aria-label'), '새 레시피 추가');
+  assert.equal(add.getAttribute('aria-controls'), form.id);
+  assert.equal(add.getAttribute('aria-expanded'), 'false');
+  assert.ok(document.root.querySelector('.recipe-card'));
+  await click(add);
+  assert.equal(form.hidden, false);
+  assert.equal(add.getAttribute('aria-expanded'), 'true');
+  assert.equal(dirty.length, 0);
+  form.elements.name.value = '보존할 레시피';
+  form.querySelector('[name="stepName"]').value = '뜸 보존';
+  view.renderData(data());
+  view.renderRoute('/beans');
+  view.renderRoute('/recipes');
+  form = document.root.querySelector('form[data-form="recipes"]');
+  assert.equal(form.hidden, false);
+  assert.equal(form.elements.name.value, '보존할 레시피');
+  assert.equal(form.querySelector('[name="stepName"]').value, '뜸 보존');
+  await click(form.querySelector('[data-action="cancel-form"]'));
+  form = document.root.querySelector('form[data-form="recipes"]');
+  assert.equal(form.hidden, true);
+  assert.equal(form.elements.name.value, '');
+  assert.deepEqual(dirty, [[false, 'recipes']]);
+  view.renderRoute('/recipes/new');
+  assert.equal(document.root.querySelector('form[data-form="recipes"]').hidden, false);
+  view.setState({ pending: true });
+  assert.equal(document.root.querySelector('[data-action="show-recipe-form"]').disabled, true);
+  view.setState({ pending: false });
+  view.clearDraft('recipes');
+  assert.equal(document.root.querySelector('form[data-form="recipes"]').hidden, true);
+  view.renderData({ ...data(), recipes: [] });
+  assert.equal(document.root.querySelector('.empty-state').textContent, '등록된 레시피가 없습니다.');
+  view.renderRoute(`/recipes/${RECIPE}`);
+  assert.equal(document.root.querySelector('[data-action="show-recipe-form"]'), null);
+});
+
 test('refresh uses an accessible icon button and retains the refresh action', async () => {
   const document = new TestDocument();
   const view = createAppView(document);

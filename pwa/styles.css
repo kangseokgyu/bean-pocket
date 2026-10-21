@@ -10,6 +10,25 @@
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
+html { overscroll-behavior-y: contain; }
+
+.pull-refresh {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  margin: 0;
+  padding: 10px 18px;
+  border: 1px solid #9db8a5;
+  border-radius: 24px;
+  background: #f3faf4;
+  color: #203d32;
+  box-shadow: 0 3px 12px rgb(53 63 46 / 15%);
+  font-size: 0.875rem;
+  pointer-events: none;
+  white-space: nowrap;
+}
 
 body {
   min-width: 320px;

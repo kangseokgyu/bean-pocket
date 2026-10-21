@@ -198,9 +198,78 @@ export function createAppView(document = globalThis.document) {
     bind(actions) {
       bindEvents({ page, connectionForm, originalConnectionCheck, repair, nav, content,
         unresolved, actions, document, view });
+      bindPullToRefresh({ page, document, actions });
     },
   };
   return view;
+}
+
+function bindPullToRefresh({ page, document, actions }) {
+  const surface = document.documentElement ?? page;
+  const indicator = make(document, 'p', undefined, 'pull-refresh');
+  indicator.setAttribute('role', 'status');
+  indicator.setAttribute('aria-live', 'polite');
+  indicator.hidden = true;
+  page.append(indicator);
+  const threshold = 80;
+  let start;
+  let distance = 0;
+  let reloading = false;
+  const atTop = () => (document.scrollingElement?.scrollTop ?? 0) <= 0;
+  const available = () => {
+    const state = actions.getState?.();
+    return !reloading && !state?.pending && !state?.frozen;
+  };
+  const reset = () => {
+    start = undefined;
+    distance = 0;
+    if (!reloading) indicator.hidden = true;
+  };
+  const excluded = target => {
+    if (['input', 'textarea', 'select', 'button', 'a', 'summary', '[contenteditable]', '.table-scroll']
+      .some(selector => target?.closest?.(selector))) return true;
+    for (let node = target; node && node !== document.body && node !== surface; node = node.parentElement) {
+      if (node.scrollHeight > node.clientHeight) return true;
+    }
+    return false;
+  };
+
+  surface.addEventListener('touchstart', event => {
+    reset();
+    if (!available() || !atTop() || event.touches.length !== 1 || excluded(event.target)) return;
+    const touch = event.touches[0];
+    start = { id: touch.identifier, x: touch.clientX, y: touch.clientY };
+  }, { passive: true });
+
+  surface.addEventListener('touchmove', event => {
+    if (!start) return;
+    if (!available() || !atTop() || event.touches.length !== 1 || !event.cancelable) return reset();
+    const touch = event.touches[0];
+    if (touch.identifier !== start.id) return reset();
+    const dx = Math.abs(touch.clientX - start.x);
+    const dy = touch.clientY - start.y;
+    if (dy < -8 || (dx > 8 && dx >= dy)) return reset();
+    distance = Math.max(0, dy);
+    if (dy <= 0 || dy <= dx) { indicator.hidden = true; return; }
+    event.preventDefault();
+    indicator.hidden = false;
+    const message = distance >= threshold ? '놓으면 새로고침합니다.' : '아래로 당겨 새로고침';
+    if (indicator.textContent !== message) indicator.textContent = message;
+  }, { passive: false });
+
+  surface.addEventListener('touchend', event => {
+    const touch = Array.from(event.changedTouches).find(item => item.identifier === start?.id);
+    const shouldReload = start && touch && event.touches.length === 0 && available() && atTop() &&
+      distance >= threshold && touch.clientY - start.y >= threshold;
+    reset();
+    if (!shouldReload) return;
+    if (event.cancelable) event.preventDefault();
+    reloading = true;
+    indicator.textContent = '새로고침 중…';
+    indicator.hidden = false;
+    document.defaultView.location.reload();
+  }, { passive: false });
+  surface.addEventListener('touchcancel', reset, { passive: true });
 }
 
 function applyState(page, state) {

@@ -429,3 +429,118 @@ test('refresh uses an accessible icon button and retains the refresh action', as
   assert.equal(refresh.disabled, true);
   assert.equal(document.root.querySelector('[data-action="show-bean-form"]').disabled, true);
 });
+
+function pullHarness() {
+  const document = new TestDocument();
+  document.documentElement = new TestElement('html', document);
+  document.documentElement.append(document.root);
+  document.scrollingElement = { scrollTop: 0 };
+  let reloads = 0;
+  let reads = 0;
+  const state = { pending: false, frozen: false, dirty: false };
+  document.defaultView = { location: { reload() { reloads++; } } };
+  const view = createAppView(document);
+  view.renderData(data());
+  view.bind({ getState: () => state, refresh: async () => { reads++; } });
+  const fire = (type, x = 20, y = 100, options = {}) => {
+    const touch = { identifier: 1, clientX: x, clientY: y };
+    const event = { target: document.root, cancelable: true, defaultPrevented: false,
+      touches: type === 'touchend' || type === 'touchcancel' ? [] : [touch],
+      changedTouches: [touch], preventDefault() { this.defaultPrevented = true; }, ...options };
+    for (const listener of document.documentElement.listeners.get(type) ?? []) listener(event);
+    return event;
+  };
+  const pull = () => { fire('touchstart'); fire('touchmove', 20, 190); fire('touchend', 20, 190); };
+  return { document, view, state, fire, pull, get reloads() { return reloads; }, get reads() { return reads; },
+    indicator: () => document.root.querySelector('.pull-refresh') };
+}
+
+test('pulling from the top reloads the entire page once on release', () => {
+  const env = pullHarness();
+  env.state.dirty = true;
+  env.fire('touchstart');
+  assert.equal(env.fire('touchmove', 20, 140).defaultPrevented, true);
+  assert.equal(env.indicator().hidden, false);
+  assert.match(env.indicator().textContent, /아래로 당겨/);
+  env.fire('touchmove', 20, 190);
+  assert.match(env.indicator().textContent, /놓으면/);
+  assert.equal(env.reloads, 0);
+  env.fire('touchend', 20, 190);
+  assert.equal(env.reloads, 1);
+  assert.equal(env.reads, 0);
+  assert.match(env.indicator().textContent, /새로고침 중/);
+  env.pull();
+  assert.equal(env.reloads, 1);
+});
+
+test('short pulls, retracted pulls and cancelled gestures do not reload', () => {
+  for (const ending of ['short', 'retracted', 'cancelled']) {
+    const env = pullHarness();
+    env.fire('touchstart');
+    env.fire('touchmove', 20, ending === 'short' ? 140 : 190);
+    if (ending === 'retracted') env.fire('touchmove', 20, 140);
+    env.fire(ending === 'cancelled' ? 'touchcancel' : 'touchend', 20, 140);
+    assert.equal(env.reloads, 0, ending);
+    assert.equal(env.indicator().hidden, true, ending);
+    env.pull();
+    assert.equal(env.reloads, 1);
+  }
+});
+
+test('normal scrolling and horizontal or upward swipes do not trigger reload', () => {
+  for (const scenario of ['scrolled', 'horizontal', 'upward', 'scroll-during-pull', 'uncancelable']) {
+    const env = pullHarness();
+    if (scenario === 'scrolled') env.document.scrollingElement.scrollTop = 50;
+    env.fire('touchstart');
+    if (scenario === 'scroll-during-pull') env.document.scrollingElement.scrollTop = 50;
+    const event = env.fire('touchmove', scenario === 'horizontal' ? 150 : 20,
+      scenario === 'upward' ? 60 : 190, { cancelable: scenario !== 'uncancelable' });
+    env.fire('touchend', 20, 190);
+    assert.equal(event.defaultPrevented, false, scenario);
+    assert.equal(env.reloads, 0, scenario);
+  }
+});
+
+test('multitouch never reloads and a later single finger gesture can refresh', () => {
+  const env = pullHarness();
+  env.fire('touchstart');
+  env.fire('touchmove', 20, 190);
+  env.fire('touchstart', 20, 190, { touches: [{ identifier: 1 }, { identifier: 2 }] });
+  env.fire('touchend', 20, 190);
+  assert.equal(env.reloads, 0);
+  assert.equal(env.indicator().hidden, true);
+  env.pull();
+  assert.equal(env.reloads, 1);
+});
+
+test('pulls starting in controls, tables and nested scrolling regions are ignored', () => {
+  for (const kind of ['input', 'textarea', 'select', 'button', 'a', 'summary', 'table', 'scroll']) {
+    const env = pullHarness();
+    const target = env.document.createElement(['table', 'scroll'].includes(kind) ? 'div' : kind);
+    if (kind === 'table') target.className = 'table-scroll';
+    if (kind === 'scroll') { target.scrollHeight = 300; target.clientHeight = 100; }
+    env.document.root.append(target);
+    env.fire('touchstart', 20, 100, { target });
+    const event = env.fire('touchmove', 20, 190, { target });
+    env.fire('touchend', 20, 190, { target });
+    assert.equal(event.defaultPrevented, false, kind);
+    assert.equal(env.reloads, 0, kind);
+  }
+});
+
+test('saving and update freeze prevent a reload even when they begin during a pull', () => {
+  for (const field of ['pending', 'frozen']) {
+    for (const duringPull of [false, true]) {
+      const env = pullHarness();
+      env.state[field] = !duringPull;
+      env.fire('touchstart');
+      env.fire('touchmove', 20, 190);
+      env.state[field] = true;
+      env.fire('touchend', 20, 190);
+      assert.equal(env.reloads, 0, field);
+      env.state[field] = false;
+      env.pull();
+      assert.equal(env.reloads, 1, field);
+    }
+  }
+});

@@ -124,6 +124,11 @@ export async function checkPages(directory = defaultOutputDir, { allowIncomplete
   checkedText.set('data/notion-client.mjs', textFiles.get('data/notion-client.mjs')
     .replaceAll('https://api.notion.com/v1', 'NOTION_API')
     .replaceAll('Authorization', 'AUTH_HEADER'));
+  // SVG namespace identifiers create local DOM nodes; they are not network URLs.
+  // Keep the exception scoped to these two element constructors in the view.
+  checkedText.set('ui/view.mjs', textFiles.get('ui/view.mjs')
+    .replaceAll("document.createElementNS('http://www.w3.org/2000/svg', 'svg')", 'SVG_ELEMENT')
+    .replaceAll("document.createElementNS('http://www.w3.org/2000/svg', 'path')", 'SVG_PATH'));
   rejectUnsafeContents(checkedText);
 
   if (includeProbes) {

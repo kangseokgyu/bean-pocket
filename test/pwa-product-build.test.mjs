@@ -69,3 +69,23 @@ self['skip' + 'Waiting']();
   await writeFile(file, original);
   assert.equal(await checkPages(f.outputDir), true);
 });
+
+
+test('SVG namespace is allowed only in UI element creation, never as a request URL', async t => {
+  const f = await fixture(t);
+  await buildPages(f);
+  await checkPages(f.outputDir);
+  const target = path.join(f.outputDir, 'ui/view.mjs');
+  const original = await readFile(target, 'utf8');
+  for (const extra of [
+    "fetch('http://www.w3.org/2000/svg');",
+    "document.createElementNS('https://example.invalid', 'svg');",
+  ]) {
+    await writeFile(target, original + '\n' + extra);
+    await assert.rejects(checkPages(f.outputDir), /외부 URL/);
+  }
+  await writeFile(target, original);
+  const otherModule = path.join(f.outputDir, 'ui/controller.mjs');
+  await writeFile(otherModule, (await readFile(otherModule, 'utf8')) + "\ndocument.createElementNS('http://www.w3.org/2000/svg', 'svg');");
+  await assert.rejects(checkPages(f.outputDir), /외부 URL/);
+});

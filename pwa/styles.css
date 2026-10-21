@@ -266,7 +266,8 @@ button:focus-visible, .table-scroll:focus-visible {
   margin-top: 0;
 }
 
-.tabs .button { min-width: 0; min-height: 48px; padding-inline: 8px; }
+.tabs .button { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 48px; padding-inline: 8px; }
+.nav-icon { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
 .tabs [aria-current="page"] { border-color: #224b3c; background: #224b3c; color: #fff; }
 
 .data-panel { padding: 16px; }

@@ -87,6 +87,11 @@ class TestElement {
 class TestDocument {
   constructor() { this.root = new TestElement('main', this); this.root.id = 'app-root'; }
   createElement(tagName) { return new TestElement(tagName, this); }
+  createElementNS(namespace, tagName) {
+    const node = new TestElement(tagName, this);
+    node.namespaceURI = namespace;
+    return node;
+  }
   querySelector(selector) { return selector === '#app-root' ? this.root : this.root.querySelector(selector); }
   querySelectorAll(selector) { return this.root.querySelectorAll(selector); }
 }

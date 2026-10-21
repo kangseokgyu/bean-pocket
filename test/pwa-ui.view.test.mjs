@@ -91,6 +91,11 @@ class TestElement {
 class TestDocument {
   constructor() { this.root = new TestElement('main', this); this.root.id = 'app-root'; }
   createElement(tagName) { return new TestElement(tagName, this); }
+  createElementNS(namespace, tagName) {
+    const node = new TestElement(tagName, this);
+    node.namespaceURI = namespace;
+    return node;
+  }
   querySelector(selector) { return selector === '#app-root' ? this.root : this.root.querySelector(selector); }
   querySelectorAll(selector) { return this.root.querySelectorAll(selector); }
 }
@@ -512,7 +517,7 @@ test('recipe creation opens from plus, preserves drafts, and closes on cancel', 
   const tab = document.root.querySelector('.tabs').querySelectorAll('[data-route]')
     .find(item => item.dataset.route === '/recipes');
   assert.ok(tab);
-  assert.equal(tab.textContent, '레시피');
+  assert.equal(tab.getAttribute('aria-label'), '레시피');
   const click = async target => {
     for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target });
   };
@@ -565,7 +570,7 @@ test('record creation opens from plus, preserves drafts, and closes on cancel or
     for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target });
   };
   const tab = document.root.querySelector('.tabs').querySelectorAll('[data-route]')
-    .find(item => item.textContent === '추출 기록');
+    .find(item => item.getAttribute('aria-label') === '추출 기록');
   assert.equal(tab.dataset.route, '/records');
   await click(tab);
   let form = document.root.querySelector('form[data-form="records"]');
@@ -848,4 +853,30 @@ test('refresh requires a 240px downward pull and checks the release position', (
   env.fire('touchend', 20, 339);
   env.finishReload();
   assert.equal(env.reloads, 0, 'retracting below 240px at release must cancel');
+});
+
+
+test('navigation uses four distinct decorative icons with accessible menu names', () => {
+  const document = new TestDocument();
+  createAppView(document);
+  const items = document.root.querySelector('nav.tabs').querySelectorAll('button');
+  const expected = [['beans', '원두'], ['bags', '봉지'], ['recipes', '레시피'], ['records', '추출 기록']];
+  assert.equal(items.length, expected.length);
+  const shapes = [];
+  items.forEach((item, index) => {
+    const [key, title] = expected[index];
+    assert.equal(item.dataset.route, `/${key}`);
+    assert.equal(item.dataset.action, 'navigate');
+    assert.equal(item.type, 'button');
+    assert.equal(item.getAttribute('aria-label'), title);
+    assert.equal(item.title, title);
+    assert.equal(item.textContent, '', 'visible text is replaced by an icon');
+    const icon = item.querySelector('svg');
+    assert.ok(icon, `${key} has an SVG icon`);
+    assert.equal(icon.namespaceURI, 'http://www.w3.org/2000/svg');
+    assert.equal(icon.getAttribute('aria-hidden'), 'true');
+    assert.equal(icon.getAttribute('focusable'), 'false');
+    shapes.push(icon.querySelector('path').getAttribute('d'));
+  });
+  assert.equal(new Set(shapes).size, 4, 'menus have distinguishable shapes');
 });

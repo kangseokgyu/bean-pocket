@@ -42,3 +42,18 @@ Chrome DevTools MCP는 제공되지 않아 번들 Playwright와 이미 설치된
 보완 후 `npm test` 391개 모두 통과(종료 0), 일반판 빌드·검사 통과(각 종료 0), 최종 버전 `dc029f248d43`. 근거: final-feature-tests.tap, final-feature-build.txt, final-feature-check.txt. 브라우저에서 12개 살의 서로 다른 불투명도와 애니메이션 0ms/80ms 프레임의 픽셀 차이를 확인했고, 기존 반응형·모션 감소·5개 결과 전환도 재검증했다(browser-results.json). 밝기 외에 스피너 모양이나 기존 제스처 동작 변경은 없으며 변경분 재리뷰에서 병합 차단 사항은 없었다.
 
 첫 게시 실행 39615175976은 성공했으며 `91a96fba0bef`를 게시했다. 아래 최종 게시 기록의 `dc029f248d43`이 최종 검증 대상이다.
+
+## 최종 main 통합 검증
+
+병합 커밋 `45a123a42a72ad44653507265ca8423c19065af5`에서 `npm test`(391개 통과), `npm run build:pages`(`dc029f248d43`), `npm run check:pages` 모두 종료 0. 근거: final-main-tests.tap, final-main-build.txt, final-main-check.txt.
+
+## 최종 게시 및 공개 확인
+
+- 일반판 `probes=false`, 실행 [39615808637](https://github.com/kangseokgyu/bean-pocket/actions/runs/39615808637), 게시 커밋 `45a123a42a72ad44653507265ca8423c19065af5`, 결과 `completed/success`.
+- 공개 주소: https://kangseokgyu.github.io/bean-pocket/
+- 공개 빌드: `dc029f248d43`. 공개 확인 시각: 2026-10-21T14:20:55.746888+00:00.
+- 공개 파일 18개(index, JS, CSS, manifest, icons, SW 포함) 모두 HTTP 200이며 로컬 최종 dist와 SHA-256이 일치한다(public-files.json).
+- 새 격리 Chromium의 390px 화면에서 실제 공개 앱의 저장소 접근을 잠시 지연해 스피너 표시와 연결 패널 숨김을 확인했다. 지연 해제 후 빈 저장소에 맞는 연결 정보 입력 화면으로 전환되고 스피너가 제거됐다. 실행 오류·HTTP 오류 0(public-browser.json, public-checking-mobile.png).
+- 최종 게시 후 추가 변경은 이 검증 기록뿐이다. 앱·테스트·빌더·워크플로가 게시 커밋과 동일한지 비교하며, 검증 대상 변경이 없어 동일 테스트와 재게시는 반복하지 않는다.
+
+실제 iPhone Safari·홈 화면 설치 PWA·실기기 스크린리더 음성 출력·실제 Notion 연결은 여전히 미검증이다. 공개 앱 확인도 새 격리 Chromium과 빈 저장소를 사용했다.

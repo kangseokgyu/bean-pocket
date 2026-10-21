@@ -12,3 +12,10 @@
 - 단순 UI 변경으로 별도 에이전트 구성 없이 직접 수행했다.
 
 실제 브라우저 시각 검사, iPhone 실기기 조작, Notion 실제 쓰기는 실행하지 않았다. 게시 결과는 후속 기록을 따른다.
+
+게시 완료:
+
+- 구현 커밋 `2cd7662c767a6bc0d75c1e1950fdabe0ff0da2ce`를 `origin/main`에 push했다. merge 없이 기존 main에서 이번 변경만 커밋했다.
+- `gh workflow run pages.yml --ref main -f probes=false` 실행 후 [Actions 39544921541](https://github.com/kangseokgyu/bean-pocket/actions/runs/39544921541)의 대상 head 일치 및 build/deploy success를 확인했다. 상세 결과 `/tmp/recipe-pages-result.json`.
+- [공개 사이트](https://kangseokgyu.github.io/bean-pocket/)의 빌드는 `742e8b37c9c9`. HTTPS 파일 18개 모두 HTTP 200이고 로컬 dist와 바이트가 일치했다. [파일 비교 기록](published-https.txt).
+- iPhone 실기기·기존 설치 앱의 빌드 전환·Notion 실제 쓰기 및 브라우저 시각 검사는 미실행이다.

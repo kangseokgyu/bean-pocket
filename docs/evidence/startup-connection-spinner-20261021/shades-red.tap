@@ -1,0 +1,45 @@
+✖ startup checking shows only an accessible spinner until retry is needed (9.418667ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(shades.every(shade => shade > 0 && shade <= 1))
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/startup-connection-spinner/AX-1day/test/pwa-ui.view.test.mjs:139:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }
+
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 96.225125
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:128:1
+✖ startup checking shows only an accessible spinner until retry is needed (9.418667ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(shades.every(shade => shade > 0 && shade <= 1))
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/startup-connection-spinner/AX-1day/test/pwa-ui.view.test.mjs:139:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }

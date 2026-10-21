@@ -30,3 +30,15 @@ Chrome DevTools MCP는 제공되지 않아 번들 Playwright와 이미 설치된
 - 실제 iPhone Safari·홈 화면 PWA와 실기기 스크린리더 음성 출력은 미검증이다. 실제 Notion 통신·기기 간 잠금 경합은 이번 브라우저 검증에서 수행하지 않았다(기존 통합 테스트는 포함).
 - 회귀가 발견되면 이 기능 커밋만 revert하고 동일한 테스트·일반판 검사 후 main에서 pages.yml을 probes=false로 다시 실행한다.
 - main 통합 검증과 게시 실행·공개 버전 확인은 후속 게시 기록에 추가한다.
+
+## main 통합 검증
+
+병합 커밋 `f8eba4d44318c957ce6c5d66e3f57e981573745f`에서 `npm test`(391개 통과), `npm run build:pages`, `npm run check:pages`를 실제 실행했고 모두 종료 0이었다. 통합 빌드도 `91a96fba0bef`다. 근거: main-tests.tap, main-build.txt, main-check.txt.
+
+## 최종 회전 표시 보완
+
+최종 표시 리뷰에서 동일 밝기의 12개 살은 30도 단위 회전 시 모양이 동일하게 보일 수 있음을 확인했다. 기존 당겨서 새로고침의 재로딩 상태와 같은 1/12~1의 불투명도를 초기 스피너에도 적용했다. 선행 테스트는 불투명도 부재로 종료 1로 실패했다(shades-red.tap). 첫 구현의 style.opacity 대입은 과거 증거의 DOM 대역에 style 객체가 없어 전체 테스트 3개가 실패했다(shades-dom-attempt.tap). 기존 생성 방식대로 style 속성에 불투명도를 함께 지정해 해결했으며 테스트 대역이나 기존 테스트는 변경하지 않았다.
+
+보완 후 `npm test` 391개 모두 통과(종료 0), 일반판 빌드·검사 통과(각 종료 0), 최종 버전 `dc029f248d43`. 근거: final-feature-tests.tap, final-feature-build.txt, final-feature-check.txt. 브라우저에서 12개 살의 서로 다른 불투명도와 애니메이션 0ms/80ms 프레임의 픽셀 차이를 확인했고, 기존 반응형·모션 감소·5개 결과 전환도 재검증했다(browser-results.json). 밝기 외에 스피너 모양이나 기존 제스처 동작 변경은 없으며 변경분 재리뷰에서 병합 차단 사항은 없었다.
+
+첫 게시 실행 39615175976은 성공했으며 `91a96fba0bef`를 게시했다. 아래 최종 게시 기록의 `dc029f248d43`이 최종 검증 대상이다.

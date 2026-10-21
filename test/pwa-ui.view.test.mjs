@@ -81,6 +81,7 @@ class TestElement {
     const fields = this.querySelectorAll('input[name],textarea[name],select[name]');
     return Object.fromEntries(fields.map(field => [field.name, field]));
   }
+  get options() { return this.children.filter(child => child.tagName === 'option'); }
   get form() { return this.closest('form'); }
   get firstElementChild() { return this.children[0] ?? null; }
   get lastElementChild() { return this.children.at(-1) ?? null; }
@@ -552,6 +553,57 @@ test('recipe creation opens from plus, preserves drafts, and closes on cancel', 
   assert.equal(document.root.querySelector('.empty-state').textContent, '등록된 레시피가 없습니다.');
   view.renderRoute(`/recipes/${RECIPE}`);
   assert.equal(document.root.querySelector('[data-action="show-recipe-form"]'), null);
+});
+
+test('record creation opens from plus, preserves drafts, and closes on cancel or save', async () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  const dirty = [];
+  view.bind({ setDirty: (...args) => dirty.push(args) });
+  view.renderData(data());
+  const click = async target => {
+    for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target });
+  };
+  const tab = document.root.querySelector('.tabs').querySelectorAll('[data-route]')
+    .find(item => item.textContent === '추출 기록');
+  assert.equal(tab.dataset.route, '/records');
+  await click(tab);
+  let form = document.root.querySelector('form[data-form="records"]');
+  assert.equal(form.hidden, true);
+  const add = document.root.querySelector('[data-action="show-record-form"]');
+  assert.equal(add.getAttribute('aria-label'), '새 추출 기록 추가');
+  assert.equal(add.querySelector('[aria-hidden="true"]').textContent, '+');
+  assert.equal(add.getAttribute('aria-controls'), form.id);
+  assert.equal(add.getAttribute('aria-expanded'), 'false');
+  await click(add);
+  assert.equal(form.hidden, false);
+  assert.equal(add.getAttribute('aria-expanded'), 'true');
+  assert.equal(dirty.length, 0);
+  form.elements.cupNote.value = '보존할 컵노트';
+  view.renderData(data());
+  view.renderRoute('/beans');
+  view.renderRoute('/records');
+  form = document.root.querySelector('form[data-form="records"]');
+  assert.equal(form.hidden, false);
+  assert.equal(form.elements.cupNote.value, '보존할 컵노트');
+  await click(form.querySelector('[data-action="cancel-form"]'));
+  form = document.root.querySelector('form[data-form="records"]');
+  assert.equal(form.hidden, true);
+  assert.equal(form.elements.cupNote.value, '');
+  assert.deepEqual(dirty, [[false, 'records']]);
+  view.renderRoute('/records/new');
+  assert.equal(document.root.querySelector('form[data-form="records"]').hidden, false);
+  view.setState({ pending: true });
+  assert.equal(document.root.querySelector('[data-action="show-record-form"]').disabled, true);
+  view.setState({ pending: false });
+  view.clearDraft('records');
+  assert.equal(document.root.querySelector('form[data-form="records"]').hidden, true);
+  assert.equal(document.root.querySelector('[data-action="show-record-form"]').getAttribute('aria-expanded'), 'false');
+  view.renderRoute(`/recipes/${RECIPE}`);
+  await click(document.root.querySelector('[data-action="new-record"]'));
+  form = document.root.querySelector('form[data-form="records"]');
+  assert.equal(form.hidden, false);
+  assert.equal(form.elements.recipeId.value, RECIPE);
 });
 
 test('refresh uses an accessible icon button and retains the refresh action', async () => {

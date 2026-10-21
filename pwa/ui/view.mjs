@@ -57,6 +57,7 @@ export function createAppView(document = globalThis.document) {
   let beanFormOpen = false;
   let bagFormOpen = false;
   let recipeFormOpen = route === '/recipes/new';
+  let recordFormOpen = route === '/records/new';
   let statusHideTimer;
 
   const status = make(document, 'p', '연결 정보를 확인하고 있습니다.', 'app-status');
@@ -115,7 +116,7 @@ export function createAppView(document = globalThis.document) {
   const nav = make(document, 'nav', undefined, 'tabs');
   nav.setAttribute('aria-label', '커피 기록 메뉴');
   for (const [key, title] of [
-    ['beans', '원두'], ['bags', '봉지'], ['recipes', '레시피'], ['records/new', '추출 기록'],
+    ['beans', '원두'], ['bags', '봉지'], ['recipes', '레시피'], ['records', '추출 기록'],
   ]) {
     const item = button(document, title, 'button', 'navigate');
     item.dataset.route = `/${key}`;
@@ -182,21 +183,23 @@ export function createAppView(document = globalThis.document) {
       if (kind === 'beans') beanFormOpen = false;
       if (kind === 'bags') bagFormOpen = false;
       if (kind === 'recipes') recipeFormOpen = false;
-      if (currentData) renderPane(content, currentData, document, route, drafts, beanFormOpen, recipeFormOpen, bagFormOpen);
+      if (kind === 'records') recordFormOpen = false;
+      if (currentData) renderPane(content, currentData, document, route, drafts, beanFormOpen, recipeFormOpen, bagFormOpen, recordFormOpen);
       applyState(page, currentState);
     },
     renderData(nextData) {
       saveActiveDraft(content, drafts);
       currentData = nextData;
-      renderPane(content, nextData, document, route, drafts, beanFormOpen, recipeFormOpen, bagFormOpen);
+      renderPane(content, nextData, document, route, drafts, beanFormOpen, recipeFormOpen, bagFormOpen, recordFormOpen);
       applyState(page, currentState);
     },
     renderRoute(nextRoute) {
       route = nextRoute || '/beans';
       if (route === '/recipes/new') recipeFormOpen = true;
+      if (route === '/records/new') recordFormOpen = true;
       if (currentData) {
         saveActiveDraft(content, drafts);
-        renderPane(content, currentData, document, route, drafts, beanFormOpen, recipeFormOpen, bagFormOpen);
+        renderPane(content, currentData, document, route, drafts, beanFormOpen, recipeFormOpen, bagFormOpen, recordFormOpen);
         applyState(page, currentState);
       }
     },
@@ -223,6 +226,14 @@ export function createAppView(document = globalThis.document) {
       form.hidden = false;
       content.querySelector('[data-action="show-recipe-form"]')?.setAttribute('aria-expanded', 'true');
       form.elements.name.focus?.();
+    },
+    showRecordForm() {
+      const form = content.querySelector('form[data-form="records"]');
+      if (!form) return;
+      recordFormOpen = true;
+      form.hidden = false;
+      content.querySelector('[data-action="show-record-form"]')?.setAttribute('aria-expanded', 'true');
+      form.elements.date.focus?.();
     },
     showUnresolved(items = []) {
       unresolved.replaceChildren(make(document, 'h2', '확인 대기 중인 저장', 'unresolved-title'));
@@ -388,7 +399,7 @@ function formBase(document, kind, title) {
   return form;
 }
 
-function renderPane(parent, data, document, route = '/beans', drafts = new Map(), beanFormOpen = false, recipeFormOpen = false, bagFormOpen = false) {
+function renderPane(parent, data, document, route = '/beans', drafts = new Map(), beanFormOpen = false, recipeFormOpen = false, bagFormOpen = false, recordFormOpen = false) {
   const parts = route.split('/').filter(Boolean);
   const section = parts[0] ?? 'beans';
   const pane = make(document, 'div', undefined, 'list-view');
@@ -413,6 +424,12 @@ function renderPane(parent, data, document, route = '/beans', drafts = new Map()
     const add = iconButton(document, '+', '새 레시피 추가', 'show-recipe-form');
     add.setAttribute('aria-controls', 'new-recipe-form');
     add.setAttribute('aria-expanded', String(recipeFormOpen));
+    actions.append(add);
+  }
+  if (section === 'records') {
+    const add = iconButton(document, '+', '새 추출 기록 추가', 'show-record-form');
+    add.setAttribute('aria-controls', 'new-record-form');
+    add.setAttribute('aria-expanded', String(recordFormOpen));
     actions.append(add);
   }
   actions.append(iconButton(document, '↻', '최신 목록 새로고침', 'refresh'));
@@ -445,7 +462,10 @@ function renderPane(parent, data, document, route = '/beans', drafts = new Map()
       pane.append(card);
     }
   } else if (section === 'records') {
-    pane.append(buildRecordForm(document, data));
+    const form = buildRecordForm(document, data);
+    form.id = 'new-record-form';
+    form.hidden = !recordFormOpen;
+    pane.append(form);
   } else {
     pane.append(make(document, 'p', '화면을 찾을 수 없습니다. 메뉴에서 이동해 주세요.'));
   }
@@ -772,6 +792,10 @@ function bindEvents({ page, connectionForm, originalConnectionCheck, content, ac
     }
     if (action === 'show-recipe-form') {
       view.showRecipeForm();
+      return;
+    }
+    if (action === 'show-record-form') {
+      view.showRecordForm();
       return;
     }
     if (action === 'cancel-form') {

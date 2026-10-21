@@ -10,3 +10,5 @@
 - 자체 리뷰: 날짜 input에만 적용되며 select·number·textarea 및 날짜 저장 로직 변경 없음. 기존 min-height 46px·포커스 outline 유지. 추가 의존성·외부 요청·사용자 데이터 없음. 초기 브라우저 하네스의 잘못된 API명과 Chrome 경로는 수정 후 재실행했다.
 - 제한: iPhone Safari/홈 화면 실기기, 네이티브 달력 팝업의 실제 터치 조작, 기존 설치 앱의 새 빌드 전환은 직접 확인하지 않았다.
 - 최신 main의 목록 새로고침 버튼 제거 변경을 보존해 통합했다. main 통합 커밋 `bb27054`에서 `npm test` 385/385, `npm run build:pages` (`75e60f7ddb44`), `npm run check:pages`, 브라우저 32회가 모두 종료 코드 0으로 통과했다. 근거: `main-tests.txt`, `main-build.txt`, `main-check.txt`, `main-browser.txt`, `webkit-integrated.png`. 통합 화면에서도 날짜 input이 인접 select와 같은 폭임을 확인했다.
+- 일반판 게시 성공: [Actions 39612466246](https://github.com/kangseokgyu/bean-pocket/actions/runs/39612466246), `probes=false`, 게시 커밋 `3810bf5f0b2016c0faaa0dedea0ad7bca0d83476`.
+- 공개 주소: https://kangseokgyu.github.io/bean-pocket/ · 빌드 `75e60f7ddb44`. 공개 HTML의 버전과 날짜 CSS 규칙을 확인했다. 배포 파일 18개 모두 HTTP 200이고 로컬 dist와 바이트 단위로 일치한다. 결과는 `public-files.json`, 배포 상태는 `deployment.json`에 기록했다. 공개 확인 스크립트 종료 코드 0.

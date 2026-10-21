@@ -1,0 +1,114 @@
+{
+  "url": "https://kangseokgyu.github.io/bean-pocket/",
+  "version": "75e60f7ddb44",
+  "files": [
+    {
+      "file": "app.mjs",
+      "status": 200,
+      "matchesLocal": true,
+      "sha256": "58395ab633d65cce0adf93649b16d00786c2d6a78bcb0e1a07bdad625e9b417f"
+    },
+    {
+      "file": "commands/index.mjs",
+      "status": 200,
+      "matchesLocal": true,
+      "sha256": "df30f21ee4d204e32247cafe3f84c101663ee47647a803b248d0c43843c11475"
+    },
+    {
+      "file": "data/notion-client.mjs",
+      "status": 200,
+      "matchesLocal": true,
+      "sha256": "19483c2880878784b7d5561578c06b56585ddffb08a7988b946270efe3c2d622"
+    },
+    {
+      "file": "data/notion-properties.mjs",
+      "status": 200,
+      "matchesLocal": true,
+      "sha256": "5f7eb632efb042a3a416fd2650aa36fc78370bc681946ac52578d27c49c4930b"
+    },
+    {
+      "file": "data/read-repository.mjs",
+      "status": 200,
+      "matchesLocal": true,
+      "sha256": "3e473b632047c599d321c65dcbaec55924b88257cb1f3ab8a82e1269cab6e612"
+    },
+    {
+      "file": "domain.mjs",
+      "status": 200,
+      "matchesLocal": true,
+      "sha256": "4d314977da96f36def50e254730597fac8171c6a5588146642572c609168c302"
+    },
+    {
+      "file": "icons/icon-192.png",
+      "status": 200,
+      "matchesLocal": true,
+      "sha256": "fed6a73c7549eae8cb25324bab6e5d9f831120b8db329cfa7a66e3bda4296761"
+    },
+    {
+      "file": "icons/icon-512.png",
+      "status": 200,
+      "matchesLocal": true,
+      "sha256": "0b0197281031a51957ae1c3a43037dcef08eb8d8d187f4b6df5eb212d0303316"
+    },
+    {
+      "file": "index.html",
+      "status": 200,
+      "matchesLocal": true,
+      "sha256": "81e82f7af7fdcbb655c68e354509dd556a07223fc577e58f8f3e006e9c845ebb"
+    },
+    {
+      "file": "manifest.webmanifest",
+      "status": 200,
+      "matchesLocal": true,
+      "sha256": "83dc529ee8004d5aa06cf728873d97c04ece2143d3026f275780f293dedb1bdb"
+    },
+    {
+      "file": "platform/app-lifecycle.mjs",
+      "status": 200,
+      "matchesLocal": true,
+      "sha256": "ca5b6d7fc53f473000945a14c6951f39a74c8ba829571cdc2c236e463d77c09b"
+    },
+    {
+      "file": "platform/connection-file.mjs",
+      "status": 200,
+      "matchesLocal": true,
+      "sha256": "11410ac903f9f261ca467b2a5eee613d3b15d9d17831f19609456f4b026dbb98"
+    },
+    {
+      "file": "platform/update-coordinator.mjs",
+      "status": 200,
+      "matchesLocal": true,
+      "sha256": "56015c1ff7738219e963bd29e9b5c77b73d043cf76b6f1698c692b9f4d32bbe7"
+    },
+    {
+      "file": "state/submission-state.mjs",
+      "status": 200,
+      "matchesLocal": true,
+      "sha256": "34c1538e4526ab615e055ae09974944b4f06cd5d9f5541d7bc27065523bde4f4"
+    },
+    {
+      "file": "styles.css",
+      "status": 200,
+      "matchesLocal": true,
+      "sha256": "743e26c2472accdc2dbefa16cfd00ad0ca6b8912438b34a96f805e825104d62f"
+    },
+    {
+      "file": "sw.js",
+      "status": 200,
+      "matchesLocal": true,
+      "sha256": "6efde5f59719f29291aec0c70ba71bee9cb304f93a4a140f621700aaaad38d97"
+    },
+    {
+      "file": "ui/controller.mjs",
+      "status": 200,
+      "matchesLocal": true,
+      "sha256": "79c896847c583d8bfe8aace49780b71f5486728fc924aa86ebc5be5eea8a3b24"
+    },
+    {
+      "file": "ui/view.mjs",
+      "status": 200,
+      "matchesLocal": true,
+      "sha256": "d006814ed95b436b6dab78e9249925f552b88ba4275c0083a5e38fb42468be5e"
+    }
+  ]
+}

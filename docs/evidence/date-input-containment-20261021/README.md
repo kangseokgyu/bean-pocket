@@ -9,3 +9,4 @@
 - 기능 브랜치: `npm test` 385/385 통과 (`tests.txt`), `npm run build:pages` 통과 (`build.txt`, 빌드 `9f737a540245`), `npm run check:pages` 통과 (`check.txt`). 모두 종료 코드 0. `git diff --check` 통과.
 - 자체 리뷰: 날짜 input에만 적용되며 select·number·textarea 및 날짜 저장 로직 변경 없음. 기존 min-height 46px·포커스 outline 유지. 추가 의존성·외부 요청·사용자 데이터 없음. 초기 브라우저 하네스의 잘못된 API명과 Chrome 경로는 수정 후 재실행했다.
 - 제한: iPhone Safari/홈 화면 실기기, 네이티브 달력 팝업의 실제 터치 조작, 기존 설치 앱의 새 빌드 전환은 직접 확인하지 않았다.
+- 최신 main의 목록 새로고침 버튼 제거 변경을 보존해 통합했다. main 통합 커밋 `bb27054`에서 `npm test` 385/385, `npm run build:pages` (`75e60f7ddb44`), `npm run check:pages`, 브라우저 32회가 모두 종료 코드 0으로 통과했다. 근거: `main-tests.txt`, `main-build.txt`, `main-check.txt`, `main-browser.txt`, `webkit-integrated.png`. 통합 화면에서도 날짜 input이 인접 select와 같은 폭임을 확인했다.

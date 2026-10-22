@@ -64,14 +64,33 @@ export function createAppView(document = globalThis.document) {
   let currentState = { frozen: false, pending: false, unresolved: false };
   let statusType = '';
   let statusMessageText = '';
+  let startupMessageText = '';
   function renderStatus() {
     const startupChecking = statusType === 'startup-checking';
     const active = currentState.pending && !startupChecking;
     status.dataset.pending = String(active);
-    statusSpinner.hidden = !active;
     statusMessage.textContent = statusMessageText || (active ? '불러오는 중…' : '');
     status.setAttribute('aria-busy', String(currentState.pending));
     status.hidden = startupChecking || (!active && !statusMessageText);
+
+    loadingSpinner.className = `pull-refresh-spinner ${startupChecking ? 'startup-spinner' : 'operation-spinner'}`;
+    loadingSpinner.hidden = !currentState.pending;
+    loading.hidden = !currentState.pending;
+    loadingSurface.inert = currentState.pending && startupChecking;
+    if (!currentState.pending) {
+      loading.replaceChildren();
+      loading.removeAttribute('aria-hidden');
+      loading.removeAttribute('aria-busy');
+    } else if (startupChecking) {
+      loading.removeAttribute('aria-hidden');
+      loading.setAttribute('aria-busy', 'true');
+      loadingStartupMessage.textContent = startupMessageText;
+      loading.replaceChildren(loadingSpinner, loadingStartupMessage);
+    } else {
+      loading.setAttribute('aria-hidden', 'true');
+      loading.setAttribute('aria-busy', 'true');
+      loading.replaceChildren(loadingSpinner);
+    }
   }
   function scheduleStatusHide() {
     clearTimeout(statusHideTimer);
@@ -95,22 +114,25 @@ export function createAppView(document = globalThis.document) {
   status.hidden = true;
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
-  const statusSpinner = makeSpinner(document);
-  statusSpinner.className += ' operation-spinner';
-  statusSpinner.hidden = true;
   const statusMessage = make(document, 'span', '', 'status-message');
-  status.append(statusSpinner, statusMessage);
+  status.append(statusMessage);
   page.append(status);
 
   const loading = make(document, 'div', undefined, 'startup-loading');
   loading.hidden = true;
   loading.setAttribute('role', 'status');
   loading.setAttribute('aria-live', 'polite');
+  const loadingSpinner = makeSpinner(document);
+  loadingSpinner.hidden = true;
+  const loadingStartupMessage = make(document, 'span', undefined, 'visually-hidden');
   (document.body ?? page).append(loading);
   const loadingSurface = document.querySelector('.page') ?? page;
   function finishStartup() {
+    if (currentState.pending) return;
     loading.hidden = true;
     loading.replaceChildren();
+    loading.removeAttribute('aria-hidden');
+    loading.removeAttribute('aria-busy');
     loadingSurface.inert = false;
   }
 
@@ -204,16 +226,8 @@ export function createAppView(document = globalThis.document) {
       statusType = value?.type ?? '';
       const checking = statusType === 'startup-checking';
       statusMessageText = checking || statusType === 'ready' ? '' : value?.message ?? '';
+      startupMessageText = checking ? value?.message ?? '' : '';
       status.dataset.state = statusType;
-      if (checking) {
-        const spinner = makeSpinner(document);
-        spinner.className += ' startup-spinner';
-        loading.replaceChildren(spinner, make(document, 'span', value.message, 'visually-hidden'));
-        loading.hidden = false;
-        loadingSurface.inert = true;
-      } else {
-        finishStartup();
-      }
       renderStatus();
       scheduleStatusHide();
     },

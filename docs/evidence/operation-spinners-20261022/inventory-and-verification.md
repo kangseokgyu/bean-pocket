@@ -19,9 +19,9 @@ UI triggers covered by these paths are startup/retry, connection form submit, cu
 
 ## Spinner behavior and guards
 
-The shared `.app-status` now contains the existing `makeSpinner` 12-spoke element. It is decorative (`aria-hidden="true"`); the status remains `role="status"`/polite live content and exposes `aria-busy` for the full pending interval. The existing 0.8s stepped animation is disabled by the reduced-motion media query. Success/`ready` status updates and status auto-hide cannot end the spinner while controller pending remains true; the success-message timer resumes only after pending ends. Controller `finally` blocks cover error, validation rejection, failed/uncertain writes, and failed follow-up reads, while existing duplicate-submit and lifecycle guards remain in force.
+The body-level `.startup-loading` overlay now reuses one existing `makeSpinner` 12-spoke element for startup and ordinary pending operations, outside the touch-transformed `.page`. It is decorative (`aria-hidden="true"`); the status remains `role="status"`/polite live content and exposes `aria-busy` for the full pending interval. The existing 0.8s stepped animation is disabled by the reduced-motion media query. Success/`ready` status updates and status auto-hide cannot end the spinner while controller pending remains true; the success-message timer resumes only after pending ends. Controller `finally` blocks cover error, validation rejection, failed/uncertain writes, and failed follow-up reads, while existing duplicate-submit and lifecycle guards remain in force.
 
-## Verification
+## Initial implementation verification (historical)
 
 | Stage | Command | Result |
 | --- | --- | --- |
@@ -44,7 +44,7 @@ Verified existing runtime paths (no installation or profile changes):
 
 Serve the built PWA at `http://127.0.0.1:4196/bean-pocket/`, delay synthetic `/__mock__` requests by about 150–250ms, then verify the operation spinner becomes visible during connection/save, stays visible across `saved`/`ready` and the follow-up query, and hides only after pending completes. Also check its 12 spokes, `aria-hidden`, `aria-busy`, and computed animation under `prefers-reduced-motion: reduce`.
 
-## Critic follow-up (2026-10-22)
+## First Critic follow-up (historical, superseded by body overlay fix)
 
 The P1 review cited Orchestrator's prior 390×844 browser result: at the bottom of the bean form, `scrollY=344` placed the inline spinner outside the viewport (`top=-232.6`, `bottom=-208.6`). Worker did not repeat browser QA. The status element now receives `data-pending="true"` only for ordinary pending work and is fixed below the safe-area top, centered, viewport-width constrained, translucent, and non-intercepting. It remains the single polite live region with `aria-busy`; the spinner stays decorative. Startup checking sets the operation state inactive and continues to show only the existing startup overlay. The operation overlay does not set `inert`; controller pending, duplicate-submit, dirty-draft, and lifecycle-freeze behavior is unchanged. Reduced-motion still disables the shared stepped spinner animation.
 
@@ -60,3 +60,27 @@ The P2 regression now asserts `spinner.hidden === false` for `saving`, `saved`, 
 | Updated Pages check | `npm run check:pages` | Exit 0. See `review-check-pages.log`. |
 
 Browser QA remains assigned to Orchestrator. Recheck the scrolled bean-save case and reduced-motion state against the rebuilt output; the focused test verifies the fixed CSS rule, but Worker did not make a new viewport measurement.
+
+
+## Current body overlay fix and verification (2026-10-22)
+
+Worker role mapping: Hegel = `worker-2`; the creation tool does not support assigning a display name. This continuation follows the user-authorized fallback after the previous Worker Dewey hit its usage limit. No subagents were created. Orchestrator owns main integration and deployment; the next Critic owns mobile browser QA.
+
+Critic reproduced P1 with actual mobile `tap()`: `.page` retains an identity transform after touchstart, establishing the containing block for its fixed descendants. The earlier `.app-status` fixed rule therefore did not keep the spinner in the viewport. See `critic-rereview-c5e1295.md`; its temporary JSON/screenshot/script paths remain in that report.
+
+The current fix shares the existing body-level startup overlay and a single spinner node across startup and ordinary operations. Ordinary work keeps its accessible announcement in the inline `.app-status` and marks the decorative overlay `aria-hidden`; only startup checking makes the page inert. The overlay lasts for controller pending, including success/ready transitions and final reads, and clears after success or failure cleanup. The existing 12-spoke stepped animation and reduced-motion rules both target the shared overlay. The ineffective fixed status rule was removed. Controller behavior and operation inventory above remain unchanged.
+
+The regression fixture places the app inside an idle identity-transformed `.page` under body, then checks body ownership, a single reused node, startup/operation transition, ready and timeout visibility, and cleanup/error retention. These are DOM/CSS regression checks; they do not replace actual mobile viewport measurements.
+
+| Current stage | Command | Result and evidence |
+| --- | --- | --- |
+| Inherited body regression RED | `TZ=UTC node --test test/pwa-ui.view.test.mjs test/pwa-connection.test.mjs` | Exit 1, 57/61 passed. Body ownership/node reuse/ready assertions failed on old code; one null lookup also exposed the test setup issue below. `body-overlay-red.log`. Prior OOM from comparing cyclic mock DOM objects was corrected to identity assertions before this recorded RED (handoff history). |
+| First continuation focused run | Same focused command | Exit 1, 60/61 passed. Test queried a spinner before pending attached it to the overlay; corrected test lookup timing. `body-overlay-first-focused.log`. |
+| Animation selector RED | Same focused command | Exit 1, 60/61 passed. New CSS assertion caught the remaining `.app-status .operation-spinner` animation selector. `body-overlay-css-red.log`. |
+| Final focused GREEN | Same focused command | Exit 0, 61/61 passed, no skipped/cancelled tests. `body-overlay-green-focused.log`. |
+| Latest full suite | `TZ=UTC npm test` with elevation for localhost HTTP tests | Exit 0, 413/413 passed, no skipped/cancelled tests. `body-overlay-npm-test-utc.log`. |
+| Latest Pages build | `npm run build:pages` | Exit 0, version `53411a0d82cf`. `body-overlay-build-pages.log`. |
+| Latest Pages check | `npm run check:pages` | Exit 0. `body-overlay-check-pages.log`. |
+| Whitespace check | `git diff --cached --check` | Exit 0 before commit. Test reporter trailing spaces in saved logs were stripped; original logs remain under `/private/tmp/operation-spinners-body-overlay-*.log`. |
+
+Older 413/413 and build `51e146ba6592` results above belong to the earlier implementation and are not evidence for this fix. The previous browser-results and screenshots also predate this fix. Worker did not run browser QA, live Notion or deployment. Next Critic should verify actual mobile tap save plus cancelled/short pull followed by scrolling to the bottom and saving, including the final follow-up read, reduced motion, and error cleanup, against build `53411a0d82cf`.

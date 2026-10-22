@@ -10,9 +10,9 @@ not ok 1 - operation spinner stays visible through success, ready and timeout, t
   failureType: 'testCodeFailure'
   error: |-
     Expected values to be strictly equal:
-    
+
     true !== false
-    
+
   code: 'ERR_ASSERTION'
   name: 'AssertionError'
   expected: false

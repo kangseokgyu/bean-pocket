@@ -1,0 +1,85 @@
+{
+  "sizes": [
+    {
+      "width": 320,
+      "button": {
+        "x": 254,
+        "y": 188,
+        "width": 46,
+        "height": 46,
+        "right": 300
+      },
+      "card": {
+        "right": 308,
+        "top": 186
+      },
+      "heading": {
+        "right": 242
+      },
+      "color": "rgb(115, 115, 115)",
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "button": {
+        "x": 322,
+        "y": 190,
+        "width": 46,
+        "height": 46,
+        "right": 368
+      },
+      "card": {
+        "right": 376,
+        "top": 188
+      },
+      "heading": {
+        "right": 310
+      },
+      "color": "rgb(115, 115, 115)",
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "button": {
+        "x": 697,
+        "y": 191,
+        "width": 46,
+        "height": 46,
+        "right": 743
+      },
+      "card": {
+        "right": 751,
+        "top": 189
+      },
+      "heading": {
+        "right": 381.234375
+      },
+      "color": "rgb(115, 115, 115)",
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "button": {
+        "x": 1369,
+        "y": 191,
+        "width": 46,
+        "height": 46,
+        "right": 1415
+      },
+      "card": {
+        "right": 1423,
+        "top": 189
+      },
+      "heading": {
+        "right": 381.234375
+      },
+      "color": "rgb(115, 115, 115)",
+      "overflow": false
+    }
+  ],
+  "keyboard": true,
+  "cancelNoWrite": true,
+  "deleteAndRefresh": true,
+  "relatedBeanBlocked": true,
+  "errors": []
+}

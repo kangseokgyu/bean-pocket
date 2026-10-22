@@ -1,0 +1,124 @@
+[
+  {
+    "width": 320,
+    "overlay": {
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 844
+    },
+    "bodyChild": true,
+    "inert": true,
+    "verticalCenter": 0,
+    "animation": "pull-refresh-spin",
+    "label": "inset(50%)",
+    "overflow": false,
+    "center": 0,
+    "retryVisible": false,
+    "formVisible": false
+  },
+  {
+    "fadingSpokes": [
+      "0.0833333",
+      "0.166667",
+      "0.25",
+      "0.333333",
+      "0.416667",
+      "0.5",
+      "0.583333",
+      "0.666667",
+      "0.75",
+      "0.833333",
+      "0.916667",
+      "1"
+    ],
+    "rotationChangesPixels": true
+  },
+  {
+    "width": 390,
+    "overlay": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "bodyChild": true,
+    "inert": true,
+    "verticalCenter": 0,
+    "animation": "pull-refresh-spin",
+    "label": "inset(50%)",
+    "overflow": false,
+    "center": 0,
+    "retryVisible": false,
+    "formVisible": false
+  },
+  {
+    "width": 768,
+    "overlay": {
+      "x": 0,
+      "y": 0,
+      "width": 768,
+      "height": 844
+    },
+    "bodyChild": true,
+    "inert": true,
+    "verticalCenter": 0,
+    "animation": "pull-refresh-spin",
+    "label": "inset(50%)",
+    "overflow": false,
+    "center": 0,
+    "retryVisible": false,
+    "formVisible": false
+  },
+  {
+    "width": 1024,
+    "overlay": {
+      "x": 0,
+      "y": 0,
+      "width": 1024,
+      "height": 844
+    },
+    "bodyChild": true,
+    "inert": true,
+    "verticalCenter": 0,
+    "animation": "pull-refresh-spin",
+    "label": "inset(50%)",
+    "overflow": false,
+    "center": 0,
+    "retryVisible": false,
+    "formVisible": false
+  },
+  {
+    "width": 1440,
+    "overlay": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 844
+    },
+    "bodyChild": true,
+    "inert": true,
+    "verticalCenter": 0,
+    "animation": "pull-refresh-spin",
+    "label": "inset(50%)",
+    "overflow": false,
+    "center": 0,
+    "retryVisible": false,
+    "formVisible": false
+  },
+  {
+    "shippedPage": "connection form visible after no saved connection",
+    "reducedMotion": "none",
+    "outcomes": [
+      "saved",
+      "missing",
+      "error",
+      "recovery",
+      "busy",
+      "read-error",
+      "frozen"
+    ],
+    "errors": [],
+    "badResponses": []
+  }
+]

@@ -1,0 +1,312 @@
+✖ startup checking shows only an accessible spinner until retry is needed (8.246584ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(spinner)
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/fullscreen-startup-loading/AX-1day/test/pwa-ui.view.test.mjs:136:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '=='
+  }
+
+✖ initialization spinner ends on saved (2.9565ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(loading?.querySelector('.startup-spinner'))
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/fullscreen-startup-loading/AX-1day/test/pwa-ui.view.test.mjs:197:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '=='
+  }
+
+✖ initialization spinner ends on missing (0.472208ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(loading?.querySelector('.startup-spinner'))
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/fullscreen-startup-loading/AX-1day/test/pwa-ui.view.test.mjs:197:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '=='
+  }
+
+✖ initialization spinner ends on error (0.595416ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(loading?.querySelector('.startup-spinner'))
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/fullscreen-startup-loading/AX-1day/test/pwa-ui.view.test.mjs:197:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '=='
+  }
+
+✖ initialization spinner ends on recovery (0.623125ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(loading?.querySelector('.startup-spinner'))
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/fullscreen-startup-loading/AX-1day/test/pwa-ui.view.test.mjs:197:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '=='
+  }
+
+✖ initialization spinner ends on busy (0.289083ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(loading?.querySelector('.startup-spinner'))
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/fullscreen-startup-loading/AX-1day/test/pwa-ui.view.test.mjs:197:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '=='
+  }
+
+✖ initialization spinner ends on read-error (0.352459ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(loading?.querySelector('.startup-spinner'))
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/fullscreen-startup-loading/AX-1day/test/pwa-ui.view.test.mjs:197:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '=='
+  }
+
+✖ startup overlay sits outside the transformed page and ready stays silent (0.154667ms)
+  AssertionError [ERR_ASSERTION]: overlay belongs to the body, outside pull-to-refresh transforms
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/fullscreen-startup-loading/AX-1day/test/pwa-ui.view.test.mjs:220:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '=='
+  }
+
+ℹ tests 8
+ℹ suites 0
+ℹ pass 0
+ℹ fail 8
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 109.346375
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:128:1
+✖ startup checking shows only an accessible spinner until retry is needed (8.246584ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(spinner)
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/fullscreen-startup-loading/AX-1day/test/pwa-ui.view.test.mjs:136:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '=='
+  }
+
+test at test/pwa-ui.view.test.mjs:172:3
+✖ initialization spinner ends on saved (2.9565ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(loading?.querySelector('.startup-spinner'))
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/fullscreen-startup-loading/AX-1day/test/pwa-ui.view.test.mjs:197:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '=='
+  }
+
+test at test/pwa-ui.view.test.mjs:172:3
+✖ initialization spinner ends on missing (0.472208ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(loading?.querySelector('.startup-spinner'))
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/fullscreen-startup-loading/AX-1day/test/pwa-ui.view.test.mjs:197:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '=='
+  }
+
+test at test/pwa-ui.view.test.mjs:172:3
+✖ initialization spinner ends on error (0.595416ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(loading?.querySelector('.startup-spinner'))
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/fullscreen-startup-loading/AX-1day/test/pwa-ui.view.test.mjs:197:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '=='
+  }
+
+test at test/pwa-ui.view.test.mjs:172:3
+✖ initialization spinner ends on recovery (0.623125ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(loading?.querySelector('.startup-spinner'))
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/fullscreen-startup-loading/AX-1day/test/pwa-ui.view.test.mjs:197:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '=='
+  }
+
+test at test/pwa-ui.view.test.mjs:172:3
+✖ initialization spinner ends on busy (0.289083ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(loading?.querySelector('.startup-spinner'))
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/fullscreen-startup-loading/AX-1day/test/pwa-ui.view.test.mjs:197:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '=='
+  }
+
+test at test/pwa-ui.view.test.mjs:172:3
+✖ initialization spinner ends on read-error (0.352459ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(loading?.querySelector('.startup-spinner'))
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/fullscreen-startup-loading/AX-1day/test/pwa-ui.view.test.mjs:197:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '=='
+  }
+
+test at test/pwa-ui.view.test.mjs:215:1
+✖ startup overlay sits outside the transformed page and ready stays silent (0.154667ms)
+  AssertionError [ERR_ASSERTION]: overlay belongs to the body, outside pull-to-refresh transforms
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/fullscreen-startup-loading/AX-1day/test/pwa-ui.view.test.mjs:220:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '=='
+  }

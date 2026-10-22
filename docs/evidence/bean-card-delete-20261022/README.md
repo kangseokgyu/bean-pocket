@@ -13,7 +13,7 @@
 
 ## 실행 결과
 
-- `node --test test/pwa-bean-delete.test.mjs`: exit 1, 신규 12개 실패. 삭제 명령·클라이언트 메서드 부재의 의도한 실패([RED](red.tap)).
+- `node --test test/pwa-bean-delete.test.mjs`: exit 1, 신규 11개 실패. 삭제 명령·클라이언트 메서드 부재의 의도한 실패([RED](red.tap)).
 - `node --test test/pwa-ui.view.test.mjs`: exit 1, 휴지통 버튼 부재의 의도한 실패([UI RED](view-red.tap)).
 - 초기 구현 관련 검증: 52개 중 51개 통과. 미확정 복구 대기 시 삭제 버튼 비활성화 누락을 수정했다.
 - `node --test test/pwa-bean-delete.test.mjs test/pwa-ui.view.test.mjs test/pwa-submission-state.test.mjs test/pwa-commands.test.mjs test/pwa-ui.integration.test.mjs`: exit 0, 117/117 통과([관련 결과](focused.tap)).

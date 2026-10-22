@@ -1,0 +1,17 @@
+{
+  "url": "https://kangseokgyu.github.io/bean-pocket/?verify=b59e7562ff54",
+  "build": "b59e7562ff54",
+  "viewport": 390,
+  "geometry": {
+    "x": 0,
+    "y": 0,
+    "width": 390,
+    "height": 844
+  },
+  "backgroundInertWhileLoading": true,
+  "overlayHiddenAndBackgroundRestoredAfterCompletion": true,
+  "spinnerVisibleDuringDelayedStorage": true,
+  "connectionFormAfterEmptyStorage": true,
+  "errors": [],
+  "badResponses": []
+}

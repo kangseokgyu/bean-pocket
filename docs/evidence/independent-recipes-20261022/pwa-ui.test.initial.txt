@@ -1,0 +1,93 @@
+✔ connection settings open only after no saved connection is found (2.22425ms)
+✔ startup checking shows one body overlay until retry is needed (1.764292ms)
+✔ initialization spinner ends on saved (2.115875ms)
+✔ initialization spinner ends on missing (1.072959ms)
+✔ initialization spinner ends on error (0.530833ms)
+✔ initialization spinner ends on recovery (0.716ms)
+✔ initialization spinner ends on busy (2.6325ms)
+✔ initialization spinner ends on read-error (0.521667ms)
+✔ shared loading overlay stays outside transformed page through ready completion (0.920083ms)
+✔ saved connection leaves a header icon that toggles settings without losing input (0.491583ms)
+✔ successful status messages stay visible for three seconds then hide (0.868958ms)
+✔ errors, recovery notices and pending work stay visible after replacing success (0.343625ms)
+✔ operation spinner stays in body overlay outside the touch-transformed page (0.935209ms)
+✔ operation spinner stays visible through success, ready and timeout, then clears on completion or failure (2.609333ms)
+✔ a new success gets a full display interval and empty messages hide immediately (0.17075ms)
+✔ draft values survive tab navigation and a fresh data render (2.258208ms)
+✖ bean, recipe, and record detail text is rendered as text and retains brew details (1.187208ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /V60/. Input:
+
+  '⚙Notion 연결 설정통합 토큰원두 데이터 소스 ID원두 봉지 데이터 소스 ID레시피 데이터 소스 ID레시피 단계 데이터 소스 ID추출 기록 데이터 소스 ID연결 확인 및 저장연결 입력 취소연결 정보는 이 기기의 앱 저장소에 보관됩니다.저장된 연결을 확인하지 못했습니다다른 창이 저장소를 사용 중이면 잠시 기다린 뒤, 연결 정보를 입력하지 말고 다시 시도해 주세요.저장된 연결 다시 읽기연결 저장 확인원본 연결 파일을 직접 확인한 뒤에만 복구할 수 있습니다. 확인이 끝나면 아래 항목을 선택해 주세요.원본 연결 파일의 현재 내용을 직접 확인했습니다.현재 연결을 다시 검증확인 대기 중인 저장원두원두 목록으로원두 <안전>원산지·농장: 시다마 · 테스트 농장이 원두의 추출 기록등록된 추출 기록이 없습니다.'
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-ui.view.test.mjs:477:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '⚙Notion 연결 설정통합 토큰원두 데이터 소스 ID원두 봉지 데이터 소스 ID레시피 데이터 소스 ID레시피 단계 데이터 소스 ID추출 기록 데이터 소스 ID연결 확인 및 저장연결 입력 취소연결 정보는 이 기기의 앱 저장소에 보관됩니다.저장된 연결을 확인하지 못했습니다다른 창이 저장소를 사용 중이면 잠시 기다린 뒤, 연결 정보를 입력하지 말고 다시 시도해 주세요.저장된 연결 다시 읽기연결 저장 확인원본 연결 파일을 직접 확인한 뒤에만 복구할 수 있습니다. 확인이 끝나면 아래 항목을 선택해 주세요.원본 연결 파일의 현재 내용을 직접 확인했습니다.현재 연결을 다시 검증확인 대기 중인 저장원두원두 목록으로원두 <안전>원산지·농장: 시다마 · 테스트 농장이 원두의 추출 기록등록된 추출 기록이 없습니다.',
+    expected: /V60/,
+    operator: 'match'
+  }
+
+✔ resolution controls follow the native journal page-list contract (0.538583ms)
+✔ recipe step time permits a keyboard with colon while retaining minute-second validation (1.541292ms)
+✔ the bean origin label uses user-facing wording rather than the storage field name (0.405542ms)
+✔ the record date default follows the device calendar across the KST UTC boundary (3.812291ms)
+✔ checked connection-recovery checkbox reaches the current-connection verifier (0.592375ms)
+✔ startup lock contention hides connection entry and retries the saved connection read (0.652917ms)
+✔ successful connection replacement preserves the active product draft (1.601042ms)
+✔ successful connection replacement preserves hidden drafts and their dirty signal (2.266917ms)
+✔ recipe input minimums allow every positive sub-cent value accepted by the domain (1.182042ms)
+✔ recipe records distinguish selected bags, no selection, and unavailable bags (17.7935ms)
+✔ bean creation starts hidden, opens from the plus button, and closes on cancel (2.393542ms)
+✔ bag creation starts hidden, opens from the plus button, and closes on cancel (3.283166ms)
+✔ recipe creation opens from plus, preserves drafts, and closes on cancel (8.62225ms)
+✔ record creation opens from plus, preserves drafts, and closes on cancel or save (6.060917ms)
+✔ collection headers omit refresh and retain their add buttons (3.118375ms)
+✔ pulling from the top reloads the entire page once on release (1.007ms)
+✔ pulling progressively reveals a twelve-spoke spinner and moves the page down (0.463542ms)
+✔ work starting while the released spinner paints cancels the scheduled reload (1.037834ms)
+✔ short pulls, retracted pulls and cancelled gestures do not reload (0.885958ms)
+✔ normal scrolling and horizontal or upward swipes do not trigger reload (1.868084ms)
+✔ multitouch never reloads and a later single finger gesture can refresh (0.297458ms)
+✔ downward pulls from controls and their child elements reload the whole page (3.002541ms)
+✔ control taps keep their normal action and short drags suppress accidental taps (0.484583ms)
+✔ horizontal gestures and scrollable controls away from their top keep native scrolling (1.7765ms)
+✔ saving and update freeze prevent a reload even when they begin during a pull (1.042708ms)
+✔ refresh requires a 240px downward pull and checks the release position (2.04125ms)
+✔ navigation uses four distinct decorative icons with accessible menu names (0.172833ms)
+✔ bean cards expose a labelled trash button and require confirmation before deleting (1.010166ms)
+ℹ tests 45
+ℹ suites 0
+ℹ pass 44
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3170.87025
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:470:1
+✖ bean, recipe, and record detail text is rendered as text and retains brew details (1.187208ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /V60/. Input:
+
+  '⚙Notion 연결 설정통합 토큰원두 데이터 소스 ID원두 봉지 데이터 소스 ID레시피 데이터 소스 ID레시피 단계 데이터 소스 ID추출 기록 데이터 소스 ID연결 확인 및 저장연결 입력 취소연결 정보는 이 기기의 앱 저장소에 보관됩니다.저장된 연결을 확인하지 못했습니다다른 창이 저장소를 사용 중이면 잠시 기다린 뒤, 연결 정보를 입력하지 말고 다시 시도해 주세요.저장된 연결 다시 읽기연결 저장 확인원본 연결 파일을 직접 확인한 뒤에만 복구할 수 있습니다. 확인이 끝나면 아래 항목을 선택해 주세요.원본 연결 파일의 현재 내용을 직접 확인했습니다.현재 연결을 다시 검증확인 대기 중인 저장원두원두 목록으로원두 <안전>원산지·농장: 시다마 · 테스트 농장이 원두의 추출 기록등록된 추출 기록이 없습니다.'
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-ui.view.test.mjs:477:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '⚙Notion 연결 설정통합 토큰원두 데이터 소스 ID원두 봉지 데이터 소스 ID레시피 데이터 소스 ID레시피 단계 데이터 소스 ID추출 기록 데이터 소스 ID연결 확인 및 저장연결 입력 취소연결 정보는 이 기기의 앱 저장소에 보관됩니다.저장된 연결을 확인하지 못했습니다다른 창이 저장소를 사용 중이면 잠시 기다린 뒤, 연결 정보를 입력하지 말고 다시 시도해 주세요.저장된 연결 다시 읽기연결 저장 확인원본 연결 파일을 직접 확인한 뒤에만 복구할 수 있습니다. 확인이 끝나면 아래 항목을 선택해 주세요.원본 연결 파일의 현재 내용을 직접 확인했습니다.현재 연결을 다시 검증확인 대기 중인 저장원두원두 목록으로원두 <안전>원산지·농장: 시다마 · 테스트 농장이 원두의 추출 기록등록된 추출 기록이 없습니다.',
+    expected: /V60/,
+    operator: 'match'
+  }

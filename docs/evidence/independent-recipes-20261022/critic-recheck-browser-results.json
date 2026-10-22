@@ -1,0 +1,22 @@
+{
+  "commit": "71f50c424e431265fe286126ae0cbeb7d82b5e67",
+  "cases": [],
+  "build": "a9da5c5ed323",
+  "pwaDetail": "Synthetic recheck recipe\n\n드리퍼 미기록 · 15g · 93℃ · 물 250g\n\n평가 없음 · 0회\n\n단계\t누적 시간\t간격\t이번 물 양\t누적 물 양\n1단계\t0:00\t0초\t250g\t250g\n추출 기록\n\n2026-10-22 · 원두: Synthetic recheck bean · 6/5\n\n기록 오류: 별점(정수 1~5)\n\n스냅샷이 손상되어 당시 조건을 표시할 수 없습니다.\n\n컵노트: Synthetic retained note\n\n원두 봉지: 선택 안 함\n\n이 레시피로 추출 기록이 레시피 복사",
+  "pwaRecords": "2026-10-22 · Synthetic recheck bean\n\n레시피: Synthetic recheck recipe · 6/5\n\n기록 오류: 별점(정수 1~5)\n\n스냅샷이 손상되어 당시 조건을 표시할 수 없습니다.\n\n컵노트: Synthetic retained note\n\n원두 봉지: 선택 안 함",
+  "publicRecords": "2026. 10. 22\n별점: 6/5\n\n원두: Synthetic recheck bean · 레시피: Synthetic recheck recipe\n\n기록 오류: 별점(정수 1~5)\n\n스냅샷이 손상되어 당시 조건을 표시할 수 없습니다.\n\nSynthetic retained note\n\n당시 레시피 확인",
+  "publicDetail": "원두 보관함\n/\nSynthetic recheck recipe\n\nBREW RECIPE\n\nSynthetic recheck recipe\n\n오늘도 같은 취향을 만날 수 있도록.\n\n추출 기록\n레시피 복사\n다시 불러오기\n드리퍼\n미입력\n원두 사용량\n15g\n물 온도\n93℃\n총 물 양\n250g\n분쇄도\n미입력\n물 붓기\n시간과 물 양을 함께 확인하세요\n단계\t누적 시간\t간격\t추가 물\t누적 물\n1단계\t0:00\t0초\t250g\t250g\n한 잔의 기록 1\n＋ 추출 기록\n2026. 10. 22\n별점: 6/5\n\n원두: Synthetic recheck bean · 레시피: Synthetic recheck recipe\n\n기록 오류: 별점(정수 1~5)\n\n스냅샷이 손상되어 당시 조건을 표시할 수 없습니다.\n\nSynthetic retained note\n\n당시 레시피 확인",
+  "server": {
+    "snapshot": null,
+    "snapshotStatus": "damaged",
+    "invalidFields": [
+      "rating"
+    ],
+    "stats": {
+      "count": 0,
+      "average": null
+    }
+  },
+  "errors": [],
+  "external": []
+}

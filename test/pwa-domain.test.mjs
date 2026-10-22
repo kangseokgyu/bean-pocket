@@ -57,10 +57,10 @@ test('정적 모듈의 날짜·정수 별점·원두 관계와 빈 평균 의미
   assert.equal(d.validateBag({ name: '봉지', beanId: 'b' }).roastedOn, null);
   assert.throws(() => d.validateDate('2026-02-30'), d.InputError);
   for (const rating of [0, 6, 1.5, '', [4]]) {
-    assert.throws(() => d.validateRecord({ date: '2026-10-18', rating }, recipe()), d.InputError);
+    assert.throws(() => d.validateRecord({ date: '2026-10-18', rating }, recipe(), { id: 'b' }), d.InputError);
   }
-  assert.throws(() => d.validateRecord({ date: '2026-10-18', rating: 4 }, recipe(), { beanId: 'other' }), d.InputError);
-  assert.equal(d.validateRecord({ date: '2026-10-18', rating: 5 }, recipe()).rating, 5);
+  assert.throws(() => d.validateRecord({ date: '2026-10-18', rating: 4 }, recipe(), { id: 'b' }, { beanId: 'other' }), d.InputError);
+  assert.equal(d.validateRecord({ date: '2026-10-18', rating: 5 }, recipe(), { id: 'b' }).rating, 5);
   assert.deepEqual(d.summarizeRatings([], 'r'), { count: 0, average: null });
   assert.deepEqual(d.summarizeRatings([{ recipeId: 'r', rating: 1 }, { recipeId: 'r', rating: 5 },
     { recipeId: 'other', rating: 5 }], 'r'), { count: 2, average: 3 });
@@ -72,7 +72,7 @@ test('공급 모듈의 복사·스냅샷은 원본 조건·단계·평가를 공
   source.steps[0].id = 'step';
   source.steps[0].recipeId = 'r';
   const copy = d.copyRecipe(source);
-  const snapshot = d.createSnapshot(source);
+  const snapshot = d.createSnapshot({ id: 'b', name: '원두' }, source);
   copy.temperature = 90;
   copy.steps[0].water = 99;
   source.steps[1].water = 1;
@@ -82,8 +82,8 @@ test('공급 모듈의 복사·스냅샷은 원본 조건·단계·평가를 공
   assert.equal(copy.stats, undefined);
   assert.equal(copy.steps[0].id, undefined);
   assert.equal(copy.steps[0].recipeId, undefined);
-  assert.equal(snapshot.temperature, 93);
-  assert.equal(snapshot.steps[1].water, 100);
-  assert.equal(snapshot.stats, undefined);
-  assert.equal(snapshot.version, 1);
+  assert.equal(snapshot.recipe.temperature, 93);
+  assert.equal(snapshot.recipe.steps[1].water, 100);
+  assert.equal(snapshot.recipe.stats, undefined);
+  assert.equal(snapshot.version, 2);
 });

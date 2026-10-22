@@ -1,0 +1,223 @@
+✖ 새 레시피는 원두 관계 없이 검증된다 (0.730417ms)
+  Error: 원두을(를) 입력해 주세요.
+      at requiredText (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/lib/domain.mjs:11:11)
+      at validateRecipe (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/lib/domain.mjs:106:13)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-independent-recipes.test.mjs:90:18)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    status: 400,
+    safeToRetry: true
+  }
+
+✖ 추출 기록은 선택한 원두와 레시피를 각각 보관하고 봉지는 원두와 일치시킨다 (0.128542ms)
+  Error: 원두을(를) 입력해 주세요.
+      at requiredText (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/lib/domain.mjs:11:11)
+      at validateRecipe (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/lib/domain.mjs:106:13)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-independent-recipes.test.mjs:95:39)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    status: 400,
+    safeToRetry: true
+  }
+
+✖ 기록 snapshot v2는 당시 원두 전체 정보와 레시피 조건·단계를 함께 보존한다 (0.148208ms)
+  Error: 원두을(를) 입력해 주세요.
+      at requiredText (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/lib/domain.mjs:11:11)
+      at validateRecipe (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/lib/domain.mjs:106:13)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-independent-recipes.test.mjs:108:39)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    status: 400,
+    safeToRetry: true
+  }
+
+✖ records codec writes the selected bean relation and decodes old rows without it (0.481583ms)
+  TypeError [Error]: Cannot read properties of undefined (reading 'relation')
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-independent-recipes.test.mjs:124:37)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7)
+
+✖ legacy v1 snapshot resolves a record bean when both new relations are absent (0.20025ms)
+  Error: 원두을(를) 입력해 주세요.
+      at requiredText (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/lib/domain.mjs:11:11)
+      at validateRecipe (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/lib/domain.mjs:106:13)
+      at legacyRows (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-independent-recipes.test.mjs:62:39)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-independent-recipes.test.mjs:134:32)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    status: 400,
+    safeToRetry: true
+  }
+
+✖ unresolved legacy bean keeps its record and rating visible as needing confirmation (0.09175ms)
+  Error: 원두을(를) 입력해 주세요.
+      at requiredText (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/lib/domain.mjs:11:11)
+      at validateRecipe (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/lib/domain.mjs:106:13)
+      at legacyRows (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-independent-recipes.test.mjs:62:39)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-independent-recipes.test.mjs:146:32)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    status: 400,
+    safeToRetry: true
+  }
+
+✖ legacy data-source verification accepts a missing records.bean relation for read compatibility (19.788875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + undefined
+  - false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-independent-recipes.test.mjs:172:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+ℹ tests 7
+ℹ suites 0
+ℹ pass 0
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 107.411625
+
+✖ failing tests:
+
+test at test/pwa-independent-recipes.test.mjs:89:1
+✖ 새 레시피는 원두 관계 없이 검증된다 (0.730417ms)
+  Error: 원두을(를) 입력해 주세요.
+      at requiredText (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/lib/domain.mjs:11:11)
+      at validateRecipe (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/lib/domain.mjs:106:13)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-independent-recipes.test.mjs:90:18)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    status: 400,
+    safeToRetry: true
+  }
+
+test at test/pwa-independent-recipes.test.mjs:94:1
+✖ 추출 기록은 선택한 원두와 레시피를 각각 보관하고 봉지는 원두와 일치시킨다 (0.128542ms)
+  Error: 원두을(를) 입력해 주세요.
+      at requiredText (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/lib/domain.mjs:11:11)
+      at validateRecipe (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/lib/domain.mjs:106:13)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-independent-recipes.test.mjs:95:39)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    status: 400,
+    safeToRetry: true
+  }
+
+test at test/pwa-independent-recipes.test.mjs:107:1
+✖ 기록 snapshot v2는 당시 원두 전체 정보와 레시피 조건·단계를 함께 보존한다 (0.148208ms)
+  Error: 원두을(를) 입력해 주세요.
+      at requiredText (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/lib/domain.mjs:11:11)
+      at validateRecipe (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/lib/domain.mjs:106:13)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-independent-recipes.test.mjs:108:39)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    status: 400,
+    safeToRetry: true
+  }
+
+test at test/pwa-independent-recipes.test.mjs:119:1
+✖ records codec writes the selected bean relation and decodes old rows without it (0.481583ms)
+  TypeError [Error]: Cannot read properties of undefined (reading 'relation')
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-independent-recipes.test.mjs:124:37)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7)
+
+test at test/pwa-independent-recipes.test.mjs:133:1
+✖ legacy v1 snapshot resolves a record bean when both new relations are absent (0.20025ms)
+  Error: 원두을(를) 입력해 주세요.
+      at requiredText (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/lib/domain.mjs:11:11)
+      at validateRecipe (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/lib/domain.mjs:106:13)
+      at legacyRows (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-independent-recipes.test.mjs:62:39)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-independent-recipes.test.mjs:134:32)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    status: 400,
+    safeToRetry: true
+  }
+
+test at test/pwa-independent-recipes.test.mjs:145:1
+✖ unresolved legacy bean keeps its record and rating visible as needing confirmation (0.09175ms)
+  Error: 원두을(를) 입력해 주세요.
+      at requiredText (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/lib/domain.mjs:11:11)
+      at validateRecipe (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/lib/domain.mjs:106:13)
+      at legacyRows (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-independent-recipes.test.mjs:62:39)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-independent-recipes.test.mjs:146:32)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    status: 400,
+    safeToRetry: true
+  }
+
+test at test/pwa-independent-recipes.test.mjs:155:1
+✖ legacy data-source verification accepts a missing records.bean relation for read compatibility (19.788875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + undefined
+  - false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-independent-recipes.test.mjs:172:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+command_exit_code=1

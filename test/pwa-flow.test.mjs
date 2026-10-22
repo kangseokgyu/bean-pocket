@@ -44,7 +44,7 @@ test('release modules: connection → beans/bags/recipe → copy → repeated re
   const firstBag = await save('Bag', { name: '첫 봉지', beanId: bean.id, roastedOn: '2026-10-01' });
   await save('Bag', { name: '두 번째 봉지', beanId: bean.id, roastedOn: '2026-10-15' });
   const recipe = await save('Recipe', recipeInput(bean.id));
-  for (const rating of [1, 5]) await save('Record', { recipeId: recipe.id, date: '2026-10-19', rating });
+  for (const rating of [1, 5]) await save('Record', { beanId: bean.id, recipeId: recipe.id, date: '2026-10-19', rating });
   let data = await repository.readAll();
   assert.equal(data.beans[0].origin, '시다마 · 테스트 농장');
   assert.equal(data.bags.length, 2);
@@ -61,10 +61,10 @@ test('release modules: connection → beans/bags/recipe → copy → repeated re
   const original = fake.rows.find(row => row.id === recipe.id);
   original.properties['물 온도(℃)'].number = 91;
   original.last_edited_time = '2026-10-19T01:00:00.000Z';
-  await save('Record', { recipeId: recipe.id, bagId: firstBag.id, date: '2026-10-19', rating: 4 });
+  await save('Record', { beanId: bean.id, recipeId: recipe.id, bagId: firstBag.id, date: '2026-10-19', rating: 4 });
   data = await repository.readAll();
-  assert.deepEqual(data.records.map(record => record.snapshot.temperature), [93, 93, 91]);
-  assert.ok(data.records.every(record => record.snapshot.steps.length === 3));
+  assert.deepEqual(data.records.map(record => record.snapshot.recipe.temperature), [93, 93, 91]);
+  assert.ok(data.records.every(record => record.snapshot.recipe.steps.length === 3));
   assert.equal(native.journal().operations.every(operation => operation.status === 'succeeded'), true);
   assert.equal(JSON.stringify(native.journal()).includes('test-only-credential'), false);
 });

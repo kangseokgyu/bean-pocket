@@ -122,6 +122,7 @@ function harness({ rows = blankRows(), revision = REVISION } = {}) {
   const client = {
     connectionRevision: revision,
     dataSources: DATA_SOURCES,
+    recordBeanRelationSupported: true,
     async createPage(kind, data) {
       assert.equal(state.isLocked(), true, 'Notion create must run under the write lock');
       const operation = state.journal().operations.at(-1);
@@ -346,19 +347,31 @@ test('copy creates a new independent recipe with changed values and rejects a st
   assert.equal(env.calls.filter(call => call.kind === 'recipes').length, 1);
 });
 
-test('copy cannot switch to another bean or use an unavailable source', async () => {
+test('copied recipes stay independent of the legacy bean relation', async () => {
   const env = harness({ rows: { ...blankRows(), beans: [bean(), bean(IDS.otherBean)], recipes: [storedRecipe()] } });
-  await assert.rejects(env.commands.prepareCopy(IDS.recipe, { beanId: IDS.otherBean }));
+  const copy = await env.commands.prepareCopy(IDS.recipe, { beanId: IDS.otherBean });
+  const saved = await env.commands.execute(copy);
+  assert.equal(saved.status, 'succeeded');
+  assert.equal(Object.hasOwn(env.calls.find(call => call.kind === 'recipes').data, 'beanId'), false);
   await assert.rejects(env.commands.prepareCopy(IDS.secondRecipe, {}));
   env.repository.readRecipeForSnapshot = async () => ({ ...storedRecipe(), steps: [] });
   await assert.rejects(env.commands.prepareCopy(IDS.recipe, {}));
-  assert.equal(env.calls.length, 0);
+  assert.equal(env.calls.filter(call => call.kind === 'recipes').length, 1);
+});
+
+test('a recipe can be created without selecting or storing a bean', async () => {
+  const env = harness();
+  const draft = await env.commands.prepareRecipe(recipeInput(null));
+  const result = await env.commands.execute(draft);
+  assert.equal(result.status, 'succeeded');
+  assert.equal(Object.hasOwn(env.calls.find(call => call.kind === 'recipes').data, 'beanId'), false);
 });
 
 test('record stores a fresh complete recipe snapshot and permits repeated same-day intent', async () => {
   const recipe = storedRecipe();
-  const env = harness({ rows: { ...blankRows(), beans: [bean()], bags: [{ id: IDS.bag, beanId: IDS.bean, name: '봄 봉지', roastedOn: '2026-10-01' }], recipes: [recipe] } });
-  const input = { recipeId: IDS.recipe, bagId: IDS.bag, date: '2026-10-19', rating: 5, cupNote: '복숭아와 꿀' };
+  const selectedBean = bean(IDS.otherBean);
+  const env = harness({ rows: { ...blankRows(), beans: [bean(), selectedBean], bags: [{ id: IDS.bag, beanId: IDS.otherBean, name: '봄 봉지', roastedOn: '2026-10-01' }], recipes: [recipe] } });
+  const input = { beanId: IDS.otherBean, recipeId: IDS.recipe, bagId: IDS.bag, date: '2026-10-19', rating: 5, cupNote: '복숭아와 꿀' };
   const first = await env.commands.prepareRecord(input);
   const second = await env.commands.prepareRecord(input);
   assert.notEqual(first.key, second.key);
@@ -370,8 +383,9 @@ test('record stores a fresh complete recipe snapshot and permits repeated same-d
   for (const record of env.rows.records) {
     assert.equal(record.name, '2026-10-19 · V60 기본');
     assert.equal(record.rating, 5);
+    assert.equal(record.beanId, IDS.otherBean);
     assert.equal(record.bagId, IDS.bag);
-    assert.deepEqual(record.snapshot, createSnapshot(storedRecipe()));
+    assert.deepEqual(record.snapshot, createSnapshot(selectedBean, storedRecipe()));
   }
   assert.equal(recipe.temperature, 93);
 });
@@ -381,7 +395,7 @@ test('record blocks a freshly selected bag that belongs to a different bean', as
     ...blankRows(), beans: [bean(), bean(IDS.otherBean)], bags: [{ id: IDS.otherBag, beanId: IDS.otherBean, name: '다른 봉지', roastedOn: null }],
     recipes: [storedRecipe()],
   } });
-  const draft = await env.commands.prepareRecord({ recipeId: IDS.recipe, bagId: IDS.otherBag, date: '2026-10-19', rating: 4 });
+  const draft = await env.commands.prepareRecord({ beanId: IDS.bean, recipeId: IDS.recipe, bagId: IDS.otherBag, date: '2026-10-19', rating: 4 });
   const result = await env.commands.execute(draft);
   assert.equal(result.status, 'failed');
   assert.equal(env.calls.length, 0);
@@ -390,11 +404,39 @@ test('record blocks a freshly selected bag that belongs to a different bean', as
 test('record requires a valid date and an integer rating from one to five', async () => {
   const env = harness();
   for (const input of [
-    { recipeId: IDS.recipe, date: '2026-02-30', rating: 4 },
-    { recipeId: IDS.recipe, date: '2026-10-19', rating: 0 },
-    { recipeId: IDS.recipe, date: '2026-10-19', rating: 4.5 },
+    { beanId: IDS.bean, recipeId: IDS.recipe, date: '2026-02-30', rating: 4 },
+    { beanId: IDS.bean, recipeId: IDS.recipe, date: '2026-10-19', rating: 0 },
+    { beanId: IDS.bean, recipeId: IDS.recipe, date: '2026-10-19', rating: 4.5 },
   ]) await assert.rejects(env.commands.prepareRecord(input));
+  await assert.rejects(env.commands.prepareRecord({ recipeId: IDS.recipe, date: '2026-10-19', rating: 4 }));
   assert.equal(env.calls.length, 0);
+});
+
+test('old record drafts without a bean and unresolved journal entries cannot be resent', async () => {
+  const env = harness({ rows: { ...blankRows(), beans: [bean()], recipes: [storedRecipe()] } });
+  const oldPayload = { recipeId: IDS.recipe, date: '2026-10-19', rating: 4 };
+  await assert.rejects(env.commands.prepareRecord(oldPayload), error => error instanceof Error && /원두/.test(error.message));
+  assert.equal(env.calls.length, 0);
+  assert.equal(env.journal().operations.length, 0);
+
+  env.failures.set(1, unknown);
+  const interrupted = await env.commands.execute(await env.commands.prepareRecord({ ...oldPayload, beanId: IDS.bean }));
+  assert.equal(interrupted.status, 'unknown');
+  const callsAfterUnknown = env.calls.length;
+  await assert.rejects(env.commands.prepareRecord(oldPayload), error => error instanceof Error && /원두/.test(error.message));
+  await assert.rejects(env.commands.execute(await env.commands.prepareRecord({ ...oldPayload, beanId: IDS.bean })),
+    error => error.code === 'unresolved-operation');
+  assert.equal(env.calls.length, callsAfterUnknown);
+  assert.equal(env.journal().operations.filter(operation => operation.kind === 'records').length, 1);
+});
+
+test('records writes fail before journal creation when the connected legacy schema lacks records.bean', async () => {
+  const env = harness({ rows: { ...blankRows(), beans: [bean()], recipes: [storedRecipe()] } });
+  env.client.recordBeanRelationSupported = false;
+  await assert.rejects(env.commands.prepareRecord({ beanId: IDS.bean, recipeId: IDS.recipe, date: '2026-10-19', rating: 4 }),
+    error => error.code === 'schema-unsupported' && error.writeState === 'not-sent');
+  assert.equal(env.calls.length, 0);
+  assert.equal(env.journal().operations.length, 0);
 });
 
 test('T20 rereads the real T15 repository under lock and the saved record round-trips its snapshot', async () => {
@@ -412,6 +454,7 @@ test('T20 rereads the real T15 repository under lock and the saved record round-
   const client = {
     connectionRevision: REVISION,
     dataSources: DATA_SOURCES,
+    recordBeanRelationSupported: true,
     async queryAll(kind) { return structuredClone(rows[kind]); },
     async getPage(id) {
       const page = rows.recipes.find(item => item.id === id);
@@ -429,15 +472,16 @@ test('T20 rereads the real T15 repository under lock and the saved record round-
   };
   const repository = createReadRepository(client);
   const commands = createCommands({ client, repository, submissionState: state.submissionState });
-  const draft = await commands.prepareRecord({ recipeId: IDS.recipe, date: '2026-10-19', rating: 5, cupNote: '복숭아' });
+  const draft = await commands.prepareRecord({ beanId: IDS.bean, recipeId: IDS.recipe, date: '2026-10-19', rating: 5, cupNote: '복숭아' });
   rows.recipes[0] = notionPage('recipes', IDS.recipe, { ...recipeFields, temperature: 91 });
-  const firstSnapshot = createSnapshot(await repository.readRecipeForSnapshot(IDS.recipe));
+  const snapshotBean = { id: IDS.bean, name: '에티오피아', roaster: '', origin: '구지', variety: '', process: '', tastingNotes: '' };
+  const firstSnapshot = createSnapshot(snapshotBean, await repository.readRecipeForSnapshot(IDS.recipe));
   const saved = await commands.execute(draft);
   assert.equal(saved.status, 'succeeded');
 
-  const repeat = await commands.prepareRecord({ recipeId: IDS.recipe, date: '2026-10-19', rating: 1 });
+  const repeat = await commands.prepareRecord({ beanId: IDS.bean, recipeId: IDS.recipe, date: '2026-10-19', rating: 1 });
   rows.recipes[0] = notionPage('recipes', IDS.recipe, { ...recipeFields, temperature: 88 });
-  const secondSnapshot = createSnapshot(await repository.readRecipeForSnapshot(IDS.recipe));
+  const secondSnapshot = createSnapshot(snapshotBean, await repository.readRecipeForSnapshot(IDS.recipe));
   const repeated = await commands.execute(repeat);
   assert.equal(repeated.status, 'succeeded');
 
@@ -446,8 +490,8 @@ test('T20 rereads the real T15 repository under lock and the saved record round-
   assert.equal(reread.records[0].rating + reread.records[1].rating, 6);
   assert.deepEqual(reread.records.find(record => record.rating === 5).snapshot, firstSnapshot);
   assert.deepEqual(reread.records.find(record => record.rating === 1).snapshot, secondSnapshot);
-  assert.equal(firstSnapshot.temperature, 91);
-  assert.equal(secondSnapshot.temperature, 88);
+  assert.equal(firstSnapshot.recipe.temperature, 91);
+  assert.equal(secondSnapshot.recipe.temperature, 88);
   assert.deepEqual(reread.recipes[0].stats, { count: 2, average: 3 });
 });
 

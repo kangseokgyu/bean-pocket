@@ -1,0 +1,15 @@
+✔ 새 레시피는 원두 관계 없이 검증된다 (0.793166ms)
+✔ 추출 기록은 선택한 원두와 레시피를 각각 보관하고 봉지는 원두와 일치시킨다 (5.6185ms)
+✔ 기록 snapshot v2는 당시 원두 전체 정보와 레시피 조건·단계를 함께 보존한다 (0.305167ms)
+✔ records codec writes the selected bean relation and decodes old rows without it (0.682459ms)
+✔ legacy v1 snapshot resolves a record bean when both new relations are absent (2.358542ms)
+✔ unresolved legacy bean keeps its record and rating visible as needing confirmation (0.485417ms)
+✔ legacy data-source verification accepts a missing records.bean relation for read compatibility (19.372666ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 113.847084

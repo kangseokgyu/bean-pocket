@@ -1,0 +1,49 @@
+✖ server-page demo records mark their generated v2 snapshot valid (3.310792ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /snapshotStatus:\s*'valid'/. Input:
+
+  '\n' +
+    '      const recipe = data.recipes.find(item => item.id === payload.recipeId);\n' +
+    '      const bean = data.beans.find(item => item.id === payload.beanId);\n' +
+    '      const bag = data.bags.find(item => item.id === payload.bagId);\n' +
+    '      item = { ...validateRecord(payload, recipe, bean, bag), snapshot: createSnapshot(bean, recipe) };'
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-product-build.test.mjs:16:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '\n      const recipe = data.recipes.find(item => item.id === payload.recipeId);\n      const bean = data.beans.find(item => item.id === payload.beanId);\n      const bag = data.bags.find(item => item.id === payload.bagId);\n      item = { ...validateRecord(payload, recipe, bean, bag), snapshot: createSnapshot(bean, recipe) };',
+    expected: /snapshotStatus:\s*'valid'/,
+    operator: 'match'
+  }
+
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 87.013458
+
+✖ failing tests:
+
+test at test/pwa-product-build.test.mjs:11:1
+✖ server-page demo records mark their generated v2 snapshot valid (3.310792ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /snapshotStatus:\s*'valid'/. Input:
+
+  '\n' +
+    '      const recipe = data.recipes.find(item => item.id === payload.recipeId);\n' +
+    '      const bean = data.beans.find(item => item.id === payload.beanId);\n' +
+    '      const bag = data.bags.find(item => item.id === payload.bagId);\n' +
+    '      item = { ...validateRecord(payload, recipe, bean, bag), snapshot: createSnapshot(bean, recipe) };'
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-product-build.test.mjs:16:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '\n      const recipe = data.recipes.find(item => item.id === payload.recipeId);\n      const bean = data.beans.find(item => item.id === payload.beanId);\n      const bag = data.bags.find(item => item.id === payload.bagId);\n      item = { ...validateRecord(payload, recipe, bean, bag), snapshot: createSnapshot(bean, recipe) };',
+    expected: /snapshotStatus:\s*'valid'/,
+    operator: 'match'
+  }

@@ -36,6 +36,7 @@ export const schemas = {
   },
   records: {
     name: ['기록 이름', 'title'],
+    beanId: ['원두', 'relation'],
     recipeId: ['레시피', 'relation'],
     bagId: ['원두 봉지', 'relation'],
     date: ['날짜', 'date'],
@@ -57,6 +58,9 @@ function richText(value) {
 export function encodeProperties(kind, data) {
   const properties = {};
   for (const [key, [name, type]] of Object.entries(schemas[kind])) {
+    // New recipes are independent of beans; omit the legacy relation so its
+    // stored values remain untouched and old schemas need not expose it.
+    if (kind === 'recipes' && key === 'beanId') continue;
     const value = data[key];
     let encoded;
     if (type === 'title' || type === 'rich_text') {
@@ -78,7 +82,9 @@ export function decodePage(kind, page) {
   for (const [key, [name, type]] of Object.entries(schemas[kind])) {
     const property = page.properties?.[name] ?? {};
     if (type === 'title' || type === 'rich_text') {
-      const text = (property[type] ?? []).map(item => item.plain_text ?? item.text?.content ?? '').join('');
+      const text = (Array.isArray(property[type]) ? property[type] : []).map(item =>
+        typeof item?.plain_text === 'string' ? item.plain_text
+          : typeof item?.text?.content === 'string' ? item.text.content : '').join('');
       if (key === 'snapshot') {
         try {
           result[key] = JSON.parse(text);
@@ -89,11 +95,12 @@ export function decodePage(kind, page) {
         result[key] = text;
       }
     } else if (type === 'relation') {
-      result[key] = property.relation?.length === 1 ? property.relation[0].id : null;
+      result[key] = Array.isArray(property.relation) && property.relation.length === 1 &&
+        typeof property.relation[0]?.id === 'string' ? property.relation[0].id : null;
     } else if (type === 'date') {
-      result[key] = property.date?.start ?? null;
+      result[key] = typeof property.date?.start === 'string' ? property.date.start : null;
     } else {
-      result[key] = property.number ?? null;
+      result[key] = typeof property.number === 'number' && Number.isFinite(property.number) ? property.number : null;
     }
   }
   return result;
@@ -103,5 +110,12 @@ export const relationTargets = {
   bags: { beanId: 'beans' },
   recipes: { beanId: 'beans' },
   steps: { recipeId: 'recipes' },
-  records: { recipeId: 'recipes', bagId: 'bags' },
+  records: { beanId: 'beans', recipeId: 'recipes', bagId: 'bags' },
+};
+
+// Older user databases can be read without the additive relations. Record
+// creation requires records.beanId support and is gated by client.verify().
+export const optionalProperties = {
+  recipes: ['beanId'],
+  records: ['beanId'],
 };

@@ -1,5 +1,10 @@
-import { decodePage, schemas } from './notion-properties.mjs';
-import { summarizeRatings, validateRecord, validateStoredRecipe } from '../domain.mjs';
+import { decodePage, optionalProperties, schemas } from './notion-properties.mjs';
+import {
+  recordValidationIssues,
+  summarizeRatings,
+  validateStoredRecipe,
+  validateStoredSnapshot,
+} from '../domain.mjs';
 
 const KINDS = Object.freeze(['beans', 'bags', 'recipes', 'steps', 'records']);
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -73,8 +78,9 @@ function validateRawProperties(kind, page) {
   const fields = schemas[kind];
   if (!fields || !isRecord(page.properties)) return false;
 
-  for (const [, [name, type]] of Object.entries(fields)) {
+  for (const [field, [name, type]] of Object.entries(fields)) {
     const property = page.properties[name];
+    if (property === undefined && optionalProperties[kind]?.includes(field)) continue;
     if (!isRecord(property) || property.type !== type || !Object.hasOwn(property, type)) return false;
 
     const value = property[type];
@@ -112,30 +118,67 @@ function extractObservedRecipeIds(page) {
   return [...new Set(relation.map(item => normalizeUuid(item?.id)).filter(Boolean))];
 }
 
+function relationIds(property) {
+  if (!Array.isArray(property?.relation)) return [];
+  return [...new Set(property.relation.map(item => normalizeUuid(item?.id)).filter(Boolean))];
+}
+
+function relationState(property) {
+  const present = property !== undefined && property !== null;
+  const valid = property?.type === 'relation' && Array.isArray(property.relation)
+    && typeof property.has_more === 'boolean';
+  return {
+    ids: relationIds(property),
+    complete: !present || (valid && property.has_more === false),
+    present,
+  };
+}
+
+function combineRelationStates(states) {
+  const presentStates = states.filter(state => state?.present);
+  return {
+    ids: [...new Set(presentStates.flatMap(state => state.ids))],
+    complete: presentStates.every(state => state.complete),
+    present: presentStates.length > 0,
+  };
+}
+
 function getRecipeParentCriteria(page) {
   const decoded = decodePage('recipes', page);
+  const beanRelation = relationState(page.properties['원두']);
   return {
     ...decoded,
     id: normalizeUuid(page.id),
-    beanId: extractSingleRelation(page.properties['원두']),
+    beanId: beanRelation.complete && beanRelation.ids.length === 1 ? beanRelation.ids[0] : null,
+    beanRelation,
     sourceId: normalizeUuid(page.parent.data_source_id),
     lastEditedTime: page.last_edited_time,
   };
 }
 
-function isValidRecordSnapshot(snapshot, recipeId, record, bag) {
-  if (!isRecord(snapshot) || snapshot.version !== 1) return false;
-  const snapshotId = normalizeUuid(snapshot.id);
-  const beanId = normalizeUuid(snapshot.beanId);
-  if (snapshotId !== recipeId || !beanId) return false;
-
+function readSnapshot(snapshot, recipeId) {
+  if (!isRecord(snapshot)) return null;
+  const snapshotRecipeId = normalizeUuid(snapshot.version === 2 ? snapshot.recipe?.id : snapshot.id);
+  if (snapshotRecipeId !== recipeId) return null;
   try {
-    validateStoredRecipe(snapshot);
-    validateRecord(record, { id: snapshotId, beanId }, bag);
-    return true;
+    const value = validateStoredSnapshot(snapshot);
+    return {
+      version: value.version,
+      beanId: normalizeUuid(value.version === 2 ? value.bean.id : value.beanId),
+      value,
+    };
   } catch {
-    return false;
+    return null;
   }
+}
+
+function snapshotWasStored(page) {
+  const property = page.properties?.['당시 레시피 스냅샷'];
+  if (property === undefined || property === null) return false;
+  if (property.type !== 'rich_text' || !Array.isArray(property.rich_text)) return true;
+  return property.rich_text.some(item =>
+    (typeof item?.plain_text === 'string' && item.plain_text.length > 0)
+    || (typeof item?.text?.content === 'string' && item.text.content.length > 0));
 }
 
 export function createReadRepository(client) {
@@ -184,7 +227,11 @@ export function createReadRepository(client) {
     // 2. Bags
     const bags = [];
     const bagsById = new Map();
+    const bagBeanRelations = new Map();
     for (const page of rawData.bags) {
+      if (validateRawPage(page, sourceIds.bags)) {
+        bagBeanRelations.set(normalizeUuid(page.id), relationState(page.properties['원두']));
+      }
       if (!validateRawPage(page, sourceIds.bags) || !validateRawProperties('bags', page)) {
         excluded.bags++;
         continue;
@@ -209,10 +256,6 @@ export function createReadRepository(client) {
         continue;
       }
       const criteria = getRecipeParentCriteria(page);
-      if (!criteria.beanId || !beanIdSet.has(criteria.beanId)) {
-        excluded.recipes++;
-        continue;
-      }
       rawRecipeCandidates.push({ page, criteria });
     }
 
@@ -241,6 +284,9 @@ export function createReadRepository(client) {
 
     // 5. Validate complete Recipes and re-read their parents after all queries.
     const validatedRecipes = [];
+    const recipeBeanRelations = new Map(rawData.recipes
+      .filter(page => validateRawPage(page, sourceIds.recipes))
+      .map(page => [normalizeUuid(page.id), relationState(page.properties['원두'])]));
     for (const { page, criteria } of rawRecipeCandidates) {
       const recipeId = criteria.id;
       if (taintedRecipeIds.has(recipeId)) {
@@ -285,35 +331,73 @@ export function createReadRepository(client) {
     // 6. Records retain their stored snapshot, even when the recipe was deleted.
     const records = [];
     for (const page of rawData.records) {
-      if (!validateRawPage(page, sourceIds.records) || !validateRawProperties('records', page)) {
+      if (!validateRawPage(page, sourceIds.records)) {
         excluded.records++;
         continue;
       }
-      const recipeRelation = extractSingleRelation(page.properties['레시피']);
-      if (!recipeRelation) {
-        excluded.records++;
-        continue;
-      }
-      const bagRelation = extractOptionalSingleRelation(page.properties['원두 봉지']);
-      if (!bagRelation) {
-        excluded.records++;
-        continue;
-      }
-
+      const recipeRelationState = relationState(page.properties['레시피']);
+      const recipeIds = recipeRelationState.ids;
       const decoded = decodePage('records', page);
-      const bag = bagRelation.id === null ? null : bagsById.get(bagRelation.id);
-      if (bagRelation.id !== null && !bag) {
-        excluded.records++;
-        continue;
-      }
-      if (!isValidRecordSnapshot(decoded.snapshot, recipeRelation, decoded, bag)) {
-        excluded.records++;
-        continue;
-      }
-
+      const snapshotRecipeId = normalizeUuid(decoded.snapshot?.version === 2 ? decoded.snapshot.recipe?.id : decoded.snapshot?.id);
+      const recipeRelation = recipeIds.length === 1 ? recipeIds[0]
+        : recipeIds.length === 0 ? snapshotRecipeId
+          : recipeIds.includes(snapshotRecipeId) ? snapshotRecipeId : null;
+      const bagRelationState = relationState(page.properties['원두 봉지']);
+      const bagRelation = extractOptionalSingleRelation(page.properties['원두 봉지']);
+      const bagId = bagRelation?.id ?? null;
+      const bag = bagId === null ? null : bagsById.get(bagId);
+      const snapshot = readSnapshot(decoded.snapshot, recipeRelation);
+      const snapshotWasPresent = snapshotWasStored(page);
+      decoded.snapshot = snapshot?.value ?? null;
+      decoded.snapshotStatus = snapshot ? 'valid' : snapshotWasPresent ? 'damaged' : 'missing';
+      const beanRelationState = relationState(page.properties['원두']);
+      const snapshotBeanId = snapshot?.beanId ?? null;
+      const legacyRecipeIds = snapshot?.version === 2 ? []
+        : recipeIds.length ? recipeIds : recipeRelation ? [recipeRelation] : [];
+      const legacyRecipeBeanState = combineRelationStates(legacyRecipeIds
+        .map(id => recipeBeanRelations.get(id)).filter(Boolean));
+      const bagBeanState = combineRelationStates(bagRelationState.ids
+        .map(id => bagBeanRelations.get(id) ?? { ids: [], complete: false, present: true }));
+      const bagBeanIds = bagBeanState.ids;
+      const bagBeanId = bag?.beanId ?? (bagBeanIds.length === 1 ? bagBeanIds[0] : null);
+      const rowBeanIds = beanRelationState.ids;
+      const candidates = [...new Set([
+        ...rowBeanIds,
+        ...(snapshotBeanId ? [snapshotBeanId] : []),
+        ...legacyRecipeBeanState.ids,
+        ...bagBeanIds,
+      ])];
+      const relationEvidence = {
+        bean: beanRelationState,
+        recipe: recipeRelationState,
+        bag: bagRelationState,
+        legacyRecipeBean: legacyRecipeBeanState,
+        bagBean: bagBeanState,
+      };
+      const hasDirectBeanEvidence = rowBeanIds.length > 0 || Boolean(snapshotBeanId);
+      const relationAmbiguous = [beanRelationState, legacyRecipeBeanState]
+        .some(state => state.present && !state.complete)
+        || (!hasDirectBeanEvidence && bagBeanState.present && !bagBeanState.complete);
+      const selectedBeanId = candidates.length === 1 && !relationAmbiguous ? candidates[0] : null;
+      const beanIsKnown = selectedBeanId !== null && beanIdSet.has(selectedBeanId);
+      const bagConflict = bagBeanId !== null && selectedBeanId !== null && bagBeanId !== selectedBeanId;
+      const beanResolution = candidates.length !== 1 || relationAmbiguous || !beanIsKnown || bagConflict
+        ? 'needs-confirmation'
+        : rowBeanIds.includes(selectedBeanId) ? 'relation'
+          : snapshot?.version === 2 ? 'snapshot-v2'
+            : snapshot?.version === 1 && snapshotBeanId ? 'snapshot-v1'
+              : legacyRecipeBeanState.ids.includes(selectedBeanId) ? 'legacy-recipe' : 'bag';
       decoded.id = normalizeUuid(page.id);
       decoded.recipeId = recipeRelation;
-      decoded.bagId = bagRelation.id;
+      decoded.bagId = bagId;
+      decoded.relationEvidence = relationEvidence;
+      if (recipeIds.length > 1 || !recipeRelationState.complete) decoded.recipeCandidates = recipeIds;
+      if (!bagRelation || !bagRelationState.complete) decoded.bagCandidates = bagRelationState.ids;
+      decoded.beanId = selectedBeanId;
+      decoded.beanResolution = beanResolution;
+      if (candidates.length > 1 || relationAmbiguous) decoded.beanCandidates = candidates;
+      const invalidFields = recordValidationIssues(decoded);
+      if (invalidFields.length) decoded.invalidFields = invalidFields;
       records.push(decoded);
     }
 

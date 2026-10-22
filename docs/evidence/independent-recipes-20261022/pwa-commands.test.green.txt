@@ -1,0 +1,32 @@
+✔ createCommands prepares an isolated bean draft and saves optional origin through the shared field (13.60025ms)
+✔ bean name is required before any operation is submitted (0.290708ms)
+✔ bean name alone is sufficient and absent optional fields stay empty (1.2755ms)
+▶ bean writes distinguish a clear rejection from an uncertain response
+  ✔ rejected (1.396542ms)
+  ✔ unknown (1.002333ms)
+✔ bean writes distinguish a clear rejection from an uncertain response (2.723875ms)
+✔ bag relation is checked from the latest repository snapshot inside the write lock (1.167084ms)
+✔ bag saves its own optional roast date and rejects malformed dates before write (0.719458ms)
+✔ old connection revision blocks even a prepared relation write (0.830375ms)
+✔ recipe saves parent then all stages in reverse order after full preflight (2.187417ms)
+✔ any recipe payload over a Notion transport limit is rejected before the parent write (2.753541ms)
+✔ known stage rejection archives the confirmed parent before known stages in reverse order (2.176291ms)
+✔ unknown stage response stops immediately without further create or cleanup writes (0.873666ms)
+✔ failed parent archive prevents child cleanup and preserves the partial recipe (3.631125ms)
+✔ a rejected child archive leaves only that child active and still cleans later known children (1.54725ms)
+✔ copy creates a new independent recipe with changed values and rejects a stale source snapshot (2.293667ms)
+✔ copied recipes stay independent of the legacy bean relation (1.618541ms)
+✔ a recipe can be created without selecting or storing a bean (2.903541ms)
+✔ record stores a fresh complete recipe snapshot and permits repeated same-day intent (2.063125ms)
+✔ record blocks a freshly selected bag that belongs to a different bean (0.476083ms)
+✔ record requires a valid date and an integer rating from one to five (0.217667ms)
+✔ T20 rereads the real T15 repository under lock and the saved record round-trips its snapshot (4.205583ms)
+✔ T18 partial recipe remains hidden by the real T15 completeness check (1.835625ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 137.11225

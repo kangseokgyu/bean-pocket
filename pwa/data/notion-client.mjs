@@ -1,4 +1,4 @@
-import { schemas, relationTargets, encodeProperties } from './notion-properties.mjs';
+import { schemas, relationTargets, optionalProperties, encodeProperties } from './notion-properties.mjs';
 
 const KINDS = Object.freeze(['beans', 'bags', 'recipes', 'steps', 'records']);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -93,6 +93,7 @@ export class NotionClient {
   #connectionRevision;
   #fetch;
   #timeoutMs;
+  #recordBeanRelationSupported = null;
 
   constructor(token, options = {}) {
     try {
@@ -115,6 +116,7 @@ export class NotionClient {
 
   get dataSources() { return this.#dataSources; }
   get connectionRevision() { return this.#connectionRevision; }
+  get recordBeanRelationSupported() { return this.#recordBeanRelationSupported; }
 
   #source(kind) {
     if (typeof kind !== 'string' || !Object.hasOwn(this.#dataSources, kind)) {
@@ -192,18 +194,22 @@ export class NotionClient {
   async verify() {
     for (const kind of KINDS) {
       const sourceId = this.#dataSources[kind];
+      let recordBeanRelationSupported = false;
       await this.#request('/data_sources/' + sourceId, {
         validate: data => {
           if (!record(data) || data.object !== 'data_source' || uuid(data.id) !== sourceId || !record(data.properties)) return false;
           return Object.entries(schemas[kind]).every(([field, [name, type]]) => {
             const property = data.properties[name];
+            if (property === undefined && optionalProperties[kind]?.includes(field)) return true;
             if (!record(property) || property.type !== type) return false;
+            if (kind === 'records' && field === 'beanId') recordBeanRelationSupported = true;
             if (type !== 'relation') return true;
             return record(property.relation) &&
               uuid(property.relation.data_source_id) === this.#dataSources[relationTargets[kind][field]];
           });
         },
       });
+      if (kind === 'records') this.#recordBeanRelationSupported = recordBeanRelationSupported;
     }
     return true;
   }
@@ -240,6 +246,9 @@ export class NotionClient {
 
   async createPage(kind, domainData) {
     const sourceId = this.#source(kind);
+    if (kind === 'records' && this.#recordBeanRelationSupported !== true) {
+      throw failure('schema-unsupported', 'not-sent');
+    }
     let payload;
     try {
       payload = createPayload(kind, domainData, this.#dataSources);

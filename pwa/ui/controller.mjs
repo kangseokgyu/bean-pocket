@@ -20,6 +20,7 @@ const SAFE_MESSAGES = Object.freeze({
   unknown: '저장 여부 확인이 필요합니다. 다시 제출하지 말고 원본을 확인해 주세요.',
   partial: '일부 항목만 저장되었습니다. 원본을 확인한 뒤 복구를 진행해 주세요.',
   'read-failed': '최신 목록을 불러오지 못했습니다. 연결과 권한을 확인해 주세요.',
+  'schema-unsupported': '새 추출 기록을 저장하려면 Notion records 데이터베이스에 ‘원두’ 관계가 필요합니다. 기존 기록 조회는 계속할 수 있습니다.',
   'stale-read': '조회 중 데이터가 바뀌었습니다. 다시 조회해 주세요.',
   'resolution-read-failed': '확인 중 최신 데이터를 읽지 못했습니다. 원본을 확인한 뒤 다시 시도해 주세요.',
   'invalid-resolution': '확인 입력을 처리하지 못했습니다. 원본 상태와 입력한 페이지를 확인해 주세요.',

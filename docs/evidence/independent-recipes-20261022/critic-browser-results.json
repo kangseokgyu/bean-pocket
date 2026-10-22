@@ -1,0 +1,87 @@
+{
+  "commit": "ad966b05c4294fd1c98bf9717a1db56b0773ee6b",
+  "cases": [
+    "recipe created with zero beans",
+    "required bean/recipe/date/rating, max rating, bag scoped to bean and reset, optional bag/cup note save",
+    "bean and recipe filters combine and clear"
+  ],
+  "build": "cfc9a1d03179",
+  "snapshots": [
+    {
+      "version": 2,
+      "bean": {
+        "id": "cccccccc-cccc-4ccc-8ccc-000000000004",
+        "name": "Synthetic bean B",
+        "roaster": "",
+        "origin": "",
+        "variety": "",
+        "process": "",
+        "tastingNotes": ""
+      },
+      "recipe": {
+        "id": "cccccccc-cccc-4ccc-8ccc-000000000001",
+        "name": "Synthetic shared recipe",
+        "dripper": "",
+        "dose": 15,
+        "grind": "",
+        "grinder": "",
+        "grinderSetting": "",
+        "microns": null,
+        "temperature": 93,
+        "totalWater": 250,
+        "steps": [
+          {
+            "id": "cccccccc-cccc-4ccc-8ccc-000000000002",
+            "name": "1단계",
+            "recipeId": "cccccccc-cccc-4ccc-8ccc-000000000001",
+            "order": 1,
+            "seconds": 0,
+            "interval": 0,
+            "water": 250,
+            "cumulativeWater": 250
+          }
+        ]
+      }
+    },
+    {
+      "version": 2,
+      "bean": {
+        "id": "cccccccc-cccc-4ccc-8ccc-000000000003",
+        "name": "Synthetic bean A",
+        "roaster": "",
+        "origin": "",
+        "variety": "",
+        "process": "",
+        "tastingNotes": ""
+      },
+      "recipe": {
+        "id": "cccccccc-cccc-4ccc-8ccc-000000000001",
+        "name": "Synthetic shared recipe",
+        "dripper": "",
+        "dose": 15,
+        "grind": "",
+        "grinder": "",
+        "grinderSetting": "",
+        "microns": null,
+        "temperature": 93,
+        "totalWater": 250,
+        "steps": [
+          {
+            "id": "cccccccc-cccc-4ccc-8ccc-000000000002",
+            "name": "1단계",
+            "recipeId": "cccccccc-cccc-4ccc-8ccc-000000000001",
+            "order": 1,
+            "seconds": 0,
+            "interval": 0,
+            "water": 250,
+            "cumulativeWater": 250
+          }
+        ]
+      }
+    }
+  ],
+  "errorsBeforeMalformed": [],
+  "errorsAfterMalformed": [],
+  "statusAfterMalformed": "",
+  "external": []
+}

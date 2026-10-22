@@ -73,20 +73,21 @@ export function createApp({ fetchImpl = globalThis.fetch, initialToken = process
       return targetRepository.create('bags', bag);
     }
     if (path === '/api/recipes') {
-      requireItem(data.beans, body.beanId, '원두');
+      const recipeInput = { ...body };
+      delete recipeInput.beanId;
       if (body.copyFromId) {
-        const original = requireItem(data.recipes, body.copyFromId, '복사할 레시피');
-        if (original.beanId !== body.beanId) throw new InputError('같은 원두의 레시피를 복사해 주세요.');
+        requireItem(data.recipes, body.copyFromId, '복사할 레시피');
       }
-      return targetRepository.createRecipe(validateRecipe(body));
+      return targetRepository.createRecipe(validateRecipe(recipeInput));
     }
     if (path === '/api/records') {
+      const bean = requireItem(data.beans, body.beanId, '원두');
       const recipe = requireItem(data.recipes, body.recipeId, '레시피');
       validateStoredRecipe(recipe);
       const bag = body.bagId ? requireItem(data.bags, body.bagId, '원두 봉지') : null;
-      const record = validateRecord(body, recipe, bag);
+      const record = validateRecord(body, recipe, bean, bag);
       record.name = `${record.date} · ${recipe.name}`;
-      record.snapshot = createSnapshot(recipe);
+      record.snapshot = createSnapshot(bean, recipe);
       return targetRepository.create('records', record);
     }
     throw new InputError('지원하지 않는 저장 요청입니다.');

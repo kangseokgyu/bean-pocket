@@ -8,6 +8,14 @@ import { checkPages } from '../scripts/check-pages.mjs';
 
 const modules = ['commands/index.mjs', 'ui/controller.mjs', 'ui/view.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs'];
 
+test('server-page demo records mark their generated v2 snapshot valid', async () => {
+  const app = await readFile(new URL('../public/app.js', import.meta.url), 'utf8');
+  const recordBranch = app.match(/if \(kind === 'records'\) \{([\s\S]*?)\n    \}\n    item\.id/);
+  assert.ok(recordBranch, 'the demo record creation branch must remain identifiable');
+  assert.match(recordBranch[1], /snapshot:\s*createSnapshot\(bean,\s*recipe\)/);
+  assert.match(recordBranch[1], /snapshotStatus:\s*'valid'/);
+});
+
 async function fixture(t) {
   const root = await mkdtemp(path.join(os.tmpdir(), 'bean-pocket-release-build-'));
   t.after(() => rm(root, { recursive: true, force: true }));

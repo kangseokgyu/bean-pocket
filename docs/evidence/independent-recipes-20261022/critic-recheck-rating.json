@@ -1,0 +1,109 @@
+{
+  "server": {
+    "record": {
+      "id": "cccccccc-cccc-4ccc-8ccc-000000000005",
+      "name": "2026-10-22 · V60",
+      "beanId": "cccccccc-cccc-4ccc-8ccc-000000000001",
+      "recipeId": "cccccccc-cccc-4ccc-8ccc-000000000002",
+      "bagId": null,
+      "date": "2026-10-22",
+      "rating": 6,
+      "cupNote": "",
+      "snapshot": {
+        "version": 2,
+        "bean": {
+          "id": "cccccccc-cccc-4ccc-8ccc-000000000001",
+          "name": "삭제 테스트 원두",
+          "roaster": "",
+          "origin": "",
+          "variety": "",
+          "process": "",
+          "tastingNotes": ""
+        },
+        "recipe": {
+          "id": "cccccccc-cccc-4ccc-8ccc-000000000002",
+          "name": "V60",
+          "dripper": "",
+          "dose": 15,
+          "grind": "",
+          "grinder": "",
+          "grinderSetting": "",
+          "microns": null,
+          "temperature": 93,
+          "totalWater": 250,
+          "steps": [
+            {
+              "id": "cccccccc-cccc-4ccc-8ccc-000000000004",
+              "name": "1단계",
+              "recipeId": "cccccccc-cccc-4ccc-8ccc-000000000002",
+              "order": 1,
+              "seconds": 0,
+              "interval": 0,
+              "water": 50,
+              "cumulativeWater": 50
+            },
+            {
+              "id": "cccccccc-cccc-4ccc-8ccc-000000000003",
+              "name": "2단계",
+              "recipeId": "cccccccc-cccc-4ccc-8ccc-000000000002",
+              "order": 2,
+              "seconds": 30,
+              "interval": 30,
+              "water": 200,
+              "cumulativeWater": 250
+            }
+          ]
+        }
+      },
+      "beanResolution": "relation",
+      "snapshotStatus": "valid",
+      "relationEvidence": {
+        "bean": {
+          "ids": [
+            "cccccccc-cccc-4ccc-8ccc-000000000001"
+          ],
+          "complete": true,
+          "present": true
+        },
+        "recipe": {
+          "ids": [
+            "cccccccc-cccc-4ccc-8ccc-000000000002"
+          ],
+          "complete": true,
+          "present": true
+        },
+        "bag": {
+          "ids": [],
+          "complete": true,
+          "present": true
+        },
+        "legacyRecipeBean": {
+          "ids": [],
+          "complete": true,
+          "present": false
+        },
+        "bagBean": {
+          "ids": [],
+          "complete": true,
+          "present": false
+        }
+      },
+      "invalidFields": [
+        "rating"
+      ]
+    },
+    "stats": {
+      "count": 0,
+      "average": null
+    }
+  },
+  "invalidFields": [
+    "rating"
+  ],
+  "rating": 6,
+  "resolution": "relation",
+  "stats": {
+    "count": 0,
+    "average": null
+  }
+}

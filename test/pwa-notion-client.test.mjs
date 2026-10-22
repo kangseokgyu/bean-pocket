@@ -10,7 +10,7 @@ const kinds = ['beans', 'bags', 'recipes', 'steps', 'records'];
 const SOURCES = Object.fromEntries(kinds.map((kind, i) => [kind, uuid(i + 1)]));
 const REVISION = uuid(10), PAGE = uuid(20), OTHER = uuid(21);
 const TOKEN = 'unit-credential-only', RAW = 'private-response-sentinel';
-const RELATIONS = { bags: { beanId: 'beans' }, recipes: { beanId: 'beans' }, steps: { recipeId: 'recipes' }, records: { recipeId: 'recipes', bagId: 'bags' } };
+const RELATIONS = { bags: { beanId: 'beans' }, recipes: { beanId: 'beans' }, steps: { recipeId: 'recipes' }, records: { beanId: 'beans', recipeId: 'recipes', bagId: 'bags' } };
 function source(kind) {
   return { object: 'data_source', id: SOURCES[kind], properties: Object.fromEntries(Object.entries(schemas[kind] || {}).map(([key, [name, type]]) =>
     [name, { type, ...(type === 'relation' ? { relation: { data_source_id: SOURCES[RELATIONS[kind][key]] } } : {}) }])) };
@@ -34,6 +34,17 @@ function harness(handler = () => response(200, page()), options = {}) {
     timeoutMs: 100, ...options,
   });
   return { client, calls };
+}
+async function recordsHarness(handler = () => response(200, page(PAGE, 'records')), options = {}) {
+  const { fetchImpl, ...clientOptions } = options;
+  const h = harness((url, init, index) => {
+    const kind = kinds.find(key => init.method === 'GET' && url.endsWith('/data_sources/' + SOURCES[key]));
+    if (kind) return response(200, source(kind));
+    return fetchImpl ? fetchImpl(url, init, index) : handler(url, init, index);
+  }, clientOptions);
+  await h.client.verify();
+  h.calls.length = 0;
+  return h;
 }
 function safe(error, state, code) {
   assert.ok(Object.isFrozen(error));
@@ -94,6 +105,24 @@ test('verify는 object/id/속성 누락·다른 타입·관계의 다른 데이�
     });
     await rejected(client.verify(), 'not-sent', 'invalid-response');
   }
+});
+
+test('legacy 설정은 records.bean 관계 없이 조회 검증을 통과하지만 기록 쓰기는 보내지 않는다', async () => {
+  const { client, calls } = harness(url => {
+    const kind = kinds.find(key => url.endsWith(SOURCES[key]));
+    const sourceValue = source(kind);
+    if (kind === 'recipes') delete sourceValue.properties['원두'];
+    if (kind === 'records') delete sourceValue.properties['원두'];
+    return response(200, sourceValue);
+  });
+  assert.equal(await client.verify(), true);
+  assert.equal(client.recordBeanRelationSupported, false);
+  await assert.rejects(client.createPage('records', { beanId: PAGE, recipeId: OTHER, rating: 4 }), error => {
+    assert.equal(error.code, 'schema-unsupported');
+    assert.equal(error.writeState, 'not-sent');
+    return true;
+  });
+  assert.equal(calls.filter(call => call.init.method === 'POST').length, 0);
 });
 
 test('설정을 복사·정규화하고 client revision·데이터 소스를 불변 캡처한다', async () => {
@@ -184,7 +213,7 @@ test('kind와 UUID의 URL/path 주입은 fetch 전에 차단한다', async () =>
 test('생성은 domain 입력을 공유 encode로 직렬화하며 호출 뒤 입력 변경과 분리한다', async () => {
   const calls = []; let finish;
   const fetchImpl = (url, init) => { calls.push({ url, init }); return new Promise(resolve => { finish = resolve; }); };
-  const { client } = harness(undefined, { fetchImpl });
+  const { client } = await recordsHarness(undefined, { fetchImpl });
   const input = { name: '기록', recipeId: OTHER, bagId: null, date: '2026-10-18', rating: 5, cupNote: '처음', snapshot: { version: 1, steps: [{ water: 50 }] } };
   const expected = encodeProperties('records', structuredClone(input));
   const pending = client.createPage('records', input);
@@ -287,14 +316,16 @@ test('배열·UTF-8 500000byte 한도와 stringify 오류는 fetch 전 안전하
     { dose: { toJSON() { return { nested: Array(101).fill(1) }; } } },
     { dose: 1n }, { dose: NaN }, { dose: { toJSON() { throw new Error(TOKEN + RAW); } } },
   ]) await rejected(client.createPage('recipes', input), 'not-sent');
-  await rejected(client.createPage('records', { cupNote: '가'.repeat(170000) }), 'not-sent', 'payload-limit');
+  const { client: readyClient, calls: readyCalls } = await recordsHarness();
+  await rejected(readyClient.createPage('records', { cupNote: '가'.repeat(170000) }), 'not-sent', 'payload-limit');
   const circular = {}; circular.self = circular;
-  await rejected(client.createPage('records', { snapshot: circular }), 'not-sent');
+  await rejected(readyClient.createPage('records', { snapshot: circular }), 'not-sent');
+  assert.equal(readyCalls.length, 0);
   assert.equal(calls.length, 0);
 });
 
-test('canonical 33속성·긴 snapshot 왕복과 기존 decode 의미·서버 함수 동일성을 유지한다', () => {
-  assert.equal(Object.values(schemas).reduce((sum, fields) => sum + Object.keys(fields).length, 0), 33);
+test('canonical 34속성·긴 snapshot 왕복과 기존 decode 의미·서버 함수 동일성을 유지한다', () => {
+  assert.equal(Object.values(schemas).reduce((sum, fields) => sum + Object.keys(fields).length, 0), 34);
   assert.equal(serverEncode, encodeProperties); assert.equal(serverDecode, decodePage);
   const snapshot = { version: 1, name: '원본', steps: [{ order: 1, seconds: 0, water: 50 }], note: '가'.repeat(5000) };
   const properties = encodeProperties('records', { name: '기록', recipeId: PAGE, snapshot });
@@ -324,7 +355,7 @@ test('5xx·408은 거절로 오해시키는 code가 아닌 http-error로 표시�
 });
 
 test('실제 wire payload의 500000byte 경계를 정확히 적용한다', async () => {
-  const { client, calls } = harness((url, init) => response(200, page(PAGE, 'records')));
+  const { client, calls } = await recordsHarness((url, init) => response(200, page(PAGE, 'records')));
   // request 내 JSON 키를 숫자 속성의 toJSON으로 넓혀 배열/텍스트 한도와 독립적으로 바이트 한도를 검증한다.
   const paddingInput = { rating: { toJSON() { return { padding: '' }; } } };
   const overhead = new TextEncoder().encode(JSON.stringify({ parent: { type: 'data_source_id', data_source_id: SOURCES.records }, properties: encodeProperties('records', paddingInput) })).length;
@@ -360,7 +391,7 @@ test('동기 JSON 해석이 timer를 지연해도 전체 기한을 넘기면 tim
 
 test('client의 긴 스냅샷 wire 분할·응답 raw page·shared decode 왕복을 확인한다', async () => {
   const snapshot = { version: 1, name: '당시 조건', steps: [{ order: 1, seconds: 0, interval: 0, water: 50, cumulativeWater: 50 }], note: '가'.repeat(5000) };
-  const { client, calls } = harness((url, init) => response(200, page(PAGE, 'records', { properties: JSON.parse(init.body).properties })));
+  const { client, calls } = await recordsHarness((url, init) => response(200, page(PAGE, 'records', { properties: JSON.parse(init.body).properties })));
   const returned = await client.createPage('records', { name: '기록', recipeId: OTHER, date: '2026-10-18', rating: 5, snapshot });
   const wire = JSON.parse(calls[0].init.body);
   assert.equal(wire.properties['당시 레시피 스냅샷'].rich_text.length, 3);

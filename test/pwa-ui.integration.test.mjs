@@ -39,13 +39,13 @@ test('controller public flows use real Notion, repository, commands and journal 
   assert.equal(recipe.status, 'succeeded');
   const copied = await app.submit('copy', { recipeId: recipe.value.id, changes: { name: '복사 레시피', temperature: 91 } });
   assert.equal(copied.status, 'succeeded');
-  const record = await app.submit('records', { recipeId: copied.value.id, bagId: bag.value.id,
+  const record = await app.submit('records', { beanId: bean.value.id, recipeId: copied.value.id, bagId: bag.value.id,
     date: '2026-06-15', rating: '5', cupNote: '꿀, 살구' });
   assert.equal(record.status, 'succeeded');
   const latest = events.filter(([type]) => type === 'data').at(-1)[1];
   assert.equal(latest.beans[0].origin, '시다마 · 테스트 농장');
   assert.deepEqual(latest.recipes.find(row => row.id === copied.value.id).stats, { count: 1, average: 5 });
-  assert.equal(latest.records[0].snapshot.steps.length, 3);
+  assert.equal(latest.records[0].snapshot.recipe.steps.length, 3);
   assert.ok(native.journal().operations.every(operation => operation.status === 'succeeded'));
 });
 

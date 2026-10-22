@@ -48,7 +48,7 @@ const makeSpinner = document => {
 
 const idOf = value => String(value ?? '');
 const FORM_KINDS = new Set(['beans', 'bags', 'recipes', 'records']);
-const AUTO_HIDE_STATUS_TYPES = new Set(['ready', 'connected', 'saved', 'resolved', 'cancelled']);
+const AUTO_HIDE_STATUS_TYPES = new Set(['connected', 'saved', 'resolved', 'cancelled']);
 const STATUS_DISPLAY_MS = 3000;
 const SOURCE_FIELDS = Object.freeze([
   ['beans', '원두'], ['bags', '원두 봉지'], ['recipes', '레시피'],
@@ -76,6 +76,18 @@ export function createAppView(document = globalThis.document) {
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
   page.append(status);
+
+  const loading = make(document, 'div', undefined, 'startup-loading');
+  loading.hidden = true;
+  loading.setAttribute('role', 'status');
+  loading.setAttribute('aria-live', 'polite');
+  (document.body ?? page).append(loading);
+  const loadingSurface = document.querySelector('.page') ?? page;
+  function finishStartup() {
+    loading.hidden = true;
+    loading.replaceChildren();
+    loadingSurface.inert = false;
+  }
 
   const connection = make(document, 'section', undefined, 'panel connection-panel');
   connection.id = 'connection-settings';
@@ -162,14 +174,20 @@ export function createAppView(document = globalThis.document) {
   page.append(content);
 
   const view = {
+    finishStartup,
     showStatus(value) {
       clearTimeout(statusHideTimer);
-      status.textContent = value?.message ?? '';
+      const checking = value?.type === 'startup-checking';
+      status.textContent = checking || value?.type === 'ready' ? '' : value?.message ?? '';
       status.dataset.state = value?.type ?? '';
-      if (value?.type === 'startup-checking') {
+      if (checking) {
         const spinner = makeSpinner(document);
         spinner.className += ' startup-spinner';
-        status.replaceChildren(spinner, make(document, 'span', value.message, 'visually-hidden'));
+        loading.replaceChildren(spinner, make(document, 'span', value.message, 'visually-hidden'));
+        loading.hidden = false;
+        loadingSurface.inert = true;
+      } else {
+        finishStartup();
       }
       status.hidden = !status.textContent;
       if (!status.hidden && AUTO_HIDE_STATUS_TYPES.has(value?.type)) {

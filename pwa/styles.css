@@ -168,6 +168,20 @@ p { line-height: 1.6; }
   line-height: 1.55;
 }
 
+.app-status[data-pending="true"] {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 16px);
+  left: 50%;
+  z-index: 101;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  margin: 0;
+  transform: translateX(-50%);
+  background: rgb(250 248 242 / 94%);
+  box-shadow: 0 8px 24px rgb(53 63 46 / 14%);
+  pointer-events: none;
+}
+
 .app-status[data-state="startup-busy"] {
   border-color: #c6b98b;
   background: #fffbed;

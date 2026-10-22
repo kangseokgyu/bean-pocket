@@ -1,0 +1,47 @@
+✖ operation spinner stays visible through success, ready and timeout, then clears on completion or failure (3.727625ms)
+  AssertionError [ERR_ASSERTION]: spinner stays visible during saving
+
+  true !== false
+
+      at assertPendingSpinner (file:///Users/kangseokgyu/.codex/worktrees/operation-spinners/AX-1day/test/pwa-ui.view.test.mjs:332:12)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/operation-spinners/AX-1day/test/pwa-ui.view.test.mjs:342:3)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 91.279
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:325:1
+✖ operation spinner stays visible through success, ready and timeout, then clears on completion or failure (3.727625ms)
+  AssertionError [ERR_ASSERTION]: spinner stays visible during saving
+
+  true !== false
+
+      at assertPendingSpinner (file:///Users/kangseokgyu/.codex/worktrees/operation-spinners/AX-1day/test/pwa-ui.view.test.mjs:332:12)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/operation-spinners/AX-1day/test/pwa-ui.view.test.mjs:342:3)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }

@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { createAppView } from '../pwa/ui/view.mjs';
 import { createAppController } from '../pwa/ui/controller.mjs';
 import { validateRecipe } from '../lib/domain.mjs';
@@ -294,27 +295,75 @@ test('errors, recovery notices and pending work stay visible after replacing suc
   }
 });
 
-test('the operation spinner survives success and ready statuses until shared work completes', () => {
+test('pending operation status stays fixed to the viewport and yields to startup overlay', () => {
+  const stylesheet = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
+  const pendingRule = stylesheet.match(/\.app-status\[data-pending="true"\]\s*\{([^}]*)\}/s);
+  assert.ok(pendingRule, 'pending status needs a dedicated viewport rule');
+  assert.match(pendingRule[1], /position:\s*fixed/);
+  assert.match(pendingRule[1], /pointer-events:\s*none/);
+
+  const document = new TestDocument();
+  document.body = document.createElement('body');
+  const view = createAppView(document);
+  const status = document.root.querySelector('.app-status');
+  const spinner = status.querySelector('.operation-spinner');
+  const loading = document.body.querySelector('.startup-loading');
+  view.setState({ pending: true, frozen: false, unresolved: false });
+  view.showStatus({ type: 'startup-checking', message: '저장된 연결 확인 중' });
+  assert.equal(status.dataset.pending, 'false');
+  assert.equal(spinner.hidden, true);
+  assert.equal(loading.hidden, false);
+  assert.ok(loading.querySelector('.startup-spinner'));
+
+  view.showStatus({ type: 'saving', message: '저장 중입니다.' });
+  assert.equal(loading.hidden, true);
+  assert.equal(status.dataset.pending, 'true');
+  assert.equal(spinner.hidden, false);
+  assert.equal(status.getAttribute('aria-busy'), 'true');
+});
+
+test('operation spinner stays visible through success, ready and timeout, then clears on completion or failure', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
   const document = new TestDocument();
   const view = createAppView(document);
   const status = document.root.querySelector('.app-status');
+  const spinner = status.querySelector('.operation-spinner');
+  const assertPendingSpinner = state => {
+    assert.equal(spinner.hidden, false, `spinner stays visible during ${state}`);
+    assert.equal(status.dataset.pending, 'true');
+    assert.equal(status.getAttribute('aria-busy'), 'true');
+    assert.equal(status.hidden, false);
+  };
+
   view.setState({ pending: true, frozen: false, unresolved: false });
   view.showStatus({ type: 'saving', message: '저장 중입니다.' });
-  const spinner = status.querySelector('.operation-spinner');
-  assert.ok(spinner);
   assert.equal(spinner.getAttribute('aria-hidden'), 'true');
   assert.equal(spinner.children.length, 12);
-  assert.equal(status.getAttribute('aria-busy'), 'true');
+  assertPendingSpinner('saving');
   view.showStatus({ type: 'saved', message: '저장했습니다. 최신 목록을 다시 불러옵니다.' });
-  assert.equal(status.hidden, false, 'auto-hide must not remove the spinner while the follow-up read is pending');
-  assert.equal(status.querySelector('.operation-spinner'), spinner);
+  assertPendingSpinner('saved');
+  t.mock.timers.tick(3500);
+  assertPendingSpinner('saved after status timeout');
   view.showStatus({ type: 'ready', message: '' });
-  assert.equal(status.querySelector('.operation-spinner'), spinner, 'ready clears status text, not active work');
-  assert.equal(status.hidden, false);
+  t.mock.timers.tick(3500);
+  assertPendingSpinner('ready after status timeout');
   view.setState({ pending: false, frozen: false, unresolved: false });
   assert.equal(spinner.hidden, true);
+  assert.equal(status.dataset.pending, 'false');
   assert.equal(status.getAttribute('aria-busy'), 'false');
   assert.equal(status.hidden, true);
+
+  view.setState({ pending: true, frozen: false, unresolved: false });
+  view.showStatus({ type: 'saving', message: '저장 중입니다.' });
+  view.showStatus({ type: 'validation-error', message: '입력 내용을 확인해 주세요.' });
+  t.mock.timers.tick(3500);
+  assertPendingSpinner('failed operation before cleanup');
+  view.setState({ pending: false, frozen: false, unresolved: false });
+  assert.equal(spinner.hidden, true);
+  assert.equal(status.dataset.pending, 'false');
+  assert.equal(status.getAttribute('aria-busy'), 'false');
+  assert.equal(status.hidden, false);
+  assert.equal(status.textContent, '입력 내용을 확인해 주세요.');
 });
 
 test('a new success gets a full display interval and empty messages hide immediately', t => {

@@ -43,3 +43,20 @@ Verified existing runtime paths (no installation or profile changes):
 - Chromium headless shell: `/Users/kangseokgyu/Library/Caches/ms-playwright/chromium_headless_shell-1208/chrome-headless-shell-mac-arm64/chrome-headless-shell`
 
 Serve the built PWA at `http://127.0.0.1:4196/bean-pocket/`, delay synthetic `/__mock__` requests by about 150–250ms, then verify the operation spinner becomes visible during connection/save, stays visible across `saved`/`ready` and the follow-up query, and hides only after pending completes. Also check its 12 spokes, `aria-hidden`, `aria-busy`, and computed animation under `prefers-reduced-motion: reduce`.
+
+## Critic follow-up (2026-10-22)
+
+The P1 review cited Orchestrator's prior 390×844 browser result: at the bottom of the bean form, `scrollY=344` placed the inline spinner outside the viewport (`top=-232.6`, `bottom=-208.6`). Worker did not repeat browser QA. The status element now receives `data-pending="true"` only for ordinary pending work and is fixed below the safe-area top, centered, viewport-width constrained, translucent, and non-intercepting. It remains the single polite live region with `aria-busy`; the spinner stays decorative. Startup checking sets the operation state inactive and continues to show only the existing startup overlay. The operation overlay does not set `inert`; controller pending, duplicate-submit, dirty-draft, and lifecycle-freeze behavior is unchanged. Reduced-motion still disables the shared stepped spinner animation.
+
+The P2 regression now asserts `spinner.hidden === false` for `saving`, `saved`, and `ready`, keeps it visible after 3.5 seconds in both success and ready states, and verifies it hides only after pending ends. The failure path similarly keeps the indicator until cleanup, then hides it while preserving the error message. A focused CSS rule assertion covers viewport positioning and non-interception. The exact `statusSpinner.hidden = true` mutant was applied temporarily: the new test failed at “spinner stays visible during saving” (1 test failed as expected), then the source was restored byte-for-byte. See `review-visibility-mutant.log`.
+
+| Follow-up stage | Command | Result |
+| --- | --- | --- |
+| RED | `TZ=UTC node --test test/pwa-ui.view.test.mjs test/pwa-connection.test.mjs` | Exit 1, 59/61 passed; the two new checks failed because the fixed viewport rule and pending marker were not implemented. See `review-red-focused.log`. |
+| GREEN | `TZ=UTC node --test test/pwa-ui.view.test.mjs test/pwa-connection.test.mjs` | Exit 0, 61/61 passed. See `review-green-focused.log`. |
+| Visibility mutation proof | `TZ=UTC node --test --test-name-pattern='operation spinner stays visible through success' test/pwa-ui.view.test.mjs` with `statusSpinner.hidden = true` temporarily substituted | Exit 1 as expected; the visible-state assertion caught the mutant. Source restored byte-for-byte. See `review-visibility-mutant.log`. |
+| Full required suite | `TZ=UTC npm test` with local test execution elevated | Exit 0, 413/413 passed. See `review-npm-test-utc.log`. |
+| Updated Pages build | `npm run build:pages` | Exit 0; output version `51e146ba6592`. See `review-build-pages.log`. |
+| Updated Pages check | `npm run check:pages` | Exit 0. See `review-check-pages.log`. |
+
+Browser QA remains assigned to Orchestrator. Recheck the scrolled bean-save case and reduced-motion state against the rebuilt output; the focused test verifies the fixed CSS rule, but Worker did not make a new viewport measurement.

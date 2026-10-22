@@ -67,6 +67,7 @@ export function createAppView(document = globalThis.document) {
   function renderStatus() {
     const startupChecking = statusType === 'startup-checking';
     const active = currentState.pending && !startupChecking;
+    status.dataset.pending = String(active);
     statusSpinner.hidden = !active;
     statusMessage.textContent = statusMessageText || (active ? '불러오는 중…' : '');
     status.setAttribute('aria-busy', String(currentState.pending));

@@ -104,13 +104,19 @@ function parseJournal(text) {
     if (value.activeConnectionRevision === null && (!guard || value.operations.length)) throw 0;
     const keys = new Set();
     for (const op of value.operations) {
-      if (!exact(op, ['key', 'kind', 'connectionRevision', 'targetFingerprint', 'payloadFingerprint', 'status', 'createdPages', 'updatedAt']) ||
+      if (!exact(op, ['key', 'kind', 'connectionRevision', 'targetFingerprint', 'payloadFingerprint', 'status', 'createdPages', 'updatedAt', ...(Object.hasOwn(op, 'deleteTarget') ? ['deleteTarget'] : [])]) ||
           !KIND.test(op.kind) || !HASH.test(op.targetFingerprint) || !HASH.test(op.payloadFingerprint) ||
           !STATUSES.includes(op.status) || !Array.isArray(op.createdPages) || typeof op.updatedAt !== 'string' ||
           !Number.isFinite(Date.parse(op.updatedAt))) throw 0;
       op.key = uuid(op.key); op.connectionRevision = uuid(op.connectionRevision);
       if (keys.has(op.key)) throw 0;
       keys.add(op.key);
+      if (op.kind === 'delete-bean') {
+        const target = op.deleteTarget;
+        if (!exact(target, ['kind', 'id', 'archiveState']) || target.kind !== 'beans' ||
+            !ARCHIVE_STATES.includes(target.archiveState) || op.createdPages.length) throw 0;
+        target.id = uuid(target.id);
+      } else if (Object.hasOwn(op, 'deleteTarget')) throw 0;
       const ids = new Set();
       for (const page of op.createdPages) {
         if (!exact(page, ['kind', 'id', 'archiveState']) || !SOURCES.includes(page.kind) || !ARCHIVE_STATES.includes(page.archiveState)) throw 0;
@@ -265,6 +271,9 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
           const operation = { key: draft.key, kind: draft.kind, connectionRevision: draft.connectionRevision,
             targetFingerprint: draft.targetFingerprint, payloadFingerprint: draft.payloadFingerprint, status: 'processing',
             createdPages: [], updatedAt: timestamp() };
+          if (draft.kind === 'delete-bean') {
+            operation.deleteTarget = { kind: 'beans', id: uuid(draft.payload.id), archiveState: 'active' };
+          }
           initial.journal.operations.push(operation);
           await persist(initial.journal);
           ownedKeys.add(draft.key);
@@ -279,11 +288,15 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
             try {
               if (uncertain) throw fail('unresolved-operation');
               if (typeof callback !== 'function' || !exact(options, Object.keys(options)) ||
-                  Object.keys(options).some(key => !['createdKind', 'archiveId'].includes(key)) ||
-                  (options.createdKind && options.archiveId) || (options.createdKind && !SOURCES.includes(options.createdKind))) throw fail('invalid-write');
+                  Object.keys(options).some(key => !['createdKind', 'archiveId', 'deleteId'].includes(key)) ||
+                  ([options.createdKind, options.archiveId, options.deleteId].filter(Boolean).length > 1) || (options.createdKind && !SOURCES.includes(options.createdKind))) throw fail('invalid-write');
               const checked = await check(draft, clientRevision);
               journal = checked.journal; current = checked.operation;
               if (!current || current.status !== 'processing') throw fail('unresolved-operation');
+              const deleteId = options.deleteId === undefined ? null : uuid(options.deleteId);
+              if (current.kind === 'delete-bean') {
+                if (!deleteId || current.deleteTarget.id !== deleteId || current.deleteTarget.archiveState !== 'active') throw fail('invalid-delete');
+              } else if (deleteId) throw fail('invalid-delete');
               const archiveId = options.archiveId === undefined ? null : uuid(options.archiveId);
               archivedPage = archiveId ? current.createdPages.find(item => item.id === archiveId) : null;
               if (archiveId && (!archivedPage || archivedPage.archiveState !== 'active')) throw fail('invalid-archive');
@@ -303,6 +316,10 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
                 if (result?.id?.toLowerCase() !== archiveId || result?.in_trash !== true) throw fail('invalid-write-response', 'unknown');
                 archivedPage.archiveState = 'archived';
               }
+              if (deleteId) {
+                if (result?.id?.toLowerCase() !== deleteId || result?.in_trash !== true) throw fail('invalid-write-response', 'unknown');
+                current.deleteTarget.archiveState = 'archived';
+              }
               confirmed++;
               current.updatedAt = timestamp();
               await persist(journal);
@@ -313,6 +330,11 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
                 try { state = error?.writeState; } catch { /* Untrusted errors are unknown. */ }
                 if (poisoned || !['not-sent', 'rejected'].includes(state)) {
                   uncertain = true;
+                  if (current?.deleteTarget && !poisoned) {
+                    current.deleteTarget.archiveState = 'unknown';
+                    current.updatedAt = timestamp();
+                    await persist(journal);
+                  }
                   if (archivedPage && !poisoned) {
                     archivedPage.archiveState = 'unknown';
                     current.updatedAt = timestamp();
@@ -411,7 +433,14 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
           if (!evidence || evidence.connectionRevision !== op.connectionRevision || evidence.targetFingerprint !== op.targetFingerprint || evidence.outcome !== decision) throw fail('invalid-resolution');
 
           let resolvedPages;
-          if (op.createdPages.length) {
+          let resolvedDeleteTarget;
+          if (op.kind === 'delete-bean') {
+            const target = evidence.deleteTarget;
+            if (!exact(target, ['kind', 'id', 'archiveState']) || target.kind !== 'beans' ||
+                target.id !== op.deleteTarget.id || decision === 'cancelled' ||
+                target.archiveState !== (decision === 'saved' ? 'archived' : 'active')) throw fail('invalid-resolution');
+            resolvedDeleteTarget = canonical(target);
+          } else if (op.createdPages.length) {
             const freshPages = resolutionPages(evidence.createdPages);
             if (freshPages.length !== op.createdPages.length) throw fail('invalid-resolution');
             resolvedPages = canonical(op.createdPages);
@@ -433,6 +462,7 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
           const resolvedOperation = latest.journal.operations.find(item => item.key === operationKey);
           if (!resolvedOperation) throw fail('resolution-changed');
           if (resolvedPages) resolvedOperation.createdPages = resolvedPages;
+          if (resolvedDeleteTarget) resolvedOperation.deleteTarget = resolvedDeleteTarget;
           resolvedOperation.status = decision === 'saved' ? 'succeeded' : 'failed';
           resolvedOperation.updatedAt = timestamp();
           await persist(latest.journal); poisoned = false;

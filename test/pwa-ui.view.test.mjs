@@ -984,3 +984,32 @@ test('navigation uses four distinct decorative icons with accessible menu names'
   });
   assert.equal(new Set(shapes).size, 4, 'menus have distinguishable shapes');
 });
+
+test('bean cards expose a labelled trash button and require confirmation before deleting', async () => {
+  const document = new TestDocument(), view = createAppView(document);
+  view.showConnection({ connected: true });
+  view.renderData(data());
+  const calls = [];
+  view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }), submit: async (...args) => calls.push(args) });
+  const trash = document.root.querySelector('[data-action="delete-bean"]');
+  assert.ok(trash);
+  assert.equal(trash.type, 'button');
+  assert.equal(trash.getAttribute('aria-label'), '원두 <안전> 삭제');
+  assert.ok(trash.querySelector('svg'));
+  assert.equal(trash.dataset.id, BEAN);
+  const original = globalThis.confirm;
+  try {
+    globalThis.confirm = message => { assert.ok(message.includes('원두 <안전>')); return false; };
+    for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: trash });
+    assert.equal(calls.length, 0);
+    globalThis.confirm = () => true;
+    for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: trash });
+    assert.deepEqual(calls, [['delete-bean', { id: BEAN }]]);
+    for (const state of [{ pending: true }, { frozen: true }, { unresolved: true }]) {
+      view.setState(state);
+      assert.equal(trash.disabled, true);
+    }
+  } finally {
+    if (original === undefined) delete globalThis.confirm; else globalThis.confirm = original;
+  }
+});

@@ -1,0 +1,89 @@
+✔ connection settings open only after no saved connection is found (2.304959ms)
+✔ startup checking shows only an accessible spinner until retry is needed (1.410625ms)
+✔ initialization spinner ends on saved (2.166541ms)
+✔ initialization spinner ends on missing (1.184833ms)
+✔ initialization spinner ends on error (0.612292ms)
+✔ initialization spinner ends on recovery (0.646542ms)
+✔ initialization spinner ends on busy (0.457916ms)
+✔ saved connection leaves a header icon that toggles settings without losing input (0.25875ms)
+✔ successful status messages stay visible for three seconds then hide (0.89ms)
+✔ errors, recovery notices and pending work stay visible after replacing success (1.671375ms)
+✔ a new success gets a full display interval and empty messages hide immediately (0.8225ms)
+✔ draft values survive tab navigation and a fresh data render (2.240917ms)
+✔ bean, recipe, and record detail text is rendered as text and retains brew details (1.564958ms)
+✔ resolution controls follow the native journal page-list contract (0.731709ms)
+✔ recipe step time permits a keyboard with colon while retaining minute-second validation (3.05625ms)
+✔ the bean origin label uses user-facing wording rather than the storage field name (0.378958ms)
+✔ the record date default follows the device calendar across the KST UTC boundary (3.831ms)
+✔ checked connection-recovery checkbox reaches the current-connection verifier (0.567834ms)
+✔ startup lock contention hides connection entry and retries the saved connection read (0.529417ms)
+✔ successful connection replacement preserves the active product draft (1.807958ms)
+✔ successful connection replacement preserves hidden drafts and their dirty signal (3.128583ms)
+✔ recipe input minimums allow every positive sub-cent value accepted by the domain (1.433167ms)
+✔ recipe records distinguish selected bags, no selection, and unavailable bags (18.005958ms)
+✔ bean creation starts hidden, opens from the plus button, and closes on cancel (2.385291ms)
+✔ bag creation starts hidden, opens from the plus button, and closes on cancel (3.64425ms)
+✔ recipe creation opens from plus, preserves drafts, and closes on cancel (10.632416ms)
+✔ record creation opens from plus, preserves drafts, and closes on cancel or save (5.45625ms)
+✔ collection headers omit refresh and retain their add buttons (2.928459ms)
+✔ pulling from the top reloads the entire page once on release (1.254084ms)
+✔ pulling progressively reveals a twelve-spoke spinner and moves the page down (0.810875ms)
+✔ work starting while the released spinner paints cancels the scheduled reload (0.810417ms)
+✔ short pulls, retracted pulls and cancelled gestures do not reload (1.297375ms)
+✔ normal scrolling and horizontal or upward swipes do not trigger reload (1.689583ms)
+✔ multitouch never reloads and a later single finger gesture can refresh (0.36125ms)
+✔ downward pulls from controls and their child elements reload the whole page (3.23625ms)
+✔ control taps keep their normal action and short drags suppress accidental taps (0.422708ms)
+✔ horizontal gestures and scrollable controls away from their top keep native scrolling (0.973334ms)
+✔ saving and update freeze prevent a reload even when they begin during a pull (0.942667ms)
+✔ refresh requires a 240px downward pull and checks the release position (2.190958ms)
+✔ navigation uses four distinct decorative icons with accessible menu names (0.20575ms)
+✖ bean cards expose a labelled trash button and require confirmation before deleting (6.353542ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(trash)
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/bean-card-delete/AX-1day/test/pwa-ui.view.test.mjs:966:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '=='
+  }
+
+ℹ tests 41
+ℹ suites 0
+ℹ pass 40
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3174.424834
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:959:1
+✖ bean cards expose a labelled trash button and require confirmation before deleting (6.353542ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(trash)
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/bean-card-delete/AX-1day/test/pwa-ui.view.test.mjs:966:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '=='
+  }

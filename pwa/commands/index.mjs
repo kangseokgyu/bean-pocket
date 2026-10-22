@@ -179,6 +179,11 @@ export function createCommands({ client, repository, submissionState } = {}) {
     return prepare('beans', validateBean(inputObject(payload, '원두')));
   }
 
+  async function prepareDeleteBean(payload) {
+    const input = inputObject(payload, '삭제할 원두');
+    return prepare('delete-bean', { id: normalizedId(input.id, '원두') });
+  }
+
   async function prepareBag(payload) {
     return prepare('bags', normalizedBagInput(payload));
   }
@@ -290,6 +295,16 @@ export function createCommands({ client, repository, submissionState } = {}) {
         }
 
         const latest = await repository.readAll();
+        if (metadata.kind === 'delete-bean') {
+          requireBean(latest, payload.id);
+          if (!Array.isArray(latest.bags) || !Array.isArray(latest.recipes) ||
+              latest.bags.some(bag => bag.beanId === payload.id) ||
+              latest.recipes.some(recipe => recipe.beanId === payload.id) ||
+              Object.values(latest.excluded ?? {}).some(count => count > 0)) {
+            throw new InputError('연결된 봉지·레시피 또는 확인할 수 없는 데이터가 있어 삭제할 수 없습니다.');
+          }
+          return operation.write(() => client.archiveBean(payload.id), { deleteId: payload.id });
+        }
         if (metadata.kind === 'bags') {
           requireBean(latest, payload.beanId);
           validateCreatePayload('bags', payload, client.dataSources);
@@ -326,5 +341,5 @@ export function createCommands({ client, repository, submissionState } = {}) {
     ));
   }
 
-  return Object.freeze({ prepareBean, prepareBag, prepareRecipe, prepareRecord, prepareCopy, execute });
+  return Object.freeze({ prepareBean, prepareDeleteBean, prepareBag, prepareRecipe, prepareRecord, prepareCopy, execute });
 }

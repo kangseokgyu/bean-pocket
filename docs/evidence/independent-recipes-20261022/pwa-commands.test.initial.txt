@@ -1,0 +1,153 @@
+✔ createCommands prepares an isolated bean draft and saves optional origin through the shared field (11.027083ms)
+✔ bean name is required before any operation is submitted (0.3985ms)
+✔ bean name alone is sufficient and absent optional fields stay empty (1.149375ms)
+▶ bean writes distinguish a clear rejection from an uncertain response
+  ✔ rejected (1.250916ms)
+  ✔ unknown (0.880958ms)
+✔ bean writes distinguish a clear rejection from an uncertain response (2.423708ms)
+✔ bag relation is checked from the latest repository snapshot inside the write lock (1.164708ms)
+✔ bag saves its own optional roast date and rejects malformed dates before write (0.719041ms)
+✔ old connection revision blocks even a prepared relation write (0.84375ms)
+✔ recipe saves parent then all stages in reverse order after full preflight (1.979833ms)
+✔ any recipe payload over a Notion transport limit is rejected before the parent write (2.793292ms)
+✔ known stage rejection archives the confirmed parent before known stages in reverse order (2.21325ms)
+✔ unknown stage response stops immediately without further create or cleanup writes (0.87625ms)
+✔ failed parent archive prevents child cleanup and preserves the partial recipe (1.609958ms)
+✔ a rejected child archive leaves only that child active and still cleans later known children (1.43925ms)
+✔ copy creates a new independent recipe with changed values and rejects a stale source snapshot (2.16825ms)
+✖ copy cannot switch to another bean or use an unavailable source (0.570958ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-commands.test.mjs:351:3)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'rejects'
+  }
+
+✖ record stores a fresh complete recipe snapshot and permits repeated same-day intent (0.520833ms)
+  Error: 원두을(를) 선택해 주세요.
+      at normalizedId (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/pwa/commands/index.mjs:60:68)
+      at normalizedRecordInput (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/pwa/commands/index.mjs:148:18)
+      at Object.prepareRecord (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/pwa/commands/index.mjs:209:31)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-commands.test.mjs:362:36)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    status: 400,
+    safeToRetry: true
+  }
+
+✖ record blocks a freshly selected bag that belongs to a different bean (0.114958ms)
+  Error: 원두을(를) 선택해 주세요.
+      at normalizedId (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/pwa/commands/index.mjs:60:68)
+      at normalizedRecordInput (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/pwa/commands/index.mjs:148:18)
+      at Object.prepareRecord (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/pwa/commands/index.mjs:209:31)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-commands.test.mjs:384:36)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    status: 400,
+    safeToRetry: true
+  }
+
+✔ record requires a valid date and an integer rating from one to five (0.100333ms)
+✖ T20 rereads the real T15 repository under lock and the saved record round-trips its snapshot (0.471708ms)
+  Error: 원두을(를) 선택해 주세요.
+      at normalizedId (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/pwa/commands/index.mjs:60:68)
+      at normalizedRecordInput (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/pwa/commands/index.mjs:148:18)
+      at Object.prepareRecord (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/pwa/commands/index.mjs:209:31)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-commands.test.mjs:432:32)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    status: 400,
+    safeToRetry: true
+  }
+
+✔ T18 partial recipe remains hidden by the real T15 completeness check (3.801958ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 18
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 114.288084
+
+✖ failing tests:
+
+test at test/pwa-commands.test.mjs:349:1
+✖ copy cannot switch to another bean or use an unavailable source (0.570958ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-commands.test.mjs:351:3)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'rejects'
+  }
+
+test at test/pwa-commands.test.mjs:358:1
+✖ record stores a fresh complete recipe snapshot and permits repeated same-day intent (0.520833ms)
+  Error: 원두을(를) 선택해 주세요.
+      at normalizedId (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/pwa/commands/index.mjs:60:68)
+      at normalizedRecordInput (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/pwa/commands/index.mjs:148:18)
+      at Object.prepareRecord (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/pwa/commands/index.mjs:209:31)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-commands.test.mjs:362:36)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    status: 400,
+    safeToRetry: true
+  }
+
+test at test/pwa-commands.test.mjs:379:1
+✖ record blocks a freshly selected bag that belongs to a different bean (0.114958ms)
+  Error: 원두을(를) 선택해 주세요.
+      at normalizedId (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/pwa/commands/index.mjs:60:68)
+      at normalizedRecordInput (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/pwa/commands/index.mjs:148:18)
+      at Object.prepareRecord (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/pwa/commands/index.mjs:209:31)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-commands.test.mjs:384:36)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    status: 400,
+    safeToRetry: true
+  }
+
+test at test/pwa-commands.test.mjs:400:1
+✖ T20 rereads the real T15 repository under lock and the saved record round-trips its snapshot (0.471708ms)
+  Error: 원두을(를) 선택해 주세요.
+      at normalizedId (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/pwa/commands/index.mjs:60:68)
+      at normalizedRecordInput (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/pwa/commands/index.mjs:148:18)
+      at Object.prepareRecord (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/pwa/commands/index.mjs:209:31)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/independent-recipes/AX-1day/test/pwa-commands.test.mjs:432:32)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    status: 400,
+    safeToRetry: true
+  }

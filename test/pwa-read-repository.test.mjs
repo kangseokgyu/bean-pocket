@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { inspect } from 'node:util';
-import { createSnapshot, validateRecipe } from '../lib/domain.mjs';
+import { validateRecipe } from '../lib/domain.mjs';
 import { encodeProperties } from '../pwa/data/notion-properties.mjs';
 import * as repositoryModule from '../pwa/data/read-repository.mjs';
 
@@ -82,11 +82,19 @@ function storedRecipe(id = IDS.recipe, overrides = {}) {
   return { id, ...validateRecipe(recipeInput(inputOverrides)) };
 }
 
+function legacySnapshot(recipe) {
+  const snapshot = structuredClone(recipe);
+  delete snapshot.stats;
+  return { version: 1, ...snapshot };
+}
+
 function recipePage(id = IDS.recipe, overrides = {}) {
-  return rawPage('recipes', id, {
+  const page = rawPage('recipes', id, {
     name: 'V60', beanId: IDS.bean, dripper: 'V60', dose: 15, grind: '중간', grinder: '그라인더',
     grinderSetting: '20', microns: null, temperature: 93, totalWater: 250, ...overrides,
   });
+  page.properties['원두'] = { id: 'legacy-recipe-bean', type: 'relation', relation: [{ id: IDS.bean }], has_more: false };
+  return page;
 }
 
 function stepPage(recipeId, step, id = IDS.pageA, overrides = {}) {
@@ -106,9 +114,9 @@ function bagPage(id = IDS.bag, beanId = IDS.bean, name = '봄 봉지') {
   return rawPage('bags', id, { name, beanId, roastedOn: '2026-10-01' });
 }
 
-function recordPage({ id = IDS.record, recipeId = IDS.recipe, bagId = null, snapshot = createSnapshot(storedRecipe(recipeId)), rating = 4 } = {}) {
+function recordPage({ id = IDS.record, recipeId = IDS.recipe, beanId = IDS.bean, bagId = null, snapshot = legacySnapshot(storedRecipe(recipeId)), rating = 4 } = {}) {
   return rawPage('records', id, {
-    name: '2026-10-18 · V60', recipeId, bagId, date: '2026-10-18', rating,
+    name: '2026-10-18 · V60', beanId, recipeId, bagId, date: '2026-10-18', rating,
     cupNote: '복숭아와 꿀', snapshot,
   });
 }
@@ -229,7 +237,7 @@ test('다섯 source를 모두 읽고 단계 정렬·기록 snapshot·별점 집�
   assert.equal(result.recipes.length, 1);
   assert.deepEqual(result.recipes[0].steps.map(step => step.order), [1, 2, 3]);
   assert.deepEqual(result.recipes[0].stats, { count: 2, average: 2.5 });
-  assert.deepEqual(result.records[0].snapshot, createSnapshot(storedRecipe()));
+  assert.deepEqual(result.records[0].snapshot, legacySnapshot(storedRecipe()));
   assert.deepEqual(result.excluded, { bags: 0, recipes: 0, records: 0, steps: 0 });
   assertDeepFrozen(result);
   assert.throws(() => { result.recipes[0].steps[0].water = 999; }, TypeError);
@@ -275,7 +283,7 @@ test('삭제·잘못된 ID·source·parent 페이지는 codec 전에 제외한�
   assert.equal(result.excluded.steps, 2);
 });
 
-test('잘리거나 다중이거나 없는 필수 관계와 선택 봉지 불일치는 decode 전에 제외한다', async () => {
+test('잘리거나 다중인 관계가 있어도 기존 기록과 평가는 보존하고 불확실성을 표시한다', async () => {
   const rows = baselineRows();
   rows.bags.push(bagPage(IDS.otherBag));
   setRelation(rows.bags[1], '원두', [IDS.bean], true);
@@ -295,12 +303,16 @@ test('잘리거나 다중이거나 없는 필수 관계와 선택 봉지 불일�
   const result = await f.repository.readAll();
   assert.deepEqual(result.bags.map(bag => bag.id), [IDS.bag, IDS.pageD]);
   assert.deepEqual(result.recipes, []);
-  assert.deepEqual(result.records.map(record => record.id), [IDS.record]);
-  assert.deepEqual(result.records[0].snapshot, createSnapshot(storedRecipe()));
-  assert.deepEqual(result.excluded, { bags: 3, recipes: 3, records: 2, steps: 1 });
+  assert.deepEqual(result.records.map(record => record.id), [IDS.record, IDS.secondRecord, IDS.pageC]);
+  assert.deepEqual(result.records[0].snapshot, legacySnapshot(storedRecipe()));
+  assert.equal(result.records[1].beanResolution, 'relation');
+  assert.equal(result.records[1].rating, 4);
+  assert.deepEqual(result.records[1].bagCandidates, [IDS.bag, IDS.otherBag]);
+  assert.equal(result.records[2].beanResolution, 'relation');
+  assert.deepEqual(result.excluded, { bags: 3, recipes: 3, records: 0, steps: 1 });
 });
 
-test('기록의 선택 봉지는 존재해야 하고 snapshot 원두와 같아야 한다', async () => {
+test('기록의 봉지 관계와 과거 원두 충돌은 평가를 보존하고 확인 대상으로 둔다', async () => {
   const rows = baselineRows();
   rows.beans.push(beanPage(IDS.otherBean, '다른 원두'));
   rows.bags.push(bagPage(IDS.otherBag, IDS.otherBean, '다른 원두 봉지'));
@@ -311,13 +323,30 @@ test('기록의 선택 봉지는 존재해야 하고 snapshot 원두와 같아�
   ];
 
   const result = await fixture({ rows }).repository.readAll();
-  assert.deepEqual(result.records.map(record => record.id), [IDS.record]);
-  assert.equal(result.excluded.records, 2);
+  assert.deepEqual(result.records.map(record => record.id), [IDS.record, IDS.secondRecord, IDS.pageB]);
+  assert.equal(result.records[1].bagId, 'b2222222-2222-4222-8222-999999999999');
+  assert.equal(result.records[2].beanResolution, 'needs-confirmation');
+  assert.equal(result.records[2].rating, 4);
+  assert.equal(result.excluded.records, 0);
+});
+
+test('records.bean 관계가 없어도 snapshot·legacy recipe·bag 근거를 읽고 모순은 확인 대상으로 보존한다', async () => {
+  const rows = baselineRows();
+  rows.records = [
+    recordPage({ id: IDS.record, beanId: null, bagId: IDS.bag, snapshot: { ...legacySnapshot(storedRecipe()), beanId: IDS.bean } }),
+    recordPage({ id: IDS.secondRecord, beanId: null, bagId: IDS.bag, snapshot: null }),
+  ];
+  for (const page of rows.records) delete page.properties['원두'];
+  const result = await fixture({ rows }).repository.readAll();
+  assert.deepEqual(result.records.map(record => record.beanId), [IDS.bean, IDS.bean]);
+  assert.equal(result.records[0].beanResolution, 'snapshot-v1');
+  assert.equal(result.records[1].beanResolution, 'legacy-recipe');
+  assert.ok(result.records.every(record => record.rating === 4));
 });
 
 test('버전 1 snapshot 전체·기록 날짜·별점을 검증한다', async () => {
   const rows = baselineRows();
-  const damagedSnapshot = createSnapshot(storedRecipe());
+  const damagedSnapshot = legacySnapshot(storedRecipe());
   damagedSnapshot.steps[1].cumulativeWater = 151;
   rows.records = [
     recordPage({ id: IDS.record, bagId: null }),
@@ -329,20 +358,27 @@ test('버전 1 snapshot 전체·기록 날짜·별점을 검증한다', async ()
   rows.records[3].properties['별점'].number = 6;
 
   const result = await fixture({ rows }).repository.readAll();
-  assert.deepEqual(result.records.map(record => record.id), [IDS.record]);
-  assert.equal(result.excluded.records, 3);
+  assert.deepEqual(result.records.map(record => record.id), [IDS.record, IDS.secondRecord, IDS.pageB, IDS.pageC]);
+  assert.equal(result.records[1].rating, 4);
+  assert.equal(result.records[1].beanResolution, 'relation');
+  assert.equal(result.records[2].date, 'not-a-date');
+  assert.equal(result.records[3].rating, 6);
+  assert.equal(result.excluded.records, 0);
 });
 
-test('잘못된 property type과 payload는 decode 전에 해당 페이지만 제외한다', async () => {
+test('잘못된 recipe 속성은 recipe만 제외하고 손상된 record 필드도 원본 평가를 보존한다', async () => {
   const rows = baselineRows();
   rows.recipes[0].properties['드리퍼'].type = 'number';
   rows.records[0].properties['컵노트'].rich_text = {};
 
   const result = await fixture({ rows }).repository.readAll();
   assert.deepEqual(result.recipes, []);
-  assert.deepEqual(result.records, []);
+  assert.deepEqual(result.records.map(record => record.id), [IDS.record]);
+  assert.equal(result.records[0].rating, 4);
+  assert.equal(result.records[0].cupNote, '');
+  assert.equal(result.records[0].snapshot.version, 1);
   assert.equal(result.excluded.recipes, 1);
-  assert.equal(result.excluded.records, 1);
+  assert.equal(result.excluded.records, 0);
 });
 
 test('order 1 부재·순서 gap/중복·파생값 손상·tiny-water 자식 삭제는 완성 레시피로 노출하지 않는다', async () => {
@@ -470,7 +506,7 @@ test('현재 recipe가 삭제되어도 유효한 과거 record snapshot은 저�
   const rows = baselineRows();
   rows.recipes = [];
   rows.steps = [];
-  const historic = createSnapshot(storedRecipe());
+  const historic = legacySnapshot(storedRecipe());
   historic.temperature = 91;
   rows.records = [recordPage({ snapshot: historic, bagId: null })];
   const result = await fixture({ rows }).repository.readAll();
@@ -484,13 +520,17 @@ test('현재 recipe가 삭제되어도 유효한 과거 record snapshot은 저�
 test('손상되거나 버전이 다른 record snapshot은 제외하고 원본을 공개하지 않는다', async () => {
   const rows = baselineRows();
   rows.records = [
-    recordPage({ id: IDS.record, snapshot: { ...createSnapshot(storedRecipe()), version: 9 } }),
+    recordPage({ id: IDS.record, snapshot: { ...legacySnapshot(storedRecipe()), version: 9 } }),
     recordPage({ id: IDS.secondRecord }),
   ];
   rows.records[1].properties['당시 레시피 스냅샷'].rich_text = [{ type: 'text', text: { content: '{ broken secret ' + TOKEN } }];
   const result = await fixture({ rows }).repository.readAll();
-  assert.deepEqual(result.records, []);
-  assert.equal(result.excluded.records, 2);
+  assert.equal(result.records.length, 2);
+  assert.equal(result.records[0].beanResolution, 'relation');
+  assert.equal(result.records[0].rating, 4);
+  assert.equal(result.records[1].snapshot, null);
+  assert.equal(result.records[1].rating, 4);
+  assert.equal(result.excluded.records, 0);
   assert.doesNotMatch(JSON.stringify(result), new RegExp(TOKEN));
 });
 

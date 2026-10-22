@@ -47,13 +47,52 @@ test('bean deletion persists its target before PATCH and refreshes the list', as
   assert.equal(env.native.journal().operations.at(-1).deleteTarget.archiveState, 'archived');
 });
 
-for (const relation of ['bags', 'recipes']) test(`bean deletion refuses a linked ${relation} without PATCH`, async () => {
+test('bean deletion refuses a linked bag without PATCH', async () => {
   const env = await setup();
-  await env.app.submit(relation, relation === 'bags'
-    ? { name: '봉지', beanId: env.id, roastedOn: '2026-10-22' } : recipe(env.id));
+  await env.app.submit('bags', { name: '봉지', beanId: env.id, roastedOn: '2026-10-22' });
   assert.equal((await env.app.submit('delete-bean', { id: env.id })).status, 'failed');
   assert.equal(patches(env).length, 0);
   assert.equal(env.fake.rows[0].in_trash, false);
+});
+
+test('bean deletion permits a legacy recipe relation without a record or bag dependency', async () => {
+  const env = await setup();
+  const saved = await env.app.submit('recipes', recipe(env.id));
+  const page = env.fake.rows.find(row => row.id === saved.value.id);
+  page.properties['원두'] = { id: 'legacy-recipe-bean', type: 'relation', relation: [{ id: env.id }], has_more: false };
+  assert.equal((await env.app.submit('delete-bean', { id: env.id })).status, 'succeeded');
+  assert.equal(patches(env).length, 1);
+  assert.equal(env.fake.rows[0].in_trash, true);
+});
+
+test('bean deletion protects a known extraction record and an unresolved legacy record', async () => {
+  const env = await setup();
+  const saved = await env.app.submit('recipes', recipe(env.id));
+  const record = await env.app.submit('records', { beanId: env.id, recipeId: saved.value.id, date: '2026-10-22', rating: 5 });
+  assert.equal(record.status, 'succeeded');
+  assert.equal((await env.app.submit('delete-bean', { id: env.id })).status, 'failed');
+  assert.equal(patches(env).length, 0);
+
+  const unresolved = await setup();
+  const legacyRecipe = await unresolved.app.submit('recipes', recipe(unresolved.id));
+  const savedRecord = unresolved.fake.rows.find(row => row.id === legacyRecipe.value.id);
+  const recordPage = {
+    id: 'eeeeeeee-5555-4555-8555-111111111111',
+    parent: { type: 'data_source_id', data_source_id: unresolved.connection().dataSources.records },
+    in_trash: false, archived: false, last_edited_time: '2026-10-22T00:00:00.000Z',
+    properties: {
+      '기록 이름': { id: 'record-title', type: 'title', title: [{ plain_text: '과거 기록' }] },
+      '레시피': { id: 'record-recipe', type: 'relation', relation: [{ id: savedRecord.id }], has_more: false },
+      '원두 봉지': { id: 'record-bag', type: 'relation', relation: [], has_more: false },
+      '날짜': { id: 'record-date', type: 'date', date: { start: '2026-10-21' } },
+      '별점': { id: 'record-rating', type: 'number', number: 4 },
+      '컵노트': { id: 'record-note', type: 'rich_text', rich_text: [] },
+      '당시 레시피 스냅샷': { id: 'record-snapshot', type: 'rich_text', rich_text: [] },
+    },
+  };
+  unresolved.fake.rows.push(recordPage);
+  assert.equal((await unresolved.app.submit('delete-bean', { id: unresolved.id })).status, 'failed');
+  assert.equal(patches(unresolved).length, 0);
 });
 
 test('excluded malformed related rows and failed fresh reads fail closed', async () => {

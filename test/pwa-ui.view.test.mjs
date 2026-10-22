@@ -123,7 +123,7 @@ const data = () => ({
       { id: '44444444-4444-4444-8444-444444444444', name: '뜸', seconds: 0, interval: 0, water: 50, cumulativeWater: 50 },
       { id: '55555555-5555-4555-8555-555555555555', name: '붓기', seconds: 70, interval: 40, water: 200, cumulativeWater: 250 },
     ] }],
-  records: [{ id: '66666666-6666-4666-8666-666666666666', recipeId: RECIPE, date: '2026-06-15', rating: 5, cupNote: '꿀, 살구', snapshot: { dripper: 'V60', dose: 15, temperature: 93, totalWater: 250, steps: [{ name: '뜸', seconds: 0, water: 50, cumulativeWater: 50 }] } }],
+  records: [{ id: '66666666-6666-4666-8666-666666666666', beanId: BEAN, beanResolution: 'relation', recipeId: RECIPE, date: '2026-06-15', rating: 5, cupNote: '꿀, 살구', snapshot: { version: 1, id: RECIPE, beanId: BEAN, name: 'V60', dripper: 'V60', dose: 15, temperature: 93, totalWater: 250, steps: [{ name: '뜸', seconds: 0, water: 50, cumulativeWater: 50 }] } }],
 });
 
 const CONNECTION = { token: 'test-only-token', dataSources: {} };
@@ -485,6 +485,31 @@ test('bean, recipe, and record detail text is rendered as text and retains brew 
   assert.match(detail.textContent, /40초/);
   assert.match(detail.textContent, /평가 없음 · 0회/);
   assert.match(detail.textContent, /꿀, 살구/);
+});
+
+test('recipes have no bean selector and records require both bean and shared recipe with browse filters', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.renderData(data());
+
+  view.renderRoute('/recipes/new');
+  const recipeForm = document.root.querySelector('form[data-form="recipes"]');
+  assert.equal(recipeForm.elements.beanId, undefined);
+
+  view.renderRoute('/records/new');
+  const recordForm = document.root.querySelector('form[data-form="records"]');
+  assert.ok(recordForm.elements.beanId);
+  assert.ok(recordForm.elements.recipeId);
+  assert.equal(recordForm.elements.beanId.required, true);
+  assert.equal(recordForm.elements.recipeId.required, true);
+  assert.equal(recordForm.elements.rating.required, true);
+
+  view.renderRoute('/records');
+  assert.ok(document.root.querySelector('[data-record-filter="beanId"]'));
+  assert.ok(document.root.querySelector('[data-record-filter="recipeId"]'));
+  assert.match(document.root.querySelector('[data-record-list]').textContent, /원두 <안전>/);
+  assert.match(document.root.querySelector('[data-record-list]').textContent, /레시피: V60/);
+  assert.match(document.root.querySelector('[data-record-list]').textContent, /5\/5/);
 });
 
 test('resolution controls follow the native journal page-list contract', () => {

@@ -19,7 +19,7 @@ const escape = value => String(value ?? '').replace(/[&<>"']/g, character => ({ 
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const displayDate = value => value ? escape(value.slice(0, 10).replaceAll('-', '. ')) : '날짜 미입력';
 const beanLink = id => '#bean/' + encodeURIComponent(id);
-const recipeLink = (beanId, id) => beanLink(beanId) + '/recipe/' + encodeURIComponent(id);
+const recipeLink = id => '#recipe/' + encodeURIComponent(id);
 const stars = rating => '★'.repeat(Math.max(0, Math.min(5, Math.round(Number(rating) || 0))));
 const canSave = () => (connected || demo) && !stale && !loading;
 const disabled = () => canSave() ? '' : 'disabled';
@@ -72,13 +72,13 @@ function heading(eyebrow, title, subtitle, actions = '') {
 }
 
 function beanCard(bean) {
-  const recipes = data.recipes.filter(recipe => recipe.beanId === bean.id);
-  return `<a class="card" href="${beanLink(bean.id)}"><div class="bean-icon" aria-hidden="true">◒</div><p class="eyebrow">${escape(bean.process || 'COFFEE BEANS')}</p><h2>${escape(bean.name)}</h2><p class="roaster">${escape(bean.roaster || '로스터리 미입력')}</p><div class="card-bottom"><span>레시피 ${recipes.length}개</span><span aria-hidden="true">↗</span></div></a>`;
+  const records = data.records.filter(record => record.beanId === bean.id);
+  return `<a class="card" href="${beanLink(bean.id)}"><div class="bean-icon" aria-hidden="true">◒</div><p class="eyebrow">${escape(bean.process || 'COFFEE BEANS')}</p><h2>${escape(bean.name)}</h2><p class="roaster">${escape(bean.roaster || '로스터리 미입력')}</p><div class="card-bottom"><span>추출 기록 ${records.length}개</span><span aria-hidden="true">↗</span></div></a>`;
 }
 
 function recipeCard(recipe) {
   const stats = summarizeRatings(data.records, recipe.id);
-  return `<a class="card" href="${recipeLink(recipe.beanId, recipe.id)}"><p class="eyebrow">${escape(recipe.dripper || 'POUR OVER')}</p><h2>${escape(recipe.name)}</h2><p class="roaster">${escape(recipe.dose)}g · ${escape(recipe.temperature)}℃ · ${escape(recipe.totalWater)}g</p><div class="card-bottom"><span>${stats.average === null ? '평가 없음' : `<span class="stars">★</span> ${stats.average.toFixed(1)}`}</span><span>${stats.count}회 기록 ↗</span></div></a>`;
+  return `<a class="card" href="${recipeLink(recipe.id)}"><p class="eyebrow">${escape(recipe.dripper || 'POUR OVER')}</p><h2>${escape(recipe.name)}</h2><p class="roaster">${escape(recipe.dose)}g · ${escape(recipe.temperature)}℃ · ${escape(recipe.totalWater)}g</p><div class="card-bottom"><span>${stats.average === null ? '평가 없음' : `<span class="stars">★</span> ${stats.average.toFixed(1)}`}</span><span>${stats.count}회 기록 ↗</span></div></a>`;
 }
 
 function breadcrumbs(bean, recipe) {
@@ -90,7 +90,7 @@ function stepsTable(steps) {
 }
 
 function recipeChips(recipe) {
-  const values = [['드리퍼', recipe.dripper || '미입력'], ['원두', `${recipe.dose}g`], ['물 온도', `${recipe.temperature}℃`], ['총 물 양', `${recipe.totalWater}g`], ['분쇄도', recipe.grind || '미입력']];
+  const values = [['드리퍼', recipe.dripper || '미입력'], ['원두 사용량', `${recipe.dose}g`], ['물 온도', `${recipe.temperature}℃`], ['총 물 양', `${recipe.totalWater}g`], ['분쇄도', recipe.grind || '미입력']];
   if (recipe.grinder) values.push(['그라인더', recipe.grinder]);
   if (recipe.grinderSetting) values.push(['설정값', recipe.grinderSetting]);
   if (recipe.microns) values.push(['입자 굵기', `${recipe.microns}μm`]);
@@ -99,33 +99,43 @@ function recipeChips(recipe) {
 
 function renderRecord(record) {
   const bag = data.bags.find(item => item.id === record.bagId);
-  const snapshot = record.snapshot;
-  return `<article class="record"><div class="record-header"><span class="stars" aria-label="5점 만점에 ${escape(record.rating)}점">${stars(record.rating)}</span><span>${displayDate(record.date)}</span>${bag ? `<span class="muted">${escape(bag.name)}</span>` : ''}</div>${record.cupNote ? `<p>${escape(record.cupNote)}</p>` : '<p class="muted">컵노트 없이 남긴 한 잔</p>'}<details><summary>당시 레시피 확인</summary><div class="snapshot">${snapshot ? `<strong>${escape(snapshot.name || '당시 레시피')}</strong>${recipeChips(snapshot)}${Array.isArray(snapshot.steps) ? stepsTable(snapshot.steps) : ''}` : '당시 조건이 저장되지 않은 기록입니다.'}</div></details></article>`;
+  const bean = data.beans.find(item => item.id === record.beanId);
+  const recipe = data.recipes.find(item => item.id === record.recipeId);
+  const snapshot = record.snapshot?.version === 2 ? record.snapshot.recipe : record.snapshot;
+  const needsConfirmation = record.beanResolution === 'needs-confirmation';
+  return `<article class="record"><div class="record-header"><span class="stars" aria-label="5점 만점에 ${escape(record.rating ?? '확인 필요')}점">${stars(record.rating)}</span><span>${displayDate(record.date)}</span></div><p>원두: ${escape(bean?.name || '원두 확인 필요')} · 레시피: ${escape(recipe?.name || snapshot?.name || '확인할 수 없는 레시피')}</p>${needsConfirmation ? '<p class="muted">과거 원두 관계를 확인해야 합니다.</p>' : ''}${bag ? `<p class="muted">원두 봉지: ${escape(bag.name)}</p>` : record.bagCandidates?.length ? '<p class="muted">원두 봉지 관계 확인 필요</p>' : ''}${record.cupNote ? `<p>${escape(record.cupNote)}</p>` : '<p class="muted">컵노트 없이 남긴 한 잔</p>'}<details><summary>당시 레시피 확인</summary><div class="snapshot">${snapshot ? `<strong>${escape(snapshot.name || '당시 레시피')}</strong>${recipeChips(snapshot)}${Array.isArray(snapshot.steps) ? stepsTable(snapshot.steps) : ''}` : '당시 조건이 저장되지 않은 기록입니다.'}</div></details></article>`;
 }
 
 function render() {
   const route = location.hash.slice(1).split('/');
   const selectedBean = route[0] === 'bean' ? data.beans.find(bean => bean.id === decodeURIComponent(route[1] || '')) : null;
-  const selectedRecipe = selectedBean && route[2] === 'recipe' ? data.recipes.find(recipe => recipe.id === decodeURIComponent(route[3] || '') && recipe.beanId === selectedBean.id) : null;
+  const selectedRecipe = route[0] === 'recipe' ? data.recipes.find(recipe => recipe.id === decodeURIComponent(route[1] || '')) : null;
   const refresh = connected && !demo ? `<button class="button small secondary" data-action="reload" ${loading ? 'disabled' : ''}>${loading ? '불러오는 중…' : '다시 불러오기'}</button>` : '';
-  if (selectedRecipe) {
-    const records = data.records.filter(record => record.recipeId === selectedRecipe.id).sort((a, b) => b.date.localeCompare(a.date));
-    main.innerHTML = breadcrumbs(selectedBean, selectedRecipe) + heading('BREW RECIPE', selectedRecipe.name, '오늘도 같은 취향을 만날 수 있도록.', `<button class="button secondary" data-action="copy" data-id="${escape(selectedRecipe.id)}" ${disabled()}>레시피 복사</button>${refresh}`)
+  if (route[0] === 'records') {
+    const records = [...data.records].sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
+    main.innerHTML = heading('BREW JOURNAL', '추출 기록', '원두와 레시피를 골라 한 잔의 경험을 다시 찾아보세요.', `<button class="button" data-action="record" ${disabled()}>＋ 추출 기록</button>${refresh}`)
+      + `<div class="fields record-filters"><label class="field">원두별 조회<select data-record-filter="beanId"><option value="">모든 원두</option>${data.beans.map(bean => `<option value="${escape(bean.id)}">${escape(bean.name)}</option>`).join('')}</select></label><label class="field">레시피별 조회<select data-record-filter="recipeId"><option value="">모든 레시피</option>${data.recipes.map(recipe => `<option value="${escape(recipe.id)}">${escape(recipe.name)}</option>`).join('')}</select></label></div>`
+      + `<div data-record-list>${records.length ? records.map(renderRecord).join('') : '<div class="empty"><h2>아직 추출 기록이 없어요</h2><p>원두와 공용 레시피를 선택해 첫 잔을 기록해보세요.</p></div>'}</div>`;
+  } else if (selectedRecipe) {
+    const records = data.records.filter(record => record.recipeId === selectedRecipe.id).sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
+    main.innerHTML = breadcrumbs(null, selectedRecipe) + heading('BREW RECIPE', selectedRecipe.name, '오늘도 같은 취향을 만날 수 있도록.', `<a class="button secondary" href="#records">추출 기록</a><button class="button secondary" data-action="copy" data-id="${escape(selectedRecipe.id)}" ${disabled()}>레시피 복사</button>${refresh}`)
       + recipeChips(selectedRecipe) + `<div class="section-heading"><h2>물 붓기</h2><span class="muted">시간과 물 양을 함께 확인하세요</span></div>` + stepsTable(selectedRecipe.steps)
       + `<div class="section-heading"><h2>한 잔의 기록 <span class="muted">${records.length}</span></h2><button class="button" data-action="record" data-id="${escape(selectedRecipe.id)}" ${disabled()}>＋ 추출 기록</button></div>`
       + (records.length ? records.map(renderRecord).join('') : '<div class="empty"><h2>첫 번째 한 잔을 기다려요</h2><p>날짜와 별점만으로도 충분해요.<br>기억하고 싶은 향과 맛은 컵노트에 남겨보세요.</p></div>');
   } else if (selectedBean) {
-    const recipes = data.recipes.filter(recipe => recipe.beanId === selectedBean.id);
+    const records = data.records.filter(record => record.beanId === selectedBean.id).sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
     const bags = data.bags.filter(bag => bag.beanId === selectedBean.id);
-    main.innerHTML = breadcrumbs(selectedBean) + heading('BEAN COLLECTION', selectedBean.name, selectedBean.roaster || '나만의 원두 컬렉션', `<button class="button" data-action="recipe" data-id="${escape(selectedBean.id)}" ${disabled()}>＋ 레시피 추가</button>${refresh}`)
+    main.innerHTML = breadcrumbs(selectedBean) + heading('BEAN COLLECTION', selectedBean.name, selectedBean.roaster || '나만의 원두 컬렉션', `<a class="button secondary" href="#records">추출 기록</a><button class="button" data-action="recipe" data-id="${escape(selectedBean.id)}" ${disabled()}>＋ 레시피 추가</button>${refresh}`)
       + `<dl class="summary">${[['원산지 · 농장', selectedBean.origin], ['품종', selectedBean.variety], ['가공 방식', selectedBean.process]].map(([label, value]) => `<div><dt>${label}</dt><dd>${escape(value || '미입력')}</dd></div>`).join('')}</dl>`
       + (selectedBean.tastingNotes ? `<div class="note"><strong>로스터리 향미 노트</strong><br>${escape(selectedBean.tastingNotes)}</div>` : '')
       + `<div class="section-heading"><h2>원두 봉지</h2><button class="button small secondary" data-action="bag" data-id="${escape(selectedBean.id)}" ${disabled()}>＋ 봉지 추가</button></div><div class="bag-list">${bags.length ? bags.map(bag => `<div class="bag">${escape(bag.name)}<span>로스팅 ${displayDate(bag.roastedOn)}</span></div>`).join('') : '<p class="muted">구매한 봉지별로 로스팅 날짜를 따로 남길 수 있어요.</p>'}</div>`
-      + `<div class="section-heading"><h2>저장한 레시피 <span class="muted">${recipes.length}</span></h2></div>`
-      + (recipes.length ? `<div class="grid">${recipes.map(recipeCard).join('')}</div>` : '<div class="empty"><h2>이 원두의 첫 레시피</h2><p>추출 조건과 물 붓기 단계를 저장해보세요.</p></div>');
+      + `<div class="section-heading"><h2>이 원두의 추출 기록 <span class="muted">${records.length}</span></h2></div>`
+      + (records.length ? records.map(renderRecord).join('') : '<div class="empty"><h2>아직 추출 기록이 없어요</h2><p>원두와 공용 레시피를 선택해 한 잔을 남겨보세요.</p></div>');
   } else {
-    main.innerHTML = heading('YOUR COFFEE COLLECTION', '원두 보관함', '좋아하는 원두와 한 잔의 경험을 모아보세요.', `<button class="button" data-action="bean">＋ 원두 추가</button>${refresh}`)
-      + (data.beans.length ? `<div class="grid">${data.beans.map(beanCard).join('')}</div>` : `<div class="empty"><div class="empty-art" aria-hidden="true">◡</div><p class="eyebrow">A NEW CHAPTER, A NEW CUP</p><h2>첫 번째 원두를 기다리고 있어요</h2><p>원두 하나, 레시피 하나에서 시작하는 나의 커피 노트.<br>마음에 든 한 잔을 오래 기억해보세요.</p><div class="actions"><button class="button" data-action="bean">＋ 첫 원두 추가하기</button>${!connected && !demo ? '<button class="button secondary" data-action="connect">노션 연결하기</button>' : ''}</div>${!connected && !demo ? '<button class="demo-link" data-action="demo">저장 없이 체험해보기</button>' : ''}</div>`);
+    main.innerHTML = heading('YOUR COFFEE COLLECTION', '원두 보관함', '좋아하는 원두와 한 잔의 경험을 모아보세요.', `<a class="button secondary" href="#records">추출 기록</a><button class="button secondary" data-action="recipe" ${disabled()}>레시피 작성</button><button class="button" data-action="bean">＋ 원두 추가</button>${refresh}`)
+      + (data.beans.length ? `<div class="grid">${data.beans.map(beanCard).join('')}</div>` : `<div class="empty"><div class="empty-art" aria-hidden="true">◡</div><p class="eyebrow">A NEW CHAPTER, A NEW CUP</p><h2>첫 번째 원두를 기다리고 있어요</h2><p>원두 하나, 레시피 하나에서 시작하는 나의 커피 노트.<br>마음에 든 한 잔을 오래 기억해보세요.</p><div class="actions"><button class="button" data-action="bean">＋ 첫 원두 추가하기</button>${!connected && !demo ? '<button class="button secondary" data-action="connect">노션 연결하기</button>' : ''}</div>${!connected && !demo ? '<button class="demo-link" data-action="demo">저장 없이 체험해보기</button>' : ''}</div>`)
+      + `<div class="section-heading"><h2>공용 레시피 <span class="muted">${data.recipes.length}</span></h2></div>`
+      + (data.recipes.length ? `<div class="grid">${data.recipes.map(recipeCard).join('')}</div>` : '<p class="muted">원두와 독립된 레시피를 등록해 여러 원두에 사용할 수 있어요.</p>');
   }
 }
 
@@ -226,8 +236,9 @@ async function saveData(kind, payload, key) {
     if (kind === 'recipes') item = validateRecipe(payload);
     if (kind === 'records') {
       const recipe = data.recipes.find(item => item.id === payload.recipeId);
+      const bean = data.beans.find(item => item.id === payload.beanId);
       const bag = data.bags.find(item => item.id === payload.bagId);
-      item = { ...validateRecord(payload, recipe, bag), snapshot: createSnapshot(recipe) };
+      item = { ...validateRecord(payload, recipe, bean, bag), snapshot: createSnapshot(bean, recipe) };
     }
     item.id = crypto.randomUUID();
     data[kind].push(item);
@@ -293,7 +304,7 @@ function openRecipe(beanId, source) {
     '레시피와 모든 물 붓기 단계를 노션에 저장했습니다.',
     values => {
       const { stepName, stepTime, stepWater, ...conditions } = values;
-      return { ...conditions, beanId, steps: readSteps(), ...(source ? { copyFromId: source.id } : {}) };
+      return { ...conditions, steps: readSteps(), ...(source ? { copyFromId: source.id } : {}) };
     },
   );
 }
@@ -306,9 +317,18 @@ function removeStep(event) {
 }
 
 function openRecord(recipe) {
-  const bags = data.bags.filter(bag => bag.beanId === recipe.beanId);
-  openDialog('한 잔의 기록', formShell(`<p class="form-help">${escape(recipe.name)} · 실제 저장된 레시피와 모든 단계를 함께 보존합니다.</p>${field('date', '추출 날짜', today(), { type: 'date', required: true })}<fieldset><legend>전체 만족도 * (1~5점)</legend><div class="rating-options">${[1, 2, 3, 4, 5].map(rating => `<label><input name="rating" type="radio" value="${rating}" required>${rating} <span class="stars" aria-hidden="true">★</span></label>`).join('')}</div></fieldset><label class="field">사용한 원두 봉지 (선택)<select name="bagId"><option value="">선택하지 않음</option>${bags.map(bag => `<option value="${escape(bag.id)}">${escape(bag.name)}${bag.roastedOn ? ' · ' + escape(bag.roastedOn) : ''}</option>`).join('')}</select></label>${textArea('cupNote', '컵노트 (선택)')}<p class="form-help">다른 조건으로 내렸다면 레시피를 복사해 별도로 저장해 주세요.</p>`));
-  bindForm((payload, key) => saveData('records', payload, key), '추출 기록과 당시 레시피를 노션에 저장했습니다.', values => ({ ...values, recipeId: recipe.id }));
+  const beanOptions = data.beans.map(bean => `<option value="${escape(bean.id)}">${escape(bean.name)}</option>`).join('');
+  const recipeOptions = data.recipes.map(item => `<option value="${escape(item.id)}" ${item.id === recipe?.id ? 'selected' : ''}>${escape(item.name)}</option>`).join('');
+  openDialog('한 잔의 기록', formShell(`<p class="form-help">원두와 공용 레시피를 선택합니다. 당시 원두 정보와 전체 레시피 단계가 함께 보존됩니다.</p><label class="field">원두 *<select name="beanId" required><option value="">원두를 선택해 주세요.</option>${beanOptions}</select></label><label class="field">레시피 *<select name="recipeId" required><option value="">레시피를 선택해 주세요.</option>${recipeOptions}</select></label>${field('date', '추출 날짜', today(), { type: 'date', required: true })}<fieldset><legend>전체 만족도 * (1~5점)</legend><div class="rating-options">${[1, 2, 3, 4, 5].map(rating => `<label><input name="rating" type="radio" value="${rating}" required>${rating} <span class="stars" aria-hidden="true">★</span></label>`).join('')}</div></fieldset><label class="field">사용한 원두 봉지 (선택)<select name="bagId"><option value="">원두 봉지를 선택하지 않음</option></select></label>${textArea('cupNote', '컵노트 (선택)')}`));
+  const beanSelect = dialogContent.querySelector('[name="beanId"]');
+  beanSelect.addEventListener('change', () => {
+    const bagSelect = dialogContent.querySelector('[name="bagId"]');
+    const selected = bagSelect.value;
+    const bags = data.bags.filter(bag => bag.beanId === beanSelect.value);
+    bagSelect.innerHTML = '<option value="">원두 봉지를 선택하지 않음</option>' + bags.map(bag => `<option value="${escape(bag.id)}">${escape(bag.name)}${bag.roastedOn ? ' · ' + escape(bag.roastedOn) : ''}</option>`).join('');
+    if (bags.some(bag => bag.id === selected)) bagSelect.value = selected;
+  });
+  bindForm((payload, key) => saveData('records', payload, key), '추출 기록과 당시 원두·레시피를 노션에 저장했습니다.');
 }
 
 function startDemo() {
@@ -316,7 +336,7 @@ function startDemo() {
   stale = false;
   data = emptyData();
   data.beans.push({ id: 'demo-bean', name: '에티오피아 시다마', roaster: '체험용 로스터리', origin: '에티오피아', variety: 'Heirloom', process: '워시드', tastingNotes: '체험용 예시 · 재스민, 레몬, 홍차' });
-  const recipe = validateRecipe({ name: '맑고 산뜻한 아침', beanId: 'demo-bean', dripper: 'V60', dose: 15, temperature: 93, totalWater: 250, microns: 950, grind: '중간 굵기', steps: [{ name: '뜸 들이기', time: '0:00', water: 50 }, { name: '1차 붓기', time: '0:30', water: 100 }, { name: '2차 붓기', time: '1:10', water: 100 }] });
+  const recipe = validateRecipe({ name: '맑고 산뜻한 아침', dripper: 'V60', dose: 15, temperature: 93, totalWater: 250, microns: 950, grind: '중간 굵기', steps: [{ name: '뜸 들이기', time: '0:00', water: 50 }, { name: '1차 붓기', time: '0:30', water: 100 }, { name: '2차 붓기', time: '1:10', water: 100 }] });
   recipe.id = 'demo-recipe';
   data.recipes.push(recipe);
   showNotice('체험 · 노션에 저장되지 않음. 예시 데이터와 입력 내용은 이 탭의 메모리에만 있으며 새로고침하면 사라집니다.');
@@ -335,10 +355,21 @@ main.addEventListener('click', event => {
   if (action === 'bean') return openBean();
   if (!canSave()) return showNotice('연결을 확인하고 다시 시도해 주세요.', true);
   if (action === 'bag') return openBag(id);
-  if (action === 'recipe') return openRecipe(id);
+  if (action === 'recipe') return openRecipe(null);
   const recipe = data.recipes.find(item => item.id === id);
-  if (action === 'copy' && recipe) return openRecipe(recipe.beanId, recipe);
-  if (action === 'record' && recipe) return openRecord(recipe);
+  if (action === 'copy' && recipe) return openRecipe(null, recipe);
+  if (action === 'record') return openRecord(recipe ?? null);
+});
+
+main.addEventListener('change', event => {
+  if (!event.target.matches('[data-record-filter]')) return;
+  const beanId = main.querySelector('[data-record-filter="beanId"]')?.value ?? '';
+  const recipeId = main.querySelector('[data-record-filter="recipeId"]')?.value ?? '';
+  const records = data.records.filter(record => (!beanId || record.beanId === beanId) && (!recipeId || record.recipeId === recipeId))
+    .sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
+  const list = main.querySelector('[data-record-list]');
+  if (!list) return;
+  list.innerHTML = records.length ? records.map(renderRecord).join('') : '<div class="empty"><h2>선택한 조건에 맞는 기록이 없어요</h2><p>원두 또는 레시피 필터를 바꿔보세요.</p></div>';
 });
 
 window.addEventListener('hashchange', () => { render(); main.focus({ preventScroll: true }); });

@@ -94,25 +94,23 @@ function requireBean(data, beanId) {
 function requireRecipe(data, recipeId) {
   const recipe = oneById(data?.recipes, recipeId);
   if (!recipe) throw new InputError('최신 조회에서 완전한 레시피를 찾을 수 없습니다. 다시 조회해 주세요.');
-  const beanId = normalizedId(recipe.beanId, '레시피의 원두');
-  requireBean(data, beanId);
   try { validateStoredRecipe(recipe); }
   catch { throw new InputError('레시피 단계가 완전하지 않습니다. 다시 조회해 주세요.'); }
   return recipe;
 }
 
-function requireBag(data, bagId, recipe) {
+function requireBag(data, bagId, bean) {
   const bag = oneById(data?.bags, bagId);
   if (!bag) throw new InputError('최신 조회에서 선택한 봉지를 찾을 수 없습니다. 다시 조회해 주세요.');
   const bagBeanId = normalizedId(bag.beanId, '봉지의 원두');
-  if (bagBeanId !== recipe.beanId) throw new InputError('봉지와 레시피의 원두가 다릅니다. 다시 조회해 주세요.');
+  if (bagBeanId !== bean.id) throw new InputError('봉지와 선택한 원두가 다릅니다. 다시 조회해 주세요.');
   return bag;
 }
 
 function recipeSourceValue(recipe) {
   return {
     id: normalizedId(recipe.id, '원본 레시피'),
-    beanId: normalizedId(recipe.beanId, '원두'),
+    beanId: recipe.beanId ? normalizedId(recipe.beanId, '원두') : null,
     name: recipe.name,
     dripper: recipe.dripper,
     dose: recipe.dose,
@@ -135,7 +133,7 @@ function sameRecipeSource(first, second) {
 
 function normalizedRecipeInput(value) {
   const input = inputObject(value, '레시피');
-  input.beanId = normalizedId(input.beanId, '원두');
+  delete input.beanId;
   return validateRecipe(input);
 }
 
@@ -147,12 +145,13 @@ function normalizedBagInput(value) {
 
 function normalizedRecordInput(value) {
   const input = inputObject(value, '추출 기록');
+  const beanId = normalizedId(input.beanId, '원두');
   const recipeId = normalizedId(input.recipeId, '레시피');
   const bagId = optionalId(input.bagId, '원두 봉지');
   // Validate the independent record fields with the shared domain rules. The
   // real recipe and optional bag are reloaded under the write lock before save.
-  const record = validateRecord(input, { id: recipeId, beanId: '' }, null);
-  return { ...record, recipeId, bagId };
+  const record = validateRecord(input, { id: recipeId }, { id: beanId }, null);
+  return { ...record, beanId, recipeId, bagId };
 }
 
 export function createCommands({ client, repository, submissionState } = {}) {
@@ -200,16 +199,16 @@ export function createCommands({ client, repository, submissionState } = {}) {
     catch { throw new InputError('복사할 레시피가 완전하지 않습니다. 다시 조회해 주세요.'); }
     if (normalizedId(source.id, '원본 레시피') !== recipeId) throw new InputError('복사할 레시피가 바뀌었습니다. 다시 조회해 주세요.');
 
-    const sourceBeanId = normalizedId(source.beanId, '원두');
-    if (Object.hasOwn(changes, 'beanId') && normalizedId(changes.beanId, '원두') !== sourceBeanId) {
-      throw new InputError('같은 원두의 레시피를 복사해 주세요.');
-    }
     const copied = copyRecipe(source);
-    const payload = normalizedRecipeInput({ ...copied, ...changes, beanId: sourceBeanId });
+    delete copied.beanId;
+    const payload = normalizedRecipeInput({ ...copied, ...changes });
     return prepare('recipes', payload, { copySourceId: recipeId, copySource: recipeSourceValue(source) });
   }
 
   async function prepareRecord(payload) {
+    if (client.recordBeanRelationSupported !== true) {
+      throw Object.freeze({ code: 'schema-unsupported', writeState: 'not-sent' });
+    }
     return prepare('records', normalizedRecordInput(payload));
   }
 
@@ -297,11 +296,15 @@ export function createCommands({ client, repository, submissionState } = {}) {
         const latest = await repository.readAll();
         if (metadata.kind === 'delete-bean') {
           requireBean(latest, payload.id);
+          const hasRecordDependency = Array.isArray(latest.records) && latest.records.some(record =>
+            record.beanId === payload.id || record.beanCandidates?.includes(payload.id) ||
+            record.beanResolution === 'needs-confirmation');
           if (!Array.isArray(latest.bags) || !Array.isArray(latest.recipes) ||
               latest.bags.some(bag => bag.beanId === payload.id) ||
-              latest.recipes.some(recipe => recipe.beanId === payload.id) ||
-              Object.values(latest.excluded ?? {}).some(count => count > 0)) {
-            throw new InputError('연결된 봉지·레시피 또는 확인할 수 없는 데이터가 있어 삭제할 수 없습니다.');
+              hasRecordDependency ||
+              (latest.excluded?.bags ?? 0) > 0 ||
+              (latest.excluded?.records ?? 0) > 0) {
+            throw new InputError('연결된 봉지·추출 기록 또는 확인할 수 없는 기록이 있어 삭제할 수 없습니다.');
           }
           return operation.write(() => client.archiveBean(payload.id), { deleteId: payload.id });
         }
@@ -312,7 +315,6 @@ export function createCommands({ client, repository, submissionState } = {}) {
         }
 
         if (metadata.kind === 'recipes') {
-          requireBean(latest, payload.beanId);
           if (metadata.copySourceId) {
             const source = oneById(latest?.recipes, metadata.copySourceId);
             if (!source || !sameRecipeSource(source, metadata.copySource)) {
@@ -324,13 +326,14 @@ export function createCommands({ client, repository, submissionState } = {}) {
         }
 
         if (metadata.kind === 'records') {
+          const bean = requireBean(latest, payload.beanId);
           const recipe = requireRecipe(latest, payload.recipeId);
-          const bag = payload.bagId ? requireBag(latest, payload.bagId, recipe) : null;
-          const validated = validateRecord(payload, recipe, bag);
+          const bag = payload.bagId ? requireBag(latest, payload.bagId, bean) : null;
+          const validated = validateRecord(payload, recipe, bean, bag);
           const record = {
             ...validated,
             name: `${validated.date} · ${recipe.name}`,
-            snapshot: createSnapshot(recipe),
+            snapshot: createSnapshot(bean, recipe),
           };
           validateCreatePayload('records', record, client.dataSources);
           return writeCreate(operation, 'records', record);

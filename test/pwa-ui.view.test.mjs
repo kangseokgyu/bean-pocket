@@ -131,15 +131,19 @@ test('startup checking shows only an accessible spinner until retry is needed', 
   view.showConnection({ connected: false, checkingInitialization: true });
   view.showStatus({ type: 'startup-checking', message: '저장된 연결 확인 중' });
   const status = document.root.querySelector('.app-status');
-  const spinner = status.querySelector('.startup-spinner');
+  const loading = document.root.querySelector('.startup-loading');
+  const spinner = loading?.querySelector('.startup-spinner');
   assert.ok(spinner);
   assert.equal(spinner.getAttribute('aria-hidden'), 'true');
   assert.equal(spinner.children.length, 12);
+  assert.equal(loading.hidden, false);
+  assert.equal(status.hidden, true);
+  assert.equal(document.root.firstElementChild.inert, true);
   const shades = spinner.children.map(spoke => Number(spoke.getAttribute('style').match(/opacity: ([\d.]+)/)?.[1]));
   assert.ok(shades.every(shade => shade > 0 && shade <= 1));
   assert.equal(new Set(shades).size, 12, 'stepped rotation needs fading spokes to remain visible');
-  assert.equal(status.getAttribute('role'), 'status');
-  assert.equal(status.querySelector('.visually-hidden').textContent, '저장된 연결 확인 중');
+  assert.equal(loading.getAttribute('role'), 'status');
+  assert.equal(loading.querySelector('.visually-hidden').textContent, '저장된 연결 확인 중');
   assert.equal(document.root.querySelector('.connection-panel').hidden, true);
   assert.equal(document.root.querySelector('.connection-details').hidden, true);
   assert.equal(document.root.querySelector('.startup-retry-panel').hidden, true);
@@ -147,22 +151,24 @@ test('startup checking shows only an accessible spinner until retry is needed', 
 
   view.showStatus({ type: 'startup-busy', message: '잠시 후 다시 시도해 주세요.' });
   view.showConnection({ connected: false, retryInitialization: true });
-  assert.equal(status.querySelector('.startup-spinner'), null);
+  assert.equal(loading?.querySelector('.startup-spinner'), null);
   assert.equal(status.textContent, '잠시 후 다시 시도해 주세요.');
+  assert.equal(loading.hidden, true);
+  assert.equal(document.root.firstElementChild.inert, false);
   assert.equal(document.root.querySelector('.startup-retry-panel').hidden, false);
 
   view.showConnection({ connected: false, checkingInitialization: true });
   view.showStatus({ type: 'startup-checking', message: '저장된 연결 확인 중' });
-  assert.ok(status.querySelector('.startup-spinner'));
+  assert.ok(loading?.querySelector('.startup-spinner'));
   assert.equal(document.root.querySelector('.startup-retry-panel').hidden, true);
   view.showConnection({ connected: false });
   view.showStatus({ type: 'disconnected', message: 'Notion 연결 정보를 입력해 주세요.' });
-  assert.equal(status.querySelector('.startup-spinner'), null);
+  assert.equal(loading?.querySelector('.startup-spinner'), null);
   assert.equal(document.root.querySelector('.connection-details').hidden, false);
   assert.equal(document.root.querySelector('.connection-toggle').disabled, false);
 });
 
-for (const outcome of ['saved', 'missing', 'error', 'recovery', 'busy']) {
+for (const outcome of ['saved', 'missing', 'error', 'recovery', 'busy', 'read-error']) {
   test(`initialization spinner ends on ${outcome}`, async () => {
     const document = new TestDocument();
     const view = createAppView(document);
@@ -182,24 +188,47 @@ for (const outcome of ['saved', 'missing', 'error', 'recovery', 'busy']) {
         return { ...CONNECTION, revision: outcome === 'recovery' ? 2 : 1 };
       } },
       makeClient: () => ({ async verify() {} }),
-      makeRepository: () => ({ async readAll() { return data(); } }),
+      makeRepository: () => ({ async readAll() { if (outcome === 'read-error') throw { code: 'read-failed' }; return data(); } }),
       makeCommands: () => ({}),
     });
     const initializing = app.initialize();
     const status = document.root.querySelector('.app-status');
-    assert.ok(status.querySelector('.startup-spinner'));
+    const loading = document.root.querySelector('.startup-loading');
+    assert.ok(loading?.querySelector('.startup-spinner'));
     assert.equal(document.root.querySelector('.startup-retry-panel').hidden, true);
     assert.equal(document.root.querySelector('.connection-panel').hidden, true);
     finishRead();
-    assert.equal(await initializing, outcome === 'saved' ? true : outcome === 'missing' ? null : false);
-    assert.equal(status.querySelector('.startup-spinner'), null);
+    assert.equal(await initializing, ['saved', 'read-error'].includes(outcome) ? true : outcome === 'missing' ? null : false);
+    assert.equal(loading?.querySelector('.startup-spinner'), null);
+    assert.equal(loading.hidden, true);
+    assert.equal(document.root.firstElementChild.inert, false);
+    assert.equal(status.hidden, outcome === 'saved');
+    if (outcome === 'saved') assert.equal(status.textContent, '');
     assert.equal(status.dataset.state, { saved: 'ready', missing: 'disconnected', error: 'connection-error',
-      recovery: 'connection-error', busy: 'startup-busy' }[outcome]);
+      recovery: 'connection-error', busy: 'startup-busy', 'read-error': 'read-error' }[outcome]);
     assert.equal(document.root.querySelector('.startup-retry-panel').hidden, outcome !== 'busy');
     assert.equal(document.root.querySelector('.repair-panel').hidden, outcome !== 'recovery');
     assert.equal(document.root.querySelector('.connection-details').hidden, outcome === 'busy');
   });
 }
+
+test('startup overlay sits outside the transformed page and ready stays silent', () => {
+  const document = new TestDocument();
+  document.body = document.createElement('body');
+  const view = createAppView(document);
+  const loading = document.body.querySelector('.startup-loading');
+  assert.ok(loading, 'overlay belongs to the body, outside pull-to-refresh transforms');
+  assert.equal(loading.parentElement, document.body);
+  assert.equal(loading.hidden, true);
+  view.showStatus({ type: 'startup-checking', message: '저장된 연결 확인 중' });
+  assert.equal(loading.hidden, false);
+  view.showStatus({ type: 'ready', message: '최신 목록을 불러왔습니다.' });
+  assert.equal(loading.hidden, true);
+  assert.equal(loading.children.length, 0);
+  const status = document.root.querySelector('.app-status');
+  assert.equal(status.hidden, true);
+  assert.equal(status.textContent, '');
+});
 
 test('saved connection leaves a header icon that toggles settings without losing input', async () => {
   const document = new TestDocument();
@@ -237,7 +266,7 @@ test('successful status messages stay visible for three seconds then hide', t =>
   const document = new TestDocument();
   const view = createAppView(document);
   const status = document.root.querySelector('.app-status');
-  for (const type of ['ready', 'connected', 'saved', 'resolved', 'cancelled']) {
+  for (const type of ['connected', 'saved', 'resolved', 'cancelled']) {
     view.showStatus({ type, message: '완료했습니다.' });
     assert.equal(status.hidden, false);
     assert.equal(status.textContent, '완료했습니다.');
@@ -256,7 +285,7 @@ test('errors, recovery notices and pending work stay visible after replacing suc
   for (const type of ['error', 'read-error', 'connection-error', 'validation-error', 'resolution-error',
     'saved-read-error', 'unknown', 'partial', 'failed', 'resolution-required', 'startup-busy',
     'disconnected', 'checking', 'saving']) {
-    view.showStatus({ type: 'ready', message: '완료' });
+    view.showStatus({ type: 'connected', message: '완료' });
     t.mock.timers.tick(1000);
     view.showStatus({ type, message: '확인이 필요합니다.' });
     t.mock.timers.tick(10000);
@@ -272,7 +301,7 @@ test('a new success gets a full display interval and empty messages hide immedia
   const status = document.root.querySelector('.app-status');
   view.showStatus({ type: 'saved', message: '저장했습니다.' });
   t.mock.timers.tick(2000);
-  view.showStatus({ type: 'ready', message: '조회했습니다.' });
+  view.showStatus({ type: 'connected', message: '연결했습니다.' });
   t.mock.timers.tick(1000);
   assert.equal(status.hidden, false);
   t.mock.timers.tick(2000);

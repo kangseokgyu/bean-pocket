@@ -102,7 +102,7 @@ export function createAppController({
       const next = await repository.readAll();
       data = next;
       view.renderData?.(next);
-      view.showStatus?.({ type: 'ready', message: '최신 목록을 불러왔습니다.' });
+      view.showStatus?.({ type: 'ready', message: '' });
       return next;
     } catch (error) {
       showFailure(error, 'read-error');
@@ -193,6 +193,7 @@ export function createAppController({
       view.showConnection?.({ connected: !!activeConnection, needsRecovery });
       return false;
     } finally {
+      view.finishStartup?.();
       pending = false;
       stateChanged();
     }

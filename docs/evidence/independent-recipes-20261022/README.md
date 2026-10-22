@@ -12,24 +12,25 @@ Runtime: Node.js `v23.4.0`, npm `10.9.2`
 - Readback confirmed that date, rating, cup note, recipe, bag, and the snapshot source text stayed unchanged. No existing record, rating, or relation was deleted or rewritten.
 - This evidence records the operator-provided migration/readback result; this worker did not make live Notion changes. Actual Notion identifiers and record contents are intentionally omitted.
 
-## Test and build results
+## Verification history
 
-All final commands completed on the working tree after implementation and documentation changes:
+The previous implementation report is from base commit `ad966b05c4294fd1c98bf9717a1db56b0773ee6b`, before the Critic findings. Its `npm test` result was 428/428 and Pages build version was `cfc9a1d03179`; those historical logs remain at [npm-test.final.txt](npm-test.final.txt), [build-pages.final.txt](build-pages.final.txt), and [check-pages.final.txt](check-pages.final.txt). They are superseded for acceptance by the rework results below.
+
+The Critic rework red-first run had 116/126 passing and 10 expected failures for the newly added snapshot, relation uncertainty, and rating checks. The original failure output is preserved in [critic.red.test.txt](critic.red.test.txt). After implementation, the focused regression set passed 126/126 in [critic.green.test.txt](critic.green.test.txt).
+
+The required checks were rerun against the rework:
 
 | Command | Result | Log |
 |---|---:|---|
-| `npm test` | exit 0; 428 passed, 0 failed, 0 skipped | [npm-test.final.txt](npm-test.final.txt) |
-| `npm run build:pages` | exit 0; build version `cfc9a1d03179` | [build-pages.final.txt](build-pages.final.txt) |
-| `npm run check:pages` | exit 0 | [check-pages.final.txt](check-pages.final.txt) |
-| `node --test test/http.test.mjs` | exit 0; 14 passed | [http.test.green.txt](http.test.green.txt) |
+| `npm test` | exit 0; 437 passed, 0 failed, 0 skipped | [critic.npm-test.final.txt](critic.npm-test.final.txt) |
+| `npm run build:pages` | exit 0; build version `a9da5c5ed323` | [critic.build-pages.final.txt](critic.build-pages.final.txt) |
+| `npm run check:pages` | exit 0 | [critic.check-pages.final.txt](critic.check-pages.final.txt) |
 
-Focused logs also include 7/7 new contract tests, 25/25 command tests, UI coverage, and the intended red-first run where all seven new feature tests failed before implementation. See [red.test.txt](red.test.txt), [focused.test.green.txt](focused.test.green.txt), [pwa-commands.test.green.txt](pwa-commands.test.green.txt), and [pwa-ui.test.green.txt](pwa-ui.test.green.txt).
+## Critic browser evidence
 
-The first full run after the implementation had one test-harness `ReferenceError` (`fake` was not destructured from `setup`). That focused HTTP test passed after the fixture correction; the first-run output is preserved in [npm-test.first-run.failure.txt](npm-test.first-run.failure.txt). An earlier intermediate full run is retained as [npm-test.initial.txt](npm-test.initial.txt) and is not the final result.
+The Critic’s normal Chromium run was captured against the previous build `cfc9a1d03179`, before this rework. It verified independent recipe entry with no bean selector; required bean, recipe, date, and rating; bag selection and reset; optional bag and cup note; combined bean/recipe record filters; v2 snapshot storage; and no page errors or external network requests in those normal flows. The reviewed synthetic log and mobile records screenshot are copied as [critic-browser-results.json](critic-browser-results.json) and [critic-records-mobile.png](critic-records-mobile.png). A credential-marker scan checked 104 JSON strings before copying; the displayed records use synthetic content. This is historical browser evidence and must not be read as runtime verification of the rework build. The rework’s browser runtime has not been rerun in this worker session and remains for the Critic’s final review.
 
-## Runtime scope and rollback
-
-The Chrome DevTools MCP/browser runtime tool is unavailable in this worker session, so no real-browser runtime result is claimed. Browser runtime review remains for the Critic. These runs do not represent a new Pages publication, live app write test, device test, or merge.
+The copied browser artifacts do not contain actual Notion identifiers or user records. The malformed-snapshot runtime failure was not copied as a screenshot; it is now covered by the preserved red and passing green repository/UI regression tests. No live Notion writes, device run, merge, push, or publication were performed by this worker.
 
 Pre-change public recovery reference supplied by the operator: published build `d903139c5081`, last successful Pages run `39734457416`, and public head `4c407ecdbf2b630fc2e7045e7f7e4c4c626b8e18`. If the new source has a regression, revert the source and rerun the Pages workflow; do not delete the added relations or existing data.
 

@@ -20,7 +20,7 @@ const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', y
 const displayDate = value => value ? escape(value.slice(0, 10).replaceAll('-', '. ')) : '날짜 미입력';
 const beanLink = id => '#bean/' + encodeURIComponent(id);
 const recipeLink = id => '#recipe/' + encodeURIComponent(id);
-const stars = rating => '★'.repeat(Math.max(0, Math.min(5, Math.round(Number(rating) || 0))));
+const stars = rating => Number.isInteger(rating) && rating >= 1 && rating <= 5 ? '★'.repeat(rating) : '';
 const canSave = () => (connected || demo) && !stale && !loading;
 const disabled = () => canSave() ? '' : 'disabled';
 
@@ -101,9 +101,22 @@ function renderRecord(record) {
   const bag = data.bags.find(item => item.id === record.bagId);
   const bean = data.beans.find(item => item.id === record.beanId);
   const recipe = data.recipes.find(item => item.id === record.recipeId);
-  const snapshot = record.snapshot?.version === 2 ? record.snapshot.recipe : record.snapshot;
+  const validSnapshot = record.snapshotStatus === 'valid' ? record.snapshot : null;
+  const snapshot = validSnapshot?.version === 2 ? validSnapshot.recipe : validSnapshot;
   const needsConfirmation = record.beanResolution === 'needs-confirmation';
-  return `<article class="record"><div class="record-header"><span class="stars" aria-label="5점 만점에 ${escape(record.rating ?? '확인 필요')}점">${stars(record.rating)}</span><span>${displayDate(record.date)}</span></div><p>원두: ${escape(bean?.name || '원두 확인 필요')} · 레시피: ${escape(recipe?.name || snapshot?.name || '확인할 수 없는 레시피')}</p>${needsConfirmation ? '<p class="muted">과거 원두 관계를 확인해야 합니다.</p>' : ''}${bag ? `<p class="muted">원두 봉지: ${escape(bag.name)}</p>` : record.bagCandidates?.length ? '<p class="muted">원두 봉지 관계 확인 필요</p>' : ''}${record.cupNote ? `<p>${escape(record.cupNote)}</p>` : '<p class="muted">컵노트 없이 남긴 한 잔</p>'}<details><summary>당시 레시피 확인</summary><div class="snapshot">${snapshot ? `<strong>${escape(snapshot.name || '당시 레시피')}</strong>${recipeChips(snapshot)}${Array.isArray(snapshot.steps) ? stepsTable(snapshot.steps) : ''}` : '당시 조건이 저장되지 않은 기록입니다.'}</div></details></article>`;
+  const invalidLabels = [
+    ...(record.invalidFields?.includes('date') ? ['날짜'] : []),
+    ...(record.invalidFields?.includes('rating') ? ['별점(정수 1~5)'] : []),
+  ];
+  const warnings = [
+    ...(needsConfirmation ? ['과거 원두 관계를 확인해야 합니다.'] : []),
+    ...(invalidLabels.length ? [`기록 오류: ${invalidLabels.join(', ')}`] : []),
+    ...(record.snapshotStatus === 'damaged' ? ['스냅샷이 손상되어 당시 조건을 표시할 수 없습니다.'] : []),
+  ];
+  const snapshotMessage = record.snapshotStatus === 'damaged'
+    ? '기록 당시 조건을 검증할 수 없는 기록입니다.'
+    : '당시 조건이 저장되지 않은 기록입니다.';
+  return `<article class="record"><div class="record-header"><span class="stars" aria-label="5점 만점에 ${escape(record.rating ?? '확인 필요')}점">${stars(record.rating)}</span><span>${displayDate(record.date)}</span><span class="muted">별점: ${escape(record.rating ?? '확인 필요')}/5</span></div><p>원두: ${escape(bean?.name || '원두 확인 필요')} · 레시피: ${escape(recipe?.name || snapshot?.name || '확인할 수 없는 레시피')}</p>${warnings.map(message => `<p class="muted">${escape(message)}</p>`).join('')}${bag ? `<p class="muted">원두 봉지: ${escape(bag.name)}</p>` : record.bagCandidates?.length ? '<p class="muted">원두 봉지 관계 확인 필요</p>' : ''}${record.cupNote ? `<p>${escape(record.cupNote)}</p>` : '<p class="muted">컵노트 없이 남긴 한 잔</p>'}<details><summary>당시 레시피 확인</summary><div class="snapshot">${snapshot ? `<strong>${escape(snapshot.name || '당시 레시피')}</strong>${recipeChips(snapshot)}${Array.isArray(snapshot.steps) ? stepsTable(snapshot.steps) : ''}` : snapshotMessage}</div></details></article>`;
 }
 
 function render() {

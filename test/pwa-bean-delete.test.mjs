@@ -29,6 +29,17 @@ const patches = env => env.fake.calls.filter(c => c.method === 'PATCH');
 const recipe = beanId => ({ name: 'V60', beanId, dose: 15, totalWater: 250, temperature: 93,
   steps: [{ time: '0:00', water: 50 }, { time: '0:30', water: 200 }] });
 
+function convertRecordToLegacyV1(env, recipeId) {
+  const row = env.fake.rows.find(item => item.parent.data_source_id === env.connection().dataSources.records);
+  row.properties['원두'].relation = [];
+  const snapshotProperty = row.properties['당시 레시피 스냅샷'];
+  const snapshotV2 = JSON.parse(snapshotProperty.rich_text.map(item => item.text.content).join(''));
+  snapshotProperty.rich_text = [{ type: 'text', text: { content: JSON.stringify({
+    version: 1, ...snapshotV2.recipe, id: recipeId, beanId: env.id,
+  }) } }];
+  return row;
+}
+
 test('bean deletion persists its target before PATCH and refreshes the list', async () => {
   const env = await setup();
   env.fake.intercept = ({ method }) => {
@@ -93,6 +104,35 @@ test('bean deletion protects a known extraction record and an unresolved legacy 
   unresolved.fake.rows.push(recordPage);
   assert.equal((await unresolved.app.submit('delete-bean', { id: unresolved.id })).status, 'failed');
   assert.equal(patches(unresolved).length, 0);
+});
+
+test('bean deletion protects a v1 record when its legacy recipe has multiple bean candidates', async () => {
+  const env = await setup();
+  const other = await env.app.submit('beans', { name: '두 번째 원두' });
+  const saved = await env.app.submit('recipes', recipe(env.id));
+  await env.app.submit('records', { beanId: env.id, recipeId: saved.value.id, date: '2026-10-22', rating: 5 });
+  const record = convertRecordToLegacyV1(env, saved.value.id);
+  const recipeRow = env.fake.rows.find(row => row.id === saved.value.id);
+  recipeRow.properties['원두'] = { id: 'legacy-recipe-bean', type: 'relation',
+    relation: [{ id: env.id }, { id: other.value.id }], has_more: false };
+
+  assert.equal((await env.app.submit('delete-bean', { id: other.value.id })).status, 'failed');
+  assert.equal(patches(env).length, 0);
+  assert.equal(record.properties['원두'].relation.length, 0);
+});
+
+test('bean deletion stays blocked when a truncated legacy relation exposes only one candidate', async () => {
+  const env = await setup();
+  const other = await env.app.submit('beans', { name: '두 번째 원두' });
+  const saved = await env.app.submit('recipes', recipe(env.id));
+  await env.app.submit('records', { beanId: env.id, recipeId: saved.value.id, date: '2026-10-22', rating: 5 });
+  convertRecordToLegacyV1(env, saved.value.id);
+  const recipeRow = env.fake.rows.find(row => row.id === saved.value.id);
+  recipeRow.properties['원두'] = { id: 'legacy-recipe-bean', type: 'relation',
+    relation: [{ id: env.id }], has_more: true };
+
+  assert.equal((await env.app.submit('delete-bean', { id: other.value.id })).status, 'failed');
+  assert.equal(patches(env).length, 0);
 });
 
 test('excluded malformed related rows and failed fresh reads fail closed', async () => {

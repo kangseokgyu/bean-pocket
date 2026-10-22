@@ -362,7 +362,73 @@ test('버전 1 snapshot 전체·기록 날짜·별점을 검증한다', async ()
   assert.equal(result.records[1].rating, 4);
   assert.equal(result.records[1].beanResolution, 'relation');
   assert.equal(result.records[2].date, 'not-a-date');
+  assert.deepEqual(result.records[2].invalidFields, ['date']);
   assert.equal(result.records[3].rating, 6);
+  assert.deepEqual(result.records[3].invalidFields, ['rating']);
+  assert.deepEqual(result.recipes[0].stats, { count: 3, average: 4 });
+  assert.equal(result.excluded.records, 0);
+});
+
+test('multi-bean legacy recipe candidates conflict with a v1 snapshot and remain unresolved', async () => {
+  const rows = baselineRows();
+  rows.beans.push(beanPage(IDS.otherBean, '케냐'));
+  rows.recipes[0].properties['원두'] = {
+    id: 'legacy-recipe-bean', type: 'relation',
+    relation: [{ id: IDS.bean }, { id: IDS.otherBean }], has_more: false,
+  };
+  rows.records = [recordPage({ beanId: null, bagId: null,
+    snapshot: { ...legacySnapshot(storedRecipe()), beanId: IDS.bean } })];
+
+  const result = await fixture({ rows }).repository.readAll();
+  const record = result.records[0];
+  assert.equal(record.beanId, null);
+  assert.equal(record.beanResolution, 'needs-confirmation');
+  assert.deepEqual(record.beanCandidates, [IDS.bean, IDS.otherBean]);
+  assert.deepEqual(record.relationEvidence.legacyRecipeBean, {
+    ids: [IDS.bean, IDS.otherBean], complete: true, present: true,
+  });
+});
+
+test('truncated legacy relations preserve observed candidates and force confirmation', async () => {
+  const rows = baselineRows();
+  rows.records = [recordPage({ beanId: null, bagId: null,
+    snapshot: { ...legacySnapshot(storedRecipe()), beanId: IDS.bean } })];
+  rows.recipes[0].properties['원두'] = {
+    id: 'legacy-recipe-bean', type: 'relation', relation: [{ id: IDS.bean }], has_more: true,
+  };
+  rows.records[0].properties['원두'] = {
+    id: 'record-bean', type: 'relation', relation: [{ id: IDS.bean }], has_more: true,
+  };
+
+  const result = await fixture({ rows }).repository.readAll();
+  const record = result.records[0];
+  assert.equal(record.beanId, null);
+  assert.equal(record.beanResolution, 'needs-confirmation');
+  assert.deepEqual(record.beanCandidates, [IDS.bean]);
+  assert.equal(record.relationEvidence.bean.complete, false);
+  assert.equal(record.relationEvidence.legacyRecipeBean.complete, false);
+});
+
+test('invalid v1/v2 snapshots remain attached to the record as damage status, not renderable data', async () => {
+  const rows = baselineRows();
+  const v1 = legacySnapshot(storedRecipe());
+  v1.steps = { broken: true };
+  const v2Recipe = storedRecipe();
+  v2Recipe.steps = { broken: true };
+  rows.records = [
+    recordPage({ id: IDS.record, snapshot: v1 }),
+    recordPage({ id: IDS.secondRecord, snapshot: {
+      version: 2,
+      bean: { id: IDS.bean, name: '에티오피아', roaster: '', origin: '', variety: '', process: '', tastingNotes: '' },
+      recipe: v2Recipe,
+    } }),
+  ];
+
+  const result = await fixture({ rows }).repository.readAll();
+  assert.equal(result.records.length, 2);
+  assert.deepEqual(result.records.map(record => record.rating), [4, 4]);
+  assert.ok(result.records.every(record => record.snapshot === null));
+  assert.ok(result.records.every(record => record.snapshotStatus === 'damaged'));
   assert.equal(result.excluded.records, 0);
 });
 

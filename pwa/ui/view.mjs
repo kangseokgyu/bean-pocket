@@ -678,13 +678,21 @@ function recipeCard(document, recipe, data, detailed = false) {
   if (!records.length) article.append(make(document, 'p', '기록 없음'));
   for (const record of records) {
     const bean = data.beans.find(item => item.id === record.beanId);
-    article.append(make(document, 'p', `${record.date || '날짜 확인 필요'} · 원두: ${bean?.name || '원두 확인 필요'} · ${record.rating ?? '별점 확인 필요'}/5 ${Number.isInteger(record.rating) && record.rating > 0 ? '★'.repeat(Math.min(5, record.rating)) : ''}`));
+    const validRating = Number.isInteger(record.rating) && record.rating >= 1 && record.rating <= 5;
+    article.append(make(document, 'p', `${record.date || '날짜 확인 필요'} · 원두: ${bean?.name || '원두 확인 필요'} · ${record.rating ?? '별점 확인 필요'}/5 ${validRating ? '★'.repeat(record.rating) : ''}`));
+    const invalidLabels = [
+      ...(record.invalidFields?.includes('date') ? ['날짜'] : []),
+      ...(record.invalidFields?.includes('rating') ? ['별점(정수 1~5)'] : []),
+    ];
+    if (invalidLabels.length) article.append(make(document, 'p', `기록 오류: ${invalidLabels.join(', ')}`, 'record-warning'));
+    if (record.snapshotStatus === 'damaged') article.append(make(document, 'p', '스냅샷이 손상되어 당시 조건을 표시할 수 없습니다.', 'record-warning'));
     if (record.cupNote) article.append(make(document, 'p', `컵노트: ${record.cupNote}`));
     const bag = data.bags.find(item => item.id === record.bagId);
     const bagName = record.bagId ? (bag?.name || '조회할 수 없는 봉지') : record.bagCandidates?.length ? '관계 확인 필요' : '선택 안 함';
     article.append(make(document, 'p', `원두 봉지: ${bagName}`, 'record-bag'));
-    const snapshot = record.snapshot?.version === 2 ? record.snapshot.recipe : record.snapshot;
-    if (snapshot?.steps) {
+    const validSnapshot = record.snapshotStatus === 'valid' ? record.snapshot : null;
+    const snapshot = validSnapshot?.version === 2 ? validSnapshot.recipe : validSnapshot;
+    if (Array.isArray(snapshot?.steps)) {
       article.append(make(document, 'p', `기록 당시 조건: ${snapshot.dripper || '드리퍼 미기록'} · ${snapshot.dose}g · ${snapshot.temperature}℃ · 물 ${snapshot.totalWater}g`));
       article.append(make(document, 'div', `당시 단계: ${snapshot.steps.map(step => `${step.name} ${formatTime(step.seconds)} · ${step.water}g · 누적 ${step.cumulativeWater}g`).join(' / ')}`, 'snapshot-steps'));
     }
@@ -809,10 +817,18 @@ function recordCard(document, record, data) {
   const card = make(document, 'article', undefined, 'record-card');
   const bean = data.beans.find(item => item.id === record.beanId);
   const recipe = data.recipes.find(item => item.id === record.recipeId);
-  const snapshotRecipe = record.snapshot?.version === 2 ? record.snapshot.recipe : record.snapshot;
+  const validSnapshot = record.snapshotStatus === 'valid' ? record.snapshot : null;
+  const snapshotRecipe = validSnapshot?.version === 2 ? validSnapshot.recipe : validSnapshot;
+  const validRating = Number.isInteger(record.rating) && record.rating >= 1 && record.rating <= 5;
   card.append(make(document, 'h3', `${record.date || '날짜 확인 필요'} · ${bean?.name || '원두 확인 필요'}`));
-  card.append(make(document, 'p', `레시피: ${recipe?.name || snapshotRecipe?.name || '확인할 수 없는 레시피'} · ${record.rating ?? '별점 확인 필요'}/5 ${Number.isInteger(record.rating) && record.rating > 0 ? '★'.repeat(Math.min(5, record.rating)) : ''}`));
+  card.append(make(document, 'p', `레시피: ${recipe?.name || snapshotRecipe?.name || '확인할 수 없는 레시피'} · ${record.rating ?? '별점 확인 필요'}/5 ${validRating ? '★'.repeat(record.rating) : ''}`));
   if (record.beanResolution === 'needs-confirmation') card.append(make(document, 'p', '과거 원두 관계를 확인해야 합니다.', 'record-warning'));
+  const invalidLabels = [
+    ...(record.invalidFields?.includes('date') ? ['날짜'] : []),
+    ...(record.invalidFields?.includes('rating') ? ['별점(정수 1~5)'] : []),
+  ];
+  if (invalidLabels.length) card.append(make(document, 'p', `기록 오류: ${invalidLabels.join(', ')}`, 'record-warning'));
+  if (record.snapshotStatus === 'damaged') card.append(make(document, 'p', '스냅샷이 손상되어 당시 조건을 표시할 수 없습니다.', 'record-warning'));
   if (record.cupNote) card.append(make(document, 'p', `컵노트: ${record.cupNote}`));
   const bag = data.bags.find(item => item.id === record.bagId);
   card.append(make(document, 'p', `원두 봉지: ${record.bagId ? bag?.name || '조회할 수 없는 봉지' : record.bagCandidates?.length ? '관계 확인 필요' : '선택 안 함'}`));

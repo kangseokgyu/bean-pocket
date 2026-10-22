@@ -1,0 +1,103 @@
+{
+  "case": "truncated bean relation may conceal second bean",
+  "record": {
+    "id": "cccccccc-cccc-4ccc-8ccc-000000000006",
+    "name": "2026-10-22 · V60",
+    "beanId": null,
+    "recipeId": "cccccccc-cccc-4ccc-8ccc-000000000003",
+    "bagId": null,
+    "date": "2026-10-22",
+    "rating": 5,
+    "cupNote": "",
+    "snapshot": {
+      "version": 2,
+      "bean": {
+        "id": "cccccccc-cccc-4ccc-8ccc-000000000001",
+        "name": "삭제 테스트 원두",
+        "roaster": "",
+        "origin": "",
+        "variety": "",
+        "process": "",
+        "tastingNotes": ""
+      },
+      "recipe": {
+        "id": "cccccccc-cccc-4ccc-8ccc-000000000003",
+        "name": "V60",
+        "dripper": "",
+        "dose": 15,
+        "grind": "",
+        "grinder": "",
+        "grinderSetting": "",
+        "microns": null,
+        "temperature": 93,
+        "totalWater": 250,
+        "steps": [
+          {
+            "id": "cccccccc-cccc-4ccc-8ccc-000000000005",
+            "name": "1단계",
+            "recipeId": "cccccccc-cccc-4ccc-8ccc-000000000003",
+            "order": 1,
+            "seconds": 0,
+            "interval": 0,
+            "water": 50,
+            "cumulativeWater": 50
+          },
+          {
+            "id": "cccccccc-cccc-4ccc-8ccc-000000000004",
+            "name": "2단계",
+            "recipeId": "cccccccc-cccc-4ccc-8ccc-000000000003",
+            "order": 2,
+            "seconds": 30,
+            "interval": 30,
+            "water": 200,
+            "cumulativeWater": 250
+          }
+        ]
+      }
+    },
+    "snapshotStatus": "valid",
+    "relationEvidence": {
+      "bean": {
+        "ids": [
+          "cccccccc-cccc-4ccc-8ccc-000000000001"
+        ],
+        "complete": false,
+        "present": true
+      },
+      "recipe": {
+        "ids": [
+          "cccccccc-cccc-4ccc-8ccc-000000000003"
+        ],
+        "complete": true,
+        "present": true
+      },
+      "bag": {
+        "ids": [],
+        "complete": true,
+        "present": true
+      },
+      "legacyRecipeBean": {
+        "ids": [],
+        "complete": true,
+        "present": false
+      },
+      "bagBean": {
+        "ids": [],
+        "complete": true,
+        "present": false
+      }
+    },
+    "beanResolution": "needs-confirmation",
+    "beanCandidates": [
+      "cccccccc-cccc-4ccc-8ccc-000000000001"
+    ]
+  },
+  "excluded": {
+    "bags": 0,
+    "recipes": 0,
+    "records": 0,
+    "steps": 0
+  },
+  "deletionStatus": "failed",
+  "patches": 0
+}

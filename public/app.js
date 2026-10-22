@@ -251,7 +251,7 @@ async function saveData(kind, payload, key) {
       const recipe = data.recipes.find(item => item.id === payload.recipeId);
       const bean = data.beans.find(item => item.id === payload.beanId);
       const bag = data.bags.find(item => item.id === payload.bagId);
-      item = { ...validateRecord(payload, recipe, bean, bag), snapshot: createSnapshot(bean, recipe) };
+      item = { ...validateRecord(payload, recipe, bean, bag), snapshot: createSnapshot(bean, recipe), snapshotStatus: 'valid' };
     }
     item.id = crypto.randomUUID();
     data[kind].push(item);

@@ -1,0 +1,5 @@
+
+> check:pages
+> node scripts/check-pages.mjs
+
+Pages 산출물 검사 통과

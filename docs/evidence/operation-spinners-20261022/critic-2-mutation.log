@@ -1,0 +1,37 @@
+TAP version 13
+# (node:10088) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: operation spinner stays visible through success, ready and timeout, then clears on completion or failure
+not ok 1 - operation spinner stays visible through success, ready and timeout, then clears on completion or failure
+  ---
+  duration_ms: 3.448834
+  type: 'test'
+  location: '/private/tmp/operation-spinners-critic2-mutation/test/pwa-ui.view.test.mjs:367:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    assertPendingSpinner (file:///private/tmp/operation-spinners-critic2-mutation/test/pwa-ui.view.test.mjs:380:12)
+    TestContext.<anonymous> (file:///private/tmp/operation-spinners-critic2-mutation/test/pwa-ui.view.test.mjs:395:3)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 54.235708

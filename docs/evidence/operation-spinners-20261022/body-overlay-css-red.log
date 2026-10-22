@@ -1,0 +1,813 @@
+✔ connection verifies under the write lock before durable commit and never exposes the token (1.654875ms)
+✔ a rejected connection replacement keeps the previously verified connection active (0.413625ms)
+✔ a verification failure never writes or reports an active connection (0.199584ms)
+✔ a successful connection remains active when the first full read fails (0.147083ms)
+✔ lifecycle freeze refuses dirty or pending work and freezes clean state (0.164417ms)
+✔ frozen lifecycle rejects refresh and connection replacement before side effects (0.213292ms)
+✔ dirty drafts prevent lifecycle freeze and are reported to the coordinator (0.151916ms)
+✔ manual refresh owns the pending state and refuses a second read until it finishes (4.36875ms)
+✔ current-connection recovery keeps pending through reinitialization and its final read (4.341375ms)
+✔ initialization fails closed when state is blocked without a journal-visible recovery (0.5515ms)
+✔ initialization does not offer a fresh connection setup for an unexplained blocked state (0.245958ms)
+✔ initialization keeps the verified connection available to resolve a journaled unknown write (0.115042ms)
+✔ initialization retries only startup lock acquisition and becomes ready when the lock clears (302.974625ms)
+✔ exhausted startup lock contention offers a saved-state retry without connection entry (1808.862333ms)
+✔ startup does not retry a lock-busy error thrown after entering the native lock callback (0.377292ms)
+✔ resolution rejects extra page IDs when the journal already records created pages (1.222708ms)
+✔ connection settings open only after no saved connection is found (2.142167ms)
+✔ startup checking shows one body overlay until retry is needed (2.198916ms)
+✔ initialization spinner ends on saved (2.345875ms)
+✔ initialization spinner ends on missing (1.095084ms)
+✔ initialization spinner ends on error (0.588625ms)
+✔ initialization spinner ends on recovery (0.975417ms)
+✔ initialization spinner ends on busy (2.619958ms)
+✔ initialization spinner ends on read-error (0.689959ms)
+✔ shared loading overlay stays outside transformed page through ready completion (0.89225ms)
+✔ saved connection leaves a header icon that toggles settings without losing input (0.528833ms)
+✔ successful status messages stay visible for three seconds then hide (0.798292ms)
+✔ errors, recovery notices and pending work stay visible after replacing success (0.328458ms)
+✖ operation spinner stays in body overlay outside the touch-transformed page (1.809167ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /\.startup-loading \.operation-spinner\s*\{\s*animation:\s*pull-refresh-spin 0\.8s steps\(12\) infinite;/. Input:
+
+  ':root {\n' +
+    '  color-scheme: light;\n' +
+    '  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;\n' +
+    '  color: #203d32;\n' +
+    '  background: #f3efe6;\n' +
+    '  font-synthesis: none;\n' +
+    '  text-rendering: optimizeLegibility;\n' +
+    '  -webkit-text-size-adjust: 100%;\n' +
+    '}\n' +
+    '\n' +
+    '* { box-sizing: border-box; }\n' +
+    '[hidden] { display: none !important; }\n' +
+    'html { overscroll-behavior-y: contain; }\n' +
+    '\n' +
+    '.pull-refresh {\n' +
+    '  position: fixed;\n' +
+    '  top: calc(env(safe-area-inset-top, 0px) + 16px);\n' +
+    '  left: 50%;\n' +
+    '  transform: translate(-50%, calc((var(--pull-progress, 0) - 1) * 24px));\n' +
+    '  opacity: var(--pull-progress, 0);\n' +
+    '  z-index: 10;\n' +
+    '  color: #77766e;\n' +
+    '  pointer-events: none;\n' +
+    '}\n' +
+    '\n' +
+    '.pull-refresh-spinner {\n' +
+    '  display: block;\n' +
+    '  position: relative;\n' +
+    '  width: 24px;\n' +
+    '  height: 24px;\n' +
+    '  transform: rotate(var(--pull-angle, 0deg));\n' +
+    '}\n' +
+    '\n' +
+    '.pull-refresh-spoke { position: absolute; inset: 0; }\n' +
+    '.pull-refresh-spoke::before {\n' +
+    "  content: '';\n" +
+    '  position: absolute;\n' +
+    '  top: 0;\n' +
+    '  left: 11px;\n' +
+    '  width: 2px;\n' +
+    '  height: 6px;\n' +
+    '  border-radius: 2px;\n' +
+    '  background: currentColor;\n' +
+    '}\n' +
+    '\n' +
+    '.pull-refresh[data-state="reloading"] .pull-refresh-spinner,\n' +
+    '.startup-loading .startup-spinner,\n' +
+    '.app-status .operation-spinner {\n' +
+    '  animation: pull-refresh-spin 0.8s steps(12) infinite;\n' +
+    '}\n' +
+    '.app-status { display: flex; align-items: center; gap: 8px; }\n' +
+    '.app-status .status-message { min-width: 0; }\n' +
+    '@keyframes pull-refresh-spin { to { transform: rotate(calc(var(--pull-angle, 0deg) + 360deg)); } }\n' +
+    '\n' +
+    '.startup-loading {\n' +
+    '  position: fixed;\n' +
+    '  inset: 0;\n' +
+    '  z-index: 100;\n' +
+    '  display: grid;\n' +
+    '  place-items: center;\n' +
+    '  background: rgb(243 239 230 / 35%);\n' +
+    '  color: #77766e;\n' +
+    '  touch-action: none;\n' +
+    '}\n' +
+    '\n' +
+    '.pull-refresh-label,\n' +
+    '.visually-hidden {\n' +
+    '  position: absolute;\n' +
+    '  width: 1px;\n' +
+    '  height: 1px;\n' +
+    '  padding: 0;\n' +
+    '  margin: -1px;\n' +
+    '  overflow: hidden;\n' +
+    '  clip-path: inset(50%);\n' +
+    '  white-space: nowrap;\n' +
+    '}\n' +
+    '\n' +
+    '[data-pull-state] {\n' +
+    '  transform: translateY(var(--pull-offset, 0px));\n' +
+    '  transition: transform 180ms ease-out;\n' +
+    '}\n' +
+    '[data-pull-state="pulling"] { transition: none; }\n' +
+    '\n' +
+    '@media (prefers-reduced-motion: reduce) {\n' +
+    '  .pull-refresh[data-state="reloading"] .pull-refresh-spinner,\n' +
+    '  .startup-loading .startup-spinner,\n' +
+    '  .startup-loading .operation-spinner { animation: none; }\n' +
+    '  [data-pull-state] { transition: none; }\n' +
+    '}\n' +
+    '\n' +
+    'body {\n' +
+    '  min-width: 320px;\n' +
+    '  min-height: 100vh;\n' +
+    '  margin: 0;\n' +
+    '  overflow-x: hidden;\n' +
+    '}\n' +
+    '\n' +
+    'button, input, select, textarea { font: inherit; }\n' +
+    '\n' +
+    'button { touch-action: manipulation; }\n' +
+    '\n' +
+    '.page {\n' +
+    '  width: min(100% - 32px, 760px);\n' +
+    '  min-height: 100vh;\n' +
+    '  margin: 0 auto;\n' +
+    '  padding: 20px 0 18px;\n' +
+    '  display: flex;\n' +
+    '  flex-direction: column;\n' +
+    '}\n' +
+    '\n' +
+    '.site-header {\n' +
+    '  display: flex;\n' +
+    '  align-items: center;\n' +
+    '  justify-content: space-between;\n' +
+    '  gap: 12px;\n' +
+    '  padding-bottom: 16px;\n' +
+    '  border-bottom: 1px solid #d8d1c3;\n' +
+    '}\n' +
+    '\n' +
+    '.eyebrow {\n' +
+    '  color: #587464;\n' +
+    '  font-size: 0.75rem;\n' +
+    '  font-weight: 750;\n' +
+    '  letter-spacing: 0.14em;\n' +
+    '}\n' +
+    '\n' +
+    '.build-version {\n' +
+    '  margin: 0;\n' +
+    '  color: #746f63;\n' +
+    '  font-size: 0.75rem;\n' +
+    '  font-variant-numeric: tabular-nums;\n' +
+    '}\n' +
+    '\n' +
+    '.header-tools { display: flex; align-items: center; gap: 8px; }\n' +
+    '#connection-tools { display: flex; }\n' +
+    '.button.connection-toggle {\n' +
+    '  min-width: 44px;\n' +
+    '  min-height: 44px;\n' +
+    '  padding: 6px;\n' +
+    '  background: transparent;\n' +
+    '  border-color: transparent;\n' +
+    '  color: #587464;\n' +
+    '  font-size: 1.25rem;\n' +
+    '}\n' +
+    '.connection-toggle[aria-expanded="true"] { background: #e8eee7; }\n' +
+    '\n' +
+    '.bean-section {\n' +
+    '  flex: 1;\n' +
+    '  min-width: 0;\n' +
+    '  padding: clamp(24px, 6vh, 48px) 0;\n' +
+    '}\n' +
+    '\n' +
+    'h1, h2, h3, h4, h5, p { overflow-wrap: anywhere; }\n' +
+    'h1 { margin: 0 0 18px; font-size: clamp(1.8rem, 8vw, 3rem); letter-spacing: -0.045em; }\n' +
+    'h2 { margin: 0 0 16px; font-size: 1.35rem; }\n' +
+    'h3 { margin: 0 0 8px; font-size: 1.1rem; }\n' +
+    'h4, h5 { margin: 16px 0 8px; }\n' +
+    'p { line-height: 1.6; }\n' +
+    '\n' +
+    '.connection-note, .app-status {\n' +
+    '  margin: 0 0 16px;\n' +
+    '  padding: 13px 15px;\n' +
+    '  border: 1px solid #d8d1c3;\n' +
+    '  border-radius: 12px;\n' +
+    '  background: #faf8f2;\n' +
+    '  color: #5c5a50;\n' +
+    '  line-height: 1.55;\n' +
+    '}\n' +
+    '\n' +
+    '.app-status[data-state="startup-busy"] {\n' +
+    '  border-color: #c6b98b;\n' +
+    '  background: #fffbed;\n' +
+    '  color: #5e5129;\n' +
+    '}\n' +
+    '\n' +
+    '.app-status[data-state="read-error"], .app-status[data-state="connection-error"],\n' +
+    '.app-status[data-state="validation-error"], .app-status[data-state="unknown"],\n' +
+    '.app-status[data-state="partial"], .app-status[data-state="resolution-error"] {\n' +
+    '  border-color: #c98572;\n' +
+    '  background: #fff5f1;\n' +
+    '  color: #7c3527;\n' +
+    '}\n' +
+    '\n' +
+    '.app-status[data-state="saved"], .app-status[data-state="connected"],\n' +
+    '.app-status[data-state="ready"], .app-status[data-state="resolved"] {\n' +
+    '  border-color: #9db8a5;\n' +
+    '  background: #f3faf4;\n' +
+    '}\n' +
+    '\n' +
+    '.panel, .data-panel, .unresolved-panel {\n' +
+    '  min-width: 0;\n' +
+    '  margin-top: 16px;\n' +
+    '  padding: 16px;\n' +
+    '  border: 1px solid #ded7ca;\n' +
+    '  border-radius: 16px;\n' +
+    '  background: #fbf9f4;\n' +
+    '  box-shadow: 0 5px 16px rgb(53 63 46 / 5%);\n' +
+    '}\n' +
+    '\n' +
+    '.connection-details > summary {\n' +
+    '  min-height: 44px;\n' +
+    '  display: flex;\n' +
+    '  align-items: center;\n' +
+    '  cursor: pointer;\n' +
+    '  font-weight: 700;\n' +
+    '}\n' +
+    '\n' +
+    '.form-grid { display: grid; gap: 16px; min-width: 0; }\n' +
+    '.form-fieldset {\n' +
+    '  display: grid;\n' +
+    '  grid-template-columns: repeat(2, minmax(0, 1fr));\n' +
+    '  gap: 14px 16px;\n' +
+    '  min-width: 0;\n' +
+    '  margin: 0;\n' +
+    '  padding: 15px;\n' +
+    '  border: 1px solid #d8d1c3;\n' +
+    '  border-radius: 12px;\n' +
+    '}\n' +
+    '\n' +
+    '.form-fieldset legend { padding: 0 6px; font-weight: 700; }\n' +
+    '.form-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }\n' +
+    '.form-field-label { color: #3d5147; font-size: 0.92rem; font-weight: 650; line-height: 1.4; }\n' +
+    '\n' +
+    '.form-field input, .form-field select, .form-field textarea {\n' +
+    '  display: block;\n' +
+    '  width: 100%;\n' +
+    '  min-width: 0;\n' +
+    '  min-height: 46px;\n' +
+    '  padding: 10px 12px;\n' +
+    '  border: 1px solid #aaa99e;\n' +
+    '  border-radius: 9px;\n' +
+    '  background: #fffefa;\n' +
+    '  color: #203d32;\n' +
+    '}\n' +
+    '\n' +
+    '/* Avoid iOS native date controls adding padding outside their declared width. */\n' +
+    '.form-field input[type="date"] {\n' +
+    '  -webkit-appearance: none;\n' +
+    '  appearance: none;\n' +
+    '  box-sizing: border-box;\n' +
+    '  max-width: 100%;\n' +
+    '}\n' +
+    '\n' +
+    '.form-field textarea { min-height: 92px; resize: vertical; }\n' +
+    '.form-field input:focus, .form-field select:focus, .form-field textarea:focus,\n' +
+    'button:focus-visible, .table-scroll:focus-visible {\n' +
+    '  outline: 3px solid #8ab59a;\n' +
+    '  outline-offset: 2px;\n' +
+    '}\n' +
+    '\n' +
+    '.form-field [type="checkbox"] {\n' +
+    '  width: 24px;\n' +
+    '  min-height: 24px;\n' +
+    '  margin: 0 8px 0 0;\n' +
+    '  accent-color: #2d7051;\n' +
+    '}\n' +
+    '\n' +
+    '.form-field:has([type="checkbox"]) { flex-direction: row; align-items: center; gap: 8px; }\n' +
+    '.form-field:has([type="checkbox"]) .form-field-label { flex: 1; }\n' +
+    '\n' +
+    '.form-actions { display: flex; flex-wrap: wrap; gap: 10px; }\n' +
+    '.button {\n' +
+    '  min-height: 46px;\n' +
+    '  max-width: 100%;\n' +
+    '  padding: 10px 15px;\n' +
+    '  border: 1px solid #b9c7bb;\n' +
+    '  border-radius: 10px;\n' +
+    '  background: #e8f0e8;\n' +
+    '  color: #234737;\n' +
+    '  font-weight: 700;\n' +
+    '  line-height: 1.25;\n' +
+    '  overflow-wrap: anywhere;\n' +
+    '  cursor: pointer;\n' +
+    '}\n' +
+    '\n' +
+    '.form-actions .button[type="submit"], .connection-panel .button[type="submit"],\n' +
+    '.resolution-form .button[type="submit"] {\n' +
+    '  border-color: #224b3c;\n' +
+    '  background: #224b3c;\n' +
+    '  color: #fff;\n' +
+    '}\n' +
+    '\n' +
+    '.button:disabled, input:disabled, select:disabled, textarea:disabled {\n' +
+    '  opacity: 0.58;\n' +
+    '  cursor: not-allowed;\n' +
+    '}\n' +
+    '\n' +
+    '.tabs {\n' +
+    '  display: grid;\n' +
+    '  grid-template-columns: repeat(4, minmax(0, 1fr));\n' +
+    '  gap: 8px;\n' +
+    '  margin-top: 0;\n' +
+    '}\n' +
+    '\n' +
+    '.tabs .button { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 48px; padding-inline: 8px; }\n' +
+    '.nav-icon { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }\n' +
+    '.tabs [aria-current="page"] { border-color: #224b3c; background: #224b3c; color: #fff; }\n' +
+    '\n' +
+    '.data-panel { padding: 16px; }\n' +
+    '.list-view { display: grid; gap: 16px; min-width: 0; }\n' +
+    '.list-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }\n' +
+    '.list-header h2 { margin: 0; }\n' +
+    '.list-actions { display: flex; gap: 8px; flex-shrink: 0; }\n' +
+    '.icon-button { display: inline-flex; align-items: center; justify-content: center; width: 46px; padding: 8px; font-size: 1.5rem; }\n' +
+    '.bean-card, .bag-group, .recipe-card, .resolution-card {\n' +
+    '  min-width: 0;\n' +
+    '  padding: 15px;\n' +
+    '  border: 1px solid #e0dbcf;\n' +
+    '  border-radius: 12px;\n' +
+    '  background: #fffefa;\n' +
+    '}\n' +
+    '\n' +
+    '.bean-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }\n' +
+    '.bean-card-header h3 { min-width: 0; overflow-wrap: anywhere; margin: 0 0 12px; }\n' +
+    '.bean-delete { flex: 0 0 46px; width: 46px; height: 46px; margin: -14px -8px 0 0; color: #737373; background: transparent; border-color: transparent; }\n' +
+    '.bean-delete svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }\n' +
+    '.bean-delete:hover:not(:disabled) { background: #f0f0ed; border-color: #b7b7af; }\n' +
+    '\n' +
+    '.bean-card > :last-child, .recipe-card > :last-child { margin-bottom: 0; }\n' +
+    '.muted-note, .empty-state { color: #68685e; }\n' +
+    '.repair-panel { margin-top: 14px; padding-top: 14px; border-top: 1px solid #ded7ca; }\n' +
+    '.startup-retry-panel { margin-top: 14px; padding: 14px; border: 1px solid #c6b98b; border-radius: 12px; background: #fffbed; }\n' +
+    '.startup-retry-panel > :last-child { margin-bottom: 0; }\n' +
+    '.unresolved-panel { border-color: #c98572; background: #fff8f4; }\n' +
+    '.unresolved-panel > h2 { margin-top: 0; }\n' +
+    '.resolution-card + .resolution-card { margin-top: 12px; }\n' +
+    '.resolution-form { padding-top: 12px; border-top: 1px solid #ead6ce; }\n' +
+    '.field-error { color: #8b3024; font-size: 0.9rem; line-height: 1.4; }\n' +
+    '[aria-invalid="true"] { border-color: #a93d2b !important; }\n' +
+    '\n' +
+    '.table-scroll {\n' +
+    '  max-width: 100%;\n' +
+    '  min-width: 0;\n' +
+    '  overflow-x: auto;\n' +
+    '  overscroll-behavior-inline: contain;\n' +
+    '  border: 1px solid #ded7ca;\n' +
+    '  border-radius: 9px;\n' +
+    '  background: #fffefa;\n' +
+    '  -webkit-overflow-scrolling: touch;\n' +
+    '}\n' +
+    '\n' +
+    '.steps-table, .steps-preview-table { width: 100%; border-collapse: collapse; }\n' +
+    '.steps-table { min-width: 560px; }\n' +
+    '.steps-preview-table { min-width: 460px; }\n' +
+    '.steps-table th, .steps-table td, .steps-preview-table th, .steps-preview-table td {\n' +
+    '  padding: 10px 11px;\n' +
+    '  border-bottom: 1px solid #e6e0d4;\n' +
+    '  text-align: left;\n' +
+    '  vertical-align: top;\n' +
+    '  white-space: nowrap;\n' +
+    '}\n' +
+    '.steps-table th, .steps-preview-table th { background: #f2eee5; font-size: 0.87rem; }\n' +
+    '.steps-table tr:last-child td, .steps-preview-table tr:last-child td { border-bottom'... 1160 more characters
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/operation-spinners/AX-1day/test/pwa-ui.view.test.mjs:338:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `:root {\n  color-scheme: light;\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;\n  color: #203d32;\n  background: #f3efe6;\n  font-synthesis: none;\n  text-rendering: optimizeLegibility;\n  -webkit-text-size-adjust: 100%;\n}\n\n* { box-sizing: border-box; }\n[hidden] { display: none !important; }\nhtml { overscroll-behavior-y: contain; }\n\n.pull-refresh {\n  position: fixed;\n  top: calc(env(safe-area-inset-top, 0px) + 16px);\n  left: 50%;\n  transform: translate(-50%, calc((var(--pull-progress, 0) - 1) * 24px));\n  opacity: var(--pull-progress, 0);\n  z-index: 10;\n  color: #77766e;\n  pointer-events: none;\n}\n\n.pull-refresh-spinner {\n  display: block;\n  position: relative;\n  width: 24px;\n  height: 24px;\n  transform: rotate(var(--pull-angle, 0deg));\n}\n\n.pull-refresh-spoke { position: absolute; inset: 0; }\n.pull-refresh-spoke::before {\n  content: '';\n  position: absolute;\n  top: 0;\n  left: 11px;\n  width: 2px;\n  height: 6px;\n  border-radius: 2px;\n  background: currentColor;\n}\n\n.pull-refresh[data-state="reloading"] .pull-refresh-spinner,\n.startup-loading .startup-spinner,\n.app-status .operation-spinner {\n  animation: pull-refresh-spin 0.8s steps(12) infinite;\n}\n.app-status { display: flex; align-items: center; gap: 8px; }\n.app-status .status-message { min-width: 0; }\n@keyframes pull-refresh-spin { to { transform: rotate(calc(var(--pull-angle, 0deg) + 360deg)); } }\n\n.startup-loading {\n  position: fixed;\n  inset: 0;\n  z-index: 100;\n  display: grid;\n  place-items: center;\n  background: rgb(243 239 230 / 35%);\n  color: #77766e;\n  touch-action: none;\n}\n\n.pull-refresh-label,\n.visually-hidden {\n  position: absolute;\n  width: 1px;\n  height: 1px;\n  padding: 0;\n  margin: -1px;\n  overflow: hidden;\n  clip-path: inset(50%);\n  white-space: nowrap;\n}\n\n[data-pull-state] {\n  transform: translateY(var(--pull-offset, 0px));\n  transition: transform 180ms ease-out;\n}\n[data-pull-state="pulling"] { transition: none; }\n\n@media (prefers-reduced-motion: reduce) {\n  .pull-refresh[data-state="reloading"] .pull-refresh-spinner,\n  .startup-loading .startup-spinner,\n  .startup-loading .operation-spinner { animation: none; }\n  [data-pull-state] { transition: none; }\n}\n\nbody {\n  min-width: 320px;\n  min-height: 100vh;\n  margin: 0;\n  overflow-x: hidden;\n}\n\nbutton, input, select, textarea { font: inherit; }\n\nbutton { touch-action: manipulation; }\n\n.page {\n  width: min(100% - 32px, 760px);\n  min-height: 100vh;\n  margin: 0 auto;\n  padding: 20px 0 18px;\n  display: flex;\n  flex-direction: column;\n}\n\n.site-header {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 12px;\n  padding-bottom: 16px;\n  border-bottom: 1px solid #d8d1c3;\n}\n\n.eyebrow {\n  color: #587464;\n  font-size: 0.75rem;\n  font-weight: 750;\n  letter-spacing: 0.14em;\n}\n\n.build-version {\n  margin: 0;\n  color: #746f63;\n  font-size: 0.75rem;\n  font-variant-numeric: tabular-nums;\n}\n\n.header-tools { display: flex; align-items: center; gap: 8px; }\n#connection-tools { display: flex; }\n.button.connection-toggle {\n  min-width: 44px;\n  min-height: 44px;\n  padding: 6px;\n  background: transparent;\n  border-color: transparent;\n  color: #587464;\n  font-size: 1.25rem;\n}\n.connection-toggle[aria-expanded="true"] { background: #e8eee7; }\n\n.bean-section {\n  flex: 1;\n  min-width: 0;\n  padding: clamp(24px, 6vh, 48px) 0;\n}\n\nh1, h2, h3, h4, h5, p { overflow-wrap: anywhere; }\nh1 { margin: 0 0 18px; font-size: clamp(1.8rem, 8vw, 3rem); letter-spacing: -0.045em; }\nh2 { margin: 0 0 16px; font-size: 1.35rem; }\nh3 { margin: 0 0 8px; font-size: 1.1rem; }\nh4, h5 { margin: 16px 0 8px; }\np { line-height: 1.6; }\n\n.connection-note, .app-status {\n  margin: 0 0 16px;\n  padding: 13px 15px;\n  border: 1px solid #d8d1c3;\n  border-radius: 12px;\n  background: #faf8f2;\n  color: #5c5a50;\n  line-height: 1.55;\n}\n\n.app-status[data-state="startup-busy"] {\n  border-color: #c6b98b;\n  background: #fffbed;\n  color: #5e5129;\n}\n\n.app-status[data-state="read-error"], .app-status[data-state="connection-error"],\n.app-status[data-state="validation-error"], .app-status[data-state="unknown"],\n.app-status[data-state="partial"], .app-status[data-state="resolution-error"] {\n  border-color: #c98572;\n  background: #fff5f1;\n  color: #7c3527;\n}\n\n.app-status[data-state="saved"], .app-status[data-state="connected"],\n.app-status[data-state="ready"], .app-status[data-state="resolved"] {\n  border-color: #9db8a5;\n  background: #f3faf4;\n}\n\n.panel, .data-panel, .unresolved-panel {\n  min-width: 0;\n  margin-top: 16px;\n  padding: 16px;\n  border: 1px solid #ded7ca;\n  border-radius: 16px;\n  background: #fbf9f4;\n  box-shadow: 0 5px 16px rgb(53 63 46 / 5%);\n}\n\n.connection-details > summary {\n  min-height: 44px;\n  display: flex;\n  align-items: center;\n  cursor: pointer;\n  font-weight: 700;\n}\n\n.form-grid { display: grid; gap: 16px; min-width: 0; }\n.form-fieldset {\n  display: grid;\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n  gap: 14px 16px;\n  min-width: 0;\n  margin: 0;\n  padding: 15px;\n  border: 1px solid #d8d1c3;\n  border-radius: 12px;\n}\n\n.form-fieldset legend { padding: 0 6px; font-weight: 700; }\n.form-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }\n.form-field-label { color: #3d5147; font-size: 0.92rem; font-weight: 650; line-height: 1.4; }\n\n.form-field input, .form-field select, .form-field textarea {\n  display: block;\n  width: 100%;\n  min-width: 0;\n  min-height: 46px;\n  padding: 10px 12px;\n  border: 1px solid #aaa99e;\n  border-radius: 9px;\n  background: #fffefa;\n  color: #203d32;\n}\n\n/* Avoid iOS native date controls adding padding outside their declared width. */\n.form-field input[type="date"] {\n  -webkit-appearance: none;\n  appearance: none;\n  box-sizing: border-box;\n  max-width: 100%;\n}\n\n.form-field textarea { min-height: 92px; resize: vertical; }\n.form-field input:focus, .form-field select:focus, .form-field textarea:focus,\nbutton:focus-visible, .table-scroll:focus-visible {\n  outline: 3px solid #8ab59a;\n  outline-offset: 2px;\n}\n\n.form-field [type="checkbox"] {\n  width: 24px;\n  min-height: 24px;\n  margin: 0 8px 0 0;\n  accent-color: #2d7051;\n}\n\n.form-field:has([type="checkbox"]) { flex-direction: row; align-items: center; gap: 8px; }\n.form-field:has([type="checkbox"]) .form-field-label { flex: 1; }\n\n.form-actions { display: flex; flex-wrap: wrap; gap: 10px; }\n.button {\n  min-height: 46px;\n  max-width: 100%;\n  padding: 10px 15px;\n  border: 1px solid #b9c7bb;\n  border-radius: 10px;\n  background: #e8f0e8;\n  color: #234737;\n  font-weight: 700;\n  line-height: 1.25;\n  overflow-wrap: anywhere;\n  cursor: pointer;\n}\n\n.form-actions .button[type="submit"], .connection-panel .button[type="submit"],\n.resolution-form .button[type="submit"] {\n  border-color: #224b3c;\n  background: #224b3c;\n  color: #fff;\n}\n\n.button:disabled, input:disabled, select:disabled, textarea:disabled {\n  opacity: 0.58;\n  cursor: not-allowed;\n}\n\n.tabs {\n  display: grid;\n  grid-template-columns: repeat(4, minmax(0, 1fr));\n  gap: 8px;\n  margin-top: 0;\n}\n\n.tabs .button { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 48px; padding-inline: 8px; }\n.nav-icon { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }\n.tabs [aria-current="page"] { border-color: #224b3c; background: #224b3c; color: #fff; }\n\n.data-panel { padding: 16px; }\n.list-view { display: grid; gap: 16px; min-width: 0; }\n.list-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }\n.list-header h2 { margin: 0; }\n.list-actions { display: flex; gap: 8px; flex-shrink: 0; }\n.icon-button { display: inline-flex; align-items: center; justify-content: center; width: 46px; padding: 8px; font-size: 1.5rem; }\n.bean-card, .bag-group, .recipe-card, .resolution-card {\n  min-width: 0;\n  padding: 15px;\n  border: 1px solid #e0dbcf;\n  border-radius: 12px;\n  background: #fffefa;\n}\n\n.bean-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }\n.bean-card-header h3 { min-width: 0; overflow-wrap: anywhere; margin: 0 0 12px; }\n.bean-delete { flex: 0 0 46px; width: 46px; height: 46px; margin: -14px -8px 0 0; color: #737373; background: transparent; border-color: transparent; }\n.bean-delete svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }\n.bean-delete:hover:not(:disabled) { background: #f0f0ed; border-color: #b7b7af; }\n\n.bean-card > :last-child, .recipe-card > :last-child { margin-bottom: 0; }\n.muted-note, .empty-state { color: #68685e; }\n.repair-panel { margin-top: 14px; padding-top: 14px; border-top: 1px solid #ded7ca; }\n.startup-retry-panel { margin-top: 14px; padding: 14px; border: 1px solid #c6b98b; border-radius: 12px; background: #fffbed; }\n.startup-retry-panel > :last-child { margin-bottom: 0; }\n.unresolved-panel { border-color: #c98572; background: #fff8f4; }\n.unresolved-panel > h2 { margin-top: 0; }\n.resolution-card + .resolution-card { margin-top: 12px; }\n.resolution-form { padding-top: 12px; border-top: 1px solid #ead6ce; }\n.field-error { color: #8b3024; font-size: 0.9rem; line-height: 1.4; }\n[aria-invalid="true"] { border-color: #a93d2b !important; }\n\n.table-scroll {\n  max-width: 100%;\n  min-width: 0;\n  overflow-x: auto;\n  overscroll-behavior-inline: contain;\n  border: 1px solid #ded7ca;\n  border-radius: 9px;\n  background: #fffefa;\n  -webkit-overflow-scrolling: touch;\n}\n\n.steps-table, .steps-preview-table { width: 100%; border-collapse: collapse; }\n.steps-table { min-width: 560px; }\n.steps-preview-table { min-width: 460px; }\n.steps-table th, .steps-table td, .steps-preview-table th, .steps-preview-table td {\n  padding: 10px 11px;\n  border-bottom: 1px solid #e6e0d4;\n  text-align: left;\n  vertical-align: top;\n  white-space: nowrap;\n}\n.steps-table th, .steps-preview-table th { background: #f2eee5; font-size: 0.87rem; }\n.steps-table tr:last-child td, .steps-preview-table tr:last-child td { border-bottom`... 1160 more characters,
+    expected: /\.startup-loading \.operation-spinner\s*\{\s*animation:\s*pull-refresh-spin 0\.8s steps\(12\) infinite;/,
+    operator: 'match'
+  }
+
+✔ operation spinner stays visible through success, ready and timeout, then clears on completion or failure (0.641459ms)
+✔ a new success gets a full display interval and empty messages hide immediately (0.581625ms)
+✔ draft values survive tab navigation and a fresh data render (3.021042ms)
+✔ bean, recipe, and record detail text is rendered as text and retains brew details (1.291ms)
+✔ resolution controls follow the native journal page-list contract (0.6415ms)
+✔ recipe step time permits a keyboard with colon while retaining minute-second validation (2.112ms)
+✔ the bean origin label uses user-facing wording rather than the storage field name (0.478291ms)
+✔ the record date default follows the device calendar across the KST UTC boundary (3.829625ms)
+✔ checked connection-recovery checkbox reaches the current-connection verifier (0.763375ms)
+✔ startup lock contention hides connection entry and retries the saved connection read (0.732458ms)
+✔ successful connection replacement preserves the active product draft (1.593375ms)
+✔ successful connection replacement preserves hidden drafts and their dirty signal (2.566792ms)
+✔ recipe input minimums allow every positive sub-cent value accepted by the domain (1.487667ms)
+✔ recipe records distinguish selected bags, no selection, and unavailable bags (15.677917ms)
+✔ bean creation starts hidden, opens from the plus button, and closes on cancel (2.348625ms)
+✔ bag creation starts hidden, opens from the plus button, and closes on cancel (3.601167ms)
+✔ recipe creation opens from plus, preserves drafts, and closes on cancel (10.588333ms)
+✔ record creation opens from plus, preserves drafts, and closes on cancel or save (5.392333ms)
+✔ collection headers omit refresh and retain their add buttons (3.429875ms)
+✔ pulling from the top reloads the entire page once on release (1.266458ms)
+✔ pulling progressively reveals a twelve-spoke spinner and moves the page down (0.513792ms)
+✔ work starting while the released spinner paints cancels the scheduled reload (1.147458ms)
+✔ short pulls, retracted pulls and cancelled gestures do not reload (0.940292ms)
+✔ normal scrolling and horizontal or upward swipes do not trigger reload (1.851417ms)
+✔ multitouch never reloads and a later single finger gesture can refresh (0.415666ms)
+✔ downward pulls from controls and their child elements reload the whole page (3.452917ms)
+✔ control taps keep their normal action and short drags suppress accidental taps (0.514583ms)
+✔ horizontal gestures and scrollable controls away from their top keep native scrolling (1.664833ms)
+✔ saving and update freeze prevent a reload even when they begin during a pull (0.9905ms)
+✔ refresh requires a 240px downward pull and checks the release position (2.29125ms)
+✔ navigation uses four distinct decorative icons with accessible menu names (0.226084ms)
+✔ bean cards expose a labelled trash button and require confirmation before deleting (1.032209ms)
+ℹ tests 61
+ℹ suites 0
+ℹ pass 60
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3173.278292
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:332:1
+✖ operation spinner stays in body overlay outside the touch-transformed page (1.809167ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /\.startup-loading \.operation-spinner\s*\{\s*animation:\s*pull-refresh-spin 0\.8s steps\(12\) infinite;/. Input:
+
+  ':root {\n' +
+    '  color-scheme: light;\n' +
+    '  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;\n' +
+    '  color: #203d32;\n' +
+    '  background: #f3efe6;\n' +
+    '  font-synthesis: none;\n' +
+    '  text-rendering: optimizeLegibility;\n' +
+    '  -webkit-text-size-adjust: 100%;\n' +
+    '}\n' +
+    '\n' +
+    '* { box-sizing: border-box; }\n' +
+    '[hidden] { display: none !important; }\n' +
+    'html { overscroll-behavior-y: contain; }\n' +
+    '\n' +
+    '.pull-refresh {\n' +
+    '  position: fixed;\n' +
+    '  top: calc(env(safe-area-inset-top, 0px) + 16px);\n' +
+    '  left: 50%;\n' +
+    '  transform: translate(-50%, calc((var(--pull-progress, 0) - 1) * 24px));\n' +
+    '  opacity: var(--pull-progress, 0);\n' +
+    '  z-index: 10;\n' +
+    '  color: #77766e;\n' +
+    '  pointer-events: none;\n' +
+    '}\n' +
+    '\n' +
+    '.pull-refresh-spinner {\n' +
+    '  display: block;\n' +
+    '  position: relative;\n' +
+    '  width: 24px;\n' +
+    '  height: 24px;\n' +
+    '  transform: rotate(var(--pull-angle, 0deg));\n' +
+    '}\n' +
+    '\n' +
+    '.pull-refresh-spoke { position: absolute; inset: 0; }\n' +
+    '.pull-refresh-spoke::before {\n' +
+    "  content: '';\n" +
+    '  position: absolute;\n' +
+    '  top: 0;\n' +
+    '  left: 11px;\n' +
+    '  width: 2px;\n' +
+    '  height: 6px;\n' +
+    '  border-radius: 2px;\n' +
+    '  background: currentColor;\n' +
+    '}\n' +
+    '\n' +
+    '.pull-refresh[data-state="reloading"] .pull-refresh-spinner,\n' +
+    '.startup-loading .startup-spinner,\n' +
+    '.app-status .operation-spinner {\n' +
+    '  animation: pull-refresh-spin 0.8s steps(12) infinite;\n' +
+    '}\n' +
+    '.app-status { display: flex; align-items: center; gap: 8px; }\n' +
+    '.app-status .status-message { min-width: 0; }\n' +
+    '@keyframes pull-refresh-spin { to { transform: rotate(calc(var(--pull-angle, 0deg) + 360deg)); } }\n' +
+    '\n' +
+    '.startup-loading {\n' +
+    '  position: fixed;\n' +
+    '  inset: 0;\n' +
+    '  z-index: 100;\n' +
+    '  display: grid;\n' +
+    '  place-items: center;\n' +
+    '  background: rgb(243 239 230 / 35%);\n' +
+    '  color: #77766e;\n' +
+    '  touch-action: none;\n' +
+    '}\n' +
+    '\n' +
+    '.pull-refresh-label,\n' +
+    '.visually-hidden {\n' +
+    '  position: absolute;\n' +
+    '  width: 1px;\n' +
+    '  height: 1px;\n' +
+    '  padding: 0;\n' +
+    '  margin: -1px;\n' +
+    '  overflow: hidden;\n' +
+    '  clip-path: inset(50%);\n' +
+    '  white-space: nowrap;\n' +
+    '}\n' +
+    '\n' +
+    '[data-pull-state] {\n' +
+    '  transform: translateY(var(--pull-offset, 0px));\n' +
+    '  transition: transform 180ms ease-out;\n' +
+    '}\n' +
+    '[data-pull-state="pulling"] { transition: none; }\n' +
+    '\n' +
+    '@media (prefers-reduced-motion: reduce) {\n' +
+    '  .pull-refresh[data-state="reloading"] .pull-refresh-spinner,\n' +
+    '  .startup-loading .startup-spinner,\n' +
+    '  .startup-loading .operation-spinner { animation: none; }\n' +
+    '  [data-pull-state] { transition: none; }\n' +
+    '}\n' +
+    '\n' +
+    'body {\n' +
+    '  min-width: 320px;\n' +
+    '  min-height: 100vh;\n' +
+    '  margin: 0;\n' +
+    '  overflow-x: hidden;\n' +
+    '}\n' +
+    '\n' +
+    'button, input, select, textarea { font: inherit; }\n' +
+    '\n' +
+    'button { touch-action: manipulation; }\n' +
+    '\n' +
+    '.page {\n' +
+    '  width: min(100% - 32px, 760px);\n' +
+    '  min-height: 100vh;\n' +
+    '  margin: 0 auto;\n' +
+    '  padding: 20px 0 18px;\n' +
+    '  display: flex;\n' +
+    '  flex-direction: column;\n' +
+    '}\n' +
+    '\n' +
+    '.site-header {\n' +
+    '  display: flex;\n' +
+    '  align-items: center;\n' +
+    '  justify-content: space-between;\n' +
+    '  gap: 12px;\n' +
+    '  padding-bottom: 16px;\n' +
+    '  border-bottom: 1px solid #d8d1c3;\n' +
+    '}\n' +
+    '\n' +
+    '.eyebrow {\n' +
+    '  color: #587464;\n' +
+    '  font-size: 0.75rem;\n' +
+    '  font-weight: 750;\n' +
+    '  letter-spacing: 0.14em;\n' +
+    '}\n' +
+    '\n' +
+    '.build-version {\n' +
+    '  margin: 0;\n' +
+    '  color: #746f63;\n' +
+    '  font-size: 0.75rem;\n' +
+    '  font-variant-numeric: tabular-nums;\n' +
+    '}\n' +
+    '\n' +
+    '.header-tools { display: flex; align-items: center; gap: 8px; }\n' +
+    '#connection-tools { display: flex; }\n' +
+    '.button.connection-toggle {\n' +
+    '  min-width: 44px;\n' +
+    '  min-height: 44px;\n' +
+    '  padding: 6px;\n' +
+    '  background: transparent;\n' +
+    '  border-color: transparent;\n' +
+    '  color: #587464;\n' +
+    '  font-size: 1.25rem;\n' +
+    '}\n' +
+    '.connection-toggle[aria-expanded="true"] { background: #e8eee7; }\n' +
+    '\n' +
+    '.bean-section {\n' +
+    '  flex: 1;\n' +
+    '  min-width: 0;\n' +
+    '  padding: clamp(24px, 6vh, 48px) 0;\n' +
+    '}\n' +
+    '\n' +
+    'h1, h2, h3, h4, h5, p { overflow-wrap: anywhere; }\n' +
+    'h1 { margin: 0 0 18px; font-size: clamp(1.8rem, 8vw, 3rem); letter-spacing: -0.045em; }\n' +
+    'h2 { margin: 0 0 16px; font-size: 1.35rem; }\n' +
+    'h3 { margin: 0 0 8px; font-size: 1.1rem; }\n' +
+    'h4, h5 { margin: 16px 0 8px; }\n' +
+    'p { line-height: 1.6; }\n' +
+    '\n' +
+    '.connection-note, .app-status {\n' +
+    '  margin: 0 0 16px;\n' +
+    '  padding: 13px 15px;\n' +
+    '  border: 1px solid #d8d1c3;\n' +
+    '  border-radius: 12px;\n' +
+    '  background: #faf8f2;\n' +
+    '  color: #5c5a50;\n' +
+    '  line-height: 1.55;\n' +
+    '}\n' +
+    '\n' +
+    '.app-status[data-state="startup-busy"] {\n' +
+    '  border-color: #c6b98b;\n' +
+    '  background: #fffbed;\n' +
+    '  color: #5e5129;\n' +
+    '}\n' +
+    '\n' +
+    '.app-status[data-state="read-error"], .app-status[data-state="connection-error"],\n' +
+    '.app-status[data-state="validation-error"], .app-status[data-state="unknown"],\n' +
+    '.app-status[data-state="partial"], .app-status[data-state="resolution-error"] {\n' +
+    '  border-color: #c98572;\n' +
+    '  background: #fff5f1;\n' +
+    '  color: #7c3527;\n' +
+    '}\n' +
+    '\n' +
+    '.app-status[data-state="saved"], .app-status[data-state="connected"],\n' +
+    '.app-status[data-state="ready"], .app-status[data-state="resolved"] {\n' +
+    '  border-color: #9db8a5;\n' +
+    '  background: #f3faf4;\n' +
+    '}\n' +
+    '\n' +
+    '.panel, .data-panel, .unresolved-panel {\n' +
+    '  min-width: 0;\n' +
+    '  margin-top: 16px;\n' +
+    '  padding: 16px;\n' +
+    '  border: 1px solid #ded7ca;\n' +
+    '  border-radius: 16px;\n' +
+    '  background: #fbf9f4;\n' +
+    '  box-shadow: 0 5px 16px rgb(53 63 46 / 5%);\n' +
+    '}\n' +
+    '\n' +
+    '.connection-details > summary {\n' +
+    '  min-height: 44px;\n' +
+    '  display: flex;\n' +
+    '  align-items: center;\n' +
+    '  cursor: pointer;\n' +
+    '  font-weight: 700;\n' +
+    '}\n' +
+    '\n' +
+    '.form-grid { display: grid; gap: 16px; min-width: 0; }\n' +
+    '.form-fieldset {\n' +
+    '  display: grid;\n' +
+    '  grid-template-columns: repeat(2, minmax(0, 1fr));\n' +
+    '  gap: 14px 16px;\n' +
+    '  min-width: 0;\n' +
+    '  margin: 0;\n' +
+    '  padding: 15px;\n' +
+    '  border: 1px solid #d8d1c3;\n' +
+    '  border-radius: 12px;\n' +
+    '}\n' +
+    '\n' +
+    '.form-fieldset legend { padding: 0 6px; font-weight: 700; }\n' +
+    '.form-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }\n' +
+    '.form-field-label { color: #3d5147; font-size: 0.92rem; font-weight: 650; line-height: 1.4; }\n' +
+    '\n' +
+    '.form-field input, .form-field select, .form-field textarea {\n' +
+    '  display: block;\n' +
+    '  width: 100%;\n' +
+    '  min-width: 0;\n' +
+    '  min-height: 46px;\n' +
+    '  padding: 10px 12px;\n' +
+    '  border: 1px solid #aaa99e;\n' +
+    '  border-radius: 9px;\n' +
+    '  background: #fffefa;\n' +
+    '  color: #203d32;\n' +
+    '}\n' +
+    '\n' +
+    '/* Avoid iOS native date controls adding padding outside their declared width. */\n' +
+    '.form-field input[type="date"] {\n' +
+    '  -webkit-appearance: none;\n' +
+    '  appearance: none;\n' +
+    '  box-sizing: border-box;\n' +
+    '  max-width: 100%;\n' +
+    '}\n' +
+    '\n' +
+    '.form-field textarea { min-height: 92px; resize: vertical; }\n' +
+    '.form-field input:focus, .form-field select:focus, .form-field textarea:focus,\n' +
+    'button:focus-visible, .table-scroll:focus-visible {\n' +
+    '  outline: 3px solid #8ab59a;\n' +
+    '  outline-offset: 2px;\n' +
+    '}\n' +
+    '\n' +
+    '.form-field [type="checkbox"] {\n' +
+    '  width: 24px;\n' +
+    '  min-height: 24px;\n' +
+    '  margin: 0 8px 0 0;\n' +
+    '  accent-color: #2d7051;\n' +
+    '}\n' +
+    '\n' +
+    '.form-field:has([type="checkbox"]) { flex-direction: row; align-items: center; gap: 8px; }\n' +
+    '.form-field:has([type="checkbox"]) .form-field-label { flex: 1; }\n' +
+    '\n' +
+    '.form-actions { display: flex; flex-wrap: wrap; gap: 10px; }\n' +
+    '.button {\n' +
+    '  min-height: 46px;\n' +
+    '  max-width: 100%;\n' +
+    '  padding: 10px 15px;\n' +
+    '  border: 1px solid #b9c7bb;\n' +
+    '  border-radius: 10px;\n' +
+    '  background: #e8f0e8;\n' +
+    '  color: #234737;\n' +
+    '  font-weight: 700;\n' +
+    '  line-height: 1.25;\n' +
+    '  overflow-wrap: anywhere;\n' +
+    '  cursor: pointer;\n' +
+    '}\n' +
+    '\n' +
+    '.form-actions .button[type="submit"], .connection-panel .button[type="submit"],\n' +
+    '.resolution-form .button[type="submit"] {\n' +
+    '  border-color: #224b3c;\n' +
+    '  background: #224b3c;\n' +
+    '  color: #fff;\n' +
+    '}\n' +
+    '\n' +
+    '.button:disabled, input:disabled, select:disabled, textarea:disabled {\n' +
+    '  opacity: 0.58;\n' +
+    '  cursor: not-allowed;\n' +
+    '}\n' +
+    '\n' +
+    '.tabs {\n' +
+    '  display: grid;\n' +
+    '  grid-template-columns: repeat(4, minmax(0, 1fr));\n' +
+    '  gap: 8px;\n' +
+    '  margin-top: 0;\n' +
+    '}\n' +
+    '\n' +
+    '.tabs .button { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 48px; padding-inline: 8px; }\n' +
+    '.nav-icon { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }\n' +
+    '.tabs [aria-current="page"] { border-color: #224b3c; background: #224b3c; color: #fff; }\n' +
+    '\n' +
+    '.data-panel { padding: 16px; }\n' +
+    '.list-view { display: grid; gap: 16px; min-width: 0; }\n' +
+    '.list-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }\n' +
+    '.list-header h2 { margin: 0; }\n' +
+    '.list-actions { display: flex; gap: 8px; flex-shrink: 0; }\n' +
+    '.icon-button { display: inline-flex; align-items: center; justify-content: center; width: 46px; padding: 8px; font-size: 1.5rem; }\n' +
+    '.bean-card, .bag-group, .recipe-card, .resolution-card {\n' +
+    '  min-width: 0;\n' +
+    '  padding: 15px;\n' +
+    '  border: 1px solid #e0dbcf;\n' +
+    '  border-radius: 12px;\n' +
+    '  background: #fffefa;\n' +
+    '}\n' +
+    '\n' +
+    '.bean-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }\n' +
+    '.bean-card-header h3 { min-width: 0; overflow-wrap: anywhere; margin: 0 0 12px; }\n' +
+    '.bean-delete { flex: 0 0 46px; width: 46px; height: 46px; margin: -14px -8px 0 0; color: #737373; background: transparent; border-color: transparent; }\n' +
+    '.bean-delete svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }\n' +
+    '.bean-delete:hover:not(:disabled) { background: #f0f0ed; border-color: #b7b7af; }\n' +
+    '\n' +
+    '.bean-card > :last-child, .recipe-card > :last-child { margin-bottom: 0; }\n' +
+    '.muted-note, .empty-state { color: #68685e; }\n' +
+    '.repair-panel { margin-top: 14px; padding-top: 14px; border-top: 1px solid #ded7ca; }\n' +
+    '.startup-retry-panel { margin-top: 14px; padding: 14px; border: 1px solid #c6b98b; border-radius: 12px; background: #fffbed; }\n' +
+    '.startup-retry-panel > :last-child { margin-bottom: 0; }\n' +
+    '.unresolved-panel { border-color: #c98572; background: #fff8f4; }\n' +
+    '.unresolved-panel > h2 { margin-top: 0; }\n' +
+    '.resolution-card + .resolution-card { margin-top: 12px; }\n' +
+    '.resolution-form { padding-top: 12px; border-top: 1px solid #ead6ce; }\n' +
+    '.field-error { color: #8b3024; font-size: 0.9rem; line-height: 1.4; }\n' +
+    '[aria-invalid="true"] { border-color: #a93d2b !important; }\n' +
+    '\n' +
+    '.table-scroll {\n' +
+    '  max-width: 100%;\n' +
+    '  min-width: 0;\n' +
+    '  overflow-x: auto;\n' +
+    '  overscroll-behavior-inline: contain;\n' +
+    '  border: 1px solid #ded7ca;\n' +
+    '  border-radius: 9px;\n' +
+    '  background: #fffefa;\n' +
+    '  -webkit-overflow-scrolling: touch;\n' +
+    '}\n' +
+    '\n' +
+    '.steps-table, .steps-preview-table { width: 100%; border-collapse: collapse; }\n' +
+    '.steps-table { min-width: 560px; }\n' +
+    '.steps-preview-table { min-width: 460px; }\n' +
+    '.steps-table th, .steps-table td, .steps-preview-table th, .steps-preview-table td {\n' +
+    '  padding: 10px 11px;\n' +
+    '  border-bottom: 1px solid #e6e0d4;\n' +
+    '  text-align: left;\n' +
+    '  vertical-align: top;\n' +
+    '  white-space: nowrap;\n' +
+    '}\n' +
+    '.steps-table th, .steps-preview-table th { background: #f2eee5; font-size: 0.87rem; }\n' +
+    '.steps-table tr:last-child td, .steps-preview-table tr:last-child td { border-bottom'... 1160 more characters
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/operation-spinners/AX-1day/test/pwa-ui.view.test.mjs:338:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `:root {\n  color-scheme: light;\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;\n  color: #203d32;\n  background: #f3efe6;\n  font-synthesis: none;\n  text-rendering: optimizeLegibility;\n  -webkit-text-size-adjust: 100%;\n}\n\n* { box-sizing: border-box; }\n[hidden] { display: none !important; }\nhtml { overscroll-behavior-y: contain; }\n\n.pull-refresh {\n  position: fixed;\n  top: calc(env(safe-area-inset-top, 0px) + 16px);\n  left: 50%;\n  transform: translate(-50%, calc((var(--pull-progress, 0) - 1) * 24px));\n  opacity: var(--pull-progress, 0);\n  z-index: 10;\n  color: #77766e;\n  pointer-events: none;\n}\n\n.pull-refresh-spinner {\n  display: block;\n  position: relative;\n  width: 24px;\n  height: 24px;\n  transform: rotate(var(--pull-angle, 0deg));\n}\n\n.pull-refresh-spoke { position: absolute; inset: 0; }\n.pull-refresh-spoke::before {\n  content: '';\n  position: absolute;\n  top: 0;\n  left: 11px;\n  width: 2px;\n  height: 6px;\n  border-radius: 2px;\n  background: currentColor;\n}\n\n.pull-refresh[data-state="reloading"] .pull-refresh-spinner,\n.startup-loading .startup-spinner,\n.app-status .operation-spinner {\n  animation: pull-refresh-spin 0.8s steps(12) infinite;\n}\n.app-status { display: flex; align-items: center; gap: 8px; }\n.app-status .status-message { min-width: 0; }\n@keyframes pull-refresh-spin { to { transform: rotate(calc(var(--pull-angle, 0deg) + 360deg)); } }\n\n.startup-loading {\n  position: fixed;\n  inset: 0;\n  z-index: 100;\n  display: grid;\n  place-items: center;\n  background: rgb(243 239 230 / 35%);\n  color: #77766e;\n  touch-action: none;\n}\n\n.pull-refresh-label,\n.visually-hidden {\n  position: absolute;\n  width: 1px;\n  height: 1px;\n  padding: 0;\n  margin: -1px;\n  overflow: hidden;\n  clip-path: inset(50%);\n  white-space: nowrap;\n}\n\n[data-pull-state] {\n  transform: translateY(var(--pull-offset, 0px));\n  transition: transform 180ms ease-out;\n}\n[data-pull-state="pulling"] { transition: none; }\n\n@media (prefers-reduced-motion: reduce) {\n  .pull-refresh[data-state="reloading"] .pull-refresh-spinner,\n  .startup-loading .startup-spinner,\n  .startup-loading .operation-spinner { animation: none; }\n  [data-pull-state] { transition: none; }\n}\n\nbody {\n  min-width: 320px;\n  min-height: 100vh;\n  margin: 0;\n  overflow-x: hidden;\n}\n\nbutton, input, select, textarea { font: inherit; }\n\nbutton { touch-action: manipulation; }\n\n.page {\n  width: min(100% - 32px, 760px);\n  min-height: 100vh;\n  margin: 0 auto;\n  padding: 20px 0 18px;\n  display: flex;\n  flex-direction: column;\n}\n\n.site-header {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 12px;\n  padding-bottom: 16px;\n  border-bottom: 1px solid #d8d1c3;\n}\n\n.eyebrow {\n  color: #587464;\n  font-size: 0.75rem;\n  font-weight: 750;\n  letter-spacing: 0.14em;\n}\n\n.build-version {\n  margin: 0;\n  color: #746f63;\n  font-size: 0.75rem;\n  font-variant-numeric: tabular-nums;\n}\n\n.header-tools { display: flex; align-items: center; gap: 8px; }\n#connection-tools { display: flex; }\n.button.connection-toggle {\n  min-width: 44px;\n  min-height: 44px;\n  padding: 6px;\n  background: transparent;\n  border-color: transparent;\n  color: #587464;\n  font-size: 1.25rem;\n}\n.connection-toggle[aria-expanded="true"] { background: #e8eee7; }\n\n.bean-section {\n  flex: 1;\n  min-width: 0;\n  padding: clamp(24px, 6vh, 48px) 0;\n}\n\nh1, h2, h3, h4, h5, p { overflow-wrap: anywhere; }\nh1 { margin: 0 0 18px; font-size: clamp(1.8rem, 8vw, 3rem); letter-spacing: -0.045em; }\nh2 { margin: 0 0 16px; font-size: 1.35rem; }\nh3 { margin: 0 0 8px; font-size: 1.1rem; }\nh4, h5 { margin: 16px 0 8px; }\np { line-height: 1.6; }\n\n.connection-note, .app-status {\n  margin: 0 0 16px;\n  padding: 13px 15px;\n  border: 1px solid #d8d1c3;\n  border-radius: 12px;\n  background: #faf8f2;\n  color: #5c5a50;\n  line-height: 1.55;\n}\n\n.app-status[data-state="startup-busy"] {\n  border-color: #c6b98b;\n  background: #fffbed;\n  color: #5e5129;\n}\n\n.app-status[data-state="read-error"], .app-status[data-state="connection-error"],\n.app-status[data-state="validation-error"], .app-status[data-state="unknown"],\n.app-status[data-state="partial"], .app-status[data-state="resolution-error"] {\n  border-color: #c98572;\n  background: #fff5f1;\n  color: #7c3527;\n}\n\n.app-status[data-state="saved"], .app-status[data-state="connected"],\n.app-status[data-state="ready"], .app-status[data-state="resolved"] {\n  border-color: #9db8a5;\n  background: #f3faf4;\n}\n\n.panel, .data-panel, .unresolved-panel {\n  min-width: 0;\n  margin-top: 16px;\n  padding: 16px;\n  border: 1px solid #ded7ca;\n  border-radius: 16px;\n  background: #fbf9f4;\n  box-shadow: 0 5px 16px rgb(53 63 46 / 5%);\n}\n\n.connection-details > summary {\n  min-height: 44px;\n  display: flex;\n  align-items: center;\n  cursor: pointer;\n  font-weight: 700;\n}\n\n.form-grid { display: grid; gap: 16px; min-width: 0; }\n.form-fieldset {\n  display: grid;\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n  gap: 14px 16px;\n  min-width: 0;\n  margin: 0;\n  padding: 15px;\n  border: 1px solid #d8d1c3;\n  border-radius: 12px;\n}\n\n.form-fieldset legend { padding: 0 6px; font-weight: 700; }\n.form-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }\n.form-field-label { color: #3d5147; font-size: 0.92rem; font-weight: 650; line-height: 1.4; }\n\n.form-field input, .form-field select, .form-field textarea {\n  display: block;\n  width: 100%;\n  min-width: 0;\n  min-height: 46px;\n  padding: 10px 12px;\n  border: 1px solid #aaa99e;\n  border-radius: 9px;\n  background: #fffefa;\n  color: #203d32;\n}\n\n/* Avoid iOS native date controls adding padding outside their declared width. */\n.form-field input[type="date"] {\n  -webkit-appearance: none;\n  appearance: none;\n  box-sizing: border-box;\n  max-width: 100%;\n}\n\n.form-field textarea { min-height: 92px; resize: vertical; }\n.form-field input:focus, .form-field select:focus, .form-field textarea:focus,\nbutton:focus-visible, .table-scroll:focus-visible {\n  outline: 3px solid #8ab59a;\n  outline-offset: 2px;\n}\n\n.form-field [type="checkbox"] {\n  width: 24px;\n  min-height: 24px;\n  margin: 0 8px 0 0;\n  accent-color: #2d7051;\n}\n\n.form-field:has([type="checkbox"]) { flex-direction: row; align-items: center; gap: 8px; }\n.form-field:has([type="checkbox"]) .form-field-label { flex: 1; }\n\n.form-actions { display: flex; flex-wrap: wrap; gap: 10px; }\n.button {\n  min-height: 46px;\n  max-width: 100%;\n  padding: 10px 15px;\n  border: 1px solid #b9c7bb;\n  border-radius: 10px;\n  background: #e8f0e8;\n  color: #234737;\n  font-weight: 700;\n  line-height: 1.25;\n  overflow-wrap: anywhere;\n  cursor: pointer;\n}\n\n.form-actions .button[type="submit"], .connection-panel .button[type="submit"],\n.resolution-form .button[type="submit"] {\n  border-color: #224b3c;\n  background: #224b3c;\n  color: #fff;\n}\n\n.button:disabled, input:disabled, select:disabled, textarea:disabled {\n  opacity: 0.58;\n  cursor: not-allowed;\n}\n\n.tabs {\n  display: grid;\n  grid-template-columns: repeat(4, minmax(0, 1fr));\n  gap: 8px;\n  margin-top: 0;\n}\n\n.tabs .button { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 48px; padding-inline: 8px; }\n.nav-icon { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }\n.tabs [aria-current="page"] { border-color: #224b3c; background: #224b3c; color: #fff; }\n\n.data-panel { padding: 16px; }\n.list-view { display: grid; gap: 16px; min-width: 0; }\n.list-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }\n.list-header h2 { margin: 0; }\n.list-actions { display: flex; gap: 8px; flex-shrink: 0; }\n.icon-button { display: inline-flex; align-items: center; justify-content: center; width: 46px; padding: 8px; font-size: 1.5rem; }\n.bean-card, .bag-group, .recipe-card, .resolution-card {\n  min-width: 0;\n  padding: 15px;\n  border: 1px solid #e0dbcf;\n  border-radius: 12px;\n  background: #fffefa;\n}\n\n.bean-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }\n.bean-card-header h3 { min-width: 0; overflow-wrap: anywhere; margin: 0 0 12px; }\n.bean-delete { flex: 0 0 46px; width: 46px; height: 46px; margin: -14px -8px 0 0; color: #737373; background: transparent; border-color: transparent; }\n.bean-delete svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }\n.bean-delete:hover:not(:disabled) { background: #f0f0ed; border-color: #b7b7af; }\n\n.bean-card > :last-child, .recipe-card > :last-child { margin-bottom: 0; }\n.muted-note, .empty-state { color: #68685e; }\n.repair-panel { margin-top: 14px; padding-top: 14px; border-top: 1px solid #ded7ca; }\n.startup-retry-panel { margin-top: 14px; padding: 14px; border: 1px solid #c6b98b; border-radius: 12px; background: #fffbed; }\n.startup-retry-panel > :last-child { margin-bottom: 0; }\n.unresolved-panel { border-color: #c98572; background: #fff8f4; }\n.unresolved-panel > h2 { margin-top: 0; }\n.resolution-card + .resolution-card { margin-top: 12px; }\n.resolution-form { padding-top: 12px; border-top: 1px solid #ead6ce; }\n.field-error { color: #8b3024; font-size: 0.9rem; line-height: 1.4; }\n[aria-invalid="true"] { border-color: #a93d2b !important; }\n\n.table-scroll {\n  max-width: 100%;\n  min-width: 0;\n  overflow-x: auto;\n  overscroll-behavior-inline: contain;\n  border: 1px solid #ded7ca;\n  border-radius: 9px;\n  background: #fffefa;\n  -webkit-overflow-scrolling: touch;\n}\n\n.steps-table, .steps-preview-table { width: 100%; border-collapse: collapse; }\n.steps-table { min-width: 560px; }\n.steps-preview-table { min-width: 460px; }\n.steps-table th, .steps-table td, .steps-preview-table th, .steps-preview-table td {\n  padding: 10px 11px;\n  border-bottom: 1px solid #e6e0d4;\n  text-align: left;\n  vertical-align: top;\n  white-space: nowrap;\n}\n.steps-table th, .steps-preview-table th { background: #f2eee5; font-size: 0.87rem; }\n.steps-table tr:last-child td, .steps-preview-table tr:last-child td { border-bottom`... 1160 more characters,
+    expected: /\.startup-loading \.operation-spinner\s*\{\s*animation:\s*pull-refresh-spin 0\.8s steps\(12\) infinite;/,
+    operator: 'match'
+  }

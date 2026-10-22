@@ -44,9 +44,12 @@ html { overscroll-behavior-y: contain; }
 }
 
 .pull-refresh[data-state="reloading"] .pull-refresh-spinner,
-.startup-loading .startup-spinner {
+.startup-loading .startup-spinner,
+.startup-loading .operation-spinner {
   animation: pull-refresh-spin 0.8s steps(12) infinite;
 }
+.app-status { display: flex; align-items: center; gap: 8px; }
+.app-status .status-message { min-width: 0; }
 @keyframes pull-refresh-spin { to { transform: rotate(calc(var(--pull-angle, 0deg) + 360deg)); } }
 
 .startup-loading {
@@ -80,7 +83,8 @@ html { overscroll-behavior-y: contain; }
 
 @media (prefers-reduced-motion: reduce) {
   .pull-refresh[data-state="reloading"] .pull-refresh-spinner,
-  .startup-loading .startup-spinner { animation: none; }
+  .startup-loading .startup-spinner,
+  .startup-loading .operation-spinner { animation: none; }
   [data-pull-state] { transition: none; }
 }
 

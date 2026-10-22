@@ -62,6 +62,45 @@ export function createAppView(document = globalThis.document) {
   root.replaceChildren(page);
 
   let currentState = { frozen: false, pending: false, unresolved: false };
+  let statusType = '';
+  let statusMessageText = '';
+  let startupMessageText = '';
+  function renderStatus() {
+    const startupChecking = statusType === 'startup-checking';
+    const active = currentState.pending && !startupChecking;
+    status.dataset.pending = String(active);
+    statusMessage.textContent = statusMessageText || (active ? '불러오는 중…' : '');
+    status.setAttribute('aria-busy', String(currentState.pending));
+    status.hidden = startupChecking || (!active && !statusMessageText);
+
+    loadingSpinner.className = `pull-refresh-spinner ${startupChecking ? 'startup-spinner' : 'operation-spinner'}`;
+    loadingSpinner.hidden = !currentState.pending;
+    loading.hidden = !currentState.pending;
+    loadingSurface.inert = currentState.pending && startupChecking;
+    if (!currentState.pending) {
+      loading.replaceChildren();
+      loading.removeAttribute('aria-hidden');
+      loading.removeAttribute('aria-busy');
+    } else if (startupChecking) {
+      loading.removeAttribute('aria-hidden');
+      loading.setAttribute('aria-busy', 'true');
+      loadingStartupMessage.textContent = startupMessageText;
+      loading.replaceChildren(loadingSpinner, loadingStartupMessage);
+    } else {
+      loading.setAttribute('aria-hidden', 'true');
+      loading.setAttribute('aria-busy', 'true');
+      loading.replaceChildren(loadingSpinner);
+    }
+  }
+  function scheduleStatusHide() {
+    clearTimeout(statusHideTimer);
+    if (currentState.pending || !AUTO_HIDE_STATUS_TYPES.has(statusType) || !statusMessageText) return;
+    statusHideTimer = setTimeout(() => {
+      if (currentState.pending) return;
+      statusMessageText = '';
+      renderStatus();
+    }, STATUS_DISPLAY_MS);
+  }
   let currentData = null;
   let route = globalThis.location?.hash?.slice(1) || '/beans';
   const drafts = new Map();
@@ -75,17 +114,25 @@ export function createAppView(document = globalThis.document) {
   status.hidden = true;
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
+  const statusMessage = make(document, 'span', '', 'status-message');
+  status.append(statusMessage);
   page.append(status);
 
   const loading = make(document, 'div', undefined, 'startup-loading');
   loading.hidden = true;
   loading.setAttribute('role', 'status');
   loading.setAttribute('aria-live', 'polite');
+  const loadingSpinner = makeSpinner(document);
+  loadingSpinner.hidden = true;
+  const loadingStartupMessage = make(document, 'span', undefined, 'visually-hidden');
   (document.body ?? page).append(loading);
   const loadingSurface = document.querySelector('.page') ?? page;
   function finishStartup() {
+    if (currentState.pending) return;
     loading.hidden = true;
     loading.replaceChildren();
+    loading.removeAttribute('aria-hidden');
+    loading.removeAttribute('aria-busy');
     loadingSurface.inert = false;
   }
 
@@ -176,23 +223,13 @@ export function createAppView(document = globalThis.document) {
   const view = {
     finishStartup,
     showStatus(value) {
-      clearTimeout(statusHideTimer);
-      const checking = value?.type === 'startup-checking';
-      status.textContent = checking || value?.type === 'ready' ? '' : value?.message ?? '';
-      status.dataset.state = value?.type ?? '';
-      if (checking) {
-        const spinner = makeSpinner(document);
-        spinner.className += ' startup-spinner';
-        loading.replaceChildren(spinner, make(document, 'span', value.message, 'visually-hidden'));
-        loading.hidden = false;
-        loadingSurface.inert = true;
-      } else {
-        finishStartup();
-      }
-      status.hidden = !status.textContent;
-      if (!status.hidden && AUTO_HIDE_STATUS_TYPES.has(value?.type)) {
-        statusHideTimer = setTimeout(() => { status.hidden = true; }, STATUS_DISPLAY_MS);
-      }
+      statusType = value?.type ?? '';
+      const checking = statusType === 'startup-checking';
+      statusMessageText = checking || statusType === 'ready' ? '' : value?.message ?? '';
+      startupMessageText = checking ? value?.message ?? '' : '';
+      status.dataset.state = statusType;
+      renderStatus();
+      scheduleStatusHide();
     },
     showConnection(value) {
       const connected = !!value?.connected;
@@ -211,12 +248,16 @@ export function createAppView(document = globalThis.document) {
     },
     clearSecret() { connectionForm.elements.token.value = ''; },
     setState(value) {
+      const wasPending = currentState.pending;
       currentState = {
         frozen: !!value.frozen,
         pending: !!value.pending,
         unresolved: !!value.unresolved,
       };
+      renderStatus();
       applyState(page, currentState);
+      if (currentState.pending) clearTimeout(statusHideTimer);
+      else if (wasPending) scheduleStatusHide();
     },
     setFrozen(value) {
       currentState.frozen = !!value;

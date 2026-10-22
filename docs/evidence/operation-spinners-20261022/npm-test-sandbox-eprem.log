@@ -1,0 +1,747 @@
+
+> test
+> node --test
+
+✔ C3-R1 checked connection-recovery checkbox reaches confirmCurrent (3.726625ms)
+✔ C3-R2 successful token replacement preserves the active unsaved product form (5.28325ms)
+✔ C3-R2b hidden drafts must still prevent update freezing after token replacement (7.258833ms)
+✔ C3-R3 positive sub-cent values accepted by domain remain valid UI input (3.9685ms)
+✔ C3-R4 incomplete partial recipe cannot be confirmed as fully saved (60.272583ms)
+✔ C3-native fresh-read failure keeps unknown journal locked (13.8345ms)
+✔ 누적 시간·간격·물 양을 계산한다 (1.096375ms)
+✔ 필수값과 실제 날짜, 수량, 온도, 시간순서, 총량 검증 (2.065125ms)
+✔ 별점과 봉지 원두 일치 확인 (0.40725ms)
+✔ 복사와 당시 조건 스냅샷은 독립적이다 (2.655083ms)
+✔ 평균은 중복 평가를 포함하고 빈 평균은 null (0.538167ms)
+✔ 숫자처럼 변환되는 배열과 객체는 수량·별점으로 허용하지 않는다 (0.18425ms)
+✔ test/fixtures/notion-config.mjs (85.629458ms)
+✔ test/fixtures/pwa-environment.mjs (102.831708ms)
+✖ 임의의 호스트에서 조회와 같은 출처의 연결 요청을 허용한다 (11.204625ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+✖ 공개 HTTP 흐름: 연결→원두→봉지→레시피→같은 날 평가→재조회 (2.325209ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+✖ 다른 Origin과 Host·Origin 불일치 및 잘못된 Content-Type 거부 (0.216125ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+✖ 소유하지 않은 관계·봉지 원두 불일치·여러 관계·날짜·별점 검증 (0.229166ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+✖ 연결 검증 실패 시 기존 연결 유지·토큰 미노출·진짜 빈 DB는 빈 목록 (0.344125ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+✖ 동시 중복 POST는 한 번 저장하고 다른 내용의 같은 키는 충돌 (0.264417ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+✖ HTTP 단계 저장 실패는 성공으로 응답하지 않고 노출된 부분 저장을 취소 (0.243833ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+✖ 회귀 1: 중간 단계 삭제는 새 요청 키, 같은 전체 payload는 같은 키로 저장 (6.234917ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+✖ 회귀 2: 429와 저장 전 조회 실패는 같은 키로 복구되며 불확실 쓰기는 중복 금지 (2.550167ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+✖ 회귀 3: 생성 중인 레시피는 조회·평가에서 제외하고 완료 후 전체 단계를 보존 (1.611375ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+✖ 회귀 3 추가: 직접 편집된 빈 단계·순서·총량 불일치는 조회·평가에서 제외 (0.865459ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+✖ 회귀 2·3 추가: 단계 응답 유실과 취소 실패 후에도 재쓰기·미완성 노출 금지 (1.041959ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+✖ 회귀 2 추가: 쓰기 5xx·성공 응답 JSON 유실은 같은 키에 재전송 금지 (0.551792ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+✔ 설정된 데이터 소스를 연결 확인·조회·저장에 사용한다 (23.365917ms)
+✔ 누락된 ID가 있으면 외부 요청 전에 설정 오류를 알린다 (0.459333ms)
+✔ 환경변수에서 ID를 읽고 공백을 제거하며 개인 ID로 대체하지 않는다 (0.610291ms)
+✔ 읽기는 페이지네이션하며 쓰기는 data_source_id 부모와 정확한 속성을 쓴다 (26.102834ms)
+✔ 429는 재시도 없이 안전한 오류로 전달 (1.156083ms)
+✔ 긴 스냅샷은 2000자 청크로 직렬화하고 복원 (1.050209ms)
+✔ 단계 저장 실패 시 생성한 페이지를 역순 보관하고 재시도하지 않는다 (2.432042ms)
+✔ 시간 초과는 토큰이나 전송 오류 원문을 노출하지 않는다 (5.44525ms)
+✔ 취소 실패도 명시하고 생성·취소를 자동 재시도하지 않는다 (0.618583ms)
+✔ bean deletion persists its target before PATCH and refreshes the list (55.058083ms)
+✔ bean deletion refuses a linked bags without PATCH (12.695084ms)
+✔ bean deletion refuses a linked recipes without PATCH (10.437209ms)
+✔ excluded malformed related rows and failed fresh reads fail closed (9.317042ms)
+✔ archiveBean refuses another data source and validates the PATCH response (3.943916ms)
+✔ lost deletion response recovers after restart from actual target (true) (10.308417ms)
+✔ lost deletion response recovers after restart from actual target (false) (7.71375ms)
+✔ 404 cannot resolve an unknown deletion as success (4.188167ms)
+✔ pending, frozen and busy locks prevent deletion dispatch (4.425666ms)
+✔ delete target cannot use creation cleanup and stale connections cannot dispatch (3.619584ms)
+✔ successful deletion with failed final refresh reports success separately (3.791542ms)
+✔ a rejected deletion remains active and does not retry automatically (5.4775ms)
+✔ a duplicate delete intent never dispatches twice and unsaved form state survives deletion (8.326666ms)
+✔ missing and invalid targets cannot dispatch a deletion (9.802458ms)
+✔ malformed durable delete targets block all further writes (3.222708ms)
+✔ delete write hooks reject a different target and arbitrary untracked writes (5.832625ms)
+✔ Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록을 만든다 (143.642209ms)
+✔ 검사기는 누락 파일과 허용 목록 밖 산출물을 거부한다 (88.322583ms)
+✔ 검사기는 루트 절대 경로와 허용 파일 안의 비밀값을 거부한다 (78.864959ms)
+✔ 검사기는 Service Worker가 API 경로를 앱 캐시에 넣는 변경을 거부한다 (54.155625ms)
+✔ 검사기는 scope별 캐시 namespace가 빠진 Service Worker를 거부한다 (45.031458ms)
+✔ 검사기는 HTTP 캐시를 우회하지 않는 Service Worker precache를 거부한다 (32.175583ms)
+✔ 빌더는 필수 소스 누락과 소스 심볼릭 링크를 거부한다 (55.873791ms)
+✔ 빌더는 symlink 부모 경로로 소스를 출력 경로로 지정해도 원본을 보존한다 (10.458833ms)
+✔ 검사기는 산출물 심볼릭 링크와 잘못된 dist 루트를 거부한다 (34.959167ms)
+✔ 실제 PWA 소스에는 API 호출이나 외부 요청이 없고 하위 경로 자원만 쓴다 (23.530416ms)
+✔ Service Worker install·activate·fetch는 scope를 격리하고 앱 파일만 다룬다 (26.189ms)
+✔ 빌드 hash는 같은 소스에서 재현되고 소스 변경 시 바뀐다 (71.368042ms)
+✔ createCommands prepares an isolated bean draft and saves optional origin through the shared field (18.285083ms)
+✔ bean name is required before any operation is submitted (0.357125ms)
+✔ bean name alone is sufficient and absent optional fields stay empty (4.524625ms)
+▶ bean writes distinguish a clear rejection from an uncertain response
+  ✔ rejected (6.167ms)
+  ✔ unknown (4.1225ms)
+✔ bean writes distinguish a clear rejection from an uncertain response (10.886666ms)
+✔ bag relation is checked from the latest repository snapshot inside the write lock (2.036375ms)
+✔ bag saves its own optional roast date and rejects malformed dates before write (3.702166ms)
+✔ old connection revision blocks even a prepared relation write (1.399916ms)
+✔ recipe saves parent then all stages in reverse order after full preflight (5.052167ms)
+✔ any recipe payload over a Notion transport limit is rejected before the parent write (7.797625ms)
+✔ known stage rejection archives the confirmed parent before known stages in reverse order (7.251291ms)
+✔ unknown stage response stops immediately without further create or cleanup writes (2.784625ms)
+✔ failed parent archive prevents child cleanup and preserves the partial recipe (4.778917ms)
+✔ a rejected child archive leaves only that child active and still cleans later known children (4.177959ms)
+✔ copy creates a new independent recipe with changed values and rejects a stale source snapshot (2.811583ms)
+✔ copy cannot switch to another bean or use an unavailable source (0.206ms)
+✔ record stores a fresh complete recipe snapshot and permits repeated same-day intent (3.290417ms)
+✔ record blocks a freshly selected bag that belongs to a different bean (7.447084ms)
+✔ record requires a valid date and an integer rating from one to five (1.8935ms)
+✔ T20 rereads the real T15 repository under lock and the saved record round-trips its snapshot (15.064ms)
+✔ T18 partial recipe remains hidden by the real T15 completeness check (4.459625ms)
+✔ 연결 파일 저장소 모듈을 실제 배포 파일·앱 캐시·버전 해시에 포함한다 (137.369208ms)
+✔ 파일 보관 소스 디렉터리 symlink는 허용 목록으로 우회하지 못한다 (34.608416ms)
+✔ 모듈은 factory와 readConnection/writeConnection만 제공한다 (2.927125ms)
+✔ readConnection은 전용 경로를 생성하지 않고 실제 부재만 null로 반환한다 (0.3995ms)
+✔ write/read 재실행은 고정 경로의 schema v1 연결을 정규화해 깊은 복사·불변 반환한다 (1.621958ms)
+✔ 기존 파일 read는 내용을 바꾸거나 native write stream을 만들지 않는다 (0.195875ms)
+✔ writeConnection snapshots input before awaiting native staging (0.246375ms)
+✔ 잘못된 입력은 native 파일 접근 전에 안전 오류로 거부한다 (2.076375ms)
+▶ write 단계의 close 전 실패는 abort를 시도하고 기존 유효 바이트를 보존한다
+  ✔ createWritable (0.375167ms)
+  ✔ write (1.33925ms)
+✔ write 단계의 close 전 실패는 abort를 시도하고 기존 유효 바이트를 보존한다 (2.806209ms)
+✔ close를 시작한 뒤 예외가 나면 저장 여부를 unknown으로 표시하고 차단 정보를 준다 (0.909125ms)
+✔ close가 commit 전에 실패해도 기존 파일 보존을 단정하지 않고 unknown을 반환한다 (0.739417ms)
+▶ commit 후 readback 오류나 불일치는 save-uncertain/unknown으로 보고한다
+  ✔ readback-error (0.836041ms)
+  ✔ mismatch (0.306291ms)
+✔ commit 후 readback 오류나 불일치는 save-uncertain/unknown으로 보고한다 (1.583708ms)
+✔ 최초 저장의 close 전 실패로 남은 0바이트 파일은 다음 읽기에서 손상으로 구분한다 (0.720917ms)
+▶ read 오류는 부재와 구분하고 원문 NotFound는 storage-error로 안전 변환한다
+  ✔ NotAllowedError (0.426417ms)
+  ✔ SecurityError (0.120125ms)
+  ✔ QuotaExceededError (0.089542ms)
+  ✔ NotSupportedError (0.077583ms)
+  ✔ TypeMismatchError (0.0665ms)
+  ✔ UnknownError (0.121542ms)
+✔ read 오류는 부재와 구분하고 원문 NotFound는 storage-error로 안전 변환한다 (1.456875ms)
+▶ 파일 손상과 미지원 schema version을 서로 구분한다
+  ✔ corrupt (0.093667ms)
+  ✔ corrupt (0.055875ms)
+  ✔ corrupt (0.065583ms)
+  ✔ unsupported-version (0.045959ms)
+  ✔ corrupt (0.060709ms)
+  ✔ corrupt (0.824459ms)
+  ✔ corrupt (0.090666ms)
+  ✔ corrupt (0.055ms)
+✔ 파일 손상과 미지원 schema version을 서로 구분한다 (1.572583ms)
+✔ 미지원 OPFS는 안전 오류로 실패하며 fallback 경로나 브라우저 저장소를 쓰지 않는다 (0.107417ms)
+✔ native 접근 오류 레코드는 code/writeState만 노출하고 원문·token·ID·cause·stack을 숨긴다 (0.239292ms)
+✔ connection verifies under the write lock before durable commit and never exposes the token (2.888333ms)
+✔ a rejected connection replacement keeps the previously verified connection active (1.678625ms)
+✔ a verification failure never writes or reports an active connection (0.311667ms)
+✔ a successful connection remains active when the first full read fails (0.158875ms)
+✔ lifecycle freeze refuses dirty or pending work and freezes clean state (0.172916ms)
+✔ frozen lifecycle rejects refresh and connection replacement before side effects (0.280709ms)
+✔ dirty drafts prevent lifecycle freeze and are reported to the coordinator (0.147292ms)
+✔ manual refresh owns the pending state and refuses a second read until it finishes (6.185833ms)
+✔ current-connection recovery keeps pending through reinitialization and its final read (4.577792ms)
+✔ initialization fails closed when state is blocked without a journal-visible recovery (1.007916ms)
+✔ initialization does not offer a fresh connection setup for an unexplained blocked state (0.334209ms)
+✔ initialization keeps the verified connection available to resolve a journaled unknown write (0.135ms)
+✔ initialization retries only startup lock acquisition and becomes ready when the lock clears (303.703708ms)
+✔ exhausted startup lock contention offers a saved-state retry without connection entry (1806.103459ms)
+✔ startup does not retry a lock-busy error thrown after entering the native lock callback (0.374875ms)
+✔ resolution rejects extra page IDs when the journal already records created pages (1.296833ms)
+✔ 공용 데이터 모듈 두 개를 실제 산출물과 앱 캐시에 공급한다 (128.790875ms)
+✔ 데이터 모듈 변경은 앱 빌드 버전을 바꾼다 (116.940125ms)
+✔ Notion 고정 origin 예외는 클라이언트에만 허용하며 추가 URL·비밀값은 거부한다 (69.807ms)
+✔ 데이터 디렉터리 symlink를 통해 소스 허용 목록을 우회할 수 없다 (23.927209ms)
+✔ 배포된 domain.mjs는 lib/domain.mjs 원본과 바이트가 같다 (2.378209ms)
+✔ 공급한 원본 도메인 변경이 배포 버전에 반영된다 (27.210958ms)
+✔ 정적 모듈의 시간·간격·누적 물 양과 입력 검증이 유지된다 (3.525291ms)
+✔ 정적 모듈의 날짜·정수 별점·원두 관계와 빈 평균 의미가 유지된다 (1.50475ms)
+✔ 공급 모듈의 복사·스냅샷은 원본 조건·단계·평가를 공유하지 않는다 (0.747834ms)
+✔ release modules: connection → beans/bags/recipe → copy → repeated records → fresh data (134.563292ms)
+✔ release modules: partial recipe is hidden and rejected writes cancel only known new pages (55.313125ms)
+✔ release modules: lost response persists unknown and blocks a new intent after restart (35.867ms)
+✔ N1: restarted active worker explicitly recovers two product controllers and the shared write lock (46.188084ms)
+✔ late retry delivered to an already active worker cannot freeze a product controller without a new activation (3.07275ms)
+✔ waiting-worker restart aborts its old owned generation before preparing a fresh generation (4.015708ms)
+✔ recovery from a different worker instance cannot release the owned generation (3.491958ms)
+✔ recovery releases only the lifecycle lock and preserves an unresolved journal barrier without navigation (3.203625ms)
+✔ controllerchange and the committed watchdog ask the active owner for explicit recovery without local thaw (34.898792ms)
+✔ safe activation reloads a hash-routed product document instead of completing a same-document fragment replace (4.443542ms)
+✔ active recovery defers a new document transition if the product becomes dirty after thaw, then resumes on clean (6.626958ms)
+✔ a fresh product client can join the active recovery handshake alongside a committed iframe (1816.743916ms)
+✔ membership abort after commit preserves active transition intent and revalidates clean state (6.995458ms)
+✔ membership abort after commit preserves active transition intent and revalidates dirty state (9.295292ms)
+✔ membership abort after commit preserves active transition intent and revalidates pending state (4.780708ms)
+✔ membership abort after commit preserves active transition intent and revalidates journal state (6.760166ms)
+✔ R1: SW prepare timeout must unfreeze the recipient even when inspect completes late (23.125583ms)
+✔ R2: abort received during a pending prepare must tombstone the generation (0.882125ms)
+✔ R3: stop while prepare is awaiting setFrozen must not leave a live freeze (0.478917ms)
+✔ R4: invalidation after recheck must prevent skipWaiting with an unfrozen, unlocked dirty leader (2.157625ms)
+✔ R5: activation from an unrelated generation must not release current freeze/leader lock (0.788125ms)
+✔ R7: aborting an older overlapping generation must not unfreeze an ACKed newer one (0.7045ms)
+✔ R8: activation from newly active B is accepted while the open A page still has controller A (1.185833ms)
+✔ R9: stop waits for an in-flight freeze and applies its unfreeze after the late completion (0.929375ms)
+✔ R10: invalidation racing the commit ACK prevents skipWaiting and releases only after abort (1.721334ms)
+✔ C1: real submission-state blocks incoherent/guarded/unknown/processing journals, and accepts empty first run (8.501166ms)
+✔ C2: source validation rejects foreign origin and a sibling scope worker (0.93125ms)
+✔ C3: actual submission-state holds shared lock adapter until activation and blocks another instance (3.343708ms)
+✔ F3: committed active build B conditionally replaces the open build A while still frozen (1.865125ms)
+✔ same script URL with a different worker instance cannot abort an owned generation (2.011708ms)
+✔ abort before prepare leaves a tombstone that prevents a late prepare from freezing (0.336166ms)
+✔ dirty invalidation after commit retains freeze and native lock until a terminal abort (1.102875ms)
+✔ prepare freezes first and ACKs only after a clean-state recheck (2.339166ms)
+✔ dirty state or failed freeze refuses prepare and leaves no window frozen (0.850541ms)
+✔ prepare checks journal under lock, then native write lock stays held through recheck and releases on apply or abort (4.406334ms)
+✔ journal with unresolved work refuses prepare and leaves the window unfrozen (0.2655ms)
+✔ a clean first-run state with no connection or journal can safely update (0.237334ms)
+✔ a dirty transition after prepare invalidates that generation before apply (0.331625ms)
+✔ worker source must match the registered scope exactly (0.202ms)
+✔ install applies only after every window is clean, frozen, rechecked, and lock-protected (20.083791ms)
+✔ two scoped windows freeze and recheck while only one holds the origin-wide native lock (3.195834ms)
+✔ dirty, unresolved, or membership-changing windows abort without skipWaiting (3.64175ms)
+✔ unresponsive windows time out, abort, and never trigger skipWaiting (10005.692666ms)
+✔ app lifecycle retries a waiting worker on start and state changes, without forcing reload (2.883083ms)
+✔ app lifecycle start wires the coordinator into the service worker handshake (1.012958ms)
+✔ validateCreatePayload reuses the create transport limits without issuing a request (7.003167ms)
+✔ verify는 설정된 다섯 스키마와 forward 관계 타입·대상을 읽기만 검증한다 (1.279792ms)
+✔ verify는 object/id/속성 누락·다른 타입·관계의 다른 데이터 소스를 거부한다 (1.4585ms)
+✔ 설정을 복사·정규화하고 client revision·데이터 소스를 불변 캡처한다 (0.273458ms)
+✔ constructor의 잘못된 설정은 원문 없는 not-sent 오류다 (0.2685ms)
+✔ 조회는 전체 페이지의 원시 객체를 반환하고 cursor를 body로만 보낸다 (0.31625ms)
+✔ query는 매 page incomplete를 확인하며 has_more=false여도 부분 성공을 반환하지 않는다 (0.218625ms)
+✔ query는 cursor 없음·공백·반복·순환을 끝내고 누적 배열을 반환하지 않는다 (0.401875ms)
+✔ query는 잘못된 목록·페이지·음수 개수 형태와 중간 HTTP 오류를 거부한다 (2.348209ms)
+✔ kind와 UUID의 URL/path 주입은 fetch 전에 차단한다 (1.149042ms)
+✔ 생성은 domain 입력을 공유 encode로 직렬화하며 호출 뒤 입력 변경과 분리한다 (0.516666ms)
+✔ getPage 정규화와 archiveCreatedPage 고정 body·취소 확인 (0.163708ms)
+✔ create/get/archive의 잘못된 성공 body·식별자는 성공으로 취급하지 않는다 (0.681291ms)
+✔ HTTP 400 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다 (0.269667ms)
+✔ HTTP 401 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다 (0.113917ms)
+✔ HTTP 403 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다 (0.110375ms)
+✔ HTTP 404 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다 (0.103792ms)
+✔ HTTP 409 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다 (0.185792ms)
+✔ HTTP 413 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다 (0.199542ms)
+✔ HTTP 415 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다 (0.561417ms)
+✔ HTTP 422 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다 (0.104042ms)
+✔ HTTP 429 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다 (0.094333ms)
+✔ HTTP 408 쓰기는 unknown이고 재시도하지 않는다 (0.107083ms)
+✔ HTTP 500 쓰기는 unknown이고 재시도하지 않는다 (0.052084ms)
+✔ HTTP 503 쓰기는 unknown이고 재시도하지 않는다 (0.059542ms)
+✔ HTTP 599 쓰기는 unknown이고 재시도하지 않는다 (0.056292ms)
+✔ Retry-After의 잘못된 값은 안전 오류에서 생략한다 (0.231541ms)
+✔ 네트워크 예외와 JSON 해석 실패는 원문·cause 없이 요청 성격에 맞게 변환한다 (0.472625ms)
+✔ abort 무시 fetch 대기도 전체 timeout 종료 / 읽기 (7.520417ms)
+✔ abort 무시 fetch 대기도 전체 timeout 종료 / 쓰기 (5.631791ms)
+✔ abort 무시 json 대기도 전체 timeout 종료 / 읽기 (6.167542ms)
+✔ abort 무시 json 대기도 전체 timeout 종료 / 쓰기 (5.584166ms)
+✔ rich_text 100조각은 허용하고 101조각과 실제 wire의 2001자 text는 전송 전에 거부한다 (3.469833ms)
+✔ 배열·UTF-8 500000byte 한도와 stringify 오류는 fetch 전 안전하게 끝난다 (1.396709ms)
+✔ canonical 33속성·긴 snapshot 왕복과 기존 decode 의미·서버 함수 동일성을 유지한다 (0.537125ms)
+✔ 주입된 fetch는 브라우저 global receiver로 호출된다 (0.109209ms)
+✔ 5xx·408은 거절로 오해시키는 code가 아닌 http-error로 표시한다 (0.185333ms)
+✔ 실제 wire payload의 500000byte 경계를 정확히 적용한다 (8.212917ms)
+✔ 잘못된 응답 getter·json 없음은 원문을 누설하지 않는다 (0.542208ms)
+✔ 동기 JSON 해석이 timer를 지연해도 전체 기한을 넘기면 timeout이다 (11.502541ms)
+✔ client의 긴 스냅샷 wire 분할·응답 raw page·shared decode 왕복을 확인한다 (0.451209ms)
+✔ 일반 빌드는 probes를 제외하고 오염된 probes 폴더는 무검사로 통과하지 않는다 (75.116583ms)
+✔ 명시적 실험 빌드는 정확한 네 파일·메뉴를 공급하고 일반 검사에서는 거부한다 (69.099583ms)
+✔ 실험 파일 변경은 버전에 반영되고 일반 빌드로 돌아가면 실험 파일은 제거된다 (112.321875ms)
+✔ 실험 산출물의 비밀값·외부 URL·추가 파일·symlink는 거부한다 (217.806625ms)
+✔ 실험 소스의 symlink와 미허용 파일은 게시에 포함하지 않는다 (55.014583ms)
+✔ 조회와 401 실험은 생성 없이 독립 실행되고 정상 스키마와 명시 확인이 생성 조건이다 (1.774416ms)
+✔ UUID 외 입력과 다른 스키마는 차단하고 설정은 복사한다 (1.117625ms)
+✔ 명시 생성 한 번에 POST 한 번, 처리 중 중복과 설정 변경을 막고 요청을 고정한다 (0.425667ms)
+✔ 불확실 생성 network는 설정 교체로 풀리지 않으며 원본 확인 뒤 정상 재조회만 잠금을 푼다 (0.828ms)
+✔ 불확실 생성 timeout는 설정 교체로 풀리지 않으며 원본 확인 뒤 정상 재조회만 잠금을 푼다 (5.639834ms)
+✔ 불확실 생성 json는 설정 교체로 풀리지 않으며 원본 확인 뒤 정상 재조회만 잠금을 푼다 (0.291875ms)
+✔ 불확실 생성 server는 설정 교체로 풀리지 않으며 원본 확인 뒤 정상 재조회만 잠금을 푼다 (0.209167ms)
+✔ 불확실 생성 http408는 설정 교체로 풀리지 않으며 원본 확인 뒤 정상 재조회만 잠금을 푼다 (0.228708ms)
+✔ 원본 확인 후 실패한 재조회나 401 실험은 불확실 잠금을 풀지 않는다 (0.351166ms)
+✔ 생성 성공 후 재조회 실패는 저장 성공으로 남고 자동 재전송하지 않는다 (0.481208ms)
+✔ 확정 4xx 거부는 안전한 상태로 표시하고 원문·토큰·ID를 노출하지 않는다 (0.325708ms)
+✔ OPFS는 전용 하위 경로에 시험 문자열의 버전 JSON만 쓰고 읽기는 생성하지 않는다 (3.81725ms)
+✔ OPFS 오류 분류 QuotaExceededError (0.742916ms)
+✔ OPFS 오류 분류 NotAllowedError (0.642375ms)
+✔ OPFS 오류 분류 SecurityError (1.027708ms)
+✔ OPFS 오류 분류 NotSupportedError (0.648666ms)
+✔ OPFS 오류 분류 TypeMismatchError (0.563292ms)
+✔ OPFS 오류 분류 UnknownError (0.314ms)
+✔ OPFS 미지원·손상·다른 스키마·실제 비밀 형태를 구분하고 기존 파일을 보존한다 (0.804875ms)
+✔ OPFS 처리 중 중복 쓰기를 막는다 (0.269291ms)
+✔ 모듈은 DOM 없이 import되고 HTML은 외부 모듈·확인 UI·안전한 입력·버전 표식을 제공한다 (3.135917ms)
+✔ 비정상 스키마 JSON은 스키마 불일치이다 (0.174959ms)
+✔ 비문자열 생성 ID는 확인 잠금이다 (0.180083ms)
+✔ Notion DOM은 별도 버튼과 확인을 적용하며 응답 오류를 안전한 텍스트로만 표시한다 (0.734041ms)
+✔ 파일 DOM은 새 시험 확인으로만 쓰고 보관 재조회에는 바이트 변경이 없다 (2.701667ms)
+✔ 실행 환경 표시는 브라우저 API receiver를 보존하고 조회 불가에도 실험 UI를 유지한다 (0.675417ms)
+✔ OPFS 작성·읽기·모듈 재생성의 지문은 같고 다른 유효 시험 파일은 구별한다 (1.7115ms)
+ℹ SHA-256 write=1db3f36cb28bb1403338d2a363bb3b19f7db59ab8397098a3d57516b849ab9ad read=1db3f36cb28bb1403338d2a363bb3b19f7db59ab8397098a3d57516b849ab9ad reopened=1db3f36cb28bb1403338d2a363bb3b19f7db59ab8397098a3d57516b849ab9ad other=035a5af1252506449399a8d875f8c7697e8e7ddccae355f62465d02ac01dbf59
+✔ 지문 기능 미지원·실패 때 원문으로 대체하지 않고 파일도 새로 쓰지 않는다 (0.561ms)
+✔ 가짜 marker는 끝 개행도 허용하지 않고 유효하지 않은 파일에는 지문을 제공하지 않는다 (0.312375ms)
+✔ product commands, UI and lifecycle ship byte-for-byte and all affect the release version (225.765708ms)
+✔ commands/UI directory symlinks cannot bypass the source boundary (51.0125ms)
+✔ release checker rejects activation moved outside the handshake, aliases and removed guards (83.46775ms)
+✔ SVG namespace is allowed only in UI element creation, never as a request URL (79.021666ms)
+✔ 모듈은 공개 factory와 두 읽기 메서드만 제공한다 (3.520292ms)
+✔ factory는 다섯 source ID를 검증하고 생성 시점 값을 복사한다 (2.654833ms)
+✔ 다섯 source를 모두 읽고 단계 정렬·기록 snapshot·별점 집계를 만든 뒤 깊게 고정한다 (1.022291ms)
+✔ 진짜 빈 다섯 source는 빈 데이터로 반환하고 조회 실패와 구분한다 (1.42925ms)
+✔ queryAll beans 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다 (0.381083ms)
+✔ queryAll bags 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다 (0.335792ms)
+✔ queryAll recipes 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다 (0.377541ms)
+✔ queryAll steps 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다 (0.378ms)
+✔ queryAll records 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다 (0.93575ms)
+✔ 삭제·잘못된 ID·source·parent 페이지는 codec 전에 제외한다 (1.255416ms)
+✔ 잘리거나 다중이거나 없는 필수 관계와 선택 봉지 불일치는 decode 전에 제외한다 (1.200125ms)
+✔ 기록의 선택 봉지는 존재해야 하고 snapshot 원두와 같아야 한다 (0.942958ms)
+✔ 버전 1 snapshot 전체·기록 날짜·별점을 검증한다 (0.602958ms)
+✔ 잘못된 property type과 payload는 decode 전에 해당 페이지만 제외한다 (0.273959ms)
+✔ order 1 부재·순서 gap/중복·파생값 손상·tiny-water 자식 삭제는 완성 레시피로 노출하지 않는다 (1.480792ms)
+✔ epsilon 경계에서 손상된 마지막 자식이 남은 prefix를 완성 레시피로 만들지 않는다 (0.613209ms)
+▶ 식별 가능한 부모 관계가 있는 잘못된 자식은 그 부모를 taint한다
+  ✔ 잘못된 number 값 (0.860708ms)
+  ✔ 잘못된 property type (0.331084ms)
+  ✔ 복수 부모 관계 (0.312292ms)
+  ✔ 잘린 부모 관계 (0.294166ms)
+  ✔ 관계 배열이 남은 잘못된 relation type (0.285708ms)
+  ✔ 관계 배열이 남은 잘못된 child ID (0.325792ms)
+  ✔ 관계 배열이 남은 잘못된 child source (0.306ms)
+✔ 식별 가능한 부모 관계가 있는 잘못된 자식은 그 부모를 taint한다 (3.129584ms)
+▶ parent 조회 뒤 parent archive 또는 조건·bean·last_edited_time 변경은 전체 조회를 stale-read로 끝낸다
+  ✔ archive (0.8745ms)
+  ✔ trash (0.707875ms)
+  ✔ name (0.476ms)
+  ✔ dripper (0.310666ms)
+  ✔ dose (0.286875ms)
+  ✔ grind (0.378375ms)
+  ✔ grinder (0.377208ms)
+  ✔ grinder setting (0.421041ms)
+  ✔ microns (0.86925ms)
+  ✔ temperature (0.856042ms)
+  ✔ total water (0.329375ms)
+  ✔ bean relation (0.306ms)
+  ✔ last edited (0.361375ms)
+  ✔ source (0.276041ms)
+✔ parent 조회 뒤 parent archive 또는 조건·bean·last_edited_time 변경은 전체 조회를 stale-read로 끝낸다 (7.44275ms)
+✔ parent 비교는 첫 rich text 조각 뒤의 변경도 stale-read로 감지한다 (0.38075ms)
+▶ parent 최종 getPage 실패와 ID 불일치는 안전 stale-read로 전환한다
+  ✔ failure (0.309083ms)
+  ✔ id-mismatch (0.261834ms)
+✔ parent 최종 getPage 실패와 ID 불일치는 안전 stale-read로 전환한다 (0.663125ms)
+✔ 현재 recipe가 삭제되어도 유효한 과거 record snapshot은 저장된 값 그대로 읽는다 (0.497709ms)
+✔ 손상되거나 버전이 다른 record snapshot은 제외하고 원본을 공개하지 않는다 (0.496ms)
+✔ readRecipeForSnapshot은 매 호출마다 다섯 source와 parent를 새로 확인한다 (0.885ms)
+✔ 관계 부재와 완전 조회 실패는 빈 collection으로 위장하지 않는다 (0.2165ms)
+✔ 조회·작업 상태 모듈은 앱 파일로만 공급하고 변경을 버전에 반영한다 (142.27225ms)
+✔ state 소스 디렉터리 symlink를 통한 허용 목록 우회는 차단한다 (20.022291ms)
+✔ 소스의 개발용 도메인 경유 모듈과 배포 원본은 같은 함수다 (1.171042ms)
+✔ draft canonical hash, isolated deep freeze, new intent key and ordered arrays (7.642166ms)
+✔ draft rejects non-JSON/getters/cycles and invalid target/revision without exposing input (1.275583ms)
+✔ processing and known ID durable before subsequent dispatch, exact secret-free journal, success (3.398792ms)
+✔ same succeeded key never reruns, fresh intent same payload allowed (2.092583ms)
+✔ failed key never reruns; altered or forged same-key payload rejected (3.396916ms)
+✔ native contention, unsupported locks, lock failure, reentry and expired context fail closed (0.482917ms)
+✔ distinct state instances contend through the shared native lock (0.128ms)
+✔ callback return closes context admission and drains admitted work before native unlock (0.8065ms)
+✔ runOperation drains an in-flight hook and expires escaped hooks before releasing the lock (1.214042ms)
+✔ storage failure at root prevents network and fails closed (0.917417ms)
+✔ storage failure at directory prevents network and fails closed (0.407375ms)
+✔ storage failure at handle prevents network and fails closed (1.144625ms)
+✔ storage failure at createWritable prevents network and fails closed (0.970209ms)
+✔ storage failure at write prevents network and fails closed (0.719792ms)
+✔ storage failure at close prevents network and fails closed (1.726166ms)
+✔ storage failure at afterClose prevents network and fails closed (0.934458ms)
+✔ storage failure at getFile prevents network and fails closed (0.358125ms)
+✔ storage failure at text prevents network and fails closed (0.339666ms)
+✔ result persistence failure latches memory and restart processing becomes unknown (0.934333ms)
+✔ successful close with altered readback blocks dispatch and latches uncertainty (0.449917ms)
+✔ unknown and partial globally block new keys and connection changes, no auto retry (3.494292ms)
+✔ caught write errors retain unknown or rejected outcome instead of succeeding (1.19525ms)
+✔ connection and journal revision reread before every write blocks stale client/draft (0.698416ms)
+✔ one file missing refuses first connection and mutation: connection.json (0.982291ms)
+✔ one file missing refuses first connection and mutation: submission-journal.json (0.399875ms)
+✔ first connection guard, commit readback, replacement, stale old client and interrupted guard (1.64475ms)
+✔ connection recovery requires a persisted guard and both files (0.489417ms)
+✔ confirmConnection adopts the original active revision after an interrupted replacement (1.994041ms)
+✔ close/readback uncertainty in connection change retains blocking guard (1.853542ms)
+✔ resolution requires original confirmation, concrete decision and fresh same-target read callback (1.624875ms)
+✔ resolution compares the original durable connection snapshot after fresh read (0.67125ms)
+✔ journal UUID identity is canonical and returned snapshots are deeply immutable (0.859125ms)
+✔ raw Error returned from a dispatched callback is redacted and marked unknown (0.448875ms)
+✔ clock and crypto feature failures use fixed safe errors (0.525375ms)
+✔ archive only current-operation known pages; rejected archive preserves partial and unknown archive blocks (1.392833ms)
+✔ uncertain archive callback durably changes the page archive state to unknown (1.391209ms)
+✔ corrupt/extra-field journal never overwritten or exposed (1.389792ms)
+✔ the shipped page has a real UI mount point (2.274167ms)
+✔ controller public flows use real Notion, repository, commands and journal adapters (49.841125ms)
+✔ unknown writes preserve the draft state and prevent a second UI submission (4.344ms)
+✔ unknown write resolution requires explicit confirmation and a fresh read before writes resume (7.415833ms)
+✔ a second native UI client waits for startup lock release and reads the saved connection (101.302875ms)
+✔ saved resolution rejects a recipe parent that is absent from the complete fresh projection (5.174542ms)
+✔ connection settings open only after no saved connection is found (2.841042ms)
+✔ startup checking shows only an accessible spinner until retry is needed (1.982292ms)
+✔ initialization spinner ends on saved (4.221459ms)
+✔ initialization spinner ends on missing (1.464875ms)
+✔ initialization spinner ends on error (2.18625ms)
+✔ initialization spinner ends on recovery (2.133875ms)
+✔ initialization spinner ends on busy (2.04775ms)
+✔ initialization spinner ends on read-error (1.215917ms)
+✔ startup overlay sits outside the transformed page and ready stays silent (0.578125ms)
+✔ saved connection leaves a header icon that toggles settings without losing input (0.752208ms)
+✔ successful status messages stay visible for three seconds then hide (0.766542ms)
+✔ errors, recovery notices and pending work stay visible after replacing success (0.379959ms)
+✔ the operation spinner survives success and ready statuses until shared work completes (0.367083ms)
+✔ a new success gets a full display interval and empty messages hide immediately (0.155583ms)
+✔ draft values survive tab navigation and a fresh data render (2.418709ms)
+✔ bean, recipe, and record detail text is rendered as text and retains brew details (2.124416ms)
+✔ resolution controls follow the native journal page-list contract (0.700667ms)
+✔ recipe step time permits a keyboard with colon while retaining minute-second validation (2.723125ms)
+✔ the bean origin label uses user-facing wording rather than the storage field name (0.683833ms)
+✔ the record date default follows the device calendar across the KST UTC boundary (1.426917ms)
+✔ checked connection-recovery checkbox reaches the current-connection verifier (0.64275ms)
+✔ startup lock contention hides connection entry and retries the saved connection read (0.487208ms)
+✔ successful connection replacement preserves the active product draft (2.076333ms)
+✔ successful connection replacement preserves hidden drafts and their dirty signal (2.594166ms)
+✔ recipe input minimums allow every positive sub-cent value accepted by the domain (1.782834ms)
+✔ recipe records distinguish selected bags, no selection, and unavailable bags (10.642709ms)
+✔ bean creation starts hidden, opens from the plus button, and closes on cancel (2.908834ms)
+✔ bag creation starts hidden, opens from the plus button, and closes on cancel (3.493208ms)
+✔ recipe creation opens from plus, preserves drafts, and closes on cancel (11.403625ms)
+✔ record creation opens from plus, preserves drafts, and closes on cancel or save (5.695542ms)
+✔ collection headers omit refresh and retain their add buttons (3.487ms)
+✔ pulling from the top reloads the entire page once on release (1.624708ms)
+✔ pulling progressively reveals a twelve-spoke spinner and moves the page down (0.635ms)
+✔ work starting while the released spinner paints cancels the scheduled reload (1.212791ms)
+✔ short pulls, retracted pulls and cancelled gestures do not reload (1.444125ms)
+✔ normal scrolling and horizontal or upward swipes do not trigger reload (1.876417ms)
+✔ multitouch never reloads and a later single finger gesture can refresh (0.359667ms)
+✔ downward pulls from controls and their child elements reload the whole page (3.108625ms)
+✔ control taps keep their normal action and short drags suppress accidental taps (0.527375ms)
+✔ horizontal gestures and scrollable controls away from their top keep native scrolling (1.794583ms)
+✔ saving and update freeze prevent a reload even when they begin during a pull (1.109042ms)
+✔ refresh requires a 240px downward pull and checks the release position (2.422125ms)
+✔ navigation uses four distinct decorative icons with accessible menu names (0.240583ms)
+✔ bean cards expose a labelled trash button and require confirmation before deleting (1.076958ms)
+✔ startup uses the register() result and checks for an update once (0.978625ms)
+✔ installed worker retries safe apply after updatefound and statechange (3.311334ms)
+✔ startup and one visibility return coalesce overlapping update checks (1.009833ms)
+✔ a rejected update check can be retried after returning to the app (0.325541ms)
+✔ stop removes registration and installing-worker listeners and closes a pending update race (0.490416ms)
+ℹ tests 412
+ℹ suites 0
+ℹ pass 399
+ℹ fail 13
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10663.376125
+
+✖ failing tests:
+
+test at test/http.test.mjs:84:1
+✖ 임의의 호스트에서 조회와 같은 출처의 연결 요청을 허용한다 (11.204625ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at test/http.test.mjs:105:1
+✖ 공개 HTTP 흐름: 연결→원두→봉지→레시피→같은 날 평가→재조회 (2.325209ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at test/http.test.mjs:160:1
+✖ 다른 Origin과 Host·Origin 불일치 및 잘못된 Content-Type 거부 (0.216125ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at test/http.test.mjs:178:1
+✖ 소유하지 않은 관계·봉지 원두 불일치·여러 관계·날짜·별점 검증 (0.229166ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at test/http.test.mjs:198:1
+✖ 연결 검증 실패 시 기존 연결 유지·토큰 미노출·진짜 빈 DB는 빈 목록 (0.344125ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at test/http.test.mjs:214:1
+✖ 동시 중복 POST는 한 번 저장하고 다른 내용의 같은 키는 충돌 (0.264417ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at test/http.test.mjs:227:1
+✖ HTTP 단계 저장 실패는 성공으로 응답하지 않고 노출된 부분 저장을 취소 (0.243833ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at test/http.test.mjs:241:1
+✖ 회귀 1: 중간 단계 삭제는 새 요청 키, 같은 전체 payload는 같은 키로 저장 (6.234917ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at test/http.test.mjs:261:1
+✖ 회귀 2: 429와 저장 전 조회 실패는 같은 키로 복구되며 불확실 쓰기는 중복 금지 (2.550167ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at test/http.test.mjs:301:1
+✖ 회귀 3: 생성 중인 레시피는 조회·평가에서 제외하고 완료 후 전체 단계를 보존 (1.611375ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at test/http.test.mjs:335:1
+✖ 회귀 3 추가: 직접 편집된 빈 단계·순서·총량 불일치는 조회·평가에서 제외 (0.865459ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at test/http.test.mjs:354:1
+✖ 회귀 2·3 추가: 단계 응답 유실과 취소 실패 후에도 재쓰기·미완성 노출 금지 (1.041959ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at test/http.test.mjs:379:1
+✖ 회귀 2 추가: 쓰기 5xx·성공 응답 JSON 유실은 같은 키에 재전송 금지 (0.551792ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1915:21)
+      at listenInCluster (node:net:1994:12)
+      at node:net:2203:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }

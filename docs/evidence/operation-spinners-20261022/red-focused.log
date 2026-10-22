@@ -1,0 +1,138 @@
+✔ connection verifies under the write lock before durable commit and never exposes the token (2.033458ms)
+✔ a rejected connection replacement keeps the previously verified connection active (0.597541ms)
+✔ a verification failure never writes or reports an active connection (0.224292ms)
+✔ a successful connection remains active when the first full read fails (0.160084ms)
+✔ lifecycle freeze refuses dirty or pending work and freezes clean state (0.225166ms)
+✔ frozen lifecycle rejects refresh and connection replacement before side effects (0.345209ms)
+✔ dirty drafts prevent lifecycle freeze and are reported to the coordinator (0.180875ms)
+✔ manual refresh owns the pending state and refuses a second read until it finishes (4.299292ms)
+✖ current-connection recovery keeps pending through reinitialization and its final read (4.78875ms)
+  AssertionError [ERR_ASSERTION]: the handoff to initialize must not briefly end pending work
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/operation-spinners/AX-1day/test/pwa-connection.test.mjs:153:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+✔ initialization fails closed when state is blocked without a journal-visible recovery (0.811792ms)
+✔ initialization does not offer a fresh connection setup for an unexplained blocked state (0.287166ms)
+✔ initialization keeps the verified connection available to resolve a journaled unknown write (0.125875ms)
+✔ initialization retries only startup lock acquisition and becomes ready when the lock clears (303.368917ms)
+✔ exhausted startup lock contention offers a saved-state retry without connection entry (1807.05175ms)
+✔ startup does not retry a lock-busy error thrown after entering the native lock callback (0.335334ms)
+✔ resolution rejects extra page IDs when the journal already records created pages (1.133458ms)
+✔ connection settings open only after no saved connection is found (2.614917ms)
+✔ startup checking shows only an accessible spinner until retry is needed (1.8135ms)
+✔ initialization spinner ends on saved (2.432083ms)
+✔ initialization spinner ends on missing (1.170708ms)
+✔ initialization spinner ends on error (0.658125ms)
+✔ initialization spinner ends on recovery (0.718959ms)
+✔ initialization spinner ends on busy (2.867083ms)
+✔ initialization spinner ends on read-error (1.369208ms)
+✔ startup overlay sits outside the transformed page and ready stays silent (0.509958ms)
+✔ saved connection leaves a header icon that toggles settings without losing input (0.859166ms)
+✔ successful status messages stay visible for three seconds then hide (0.647291ms)
+✔ errors, recovery notices and pending work stay visible after replacing success (0.330125ms)
+✖ the operation spinner survives success and ready statuses until shared work completes (7.300333ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+    assert.ok(spinner)
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/operation-spinners/AX-1day/test/pwa-ui.view.test.mjs:306:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '=='
+  }
+
+✔ a new success gets a full display interval and empty messages hide immediately (0.193709ms)
+✔ draft values survive tab navigation and a fresh data render (2.747208ms)
+✔ bean, recipe, and record detail text is rendered as text and retains brew details (1.427708ms)
+✔ resolution controls follow the native journal page-list contract (0.619667ms)
+✔ recipe step time permits a keyboard with colon while retaining minute-second validation (1.355ms)
+✔ the bean origin label uses user-facing wording rather than the storage field name (0.345583ms)
+✔ the record date default follows the device calendar across the KST UTC boundary (3.664583ms)
+✔ checked connection-recovery checkbox reaches the current-connection verifier (0.637083ms)
+✔ startup lock contention hides connection entry and retries the saved connection read (0.719917ms)
+✔ successful connection replacement preserves the active product draft (2.647583ms)
+✔ successful connection replacement preserves hidden drafts and their dirty signal (2.335583ms)
+✔ recipe input minimums allow every positive sub-cent value accepted by the domain (1.874792ms)
+✔ recipe records distinguish selected bags, no selection, and unavailable bags (16.55175ms)
+✔ bean creation starts hidden, opens from the plus button, and closes on cancel (2.225625ms)
+✔ bag creation starts hidden, opens from the plus button, and closes on cancel (2.931084ms)
+✔ recipe creation opens from plus, preserves drafts, and closes on cancel (10.238084ms)
+✔ record creation opens from plus, preserves drafts, and closes on cancel or save (5.48425ms)
+✔ collection headers omit refresh and retain their add buttons (3.128458ms)
+✔ pulling from the top reloads the entire page once on release (1.133959ms)
+✔ pulling progressively reveals a twelve-spoke spinner and moves the page down (0.564209ms)
+✔ work starting while the released spinner paints cancels the scheduled reload (1.2515ms)
+✔ short pulls, retracted pulls and cancelled gestures do not reload (0.930083ms)
+✔ normal scrolling and horizontal or upward swipes do not trigger reload (1.612333ms)
+✔ multitouch never reloads and a later single finger gesture can refresh (0.734167ms)
+✔ downward pulls from controls and their child elements reload the whole page (2.927833ms)
+✔ control taps keep their normal action and short drags suppress accidental taps (0.480459ms)
+✔ horizontal gestures and scrollable controls away from their top keep native scrolling (1.25175ms)
+✔ saving and update freeze prevent a reload even when they begin during a pull (1.7415ms)
+✔ refresh requires a 240px downward pull and checks the release position (1.724625ms)
+✔ navigation uses four distinct decorative icons with accessible menu names (0.178791ms)
+✔ bean cards expose a labelled trash button and require confirmation before deleting (1.732541ms)
+ℹ tests 60
+ℹ suites 0
+ℹ pass 58
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3173.287208
+
+✖ failing tests:
+
+test at test/pwa-connection.test.mjs:118:1
+✖ current-connection recovery keeps pending through reinitialization and its final read (4.78875ms)
+  AssertionError [ERR_ASSERTION]: the handoff to initialize must not briefly end pending work
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/operation-spinners/AX-1day/test/pwa-connection.test.mjs:153:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:297:1
+✖ the operation spinner survives success and ready statuses until shared work completes (7.300333ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+    assert.ok(spinner)
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/operation-spinners/AX-1day/test/pwa-ui.view.test.mjs:306:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '=='
+  }

@@ -1,0 +1,114 @@
+{
+  "results": [
+    {
+      "label": "connection",
+      "spokes": 12,
+      "animation": "pull-refresh-spin",
+      "inViewport": true,
+      "rect": {
+        "top": 30.390625,
+        "bottom": 54.390625
+      },
+      "scrollY": 0,
+      "ariaBusy": "true",
+      "text": "Notion 연결을 확인하고 있습니다."
+    },
+    {
+      "label": "bean-save",
+      "spokes": 12,
+      "animation": "pull-refresh-spin",
+      "inViewport": true,
+      "rect": {
+        "top": 30.390625,
+        "bottom": 54.390625
+      },
+      "scrollY": 275,
+      "ariaBusy": "true",
+      "text": "저장 중입니다."
+    },
+    {
+      "label": "bean-delete",
+      "spokes": 12,
+      "animation": "pull-refresh-spin",
+      "inViewport": true,
+      "rect": {
+        "top": 30.390625,
+        "bottom": 54.390625
+      },
+      "scrollY": 0,
+      "ariaBusy": "true",
+      "text": "삭제 중입니다."
+    },
+    {
+      "label": "reduced-motion",
+      "spokes": 12,
+      "animation": "none",
+      "inViewport": true,
+      "rect": {
+        "top": 30.390625,
+        "bottom": 54.390625
+      },
+      "scrollY": 275,
+      "ariaBusy": "true",
+      "text": "저장 중입니다."
+    },
+    {
+      "label": "width-320",
+      "spokes": 12,
+      "animation": "pull-refresh-spin",
+      "inViewport": true,
+      "rect": {
+        "top": 30.390625,
+        "bottom": 54.390625
+      },
+      "scrollY": 481,
+      "ariaBusy": "true",
+      "text": "저장 중입니다."
+    },
+    {
+      "label": "width-768",
+      "spokes": 12,
+      "animation": "pull-refresh-spin",
+      "inViewport": true,
+      "rect": {
+        "top": 30.390625,
+        "bottom": 54.390625
+      },
+      "scrollY": 0,
+      "ariaBusy": "true",
+      "text": "저장 중입니다."
+    },
+    {
+      "label": "width-1440",
+      "spokes": 12,
+      "animation": "pull-refresh-spin",
+      "inViewport": true,
+      "rect": {
+        "top": 30.390625,
+        "bottom": 54.390625
+      },
+      "scrollY": 0,
+      "ariaBusy": "true",
+      "text": "저장 중입니다."
+    },
+    {
+      "label": "save-rejected",
+      "spokes": 12,
+      "animation": "pull-refresh-spin",
+      "inViewport": true,
+      "rect": {
+        "top": 30.390625,
+        "bottom": 54.390625
+      },
+      "scrollY": 517,
+      "ariaBusy": "true",
+      "text": "저장 중입니다."
+    },
+    {
+      "failureStopsSpinner": true,
+      "draftPreserved": true,
+      "controlsRestored": true
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,14 @@
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ 'rgb(243, 239, 230)'
+- 'rgba(243, 239, 230, 0.35)'
+      ^
+
+    at /private/tmp/translucent-loading-browser.cjs:50:11 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'rgb(243, 239, 230)',
+  expected: 'rgba(243, 239, 230, 0.35)',
+  operator: 'strictEqual'
+}

@@ -55,7 +55,7 @@ html { overscroll-behavior-y: contain; }
   z-index: 100;
   display: grid;
   place-items: center;
-  background: #f3efe6;
+  background: rgb(243 239 230 / 35%);
   color: #77766e;
   touch-action: none;
 }

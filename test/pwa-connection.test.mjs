@@ -115,6 +115,49 @@ test('manual refresh owns the pending state and refuses a second read until it f
   assert.equal(env.controller.getState().pending, false);
 });
 
+test('current-connection recovery keeps pending through reinitialization and its final read', async () => {
+  const states = [];
+  let readCount = 0;
+  let releaseFinalRead;
+  let markFinalReadStarted;
+  const finalReadStarted = new Promise(resolve => { markFinalReadStarted = resolve; });
+  const finalReadGate = new Promise(resolve => { releaseFinalRead = resolve; });
+  const connection = { ...CONNECTION, revision: REVISION };
+  const context = {
+    async inspect() { return { initialized: true, blocked: false }; },
+    async readJournal() { return { operations: [], connectionGuard: null, activeConnectionRevision: REVISION }; },
+    async confirmConnection(options) { return options.freshRead({ connectionRevision: REVISION }); },
+  };
+  const controller = createAppController({
+    view: {
+      setState(value) { states.push(value.pending); },
+      showConnection() {}, showStatus() {}, renderData() {}, showUnresolved() {}, finishStartup() {},
+    },
+    state: { async withWriteLock(action) { return action(context); } },
+    file: { async readConnection() { return connection; } },
+    makeClient: () => ({ async verify() {} }),
+    makeRepository: () => ({ async readAll() {
+      readCount++;
+      if (readCount === 2) {
+        markFinalReadStarted();
+        await finalReadGate;
+      }
+      return { beans: [], bags: [], recipes: [], records: [] };
+    } }),
+    makeCommands: () => ({}),
+  });
+
+  const recovering = controller.confirmCurrent(true);
+  await finalReadStarted;
+  assert.equal(controller.getState().pending, true);
+  assert.equal(states.includes(false), false, 'the handoff to initialize must not briefly end pending work');
+
+  releaseFinalRead();
+  await recovering;
+  assert.equal(controller.getState().pending, false);
+  assert.equal(states.at(-1), false);
+});
+
 test('initialization fails closed when state is blocked without a journal-visible recovery', async () => {
   const env = harness({ connection: { ...CONNECTION, revision: REVISION },
     inspection: { initialized: true, blocked: true },

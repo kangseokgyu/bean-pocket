@@ -62,6 +62,25 @@ export function createAppView(document = globalThis.document) {
   root.replaceChildren(page);
 
   let currentState = { frozen: false, pending: false, unresolved: false };
+  let statusType = '';
+  let statusMessageText = '';
+  function renderStatus() {
+    const startupChecking = statusType === 'startup-checking';
+    const active = currentState.pending && !startupChecking;
+    statusSpinner.hidden = !active;
+    statusMessage.textContent = statusMessageText || (active ? '불러오는 중…' : '');
+    status.setAttribute('aria-busy', String(currentState.pending));
+    status.hidden = startupChecking || (!active && !statusMessageText);
+  }
+  function scheduleStatusHide() {
+    clearTimeout(statusHideTimer);
+    if (currentState.pending || !AUTO_HIDE_STATUS_TYPES.has(statusType) || !statusMessageText) return;
+    statusHideTimer = setTimeout(() => {
+      if (currentState.pending) return;
+      statusMessageText = '';
+      renderStatus();
+    }, STATUS_DISPLAY_MS);
+  }
   let currentData = null;
   let route = globalThis.location?.hash?.slice(1) || '/beans';
   const drafts = new Map();
@@ -75,6 +94,11 @@ export function createAppView(document = globalThis.document) {
   status.hidden = true;
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
+  const statusSpinner = makeSpinner(document);
+  statusSpinner.className += ' operation-spinner';
+  statusSpinner.hidden = true;
+  const statusMessage = make(document, 'span', '', 'status-message');
+  status.append(statusSpinner, statusMessage);
   page.append(status);
 
   const loading = make(document, 'div', undefined, 'startup-loading');
@@ -176,10 +200,10 @@ export function createAppView(document = globalThis.document) {
   const view = {
     finishStartup,
     showStatus(value) {
-      clearTimeout(statusHideTimer);
-      const checking = value?.type === 'startup-checking';
-      status.textContent = checking || value?.type === 'ready' ? '' : value?.message ?? '';
-      status.dataset.state = value?.type ?? '';
+      statusType = value?.type ?? '';
+      const checking = statusType === 'startup-checking';
+      statusMessageText = checking || statusType === 'ready' ? '' : value?.message ?? '';
+      status.dataset.state = statusType;
       if (checking) {
         const spinner = makeSpinner(document);
         spinner.className += ' startup-spinner';
@@ -189,10 +213,8 @@ export function createAppView(document = globalThis.document) {
       } else {
         finishStartup();
       }
-      status.hidden = !status.textContent;
-      if (!status.hidden && AUTO_HIDE_STATUS_TYPES.has(value?.type)) {
-        statusHideTimer = setTimeout(() => { status.hidden = true; }, STATUS_DISPLAY_MS);
-      }
+      renderStatus();
+      scheduleStatusHide();
     },
     showConnection(value) {
       const connected = !!value?.connected;
@@ -211,12 +233,16 @@ export function createAppView(document = globalThis.document) {
     },
     clearSecret() { connectionForm.elements.token.value = ''; },
     setState(value) {
+      const wasPending = currentState.pending;
       currentState = {
         frozen: !!value.frozen,
         pending: !!value.pending,
         unresolved: !!value.unresolved,
       };
+      renderStatus();
       applyState(page, currentState);
+      if (currentState.pending) clearTimeout(statusHideTimer);
+      else if (wasPending) scheduleStatusHide();
     },
     setFrozen(value) {
       currentState.frozen = !!value;

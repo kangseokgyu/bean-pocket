@@ -146,10 +146,7 @@ export function createAppController({
     }
   }
 
-  async function initialize() {
-    if (pending) throw Object.freeze({ code: 'lock-unavailable' });
-    pending = true;
-    stateChanged();
+  async function runInitialization() {
     view.showConnection?.({ connected: !!activeConnection, checkingInitialization: true });
     view.showStatus?.({ type: 'startup-checking', message: '저장된 연결 확인 중' });
     try {
@@ -195,6 +192,15 @@ export function createAppController({
       return false;
     } finally {
       view.finishStartup?.();
+    }
+  }
+
+  async function initialize() {
+    if (pending) throw Object.freeze({ code: 'lock-unavailable' });
+    pending = true;
+    stateChanged();
+    try { return await runInitialization(); }
+    finally {
       pending = false;
       stateChanged();
     }
@@ -273,9 +279,7 @@ export function createAppController({
           };
         },
       }));
-      pending = false;
-      stateChanged();
-      return await initialize();
+      return await runInitialization();
     } finally {
       pending = false;
       stateChanged();

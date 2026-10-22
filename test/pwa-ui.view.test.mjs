@@ -294,6 +294,29 @@ test('errors, recovery notices and pending work stay visible after replacing suc
   }
 });
 
+test('the operation spinner survives success and ready statuses until shared work completes', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  const status = document.root.querySelector('.app-status');
+  view.setState({ pending: true, frozen: false, unresolved: false });
+  view.showStatus({ type: 'saving', message: '저장 중입니다.' });
+  const spinner = status.querySelector('.operation-spinner');
+  assert.ok(spinner);
+  assert.equal(spinner.getAttribute('aria-hidden'), 'true');
+  assert.equal(spinner.children.length, 12);
+  assert.equal(status.getAttribute('aria-busy'), 'true');
+  view.showStatus({ type: 'saved', message: '저장했습니다. 최신 목록을 다시 불러옵니다.' });
+  assert.equal(status.hidden, false, 'auto-hide must not remove the spinner while the follow-up read is pending');
+  assert.equal(status.querySelector('.operation-spinner'), spinner);
+  view.showStatus({ type: 'ready', message: '' });
+  assert.equal(status.querySelector('.operation-spinner'), spinner, 'ready clears status text, not active work');
+  assert.equal(status.hidden, false);
+  view.setState({ pending: false, frozen: false, unresolved: false });
+  assert.equal(spinner.hidden, true);
+  assert.equal(status.getAttribute('aria-busy'), 'false');
+  assert.equal(status.hidden, true);
+});
+
 test('a new success gets a full display interval and empty messages hide immediately', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const document = new TestDocument();

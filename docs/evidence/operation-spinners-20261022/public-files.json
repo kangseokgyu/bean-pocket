@@ -1,0 +1,151 @@
+{
+  "url": "https://kangseokgyu.github.io/bean-pocket/",
+  "build": "53411a0d82cf",
+  "checkedAtUtc": "2026-10-22T06:02:07.901200+00:00",
+  "files": [
+    {
+      "path": "app.mjs",
+      "status": 200,
+      "bytes": 1526,
+      "localSha256": "58395ab633d65cce0adf93649b16d00786c2d6a78bcb0e1a07bdad625e9b417f",
+      "remoteSha256": "58395ab633d65cce0adf93649b16d00786c2d6a78bcb0e1a07bdad625e9b417f",
+      "matches": true
+    },
+    {
+      "path": "commands/index.mjs",
+      "status": 200,
+      "bytes": 14607,
+      "localSha256": "a3a0553df6554d4eb58d0bd6309d094eec35da64c09c2ac7146d1861cd0a9553",
+      "remoteSha256": "a3a0553df6554d4eb58d0bd6309d094eec35da64c09c2ac7146d1861cd0a9553",
+      "matches": true
+    },
+    {
+      "path": "data/notion-client.mjs",
+      "status": 200,
+      "bytes": 11647,
+      "localSha256": "8373f4cf348f09fdcaaf6a1035ea4d499f3c4418fd90e5404cf122d642d0b9d6",
+      "remoteSha256": "8373f4cf348f09fdcaaf6a1035ea4d499f3c4418fd90e5404cf122d642d0b9d6",
+      "matches": true
+    },
+    {
+      "path": "data/notion-properties.mjs",
+      "status": 200,
+      "bytes": 3546,
+      "localSha256": "5f7eb632efb042a3a416fd2650aa36fc78370bc681946ac52578d27c49c4930b",
+      "remoteSha256": "5f7eb632efb042a3a416fd2650aa36fc78370bc681946ac52578d27c49c4930b",
+      "matches": true
+    },
+    {
+      "path": "data/read-repository.mjs",
+      "status": 200,
+      "bytes": 11993,
+      "localSha256": "3e473b632047c599d321c65dcbaec55924b88257cb1f3ab8a82e1269cab6e612",
+      "remoteSha256": "3e473b632047c599d321c65dcbaec55924b88257cb1f3ab8a82e1269cab6e612",
+      "matches": true
+    },
+    {
+      "path": "domain.mjs",
+      "status": 200,
+      "bytes": 6478,
+      "localSha256": "4d314977da96f36def50e254730597fac8171c6a5588146642572c609168c302",
+      "remoteSha256": "4d314977da96f36def50e254730597fac8171c6a5588146642572c609168c302",
+      "matches": true
+    },
+    {
+      "path": "icons/icon-192.png",
+      "status": 200,
+      "bytes": 1942,
+      "localSha256": "fed6a73c7549eae8cb25324bab6e5d9f831120b8db329cfa7a66e3bda4296761",
+      "remoteSha256": "fed6a73c7549eae8cb25324bab6e5d9f831120b8db329cfa7a66e3bda4296761",
+      "matches": true
+    },
+    {
+      "path": "icons/icon-512.png",
+      "status": 200,
+      "bytes": 6181,
+      "localSha256": "0b0197281031a51957ae1c3a43037dcef08eb8d8d187f4b6df5eb212d0303316",
+      "remoteSha256": "0b0197281031a51957ae1c3a43037dcef08eb8d8d187f4b6df5eb212d0303316",
+      "matches": true
+    },
+    {
+      "path": "index.html",
+      "status": 200,
+      "bytes": 1179,
+      "localSha256": "1087780638e78f7260861c265d9671badc722ea6767a253846874f28a27e1b12",
+      "remoteSha256": "1087780638e78f7260861c265d9671badc722ea6767a253846874f28a27e1b12",
+      "matches": true
+    },
+    {
+      "path": "manifest.webmanifest",
+      "status": 200,
+      "bytes": 402,
+      "localSha256": "83dc529ee8004d5aa06cf728873d97c04ece2143d3026f275780f293dedb1bdb",
+      "remoteSha256": "83dc529ee8004d5aa06cf728873d97c04ece2143d3026f275780f293dedb1bdb",
+      "matches": true
+    },
+    {
+      "path": "platform/app-lifecycle.mjs",
+      "status": 200,
+      "bytes": 7354,
+      "localSha256": "ca5b6d7fc53f473000945a14c6951f39a74c8ba829571cdc2c236e463d77c09b",
+      "remoteSha256": "ca5b6d7fc53f473000945a14c6951f39a74c8ba829571cdc2c236e463d77c09b",
+      "matches": true
+    },
+    {
+      "path": "platform/connection-file.mjs",
+      "status": 200,
+      "bytes": 6149,
+      "localSha256": "11410ac903f9f261ca467b2a5eee613d3b15d9d17831f19609456f4b026dbb98",
+      "remoteSha256": "11410ac903f9f261ca467b2a5eee613d3b15d9d17831f19609456f4b026dbb98",
+      "matches": true
+    },
+    {
+      "path": "platform/update-coordinator.mjs",
+      "status": 200,
+      "bytes": 9346,
+      "localSha256": "56015c1ff7738219e963bd29e9b5c77b73d043cf76b6f1698c692b9f4d32bbe7",
+      "remoteSha256": "56015c1ff7738219e963bd29e9b5c77b73d043cf76b6f1698c692b9f4d32bbe7",
+      "matches": true
+    },
+    {
+      "path": "state/submission-state.mjs",
+      "status": 200,
+      "bytes": 29659,
+      "localSha256": "27f2416b0d025e19824a67fb93a186578c05a567e5747a01b25d3a5487bee56a",
+      "remoteSha256": "27f2416b0d025e19824a67fb93a186578c05a567e5747a01b25d3a5487bee56a",
+      "matches": true
+    },
+    {
+      "path": "styles.css",
+      "status": 200,
+      "bytes": 11165,
+      "localSha256": "7cc915658327301f32c369772a4552f5c20f7e85bb5f6e226fe2b1f2c803cf34",
+      "remoteSha256": "7cc915658327301f32c369772a4552f5c20f7e85bb5f6e226fe2b1f2c803cf34",
+      "matches": true
+    },
+    {
+      "path": "sw.js",
+      "status": 200,
+      "bytes": 8137,
+      "localSha256": "1cd37bedba133a01a3792539468e691cbec71acae4e5dd74d7f94f2a1ef449cc",
+      "remoteSha256": "1cd37bedba133a01a3792539468e691cbec71acae4e5dd74d7f94f2a1ef449cc",
+      "matches": true
+    },
+    {
+      "path": "ui/controller.mjs",
+      "status": 200,
+      "bytes": 22385,
+      "localSha256": "0f823124a8ef7858f444f8e3d42b2c9623329eaf2ff5fef84fd899682b4fbf40",
+      "remoteSha256": "0f823124a8ef7858f444f8e3d42b2c9623329eaf2ff5fef84fd899682b4fbf40",
+      "matches": true
+    },
+    {
+      "path": "ui/view.mjs",
+      "status": 200,
+      "bytes": 53786,
+      "localSha256": "1b982c95b5849c6023376d664cca0f30cd8ed40db2ca879b9c200dcc1566b82b",
+      "remoteSha256": "1b982c95b5849c6023376d664cca0f30cd8ed40db2ca879b9c200dcc1566b82b",
+      "matches": true
+    }
+  ]
+}

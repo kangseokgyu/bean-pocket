@@ -302,6 +302,12 @@ button:focus-visible, .table-scroll:focus-visible {
   background: #fffefa;
 }
 
+.bean-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.bean-card-header h3 { min-width: 0; overflow-wrap: anywhere; margin: 0 0 12px; }
+.bean-delete { flex: 0 0 46px; width: 46px; height: 46px; margin-top: -6px; color: #8b3e2f; background: transparent; border-color: transparent; }
+.bean-delete svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.bean-delete:hover:not(:disabled) { background: #fff0e9; border-color: #c98572; }
+
 .bean-card > :last-child, .recipe-card > :last-child { margin-bottom: 0; }
 .muted-note, .empty-state { color: #68685e; }
 .repair-panel { margin-top: 14px; padding-top: 14px; border-top: 1px solid #ded7ca; }

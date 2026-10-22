@@ -401,6 +401,7 @@ function applyState(page, state) {
     control.disabled = globallyDisabled;
   });
   if (globallyDisabled || !state.unresolved) return;
+  page.querySelectorAll('[data-action="delete-bean"]').forEach(control => { control.disabled = true; });
 
   page.querySelectorAll('form[data-form]').forEach(form => {
     form.querySelectorAll('input,button,select,textarea').forEach(control => {
@@ -520,7 +521,22 @@ function renderBeans(pane, data, document, formOpen) {
   if (!data.beans.length) pane.append(make(document, 'p', '등록된 원두가 없습니다.', 'empty-state'));
   for (const bean of data.beans) {
     const card = make(document, 'article', undefined, 'bean-card');
-    card.append(make(document, 'h3', bean.name));
+    const header = make(document, 'div', undefined, 'bean-card-header');
+    header.append(make(document, 'h3', bean.name));
+    const remove = iconButton(document, '', `${bean.name} 삭제`, 'delete-bean');
+    remove.className += ' bean-delete';
+    remove.dataset.id = bean.id;
+    remove.dataset.name = bean.name;
+    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    icon.setAttribute('viewBox', '0 0 24 24');
+    icon.setAttribute('aria-hidden', 'true');
+    icon.setAttribute('focusable', 'false');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7');
+    icon.append(path);
+    remove.replaceChildren(icon);
+    header.append(remove);
+    card.append(header);
     const info = [bean.roaster, bean.origin, bean.variety, bean.process].filter(Boolean).join(' · ');
     if (info) card.append(make(document, 'p', info));
     card.append(make(document, 'p', `향미 노트: ${bean.tastingNotes || '기록 없음'}`));
@@ -724,12 +740,13 @@ function fillSelect(select, rows, placeholder, optional = false) {
 }
 
 function buildResolutionForm(document, operation) {
-  const names = { beans: '원두', bags: '원두 봉지', recipes: '레시피', records: '추출 기록' };
-  const hasKnownPages = operation.knownPageCount > 0;
+  const deleting = operation.kind === 'delete-bean';
+  const names = { 'delete-bean': '원두 삭제', beans: '원두', bags: '원두 봉지', recipes: '레시피', records: '추출 기록' };
+  const hasKnownPages = deleting || operation.knownPageCount > 0;
   const card = make(document, 'article', undefined, 'resolution-card');
-  const status = operation.status === 'partial' ? '일부 저장' : '저장 여부 확인 필요';
+  const status = deleting ? '삭제 여부 확인 필요' : operation.status === 'partial' ? '일부 저장' : '저장 여부 확인 필요';
   card.append(make(document, 'h3', `${names[operation.kind] ?? '저장'} · ${status}`));
-  card.append(make(document, 'p', hasKnownPages
+  card.append(make(document, 'p', deleting ? 'Notion 원본에서 삭제 대상 원두가 휴지통에 있는지 직접 확인해 주세요. 확인 과정에서는 삭제를 다시 요청하지 않습니다.' : hasKnownPages
     ? `확인된 항목 ${operation.knownPageCount}개. 원본에서 이 항목의 상태를 확인해 저장됨 또는 모두 보관 취소됨을 선택해 주세요.`
     : 'Notion 원본을 직접 확인하고, 이번 작업의 결과에 맞는 선택을 해 주세요.'));
   if (!hasKnownPages) card.append(make(document, 'p', '저장됨을 선택할 때는 이번 작업으로 새로 만들어진 모든 페이지의 ID를 입력해 주세요. ID는 상태 메시지에 표시하지 않습니다.', 'muted-note'));
@@ -739,7 +756,10 @@ function buildResolutionForm(document, operation) {
   form.append(confirmed);
   const decision = label(document, '확인 결과', 'decision', 'select', true);
   const select = decision.querySelector('select');
-  const decisions = [
+  const decisions = deleting ? [
+    ['saved', '원두가 휴지통에 있음을 확인함'],
+    ['not-saved', '원두가 삭제되지 않고 남아 있음을 확인함'],
+  ] : [
     ['saved', '이번 작업의 저장을 확인함'],
     ['cancelled', '이번 작업의 새 항목을 모두 보관 취소함'],
   ];
@@ -805,6 +825,14 @@ function bindEvents({ page, connectionForm, originalConnectionCheck, content, ac
       connectionForm.reset();
       actions.setDirty(false, 'connection');
       view.showStatus({ type: 'cancelled', message: '연결 입력을 취소했습니다.' });
+      return;
+    }
+    if (action === 'delete-bean') {
+      const state = actions.getState?.() ?? {};
+      if (target.disabled || state.pending || state.frozen || state.unresolved) return;
+      if (!globalThis.confirm?.(`“${target.dataset.name}” 원두를 삭제할까요?\nNotion 휴지통으로 이동합니다. 연결된 봉지·레시피가 있으면 삭제할 수 없습니다.`)) return;
+      try { await actions.submit('delete-bean', { id: target.dataset.id }); }
+      catch { /* Controller supplies a safe message. */ }
       return;
     }
     if (action === 'show-bean-form') {

@@ -1,6 +1,6 @@
 const SOURCE_KEYS = Object.freeze(['beans', 'bags', 'recipes', 'steps', 'records']);
 const SOURCE_BY_OPERATION = Object.freeze({
-  beans: ['beans'], bags: ['bags'], recipes: ['recipes', 'steps'], records: ['records'],
+  'delete-bean': ['beans'], beans: ['beans'], bags: ['bags'], recipes: ['recipes', 'steps'], records: ['records'],
 });
 const STARTUP_LOCK_RETRY_DELAYS_MS = Object.freeze([100, 200, 300, 500, 700]);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -24,6 +24,7 @@ const SAFE_MESSAGES = Object.freeze({
   'resolution-read-failed': '확인 중 최신 데이터를 읽지 못했습니다. 원본을 확인한 뒤 다시 시도해 주세요.',
   'invalid-resolution': '확인 입력을 처리하지 못했습니다. 원본 상태와 입력한 페이지를 확인해 주세요.',
   input: '입력 내용을 확인해 주세요.',
+  'delete-failed': '삭제하지 못했습니다. 연결된 봉지·레시피나 확인할 수 없는 데이터가 있는지 확인하고 목록을 새로고침해 주세요.',
 });
 
 const messageFor = error => ({
@@ -301,6 +302,21 @@ export function createAppController({
           }
           const freshStack = makeStack(current);
           await freshStack.nextClient.verify();
+          if (operation.kind === 'delete-bean') {
+            if (pageIds.length || !operation.deleteTarget || !['saved', 'not-saved'].includes(resolution.decision)) {
+              throw Object.freeze({ code: 'invalid-resolution' });
+            }
+            const target = operation.deleteTarget;
+            const page = await freshStack.nextClient.getPage(target.id);
+            if (page.parent?.type !== 'data_source_id' || page.parent.data_source_id !== current.dataSources.beans ||
+                typeof page.in_trash !== 'boolean' || typeof page.archived !== 'boolean') {
+              throw Object.freeze({ code: 'invalid-resolution' });
+            }
+            const archived = page.in_trash === true || page.archived === true;
+            if (archived !== (resolution.decision === 'saved')) throw Object.freeze({ code: 'invalid-resolution' });
+            return { connectionRevision: operation.connectionRevision, targetFingerprint: operation.targetFingerprint,
+              outcome: resolution.decision, deleteTarget: { ...target, archiveState: archived ? 'archived' : 'active' } };
+          }
           const freshData = await freshStack.nextRepository.readAll();
 
           if (resolution.decision === 'not-saved' && pageIds.length) throw Object.freeze({ code: 'invalid-resolution' });
@@ -362,10 +378,11 @@ export function createAppController({
     if (unresolvedOperations.length) throw Object.freeze({ code: 'unresolved-operation' });
     pending = true;
     stateChanged();
-    view.showStatus?.({ type: 'saving', message: '저장 중입니다.' });
+    const deleting = kind === 'delete-bean';
+    view.showStatus?.({ type: 'saving', message: deleting ? '삭제 중입니다.' : '저장 중입니다.' });
     try {
       const prepare = {
-          beans: 'prepareBean', bags: 'prepareBag', recipes: 'prepareRecipe', records: 'prepareRecord',
+          'delete-bean': 'prepareDeleteBean', beans: 'prepareBean', bags: 'prepareBag', recipes: 'prepareRecipe', records: 'prepareRecord',
         }[kind];
       if (kind !== 'copy' && !prepare) throw Object.freeze({ code: 'input' });
       const draft = kind === 'copy'
@@ -373,17 +390,22 @@ export function createAppController({
         : await commands[prepare](payload);
       const result = await commands.execute(draft);
       if (result.status === 'succeeded') {
-        dirtyKinds.delete(kind === 'copy' ? 'recipes' : kind);
-        view.clearForm?.(kind === 'copy' ? 'recipes' : kind);
-        view.clearDraft?.(kind === 'copy' ? 'recipes' : kind);
+        if (!deleting) {
+          dirtyKinds.delete(kind === 'copy' ? 'recipes' : kind);
+          view.clearForm?.(kind === 'copy' ? 'recipes' : kind);
+          view.clearDraft?.(kind === 'copy' ? 'recipes' : kind);
+        }
         stateChanged();
-        view.showStatus?.({ type: 'saved', message: '저장했습니다. 최신 목록을 다시 불러옵니다.' });
+        view.showStatus?.({ type: 'saved', message: deleting ? '삭제했습니다. 최신 목록을 다시 불러옵니다.' : '저장했습니다. 최신 목록을 다시 불러옵니다.' });
         try { await readLatest(); }
-        catch { view.showStatus?.({ type: 'saved-read-error', message: '저장은 성공했지만 최신 목록을 불러오지 못했습니다. 다시 제출하지 마세요.' }); }
+        catch { view.showStatus?.({ type: deleting ? 'deleted-read-error' : 'saved-read-error', message: deleting ? '삭제는 성공했지만 최신 목록을 불러오지 못했습니다. 목록을 새로고침해 주세요.' : '저장은 성공했지만 최신 목록을 불러오지 못했습니다. 다시 제출하지 마세요.' }); }
         return result;
       }
       if (['unknown', 'partial'].includes(result.status)) await readUnresolved();
-      showFailure({ code: result.status }, result.status);
+      if (deleting) {
+        view.showStatus?.({ type: result.status, message: result.status === 'unknown'
+          ? '삭제 여부 확인이 필요합니다. 다시 삭제하지 말고 Notion 원본을 확인해 주세요.' : SAFE_MESSAGES['delete-failed'] });
+      } else showFailure({ code: result.status }, result.status);
       return result;
     } catch (error) {
       if (error?.writeState === 'unknown' || error?.writeState === 'partial') await readUnresolved();

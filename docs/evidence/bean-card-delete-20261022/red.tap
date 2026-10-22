@@ -1,0 +1,99 @@
+✖ bean deletion persists its target before PATCH and refreshes the list (40.969833ms)
+  { code: 'input' }
+
+✖ bean deletion refuses a linked bags without PATCH (5.214709ms)
+  { code: 'input' }
+
+✖ bean deletion refuses a linked recipes without PATCH (6.894958ms)
+  { code: 'input' }
+
+✖ excluded malformed related rows and failed fresh reads fail closed (4.40525ms)
+  { code: 'input' }
+
+✖ archiveBean refuses another data source and validates the PATCH response (5.11375ms)
+  TypeError [Error]: client.archiveBean is not a function
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/bean-card-delete/AX-1day/test/pwa-bean-delete.test.mjs:74:31)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7)
+
+✖ lost deletion response recovers after restart from actual target (true) (3.752458ms)
+  { code: 'input' }
+
+✖ lost deletion response recovers after restart from actual target (false) (2.493542ms)
+  { code: 'input' }
+
+✖ 404 cannot resolve an unknown deletion as success (1.759583ms)
+  { code: 'input' }
+
+✖ pending, frozen and busy locks prevent deletion dispatch (3.522584ms)
+  { code: 'input' }
+
+✖ delete target cannot use creation cleanup and stale connections cannot dispatch (3.418791ms)
+  TypeError [Error]: commands.prepareDeleteBean is not a function
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/bean-card-delete/AX-1day/test/pwa-bean-delete.test.mjs:145:31)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7)
+
+✖ successful deletion with failed final refresh reports success separately (1.779625ms)
+  { code: 'input' }
+
+ℹ tests 11
+ℹ suites 0
+ℹ pass 0
+ℹ fail 11
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 169.209416
+
+✖ failing tests:
+
+test at test/pwa-bean-delete.test.mjs:32:1
+✖ bean deletion persists its target before PATCH and refreshes the list (40.969833ms)
+  { code: 'input' }
+
+test at test/pwa-bean-delete.test.mjs:50:45
+✖ bean deletion refuses a linked bags without PATCH (5.214709ms)
+  { code: 'input' }
+
+test at test/pwa-bean-delete.test.mjs:50:45
+✖ bean deletion refuses a linked recipes without PATCH (6.894958ms)
+  { code: 'input' }
+
+test at test/pwa-bean-delete.test.mjs:59:1
+✖ excluded malformed related rows and failed fresh reads fail closed (4.40525ms)
+  { code: 'input' }
+
+test at test/pwa-bean-delete.test.mjs:70:1
+✖ archiveBean refuses another data source and validates the PATCH response (5.11375ms)
+  TypeError [Error]: client.archiveBean is not a function
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/bean-card-delete/AX-1day/test/pwa-bean-delete.test.mjs:74:31)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7)
+
+test at test/pwa-bean-delete.test.mjs:81:38
+✖ lost deletion response recovers after restart from actual target (true) (3.752458ms)
+  { code: 'input' }
+
+test at test/pwa-bean-delete.test.mjs:81:38
+✖ lost deletion response recovers after restart from actual target (false) (2.493542ms)
+  { code: 'input' }
+
+test at test/pwa-bean-delete.test.mjs:104:1
+✖ 404 cannot resolve an unknown deletion as success (1.759583ms)
+  { code: 'input' }
+
+test at test/pwa-bean-delete.test.mjs:114:1
+✖ pending, frozen and busy locks prevent deletion dispatch (3.522584ms)
+  { code: 'input' }
+
+test at test/pwa-bean-delete.test.mjs:135:1
+✖ delete target cannot use creation cleanup and stale connections cannot dispatch (3.418791ms)
+  TypeError [Error]: commands.prepareDeleteBean is not a function
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/bean-card-delete/AX-1day/test/pwa-bean-delete.test.mjs:145:31)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7)
+
+test at test/pwa-bean-delete.test.mjs:151:1
+✖ successful deletion with failed final refresh reports success separately (1.779625ms)
+  { code: 'input' }

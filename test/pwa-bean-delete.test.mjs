@@ -157,3 +157,61 @@ test('successful deletion with failed final refresh reports success separately',
   assert.equal((await env.app.submit('delete-bean', { id: env.id })).status, 'succeeded');
   assert.equal(env.events.filter(e => e.type).at(-1).type, 'deleted-read-error');
 });
+
+test('a rejected deletion remains active and does not retry automatically', async () => {
+  const env = await setup();
+  env.fake.intercept = ({ method }) => method === 'PATCH' ? Response.json({}, { status: 403 }) : null;
+  assert.equal((await env.app.submit('delete-bean', { id: env.id })).status, 'failed');
+  assert.equal(env.native.journal().operations.at(-1).deleteTarget.archiveState, 'active');
+  assert.equal(env.app.getState().unresolved, false);
+  assert.equal(patches(env).length, 1);
+  assert.equal(env.fake.rows[0].in_trash, false);
+});
+
+test('a duplicate delete intent never dispatches twice and unsaved form state survives deletion', async () => {
+  const env = await setup(), c = env.connection();
+  const client = new NotionClient(c.token, { dataSources: c.dataSources, connectionRevision: c.revision, fetchImpl: env.fake.fetch });
+  const commands = createCommands({ client, repository: createReadRepository(client), submissionState: env.state });
+  const draft = await commands.prepareDeleteBean({ id: env.id });
+  assert.equal((await commands.execute(draft)).status, 'succeeded');
+  await assert.rejects(commands.execute(draft));
+  assert.equal(patches(env).length, 1);
+  const added = await env.app.submit('beans', { name: '다른 원두' });
+  env.app.setDirty(true, 'beans');
+  assert.equal((await env.app.submit('delete-bean', { id: added.value.id })).status, 'succeeded');
+  assert.equal(env.app.getState().dirty, true);
+});
+
+test('missing and invalid targets cannot dispatch a deletion', async () => {
+  const env = await setup();
+  await assert.rejects(env.app.submit('delete-bean', { id: 'invalid' }));
+  assert.equal((await env.app.submit('delete-bean', { id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' })).status, 'failed');
+  assert.equal(patches(env).length, 0);
+});
+
+test('malformed durable delete targets block all further writes', async () => {
+  const env = await setup();
+  await env.app.submit('delete-bean', { id: env.id });
+  const original = env.native.journal();
+  for (const target of [null, { kind: 'recipes', id: env.id, archiveState: 'archived' },
+    { kind: 'beans', id: 'invalid', archiveState: 'archived' }, { kind: 'beans', id: env.id, archiveState: 'invalid' }]) {
+    const journal = structuredClone(original);
+    journal.operations.at(-1).deleteTarget = target;
+    env.native.files.set('submission-journal.json', JSON.stringify(journal));
+    const { state } = env.make();
+    await assert.rejects(state.withWriteLock(ctx => ctx.inspect()));
+  }
+  assert.equal(patches(env).length, 1);
+});
+
+test('delete write hooks reject a different target and arbitrary untracked writes', async () => {
+  const env = await setup(), c = env.connection();
+  for (const options of [{}, { deleteId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' }, { createdKind: 'beans' }]) {
+    const draft = await createSubmissionDraft('delete-bean', { id: env.id }, { connectionRevision: c.revision, dataSources: c.dataSources });
+    let sent = false;
+    const result = await env.state.withWriteLock(ctx => ctx.runOperation(draft, c.revision, async op => {
+      await op.write(async () => { sent = true; return { id: env.id, in_trash: true }; }, options);
+    }));
+    assert.equal(result.status, 'failed'); assert.equal(sent, false);
+  }
+});

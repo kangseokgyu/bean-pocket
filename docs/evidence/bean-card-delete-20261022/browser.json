@@ -1,0 +1,81 @@
+{
+  "sizes": [
+    {
+      "width": 320,
+      "button": {
+        "x": 246,
+        "y": 196,
+        "width": 46,
+        "height": 46,
+        "right": 292
+      },
+      "card": {
+        "right": 308,
+        "top": 186
+      },
+      "heading": {
+        "right": 234
+      },
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "button": {
+        "x": 314,
+        "y": 198,
+        "width": 46,
+        "height": 46,
+        "right": 360
+      },
+      "card": {
+        "right": 376,
+        "top": 188
+      },
+      "heading": {
+        "right": 302
+      },
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "button": {
+        "x": 689,
+        "y": 199,
+        "width": 46,
+        "height": 46,
+        "right": 735
+      },
+      "card": {
+        "right": 751,
+        "top": 189
+      },
+      "heading": {
+        "right": 381.234375
+      },
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "button": {
+        "x": 1361,
+        "y": 199,
+        "width": 46,
+        "height": 46,
+        "right": 1407
+      },
+      "card": {
+        "right": 1423,
+        "top": 189
+      },
+      "heading": {
+        "right": 381.234375
+      },
+      "overflow": false
+    }
+  ],
+  "keyboard": true,
+  "cancelNoWrite": true,
+  "deleteAndRefresh": true,
+  "relatedBeanBlocked": true,
+  "errors": []
+}

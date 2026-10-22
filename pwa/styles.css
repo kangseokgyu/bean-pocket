@@ -302,6 +302,7 @@ button:focus-visible, .table-scroll:focus-visible {
 .list-header h2 { margin: 0; }
 .list-actions { display: flex; gap: 8px; flex-shrink: 0; }
 .icon-button { display: inline-flex; align-items: center; justify-content: center; width: 46px; padding: 8px; font-size: 1.5rem; }
+.list-actions .icon-button { flex: 0 0 32px; width: 32px; height: 32px; min-height: 32px; padding: 0; border: 0; background: transparent; color: #737373; }
 .bean-card, .bag-group, .recipe-card, .resolution-card {
   min-width: 0;
   padding: 15px;

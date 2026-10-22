@@ -1,0 +1,181 @@
+{
+  "rows": [
+    {
+      "viewport": 320,
+      "section": "beans",
+      "width": 32,
+      "height": 32,
+      "color": "rgb(115, 115, 115)",
+      "border": "0px",
+      "background": "rgba(0, 0, 0, 0)",
+      "font": "24px",
+      "label": "새 원두 추가"
+    },
+    {
+      "viewport": 320,
+      "section": "bags",
+      "width": 32,
+      "height": 32,
+      "color": "rgb(115, 115, 115)",
+      "border": "0px",
+      "background": "rgba(0, 0, 0, 0)",
+      "font": "24px",
+      "label": "새 봉지 추가"
+    },
+    {
+      "viewport": 320,
+      "section": "recipes",
+      "width": 32,
+      "height": 32,
+      "color": "rgb(115, 115, 115)",
+      "border": "0px",
+      "background": "rgba(0, 0, 0, 0)",
+      "font": "24px",
+      "label": "새 레시피 추가"
+    },
+    {
+      "viewport": 320,
+      "section": "records",
+      "width": 32,
+      "height": 32,
+      "color": "rgb(115, 115, 115)",
+      "border": "0px",
+      "background": "rgba(0, 0, 0, 0)",
+      "font": "24px",
+      "label": "새 추출 기록 추가"
+    },
+    {
+      "viewport": 768,
+      "section": "beans",
+      "width": 32,
+      "height": 32,
+      "color": "rgb(115, 115, 115)",
+      "border": "0px",
+      "background": "rgba(0, 0, 0, 0)",
+      "font": "24px",
+      "label": "새 원두 추가"
+    },
+    {
+      "viewport": 768,
+      "section": "bags",
+      "width": 32,
+      "height": 32,
+      "color": "rgb(115, 115, 115)",
+      "border": "0px",
+      "background": "rgba(0, 0, 0, 0)",
+      "font": "24px",
+      "label": "새 봉지 추가"
+    },
+    {
+      "viewport": 768,
+      "section": "recipes",
+      "width": 32,
+      "height": 32,
+      "color": "rgb(115, 115, 115)",
+      "border": "0px",
+      "background": "rgba(0, 0, 0, 0)",
+      "font": "24px",
+      "label": "새 레시피 추가"
+    },
+    {
+      "viewport": 768,
+      "section": "records",
+      "width": 32,
+      "height": 32,
+      "color": "rgb(115, 115, 115)",
+      "border": "0px",
+      "background": "rgba(0, 0, 0, 0)",
+      "font": "24px",
+      "label": "새 추출 기록 추가"
+    },
+    {
+      "viewport": 1024,
+      "section": "beans",
+      "width": 32,
+      "height": 32,
+      "color": "rgb(115, 115, 115)",
+      "border": "0px",
+      "background": "rgba(0, 0, 0, 0)",
+      "font": "24px",
+      "label": "새 원두 추가"
+    },
+    {
+      "viewport": 1024,
+      "section": "bags",
+      "width": 32,
+      "height": 32,
+      "color": "rgb(115, 115, 115)",
+      "border": "0px",
+      "background": "rgba(0, 0, 0, 0)",
+      "font": "24px",
+      "label": "새 봉지 추가"
+    },
+    {
+      "viewport": 1024,
+      "section": "recipes",
+      "width": 32,
+      "height": 32,
+      "color": "rgb(115, 115, 115)",
+      "border": "0px",
+      "background": "rgba(0, 0, 0, 0)",
+      "font": "24px",
+      "label": "새 레시피 추가"
+    },
+    {
+      "viewport": 1024,
+      "section": "records",
+      "width": 32,
+      "height": 32,
+      "color": "rgb(115, 115, 115)",
+      "border": "0px",
+      "background": "rgba(0, 0, 0, 0)",
+      "font": "24px",
+      "label": "새 추출 기록 추가"
+    },
+    {
+      "viewport": 1440,
+      "section": "beans",
+      "width": 32,
+      "height": 32,
+      "color": "rgb(115, 115, 115)",
+      "border": "0px",
+      "background": "rgba(0, 0, 0, 0)",
+      "font": "24px",
+      "label": "새 원두 추가"
+    },
+    {
+      "viewport": 1440,
+      "section": "bags",
+      "width": 32,
+      "height": 32,
+      "color": "rgb(115, 115, 115)",
+      "border": "0px",
+      "background": "rgba(0, 0, 0, 0)",
+      "font": "24px",
+      "label": "새 봉지 추가"
+    },
+    {
+      "viewport": 1440,
+      "section": "recipes",
+      "width": 32,
+      "height": 32,
+      "color": "rgb(115, 115, 115)",
+      "border": "0px",
+      "background": "rgba(0, 0, 0, 0)",
+      "font": "24px",
+      "label": "새 레시피 추가"
+    },
+    {
+      "viewport": 1440,
+      "section": "records",
+      "width": 32,
+      "height": 32,
+      "color": "rgb(115, 115, 115)",
+      "border": "0px",
+      "background": "rgba(0, 0, 0, 0)",
+      "font": "24px",
+      "label": "새 추출 기록 추가"
+    }
+  ],
+  "errors": []
+}

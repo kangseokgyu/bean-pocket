@@ -1,0 +1,22 @@
+{
+  "index.html": {
+    "status": 200,
+    "bytes": 1104
+  },
+  "styles.css": {
+    "status": 200,
+    "bytes": 11321
+  },
+  "ui/view.mjs": {
+    "status": 200,
+    "bytes": 51022
+  },
+  "manifest.webmanifest": {
+    "status": 200,
+    "bytes": 389
+  },
+  "sw.js": {
+    "status": 200,
+    "bytes": 8137
+  }
+}

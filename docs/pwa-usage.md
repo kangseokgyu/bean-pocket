@@ -1,6 +1,6 @@
 # PWA 연결·사용·복구 안내
 
-이 안내는 GitHub Pages용 브라우저 앱을 대상으로 한다. 앱 주소는 [bean-pocket](https://kangseokgyu.github.io/bean-pocket/)이며, 2026-10-21 최신 게시 빌드는 `4527608c52d5`이다. 실제 게시 버전과 검증 상태는 [실행 상태](implementation-status.md)를 확인한다. 로컬 모의 검증과 실제 Notion·실기기 검증을 구분한다.
+이 안내는 GitHub Pages용 브라우저 앱을 대상으로 한다. 앱 주소는 [bean-pocket](https://kangseokgyu.github.io/bean-pocket/)이며, 2026-10-22 최신 게시 빌드는 `d456a8e837a4`이다. 실제 게시 버전과 검증 상태는 [실행 상태](implementation-status.md)를 확인한다. 로컬 모의 검증과 실제 Notion·실기기 검증을 구분한다.
 
 ## 연결과 사용
 

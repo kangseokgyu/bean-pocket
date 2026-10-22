@@ -32,3 +32,19 @@ Chrome DevTools MCP는 제공되지 않아 기존 설치된 Playwright와 격리
 실제 iPhone Safari·홈 화면 PWA·실기기 스크린리더 음성 출력과 실제 Notion 연결은 미검증이다. 회귀 시 이번 기능 커밋만 revert한 뒤 필수 테스트·빌드·검사를 통과시켜 일반판 pages.yml(probes=false)으로 재게시한다.
 
 main 통합과 최종 공개 확인 근거는 아래에 추가한다.
+
+## main 통합 검증
+
+병합 커밋 `4e3012617f1ef53554b7c4e647d84b686c2b5cfc`에서 `npm test`(393개 통과), `npm run build:pages`(`b59e7562ff54`), `npm run check:pages` 모두 종료 0. 근거: main-tests.tap, main-build.txt, main-check.txt. 첫 검증 실행 요청은 자동 권한 검토 시간 초과로 프로세스가 시작되지 않았고, 허용된 1회 재시도에서 위 결과를 확인했다.
+
+## 게시 및 공개 확인
+
+- 일반판 `probes=false`, 실행 [39701847039](https://github.com/kangseokgyu/bean-pocket/actions/runs/39701847039), 게시 커밋 `4e3012617f1ef53554b7c4e647d84b686c2b5cfc`, 결과 completed/success(deploy.json).
+- 공개 주소: https://kangseokgyu.github.io/bean-pocket/
+- 공개 빌드 `b59e7562ff54`, 파일 확인 시각 2026-10-22T01:30:48.442Z.
+- service worker를 차단한 새 격리 Chromium의 실제 navigation 응답으로 공개 파일 18개를 확인했다. 모두 HTTP 200 및 로컬 최종 dist와 SHA-256 일치(public-files.json).
+- 실제 공개 앱의 390×844px 새 브라우저에서 저장소 접근을 잠시 지연했다. 오버레이의 x/y=0, width=390, height=844 및 배경 inert를 확인했고, 지연 해제 후 오버레이와 스피너가 숨겨지고 배경 inert가 해제되며 빈 저장소의 연결 입력 화면으로 전환됐다. 실행 오류·HTTP 오류 0(public-browser.json, public-checking-mobile.png).
+- 초기 Python 파일 확인은 TLS handshake timeout으로 중단됐다. curl의 파일별 1회 제한 재시도 확인에서는 controller 해시 차이가 한 번 보고됐고 개별 재확인 요청은 SSL timeout이었다. 로컬 소스·dist·main 커밋은 변하지 않은 것을 확인했다. 브라우저 방식의 최종 전체 파일 비교는 모두 일치했으며 최초 차이의 원인은 확정하지 않았다. 코드 변경 없이 전송 경로를 바꾸어 검증을 완료했다.
+- 후속 변경은 검증 문서·근거뿐이다. 앱·테스트·빌드·워크플로가 게시 커밋과 동일한지 확인하며 동일 검증과 재게시는 반복하지 않는다.
+
+실제 iPhone Safari·홈 화면 PWA와 실기기 스크린리더 출력·실제 Notion 연결은 미검증이다. 정상 조회 메시지 숨김과 성공·오류 상태는 로컬 결정적 fixture에서 확인했으며, 공개 앱 확인은 빈 저장소와 새 격리 Chromium을 사용했다.

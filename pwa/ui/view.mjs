@@ -890,7 +890,7 @@ function buildResolutionForm(document, operation) {
   const card = make(document, 'article', undefined, 'resolution-card');
   const status = deleting ? '삭제 여부 확인 필요' : operation.status === 'partial' ? '일부 저장' : '저장 여부 확인 필요';
   card.append(make(document, 'h3', `${deleting ? `${targetName} 삭제` : names[operation.kind] ?? '저장'} · ${status}`));
-  card.append(make(document, 'p', deleting ? `Notion 원본에서 삭제 대상 ${targetName}이 휴지통에 있는지 직접 확인해 주세요. 확인 과정에서는 삭제를 다시 요청하지 않습니다.` : hasKnownPages
+  card.append(make(document, 'p', deleting ? `Notion 원본에서 삭제 대상(${targetName})의 휴지통 이동 여부를 직접 확인해 주세요. 확인 과정에서는 삭제를 다시 요청하지 않습니다.` : hasKnownPages
     ? `확인된 항목 ${operation.knownPageCount}개. 원본에서 이 항목의 상태를 확인해 저장됨 또는 모두 보관 취소됨을 선택해 주세요.`
     : 'Notion 원본을 직접 확인하고, 이번 작업의 결과에 맞는 선택을 해 주세요.'));
   if (!hasKnownPages) card.append(make(document, 'p', '저장됨을 선택할 때는 이번 작업으로 새로 만들어진 모든 페이지의 ID를 입력해 주세요. ID는 상태 메시지에 표시하지 않습니다.', 'muted-note'));
@@ -901,8 +901,8 @@ function buildResolutionForm(document, operation) {
   const decision = label(document, '확인 결과', 'decision', 'select', true);
   const select = decision.querySelector('select');
   const decisions = deleting ? [
-    ['saved', `${targetName}이 휴지통에 있음을 확인함`],
-    ['not-saved', `${targetName}이 삭제되지 않고 남아 있음을 확인함`],
+    ['saved', `${targetName}: 휴지통에 있음을 확인함`],
+    ['not-saved', `${targetName}: 삭제되지 않고 남아 있음을 확인함`],
   ] : [
     ['saved', '이번 작업의 저장을 확인함'],
     ['cancelled', '이번 작업의 새 항목을 모두 보관 취소함'],

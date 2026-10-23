@@ -1,0 +1,81 @@
+[
+  {
+    "width": 1280,
+    "checks": [
+      "four trash controls: name confirmation/cancel; bean/bag/recipe in-use blocked; mobile top-right bounds",
+      "record deleted; mean 3→1/count 2→1; draft retained",
+      "delete remaining record via recipe detail; 0 ratings; delete bag and recipe; steps preserved; choices refreshed",
+      "existing bean delete works after dependencies removed"
+    ],
+    "dialogs": [
+      "“검토 원두 긴 이름 에티오피아 시다마 워시드 테스트” 원두를 삭제할까요?\nNotion 휴지통으로 이동합니다. 연결된 봉지나 추출 기록이 있으면 삭제할 수 없습니다.",
+      "“검토 원두 긴 이름 에티오피아 시다마 워시드 테스트” 원두를 삭제할까요?\nNotion 휴지통으로 이동합니다. 연결된 봉지나 추출 기록이 있으면 삭제할 수 없습니다.",
+      "“검토 봉지 긴 이름 로스팅 및 구매 날짜 테스트” 봉지를 삭제할까요?\nNotion 휴지통으로 이동합니다. 추출 기록에서 사용 중인 봉지는 먼저 해당 추출 기록을 삭제해야 합니다.",
+      "“검토 봉지 긴 이름 로스팅 및 구매 날짜 테스트” 봉지를 삭제할까요?\nNotion 휴지통으로 이동합니다. 추출 기록에서 사용 중인 봉지는 먼저 해당 추출 기록을 삭제해야 합니다.",
+      "“검토 레시피 긴 이름 V60 핸드드립 테스트” 레시피를 삭제할까요?\nNotion 휴지통으로 이동합니다. 추출 기록에서 사용 중인 레시피는 먼저 해당 추출 기록을 삭제해야 합니다.",
+      "“검토 레시피 긴 이름 V60 핸드드립 테스트” 레시피를 삭제할까요?\nNotion 휴지통으로 이동합니다. 추출 기록에서 사용 중인 레시피는 먼저 해당 추출 기록을 삭제해야 합니다.",
+      "“2026-10-23 · 검토 레시피 긴 이름 V60 핸드드립 테스트” 추출 기록을 삭제할까요?\nNotion 휴지통으로 이동합니다. 해당 기록만 휴지통으로 이동합니다.",
+      "“2026-10-23 · 검토 레시피 긴 이름 V60 핸드드립 테스트” 추출 기록을 삭제할까요?\nNotion 휴지통으로 이동합니다. 해당 기록만 휴지통으로 이동합니다.",
+      "“2026-10-22 · 검토 레시피 긴 이름 V60 핸드드립 테스트” 추출 기록을 삭제할까요?\nNotion 휴지통으로 이동합니다. 해당 기록만 휴지통으로 이동합니다.",
+      "“검토 봉지 긴 이름 로스팅 및 구매 날짜 테스트” 봉지를 삭제할까요?\nNotion 휴지통으로 이동합니다. 추출 기록에서 사용 중인 봉지는 먼저 해당 추출 기록을 삭제해야 합니다.",
+      "“검토 레시피 긴 이름 V60 핸드드립 테스트” 레시피를 삭제할까요?\nNotion 휴지통으로 이동합니다. 추출 기록에서 사용 중인 레시피는 먼저 해당 추출 기록을 삭제해야 합니다.",
+      "“검토 원두 긴 이름 에티오피아 시다마 워시드 테스트” 원두를 삭제할까요?\nNotion 휴지통으로 이동합니다. 연결된 봉지나 추출 기록이 있으면 삭제할 수 없습니다."
+    ],
+    "errors": [],
+    "external": [],
+    "patches": 5
+  },
+  {
+    "width": 390,
+    "checks": [
+      "four trash controls: name confirmation/cancel; bean/bag/recipe in-use blocked; mobile top-right bounds",
+      "record deleted; mean 3→1/count 2→1; draft retained",
+      "delete remaining record via recipe detail; 0 ratings; delete bag and recipe; steps preserved; choices refreshed",
+      "existing bean delete works after dependencies removed"
+    ],
+    "dialogs": [
+      "“검토 원두 긴 이름 에티오피아 시다마 워시드 테스트” 원두를 삭제할까요?\nNotion 휴지통으로 이동합니다. 연결된 봉지나 추출 기록이 있으면 삭제할 수 없습니다.",
+      "“검토 원두 긴 이름 에티오피아 시다마 워시드 테스트” 원두를 삭제할까요?\nNotion 휴지통으로 이동합니다. 연결된 봉지나 추출 기록이 있으면 삭제할 수 없습니다.",
+      "“검토 봉지 긴 이름 로스팅 및 구매 날짜 테스트” 봉지를 삭제할까요?\nNotion 휴지통으로 이동합니다. 추출 기록에서 사용 중인 봉지는 먼저 해당 추출 기록을 삭제해야 합니다.",
+      "“검토 봉지 긴 이름 로스팅 및 구매 날짜 테스트” 봉지를 삭제할까요?\nNotion 휴지통으로 이동합니다. 추출 기록에서 사용 중인 봉지는 먼저 해당 추출 기록을 삭제해야 합니다.",
+      "“검토 레시피 긴 이름 V60 핸드드립 테스트” 레시피를 삭제할까요?\nNotion 휴지통으로 이동합니다. 추출 기록에서 사용 중인 레시피는 먼저 해당 추출 기록을 삭제해야 합니다.",
+      "“검토 레시피 긴 이름 V60 핸드드립 테스트” 레시피를 삭제할까요?\nNotion 휴지통으로 이동합니다. 추출 기록에서 사용 중인 레시피는 먼저 해당 추출 기록을 삭제해야 합니다.",
+      "“2026-10-23 · 검토 레시피 긴 이름 V60 핸드드립 테스트” 추출 기록을 삭제할까요?\nNotion 휴지통으로 이동합니다. 해당 기록만 휴지통으로 이동합니다.",
+      "“2026-10-23 · 검토 레시피 긴 이름 V60 핸드드립 테스트” 추출 기록을 삭제할까요?\nNotion 휴지통으로 이동합니다. 해당 기록만 휴지통으로 이동합니다.",
+      "“2026-10-22 · 검토 레시피 긴 이름 V60 핸드드립 테스트” 추출 기록을 삭제할까요?\nNotion 휴지통으로 이동합니다. 해당 기록만 휴지통으로 이동합니다.",
+      "“검토 봉지 긴 이름 로스팅 및 구매 날짜 테스트” 봉지를 삭제할까요?\nNotion 휴지통으로 이동합니다. 추출 기록에서 사용 중인 봉지는 먼저 해당 추출 기록을 삭제해야 합니다.",
+      "“검토 레시피 긴 이름 V60 핸드드립 테스트” 레시피를 삭제할까요?\nNotion 휴지통으로 이동합니다. 추출 기록에서 사용 중인 레시피는 먼저 해당 추출 기록을 삭제해야 합니다.",
+      "“검토 원두 긴 이름 에티오피아 시다마 워시드 테스트” 원두를 삭제할까요?\nNotion 휴지통으로 이동합니다. 연결된 봉지나 추출 기록이 있으면 삭제할 수 없습니다."
+    ],
+    "errors": [],
+    "external": [],
+    "patches": 5
+  },
+  {
+    "width": 320,
+    "checks": [
+      "320px short names; long-name pre-existing overflow recorded separately",
+      "four trash controls: name confirmation/cancel; bean/bag/recipe in-use blocked; mobile top-right bounds",
+      "record deleted; mean 3→1/count 2→1; draft retained",
+      "delete remaining record via recipe detail; 0 ratings; delete bag and recipe; steps preserved; choices refreshed",
+      "existing bean delete works after dependencies removed"
+    ],
+    "dialogs": [
+      "“짧은 검토 항목” 원두를 삭제할까요?\nNotion 휴지통으로 이동합니다. 연결된 봉지나 추출 기록이 있으면 삭제할 수 없습니다.",
+      "“짧은 검토 항목” 원두를 삭제할까요?\nNotion 휴지통으로 이동합니다. 연결된 봉지나 추출 기록이 있으면 삭제할 수 없습니다.",
+      "“짧은 검토 항목” 봉지를 삭제할까요?\nNotion 휴지통으로 이동합니다. 추출 기록에서 사용 중인 봉지는 먼저 해당 추출 기록을 삭제해야 합니다.",
+      "“짧은 검토 항목” 봉지를 삭제할까요?\nNotion 휴지통으로 이동합니다. 추출 기록에서 사용 중인 봉지는 먼저 해당 추출 기록을 삭제해야 합니다.",
+      "“짧은 검토 항목” 레시피를 삭제할까요?\nNotion 휴지통으로 이동합니다. 추출 기록에서 사용 중인 레시피는 먼저 해당 추출 기록을 삭제해야 합니다.",
+      "“짧은 검토 항목” 레시피를 삭제할까요?\nNotion 휴지통으로 이동합니다. 추출 기록에서 사용 중인 레시피는 먼저 해당 추출 기록을 삭제해야 합니다.",
+      "“2026-10-23 · 짧은 검토 항목” 추출 기록을 삭제할까요?\nNotion 휴지통으로 이동합니다. 해당 기록만 휴지통으로 이동합니다.",
+      "“2026-10-23 · 짧은 검토 항목” 추출 기록을 삭제할까요?\nNotion 휴지통으로 이동합니다. 해당 기록만 휴지통으로 이동합니다.",
+      "“2026-10-22 · 짧은 검토 항목” 추출 기록을 삭제할까요?\nNotion 휴지통으로 이동합니다. 해당 기록만 휴지통으로 이동합니다.",
+      "“짧은 검토 항목” 봉지를 삭제할까요?\nNotion 휴지통으로 이동합니다. 추출 기록에서 사용 중인 봉지는 먼저 해당 추출 기록을 삭제해야 합니다.",
+      "“짧은 검토 항목” 레시피를 삭제할까요?\nNotion 휴지통으로 이동합니다. 추출 기록에서 사용 중인 레시피는 먼저 해당 추출 기록을 삭제해야 합니다.",
+      "“짧은 검토 항목” 원두를 삭제할까요?\nNotion 휴지통으로 이동합니다. 연결된 봉지나 추출 기록이 있으면 삭제할 수 없습니다."
+    ],
+    "errors": [],
+    "external": [],
+    "patches": 5
+  }
+]

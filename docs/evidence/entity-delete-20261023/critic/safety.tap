@@ -1,0 +1,20 @@
+✔ bags: cleanup and wrong target/kind hooks fail closed (46.545458ms)
+✔ bags: duplicate intent and stale connection cannot send extra PATCH (6.720959ms)
+✔ bags: lost response restart resolves saved without retry (10.107042ms)
+✔ bags: lost response restart resolves not-saved without retry (6.574334ms)
+✔ recipes: cleanup and wrong target/kind hooks fail closed (6.767208ms)
+✔ recipes: duplicate intent and stale connection cannot send extra PATCH (5.683666ms)
+✔ recipes: lost response restart resolves saved without retry (6.288542ms)
+✔ recipes: lost response restart resolves not-saved without retry (6.158542ms)
+✔ records: cleanup and wrong target/kind hooks fail closed (10.699875ms)
+✔ records: duplicate intent and stale connection cannot send extra PATCH (7.863125ms)
+✔ records: lost response restart resolves saved without retry (8.827208ms)
+✔ records: lost response restart resolves not-saved without retry (8.264125ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 222.204292

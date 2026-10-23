@@ -1,0 +1,43 @@
+{
+  "url": "https://kangseokgyu.github.io/bean-pocket/",
+  "version": "108bb1c0fc2d",
+  "results": [
+    {
+      "file": "index.html",
+      "status": 200,
+      "bytes": 1179,
+      "identicalToLocalBuild": true
+    },
+    {
+      "file": "ui/view.mjs",
+      "status": 200,
+      "bytes": 61053,
+      "identicalToLocalBuild": true
+    },
+    {
+      "file": "styles.css",
+      "status": 200,
+      "bytes": 12113,
+      "identicalToLocalBuild": true
+    },
+    {
+      "file": "manifest.webmanifest",
+      "status": 200,
+      "bytes": 402,
+      "identicalToLocalBuild": true
+    },
+    {
+      "file": "sw.js",
+      "status": 200,
+      "bytes": 8137,
+      "identicalToLocalBuild": true
+    },
+    {
+      "file": "icons/icon-192.png",
+      "status": 200,
+      "bytes": 1942,
+      "identicalToLocalBuild": true
+    }
+  ],
+  "errors": []
+}

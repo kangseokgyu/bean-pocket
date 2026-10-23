@@ -1,0 +1,124 @@
+[
+  {
+    "port": 4257,
+    "scroll": 360,
+    "viewport": 320,
+    "overflow": [
+      {
+        "selector": "beanId",
+        "width": 0,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "selector": "recipeId",
+        "width": 0,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "selector": "bagId",
+        "width": 0,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "selector": "record-filters",
+        "width": 338,
+        "left": 22,
+        "right": 360
+      },
+      {
+        "selector": "beanId",
+        "width": 338,
+        "left": 22,
+        "right": 360
+      },
+      {
+        "selector": "recipeId",
+        "width": 281,
+        "left": 22,
+        "right": 303
+      },
+      {
+        "selector": "record-list",
+        "width": 338,
+        "left": 22,
+        "right": 360
+      },
+      {
+        "selector": "record-card",
+        "width": 338,
+        "left": 22,
+        "right": 360
+      },
+      {
+        "selector": "record-card",
+        "width": 338,
+        "left": 22,
+        "right": 360
+      }
+    ]
+  },
+  {
+    "port": 4258,
+    "scroll": 360,
+    "viewport": 320,
+    "overflow": [
+      {
+        "selector": "beanId",
+        "width": 0,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "selector": "recipeId",
+        "width": 0,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "selector": "bagId",
+        "width": 0,
+        "left": 0,
+        "right": 0
+      },
+      {
+        "selector": "record-filters",
+        "width": 338,
+        "left": 22,
+        "right": 360
+      },
+      {
+        "selector": "beanId",
+        "width": 338,
+        "left": 22,
+        "right": 360
+      },
+      {
+        "selector": "recipeId",
+        "width": 281,
+        "left": 22,
+        "right": 303
+      },
+      {
+        "selector": "record-list",
+        "width": 338,
+        "left": 22,
+        "right": 360
+      },
+      {
+        "selector": "record-card",
+        "width": 338,
+        "left": 22,
+        "right": 360
+      },
+      {
+        "selector": "record-card",
+        "width": 338,
+        "left": 22,
+        "right": 360
+      }
+    ]
+  }
+]

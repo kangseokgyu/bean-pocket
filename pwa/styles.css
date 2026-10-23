@@ -303,7 +303,7 @@ button:focus-visible, .table-scroll:focus-visible {
 .list-actions { display: flex; gap: 8px; flex-shrink: 0; }
 .icon-button { display: inline-flex; align-items: center; justify-content: center; width: 46px; padding: 8px; font-size: 1.5rem; }
 .list-actions .icon-button { flex: 0 0 32px; width: 32px; height: 32px; min-height: 32px; padding: 0; border: 0; background: transparent; color: #737373; }
-.bean-card, .bag-group, .recipe-card, .resolution-card {
+.bean-card, .bag-group, .recipe-card, .record-card, .resolution-card {
   min-width: 0;
   padding: 15px;
   border: 1px solid #e0dbcf;
@@ -311,13 +311,16 @@ button:focus-visible, .table-scroll:focus-visible {
   background: #fffefa;
 }
 
-.bean-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.bean-card-header h3 { min-width: 0; overflow-wrap: anywhere; margin: 0 0 12px; }
-.bean-delete { flex: 0 0 46px; width: 46px; height: 46px; margin: -14px -8px 0 0; color: #737373; background: transparent; border-color: transparent; }
-.bean-delete svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.bean-delete:hover:not(:disabled) { background: #f0f0ed; border-color: #b7b7af; }
-
-.bean-card > :last-child, .recipe-card > :last-child { margin-bottom: 0; }
+.entity-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.entity-card-header h3, .entity-card-header h4 { min-width: 0; overflow-wrap: anywhere; margin: 0 0 12px; }
+.entity-delete { flex: 0 0 46px; width: 46px; height: 46px; margin: -14px -8px 0 0; color: #737373; background: transparent; border-color: transparent; }
+.entity-delete svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.entity-delete:hover:not(:disabled) { background: #f0f0ed; border-color: #b7b7af; }
+.bag-card { padding-top: 10px; border-top: 1px solid #e0dbcf; }
+.bag-card + .bag-card { margin-top: 10px; }
+.bag-card > :last-child, .bean-card > :last-child, .recipe-card > :last-child, .record-card > :last-child { margin-bottom: 0; }
+.record-summary-header { align-items: center; }
+.record-summary-header p { min-width: 0; margin: 0 0 12px; overflow-wrap: anywhere; }
 .muted-note, .empty-state { color: #68685e; }
 .repair-panel { margin-top: 14px; padding-top: 14px; border-top: 1px solid #ded7ca; }
 .startup-retry-panel { margin-top: 14px; padding: 14px; border: 1px solid #c6b98b; border-radius: 12px; background: #fffbed; }

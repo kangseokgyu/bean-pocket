@@ -1,0 +1,49 @@
+[
+  {
+    "command": [
+      "node",
+      "--test",
+      "test/pwa-ui.view.test.mjs"
+    ],
+    "cwd": "/Users/kangseokgyu/.codex/worktrees/delete-bags-recipes-records/AX-1day",
+    "startedAtUTC": "2026-10-23T13:24:09.604190+00:00",
+    "exitCode": 0,
+    "durationSeconds": 3.344,
+    "rawLog": "final-ui-focused.log"
+  },
+  {
+    "command": [
+      "npm",
+      "test"
+    ],
+    "cwd": "/Users/kangseokgyu/.codex/worktrees/delete-bags-recipes-records/AX-1day",
+    "startedAtUTC": "2026-10-23T13:24:12.949966+00:00",
+    "exitCode": 0,
+    "durationSeconds": 11.14,
+    "rawLog": "final-npm-test.log"
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "build:pages"
+    ],
+    "cwd": "/Users/kangseokgyu/.codex/worktrees/delete-bags-recipes-records/AX-1day",
+    "startedAtUTC": "2026-10-23T13:24:24.090834+00:00",
+    "exitCode": 0,
+    "durationSeconds": 0.23,
+    "rawLog": "final-build-pages.log"
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "check:pages"
+    ],
+    "cwd": "/Users/kangseokgyu/.codex/worktrees/delete-bags-recipes-records/AX-1day",
+    "startedAtUTC": "2026-10-23T13:24:24.321364+00:00",
+    "exitCode": 0,
+    "durationSeconds": 0.195,
+    "rawLog": "final-check-pages.log"
+  }
+]

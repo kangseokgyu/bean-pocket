@@ -265,9 +265,10 @@ export class NotionClient {
     return this.#request('/pages/' + id, { validate: data => validPage(data, id) });
   }
 
-  async archiveBean(value) {
+  async archivePage(kind, value) {
+    if (!['beans', 'bags', 'recipes', 'records'].includes(kind)) throw failure('invalid-input', 'not-sent');
     const id = this.#pageId(value);
-    const sourceId = this.#dataSources.beans;
+    const sourceId = this.#source(kind);
     const page = await this.getPage(id);
     if (!validPage(page, id, sourceId) || page.in_trash !== false || page.archived !== false) {
       throw failure('invalid-delete-target', 'not-sent');
@@ -276,6 +277,10 @@ export class NotionClient {
       method: 'PATCH', writing: true, body: { in_trash: true },
       validate: data => validPage(data, id, sourceId) && data.in_trash === true,
     });
+  }
+
+  async archiveBean(value) {
+    return this.archivePage('beans', value);
   }
 
   // T18은 호출 전에 journal에서 현재 작업·연결의 확인된 신규 ID임을 검증한다.

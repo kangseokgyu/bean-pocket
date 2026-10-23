@@ -1187,3 +1187,49 @@ test('bean cards expose a labelled trash button and require confirmation before 
     if (original === undefined) delete globalThis.confirm; else globalThis.confirm = original;
   }
 });
+
+test('bag, recipe, and record cards expose named trash controls and confirm each item before submission', async () => {
+  const document = new TestDocument(), view = createAppView(document);
+  view.showConnection({ connected: true });
+  view.renderData(data());
+  const calls = [];
+  const confirmations = [];
+  view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }),
+    submit: async (...args) => calls.push(args) });
+  const original = globalThis.confirm;
+  const cases = [
+    ['/bags', 'delete-bag', '6월 봉지', '6월 봉지'],
+    ['/recipes', 'delete-recipe', 'V60', 'V60'],
+    ['/records', 'delete-record', '2026-06-15 · V60', '2026-06-15 · V60'],
+  ];
+  try {
+    globalThis.confirm = message => { confirmations.push(message); return false; };
+    for (const [route, action, name] of cases) {
+      view.renderRoute(route);
+      const trash = document.root.querySelector(`[data-action="${action}"]`);
+      assert.ok(trash, `${action} control exists`);
+      assert.equal(trash.type, 'button');
+      assert.equal(trash.getAttribute('aria-label'), `${name} 삭제`);
+      assert.ok(trash.querySelector('svg'));
+      assert.equal(trash.dataset.name, name);
+      assert.match(trash.parentElement.className, /entity-card-header/);
+      for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: trash });
+      assert.equal(calls.length, 0, 'cancelled confirmation sends no request');
+    }
+    globalThis.confirm = message => { confirmations.push(message); return true; };
+    for (const [route, action, name, promptName] of cases) {
+      view.renderRoute(route);
+      const trash = document.root.querySelector(`[data-action="${action}"]`);
+      for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: trash });
+      assert.match(confirmations.at(-1), new RegExp(promptName));
+      assert.match(confirmations.at(-1), /Notion 휴지통으로 이동/);
+    }
+    assert.deepEqual(calls, [
+      ['delete-bag', { id: '22222222-2222-4222-8222-222222222222' }],
+      ['delete-recipe', { id: RECIPE }],
+      ['delete-record', { id: '66666666-6666-4666-8666-666666666666' }],
+    ]);
+  } finally {
+    if (original === undefined) delete globalThis.confirm; else globalThis.confirm = original;
+  }
+});

@@ -1,0 +1,32 @@
+[
+  {
+    "kind": "bag",
+    "options": [
+      "봉지이 휴지통에 있음을 확인함",
+      "봉지이 삭제되지 않고 남아 있음을 확인함"
+    ],
+    "patchesBefore": 2,
+    "patchesAfter": 3,
+    "errors": []
+  },
+  {
+    "kind": "recipe",
+    "options": [
+      "레시피이 휴지통에 있음을 확인함",
+      "레시피이 삭제되지 않고 남아 있음을 확인함"
+    ],
+    "patchesBefore": 2,
+    "patchesAfter": 3,
+    "errors": []
+  },
+  {
+    "kind": "record",
+    "options": [
+      "추출 기록이 휴지통에 있음을 확인함",
+      "추출 기록이 삭제되지 않고 남아 있음을 확인함"
+    ],
+    "patchesBefore": 0,
+    "patchesAfter": 1,
+    "errors": []
+  }
+]

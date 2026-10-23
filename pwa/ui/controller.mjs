@@ -1,6 +1,10 @@
 const SOURCE_KEYS = Object.freeze(['beans', 'bags', 'recipes', 'steps', 'records']);
 const SOURCE_BY_OPERATION = Object.freeze({
-  'delete-bean': ['beans'], beans: ['beans'], bags: ['bags'], recipes: ['recipes', 'steps'], records: ['records'],
+  'delete-bean': ['beans'], 'delete-bag': ['bags'], 'delete-recipe': ['recipes'], 'delete-record': ['records'],
+  beans: ['beans'], bags: ['bags'], recipes: ['recipes', 'steps'], records: ['records'],
+});
+const DELETE_TARGET_BY_OPERATION = Object.freeze({
+  'delete-bean': 'beans', 'delete-bag': 'bags', 'delete-recipe': 'recipes', 'delete-record': 'records',
 });
 const STARTUP_LOCK_RETRY_DELAYS_MS = Object.freeze([100, 200, 300, 500, 700]);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -25,7 +29,9 @@ const SAFE_MESSAGES = Object.freeze({
   'resolution-read-failed': '확인 중 최신 데이터를 읽지 못했습니다. 원본을 확인한 뒤 다시 시도해 주세요.',
   'invalid-resolution': '확인 입력을 처리하지 못했습니다. 원본 상태와 입력한 페이지를 확인해 주세요.',
   input: '입력 내용을 확인해 주세요.',
-  'delete-failed': '삭제하지 못했습니다. 연결된 봉지·레시피나 확인할 수 없는 데이터가 있는지 확인하고 목록을 새로고침해 주세요.',
+  'delete-failed': '삭제하지 못했습니다. 연결된 추출 기록이나 확인할 수 없는 관계가 있는지 확인하고 목록을 새로고침해 주세요.',
+  'delete-in-use': '이 봉지 또는 레시피를 사용하는 추출 기록이 있습니다. 먼저 해당 추출 기록을 삭제한 뒤 다시 시도해 주세요.',
+  'delete-dependency-unknown': '연결 관계나 제외된 기록을 확인할 수 없어 안전을 위해 삭제를 막았습니다. 최신 목록을 새로고침해 주세요.',
 });
 
 const messageFor = error => ({
@@ -73,6 +79,7 @@ export function createAppController({
     unresolvedOperations = operations.filter(operation => ['unknown', 'partial'].includes(operation.status));
     view.showUnresolved?.(unresolvedOperations.map(operation => ({
       kind: operation.kind,
+      targetKind: operation.deleteTarget?.kind,
       status: operation.status,
       knownPageCount: operation.createdPages.length,
       resolve: resolution => resolveOperation(operation.key, resolution),
@@ -308,13 +315,15 @@ export function createAppController({
           }
           const freshStack = makeStack(current);
           await freshStack.nextClient.verify();
-          if (operation.kind === 'delete-bean') {
+          if (DELETE_TARGET_BY_OPERATION[operation.kind]) {
             if (pageIds.length || !operation.deleteTarget || !['saved', 'not-saved'].includes(resolution.decision)) {
               throw Object.freeze({ code: 'invalid-resolution' });
             }
             const target = operation.deleteTarget;
+            const kind = DELETE_TARGET_BY_OPERATION[operation.kind];
             const page = await freshStack.nextClient.getPage(target.id);
-            if (page.parent?.type !== 'data_source_id' || page.parent.data_source_id !== current.dataSources.beans ||
+            if (target.kind !== kind || page.parent?.type !== 'data_source_id' ||
+                page.parent.data_source_id !== current.dataSources[kind] ||
                 typeof page.in_trash !== 'boolean' || typeof page.archived !== 'boolean') {
               throw Object.freeze({ code: 'invalid-resolution' });
             }
@@ -384,11 +393,12 @@ export function createAppController({
     if (unresolvedOperations.length) throw Object.freeze({ code: 'unresolved-operation' });
     pending = true;
     stateChanged();
-    const deleting = kind === 'delete-bean';
+    const deleting = Boolean(DELETE_TARGET_BY_OPERATION[kind]);
     view.showStatus?.({ type: 'saving', message: deleting ? '삭제 중입니다.' : '저장 중입니다.' });
     try {
       const prepare = {
-          'delete-bean': 'prepareDeleteBean', beans: 'prepareBean', bags: 'prepareBag', recipes: 'prepareRecipe', records: 'prepareRecord',
+          'delete-bean': 'prepareDeleteBean', 'delete-bag': 'prepareDeleteBag', 'delete-recipe': 'prepareDeleteRecipe',
+          'delete-record': 'prepareDeleteRecord', beans: 'prepareBean', bags: 'prepareBag', recipes: 'prepareRecipe', records: 'prepareRecord',
         }[kind];
       if (kind !== 'copy' && !prepare) throw Object.freeze({ code: 'input' });
       const draft = kind === 'copy'
@@ -409,8 +419,10 @@ export function createAppController({
       }
       if (['unknown', 'partial'].includes(result.status)) await readUnresolved();
       if (deleting) {
-        view.showStatus?.({ type: result.status, message: result.status === 'unknown'
-          ? '삭제 여부 확인이 필요합니다. 다시 삭제하지 말고 Notion 원본을 확인해 주세요.' : SAFE_MESSAGES['delete-failed'] });
+        const message = result.status === 'unknown'
+          ? '삭제 여부 확인이 필요합니다. 다시 삭제하지 말고 Notion 원본을 확인해 주세요.'
+          : SAFE_MESSAGES[result.code] ?? SAFE_MESSAGES['delete-failed'];
+        view.showStatus?.({ type: result.status, message });
       } else showFailure({ code: result.status }, result.status);
       return result;
     } catch (error) {

@@ -714,7 +714,8 @@ function recipeCard(document, recipe, data, detailed = false) {
     article.append(make(document, 'p', `원두 봉지: ${bagName}`, 'record-bag'));
     if (Array.isArray(snapshot?.steps)) {
       article.append(make(document, 'p', `기록 당시 조건: ${snapshot.dripper || '드리퍼 미기록'} · ${snapshot.dose}g · ${snapshot.temperature}℃ · 물 ${snapshot.totalWater}g`));
-      article.append(make(document, 'div', `당시 단계: ${snapshot.steps.map(step => `${step.name} ${formatTime(step.seconds)} · ${step.water}g · 누적 ${step.cumulativeWater}g`).join(' / ')}`, 'snapshot-steps'));
+      article.append(make(document, 'h5', '당시 단계'));
+      article.append(makeStepTable(document, snapshot.steps));
     }
   }
   if (detailed) {
@@ -732,18 +733,26 @@ function makeStepTable(document, steps) {
   const wrap = make(document, 'div', undefined, 'table-scroll');
   wrap.setAttribute('role', 'region');
   wrap.setAttribute('aria-label', '레시피 단계 표');
-  wrap.setAttribute('tabindex', '0');
   const table = make(document, 'table', undefined, 'steps-table');
   const head = make(document, 'thead');
   const header = make(document, 'tr');
-  for (const title of ['단계', '누적 시간', '간격', '이번 물 양', '누적 물 양']) header.append(make(document, 'th', title));
+  for (const [title, detail] of [['단계'], ['누적 시간', '간격'], ['누적 물', '이번 물']]) {
+    const cell = make(document, 'th', title);
+    if (detail) cell.append(make(document, 'span', ` (${detail})`, 'step-current'));
+    cell.setAttribute('scope', 'col');
+    header.append(cell);
+  }
   head.append(header);
   table.append(head);
   const body = make(document, 'tbody');
-  for (const step of steps) {
+  for (const [index, step] of steps.entries()) {
     const row = make(document, 'tr');
-    for (const value of [step.name, formatTime(step.seconds), `${step.interval}초`, `${step.water}g`, `${step.cumulativeWater}g`]) {
-      row.append(make(document, 'td', value));
+    row.append(make(document, 'td', step.name));
+    const interval = step.interval ?? (index === 0 ? 0 : step.seconds - steps[index - 1].seconds);
+    for (const [total, current] of [[formatTime(step.seconds), `${interval}초`], [`${step.cumulativeWater}g`, `${step.water}g`]]) {
+      const cell = make(document, 'td');
+      cell.append(make(document, 'span', total, 'step-total'), make(document, 'span', ` (${current})`, 'step-current'));
+      row.append(cell);
     }
     body.append(row);
   }

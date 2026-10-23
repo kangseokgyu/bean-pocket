@@ -1,0 +1,63 @@
+✖ pour tables group cumulative values before interval and current water in three columns (5.096541ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      '단계',
+  +   '누적 시간',
+  +   '간격',
+  +   '이번 물 양',
+  +   '누적 물 양'
+  -   '누적 시간 (간격)',
+  -   '누적 물 (이번 물)'
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/compact-pour-table/AX-1day/test/pwa-ui.view.test.mjs:504:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '단계', '누적 시간', '간격', '이번 물 양', '누적 물 양' ],
+    expected: [ '단계', '누적 시간 (간격)', '누적 물 (이번 물)' ],
+    operator: 'deepStrictEqual'
+  }
+
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 91.755084
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:490:1
+✖ pour tables group cumulative values before interval and current water in three columns (5.096541ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      '단계',
+  +   '누적 시간',
+  +   '간격',
+  +   '이번 물 양',
+  +   '누적 물 양'
+  -   '누적 시간 (간격)',
+  -   '누적 물 (이번 물)'
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/compact-pour-table/AX-1day/test/pwa-ui.view.test.mjs:504:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '단계', '누적 시간', '간격', '이번 물 양', '누적 물 양' ],
+    expected: [ '단계', '누적 시간 (간격)', '누적 물 (이번 물)' ],
+    operator: 'deepStrictEqual'
+  }

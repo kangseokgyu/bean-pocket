@@ -235,6 +235,25 @@ test('getPage 정규화와 archiveCreatedPage 고정 body·취소 확인', async
   assert.equal(calls[1].init.method, 'PATCH');
 });
 
+test('archivePage verifies the target data source for each user-deletable entity', async () => {
+  for (const kind of ['beans', 'bags', 'recipes', 'records']) {
+    const { client, calls } = harness((url, init) => {
+      const source = Object.keys(SOURCES).find(key => SOURCES[key] === page(PAGE, kind).parent.data_source_id);
+      return response(200, page(PAGE, source, { in_trash: init.method === 'PATCH' }));
+    });
+    const archived = await client.archivePage(kind, PAGE);
+    assert.equal(archived.in_trash, true, kind);
+    assert.deepEqual(calls.map(call => call.init.method), ['GET', 'PATCH']);
+    assert.deepEqual(JSON.parse(calls[1].init.body), { in_trash: true });
+  }
+  for (const kind of ['beans', 'bags', 'recipes', 'records']) {
+    const wrongKind = kind === 'recipes' ? 'bags' : 'recipes';
+    const { client, calls } = harness(() => response(200, page(PAGE, wrongKind)));
+    await assert.rejects(client.archivePage(kind, PAGE));
+    assert.equal(calls.length, 1, `${kind} refuses a page in ${wrongKind}`);
+  }
+});
+
 test('create/get/archive의 잘못된 성공 body·식별자는 성공으로 취급하지 않는다', async () => {
   for (const body of [{}, { ...page(), object: 'error' }, { ...page(), id: [PAGE] }, { ...page(), id: 'bad' }, { ...page(), properties: null }, page(PAGE, 'records')]) {
     const { client } = harness(() => response(200, body));

@@ -12,6 +12,9 @@ import { validateCreatePayload } from '../data/notion-client.mjs';
 import { createSubmissionDraft } from '../state/submission-state.mjs';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const DELETE_TARGET_BY_OPERATION = Object.freeze({
+  'delete-bean': 'beans', 'delete-bag': 'bags', 'delete-recipe': 'recipes', 'delete-record': 'records',
+});
 
 function isPlainRecord(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
@@ -107,6 +110,41 @@ function requireBag(data, bagId, bean) {
   return bag;
 }
 
+function requireBagById(data, bagId) {
+  const bag = oneById(data?.bags, bagId);
+  if (!bag) throw new InputError('최신 조회에서 봉지를 찾을 수 없습니다. 다시 조회해 주세요.');
+  const bean = requireBean(data, normalizedId(bag.beanId, '봉지의 원두'));
+  requireBag(data, bagId, bean);
+  return bag;
+}
+
+function requireRecord(data, recordId) {
+  const record = oneById(data?.records, recordId);
+  if (!record) throw new InputError('최신 조회에서 추출 기록을 찾을 수 없습니다. 다시 조회해 주세요.');
+  return record;
+}
+
+function recordDependency(data, kind, targetId) {
+  if (!Array.isArray(data?.records) || !Number.isInteger(data?.excluded?.records) || data.excluded.records > 0) return 'unknown';
+  const relationKey = kind === 'bags' ? 'bag' : 'recipe';
+  const idKey = kind === 'bags' ? 'bagId' : 'recipeId';
+  const candidatesKey = kind === 'bags' ? 'bagCandidates' : 'recipeCandidates';
+  for (const record of data.records) {
+    const relation = record?.relationEvidence?.[relationKey];
+    if (!relation || !Array.isArray(relation.ids) || typeof relation.complete !== 'boolean' || typeof relation.present !== 'boolean') return 'unknown';
+    const candidates = record[candidatesKey];
+    if (candidates !== undefined && !Array.isArray(candidates)) return 'unknown';
+    if (record[idKey] === targetId || relation.ids.includes(targetId) || candidates?.includes(targetId)) return 'in-use';
+    if (relation.present && !relation.complete) return 'unknown';
+    if (kind === 'recipes' && !record.recipeId && !record.recipeCandidates?.length) return 'unknown';
+  }
+  return null;
+}
+
+function deletionFailure(code) {
+  return Object.freeze({ code, writeState: 'not-sent' });
+}
+
 function recipeSourceValue(recipe) {
   return {
     id: normalizedId(recipe.id, '원본 레시피'),
@@ -178,9 +216,23 @@ export function createCommands({ client, repository, submissionState } = {}) {
     return prepare('beans', validateBean(inputObject(payload, '원두')));
   }
 
-  async function prepareDeleteBean(payload) {
-    const input = inputObject(payload, '삭제할 원두');
-    return prepare('delete-bean', { id: normalizedId(input.id, '원두') });
+  async function prepareDelete(kind, payload) {
+    const targetKind = DELETE_TARGET_BY_OPERATION[kind];
+    if (!targetKind) throw new InputError('삭제 대상을 확인해 주세요.');
+    const input = inputObject(payload, `삭제할 ${targetKind}`);
+    const labels = { beans: '원두', bags: '봉지', recipes: '레시피', records: '추출 기록' };
+    return prepare(kind, { id: normalizedId(input.id, labels[targetKind]) });
+  }
+
+  const prepareDeleteBean = payload => prepareDelete('delete-bean', payload);
+  const prepareDeleteBag = payload => prepareDelete('delete-bag', payload);
+  const prepareDeleteRecipe = payload => prepareDelete('delete-recipe', payload);
+  const prepareDeleteRecord = payload => prepareDelete('delete-record', payload);
+
+  function archiveTarget(kind, id) {
+    if (typeof client.archivePage === 'function') return client.archivePage.call(client, kind, id);
+    if (kind === 'beans' && typeof client.archiveBean === 'function') return client.archiveBean.call(client, id);
+    throw Object.freeze({ code: 'delete-unavailable', writeState: 'not-sent' });
   }
 
   async function prepareBag(payload) {
@@ -306,7 +358,19 @@ export function createCommands({ client, repository, submissionState } = {}) {
               (latest.excluded?.records ?? 0) > 0) {
             throw new InputError('연결된 봉지·추출 기록 또는 확인할 수 없는 기록이 있어 삭제할 수 없습니다.');
           }
-          return operation.write(() => client.archiveBean(payload.id), { deleteId: payload.id });
+          return operation.write(() => archiveTarget('beans', payload.id), { deleteId: payload.id, deleteKind: 'beans' });
+        }
+        const deleteKind = DELETE_TARGET_BY_OPERATION[metadata.kind];
+        if (deleteKind && deleteKind !== 'beans') {
+          if (deleteKind === 'bags') requireBagById(latest, payload.id);
+          else if (deleteKind === 'recipes') requireRecipe(latest, payload.id);
+          else requireRecord(latest, payload.id);
+          if (deleteKind === 'bags' || deleteKind === 'recipes') {
+            const dependency = recordDependency(latest, deleteKind, payload.id);
+            if (dependency === 'in-use') throw deletionFailure('delete-in-use');
+            if (dependency === 'unknown') throw deletionFailure('delete-dependency-unknown');
+          }
+          return operation.write(() => archiveTarget(deleteKind, payload.id), { deleteKind, deleteId: payload.id });
         }
         if (metadata.kind === 'bags') {
           requireBean(latest, payload.beanId);
@@ -344,5 +408,5 @@ export function createCommands({ client, repository, submissionState } = {}) {
     ));
   }
 
-  return Object.freeze({ prepareBean, prepareDeleteBean, prepareBag, prepareRecipe, prepareRecord, prepareCopy, execute });
+  return Object.freeze({ prepareBean, prepareDeleteBean, prepareDeleteBag, prepareDeleteRecipe, prepareDeleteRecord, prepareBag, prepareRecipe, prepareRecord, prepareCopy, execute });
 }

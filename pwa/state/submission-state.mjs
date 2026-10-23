@@ -9,6 +9,10 @@ const HASH = /^[0-9a-f]{64}$/;
 const KIND = /^[a-z][a-z0-9-]{0,63}$/;
 const STATUSES = ['not-submitted', 'processing', 'succeeded', 'failed', 'unknown', 'partial'];
 const ARCHIVE_STATES = ['active', 'archived', 'unknown'];
+const DELETE_TARGET_KIND = Object.freeze({
+  'delete-bean': 'beans', 'delete-bag': 'bags', 'delete-recipe': 'recipes', 'delete-record': 'records',
+});
+const SAFE_RESULT_CODES = ['delete-in-use', 'delete-dependency-unknown'];
 const drafts = new WeakSet();
 const failures = new WeakSet();
 const unresolved = operation => ['processing', 'unknown', 'partial'].includes(operation.status);
@@ -111,9 +115,10 @@ function parseJournal(text) {
       op.key = uuid(op.key); op.connectionRevision = uuid(op.connectionRevision);
       if (keys.has(op.key)) throw 0;
       keys.add(op.key);
-      if (op.kind === 'delete-bean') {
+      const deleteKind = DELETE_TARGET_KIND[op.kind];
+      if (deleteKind) {
         const target = op.deleteTarget;
-        if (!exact(target, ['kind', 'id', 'archiveState']) || target.kind !== 'beans' ||
+        if (!exact(target, ['kind', 'id', 'archiveState']) || target.kind !== deleteKind ||
             !ARCHIVE_STATES.includes(target.archiveState) || op.createdPages.length) throw 0;
         target.id = uuid(target.id);
       } else if (Object.hasOwn(op, 'deleteTarget')) throw 0;
@@ -271,8 +276,9 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
           const operation = { key: draft.key, kind: draft.kind, connectionRevision: draft.connectionRevision,
             targetFingerprint: draft.targetFingerprint, payloadFingerprint: draft.payloadFingerprint, status: 'processing',
             createdPages: [], updatedAt: timestamp() };
-          if (draft.kind === 'delete-bean') {
-            operation.deleteTarget = { kind: 'beans', id: uuid(draft.payload.id), archiveState: 'active' };
+          const deleteKind = DELETE_TARGET_KIND[draft.kind];
+          if (deleteKind) {
+            operation.deleteTarget = { kind: deleteKind, id: uuid(draft.payload.id), archiveState: 'active' };
           }
           initial.journal.operations.push(operation);
           await persist(initial.journal);
@@ -288,15 +294,20 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
             try {
               if (uncertain) throw fail('unresolved-operation');
               if (typeof callback !== 'function' || !exact(options, Object.keys(options)) ||
-                  Object.keys(options).some(key => !['createdKind', 'archiveId', 'deleteId'].includes(key)) ||
-                  ([options.createdKind, options.archiveId, options.deleteId].filter(Boolean).length > 1) || (options.createdKind && !SOURCES.includes(options.createdKind))) throw fail('invalid-write');
+                  Object.keys(options).some(key => !['createdKind', 'archiveId', 'deleteId', 'deleteKind'].includes(key)) ||
+                  ([options.createdKind, options.archiveId, options.deleteId].filter(Boolean).length > 1) ||
+                  (options.createdKind && !SOURCES.includes(options.createdKind)) ||
+                  (options.deleteKind && !['beans', 'bags', 'recipes', 'records'].includes(options.deleteKind))) throw fail('invalid-write');
               const checked = await check(draft, clientRevision);
               journal = checked.journal; current = checked.operation;
               if (!current || current.status !== 'processing') throw fail('unresolved-operation');
               const deleteId = options.deleteId === undefined ? null : uuid(options.deleteId);
-              if (current.kind === 'delete-bean') {
-                if (!deleteId || current.deleteTarget.id !== deleteId || current.deleteTarget.archiveState !== 'active') throw fail('invalid-delete');
-              } else if (deleteId) throw fail('invalid-delete');
+              if (current.deleteTarget) {
+                const target = current.deleteTarget;
+                if (!deleteId || target.id !== deleteId || target.archiveState !== 'active' ||
+                    (options.deleteKind !== undefined && target.kind !== options.deleteKind) ||
+                    (target.kind !== 'beans' && options.deleteKind !== target.kind)) throw fail('invalid-delete');
+              } else if (deleteId || options.deleteKind) throw fail('invalid-delete');
               const archiveId = options.archiveId === undefined ? null : uuid(options.archiveId);
               archivedPage = archiveId ? current.createdPages.find(item => item.id === archiveId) : null;
               if (archiveId && (!archivedPage || archivedPage.archiveState !== 'active')) throw fail('invalid-archive');
@@ -351,9 +362,12 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
             task.then(() => writes.delete(task), () => writes.delete(task));
             return task;
           } });
-          let value, callbackFailed = false;
+          let value, callbackFailed = false, resultCode;
           try { value = await execute(op); }
-          catch { callbackFailed = true; }
+          catch (error) {
+            callbackFailed = true;
+            try { if (SAFE_RESULT_CODES.includes(error?.code)) resultCode = error.code; } catch { /* Ignore untrusted error accessors. */ }
+          }
           // Unawaited hooks still finish under this lock; none can run after callback return.
           running = false;
           if (writes.size) {
@@ -371,7 +385,7 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
             if (!dispatched && !callbackFailed) current.status = 'failed';
             current.updatedAt = timestamp();
             await persist(journal);
-            return Object.freeze({ status: current.status, value });
+            return Object.freeze({ status: current.status, value, ...(current.status === 'failed' && resultCode ? { code: resultCode } : {}) });
           } finally { ownedKeys.delete(draft.key); }
         }
         async function beginConnectionChange(input) {
@@ -434,9 +448,9 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
 
           let resolvedPages;
           let resolvedDeleteTarget;
-          if (op.kind === 'delete-bean') {
+          if (DELETE_TARGET_KIND[op.kind]) {
             const target = evidence.deleteTarget;
-            if (!exact(target, ['kind', 'id', 'archiveState']) || target.kind !== 'beans' ||
+            if (!exact(target, ['kind', 'id', 'archiveState']) || target.kind !== DELETE_TARGET_KIND[op.kind] ||
                 target.id !== op.deleteTarget.id || decision === 'cancelled' ||
                 target.archiveState !== (decision === 'saved' ? 'archived' : 'active')) throw fail('invalid-resolution');
             resolvedDeleteTarget = canonical(target);

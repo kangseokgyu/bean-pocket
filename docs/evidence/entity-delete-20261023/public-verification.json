@@ -1,0 +1,117 @@
+{
+  "url": "https://kangseokgyu.github.io/bean-pocket/",
+  "version": "45fc966c78bd",
+  "deployedCommit": "dc629301f71ad4591c05ddf2f1a1eee9a50f3a1f",
+  "runId": 39961416718,
+  "files": [
+    {
+      "path": "app.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "58395ab633d65cce0adf93649b16d00786c2d6a78bcb0e1a07bdad625e9b417f"
+    },
+    {
+      "path": "commands/index.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "a0af1db8552364d0183ac0c3aaaf8c89be166cfde2543f200035fa8addaf4239"
+    },
+    {
+      "path": "data/notion-client.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "ebe1482c353e67af5accd7ac575e320a80bc8d3d3e625e9eb85301765f99b6c6"
+    },
+    {
+      "path": "data/notion-properties.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "8afeaca808f715414841f8a9a334a8880113a78cba22358d226ba9728b129d5f"
+    },
+    {
+      "path": "data/read-repository.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "521c991fc704037ac8c3dc14c5920513981881e4d19c57e78ac9f2f134886a78"
+    },
+    {
+      "path": "domain.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "994d58d74a3461400a8709c1f890ddd2ef515cbed5817bfae88cf490c76ba5e1"
+    },
+    {
+      "path": "icons/icon-192.png",
+      "status": 200,
+      "match": true,
+      "sha256": "fed6a73c7549eae8cb25324bab6e5d9f831120b8db329cfa7a66e3bda4296761"
+    },
+    {
+      "path": "icons/icon-512.png",
+      "status": 200,
+      "match": true,
+      "sha256": "0b0197281031a51957ae1c3a43037dcef08eb8d8d187f4b6df5eb212d0303316"
+    },
+    {
+      "path": "index.html",
+      "status": 200,
+      "match": true,
+      "sha256": "d4333d13afc3e37a546ea72f19a035350dc4579ba19de4a7a6a19c8e2dbe0037"
+    },
+    {
+      "path": "manifest.webmanifest",
+      "status": 200,
+      "match": true,
+      "sha256": "83dc529ee8004d5aa06cf728873d97c04ece2143d3026f275780f293dedb1bdb"
+    },
+    {
+      "path": "platform/app-lifecycle.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "ca5b6d7fc53f473000945a14c6951f39a74c8ba829571cdc2c236e463d77c09b"
+    },
+    {
+      "path": "platform/connection-file.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "11410ac903f9f261ca467b2a5eee613d3b15d9d17831f19609456f4b026dbb98"
+    },
+    {
+      "path": "platform/update-coordinator.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "56015c1ff7738219e963bd29e9b5c77b73d043cf76b6f1698c692b9f4d32bbe7"
+    },
+    {
+      "path": "state/submission-state.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "40add8e9c904edb22c33ae24edbf44ba479749bd5b0e75ff93ec008828d08c8f"
+    },
+    {
+      "path": "styles.css",
+      "status": 200,
+      "match": true,
+      "sha256": "740e8e383d4c9d0a697dac6591457ee56e692edfd35a92756a7076e997220aec"
+    },
+    {
+      "path": "sw.js",
+      "status": 200,
+      "match": true,
+      "sha256": "85afd1533c21488cf49c4a684827d7cdff15dc09b6b386fc94a122e9e6b372fd"
+    },
+    {
+      "path": "ui/controller.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "7d62a068e091c8c37ee3934b7f2d35aa9b48886248aad94082644882e2dee740"
+    },
+    {
+      "path": "ui/view.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "eea0baeca019249e5299ba475a780a862af83f7b839af5129b98f70f419c36d8"
+    }
+  ],
+  "allMatch": true
+}

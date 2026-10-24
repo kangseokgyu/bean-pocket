@@ -1,0 +1,36 @@
+{
+  "version": "e450b7ab5b62",
+  "results": [
+    {
+      "file": "index.html",
+      "status": 200,
+      "bytesMatch": true
+    },
+    {
+      "file": "ui/view.mjs",
+      "status": 200,
+      "bytesMatch": true
+    },
+    {
+      "file": "styles.css",
+      "status": 200,
+      "bytesMatch": true
+    },
+    {
+      "file": "manifest.webmanifest",
+      "status": 200,
+      "bytesMatch": true
+    },
+    {
+      "file": "sw.js",
+      "status": 200,
+      "bytesMatch": true
+    },
+    {
+      "file": "icons/icon-192.png",
+      "status": 200,
+      "bytesMatch": true
+    }
+  ],
+  "errors": []
+}

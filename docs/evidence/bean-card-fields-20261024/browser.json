@@ -1,0 +1,205 @@
+{
+  "results": [
+    {
+      "width": 320,
+      "pageOverflow": false,
+      "cards": [
+        {
+          "labels": [
+            "로스터리",
+            "산지·농장",
+            "품종",
+            "프로세싱",
+            "향미 노트"
+          ],
+          "values": [
+            "언더빈 (UNDERBEAN)",
+            "페루 (Peru), El Vencedor, Cajamarca / El Laurel",
+            "게이샤 (Geisha)",
+            "애너로빅 워시드 (Anaerobic Washed)",
+            "분홍장미, 자스민, 베르가못, 청포도, 복숭아, 라임주스"
+          ],
+          "overflow": false
+        },
+        {
+          "labels": [
+            "로스터리",
+            "산지·농장",
+            "품종",
+            "프로세싱",
+            "향미 노트"
+          ],
+          "values": [
+            "기록 없음",
+            "기록 없음",
+            "기록 없음",
+            "기록 없음",
+            "기록 없음"
+          ],
+          "overflow": false
+        }
+      ]
+    },
+    {
+      "width": 375,
+      "pageOverflow": false,
+      "cards": [
+        {
+          "labels": [
+            "로스터리",
+            "산지·농장",
+            "품종",
+            "프로세싱",
+            "향미 노트"
+          ],
+          "values": [
+            "언더빈 (UNDERBEAN)",
+            "페루 (Peru), El Vencedor, Cajamarca / El Laurel",
+            "게이샤 (Geisha)",
+            "애너로빅 워시드 (Anaerobic Washed)",
+            "분홍장미, 자스민, 베르가못, 청포도, 복숭아, 라임주스"
+          ],
+          "overflow": false
+        },
+        {
+          "labels": [
+            "로스터리",
+            "산지·농장",
+            "품종",
+            "프로세싱",
+            "향미 노트"
+          ],
+          "values": [
+            "기록 없음",
+            "기록 없음",
+            "기록 없음",
+            "기록 없음",
+            "기록 없음"
+          ],
+          "overflow": false
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "pageOverflow": false,
+      "cards": [
+        {
+          "labels": [
+            "로스터리",
+            "산지·농장",
+            "품종",
+            "프로세싱",
+            "향미 노트"
+          ],
+          "values": [
+            "언더빈 (UNDERBEAN)",
+            "페루 (Peru), El Vencedor, Cajamarca / El Laurel",
+            "게이샤 (Geisha)",
+            "애너로빅 워시드 (Anaerobic Washed)",
+            "분홍장미, 자스민, 베르가못, 청포도, 복숭아, 라임주스"
+          ],
+          "overflow": false
+        },
+        {
+          "labels": [
+            "로스터리",
+            "산지·농장",
+            "품종",
+            "프로세싱",
+            "향미 노트"
+          ],
+          "values": [
+            "기록 없음",
+            "기록 없음",
+            "기록 없음",
+            "기록 없음",
+            "기록 없음"
+          ],
+          "overflow": false
+        }
+      ]
+    },
+    {
+      "width": 768,
+      "pageOverflow": false,
+      "cards": [
+        {
+          "labels": [
+            "로스터리",
+            "산지·농장",
+            "품종",
+            "프로세싱",
+            "향미 노트"
+          ],
+          "values": [
+            "언더빈 (UNDERBEAN)",
+            "페루 (Peru), El Vencedor, Cajamarca / El Laurel",
+            "게이샤 (Geisha)",
+            "애너로빅 워시드 (Anaerobic Washed)",
+            "분홍장미, 자스민, 베르가못, 청포도, 복숭아, 라임주스"
+          ],
+          "overflow": false
+        },
+        {
+          "labels": [
+            "로스터리",
+            "산지·농장",
+            "품종",
+            "프로세싱",
+            "향미 노트"
+          ],
+          "values": [
+            "기록 없음",
+            "기록 없음",
+            "기록 없음",
+            "기록 없음",
+            "기록 없음"
+          ],
+          "overflow": false
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "pageOverflow": false,
+      "cards": [
+        {
+          "labels": [
+            "로스터리",
+            "산지·농장",
+            "품종",
+            "프로세싱",
+            "향미 노트"
+          ],
+          "values": [
+            "언더빈 (UNDERBEAN)",
+            "페루 (Peru), El Vencedor, Cajamarca / El Laurel",
+            "게이샤 (Geisha)",
+            "애너로빅 워시드 (Anaerobic Washed)",
+            "분홍장미, 자스민, 베르가못, 청포도, 복숭아, 라임주스"
+          ],
+          "overflow": false
+        },
+        {
+          "labels": [
+            "로스터리",
+            "산지·농장",
+            "품종",
+            "프로세싱",
+            "향미 노트"
+          ],
+          "values": [
+            "기록 없음",
+            "기록 없음",
+            "기록 없음",
+            "기록 없음",
+            "기록 없음"
+          ],
+          "overflow": false
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

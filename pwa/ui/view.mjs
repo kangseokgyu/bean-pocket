@@ -603,9 +603,17 @@ function renderBeans(pane, data, document, formOpen) {
     const header = make(document, 'div', undefined, 'entity-card-header');
     header.append(make(document, 'h3', bean.name), trashButton(document, 'beans', bean.id, bean.name));
     card.append(header);
-    const info = [bean.roaster, bean.origin, bean.variety, bean.process].filter(Boolean).join(' · ');
-    if (info) card.append(make(document, 'p', info));
-    card.append(make(document, 'p', `향미 노트: ${bean.tastingNotes || '기록 없음'}`));
+    const metadata = make(document, 'dl', undefined, 'bean-metadata');
+    for (const [label, value] of [
+      ['로스터리', bean.roaster],
+      ['산지·농장', bean.origin],
+      ['품종', bean.variety],
+      ['프로세싱', bean.process],
+      ['향미 노트', bean.tastingNotes],
+    ]) {
+      metadata.append(make(document, 'dt', label), make(document, 'dd', value || '기록 없음'));
+    }
+    card.append(metadata);
     const records = data.records.filter(record => record.beanId === bean.id);
     card.append(make(document, 'p', `추출 기록 ${records.length}개`));
     const open = button(document, '이 원두의 추출 기록 보기', 'button', 'navigate');

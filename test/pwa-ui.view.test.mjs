@@ -1261,3 +1261,27 @@ test('bag, recipe, and record cards expose named trash controls and confirm each
     if (original === undefined) delete globalThis.confirm; else globalThis.confirm = original;
   }
 });
+
+
+test('bean cards pair each metadata value with its own visible label', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.renderData(data());
+  const card = document.root.querySelector('.bean-card');
+  assert.deepEqual(card.querySelectorAll('dt').map(node => node.textContent),
+    ['로스터리', '산지·농장', '품종', '프로세싱', '향미 노트']);
+  assert.deepEqual(card.querySelectorAll('dd').map(node => node.textContent),
+    ['로스터리', '시다마 · 테스트 농장', '74110', '워시드', '복숭아']);
+});
+
+test('bean cards keep missing metadata explicit and render values as text', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  const rows = data();
+  rows.beans = [{ id: BEAN, name: '최소 원두', roaster: '<img src=x onerror=alert(1)>' }];
+  view.renderData(rows);
+  const card = document.root.querySelector('.bean-card');
+  assert.deepEqual(card.querySelectorAll('dd').map(node => node.textContent),
+    ['<img src=x onerror=alert(1)>', '기록 없음', '기록 없음', '기록 없음', '기록 없음']);
+  assert.equal(card.querySelector('img'), null);
+});

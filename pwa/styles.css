@@ -311,6 +311,16 @@ button:focus-visible, .table-scroll:focus-visible {
   background: #fffefa;
 }
 
+.bean-metadata {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 8px 16px;
+  margin: 4px 0 16px;
+  line-height: 1.6;
+}
+.bean-metadata dt { color: #68685e; font-size: 0.875rem; padding-top: 2px; }
+.bean-metadata dd { min-width: 0; margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+
 .entity-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .entity-card-header h3, .entity-card-header h4 { min-width: 0; overflow-wrap: anywhere; margin: 0 0 12px; }
 .entity-delete { flex: 0 0 46px; width: 46px; height: 46px; margin: -14px -8px 0 0; color: #737373; background: transparent; border-color: transparent; }

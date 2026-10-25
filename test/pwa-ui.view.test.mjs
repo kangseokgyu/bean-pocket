@@ -27,6 +27,7 @@ class TestElement {
   }
   append(...nodes) {
     for (const node of nodes) {
+      if (node.parentElement) node.parentElement.children = node.parentElement.children.filter(child => child !== node);
       node.parentElement = this;
       this.children.push(node);
     }
@@ -39,8 +40,22 @@ class TestElement {
   set textContent(value) { this.text = String(value); this.replaceChildren(); }
   get textContent() { return this.text + this.children.map(child => child.textContent).join(''); }
   setAttribute(name, value) { this.attributes.set(name, String(value)); }
-  showModal() { this.open = true; }
-  close() { this.open = false; }
+  showModal() {
+    this.open = true;
+    this.ownerDocument.topLayerOrder += 1;
+    this.topLayerOrder = this.ownerDocument.topLayerOrder;
+  }
+  close() {
+    this.open = false;
+  }
+  showPopover() {
+    this.popoverOpen = true;
+    this.ownerDocument.topLayerOrder += 1;
+    this.topLayerOrder = this.ownerDocument.topLayerOrder;
+  }
+  hidePopover() {
+    this.popoverOpen = false;
+  }
   focus() { this.ownerDocument.activeElement = this; }
   reset() { for (const field of this.querySelectorAll('input[name],textarea[name],select[name]')) field.value = ''; }
   remove() { if (this.parentElement) this.parentElement.children = this.parentElement.children.filter(child => child !== this); this.parentElement = null; }
@@ -96,7 +111,7 @@ class TestElement {
 }
 
 class TestDocument {
-  constructor() { this.root = new TestElement('main', this); this.root.id = 'app-root'; }
+  constructor() { this.root = new TestElement('main', this); this.root.id = 'app-root'; this.topLayerOrder = 0; }
   createElement(tagName) { return new TestElement(tagName, this); }
   createElementNS(namespace, tagName) {
     const node = new TestElement(tagName, this);
@@ -316,6 +331,7 @@ test('successful status messages stay visible for three seconds then hide', t =>
     assert.equal(status.hidden, false);
     t.mock.timers.tick(1);
     assert.equal(status.hidden, true, type);
+    assert.equal(status.popoverOpen, false, type);
   }
 });
 
@@ -332,8 +348,64 @@ test('errors, recovery notices and pending work stay visible after replacing suc
     view.showStatus({ type, message: '확인이 필요합니다.' });
     t.mock.timers.tick(10000);
     assert.equal(status.hidden, false, type);
+    assert.equal(status.popoverOpen, true, type);
     assert.equal(status.textContent, '확인이 필요합니다.');
   }
+});
+
+test('status messages share one bottom safe-area toast above native modal dialogs', () => {
+  const stylesheet = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
+  const toastRule = stylesheet.match(/\.connection-note,\s*\.app-status\s*\{([^}]*)\}/s);
+  assert.ok(toastRule, 'the startup note and app status share toast positioning');
+  const document = new TestDocument();
+  const view = createAppView(document);
+  const status = document.root.querySelector('.app-status');
+  assert.equal(status.getAttribute('popover'), 'manual');
+
+  view.showStatus({ type: 'error', message: '저장 오류' });
+  assert.equal(status.popoverOpen, true);
+  const initialToastOrder = status.topLayerOrder;
+  view.renderData(data());
+  view.showBeanForm();
+  const dialog = document.root.querySelector('dialog[data-entry-dialog="beans"]');
+  assert.equal(dialog.open, true);
+  assert.equal(status.parentElement, dialog, 'the active toast is placed inside a modal top-layer dialog');
+  assert.equal(status.getAttribute('popover'), null);
+  assert.equal(status.popoverOpen, false);
+  assert.ok(dialog.children.at(-1) === status && dialog.topLayerOrder > initialToastOrder,
+    'the active toast is the dialog’s last child and the dialog enters the top layer after the prior toast');
+
+  view.showStatus({ type: 'connection-error', message: '연결 오류' });
+  assert.equal(status.parentElement, dialog);
+  assert.equal(status.textContent, '연결 오류');
+  assert.equal(document.root.querySelectorAll('.app-status').length, 1);
+  view.showStatus({ type: 'connection-error', message: '연결 오류' });
+  assert.equal(document.root.querySelectorAll('.app-status').length, 1, 'repeated status reuses the same toast');
+  assert.match(toastRule[1], /position:\s*fixed/);
+  assert.match(toastRule[1], /safe-area-inset-bottom/);
+  assert.match(toastRule[1], /safe-area-inset-left/);
+  assert.match(toastRule[1], /safe-area-inset-right/);
+  assert.match(toastRule[1], /pointer-events:\s*none/);
+});
+
+test('native form validation marks its field and reports the error in the shared toast', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.renderData(data());
+  view.bind({ setDirty() {}, getState: () => ({}) });
+  const form = document.root.querySelector('form[data-form="beans"]');
+  const field = form.elements.name;
+  const page = document.root.firstElementChild;
+
+  for (const listener of page.listeners.get('invalid')) listener({ target: field });
+
+  const status = document.root.querySelector('.app-status');
+  assert.equal(field.getAttribute('aria-invalid'), 'true');
+  assert.equal(form.querySelector('.field-error'), null);
+  assert.equal(status.textContent, '필수 입력과 입력 범위를 확인해 주세요.');
+  assert.equal(status.getAttribute('role'), 'alert');
+  assert.equal(status.getAttribute('aria-live'), 'assertive');
+  assert.equal(status.popoverOpen, true);
 });
 
 test('operation spinner stays in body overlay outside the touch-transformed page', () => {
@@ -1434,12 +1506,17 @@ test('pending entry saves lock controls and Escape; success stays visible until 
   view.setState({ pending: false });
   assert.equal(view.showEntrySuccess('beans'), true);
   assert.equal(dialog.dataset.saveState, 'success');
-  assert.match(dialog.querySelector('[data-save-status]').textContent, /저장/);
+  assert.equal(dialog.querySelector('[data-save-status]'), null, 'save and success text use the shared toast');
+  view.showStatus({ type: 'saved', message: '저장했습니다.' });
+  assert.equal(document.root.querySelector('.app-status').textContent, '저장했습니다.');
+  assert.equal(document.root.querySelector('.app-status').parentElement, dialog);
   assert.equal(dialog.open, true);
   assert.equal(scheduled.length, 1);
   assert.equal(scheduled[0].delay, 1000);
   scheduled[0].callback();
   assert.equal(dialog.open, false);
+  assert.equal(document.root.querySelector('.app-status').parentElement, document.root.firstElementChild,
+    'the toast returns to the app layer when its modal closes');
   assert.equal(document.activeElement, document.root.querySelector('[data-action="show-bean-form"]'));
 });
 
@@ -1469,6 +1546,7 @@ test('a failed modal save preserves its fields and enables a retry', async () =>
         if (attempts === 1) {
           await new Promise(resolve => { finishFailure = resolve; });
           view.setState({ pending: false });
+          view.showStatus({ type: 'failed', message: '저장하지 못했습니다. 입력값을 보존했습니다.' });
           return { status: 'failed' };
         }
         view.setState({ pending: false });
@@ -1496,7 +1574,10 @@ test('a failed modal save preserves its fields and enables a retry', async () =>
     finishFailure();
     await firstAttempt;
     assert.equal(form.elements.name.value, '입력 보존 원두');
-    assert.ok(form.querySelector('.field-error'));
+    assert.equal(form.querySelector('.field-error'), null);
+    assert.equal(document.root.querySelector('.app-status').textContent, '저장하지 못했습니다. 입력값을 보존했습니다.');
+    assert.equal(document.root.querySelector('.app-status').parentElement, dialog);
+    assert.equal(document.root.querySelector('.app-status').getAttribute('popover'), null);
     assert.equal(form.querySelectorAll('button').find(control => control.type === 'submit').disabled, false);
     assert.equal(dialog.open, true);
 
@@ -1555,18 +1636,16 @@ test('success delay ignores late input events and closes without a dirty draft',
   assert.equal(document.root.querySelector('dialog[data-entry-dialog="beans"]').open, false);
 });
 
-test('reduced motion overrides modal entrance, success check and saving spinner animations', () => {
+test('reduced motion overrides modal entrance and blocking spinner animations', () => {
   const css = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
   const reduceAt = css.lastIndexOf('@media (prefers-reduced-motion: reduce)');
   for (const rule of [
     '.entry-dialog[open] { animation: entry-dialog-in',
-    '.entry-save-status .entry-success-check { display:',
-    '.entry-save-status .pull-refresh-spinner { flex:',
+    '.startup-loading .operation-spinner { animation: pull-refresh-spin',
   ]) assert.ok(reduceAt > css.indexOf(rule), 'reduced motion must win the cascade for ' + rule);
   const reduced = css.slice(reduceAt);
   assert.match(reduced, /\.entry-dialog\[open\].*animation: none/s);
-  assert.match(reduced, /\.entry-save-status \.entry-success-check.*animation: none/s);
-  assert.match(reduced, /\.entry-save-status \.pull-refresh-spinner\s*\{ animation: none;/);
+  assert.match(reduced, /\.startup-loading \.operation-spinner\s*\{ animation: none;/);
 });
 
 

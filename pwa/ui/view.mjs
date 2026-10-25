@@ -91,15 +91,60 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   let statusType = '';
   let statusMessageText = '';
   let startupMessageText = '';
-  function renderStatus() {
+  let statusPopoverOpen = false;
+  let statusPopoverUnsupported = false;
+  function syncStatusToast(promote = false) {
+    const visible = !status.hidden;
+    const openDialog = [...page.querySelectorAll('dialog[data-entry-dialog]')].find(dialog => dialog.open);
+    if (!visible) {
+      if (statusPopoverOpen) status.hidePopover();
+      statusPopoverOpen = false;
+      if (status.parentElement !== page) page.append(status);
+      if (!statusPopoverUnsupported && typeof status.showPopover === 'function' && status.getAttribute('popover') !== 'manual') {
+        status.setAttribute('popover', 'manual');
+      }
+      return;
+    }
+
+    if (openDialog) {
+      if (statusPopoverOpen) status.hidePopover();
+      statusPopoverOpen = false;
+      status.removeAttribute('popover');
+      if (status.parentElement !== openDialog) openDialog.append(status);
+      return;
+    }
+
+    if (status.parentElement !== page) page.append(status);
+    if (statusPopoverUnsupported || typeof status.showPopover !== 'function' || typeof status.hidePopover !== 'function') {
+      statusPopoverUnsupported = true;
+      status.removeAttribute('popover');
+      return;
+    }
+    if (status.getAttribute('popover') !== 'manual') status.setAttribute('popover', 'manual');
+    if (statusPopoverOpen && !promote) return;
+    try {
+      if (statusPopoverOpen) status.hidePopover();
+      status.showPopover();
+      statusPopoverOpen = true;
+    } catch {
+      statusPopoverOpen = false;
+      statusPopoverUnsupported = true;
+      status.removeAttribute('popover');
+    }
+  }
+  function renderStatus({ promoteToast = false } = {}) {
     const startupChecking = statusType === 'startup-checking';
+    const validationError = statusType === 'validation-error';
     skeletons.hidden = !currentState.pending || !!currentData ||
       (!startupChecking && connection.dataset.connected !== 'true');
     const active = currentState.pending && !startupChecking;
     status.dataset.pending = String(active);
     statusMessage.textContent = statusMessageText || (active ? '불러오는 중…' : '');
+    status.setAttribute('role', validationError ? 'alert' : 'status');
+    status.setAttribute('aria-live', validationError ? 'assertive' : 'polite');
     status.setAttribute('aria-busy', String(currentState.pending));
     status.hidden = startupChecking || (!active && !statusMessageText);
+    syncStatusToast(promoteToast);
 
     loadingSpinner.className = `pull-refresh-spinner ${startupChecking ? 'startup-spinner' : 'operation-spinner'}`;
     loadingSpinner.hidden = !currentState.pending;
@@ -142,6 +187,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   status.hidden = true;
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
+  status.setAttribute('popover', 'manual');
   const statusMessage = make(document, 'span', '', 'status-message');
   status.append(statusMessage);
   page.append(status);
@@ -289,16 +335,6 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       const saving = active && currentState.pending && phase !== 'success';
       dialog.dataset.saveState = phase;
       dialog.setAttribute('aria-busy', String(saving));
-      const status = dialog.querySelector('[data-save-status]');
-      if (status) {
-        status.hidden = phase === 'idle';
-        status.replaceChildren();
-        if (phase === 'saving' || saving) {
-          status.append(makeSpinner(document), make(document, 'span', '저장 중…'));
-        } else if (phase === 'success') {
-          status.append(make(document, 'span', '✓', 'entry-success-check'), make(document, 'span', '저장했습니다.'));
-        }
-      }
       if (phase === 'success') {
         dialog.querySelectorAll('input,button,select,textarea').forEach(control => { control.disabled = true; });
       }
@@ -318,6 +354,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       if (dialog.dataset.open === 'true' && !dialog.open) {
         showNativeDialog(dialog);
         activeEntryKind = dialog.dataset.entryDialog;
+        renderStatus({ promoteToast: true });
       }
     }
     bindEntryDialogCancels();
@@ -345,6 +382,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     const opener = content.querySelector('[data-action="' + action + '"]');
     dialog.dataset.open = 'true';
     if (!dialog.open) showNativeDialog(dialog);
+    renderStatus({ promoteToast: true });
     opener?.setAttribute('aria-expanded', 'true');
     form.elements[fieldName]?.focus?.();
     syncEntryDialogState();
@@ -353,12 +391,16 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   const view = {
     finishStartup,
     showStatus(value) {
-      statusType = value?.type ?? '';
-      const checking = statusType === 'startup-checking';
-      statusMessageText = checking || statusType === 'ready' ? '' : value?.message ?? '';
-      startupMessageText = checking ? value?.message ?? '' : '';
+      const nextStatusType = value?.type ?? '';
+      const checking = nextStatusType === 'startup-checking';
+      const nextMessage = checking || nextStatusType === 'ready' ? '' : value?.message ?? '';
+      const nextStartupMessage = checking ? value?.message ?? '' : '';
+      const changed = statusType !== nextStatusType || statusMessageText !== nextMessage || startupMessageText !== nextStartupMessage;
+      statusType = nextStatusType;
+      statusMessageText = nextMessage;
+      startupMessageText = nextStartupMessage;
       status.dataset.state = statusType;
-      renderStatus();
+      renderStatus({ promoteToast: changed });
       scheduleStatusHide();
     },
     showConnection(value) {
@@ -414,6 +456,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       if (currentData) renderCurrentContent();
       if (wasOpen) {
         entryPhase = 'idle';
+        renderStatus({ promoteToast: true });
         restoreEntryFocus(kind);
       }
     },
@@ -1002,18 +1045,13 @@ function recordCard(document, record, data) {
 
 function addFormActions(document, form, kind) {
   const nouns = { beans: '원두', bags: '봉지', recipes: '레시피', records: '기록' };
-  const status = make(document, 'p', '', 'entry-save-status');
-  status.dataset.saveStatus = '';
-  status.hidden = true;
-  status.setAttribute('role', 'status');
-  status.setAttribute('aria-live', 'polite');
   const actions = make(document, 'div', undefined, 'form-actions');
   const cancel = button(document, '입력 취소', 'button', 'cancel-form');
   const submit = button(document, nouns[kind] + ' 저장');
   submit.dataset.entrySubmit = '';
   submit.dataset.idleLabel = nouns[kind] + ' 저장';
   actions.append(cancel, submit);
-  form.append(status, actions);
+  form.append(actions);
 }
 
 function fillSelect(select, rows, placeholder, optional = false) {
@@ -1217,8 +1255,6 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
     const form = event.target.form;
     if (FORM_KINDS.has(form?.dataset.form)) actions.setDirty(true, form.dataset.form);
     updatePreview(content);
-    const fieldLabel = event.target.closest('label');
-    fieldLabel?.querySelector('.field-error')?.remove();
     event.target.removeAttribute('aria-invalid');
   });
   content.addEventListener('change', event => {
@@ -1241,39 +1277,30 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
     event.preventDefault();
     const state = actions.getState?.() ?? {};
     if (state.pending || state.frozen || state.unresolved || form.closest('dialog')?.dataset.saveState === 'success') return;
-    clearFieldErrors(form);
+    clearInvalidFields(form);
+    let payload;
     try {
-      let payload;
-      if (kind === 'recipes') {
-        payload = recipePayload(form);
-        const result = form.dataset.copyId
-          ? await actions.submit('copy', { recipeId: form.dataset.copyId, changes: payload })
-          : await actions.submit(kind, payload);
-        if (result?.status && result.status !== 'succeeded') {
-          showFieldError(form, result.status === 'unknown' || result.status === 'partial'
-            ? '저장 확인이 필요합니다. 입력값을 보존했습니다.'
-            : '저장하지 못했습니다. 입력값을 보존했습니다.');
-        }
+      payload = kind === 'recipes' ? recipePayload(form) : Object.fromEntries(new FormData(form));
+    } catch {
+      view.showStatus({ type: 'validation-error', message: '입력값이나 최신 원본 관계를 확인해 주세요.' });
+      return;
+    }
+    try {
+      if (kind === 'recipes' && form.dataset.copyId) {
+        await actions.submit('copy', { recipeId: form.dataset.copyId, changes: payload });
       } else {
-        payload = Object.fromEntries(new FormData(form));
-        const result = await actions.submit(kind, payload);
-        if (result?.status && result.status !== 'succeeded') {
-          showFieldError(form, result.status === 'unknown' || result.status === 'partial'
-            ? '저장 확인이 필요합니다. 입력값을 보존했습니다.'
-            : '저장하지 못했습니다. 입력값을 보존했습니다.');
-        }
+        await actions.submit(kind, payload);
       }
-    } catch (error) {
-      const message = error?.status === 400 || error?.code === 'input' || error?.code === 'stale-read'
-        ? '입력값이나 최신 원본 관계를 확인해 주세요.'
-        : error?.writeState === 'unknown' ? '저장 여부 확인이 필요합니다. 입력값을 보존했습니다.'
-          : '저장하지 못했습니다. 입력값을 보존했습니다.';
-      showFieldError(form, message);
+    } catch {
+      // Controller status is the single user-facing report for a failed operation.
     }
   });
   page.addEventListener('invalid', event => {
     const field = event.target;
-    if (field?.form) showFieldError(field.form, '필수 입력과 입력 범위를 확인해 주세요.', field);
+    if (field?.form) {
+      markInvalidField(field.form, field);
+      view.showStatus({ type: 'validation-error', message: '필수 입력과 입력 범위를 확인해 주세요.' });
+    }
   }, true);
 
   let windowData = null;
@@ -1426,20 +1453,14 @@ function renumberSteps(content) {
   });
 }
 
-function clearFieldErrors(form) {
-  form.querySelectorAll('.field-error').forEach(item => item.remove());
+function clearInvalidFields(form) {
   form.querySelectorAll('[aria-invalid="true"]').forEach(item => item.removeAttribute('aria-invalid'));
 }
 
-function showFieldError(form, message, field) {
-  clearFieldErrors(form);
+function markInvalidField(form, field) {
+  clearInvalidFields(form);
   const target = field || form.querySelector('[required]:invalid') || form.querySelector('input,select,textarea');
-  if (!target) return;
-  target.setAttribute('aria-invalid', 'true');
-  const targetLabel = target.closest('label');
-  const error = make(form.ownerDocument, 'span', message, 'field-error');
-  error.setAttribute('role', 'alert');
-  (targetLabel || target.parentElement).append(error);
+  target?.setAttribute('aria-invalid', 'true');
 }
 
 function updateNavigationCurrent(document, route) {

@@ -14,6 +14,7 @@ const validRecipe = beanId => ({ name: 'V60', beanId, dose: 15, totalWater: 250,
 test('the shipped page has a real UI mount point', async () => {
   const html = await readFile(new URL('../pwa/index.html', import.meta.url), 'utf8');
   assert.match(html, /id="app-root"/);
+  assert.match(html, /class="connection-note" role="status"/);
 });
 
 test('controller public flows use real Notion, repository, commands and journal adapters', async () => {

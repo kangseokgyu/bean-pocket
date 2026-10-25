@@ -1,0 +1,32 @@
+{
+  "url": "https://kangseokgyu.github.io/bean-pocket/",
+  "checkedAt": "2026-10-25T05:39:14.606Z",
+  "build": "664d5b995172",
+  "files": [
+    {
+      "file": "index.html",
+      "status": 200,
+      "matchesLocal": true
+    },
+    {
+      "file": "styles.css",
+      "status": 200,
+      "matchesLocal": true
+    },
+    {
+      "file": "ui/view.mjs",
+      "status": 200,
+      "matchesLocal": true
+    },
+    {
+      "file": "sw.js",
+      "status": 200,
+      "matchesLocal": true
+    },
+    {
+      "file": "manifest.webmanifest",
+      "status": 200,
+      "matchesLocal": true
+    }
+  ]
+}

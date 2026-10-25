@@ -1,0 +1,54 @@
+{
+  "url": "https://kangseokgyu.github.io/bean-pocket/",
+  "version": "f0551ec1495f",
+  "results": [
+    {
+      "file": "index.html",
+      "status": 200,
+      "identicalToLocalBuild": true
+    },
+    {
+      "file": "domain.mjs",
+      "status": 200,
+      "identicalToLocalBuild": true
+    },
+    {
+      "file": "ui/view.mjs",
+      "status": 200,
+      "identicalToLocalBuild": true
+    },
+    {
+      "file": "data/notion-client.mjs",
+      "status": 200,
+      "identicalToLocalBuild": true
+    },
+    {
+      "file": "data/notion-properties.mjs",
+      "status": 200,
+      "identicalToLocalBuild": true
+    },
+    {
+      "file": "commands/index.mjs",
+      "status": 200,
+      "identicalToLocalBuild": true
+    },
+    {
+      "file": "styles.css",
+      "status": 200,
+      "identicalToLocalBuild": true
+    },
+    {
+      "file": "sw.js",
+      "status": 200,
+      "identicalToLocalBuild": true
+    },
+    {
+      "file": "manifest.webmanifest",
+      "status": 200,
+      "identicalToLocalBuild": true
+    }
+  ],
+  "browserErrors": [],
+  "realNotionSaveVerified": false,
+  "iphoneVerified": false
+}

@@ -1479,3 +1479,62 @@ test('a failed modal save preserves its fields and enables a retry', async () =>
     else globalThis.FormData = originalFormData;
   }
 });
+
+test('success delay locks every entry field and recipe step after refresh finishes', async () => {
+  for (const [kind, open] of [
+    ['beans', 'showBeanForm'], ['bags', 'showBagForm'],
+    ['recipes', 'showRecipeForm'], ['records', 'showRecordForm'],
+  ]) {
+    const document = new TestDocument();
+    const view = createAppView(document, { schedule: () => 1 });
+    view.bind({ setDirty() {} });
+    view.renderData(data());
+    view.renderRoute('/' + kind);
+    view[open]();
+    view.setState({ pending: true });
+    view.showEntrySuccess(kind);
+    view.renderData(data());
+    view.setState({ pending: false });
+    const form = document.root.querySelector('form[data-form="' + kind + '"]');
+    for (const control of form.querySelectorAll('input,button,select,textarea')) {
+      assert.equal(control.disabled, true, kind + ' success delay must lock ' + (control.name || control.dataset.action || control.tagName));
+    }
+    if (kind === 'recipes') {
+      const steps = form.querySelectorAll('.step-row').length;
+      const add = form.querySelector('[data-action="add-step"]');
+      for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: add });
+      assert.equal(form.querySelectorAll('.step-row').length, steps);
+    }
+  }
+});
+
+test('success delay ignores late input events and closes without a dirty draft', () => {
+  const document = new TestDocument();
+  const callbacks = [];
+  let dirty = false;
+  const view = createAppView(document, { schedule: callback => { callbacks.push(callback); return 1; } });
+  view.bind({ setDirty: value => { dirty = value; } });
+  view.renderData(data());
+  view.showBeanForm();
+  view.showEntrySuccess('beans');
+  view.setState({ pending: false });
+  const field = document.root.querySelector('form[data-form="beans"]').elements.name;
+  for (const listener of document.root.querySelector('.data-panel').listeners.get('input')) listener({ target: field });
+  callbacks[0]();
+  assert.equal(dirty, false);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog="beans"]').open, false);
+});
+
+test('reduced motion overrides modal entrance, success check and saving spinner animations', () => {
+  const css = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
+  const reduceAt = css.lastIndexOf('@media (prefers-reduced-motion: reduce)');
+  for (const rule of [
+    '.entry-dialog[open] { animation: entry-dialog-in',
+    '.entry-save-status .entry-success-check { display:',
+    '.entry-save-status .pull-refresh-spinner { flex:',
+  ]) assert.ok(reduceAt > css.indexOf(rule), 'reduced motion must win the cascade for ' + rule);
+  const reduced = css.slice(reduceAt);
+  assert.match(reduced, /\.entry-dialog\[open\].*animation: none/s);
+  assert.match(reduced, /\.entry-save-status \.entry-success-check.*animation: none/s);
+  assert.match(reduced, /\.entry-save-status \.pull-refresh-spinner\s*\{ animation: none;/);
+});

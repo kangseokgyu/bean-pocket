@@ -81,14 +81,7 @@ html { overscroll-behavior-y: contain; }
 }
 [data-pull-state="pulling"] { transition: none; }
 
-@media (prefers-reduced-motion: reduce) {
-  .pull-refresh[data-state="reloading"] .pull-refresh-spinner,
-  .startup-loading .startup-spinner,
-  .startup-loading .operation-spinner { animation: none; }
-  [data-pull-state] { transition: none; }
-  .entry-dialog[open], .entry-save-status .entry-success-check { animation: none; }
-  .entry-save-status .pull-refresh-spinner { animation: none; }
-}
+
 
 body {
   min-width: 320px;
@@ -490,4 +483,13 @@ footer {
   .page { width: calc(100% - 20px); }
   .panel, .data-panel, .unresolved-panel { padding: 11px; }
   .form-actions { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pull-refresh[data-state="reloading"] .pull-refresh-spinner,
+  .startup-loading .startup-spinner,
+  .startup-loading .operation-spinner { animation: none; }
+  [data-pull-state] { transition: none; }
+  .entry-dialog[open], .entry-save-status .entry-success-check { animation: none; }
+  .entry-save-status .pull-refresh-spinner { animation: none; }
 }

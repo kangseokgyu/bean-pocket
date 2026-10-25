@@ -282,6 +282,9 @@ export function createAppView(document = globalThis.document, { schedule = setTi
           status.append(make(document, 'span', '✓', 'entry-success-check'), make(document, 'span', '저장했습니다.'));
         }
       }
+      if (phase === 'success') {
+        dialog.querySelectorAll('input,button,select,textarea').forEach(control => { control.disabled = true; });
+      }
       const submit = dialog.querySelector('[data-entry-submit]');
       const cancel = dialog.querySelector('[data-action="cancel-form"]');
       if (submit) {
@@ -1071,7 +1074,7 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
   const handleClick = async event => {
     const target = event.target.closest('[data-action]');
     const action = target?.dataset.action;
-    if (!action) return;
+    if (!action || target.disabled) return;
     if (action === 'retry-initialize') {
       try { await actions.initialize(); } catch { /* Safe status text is supplied by the controller. */ }
       return;
@@ -1179,6 +1182,7 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
   if (nav.parentElement !== page) nav.addEventListener('click', handleClick);
 
   content.addEventListener('input', event => {
+    if (event.target.disabled) return;
     const form = event.target.form;
     if (FORM_KINDS.has(form?.dataset.form)) actions.setDirty(true, form.dataset.form);
     updatePreview(content);
@@ -1187,6 +1191,7 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
     event.target.removeAttribute('aria-invalid');
   });
   content.addEventListener('change', event => {
+    if (event.target.disabled) return;
     if (event.target.name === 'beanId' && event.target.form?.dataset.form === 'records' && windowData) {
       updateBagChoices(event.target.form, windowData);
     }

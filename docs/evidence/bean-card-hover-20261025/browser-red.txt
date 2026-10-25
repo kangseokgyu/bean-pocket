@@ -1,0 +1,8 @@
+AssertionError [ERR_ASSERTION]: card background responds to hover
+    at main (/Users/kangseokgyu/.codex/worktrees/bean-card-records/AX-1day/docs/evidence/bean-card-hover-20261025/browser-check.cjs:91:14) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'rgb(255, 254, 250)',
+  expected: 'rgb(255, 254, 250)',
+  operator: 'notStrictEqual'
+}

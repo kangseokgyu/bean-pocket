@@ -383,11 +383,18 @@ button:focus-visible, .table-scroll:focus-visible {
 }
 
 .bean-card { position: relative; }
-.bean-card-link { color: inherit; text-decoration: none; }
+.bean-card-link { color: inherit; text-decoration: none; cursor: pointer; }
 .bean-card-link::after { content: ''; position: absolute; inset: 0; border-radius: 12px; }
 .bean-card-link:focus-visible { outline: none; }
 .bean-card-link:focus-visible::after { outline: 3px solid #8ab59a; outline-offset: 2px; }
 .bean-card .entity-delete { position: relative; z-index: 1; }
+@media (hover: hover) and (pointer: fine) {
+  .bean-card { transition: background-color 150ms ease, border-color 150ms ease; }
+  .bean-card:hover { background: #f6f8f0; border-color: #8ab59a; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bean-card { transition: none; }
+}
 
 .bean-metadata {
   display: grid;

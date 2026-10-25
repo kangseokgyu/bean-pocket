@@ -1,0 +1,37 @@
+✖ BP logo is supplied byte-for-byte, cached offline, and changes the build version (30.076916ms)
+  Error: ENOENT: no such file or directory, open '/var/folders/5m/5sdskqts1vg88sqkvbq3t0sw0000gn/T/bean-pocket-pages-DHepwn/dist/icons/bp-logo.png'
+      at async open (node:internal/fs/promises:639:25)
+      at async readFile (node:internal/fs/promises:1239:14)
+      at async TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/bp-bean-logo/AX-1day/test/pwa-build.test.mjs:389:20)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: '/var/folders/5m/5sdskqts1vg88sqkvbq3t0sw0000gn/T/bean-pocket-pages-DHepwn/dist/icons/bp-logo.png'
+  }
+
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 104.300958
+
+✖ failing tests:
+
+test at test/pwa-build.test.mjs:386:1
+✖ BP logo is supplied byte-for-byte, cached offline, and changes the build version (30.076916ms)
+  Error: ENOENT: no such file or directory, open '/var/folders/5m/5sdskqts1vg88sqkvbq3t0sw0000gn/T/bean-pocket-pages-DHepwn/dist/icons/bp-logo.png'
+      at async open (node:internal/fs/promises:639:25)
+      at async readFile (node:internal/fs/promises:1239:14)
+      at async TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/bp-bean-logo/AX-1day/test/pwa-build.test.mjs:389:20)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: '/var/folders/5m/5sdskqts1vg88sqkvbq3t0sw0000gn/T/bean-pocket-pages-DHepwn/dist/icons/bp-logo.png'
+  }

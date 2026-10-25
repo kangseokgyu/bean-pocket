@@ -1,0 +1,8 @@
+AssertionError [ERR_ASSERTION]: logo, navigation and tools share one row
+    at /private/tmp/compact-header-browser.cjs:22:8 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '=='
+}

@@ -114,7 +114,7 @@ button { touch-action: manipulation; }
   z-index: 5;
   background: #f3efe6;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -124,9 +124,11 @@ button { touch-action: manipulation; }
 
 .eyebrow {
   color: #587464;
-  font-size: 0.75rem;
-  font-weight: 750;
-  letter-spacing: 0.14em;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.025em;
 }
 
 .build-version {
@@ -136,7 +138,9 @@ button { touch-action: manipulation; }
   font-variant-numeric: tabular-nums;
 }
 
-.header-tools { display: flex; align-items: center; gap: 8px; }
+footer .build-version { margin-top: 8px; letter-spacing: normal; font-weight: 400; }
+
+.header-tools { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
 #connection-tools { display: flex; }
 .button.connection-toggle {
   min-width: 44px;
@@ -291,15 +295,16 @@ button:focus-visible, .table-scroll:focus-visible {
 }
 
 .tabs {
-  flex: 0 0 100%;
+  flex: 1 1 auto;
+  min-width: 0;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
   margin-top: 0;
 }
 
-.tabs .button { display: flex; gap: 6px; align-items: center; justify-content: center; min-width: 0; min-height: 48px; padding-inline: 8px; }
-.nav-icon { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.tabs .button { display: flex; gap: 6px; align-items: center; justify-content: center; min-width: 0; min-height: 44px; padding: 6px; font-size: 0.8125rem; white-space: nowrap; }
+.nav-icon { flex: 0 0 auto; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
 .tabs [aria-current="page"] { border-color: #224b3c; background: #224b3c; color: #fff; }
 
 .data-panel { padding: 16px; }
@@ -400,8 +405,12 @@ footer {
   .bean-section { padding: 22px 0; }
   .panel, .data-panel, .unresolved-panel { padding: 13px; border-radius: 13px; }
   .form-fieldset { grid-template-columns: minmax(0, 1fr); gap: 13px; padding: 13px; }
-  .tabs { gap: 4px; }
-  .tabs .button { flex-direction: column; gap: 4px; min-height: 64px; padding-inline: 4px; font-size: 0.875rem; white-space: nowrap; }
+  .site-header { gap: 4px; }
+  .eyebrow { font-size: 0.875rem; letter-spacing: 0.01em; }
+  .button.connection-toggle { min-width: 28px; padding-inline: 2px; font-size: 1rem; }
+  .tabs { grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.4fr); gap: 2px; }
+  .tabs .button { flex-direction: column; gap: 2px; min-height: 44px; padding: 3px 1px; font-size: 0.625rem; border-radius: 8px; }
+  .nav-icon { width: 16px; height: 16px; }
   .form-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .form-actions .button { width: 100%; padding-inline: 8px; }
   .connection-panel .form-grid > .button { width: 100%; }

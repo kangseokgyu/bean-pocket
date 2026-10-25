@@ -228,7 +228,10 @@ export function createAppView(document = globalThis.document) {
     item.dataset.route = `/${key}`;
     nav.append(item);
   }
-  (document.querySelector('.site-header') ?? page).append(nav);
+  const header = document.querySelector('.site-header');
+  const headerTools = header?.querySelector('.header-tools');
+  if (headerTools) header.insertBefore(nav, headerTools);
+  else (header ?? page).append(nav);
 
   function applyViewState() {
     applyState(page, currentState);

@@ -1176,7 +1176,7 @@ test('navigation uses four distinct decorative icons with accessible menu names'
     assert.equal(item.type, 'button');
     assert.equal(item.getAttribute('aria-label'), title);
     assert.equal(item.title, title);
-    assert.equal(item.textContent, '', 'visible text is replaced by an icon');
+    assert.equal(item.textContent, title, 'menu labels remain visible beside their icons');
     const icon = item.querySelector('svg');
     assert.ok(icon, `${key} has an SVG icon`);
     assert.equal(icon.namespaceURI, 'http://www.w3.org/2000/svg');
@@ -1284,4 +1284,32 @@ test('bean cards keep missing metadata explicit and render values as text', () =
   assert.deepEqual(card.querySelectorAll('dd').map(node => node.textContent),
     ['<img src=x onerror=alert(1)>', '기록 없음', '기록 없음', '기록 없음', '기록 없음']);
   assert.equal(card.querySelector('img'), null);
+});
+
+
+test('header navigation changes routes and remains locked while work is pending', async () => {
+  const document = new TestDocument();
+  const header = document.createElement('header');
+  header.className = 'site-header';
+  const querySelector = document.querySelector.bind(document);
+  document.querySelector = selector => selector === '.site-header' ? header : querySelector(selector);
+  const view = createAppView(document);
+  const nav = header.querySelector('nav.tabs');
+  assert.ok(nav, 'primary navigation belongs in the site header');
+  assert.equal(document.root.querySelector('nav.tabs'), null);
+  assert.deepEqual(nav.children.map(item => item.textContent), ['원두', '봉지', '레시피', '추출 기록']);
+  view.bind({});
+  view.renderData(data());
+  view.showConnection({ connected: true });
+  const recipes = nav.children.find(item => item.dataset.route === '/recipes');
+  for (const listener of nav.listeners.get('click') ?? []) await listener({ target: recipes });
+  assert.ok(document.root.querySelector('form[data-form="recipes"]'));
+  view.setState({ pending: true });
+  assert.ok(nav.children.every(item => item.disabled));
+  view.setState({ pending: false });
+  assert.ok(nav.children.every(item => !item.disabled));
+  view.setFrozen(true);
+  assert.ok(nav.children.every(item => item.disabled));
+  view.showConnection({ connected: false });
+  assert.equal(nav.hidden, true);
 });

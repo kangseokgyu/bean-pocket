@@ -1,0 +1,10 @@
+PASS chromium 320 {"top":0,"bottom":173.5,"position":"sticky","scrollY":600,"overflow":false,"labels":["원두","봉지","레시피","추출 기록"],"navBottom":160.5}
+PASS chromium 390 {"top":0,"bottom":146.5,"position":"sticky","scrollY":600,"overflow":false,"labels":["원두","봉지","레시피","추출 기록"],"navBottom":133.5}
+PASS chromium 768 {"top":0,"bottom":125,"position":"sticky","scrollY":600,"overflow":false,"labels":["원두","봉지","레시피","추출 기록"],"navBottom":112}
+PASS chromium 1024 {"top":0,"bottom":125,"position":"sticky","scrollY":600,"overflow":false,"labels":["원두","봉지","레시피","추출 기록"],"navBottom":112}
+PASS chromium 1440 {"top":0,"bottom":125,"position":"sticky","scrollY":600,"overflow":false,"labels":["원두","봉지","레시피","추출 기록"],"navBottom":112}
+PASS webkit 320 {"top":0,"bottom":173.5,"position":"sticky","scrollY":600,"overflow":false,"labels":["원두","봉지","레시피","추출 기록"],"navBottom":160.5}
+PASS webkit 390 {"top":0,"bottom":146.5,"position":"sticky","scrollY":600,"overflow":false,"labels":["원두","봉지","레시피","추출 기록"],"navBottom":133.5}
+PASS webkit 768 {"top":0,"bottom":125,"position":"sticky","scrollY":600,"overflow":false,"labels":["원두","봉지","레시피","추출 기록"],"navBottom":112}
+PASS webkit 1024 {"top":0,"bottom":125,"position":"sticky","scrollY":600,"overflow":false,"labels":["원두","봉지","레시피","추출 기록"],"navBottom":112}
+PASS webkit 1440 {"top":0,"bottom":125,"position":"sticky","scrollY":600,"overflow":false,"labels":["원두","봉지","레시피","추출 기록"],"navBottom":112}

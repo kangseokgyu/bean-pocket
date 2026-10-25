@@ -109,11 +109,16 @@ button { touch-action: manipulation; }
 }
 
 .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #f3efe6;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding-bottom: 16px;
+  padding: calc(env(safe-area-inset-top, 0px) + 8px) 0 12px;
   border-bottom: 1px solid #d8d1c3;
 }
 
@@ -286,13 +291,14 @@ button:focus-visible, .table-scroll:focus-visible {
 }
 
 .tabs {
+  flex: 0 0 100%;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
   margin-top: 0;
 }
 
-.tabs .button { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 48px; padding-inline: 8px; }
+.tabs .button { display: flex; gap: 6px; align-items: center; justify-content: center; min-width: 0; min-height: 48px; padding-inline: 8px; }
 .nav-icon { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
 .tabs [aria-current="page"] { border-color: #224b3c; background: #224b3c; color: #fff; }
 
@@ -395,7 +401,7 @@ footer {
   .panel, .data-panel, .unresolved-panel { padding: 13px; border-radius: 13px; }
   .form-fieldset { grid-template-columns: minmax(0, 1fr); gap: 13px; padding: 13px; }
   .tabs { gap: 4px; }
-  .tabs .button { min-height: 50px; padding-inline: 4px; font-size: 0.875rem; white-space: nowrap; }
+  .tabs .button { flex-direction: column; gap: 4px; min-height: 64px; padding-inline: 4px; font-size: 0.875rem; white-space: nowrap; }
   .form-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .form-actions .button { width: 100%; padding-inline: 8px; }
   .connection-panel .form-grid > .button { width: 100%; }

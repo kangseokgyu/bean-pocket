@@ -224,11 +224,16 @@ export function createAppView(document = globalThis.document) {
     const shape = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     shape.setAttribute('d', path);
     icon.append(shape);
-    item.append(icon);
+    item.append(icon, make(document, 'span', title, 'nav-label'));
     item.dataset.route = `/${key}`;
     nav.append(item);
   }
-  page.append(nav);
+  (document.querySelector('.site-header') ?? page).append(nav);
+
+  function applyViewState() {
+    applyState(page, currentState);
+    applyState(nav, currentState);
+  }
 
   const unresolved = make(document, 'section', undefined, 'unresolved-panel');
   unresolved.hidden = true;
@@ -276,14 +281,14 @@ export function createAppView(document = globalThis.document) {
         unresolved: !!value.unresolved,
       };
       renderStatus();
-      applyState(page, currentState);
+      applyViewState();
       if (currentState.pending) clearTimeout(statusHideTimer);
       else if (wasPending) scheduleStatusHide();
     },
     setFrozen(value) {
       currentState.frozen = !!value;
       page.dataset.frozen = value ? 'true' : 'false';
-      applyState(page, currentState);
+      applyViewState();
     },
     clearForm(kind) {
       drafts.delete(kind);
@@ -297,13 +302,13 @@ export function createAppView(document = globalThis.document) {
       if (kind === 'recipes') recipeFormOpen = false;
       if (kind === 'records') recordFormOpen = false;
       if (currentData) renderPane(content, currentData, document, route, drafts, beanFormOpen, recipeFormOpen, bagFormOpen, recordFormOpen);
-      applyState(page, currentState);
+      applyViewState();
     },
     renderData(nextData) {
       saveActiveDraft(content, drafts);
       currentData = nextData;
       renderPane(content, nextData, document, route, drafts, beanFormOpen, recipeFormOpen, bagFormOpen, recordFormOpen);
-      applyState(page, currentState);
+      applyViewState();
     },
     renderRoute(nextRoute) {
       route = nextRoute || '/beans';
@@ -312,7 +317,7 @@ export function createAppView(document = globalThis.document) {
       if (currentData) {
         saveActiveDraft(content, drafts);
         renderPane(content, currentData, document, route, drafts, beanFormOpen, recipeFormOpen, bagFormOpen, recordFormOpen);
-        applyState(page, currentState);
+        applyViewState();
       }
     },
     showBeanForm() {
@@ -352,7 +357,7 @@ export function createAppView(document = globalThis.document) {
       unresolved.dataset.count = String(items.length);
       unresolved.hidden = items.length === 0;
       for (const item of items) unresolved.append(buildResolutionForm(document, item));
-      applyState(page, currentState);
+      applyViewState();
     },
     bind(actions) {
       bindEvents({ page, connectionForm, originalConnectionCheck, repair, nav, content,
@@ -952,7 +957,7 @@ function buildResolutionForm(document, operation) {
   return card;
 }
 
-function bindEvents({ page, connectionForm, originalConnectionCheck, content, actions, document, view }) {
+function bindEvents({ page, nav, connectionForm, originalConnectionCheck, content, actions, document, view }) {
   connectionForm.addEventListener('input', () => actions.setDirty(true, 'connection'));
   connectionForm.addEventListener('submit', async event => {
     event.preventDefault();
@@ -968,7 +973,7 @@ function bindEvents({ page, connectionForm, originalConnectionCheck, content, ac
 
   globalThis.window?.addEventListener?.('hashchange', () => view.renderRoute(globalThis.window.location.hash.slice(1)));
 
-  page.addEventListener('click', async event => {
+  const handleClick = async event => {
     const target = event.target.closest('[data-action]');
     const action = target?.dataset.action;
     if (!action) return;
@@ -1072,7 +1077,9 @@ function bindEvents({ page, connectionForm, originalConnectionCheck, content, ac
       setSteps(form, source.steps);
       actions.setDirty(true, 'recipes');
     }
-  });
+  };
+  page.addEventListener('click', handleClick);
+  if (nav.parentElement !== page) nav.addEventListener('click', handleClick);
 
   content.addEventListener('input', event => {
     const form = event.target.form;

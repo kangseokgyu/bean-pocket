@@ -2,8 +2,8 @@
 > build:pages
 > node scripts/build-pages.mjs
 
-Pages 산출물 생성 완료 (bc96d82b45c3)
+Pages 산출물 생성 완료 (0763e102616a)
 
 command=npm run build:pages
 exit_code=0
-build_version=bc96d82b45c3
+build_version=0763e102616a

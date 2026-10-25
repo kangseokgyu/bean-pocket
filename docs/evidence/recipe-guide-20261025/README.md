@@ -14,10 +14,10 @@
 
 - `red-focused.tap` — 구현 전 domain/codec/schema/UI 회귀 테스트. 의도한 실패가 기록돼 있다.
 - `focused-diagnostic-failure.tap` — HTTP fixture가 새 `recipes.추출 가이드` 속성을 선언하지 않아 POST가 400이 된 원인 분석 기록. 연관 테스트가 단계 시작 promise를 기다리던 중 정리 경로에 도달하지 않아, 진단 프로세스만 SIGINT로 종료했다(exit 130). 서버 종료 hook의 대기가 원인은 아니었다. fixture에 현재 `rich_text` schema를 반영하고 promise 대기를 `try/finally` 안에서 보장했다.
-- `npm-test-green.tap` — 전체 `npm test`: 461 통과, 0 실패, 종료 코드 0.
+- `npm-test-green.tap` — 최신 `origin/main` 통합 후 전체 `npm test`: 462 통과, 0 실패, 종료 코드 0.
 - `build-pages.txt` — `npm run build:pages`와 생성 빌드 버전.
 - `check-pages.txt` — `npm run check:pages` 결과.
-- `browser-check.cjs`, `browser-check.log`, `browser-results.json`, `recipe-guide-320.png`, `recipe-guide-390.png`, `recipe-guide-1440.png`, `recipe-guide-form-*.png` — Chromium 320/390/1440px에서 표 아래·기록 위 표시, 페이지 가로 넘침 없음, 복사 보존, 여러 줄 입력과 접근 가능한 textarea 이름을 확인했다. 브라우저 오류도 없었다.
+- `browser-check.cjs`, `browser-check.log`, `browser-results.json`, `recipe-guide-320.png`, `recipe-guide-390.png`, `recipe-guide-1440.png`, `recipe-guide-form-*.png` — 최신 Pages 빌드로 Chromium 320/390/1440px에서 표 아래·기록 위 표시, 페이지 가로 넘침 없음, 복사 보존, 여러 줄 입력과 접근 가능한 textarea 이름을 확인했다. 브라우저 오류도 없었다.
 - `browser-diagnostic-failure.log` — 초기 검사에서 `HTMLElement.labels` 직접 참조가 불안정하게 비어 반환된 기록. nested label 및 Playwright 접근성 이름 검증으로 바꿔 최종 Chromium 검사를 통과했다.
 
-빌드 버전은 `bc96d82b45c3`이다. 브라우저 스크립트 실행 시 Playwright 모듈·Chromium 실행 파일 경로는 `RECIPE_GUIDE_PLAYWRIGHT_MODULE`, `RECIPE_GUIDE_CHROMIUM_EXECUTABLE` 환경 변수로 제공하며 경로 값은 로그에 남기지 않는다. 브라우저 fixture에는 합성 레시피만 사용한다. 원격 Notion 자격정보·개인 데이터는 브라우저 증거에 포함하지 않는다.
+최신 통합 빌드 버전은 `0763e102616a`이다. 브라우저 스크립트 실행 시 Playwright 모듈·Chromium 실행 파일 경로는 `RECIPE_GUIDE_PLAYWRIGHT_MODULE`, `RECIPE_GUIDE_CHROMIUM_EXECUTABLE` 환경 변수로 제공하며 경로 값은 로그에 남기지 않는다. 브라우저 fixture에는 합성 레시피만 사용한다. 원격 Notion 자격정보·개인 데이터는 브라우저 증거에 포함하지 않는다.

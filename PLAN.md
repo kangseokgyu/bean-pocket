@@ -352,4 +352,4 @@
 - **완료 기준:** 먼저 실패 테스트를 확인하고 관련 테스트, `npm test`, `npm run build:pages`, `npm run check:pages`를 실행한다. 브라우저에서 320/390/desktop 폭의 입력·복사·표 아래 위치를 확인하고 결과를 `docs/evidence/recipe-guide-20261025/`에 남긴다.
 - **원격 schema 근거:** 사용자가 테스트·운영 recipe 데이터 소스에 속성을 추가하고 기존 속성 보존을 검증했으며, 메인 에이전트가 세션 도구로 원격 변경 결과를 직접 확인했다. 공개 증거에는 개인 식별자·recipe 내용·자격정보를 기록하지 않는다. 세부 내용은 `docs/notion-database-setup.md`와 전용 evidence README를 따른다.
 - 이 추가 작업은 T00~T30의 완료 상태·소유권·미완료 판정을 소급 변경하지 않는다.
-- **추가 작업 결과:** 기능 구현과 전체 테스트(461/461), Pages 빌드·검사, Chromium 320/390/1440px 입력·복사·표시 순서 검증을 마쳤다. 결과 로그와 합성 fixture 스크린샷은 `docs/evidence/recipe-guide-20261025/`에 보관한다.
+- **추가 작업 결과:** 최신 `origin/main` 통합 후 전체 테스트(462/462), Pages 빌드·검사, Chromium 320/390/1440px 입력·복사·표시 순서 검증을 마쳤다. 결과 로그와 합성 fixture 스크린샷은 `docs/evidence/recipe-guide-20261025/`에 보관한다.

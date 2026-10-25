@@ -1,0 +1,32 @@
+[
+  {
+    "file": "index.html",
+    "status": 200,
+    "matchesLocalBuild": true,
+    "sha256": "3dd4a212c2cca75ae88f18ab87cb3e0d354c40ef64f4958d4e6ffd79a7796210"
+  },
+  {
+    "file": "styles.css",
+    "status": 200,
+    "matchesLocalBuild": true,
+    "sha256": "3ed1ce20a01c65536774bb6907c648f0c874cd2b912ca2b5b0d6576d0cd7f5b5"
+  },
+  {
+    "file": "app.mjs",
+    "status": 200,
+    "matchesLocalBuild": true,
+    "sha256": "58395ab633d65cce0adf93649b16d00786c2d6a78bcb0e1a07bdad625e9b417f"
+  },
+  {
+    "file": "sw.js",
+    "status": 200,
+    "matchesLocalBuild": true,
+    "sha256": "80f209ff42997a9380b60fa0de77b64cc21b2b736cf387a403e63d4b8324f762"
+  },
+  {
+    "file": "icons/bp-logo.png",
+    "status": 200,
+    "matchesLocalBuild": true,
+    "sha256": "c96f9250074f8f84d9585267bcc5d41fe663a1b90cffa4765e3acf184baadaf7"
+  }
+]

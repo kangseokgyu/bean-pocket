@@ -1,0 +1,41 @@
+✔ bean cards expose a labelled trash button and require confirmation before deleting (5.616417ms)
+✔ bean cards pair each metadata value with its own visible label (0.860042ms)
+✔ bean cards keep missing metadata explicit and render values as text (0.783625ms)
+✖ bean cards open their records through a full-card native link without a records button (1.362875ms)
+  AssertionError [ERR_ASSERTION]: the bean title is a keyboard-accessible native link
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/bean-card-records/AX-1day/test/pwa-ui.view.test.mjs:1619:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '=='
+  }
+
+✔ bean card deletion never opens records, including clicks on its icon (0.936666ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 4
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 90.582708
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:1612:1
+✖ bean cards open their records through a full-card native link without a records button (1.362875ms)
+  AssertionError [ERR_ASSERTION]: the bean title is a keyboard-accessible native link
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/bean-card-records/AX-1day/test/pwa-ui.view.test.mjs:1619:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '=='
+  }

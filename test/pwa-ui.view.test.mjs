@@ -1728,3 +1728,40 @@ test('startup retry and recovery remain reachable after dismissing and reopening
   assert.equal(dialog.querySelector('.repair-panel').hidden, false);
   assert.equal(dialog.querySelector('[data-action="confirm-connection"]').disabled, false);
 });
+
+test('bean cards open their records through a full-card native link without a records button', async () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.renderData(data());
+  view.bind({});
+  const card = document.root.querySelector('.bean-card');
+  const link = card.querySelector('a');
+  assert.ok(link, 'the bean title is a keyboard-accessible native link');
+  assert.equal(link.getAttribute('href'), `#/beans/${BEAN}`);
+  assert.equal(link.getAttribute('aria-label'), '원두 <안전> 추출 기록 보기');
+  assert.equal(card.querySelectorAll('button').length, 1, 'only the delete button remains');
+  assert.equal(card.querySelector('button').dataset.action, 'delete-bean');
+  assert.ok(card.textContent.includes('추출 기록 1개'));
+  const css = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
+  assert.match(css, /\.bean-card-link::after\s*\{[^}]*inset:\s*0/s);
+  for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: link });
+  assert.ok(document.root.textContent.includes('이 원두의 추출 기록'));
+  assert.ok(document.root.textContent.includes('꿀, 살구'));
+});
+
+test('bean card deletion never opens records, including clicks on its icon', async () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.renderData(data());
+  view.bind({});
+  const trash = document.root.querySelector('[data-action="delete-bean"]');
+  const original = globalThis.confirm;
+  try {
+    globalThis.confirm = () => false;
+    for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: trash.querySelector('svg') });
+    assert.ok(document.root.querySelector('.bean-card'));
+    assert.equal(document.root.querySelectorAll('h4').some(node => node.textContent === '이 원두의 추출 기록'), false);
+  } finally {
+    if (original === undefined) delete globalThis.confirm; else globalThis.confirm = original;
+  }
+});

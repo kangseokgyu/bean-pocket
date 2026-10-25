@@ -10,6 +10,15 @@
 - 연결은 `{ revision, token, dataSources: { beans, bags, recipes, steps, records } }`다. revision은 연결 저장마다 새로 만드는 UUID 세대이며 토큰만 교체해도 바뀐다. 각 데이터 소스 값도 UUID이며 토큰·설정은 주입받는다. 브라우저에서 환경변수·Node API를 사용하지 않는다. 실제 값은 소스·빌드·URL·로그·앱 캐시에 넣지 않는다.
 - `createSnapshot(bean, recipe)`는 version 2에 당시 원두 전체 정보와 레시피 조건·전체 단계 값·순서를 보존한다. version 1 기록은 기존 원두 관계·봉지 관계 등 확인 가능한 근거를 함께 사용해 읽으며, 원두를 확정할 근거가 없거나 근거가 충돌하면 기록과 평가를 보존하고 확인 필요로 표시한다. 과거 내용을 현재 관계로 덮어쓰지 않는다. 복사 초안은 원본·단계와 참조를 공유하지 않으며 원본 ID·단계 ID·기록·평가 집계를 상속하지 않는다.
 
+## 11. 2026-10-25 레시피 추출 가이드
+
+- `validateRecipe`는 선택 자유 텍스트 `extractionGuide`를 정규화한다. 공용 코덱의 Notion 속성명은 `추출 가이드`, 타입은 `rich_text`이며 서버·PWA가 같은 코덱을 사용한다. Notion rich_text 분할·복원은 기존 2,000자 조각 규칙을 따른다.
+- 레시피 등록·복사 폼은 textarea로 입력하고 복사할 때 가이드를 보존한다. 상세 화면에서는 물 붓기 단계 표 아래, 추출 기록 위에 표시한다. 기존 저장 레시피의 편집 기능은 제공하지 않는다.
+- 새 version 2 snapshot은 당시 `extractionGuide` 문자열을 포함한다. 이전 recipe 및 version 1/2 snapshot에 필드가 없어도 검증을 통과하며, 데이터 소스에서 속성이 빠진 구버전 페이지는 빈 문자열로 읽는다.
+- `verify()`는 `recipes.추출 가이드`가 없으면 구버전 호환 상태로 연결·조회를 허용한다. 그 상태에서 가이드가 빈 새 레시피는 해당 속성을 제외해 저장하고, 값이 있는 새 레시피·복사는 journal 및 Notion 쓰기 전에 `not-sent`로 거부한다. 속성이 존재하면 `rich_text` 타입이어야 한다.
+- 로컬 연결 설정의 저장 형식·버전은 바뀌지 않는다. 기존 설정은 다음 초기화·연결 검증에서 원격 schema 지원 여부를 확인하며 별도 개인 설정 마이그레이션이 필요하지 않다.
+- 실제 테스트·운영 데이터 소스 속성 변경 보고와 익명 증거는 [Notion 데이터베이스 구성](notion-database-setup.md) 및 [추출 가이드 증거](evidence/recipe-guide-20261025/README.md)를 참조한다. 기존 레시피 페이지 내용은 변경하지 않았다.
+
 ## 2. 속성 코덱의 단일 원본 — T12 소유
 
 `pwa/data/notion-properties.mjs`를 canonical 원본으로 정한다. T12 worker가 기존 `lib/notion.mjs`의 `schemas`, `encodeProperties(kind, data)`, `decodePage(kind, page)` 및 내부 rich_text 처리만 **동작 변경 없이 추출**한다. 서버는 `../pwa/data/notion-properties.mjs`를 import하고 기존 공개 encode/decode를 re-export한다. 브라우저 client는 같은 폴더의 `./notion-properties.mjs`를 import한다. 스키마·직렬화 코드의 수동 사본은 두지 않는다.

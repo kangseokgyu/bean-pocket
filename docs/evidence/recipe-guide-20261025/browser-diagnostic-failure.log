@@ -1,0 +1,18 @@
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ undefined
+- '추출 가이드 (선택)'
+
+    at main (<WORKTREE>/docs/evidence/recipe-guide-20261025/browser-check.cjs:120:14) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: undefined,
+  expected: '추출 가이드 (선택)',
+  operator: 'strictEqual'
+}
+
+command=node docs/evidence/recipe-guide-20261025/browser-check.cjs
+exit_code=1
+
+result=exit_code 1; the diagnostic assertion queried HTMLElement.labels directly, while the control uses an implicit nested label. Replaced it with nested-label and Playwright accessible-name assertions.

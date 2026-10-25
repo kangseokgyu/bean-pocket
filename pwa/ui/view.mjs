@@ -705,6 +705,11 @@ function recipeCard(document, recipe, data, detailed = false) {
   const stats = recipe.stats ?? { count: 0, average: null };
   article.append(make(document, 'p', stats.count ? `평가 ${stats.count}회 · 평균 ${Number(stats.average).toFixed(1)}점` : '평가 없음 · 0회'));
   article.append(makeStepTable(document, recipe.steps));
+  if (typeof recipe.extractionGuide === 'string' && recipe.extractionGuide.trim()) {
+    const guide = make(document, 'section', undefined, 'recipe-extraction-guide');
+    guide.append(make(document, 'h4', '추출 가이드'), make(document, 'p', recipe.extractionGuide));
+    article.append(guide);
+  }
 
   const records = data.records.filter(record => record.recipeId === recipe.id).sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
   article.append(make(document, 'h4', '추출 기록'));
@@ -732,6 +737,9 @@ function recipeCard(document, recipe, data, detailed = false) {
       article.append(make(document, 'p', `기록 당시 조건: ${snapshot.dripper || '드리퍼 미기록'} · ${snapshot.dose}g · ${snapshot.temperature}℃ · 물 ${snapshot.totalWater}g`));
       article.append(make(document, 'h5', '당시 단계'));
       article.append(makeStepTable(document, snapshot.steps));
+      if (typeof snapshot.extractionGuide === 'string' && snapshot.extractionGuide.trim()) {
+        article.append(make(document, 'p', `기록 당시 추출 가이드: ${snapshot.extractionGuide}`, 'record-extraction-guide'));
+      }
     }
   }
   if (detailed) {
@@ -790,6 +798,10 @@ function buildRecipeForm(document, data) {
     ['물 온도 (℃)', 'temperature', 'number', true, { step: 'any', min: 0, max: 100 }],
     ['총 물 양 (g)', 'totalWater', 'number', true, { step: 'any', min: 0 }],
   ]);
+  form.append(label(document, '추출 가이드 (선택)', 'extractionGuide', 'textarea', false, {
+    rows: 4,
+    placeholder: '예: 교반 없음, 목표 2분 30초 완성',
+  }));
   const steps = make(document, 'div', undefined, 'recipe-steps');
   steps.dataset.steps = '';
   form.append(steps);
@@ -1072,7 +1084,7 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
       if (!source) return;
       const form = navigateAndGetForm(view, content, '/recipes/new', 'recipes');
       if (!form) return;
-      for (const key of ['name', 'dripper', 'dose', 'grind', 'grinder', 'grinderSetting', 'microns', 'temperature', 'totalWater']) {
+      for (const key of ['name', 'dripper', 'dose', 'grind', 'grinder', 'grinderSetting', 'extractionGuide', 'microns', 'temperature', 'totalWater']) {
         if (form.elements[key]) form.elements[key].value = source[key] ?? '';
       }
       form.elements.name.value = `${source.name} 복사`;

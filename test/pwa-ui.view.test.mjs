@@ -119,6 +119,7 @@ const data = () => ({
   beans: [{ id: BEAN, name: '원두 <안전>', origin: '시다마 · 테스트 농장', roaster: '로스터리', variety: '74110', process: '워시드', tastingNotes: '복숭아' }],
   bags: [{ id: '22222222-2222-4222-8222-222222222222', name: '6월 봉지', beanId: BEAN, roastedOn: '2026-06-01' }],
   recipes: [{ id: RECIPE, name: 'V60', beanId: BEAN, dripper: 'V60', dose: 15, grind: '중간보다 가늘게', grinder: 'Comandante', grinderSetting: '24클릭', microns: 450, temperature: 93, totalWater: 250,
+    extractionGuide: '교반 없음\n목표 추출 완료 시간: 2분 30초',
     stats: { count: 0, average: null }, steps: [
       { id: '44444444-4444-4444-8444-444444444444', name: '뜸', seconds: 0, interval: 0, water: 50, cumulativeWater: 50 },
       { id: '55555555-5555-4555-8555-555555555555', name: '붓기', seconds: 70, interval: 40, water: 200, cumulativeWater: 250 },
@@ -840,6 +841,8 @@ test('recipe creation opens from plus, preserves drafts, and closes on cancel', 
   assert.equal(form.hidden, false);
   assert.equal(add.getAttribute('aria-expanded'), 'true');
   assert.equal(dirty.length, 0);
+  assert.equal(form.elements.extractionGuide.tagName, 'textarea');
+  form.elements.extractionGuide.value = '교반 없음 · 목표 2분 30초';
   form.elements.name.value = '보존할 레시피';
   form.querySelector('[name="stepName"]').value = '뜸 보존';
   view.renderData(data());
@@ -847,6 +850,7 @@ test('recipe creation opens from plus, preserves drafts, and closes on cancel', 
   view.renderRoute('/recipes');
   form = document.root.querySelector('form[data-form="recipes"]');
   assert.equal(form.hidden, false);
+  assert.equal(form.elements.extractionGuide.value, '교반 없음 · 목표 2분 30초');
   assert.equal(form.elements.name.value, '보존할 레시피');
   assert.equal(form.querySelector('[name="stepName"]').value, '뜸 보존');
   await click(form.querySelector('[data-action="cancel-form"]'));
@@ -865,6 +869,32 @@ test('recipe creation opens from plus, preserves drafts, and closes on cancel', 
   assert.equal(document.root.querySelector('.empty-state').textContent, '등록된 레시피가 없습니다.');
   view.renderRoute(`/recipes/${RECIPE}`);
   assert.equal(document.root.querySelector('[data-action="show-recipe-form"]'), null);
+});
+
+test('recipe detail places the guide below the pour table and copy preserves its text', async () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.bind({ setDirty() {} });
+  view.renderData(data());
+  view.renderRoute(`/recipes/${RECIPE}`);
+
+  const detail = document.root.querySelector('.recipe-card');
+  const guide = detail.querySelector('.recipe-extraction-guide');
+  assert.ok(guide);
+  assert.match(guide.textContent, /교반 없음/);
+  assert.match(guide.textContent, /목표 추출 완료 시간: 2분 30초/);
+  const tableIndex = detail.children.findIndex(child => child.className === 'table-scroll');
+  const guideIndex = detail.children.indexOf(guide);
+  const recordsIndex = detail.children.findIndex(child => child.tagName === 'h4' && child.textContent === '추출 기록');
+  assert.ok(tableIndex < guideIndex);
+  assert.ok(guideIndex < recordsIndex);
+
+  const click = async target => {
+    for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target });
+  };
+  await click(detail.querySelector('[data-action="copy-recipe"]'));
+  const copyForm = document.root.querySelector('form[data-form="recipes"]');
+  assert.equal(copyForm.elements.extractionGuide.value, data().recipes[0].extractionGuide);
 });
 
 test('record creation opens from plus, preserves drafts, and closes on cancel or save', async () => {

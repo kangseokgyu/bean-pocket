@@ -251,6 +251,19 @@ test('recipe saves parent then all stages in reverse order after full preflight'
   assert.deepEqual(env.rows.recipes[0].steps.map(step => step.order), [1, 2, 3]);
 });
 
+test('legacy recipe schema blocks a nonempty guide before journal creation for create and copy', async () => {
+  const env = harness({ rows: { ...blankRows(), recipes: [storedRecipe()] } });
+  env.client.recipeExtractionGuideSupported = false;
+  for (const action of [
+    () => env.commands.prepareRecipe(recipeInput(IDS.bean, { extractionGuide: '교반 없음' })),
+    () => env.commands.prepareCopy(IDS.recipe, { extractionGuide: '교반 없음' }),
+  ]) {
+    await assert.rejects(action(), error => error.code === 'recipe-guide-unsupported' && error.writeState === 'not-sent');
+  }
+  assert.equal(env.calls.length, 0);
+  assert.equal(env.journal().operations.length, 0);
+});
+
 test('any recipe payload over a Notion transport limit is rejected before the parent write', async () => {
   const env = harness({ rows: { ...blankRows(), beans: [bean()] } });
   const input = recipeInput(IDS.bean, { steps: [

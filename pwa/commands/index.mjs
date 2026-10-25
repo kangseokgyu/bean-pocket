@@ -204,6 +204,9 @@ export function createCommands({ client, repository, submissionState } = {}) {
   const isUnknown = error => uncertainWrites.has(error) || safeState(error) === 'unknown';
 
   async function prepare(kind, payload, metadata = {}) {
+    if (kind === 'recipes' && client.recipeExtractionGuideSupported === false && payload.extractionGuide) {
+      throw Object.freeze({ code: 'recipe-guide-unsupported', writeState: 'not-sent' });
+    }
     const draft = await createSubmissionDraft(kind, payload, {
       connectionRevision: client.connectionRevision,
       dataSources: client.dataSources,

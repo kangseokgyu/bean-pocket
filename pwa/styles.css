@@ -251,6 +251,7 @@ p { line-height: 1.6; }
 }
 
 .form-field textarea { min-height: 92px; resize: vertical; }
+.recipe-extraction-guide p, .record-extraction-guide { white-space: pre-wrap; }
 .form-field input:focus, .form-field select:focus, .form-field textarea:focus,
 button:focus-visible, .table-scroll:focus-visible {
   outline: 3px solid #8ab59a;

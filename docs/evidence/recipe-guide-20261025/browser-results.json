@@ -1,0 +1,65 @@
+{
+  "browser": "Chromium headless",
+  "viewports": [
+    {
+      "viewport": 320,
+      "documentWidth": 320,
+      "pageOverflow": false,
+      "guideOrder": true,
+      "guideBelowTable": true,
+      "guideAboveRecords": true,
+      "tableTop": 425,
+      "guideTop": 589,
+      "recordsTop": 692,
+      "guideWhiteSpace": "pre-wrap",
+      "form": {
+        "viewport": 320,
+        "documentWidth": 320,
+        "formWidth": 276,
+        "textareaWidth": 276
+      },
+      "interaction": "copy preserved source guide; multiline edit accepted",
+      "errors": []
+    },
+    {
+      "viewport": 390,
+      "documentWidth": 390,
+      "pageOverflow": false,
+      "guideOrder": true,
+      "guideBelowTable": true,
+      "guideAboveRecords": true,
+      "tableTop": 427,
+      "guideTop": 559,
+      "recordsTop": 662,
+      "guideWhiteSpace": "pre-wrap",
+      "form": {
+        "viewport": 390,
+        "documentWidth": 390,
+        "formWidth": 338,
+        "textareaWidth": 338
+      },
+      "interaction": "copy preserved source guide; multiline edit accepted",
+      "errors": []
+    },
+    {
+      "viewport": 1440,
+      "documentWidth": 1440,
+      "pageOverflow": false,
+      "guideOrder": true,
+      "guideBelowTable": true,
+      "guideAboveRecords": true,
+      "tableTop": 462,
+      "guideTop": 594,
+      "recordsTop": 697,
+      "guideWhiteSpace": "pre-wrap",
+      "form": {
+        "viewport": 1440,
+        "documentWidth": 1440,
+        "formWidth": 726,
+        "textareaWidth": 726
+      },
+      "interaction": "copy preserved source guide; multiline edit accepted",
+      "errors": []
+    }
+  ]
+}

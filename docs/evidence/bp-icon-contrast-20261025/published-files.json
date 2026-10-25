@@ -1,0 +1,19 @@
+[
+  {
+    "file": "index.html",
+    "status": 200,
+    "byteMatch": true,
+    "build": "31b5ed298ffa",
+    "favicon": true
+  },
+  {
+    "file": "icons/favicon-bp-ivory.png",
+    "status": 200,
+    "byteMatch": true
+  },
+  {
+    "file": "sw.js",
+    "status": 200,
+    "byteMatch": true
+  }
+]

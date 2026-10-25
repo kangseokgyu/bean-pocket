@@ -1,0 +1,9 @@
+✔ stop removes registration and installing-worker listeners and closes a pending update race (1.250625ms)
+ℹ tests 471
+ℹ suites 0
+ℹ pass 471
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11090.52825

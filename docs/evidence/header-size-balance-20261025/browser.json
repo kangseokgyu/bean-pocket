@@ -1,0 +1,338 @@
+[
+  {
+    "viewport": 320,
+    "loaded": true,
+    "alt": "Bean Pocket",
+    "width": 52,
+    "height": 32,
+    "overflow": false,
+    "menu": [
+      {
+        "text": "원두",
+        "fontSize": "14px",
+        "x": 66,
+        "right": 94.234375,
+        "height": 44
+      },
+      {
+        "text": "봉지",
+        "fontSize": "14px",
+        "x": 96.234375,
+        "right": 124.46875,
+        "height": 44
+      },
+      {
+        "text": "레시피",
+        "fontSize": "14px",
+        "x": 126.46875,
+        "right": 166.8125,
+        "height": 44
+      },
+      {
+        "text": "추출 기록",
+        "fontSize": "14px",
+        "x": 168.8125,
+        "right": 224.9375,
+        "height": 44
+      }
+    ],
+    "logoRight": 62,
+    "toolsX": 264,
+    "connectedPreview": true,
+    "errors": []
+  },
+  {
+    "viewport": 360,
+    "loaded": true,
+    "alt": "Bean Pocket",
+    "width": 52,
+    "height": 32,
+    "overflow": false,
+    "menu": [
+      {
+        "text": "원두",
+        "fontSize": "14px",
+        "x": 66,
+        "right": 94.234375,
+        "height": 44
+      },
+      {
+        "text": "봉지",
+        "fontSize": "14px",
+        "x": 96.234375,
+        "right": 124.46875,
+        "height": 44
+      },
+      {
+        "text": "레시피",
+        "fontSize": "14px",
+        "x": 126.46875,
+        "right": 166.8125,
+        "height": 44
+      },
+      {
+        "text": "추출 기록",
+        "fontSize": "14px",
+        "x": 168.8125,
+        "right": 224.9375,
+        "height": 44
+      }
+    ],
+    "logoRight": 62,
+    "toolsX": 304,
+    "connectedPreview": true,
+    "errors": []
+  },
+  {
+    "viewport": 390,
+    "loaded": true,
+    "alt": "Bean Pocket",
+    "width": 52,
+    "height": 32,
+    "overflow": false,
+    "menu": [
+      {
+        "text": "원두",
+        "fontSize": "14px",
+        "x": 68,
+        "right": 96.234375,
+        "height": 44
+      },
+      {
+        "text": "봉지",
+        "fontSize": "14px",
+        "x": 98.234375,
+        "right": 126.46875,
+        "height": 44
+      },
+      {
+        "text": "레시피",
+        "fontSize": "14px",
+        "x": 128.46875,
+        "right": 168.8125,
+        "height": 44
+      },
+      {
+        "text": "추출 기록",
+        "fontSize": "14px",
+        "x": 170.8125,
+        "right": 226.9375,
+        "height": 44
+      }
+    ],
+    "logoRight": 64,
+    "toolsX": 332,
+    "connectedPreview": true,
+    "errors": []
+  },
+  {
+    "viewport": 600,
+    "loaded": true,
+    "alt": "Bean Pocket",
+    "width": 52,
+    "height": 32,
+    "overflow": false,
+    "menu": [
+      {
+        "text": "원두",
+        "fontSize": "14px",
+        "x": 68,
+        "right": 96.234375,
+        "height": 44
+      },
+      {
+        "text": "봉지",
+        "fontSize": "14px",
+        "x": 98.234375,
+        "right": 126.46875,
+        "height": 44
+      },
+      {
+        "text": "레시피",
+        "fontSize": "14px",
+        "x": 128.46875,
+        "right": 168.8125,
+        "height": 44
+      },
+      {
+        "text": "추출 기록",
+        "fontSize": "14px",
+        "x": 170.8125,
+        "right": 226.9375,
+        "height": 44
+      }
+    ],
+    "logoRight": 64,
+    "toolsX": 542,
+    "connectedPreview": true,
+    "errors": []
+  },
+  {
+    "viewport": 601,
+    "loaded": true,
+    "alt": "Bean Pocket",
+    "width": 60,
+    "height": 36,
+    "overflow": false,
+    "menu": [
+      {
+        "text": "원두",
+        "fontSize": "15px",
+        "x": 88,
+        "right": 121.953125,
+        "height": 44
+      },
+      {
+        "text": "봉지",
+        "fontSize": "15px",
+        "x": 125.953125,
+        "right": 159.90625,
+        "height": 44
+      },
+      {
+        "text": "레시피",
+        "fontSize": "15px",
+        "x": 163.90625,
+        "right": 210.84375,
+        "height": 44
+      },
+      {
+        "text": "추출 기록",
+        "fontSize": "15px",
+        "x": 214.84375,
+        "right": 278.625,
+        "height": 44
+      }
+    ],
+    "logoRight": 76,
+    "toolsX": 539,
+    "connectedPreview": true,
+    "errors": []
+  },
+  {
+    "viewport": 768,
+    "loaded": true,
+    "alt": "Bean Pocket",
+    "width": 60,
+    "height": 36,
+    "overflow": false,
+    "menu": [
+      {
+        "text": "원두",
+        "fontSize": "15px",
+        "x": 88,
+        "right": 121.953125,
+        "height": 44
+      },
+      {
+        "text": "봉지",
+        "fontSize": "15px",
+        "x": 125.953125,
+        "right": 159.90625,
+        "height": 44
+      },
+      {
+        "text": "레시피",
+        "fontSize": "15px",
+        "x": 163.90625,
+        "right": 210.84375,
+        "height": 44
+      },
+      {
+        "text": "추출 기록",
+        "fontSize": "15px",
+        "x": 214.84375,
+        "right": 278.625,
+        "height": 44
+      }
+    ],
+    "logoRight": 76,
+    "toolsX": 706,
+    "connectedPreview": true,
+    "errors": []
+  },
+  {
+    "viewport": 1024,
+    "loaded": true,
+    "alt": "Bean Pocket",
+    "width": 60,
+    "height": 36,
+    "overflow": false,
+    "menu": [
+      {
+        "text": "원두",
+        "fontSize": "15px",
+        "x": 204,
+        "right": 237.953125,
+        "height": 44
+      },
+      {
+        "text": "봉지",
+        "fontSize": "15px",
+        "x": 241.953125,
+        "right": 275.90625,
+        "height": 44
+      },
+      {
+        "text": "레시피",
+        "fontSize": "15px",
+        "x": 279.90625,
+        "right": 326.84375,
+        "height": 44
+      },
+      {
+        "text": "추출 기록",
+        "fontSize": "15px",
+        "x": 330.84375,
+        "right": 394.625,
+        "height": 44
+      }
+    ],
+    "logoRight": 192,
+    "toolsX": 846,
+    "connectedPreview": true,
+    "errors": []
+  },
+  {
+    "viewport": 1440,
+    "loaded": true,
+    "alt": "Bean Pocket",
+    "width": 60,
+    "height": 36,
+    "overflow": false,
+    "menu": [
+      {
+        "text": "원두",
+        "fontSize": "15px",
+        "x": 412,
+        "right": 445.953125,
+        "height": 44
+      },
+      {
+        "text": "봉지",
+        "fontSize": "15px",
+        "x": 449.953125,
+        "right": 483.90625,
+        "height": 44
+      },
+      {
+        "text": "레시피",
+        "fontSize": "15px",
+        "x": 487.90625,
+        "right": 534.84375,
+        "height": 44
+      },
+      {
+        "text": "추출 기록",
+        "fontSize": "15px",
+        "x": 538.84375,
+        "right": 602.625,
+        "height": 44
+      }
+    ],
+    "logoRight": 400,
+    "toolsX": 1054,
+    "connectedPreview": true,
+    "errors": []
+  }
+]

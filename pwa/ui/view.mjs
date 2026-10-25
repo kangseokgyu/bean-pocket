@@ -176,6 +176,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   let connectionError = '';
   let connectionAvailable = false;
   let connectionTimer = null;
+  let connectionFocusPending = false;
   const connectionToggle = iconButton(document, '⚙', 'Notion 연결 설정', 'toggle-connection');
   connectionToggle.className = 'button icon-button connection-toggle';
   connectionToggle.setAttribute('aria-controls', connection.id);
@@ -240,6 +241,10 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     connection.dataset.saveState = connectionPhase;
     connection.setAttribute('aria-busy', String(busy));
     connectionToggle.disabled = !connectionAvailable || currentState.pending || currentState.frozen || busy || succeeded;
+    if (connectionFocusPending && !connectionToggle.disabled && !connection.open) {
+      connectionFocusPending = false;
+      connectionToggle.focus?.();
+    }
     connection.querySelectorAll('input,button,select,textarea').forEach(control => {
       const blockedForm = control.closest('form') === connectionForm && currentState.unresolved && control.dataset.action !== 'cancel-connection';
       control.disabled = currentState.pending || currentState.frozen || busy || succeeded || blockedForm;
@@ -478,8 +483,8 @@ export function createAppView(document = globalThis.document, { schedule = setTi
         originalConnectionCheck.querySelector('input').checked = false;
         connectionPhase = 'idle';
         showConnectionPanel(false);
+        connectionFocusPending = true;
         syncConnectionState();
-        connectionToggle.focus?.();
       }, 1000);
       return true;
     },

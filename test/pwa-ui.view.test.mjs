@@ -1660,6 +1660,36 @@ test('connection modal protects pending and success phases across product rerend
   assert.equal(dialog.open, false);
 });
 
+test('connection success closes at 1000ms and defers focus until settings is enabled', () => {
+  const document = new TestDocument();
+  const scheduled = [];
+  const view = createAppView(document, { schedule: (callback, delay) => { scheduled.push({ callback, delay }); return 1; } });
+  view.showConnection({ connected: false });
+  const toggle = document.root.querySelector('.connection-toggle');
+  let focusCalls = 0;
+  toggle.focus = () => {
+    focusCalls++;
+    if (!toggle.disabled) document.activeElement = toggle;
+  };
+  view.beginConnectionSave();
+  view.setState({ pending: true });
+  view.showConnection({ connected: true });
+  view.showConnectionSuccess();
+  assert.equal(scheduled[0].delay, 1000);
+  scheduled[0].callback();
+  assert.equal(document.root.querySelector('dialog.connection-panel').open, false);
+  assert.equal(toggle.disabled, true);
+  assert.notEqual(document.activeElement, toggle, 'native disabled buttons cannot receive focus');
+  view.setState({ pending: false, frozen: true });
+  assert.notEqual(document.activeElement, toggle, 'focus waits while another lock remains');
+  view.setFrozen(false);
+  assert.ok(document.activeElement === toggle, 'focus returns when the settings button becomes enabled');
+  const restoredCalls = focusCalls;
+  view.renderData(data());
+  view.setState({ pending: false });
+  assert.equal(focusCalls, restoredCalls, 'later renders must not steal focus again');
+});
+
 test('connection modal preserves failed inputs for retry and exposes safe errors inside the dialog', async () => {
   const original = globalThis.FormData;
   globalThis.FormData = class {

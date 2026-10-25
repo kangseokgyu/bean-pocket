@@ -716,7 +716,14 @@ function renderBeans(pane, data, document, formOpen) {
   for (const bean of data.beans) {
     const card = make(document, 'article', undefined, 'bean-card');
     const header = make(document, 'div', undefined, 'entity-card-header');
-    header.append(make(document, 'h3', bean.name), trashButton(document, 'beans', bean.id, bean.name));
+    const title = make(document, 'h3');
+    const link = make(document, 'a', bean.name, 'bean-card-link');
+    link.setAttribute('href', `#/beans/${bean.id}`);
+    link.setAttribute('aria-label', `${bean.name} 추출 기록 보기`);
+    link.dataset.action = 'navigate';
+    link.dataset.route = `/beans/${bean.id}`;
+    title.append(link);
+    header.append(title, trashButton(document, 'beans', bean.id, bean.name));
     card.append(header);
     const metadata = make(document, 'dl', undefined, 'bean-metadata');
     for (const [label, value] of [
@@ -731,9 +738,6 @@ function renderBeans(pane, data, document, formOpen) {
     card.append(metadata);
     const records = data.records.filter(record => record.beanId === bean.id);
     card.append(make(document, 'p', `추출 기록 ${records.length}개`));
-    const open = button(document, '이 원두의 추출 기록 보기', 'button', 'navigate');
-    open.dataset.route = `/beans/${bean.id}`;
-    card.append(open);
     pane.append(card);
   }
 }

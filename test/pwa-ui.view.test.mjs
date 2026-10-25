@@ -1568,3 +1568,42 @@ test('reduced motion overrides modal entrance, success check and saving spinner 
   assert.match(reduced, /\.entry-save-status \.entry-success-check.*animation: none/s);
   assert.match(reduced, /\.entry-save-status \.pull-refresh-spinner\s*\{ animation: none;/);
 });
+
+
+test('initial card load shows decorative skeletons until real data replaces them', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.setState({ pending: true });
+  view.showConnection({ connected: false, checkingInitialization: true });
+  view.showStatus({ type: 'startup-checking', message: '저장된 연결 확인 중' });
+  const skeleton = document.root.querySelector('.card-skeletons');
+  assert.ok(skeleton);
+  assert.equal(skeleton.hidden, false);
+  assert.equal(skeleton.getAttribute('aria-hidden'), 'true');
+  assert.equal(skeleton.querySelectorAll('.skeleton-card').length, 3);
+  assert.equal(skeleton.querySelectorAll('button,input,a').length, 0);
+  view.showConnection({ connected: true });
+  assert.equal(skeleton.hidden, false);
+  view.renderData(data());
+  assert.equal(skeleton.hidden, true);
+  assert.ok(document.root.querySelector('.bean-card'));
+  view.setState({ pending: false });
+  view.setState({ pending: true });
+  assert.equal(skeleton.hidden, true, 'refresh retains existing cards');
+  assert.ok(document.root.querySelector('.bean-card'));
+  view.setState({ pending: false });
+});
+
+for (const type of ['disconnected', 'startup-busy', 'connection-error', 'read-error']) {
+  test(`card skeleton clears after ${type}`, () => {
+    const document = new TestDocument();
+    const view = createAppView(document);
+    view.setState({ pending: true });
+    view.showStatus({ type: 'startup-checking', message: '연결 확인 중' });
+    const skeleton = document.root.querySelector('.card-skeletons');
+    assert.equal(skeleton?.hidden, false);
+    view.showStatus({ type, message: '확인해 주세요' });
+    view.setState({ pending: false });
+    assert.equal(skeleton.hidden, true);
+  });
+}

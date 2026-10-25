@@ -93,6 +93,8 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   let startupMessageText = '';
   function renderStatus() {
     const startupChecking = statusType === 'startup-checking';
+    skeletons.hidden = !currentState.pending || !!currentData ||
+      (!startupChecking && connection.dataset.connected !== 'true');
     const active = currentState.pending && !startupChecking;
     status.dataset.pending = String(active);
     statusMessage.textContent = statusMessageText || (active ? '불러오는 중…' : '');
@@ -240,6 +242,21 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   unresolved.append(make(document, 'h2', '확인 대기 중인 저장', 'unresolved-title'));
   page.append(unresolved);
 
+  const skeletons = make(document, 'div', undefined, 'card-skeletons');
+  skeletons.hidden = true;
+  skeletons.setAttribute('aria-hidden', 'true');
+  const skeletonHeader = make(document, 'div', undefined, 'list-header');
+  skeletonHeader.append(make(document, 'span', undefined, 'skeleton-line skeleton-heading'));
+  skeletons.append(skeletonHeader);
+  for (let index = 0; index < 3; index++) {
+    const card = make(document, 'div', undefined, 'skeleton-card');
+    for (const shape of ['title', 'metadata', 'metadata', 'action']) {
+      card.append(make(document, 'span', undefined, `skeleton-line skeleton-${shape}`));
+    }
+    skeletons.append(card);
+  }
+  page.append(skeletons);
+
   const content = make(document, 'section', undefined, 'data-panel');
   content.setAttribute('aria-label', '커피 기록');
   page.append(content);
@@ -358,6 +375,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       content.hidden = !connected;
       showConnectionPanel(!checkingInitialization && (!connected || !!value?.needsRecovery || retryInitialization));
       if (retryInitialization) connectionDetails.open = false;
+      renderStatus();
     },
     clearSecret() { connectionForm.elements.token.value = ''; },
     setState(value) {
@@ -402,6 +420,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     renderData(nextData) {
       saveActiveDraft(content, drafts);
       currentData = nextData;
+      skeletons.hidden = true;
       renderCurrentContent();
     },
     renderRoute(nextRoute) {

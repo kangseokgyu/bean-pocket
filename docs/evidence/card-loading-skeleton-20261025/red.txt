@@ -1,0 +1,282 @@
+✔ connection settings open only after no saved connection is found (2.530708ms)
+✔ startup checking shows one body overlay until retry is needed (1.65ms)
+✔ initialization spinner ends on saved (2.779ms)
+✔ initialization spinner ends on missing (0.718125ms)
+✔ initialization spinner ends on error (0.908625ms)
+✔ initialization spinner ends on recovery (1.116667ms)
+✔ initialization spinner ends on busy (0.629209ms)
+✔ initialization spinner ends on read-error (1.210166ms)
+✔ shared loading overlay stays outside transformed page through ready completion (0.614708ms)
+✔ saved connection leaves a header icon that toggles settings without losing input (0.510125ms)
+✔ successful status messages stay visible for three seconds then hide (0.899ms)
+✔ errors, recovery notices and pending work stay visible after replacing success (0.65275ms)
+✔ operation spinner stays in body overlay outside the touch-transformed page (1.222833ms)
+✔ operation spinner stays visible through success, ready and timeout, then clears on completion or failure (0.568833ms)
+✔ a new success gets a full display interval and empty messages hide immediately (0.164834ms)
+✔ draft values survive tab navigation and a fresh data render (4.35075ms)
+✔ bean, recipe, and record detail text is rendered as text and retains brew details (2.231875ms)
+✔ pour tables group cumulative values before interval and current water in three columns (2.5975ms)
+✔ malformed snapshot is never rendered as recipe detail and shows a damage warning (1.462709ms)
+✔ invalid stored date and rating remain visible with field-specific warnings (4.265958ms)
+✔ recipes have no bean selector and records require both bean and shared recipe with browse filters (4.269625ms)
+✔ resolution controls follow the native journal page-list contract (0.571875ms)
+✔ recipe step time permits a keyboard with colon while retaining minute-second validation (1.373417ms)
+✔ the bean origin label uses user-facing wording rather than the storage field name (0.48975ms)
+✔ the record date default follows the device calendar across the KST UTC boundary (1.5455ms)
+✔ checked connection-recovery checkbox reaches the current-connection verifier (0.799834ms)
+✔ startup lock contention hides connection entry and retries the saved connection read (0.373125ms)
+✔ successful connection replacement preserves the active product draft (2.525959ms)
+✔ successful connection replacement preserves hidden drafts and their dirty signal (2.982458ms)
+✔ recipe input minimums allow every positive sub-cent value accepted by the domain (2.466875ms)
+✔ recipe records distinguish selected bags, no selection, and unavailable bags (17.655375ms)
+✔ bean creation starts hidden, opens from the plus button, and closes on cancel (3.519416ms)
+✔ bag creation starts hidden, opens from the plus button, and closes on cancel (4.069ms)
+✔ recipe creation opens from plus, preserves drafts, and closes on cancel (10.849417ms)
+✔ recipe detail places the guide below the pour table and copy preserves its text (3.137875ms)
+✔ record creation opens from plus, preserves drafts, and closes on cancel or save (9.112458ms)
+✔ collection headers omit refresh and retain their add buttons (4.378542ms)
+✔ pulling from the top reloads the entire page once on release (1.401166ms)
+✔ pulling progressively reveals a twelve-spoke spinner and moves the page down (0.651833ms)
+✔ work starting while the released spinner paints cancels the scheduled reload (0.905708ms)
+✔ short pulls, retracted pulls and cancelled gestures do not reload (1.224625ms)
+✔ normal scrolling and horizontal or upward swipes do not trigger reload (1.936375ms)
+✔ multitouch never reloads and a later single finger gesture can refresh (0.467958ms)
+✔ downward pulls from controls and their child elements reload the whole page (4.124875ms)
+✔ control taps keep their normal action and short drags suppress accidental taps (0.717417ms)
+✔ horizontal gestures and scrollable controls away from their top keep native scrolling (1.809583ms)
+✔ saving and update freeze prevent a reload even when they begin during a pull (1.778583ms)
+✔ refresh requires a 240px downward pull and checks the release position (2.610791ms)
+✔ navigation uses text-only menus with accessible names (0.161541ms)
+✔ bean cards expose a labelled trash button and require confirmation before deleting (1.430083ms)
+✔ bag, recipe, and record cards expose named trash controls and confirm each item before submission (5.396125ms)
+✔ bean cards pair each metadata value with its own visible label (0.472125ms)
+✔ bean cards keep missing metadata explicit and render values as text (0.456917ms)
+✔ header navigation changes routes and remains locked while work is pending (2.774958ms)
+✔ bean entry opens and closes as a native modal without saving on cancel (1.514042ms)
+✔ all four entry forms open as native dialogs and cancel without submitting (8.840167ms)
+✔ pending entry saves lock controls and Escape; success stays visible until the 1000ms close (2.538375ms)
+✔ a failed modal save preserves its fields and enables a retry (12.416041ms)
+✔ success delay locks every entry field and recipe step after refresh finishes (11.336834ms)
+✔ success delay ignores late input events and closes without a dirty draft (1.385ms)
+✔ reduced motion overrides modal entrance, success check and saving spinner animations (0.268667ms)
+✖ initial card load shows decorative skeletons until real data replaces them (6.652708ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(skeleton)
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/card-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1580:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '=='
+  }
+
+✖ card skeleton clears after disconnected (0.385542ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - false
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/card-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1604:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+✖ card skeleton clears after startup-busy (0.181625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - false
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/card-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1604:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+✖ card skeleton clears after connection-error (0.18425ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - false
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/card-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1604:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+✖ card skeleton clears after read-error (0.167959ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - false
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/card-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1604:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+ℹ tests 66
+ℹ suites 0
+ℹ pass 61
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3230.486042
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:1573:1
+✖ initial card load shows decorative skeletons until real data replaces them (6.652708ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(skeleton)
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/card-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1580:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '=='
+  }
+
+test at test/pwa-ui.view.test.mjs:1598:3
+✖ card skeleton clears after disconnected (0.385542ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - false
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/card-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1604:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:1598:3
+✖ card skeleton clears after startup-busy (0.181625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - false
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/card-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1604:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:1598:3
+✖ card skeleton clears after connection-error (0.18425ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - false
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/card-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1604:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:1598:3
+✖ card skeleton clears after read-error (0.167959ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - false
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/card-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1604:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: false,
+    operator: 'strictEqual'
+  }

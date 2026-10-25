@@ -159,7 +159,7 @@ test('connection settings open only after no saved connection is found', () => {
   assert.equal(document.root.querySelector('.connection-details').hidden, true);
   view.showConnection({ connected: false });
   assert.equal(panel.hidden, false);
-  assert.equal(document.root.querySelector('.connection-details').open, true);
+  assert.equal(panel.open, true);
 });
 
 test('startup checking shows one body overlay until retry is needed', () => {
@@ -287,7 +287,7 @@ test('shared loading overlay stays outside transformed page through ready comple
   assert.equal(status.textContent, '');
 });
 
-test('saved connection leaves a header icon that toggles settings without losing input', async () => {
+test('saved connection opens settings modally and closing discards unsaved secrets', async () => {
   const document = new TestDocument();
   const tools = document.createElement('div');
   const querySelector = document.querySelector.bind(document);
@@ -310,7 +310,7 @@ test('saved connection leaves a header icon that toggles settings without losing
   assert.equal(panel.hidden, true);
   for (const listener of icon.listeners.get('click')) await listener();
   assert.equal(panel.hidden, false);
-  assert.equal(token.value, 'unsaved-test-token');
+  assert.equal(token.value, '');
   view.showConnection({ connected: true });
   assert.equal(panel.hidden, true, 'successful save collapses settings again');
   view.showConnection({ connected: false, needsRecovery: true });
@@ -381,6 +381,20 @@ test('status messages share one bottom safe-area toast above native modal dialog
   assert.equal(document.root.querySelectorAll('.app-status').length, 1);
   view.showStatus({ type: 'connection-error', message: '연결 오류' });
   assert.equal(document.root.querySelectorAll('.app-status').length, 1, 'repeated status reuses the same toast');
+  view.renderRoute('/bags');
+  assert.equal(document.root.querySelectorAll('.app-status').length, 1, 'route replacement must retain a persistent toast');
+  assert.equal(status.parentElement, document.root.firstElementChild, 'a removed entry dialog returns the toast to the app layer');
+  assert.equal(status.textContent, '연결 오류');
+
+  view.showConnection({ connected: false });
+  const connectionDialog = document.root.querySelector('dialog.connection-panel');
+  view.showStatus({ type: 'checking', message: '연결 확인 및 저장 중…' });
+  assert.equal(status.parentElement, connectionDialog, 'connection-settings modal also hosts the shared toast');
+  assert.equal(connectionDialog.querySelector('[data-connection-status]'), null, 'connection feedback has no duplicate inline row');
+  view.showStatus({ type: 'connection-error', message: '연결 오류' });
+  assert.equal(status.parentElement, connectionDialog);
+  assert.equal(status.getAttribute('role'), 'alert');
+  assert.equal(status.getAttribute('aria-live'), 'assertive');
   assert.match(toastRule[1], /position:\s*fixed/);
   assert.match(toastRule[1], /safe-area-inset-bottom/);
   assert.match(toastRule[1], /safe-area-inset-left/);
@@ -1686,3 +1700,204 @@ for (const type of ['disconnected', 'startup-busy', 'connection-error', 'read-er
     assert.equal(skeleton.hidden, true);
   });
 }
+
+test('connection modal opens from settings and Escape clears secrets, draft and restores focus', async () => {
+  const document = new TestDocument();
+  const dirty = [];
+  const view = createAppView(document);
+  view.bind({ setDirty: (...args) => dirty.push(args) });
+  view.showConnection({ connected: true });
+  const toggle = document.root.querySelector('.connection-toggle');
+  for (const listener of toggle.listeners.get('click')) listener();
+  const dialog = document.root.querySelector('dialog.connection-panel');
+  assert.ok(dialog, 'settings must be a native modal');
+  assert.equal(dialog.open, true);
+  assert.equal(dialog.getAttribute('aria-modal'), 'true');
+  const form = dialog.querySelector('form[data-form="connection"]');
+  assert.equal(document.activeElement, form.elements.token);
+  form.elements.token.value = 'test-only-discard';
+  form.elements.beans.value = 'discard-source';
+  for (const listener of dialog.listeners.get('cancel')) listener({ preventDefault() {} });
+  assert.equal(dialog.open, false);
+  assert.equal(form.elements.token.value, '');
+  assert.equal(form.elements.beans.value, '');
+  assert.deepEqual(dirty.at(-1), [false, 'connection']);
+  assert.equal(document.activeElement, toggle);
+  for (const listener of toggle.listeners.get('click')) listener();
+  assert.equal(form.elements.token.value, '');
+});
+
+test('connection modal protects pending and success phases across product rerenders', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const document = new TestDocument();
+  const scheduled = [];
+  const view = createAppView(document, { schedule: (callback, delay) => { scheduled.push({ callback, delay }); return 1; } });
+  view.bind({ setDirty() {} });
+  view.showConnection({ connected: false });
+  const dialog = document.root.querySelector('dialog.connection-panel');
+  assert.ok(dialog);
+  assert.equal(view.beginConnectionSave(), true);
+  view.setState({ pending: true });
+  assert.equal(view.beginConnectionSave(), false, 'duplicate connection submissions are ignored');
+  assert.equal(view.cancelConnection(), false);
+  for (const listener of dialog.listeners.get('cancel')) listener({ preventDefault() {} });
+  assert.equal(dialog.open, true);
+  view.showConnection({ connected: true });
+  assert.equal(dialog.open, true, 'installing the verified connection does not close feedback');
+  view.showConnectionSuccess();
+  view.showStatus({ type: 'connected', message: '연결을 확인하고 저장했습니다.' });
+  view.renderData(data());
+  view.setState({ pending: false });
+  for (const control of dialog.querySelectorAll('input,button,select,textarea')) assert.equal(control.disabled, true);
+  const status = document.root.querySelector('.app-status');
+  assert.equal(dialog.querySelector('[data-connection-status]'), null, 'connection save feedback uses the shared toast');
+  assert.equal(status.parentElement, dialog);
+  assert.match(status.textContent, /저장/);
+  assert.equal(scheduled[0].delay, 1000);
+  scheduled[0].callback();
+  assert.equal(dialog.open, false);
+  assert.equal(status.parentElement, document.root.firstElementChild, 'success toast remains visible after the modal closes');
+  assert.equal(status.hidden, false);
+  t.mock.timers.tick(3000);
+  assert.equal(status.hidden, true, 'the shared success toast keeps its existing auto-hide policy');
+});
+
+test('connection success closes at 1000ms and defers focus until settings is enabled', () => {
+  const document = new TestDocument();
+  const scheduled = [];
+  const view = createAppView(document, { schedule: (callback, delay) => { scheduled.push({ callback, delay }); return 1; } });
+  view.showConnection({ connected: false });
+  const toggle = document.root.querySelector('.connection-toggle');
+  let focusCalls = 0;
+  toggle.focus = () => {
+    focusCalls++;
+    if (!toggle.disabled) document.activeElement = toggle;
+  };
+  view.beginConnectionSave();
+  view.setState({ pending: true });
+  view.showConnection({ connected: true });
+  view.showConnectionSuccess();
+  assert.equal(scheduled[0].delay, 1000);
+  scheduled[0].callback();
+  assert.equal(document.root.querySelector('dialog.connection-panel').open, false);
+  assert.equal(toggle.disabled, true);
+  assert.notEqual(document.activeElement, toggle, 'native disabled buttons cannot receive focus');
+  view.setState({ pending: false, frozen: true });
+  assert.notEqual(document.activeElement, toggle, 'focus waits while another lock remains');
+  view.setFrozen(false);
+  assert.ok(document.activeElement === toggle, 'focus returns when the settings button becomes enabled');
+  const restoredCalls = focusCalls;
+  view.renderData(data());
+  view.setState({ pending: false });
+  assert.equal(focusCalls, restoredCalls, 'later renders must not steal focus again');
+});
+
+test('connection modal preserves failed inputs for retry and exposes safe errors inside the dialog', async () => {
+  const original = globalThis.FormData;
+  globalThis.FormData = class {
+    constructor(form) { this.form = form; }
+    get(name) { return this.form.elements[name].value; }
+  };
+  try {
+    const document = new TestDocument();
+    const scheduled = [];
+    const view = createAppView(document, { schedule: callback => { scheduled.push(callback); return 1; } });
+    let calls = 0;
+    view.bind({ setDirty() {}, connect: async () => {
+      calls++;
+      view.setState({ pending: true });
+      if (calls === 1) {
+        view.showStatus({ type: 'connection-error', message: '연결을 확인하지 못했습니다.' });
+        view.showConnection({ connected: true });
+        view.setState({ pending: false });
+        throw new Error('private response must not be rendered');
+      }
+      view.showConnection({ connected: true });
+      view.clearSecret();
+      view.showConnectionSuccess();
+      view.setState({ pending: false });
+      return true;
+    } });
+    view.showConnection({ connected: false });
+    const dialog = document.root.querySelector('dialog.connection-panel');
+    assert.ok(dialog);
+    const form = dialog.querySelector('form[data-form="connection"]');
+    form.elements.token.value = 'test-only-retry';
+    form.elements.beans.value = 'test-source';
+    const submit = () => Promise.all(form.listeners.get('submit').map(listener => listener({ currentTarget: form, preventDefault() {} })));
+    await submit();
+    assert.equal(dialog.open, true);
+    assert.equal(form.elements.token.value, 'test-only-retry');
+    assert.equal(form.elements.beans.value, 'test-source');
+    const status = document.root.querySelector('.app-status');
+    assert.equal(status.parentElement, dialog);
+    assert.match(status.textContent, /연결을 확인하지 못/);
+    assert.equal(status.getAttribute('role'), 'alert');
+    assert.equal(dialog.querySelector('[data-connection-status]'), null, 'errors are reported only in the shared toast');
+    assert.equal(dialog.textContent.includes('private response'), false);
+    assert.equal(form.elements.token.disabled, false);
+    await submit();
+    assert.equal(calls, 2);
+    assert.equal(form.elements.token.value, '');
+    assert.equal(dialog.dataset.saveState, 'success');
+    scheduled[0]();
+  } finally { globalThis.FormData = original; }
+});
+
+test('startup retry and recovery remain reachable after dismissing and reopening connection settings', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.bind({ initialize() {} });
+  view.showConnection({ connected: false, retryInitialization: true });
+  const dialog = document.root.querySelector('dialog.connection-panel');
+  const toggle = document.root.querySelector('.connection-toggle');
+  assert.equal(dialog.open, true);
+  assert.equal(dialog.querySelector('.connection-details').hidden, true);
+  assert.equal(dialog.querySelector('.startup-retry-panel').hidden, false);
+  for (const listener of dialog.listeners.get('cancel')) listener({ preventDefault() {} });
+  assert.equal(dialog.open, false);
+  assert.equal(toggle.disabled, false, 'the safe retry panel must remain reopenable');
+  for (const listener of toggle.listeners.get('click')) listener();
+  assert.equal(dialog.open, true);
+  assert.equal(dialog.querySelector('.connection-details').hidden, true);
+  view.showConnection({ connected: false, needsRecovery: true });
+  assert.equal(dialog.querySelector('.repair-panel').hidden, false);
+  assert.equal(dialog.querySelector('[data-action="confirm-connection"]').disabled, false);
+});
+
+test('bean cards open their records through a full-card native link without a records button', async () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.renderData(data());
+  view.bind({});
+  const card = document.root.querySelector('.bean-card');
+  const link = card.querySelector('a');
+  assert.ok(link, 'the bean title is a keyboard-accessible native link');
+  assert.equal(link.getAttribute('href'), `#/beans/${BEAN}`);
+  assert.equal(link.getAttribute('aria-label'), '원두 <안전> 추출 기록 보기');
+  assert.equal(card.querySelectorAll('button').length, 1, 'only the delete button remains');
+  assert.equal(card.querySelector('button').dataset.action, 'delete-bean');
+  assert.ok(card.textContent.includes('추출 기록 1개'));
+  const css = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
+  assert.match(css, /\.bean-card-link::after\s*\{[^}]*inset:\s*0/s);
+  for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: link });
+  assert.ok(document.root.textContent.includes('이 원두의 추출 기록'));
+  assert.ok(document.root.textContent.includes('꿀, 살구'));
+});
+
+test('bean card deletion never opens records, including clicks on its icon', async () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.renderData(data());
+  view.bind({});
+  const trash = document.root.querySelector('[data-action="delete-bean"]');
+  const original = globalThis.confirm;
+  try {
+    globalThis.confirm = () => false;
+    for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: trash.querySelector('svg') });
+    assert.ok(document.root.querySelector('.bean-card'));
+    assert.equal(document.root.querySelectorAll('h4').some(node => node.textContent === '이 원두의 추출 기록'), false);
+  } finally {
+    if (original === undefined) delete globalThis.confirm; else globalThis.confirm = original;
+  }
+});

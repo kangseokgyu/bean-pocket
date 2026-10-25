@@ -1,0 +1,16 @@
+{
+  "build": "51fe88622b62",
+  "browser": "CUA in-app browser",
+  "mockOnly": true,
+  "at1100ms": {
+    "open": false,
+    "disabled": true,
+    "focused": false
+  },
+  "at1800msAfterRead": {
+    "open": false,
+    "disabled": false,
+    "focused": true
+  },
+  "consoleErrorsAndWarnings": []
+}

@@ -1,0 +1,100 @@
+TAP version 13
+# Subtest: connection verifies under the write lock before durable commit and never exposes the token
+not ok 1 - connection verifies under the write lock before durable commit and never exposes the token
+  ---
+  duration_ms: 1.633
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/add-entry-modals/AX-1day/test/pwa-connection.test.mjs:26:1'
+  failureType: 'testCodeFailure'
+  error: 'feedback follows the durable commit'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/add-entry-modals/AX-1day/test/pwa-connection.test.mjs:32:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: connection modal opens from settings and Escape clears secrets, draft and restores focus
+not ok 2 - connection modal opens from settings and Escape clears secrets, draft and restores focus
+  ---
+  duration_ms: 3.5955
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/add-entry-modals/AX-1day/test/pwa-ui.view.test.mjs:1611:1'
+  failureType: 'testCodeFailure'
+  error: 'settings must be a native modal'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: ~
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/add-entry-modals/AX-1day/test/pwa-ui.view.test.mjs:1620:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: connection modal protects pending and success phases across product rerenders
+not ok 3 - connection modal protects pending and success phases across product rerenders
+  ---
+  duration_ms: 6.706167
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/add-entry-modals/AX-1day/test/pwa-ui.view.test.mjs:1637:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+
+      assert.ok(dialog)
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: ~
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/add-entry-modals/AX-1day/test/pwa-ui.view.test.mjs:1644:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: connection modal preserves failed inputs for retry and exposes safe errors inside the dialog
+not ok 4 - connection modal preserves failed inputs for retry and exposes safe errors inside the dialog
+  ---
+  duration_ms: 18.395959
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/add-entry-modals/AX-1day/test/pwa-ui.view.test.mjs:1663:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+
+      assert.ok(dialog)
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: ~
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/add-entry-modals/AX-1day/test/pwa-ui.view.test.mjs:1691:12)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 0
+# fail 4
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 95.1405

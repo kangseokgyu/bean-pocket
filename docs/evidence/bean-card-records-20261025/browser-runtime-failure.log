@@ -1,0 +1,13 @@
+browserType.launch: Executable doesn't exist at /Users/kangseokgyu/Library/Caches/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-mac-arm64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     npx playwright install                                 ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+    at main (/Users/kangseokgyu/.codex/worktrees/bean-card-records/AX-1day/docs/evidence/bean-card-records-20261025/browser-check.cjs:68:30) {
+  log: [],
+  name: 'Error'
+}

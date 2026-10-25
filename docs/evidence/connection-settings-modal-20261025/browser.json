@@ -1,0 +1,73 @@
+{
+  "tool": "CUA in-app browser",
+  "target": "built Pages dist with real view/controller and mocked connection/storage adapters",
+  "buildVersion": "4785d497559e",
+  "viewport": [
+    390,
+    844
+  ],
+  "layout": {
+    "initialModalOpen": true,
+    "footerVisible": true,
+    "horizontalOverflow": false
+  },
+  "pending": {
+    "busy": true,
+    "enabledControls": 0,
+    "modalOpen": true
+  },
+  "failure": {
+    "modalOpen": true,
+    "tokenRetained": true,
+    "sourcesRetained": true,
+    "retryEnabled": true,
+    "safeErrorPresent": true
+  },
+  "successAfterRefresh": {
+    "checkVisible": true,
+    "enabledControls": 0,
+    "modalOpen": true,
+    "tokenCleared": true
+  },
+  "successClosed": {
+    "closed": true,
+    "focusRestored": true,
+    "productLoaded": true
+  },
+  "escapeCancel": {
+    "closed": true,
+    "tokenCleared": true,
+    "focusRestored": true
+  },
+  "reopened": {
+    "open": true,
+    "tokenEmpty": true,
+    "focusedToken": true
+  },
+  "consoleErrorsOrWarnings": [],
+  "limitations": [
+    "no live token or Notion writes",
+    "no public Pages verification"
+  ],
+  "initialBuildVersion": "bfe9655c150d",
+  "integratedMain": "e4a3b25",
+  "finalRecheck": {
+    "failure": {
+      "open": true,
+      "retryEnabled": true,
+      "tokenRetained": true
+    },
+    "success": {
+      "open": true,
+      "enabledControls": 0,
+      "tokenCleared": true,
+      "checkVisible": true,
+      "footerVisible": true
+    },
+    "closed": true,
+    "focusRestored": true,
+    "beanCardLinkPresent": true,
+    "horizontalOverflow": false,
+    "consoleErrorsOrWarnings": []
+  }
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "width": 320,
+    "skeletons": 3,
+    "noOverflow": true,
+    "reducedMotion": true,
+    "cleared": true,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "skeletons": 3,
+    "noOverflow": true,
+    "reducedMotion": true,
+    "cleared": true,
+    "errors": []
+  },
+  {
+    "width": 768,
+    "skeletons": 3,
+    "noOverflow": true,
+    "reducedMotion": true,
+    "cleared": true,
+    "errors": []
+  },
+  {
+    "width": 1024,
+    "skeletons": 3,
+    "noOverflow": true,
+    "reducedMotion": true,
+    "cleared": true,
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "skeletons": 3,
+    "noOverflow": true,
+    "reducedMotion": true,
+    "cleared": true,
+    "errors": []
+  }
+]

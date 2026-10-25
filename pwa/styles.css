@@ -122,13 +122,12 @@ button { touch-action: manipulation; }
   border-bottom: 1px solid #d8d1c3;
 }
 
-.eyebrow {
-  color: #587464;
+.brand-logo {
+  display: block;
   flex: 0 0 auto;
-  white-space: nowrap;
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: 0.025em;
+  width: 72px;
+  height: 44px;
+  object-fit: contain;
 }
 
 .build-version {
@@ -424,7 +423,7 @@ footer {
   .panel, .data-panel, .unresolved-panel { padding: 13px; border-radius: 13px; }
   .form-fieldset { grid-template-columns: minmax(0, 1fr); gap: 13px; padding: 13px; }
   .site-header { gap: 4px; }
-  .eyebrow { font-size: 0.875rem; letter-spacing: 0.01em; }
+  .brand-logo { width: 60px; height: 36px; }
   .button.connection-toggle { min-width: 28px; padding-inline: 2px; font-size: 1rem; }
   .tabs { gap: 2px; }
   .tabs .button { padding: 3px 2px; font-size: 0.6875rem; }

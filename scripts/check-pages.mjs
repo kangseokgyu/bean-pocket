@@ -17,6 +17,7 @@ const allowedFiles = new Set([
   'data/notion-properties.mjs',
   'data/read-repository.mjs',
   'domain.mjs',
+  'icons/bp-logo.png',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'index.html',
@@ -47,6 +48,7 @@ const requiredCacheFiles = [
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
+  './icons/bp-logo.png',
 ];
 
 async function collectFiles(directory, allowIncomplete, includeProbes) {

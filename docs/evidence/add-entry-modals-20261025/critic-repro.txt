@@ -1,0 +1,10 @@
+✔ critic: confirmed modal must lock edits throughout success delay (7.122416ms)
+✔ critic: input during success delay leaves a dirty flag after automatic close (5.352ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 114.287916

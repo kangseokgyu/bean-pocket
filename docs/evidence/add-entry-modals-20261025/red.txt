@@ -1,0 +1,117 @@
+✖ success delay locks every entry field and recipe step after refresh finishes (7.282291ms)
+  AssertionError [ERR_ASSERTION]: beans success delay must lock name
+
+  false !== true
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/add-entry-modals/AX-1day/test/pwa-ui.view.test.mjs:1500:14)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual'
+  }
+
+✖ success delay ignores late input events and closes without a dirty draft (4.405209ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/add-entry-modals/AX-1day/test/pwa-ui.view.test.mjs:1524:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+✖ reduced motion overrides modal entrance, success check and saving spinner animations (0.517125ms)
+  AssertionError [ERR_ASSERTION]: reduced motion must win the cascade for .entry-dialog[open] { animation: entry-dialog-in
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/add-entry-modals/AX-1day/test/pwa-ui.view.test.mjs:1535:13)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }
+
+ℹ tests 3
+ℹ suites 0
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 113.021916
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:1483:1
+✖ success delay locks every entry field and recipe step after refresh finishes (7.282291ms)
+  AssertionError [ERR_ASSERTION]: beans success delay must lock name
+
+  false !== true
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/add-entry-modals/AX-1day/test/pwa-ui.view.test.mjs:1500:14)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:1511:1
+✖ success delay ignores late input events and closes without a dirty draft (4.405209ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/add-entry-modals/AX-1day/test/pwa-ui.view.test.mjs:1524:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:1528:1
+✖ reduced motion overrides modal entrance, success check and saving spinner animations (0.517125ms)
+  AssertionError [ERR_ASSERTION]: reduced motion must win the cascade for .entry-dialog[open] { animation: entry-dialog-in
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/add-entry-modals/AX-1day/test/pwa-ui.view.test.mjs:1535:13)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }

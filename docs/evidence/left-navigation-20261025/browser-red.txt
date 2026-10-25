@@ -1,0 +1,11 @@
+AssertionError [ERR_ASSERTION]: menu text stays closely spaced
+    at /private/tmp/left-nav-browser.cjs:22:38
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at process.processImmediate (node:internal/timers:453:9)
+    at process.callbackTrampoline (node:internal/async_hooks:130:17) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '=='
+}

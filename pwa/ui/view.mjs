@@ -207,24 +207,13 @@ export function createAppView(document = globalThis.document) {
 
   const nav = make(document, 'nav', undefined, 'tabs');
   nav.setAttribute('aria-label', '커피 기록 메뉴');
-  for (const [key, title, path] of [
-    ['beans', '원두', 'M18.5 4.5c3.5 3.5 1.5 9-2 12.5S7.5 22.5 4 19 2.5 10 6 6.5 15 1 18.5 4.5ZM17 5c-7 1-3 13-12 14'],
-    ['bags', '봉지', 'M6 3h12l-1 4 3 14H4L7 7 6 3ZM7 7h10M9 12h6v5H9z'],
-    ['recipes', '레시피', 'M6 3h9l4 4v14H6V3ZM14 3v5h5M9 12h7M9 16h7'],
-    ['records', '추출 기록', 'M4 8h13v7a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8ZM17 9h2a3 3 0 0 1 0 6h-2M7 3v2M11 2v3M15 3v2'],
+  for (const [key, title] of [
+    ['beans', '원두'], ['bags', '봉지'], ['recipes', '레시피'], ['records', '추출 기록'],
   ]) {
     const item = button(document, '', 'button', 'navigate');
     item.setAttribute('aria-label', title);
     item.title = title;
-    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    icon.setAttribute('viewBox', '0 0 24 24');
-    icon.setAttribute('class', 'nav-icon');
-    icon.setAttribute('aria-hidden', 'true');
-    icon.setAttribute('focusable', 'false');
-    const shape = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    shape.setAttribute('d', path);
-    icon.append(shape);
-    item.append(icon, make(document, 'span', title, 'nav-label'));
+    item.append(make(document, 'span', title, 'nav-label'));
     item.dataset.route = `/${key}`;
     nav.append(item);
   }

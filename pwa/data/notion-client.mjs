@@ -93,6 +93,7 @@ export class NotionClient {
   #connectionRevision;
   #fetch;
   #timeoutMs;
+  #recipeExtractionGuideSupported = null;
   #recordBeanRelationSupported = null;
 
   constructor(token, options = {}) {
@@ -116,6 +117,7 @@ export class NotionClient {
 
   get dataSources() { return this.#dataSources; }
   get connectionRevision() { return this.#connectionRevision; }
+  get recipeExtractionGuideSupported() { return this.#recipeExtractionGuideSupported; }
   get recordBeanRelationSupported() { return this.#recordBeanRelationSupported; }
 
   #source(kind) {
@@ -194,6 +196,7 @@ export class NotionClient {
   async verify() {
     for (const kind of KINDS) {
       const sourceId = this.#dataSources[kind];
+      let recipeExtractionGuideSupported = false;
       let recordBeanRelationSupported = false;
       await this.#request('/data_sources/' + sourceId, {
         validate: data => {
@@ -202,6 +205,7 @@ export class NotionClient {
             const property = data.properties[name];
             if (property === undefined && optionalProperties[kind]?.includes(field)) return true;
             if (!record(property) || property.type !== type) return false;
+            if (kind === 'recipes' && field === 'extractionGuide') recipeExtractionGuideSupported = true;
             if (kind === 'records' && field === 'beanId') recordBeanRelationSupported = true;
             if (type !== 'relation') return true;
             return record(property.relation) &&
@@ -209,6 +213,7 @@ export class NotionClient {
           });
         },
       });
+      if (kind === 'recipes') this.#recipeExtractionGuideSupported = recipeExtractionGuideSupported;
       if (kind === 'records') this.#recordBeanRelationSupported = recordBeanRelationSupported;
     }
     return true;
@@ -249,10 +254,17 @@ export class NotionClient {
     if (kind === 'records' && this.#recordBeanRelationSupported !== true) {
       throw failure('schema-unsupported', 'not-sent');
     }
+    if (kind === 'recipes' && this.#recipeExtractionGuideSupported === false &&
+        String(domainData?.extractionGuide ?? '').trim()) {
+      throw failure('recipe-guide-unsupported', 'not-sent');
+    }
     let payload;
     try {
       payload = createPayload(kind, domainData, this.#dataSources);
     } catch { throw failure('invalid-input', 'not-sent'); }
+    if (kind === 'recipes' && this.#recipeExtractionGuideSupported === false) {
+      delete payload.properties['추출 가이드'];
+    }
     return this.#request('/pages', {
       method: 'POST', writing: true,
       body: { parent: { type: 'data_source_id', data_source_id: sourceId }, properties: payload.properties },

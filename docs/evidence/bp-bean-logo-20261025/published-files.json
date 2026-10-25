@@ -1,0 +1,27 @@
+[
+  {
+    "file": "index.html",
+    "status": 200,
+    "byteMatch": true,
+    "sha256": "d2ffe07b058f4ab055bd0545a5f808eb4daf4405377e0ec179683aa9d9431494",
+    "build": "706b9e7c229a"
+  },
+  {
+    "file": "icons/bp-logo.png",
+    "status": 200,
+    "byteMatch": true,
+    "sha256": "c96f9250074f8f84d9585267bcc5d41fe663a1b90cffa4765e3acf184baadaf7"
+  },
+  {
+    "file": "styles.css",
+    "status": 200,
+    "byteMatch": true,
+    "sha256": "ed7b100dc075d75dbb0c7948906827cc80eb80b15c40ef4d4c281e714cb14560"
+  },
+  {
+    "file": "sw.js",
+    "status": 200,
+    "byteMatch": true,
+    "sha256": "3b2ddcfd8fb39d08da003c6c5a0e48a35d4f2d767b2de1ad0dae1f1cfc6a82a0"
+  }
+]

@@ -1,0 +1,94 @@
+✔ 누적 시간·간격·물 양을 계산한다 (3.662292ms)
+✔ 필수값과 실제 날짜, 수량, 온도, 시간순서, 총량 검증 (6.357167ms)
+✔ 레시피는 원두와 독립적이고 별점 기록에는 명시적 원두가 필요하다 (0.383125ms)
+✔ 복사와 당시 조건 스냅샷은 독립적이다 (1.014583ms)
+✔ 평균은 중복 평가를 포함하고 빈 평균은 null (0.1955ms)
+✔ 숫자처럼 변환되는 배열과 객체는 수량·별점으로 허용하지 않는다 (0.175625ms)
+✔ 임의의 호스트에서 조회와 같은 출처의 연결 요청을 허용한다 (45.324875ms)
+✖ 공개 HTTP 흐름: 연결→원두→봉지→레시피→같은 날 평가→재조회 (35.503ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  400 !== 201
+
+      at TestContext.<anonymous> (file://<WORKTREE>/test/http.test.mjs:119:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 400,
+    expected: 201,
+    operator: 'strictEqual'
+  }
+
+✔ 다른 Origin과 Host·Origin 불일치 및 잘못된 Content-Type 거부 (8.365167ms)
+✖ 명시적 기록 원두·봉지 일치·날짜·별점 검증 및 독립 레시피 생성 (36.882083ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  400 !== 201
+
+      at TestContext.<anonymous> (file://<WORKTREE>/test/http.test.mjs:200:39)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 400,
+    expected: 201,
+    operator: 'strictEqual'
+  }
+
+✖ records.bean 관계가 없는 개인 스키마에서는 legacy 조회를 허용하고 신규 기록 쓰기를 보호한다 (9.515459ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  false !== true
+
+      at TestContext.<anonymous> (file://<WORKTREE>/test/http.test.mjs:221:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual'
+  }
+
+✔ 연결 검증 실패 시 기존 연결 유지·토큰 미노출·진짜 빈 DB는 빈 목록 (6.475291ms)
+✔ 동시 중복 POST는 한 번 저장하고 다른 내용의 같은 키는 충돌 (8.285375ms)
+✖ HTTP 단계 저장 실패는 성공으로 응답하지 않고 노출된 부분 저장을 취소 (7.300375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  400 !== 502
+
+      at TestContext.<anonymous> (file://<WORKTREE>/test/http.test.mjs:264:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 400,
+    expected: 502,
+    operator: 'strictEqual'
+  }
+
+✖ 회귀 1: 중간 단계 삭제는 새 요청 키, 같은 전체 payload는 같은 키로 저장 (6.153ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  400 !== 201
+
+      at TestContext.<anonymous> (file://<WORKTREE>/test/http.test.mjs:286:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 400,
+    expected: 201,
+    operator: 'strictEqual'
+  }
+
+✔ 회귀 2: 429와 저장 전 조회 실패는 같은 키로 복구되며 불확실 쓰기는 중복 금지 (8.564791ms)
+
+command=node --test test/domain.test.mjs test/pwa-extraction-guide.test.mjs test/pwa-notion-client.test.mjs test/pwa-commands.test.mjs test/http.test.mjs test/pwa-ui.view.test.mjs test/pwa-flow.test.mjs
+exit_code=130 (diagnostic process interrupted after confirming an HTTP test wait)

@@ -27,8 +27,14 @@ function fakeNotion({ recordBeanRelation = true } = {}) {
       if (path.startsWith('/v1/data_sources/')) {
         const id = path.split('/')[3];
         if (!Object.values(DATA_SOURCES).includes(id)) return Response.json({}, { status: 404 });
-        if (options.method === 'GET') return Response.json({ id, properties: id === DATA_SOURCES.records && recordBeanRelation
-          ? { '원두': { type: 'relation', relation: { data_source_id: DATA_SOURCES.beans } } } : {} });
+        if (options.method === 'GET') {
+          const properties = {};
+          if (id === DATA_SOURCES.recipes) properties['추출 가이드'] = { type: 'rich_text' };
+          if (id === DATA_SOURCES.records && recordBeanRelation) {
+            properties['원두'] = { type: 'relation', relation: { data_source_id: DATA_SOURCES.beans } };
+          }
+          return Response.json({ id, properties });
+        }
         return Response.json({ results: rows.filter(row => row.parent.data_source_id === id && !row.archived), has_more: false });
       }
       if (path === '/v1/pages') {
@@ -74,6 +80,7 @@ async function setup(t) {
 function recipeInput() {
   return {
     name: 'V60', dripper: 'V60', dose: 15, totalWater: 250, temperature: 93,
+    extractionGuide: '교반 없음\n목표 추출 완료 시간: 2분 30초',
     steps: [
       { name: '뜸', time: '0:00', water: 50 },
       { name: '1차', time: '0:30', water: 100 },
@@ -120,6 +127,7 @@ test('공개 HTTP 흐름: 연결→원두→봉지→레시피→같은 날 평�
   assert.equal(duplicate.body.id, first.body.id);
   assert.equal(fake.rows.filter(row => row.parent.data_source_id === DATA_SOURCES.recipes).length, 1);
   const recipe = first.body;
+  assert.equal(recipe.extractionGuide, input.extractionGuide);
   for (const rating of [4, 4, 5]) {
     const result = await request('/api/records', {
       beanId: bean.id, recipeId: recipe.id, bagId: bag.id, date: '2026-10-15', rating,
@@ -129,6 +137,7 @@ test('공개 HTTP 흐름: 연결→원두→봉지→레시피→같은 날 평�
     assert.equal(result.body.snapshot.version, 2);
     assert.equal(result.body.snapshot.bean.name, '에티오피아');
     assert.equal(result.body.snapshot.recipe.temperature, 93);
+    assert.equal(result.body.snapshot.recipe.extractionGuide, input.extractionGuide);
     assert.deepEqual(result.body.snapshot.recipe.steps.map(step => step.water), [50, 100, 100]);
   }
   const before = (await request('/api/data')).body;
@@ -339,10 +348,17 @@ test('회귀 3: 생성 중인 레시피는 조회·평가에서 제외하고 완
     await stepReleased;
   };
   const savingRecipe = request('/api/recipes', recipeInput(bean.id));
-  await stepStarted;
   let during;
   let blockedRecord;
   try {
+    const started = await Promise.race([
+      stepStarted.then(() => true),
+      savingRecipe.then(result => {
+        assert.equal(result.status, 201, 'recipe request must reach its ordered step writes');
+        return false;
+      }),
+    ]);
+    assert.equal(started, true);
     const recipeId = fake.rows.find(row => row.parent.data_source_id === DATA_SOURCES.recipes).id;
     during = await request('/api/data');
     blockedRecord = await request('/api/records', { recipeId, date: '2026-10-15', rating: 4 });

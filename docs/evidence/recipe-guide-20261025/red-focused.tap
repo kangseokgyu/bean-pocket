@@ -1,0 +1,394 @@
+✔ 누적 시간·간격·물 양을 계산한다 (1.715417ms)
+✔ 필수값과 실제 날짜, 수량, 온도, 시간순서, 총량 검증 (5.625625ms)
+✔ 레시피는 원두와 독립적이고 별점 기록에는 명시적 원두가 필요하다 (0.492083ms)
+✔ 복사와 당시 조건 스냅샷은 독립적이다 (1.15875ms)
+✔ 평균은 중복 평가를 포함하고 빈 평균은 null (0.166459ms)
+✔ 숫자처럼 변환되는 배열과 객체는 수량·별점으로 허용하지 않는다 (0.13625ms)
+✖ 레시피 입력은 선택 추출 가이드를 정규화하고 복사와 새 snapshot에 보존한다 (1.468792ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + undefined
+  - '교반 없음\n목표 추출 완료 시간: 2분 30초'
+
+      at TestContext.<anonymous> (file://<WORKTREE>/test/pwa-extraction-guide.test.mjs:90:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: '교반 없음\n목표 추출 완료 시간: 2분 30초',
+    operator: 'strictEqual'
+  }
+
+✔ 추출 가이드가 없는 과거 recipe와 version 1/2 snapshot은 계속 유효하다 (0.395958ms)
+✖ 추출 가이드는 Notion rich_text로 왕복하고 과거 레시피 행은 빈 값으로 읽힌다 (0.682417ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+  + undefined
+  - [
+  -   '추출 가이드',
+  -   'rich_text'
+  - ]
+
+      at TestContext.<anonymous> (file://<WORKTREE>/test/pwa-extraction-guide.test.mjs:115:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: [ '추출 가이드', 'rich_text' ],
+    operator: 'deepStrictEqual'
+  }
+
+✖ PWA schema 검증은 추출 가이드 속성이 없는 구버전 DB를 허용하고 타입 오류는 거부한다 (27.533875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + undefined
+  - false
+
+      at TestContext.<anonymous> (file://<WORKTREE>/test/pwa-extraction-guide.test.mjs:129:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+✖ PWA는 지원 schema에 rich_text 가이드를 저장하고 구버전에는 값 손실 없이 fail-closed 한다 (3.507125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+  + undefined
+  - {
+  -   rich_text: [
+  -     {
+  -       text: {
+  -         content: '교반 없음\n목표 추출 완료 시간: 2분 30초'
+  -       },
+  -       type: 'text'
+  -     }
+  -   ]
+  - }
+
+      at TestContext.<anonymous> (file://<WORKTREE>/test/pwa-extraction-guide.test.mjs:140:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { rich_text: [ [Object] ] },
+    operator: 'deepStrictEqual'
+  }
+
+✖ 서버 schema 검증도 구버전 속성을 허용하고 잘못된 guide 타입을 거부한다 (0.78475ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + undefined
+  - false
+
+      at TestContext.<anonymous> (file://<WORKTREE>/test/pwa-extraction-guide.test.mjs:168:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+✖ 서버는 구버전 schema에서 빈 guide를 생략하고 비어 있지 않은 guide 쓰기를 거부한다 (0.267541ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file://<WORKTREE>/test/pwa-extraction-guide.test.mjs:187:3)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects'
+  }
+
+✖ release modules: connection → beans/bags/recipe → copy → repeated records → fresh data (85.582292ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + undefined
+  - '교반 없음\n목표 추출 완료 시간: 2분 30초'
+
+      at TestContext.<anonymous> (file://<WORKTREE>/test/pwa-flow.test.mjs:48:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: '교반 없음\n목표 추출 완료 시간: 2분 30초',
+    operator: 'strictEqual'
+  }
+
+✔ release modules: partial recipe is hidden and rejected writes cancel only known new pages (30.174542ms)
+✔ release modules: lost response persists unknown and blocks a new intent after restart (22.456292ms)
+✔ connection settings open only after no saved connection is found (3.05875ms)
+✔ startup checking shows one body overlay until retry is needed (2.56925ms)
+✔ initialization spinner ends on saved (2.846ms)
+✔ initialization spinner ends on missing (1.950583ms)
+✔ initialization spinner ends on error (2.096209ms)
+✔ initialization spinner ends on recovery (1.695667ms)
+✔ initialization spinner ends on busy (1.347916ms)
+✔ initialization spinner ends on read-error (0.767917ms)
+✔ shared loading overlay stays outside transformed page through ready completion (1.097084ms)
+✔ saved connection leaves a header icon that toggles settings without losing input (0.58975ms)
+✔ successful status messages stay visible for three seconds then hide (0.898208ms)
+✔ errors, recovery notices and pending work stay visible after replacing success (0.358292ms)
+✔ operation spinner stays in body overlay outside the touch-transformed page (1.966792ms)
+✔ operation spinner stays visible through success, ready and timeout, then clears on completion or failure (0.797042ms)
+✔ a new success gets a full display interval and empty messages hide immediately (0.229833ms)
+✔ draft values survive tab navigation and a fresh data render (4.599875ms)
+✔ bean, recipe, and record detail text is rendered as text and retains brew details (2.330041ms)
+✔ pour tables group cumulative values before interval and current water in three columns (1.67225ms)
+✔ malformed snapshot is never rendered as recipe detail and shows a damage warning (1.236125ms)
+✔ invalid stored date and rating remain visible with field-specific warnings (1.896209ms)
+✔ recipes have no bean selector and records require both bean and shared recipe with browse filters (4.738792ms)
+✔ resolution controls follow the native journal page-list contract (0.577541ms)
+✔ recipe step time permits a keyboard with colon while retaining minute-second validation (1.25075ms)
+✔ the bean origin label uses user-facing wording rather than the storage field name (0.406ms)
+✔ the record date default follows the device calendar across the KST UTC boundary (1.6045ms)
+✔ checked connection-recovery checkbox reaches the current-connection verifier (0.949417ms)
+✔ startup lock contention hides connection entry and retries the saved connection read (0.442042ms)
+✔ successful connection replacement preserves the active product draft (2.257125ms)
+✔ successful connection replacement preserves hidden drafts and their dirty signal (2.481458ms)
+✔ recipe input minimums allow every positive sub-cent value accepted by the domain (1.653459ms)
+✔ recipe records distinguish selected bags, no selection, and unavailable bags (10.187125ms)
+✔ bean creation starts hidden, opens from the plus button, and closes on cancel (2.315792ms)
+✔ bag creation starts hidden, opens from the plus button, and closes on cancel (3.624875ms)
+✖ recipe creation opens from plus, preserves drafts, and closes on cancel (1.692709ms)
+  TypeError [Error]: Cannot read properties of undefined (reading 'tagName')
+      at TestContext.<anonymous> (file://<WORKTREE>/test/pwa-ui.view.test.mjs:844:46)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7)
+
+✖ recipe detail places the guide below the pour table and copy preserves its text (6.4945ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+    assert.ok(guide)
+
+      at TestContext.<anonymous> (file://<WORKTREE>/test/pwa-ui.view.test.mjs:883:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '=='
+  }
+
+✔ record creation opens from plus, preserves drafts, and closes on cancel or save (8.103292ms)
+✔ collection headers omit refresh and retain their add buttons (4.464375ms)
+✔ pulling from the top reloads the entire page once on release (1.166959ms)
+✔ pulling progressively reveals a twelve-spoke spinner and moves the page down (0.589625ms)
+✔ work starting while the released spinner paints cancels the scheduled reload (1.007041ms)
+✔ short pulls, retracted pulls and cancelled gestures do not reload (1.49075ms)
+✔ normal scrolling and horizontal or upward swipes do not trigger reload (1.562084ms)
+✔ multitouch never reloads and a later single finger gesture can refresh (0.404375ms)
+✔ downward pulls from controls and their child elements reload the whole page (3.365209ms)
+✔ control taps keep their normal action and short drags suppress accidental taps (0.540417ms)
+✔ horizontal gestures and scrollable controls away from their top keep native scrolling (1.939625ms)
+✔ saving and update freeze prevent a reload even when they begin during a pull (1.05275ms)
+✔ refresh requires a 240px downward pull and checks the release position (2.565625ms)
+✔ navigation uses four distinct decorative icons with accessible menu names (0.26825ms)
+✔ bean cards expose a labelled trash button and require confirmation before deleting (1.9575ms)
+✔ bag, recipe, and record cards expose named trash controls and confirm each item before submission (7.258416ms)
+✔ bean cards pair each metadata value with its own visible label (0.368833ms)
+✔ bean cards keep missing metadata explicit and render values as text (0.306166ms)
+✔ header navigation changes routes and remains locked while work is pending (1.17275ms)
+ℹ tests 70
+ℹ suites 0
+ℹ pass 61
+ℹ fail 9
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3183.661083
+
+✖ failing tests:
+
+test at test/pwa-extraction-guide.test.mjs:87:1
+✖ 레시피 입력은 선택 추출 가이드를 정규화하고 복사와 새 snapshot에 보존한다 (1.468792ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + undefined
+  - '교반 없음\n목표 추출 완료 시간: 2분 30초'
+
+      at TestContext.<anonymous> (file://<WORKTREE>/test/pwa-extraction-guide.test.mjs:90:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: '교반 없음\n목표 추출 완료 시간: 2분 30초',
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-extraction-guide.test.mjs:114:1
+✖ 추출 가이드는 Notion rich_text로 왕복하고 과거 레시피 행은 빈 값으로 읽힌다 (0.682417ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+  + undefined
+  - [
+  -   '추출 가이드',
+  -   'rich_text'
+  - ]
+
+      at TestContext.<anonymous> (file://<WORKTREE>/test/pwa-extraction-guide.test.mjs:115:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: [ '추출 가이드', 'rich_text' ],
+    operator: 'deepStrictEqual'
+  }
+
+test at test/pwa-extraction-guide.test.mjs:126:1
+✖ PWA schema 검증은 추출 가이드 속성이 없는 구버전 DB를 허용하고 타입 오류는 거부한다 (27.533875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + undefined
+  - false
+
+      at TestContext.<anonymous> (file://<WORKTREE>/test/pwa-extraction-guide.test.mjs:129:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-extraction-guide.test.mjs:135:1
+✖ PWA는 지원 schema에 rich_text 가이드를 저장하고 구버전에는 값 손실 없이 fail-closed 한다 (3.507125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+  + undefined
+  - {
+  -   rich_text: [
+  -     {
+  -       text: {
+  -         content: '교반 없음\n목표 추출 완료 시간: 2분 30초'
+  -       },
+  -       type: 'text'
+  -     }
+  -   ]
+  - }
+
+      at TestContext.<anonymous> (file://<WORKTREE>/test/pwa-extraction-guide.test.mjs:140:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { rich_text: [ [Object] ] },
+    operator: 'deepStrictEqual'
+  }
+
+test at test/pwa-extraction-guide.test.mjs:157:1
+✖ 서버 schema 검증도 구버전 속성을 허용하고 잘못된 guide 타입을 거부한다 (0.78475ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + undefined
+  - false
+
+      at TestContext.<anonymous> (file://<WORKTREE>/test/pwa-extraction-guide.test.mjs:168:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-extraction-guide.test.mjs:174:1
+✖ 서버는 구버전 schema에서 빈 guide를 생략하고 비어 있지 않은 guide 쓰기를 거부한다 (0.267541ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file://<WORKTREE>/test/pwa-extraction-guide.test.mjs:187:3)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects'
+  }
+
+test at test/pwa-flow.test.mjs:42:1
+✖ release modules: connection → beans/bags/recipe → copy → repeated records → fresh data (85.582292ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + undefined
+  - '교반 없음\n목표 추출 완료 시간: 2분 30초'
+
+      at TestContext.<anonymous> (file://<WORKTREE>/test/pwa-flow.test.mjs:48:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: '교반 없음\n목표 추출 완료 시간: 2분 30초',
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:819:1
+✖ recipe creation opens from plus, preserves drafts, and closes on cancel (1.692709ms)
+  TypeError [Error]: Cannot read properties of undefined (reading 'tagName')
+      at TestContext.<anonymous> (file://<WORKTREE>/test/pwa-ui.view.test.mjs:844:46)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7)
+
+test at test/pwa-ui.view.test.mjs:874:1
+✖ recipe detail places the guide below the pour table and copy preserves its text (6.4945ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+    assert.ok(guide)
+
+      at TestContext.<anonymous> (file://<WORKTREE>/test/pwa-ui.view.test.mjs:883:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '=='
+  }
+command=node --test test/domain.test.mjs test/pwa-extraction-guide.test.mjs test/pwa-ui.view.test.mjs test/pwa-flow.test.mjs
+exit_code=1

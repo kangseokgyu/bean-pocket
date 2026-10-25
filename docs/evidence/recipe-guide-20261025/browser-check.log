@@ -1,0 +1,4 @@
+PASS: 3 viewports (320/390/1440px); detail order, multiline text, copy/input, responsive form, no overflow or browser errors
+
+command=node docs/evidence/recipe-guide-20261025/browser-check.cjs
+exit_code=0

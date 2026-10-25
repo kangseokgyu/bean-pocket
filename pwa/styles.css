@@ -111,19 +111,18 @@ button { touch-action: manipulation; }
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 12px;
   padding: calc(env(safe-area-inset-top, 0px) + 8px) 0 12px;
   border-bottom: 1px solid #d8d1c3;
 }
 
-.eyebrow {
-  color: #587464;
+.brand-logo {
+  display: block;
   flex: 0 0 auto;
-  white-space: nowrap;
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: 0.025em;
+  width: 60px;
+  height: 36px;
+  object-fit: contain;
 }
 
 .build-version {
@@ -135,7 +134,7 @@ button { touch-action: manipulation; }
 
 footer .build-version { margin-top: 8px; letter-spacing: normal; font-weight: 400; }
 
-.header-tools { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
+.header-tools { margin-left: auto; flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
 #connection-tools { display: flex; }
 .button.connection-toggle {
   min-width: 44px;
@@ -293,6 +292,7 @@ body:has(.entry-dialog[open]) { overflow: hidden; }
 }
 
 .form-field textarea { min-height: 92px; resize: vertical; }
+.recipe-extraction-guide p, .record-extraction-guide { white-space: pre-wrap; }
 .form-field input:focus, .form-field select:focus, .form-field textarea:focus,
 button:focus-visible, .table-scroll:focus-visible {
   outline: 3px solid #8ab59a;
@@ -337,11 +337,9 @@ button:focus-visible, .table-scroll:focus-visible {
 }
 
 .tabs {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  flex: 0 0 auto;
+  display: flex;
+  gap: 4px;
   margin-top: 0;
 }
 
@@ -351,12 +349,12 @@ button:focus-visible, .table-scroll:focus-visible {
   justify-content: center;
   min-width: 0;
   min-height: 44px;
-  padding: 6px;
+  padding: 6px 4px;
   border: 0;
   border-radius: 0;
   background: transparent;
   color: #587464;
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -468,10 +466,10 @@ footer {
   .panel, .data-panel, .unresolved-panel { padding: 13px; border-radius: 13px; }
   .form-fieldset { grid-template-columns: minmax(0, 1fr); gap: 13px; padding: 13px; }
   .site-header { gap: 4px; }
-  .eyebrow { font-size: 0.875rem; letter-spacing: 0.01em; }
+  .brand-logo { width: 52px; height: 32px; }
   .button.connection-toggle { min-width: 28px; padding-inline: 2px; font-size: 1rem; }
-  .tabs { grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.4fr); gap: 2px; }
-  .tabs .button { padding: 3px 1px; font-size: 0.6875rem; }
+  .tabs { gap: 2px; }
+  .tabs .button { padding: 3px 2px; font-size: 0.875rem; }
   .form-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .entry-dialog { position: fixed; inset: auto 0 0; width: 100%; max-width: none; max-height: 92dvh; margin: 0; padding: 18px 14px max(14px, env(safe-area-inset-bottom, 0px)); border-radius: 18px 18px 0 0; }
   .entry-dialog .form-actions { bottom: calc(-1 * max(14px, env(safe-area-inset-bottom, 0px))); margin: 0 -14px calc(-1 * max(14px, env(safe-area-inset-bottom, 0px))); padding: 12px 14px max(14px, env(safe-area-inset-bottom, 0px)); }

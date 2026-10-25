@@ -21,6 +21,7 @@ export const schemas = {
     grind: ['분쇄도', 'rich_text'],
     grinder: ['그라인더 이름', 'rich_text'],
     grinderSetting: ['그라인더 설정값', 'rich_text'],
+    extractionGuide: ['추출 가이드', 'rich_text'],
     microns: ['분쇄 입자 굵기(μm)', 'number'],
     temperature: ['물 온도(℃)', 'number'],
     totalWater: ['총 물 양(g)', 'number'],
@@ -116,6 +117,6 @@ export const relationTargets = {
 // Older user databases can be read without the additive relations. Record
 // creation requires records.beanId support and is gated by client.verify().
 export const optionalProperties = {
-  recipes: ['beanId'],
+  recipes: ['beanId', 'extractionGuide'],
   records: ['beanId'],
 };

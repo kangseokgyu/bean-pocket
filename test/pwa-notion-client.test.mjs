@@ -343,8 +343,8 @@ test('배열·UTF-8 500000byte 한도와 stringify 오류는 fetch 전 안전하
   assert.equal(calls.length, 0);
 });
 
-test('canonical 34속성·긴 snapshot 왕복과 기존 decode 의미·서버 함수 동일성을 유지한다', () => {
-  assert.equal(Object.values(schemas).reduce((sum, fields) => sum + Object.keys(fields).length, 0), 34);
+test('canonical 35속성·긴 snapshot 왕복과 기존 decode 의미·서버 함수 동일성을 유지한다', () => {
+  assert.equal(Object.values(schemas).reduce((sum, fields) => sum + Object.keys(fields).length, 0), 35);
   assert.equal(serverEncode, encodeProperties); assert.equal(serverDecode, decodePage);
   const snapshot = { version: 1, name: '원본', steps: [{ order: 1, seconds: 0, water: 50 }], note: '가'.repeat(5000) };
   const properties = encodeProperties('records', { name: '기록', recipeId: PAGE, snapshot });

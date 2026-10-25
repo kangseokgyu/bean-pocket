@@ -1,0 +1,26 @@
+{
+  "before": {
+    "message": "조회 오류를 확인해 주세요.",
+    "parentPage": true,
+    "popoverOpen": true
+  },
+  "afterOpen": {
+    "message": "조회 오류를 확인해 주세요.",
+    "parentDialog": true,
+    "popoverOpen": false,
+    "popoverAttr": null,
+    "role": "status",
+    "visible": true,
+    "bottomGap": 12.9686279296875
+  },
+  "accessibility": {
+    "ignored": false,
+    "role": "status",
+    "ignoredReasons": []
+  },
+  "afterClose": {
+    "message": "조회 오류를 확인해 주세요.",
+    "parentPage": true,
+    "popoverOpen": true
+  }
+}

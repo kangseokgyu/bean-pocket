@@ -1,0 +1,10 @@
+✔ a rejected update check can be retried after returning to the app (0.303041ms)
+✔ stop removes registration and installing-worker listeners and closes a pending update race (1.111625ms)
+ℹ tests 486
+ℹ suites 0
+ℹ pass 486
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10905.75825

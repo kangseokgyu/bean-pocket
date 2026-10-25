@@ -1,0 +1,52 @@
+[
+  {
+    "viewport": 320,
+    "loaded": true,
+    "alt": "Bean Pocket",
+    "width": 60,
+    "height": 36,
+    "overflow": false,
+    "offlineLogo": true,
+    "errors": []
+  },
+  {
+    "viewport": 390,
+    "loaded": true,
+    "alt": "Bean Pocket",
+    "width": 60,
+    "height": 36,
+    "overflow": false,
+    "offlineLogo": true,
+    "errors": []
+  },
+  {
+    "viewport": 768,
+    "loaded": true,
+    "alt": "Bean Pocket",
+    "width": 72,
+    "height": 44,
+    "overflow": false,
+    "offlineLogo": true,
+    "errors": []
+  },
+  {
+    "viewport": 1024,
+    "loaded": true,
+    "alt": "Bean Pocket",
+    "width": 72,
+    "height": 44,
+    "overflow": false,
+    "offlineLogo": true,
+    "errors": []
+  },
+  {
+    "viewport": 1440,
+    "loaded": true,
+    "alt": "Bean Pocket",
+    "width": 72,
+    "height": 44,
+    "overflow": false,
+    "offlineLogo": true,
+    "errors": []
+  }
+]

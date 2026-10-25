@@ -1,0 +1,15 @@
+{
+  "target": "localhost built dist app with mock save fixture",
+  "buildVersion": "897576251763",
+  "tool": "CUA in-app browser",
+  "viewport": [390, 844],
+  "logoLoaded": true,
+  "navigation": ["원두", "봉지", "레시피", "추출 기록"],
+  "copiedExtractionGuide": "교반 없음 · 목표 2분 30초",
+  "horizontalOverflow": false,
+  "footerVisible": true,
+  "success": {"phase":"success","open":true,"enabledControls":0,"guideDisabled":true,"addStepDisabled":true,"checkVisible":true},
+  "afterSuccessDelay": {"closed":true,"focusRestored":true},
+  "consoleErrorsOrWarnings": [],
+  "limitations": ["mock save only, no live Notion writes", "reduced-motion cascade covered by regression test; OS media emulation not performed", "public Pages verification belongs to orchestrator"]
+}

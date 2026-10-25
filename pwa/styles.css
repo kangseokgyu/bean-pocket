@@ -200,13 +200,7 @@ p { line-height: 1.6; }
   box-shadow: 0 5px 16px rgb(53 63 46 / 5%);
 }
 
-.connection-details > summary {
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  font-weight: 700;
-}
+.connection-panel [data-connection-status][role="alert"] { color: #8b3024; }
 
 .entry-dialog {
   width: min(720px, calc(100% - 32px));

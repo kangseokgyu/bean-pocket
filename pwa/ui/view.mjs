@@ -164,9 +164,18 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     loadingSurface.inert = false;
   }
 
-  const connection = make(document, 'section', undefined, 'panel connection-panel');
+  const connection = make(document, 'dialog', undefined, 'entry-dialog connection-panel');
   connection.id = 'connection-settings';
   connection.hidden = true;
+  connection.setAttribute('aria-modal', 'true');
+  connection.setAttribute('aria-labelledby', 'connection-settings-title');
+  const connectionTitle = make(document, 'h2', 'Notion 연결 설정');
+  connectionTitle.id = 'connection-settings-title';
+  connection.append(connectionTitle);
+  let connectionPhase = 'idle';
+  let connectionError = '';
+  let connectionAvailable = false;
+  let connectionTimer = null;
   const connectionToggle = iconButton(document, '⚙', 'Notion 연결 설정', 'toggle-connection');
   connectionToggle.className = 'button icon-button connection-toggle';
   connectionToggle.setAttribute('aria-controls', connection.id);
@@ -175,31 +184,81 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   (document.querySelector('#connection-tools') ?? page).append(connectionToggle);
   function showConnectionPanel(visible) {
     connection.hidden = !visible;
-    connectionDetails.open = visible;
     connectionToggle.setAttribute('aria-expanded', String(visible));
+    if (!visible) {
+      if (connection.open) {
+        if (typeof connection.close === 'function') connection.close();
+        else connection.open = false;
+      }
+      return;
+    }
+    if (!connection.open) {
+      showNativeDialog(connection);
+      const focus = !startupRetry.hidden ? startupRetry.querySelector('button')
+        : !repair.hidden ? originalConnectionCheck.querySelector('input')
+          : connectionForm.elements.token;
+      focus?.focus?.();
+    }
   }
-  connectionToggle.addEventListener('click', () => showConnectionPanel(connection.hidden));
-  const connectionDetails = make(document, 'details', undefined, 'connection-details');
-  connectionDetails.open = true;
-  connectionDetails.append(make(document, 'summary', 'Notion 연결 설정'));
+  connectionToggle.addEventListener('click', () => {
+    if (connectionToggle.disabled) return;
+    if (connection.open) view.cancelConnection();
+    else showConnectionPanel(true);
+  });
+  connection.addEventListener('cancel', event => {
+    event.preventDefault();
+    view.cancelConnection();
+  });
+  const connectionDetails = make(document, 'section', undefined, 'connection-details');
   const connectionForm = make(document, 'form', undefined, 'form-grid');
   connectionForm.dataset.form = 'connection';
   connectionForm.append(label(document, '통합 토큰', 'token', 'password', true, { autocomplete: 'off' }));
   for (const [key, title] of SOURCE_FIELDS) {
-    connectionForm.append(label(document, `${title} 데이터 소스 ID`, key, 'text', true,
+    connectionForm.append(label(document, title + ' 데이터 소스 ID', key, 'text', true,
       { autocomplete: 'off', spellcheck: false, autocapitalize: 'off' }));
   }
-  connectionForm.append(button(document, '연결 확인 및 저장'));
-  connectionForm.append(button(document, '연결 입력 취소', 'button', 'cancel-connection'));
-  connectionDetails.append(connectionForm);
+  const connectionFeedback = make(document, 'p', '', 'entry-save-status');
+  connectionFeedback.dataset.connectionStatus = '';
+  connectionFeedback.setAttribute('role', 'status');
+  connectionFeedback.setAttribute('aria-live', 'polite');
+  connectionFeedback.hidden = true;
+  const connectionActions = make(document, 'div', undefined, 'form-actions');
+  const connectionCancel = button(document, '연결 입력 취소', 'button', 'cancel-connection');
+  const connectionSubmit = button(document, '연결 확인 및 저장');
+  connectionActions.append(connectionCancel, connectionSubmit);
+  connectionForm.append(connectionFeedback, connectionActions);
   connectionDetails.append(make(document, 'p', '연결 정보는 이 기기의 앱 저장소에 보관됩니다.', 'muted-note'));
-  connection.append(connectionDetails);
+  connectionDetails.append(connectionForm);
+
+  function resetConnectionForm() {
+    connectionForm.querySelectorAll('input,select,textarea').forEach(field => { field.value = ''; });
+  }
+
+  function syncConnectionState() {
+    const busy = connectionPhase === 'checking';
+    const succeeded = connectionPhase === 'success';
+    connection.dataset.saveState = connectionPhase;
+    connection.setAttribute('aria-busy', String(busy));
+    connectionToggle.disabled = !connectionAvailable || currentState.pending || currentState.frozen || busy || succeeded;
+    connection.querySelectorAll('input,button,select,textarea').forEach(control => {
+      const blockedForm = control.closest('form') === connectionForm && currentState.unresolved && control.dataset.action !== 'cancel-connection';
+      control.disabled = currentState.pending || currentState.frozen || busy || succeeded || blockedForm;
+    });
+    connectionSubmit.textContent = succeeded ? '연결 저장 완료' : busy ? '연결 확인·저장 중…' : '연결 확인 및 저장';
+    connectionFeedback.replaceChildren();
+    connectionFeedback.hidden = !busy && !succeeded && !connectionError;
+    connectionFeedback.setAttribute('role', connectionError && !busy && !succeeded ? 'alert' : 'status');
+    if (succeeded) connectionFeedback.append(make(document, 'span', '✓', 'entry-success-check'), make(document, 'span', '연결 정보를 저장했습니다.'));
+    else if (busy) connectionFeedback.append(makeSpinner(document), make(document, 'span', '연결 확인 및 저장 중…'));
+    else if (connectionError) connectionFeedback.append(make(document, 'span', connectionError));
+  }
 
   const startupRetry = make(document, 'section', undefined, 'startup-retry-panel');
   startupRetry.hidden = true;
   startupRetry.append(make(document, 'h2', '저장된 연결을 확인하지 못했습니다'));
   startupRetry.append(make(document, 'p', '다른 창이 저장소를 사용 중이면 잠시 기다린 뒤, 연결 정보를 입력하지 말고 다시 시도해 주세요.'));
   startupRetry.append(button(document, '저장된 연결 다시 읽기', 'button', 'retry-initialize'));
+  startupRetry.append(button(document, '닫기', 'button', 'cancel-connection'));
   connection.append(startupRetry);
 
   const repair = make(document, 'section', undefined, 'repair-panel');
@@ -209,7 +268,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   const originalConnectionCheck = label(document, '원본 연결 파일의 현재 내용을 직접 확인했습니다.', 'originalConfirmed', 'checkbox', true);
   repair.append(originalConnectionCheck);
   repair.append(button(document, '현재 연결을 다시 검증', 'button', 'confirm-connection'));
-  connection.append(repair);
+  connection.append(repair, connectionDetails);
   page.append(connection);
 
   const nav = make(document, 'nav', undefined, 'tabs');
@@ -233,6 +292,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     applyState(page, currentState);
     applyState(nav, currentState);
     syncEntryDialogState();
+    syncConnectionState();
   }
 
   const unresolved = make(document, 'section', undefined, 'unresolved-panel');
@@ -358,6 +418,10 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       statusMessageText = checking || statusType === 'ready' ? '' : value?.message ?? '';
       startupMessageText = checking ? value?.message ?? '' : '';
       status.dataset.state = statusType;
+      if (statusType === 'connection-error' || statusType === 'resolution-error') {
+        connectionError = value?.message || '연결을 확인하지 못했습니다. 입력값을 확인하고 다시 시도해 주세요.';
+        syncConnectionState();
+      }
       renderStatus();
       scheduleStatusHide();
     },
@@ -366,18 +430,59 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       const retryInitialization = !!value?.retryInitialization;
       const checkingInitialization = !!value?.checkingInitialization;
       connection.dataset.connected = connected ? 'true' : 'false';
-      connectionToggle.disabled = retryInitialization || checkingInitialization;
+      connectionAvailable = !checkingInitialization;
       connectionDetails.hidden = retryInitialization || checkingInitialization;
       startupRetry.hidden = !retryInitialization;
       repair.hidden = !value?.needsRecovery;
       nav.hidden = !connected;
       unresolved.hidden = !connected || unresolved.dataset.count === '0';
       content.hidden = !connected;
-      showConnectionPanel(!checkingInitialization && (!connected || !!value?.needsRecovery || retryInitialization));
-      if (retryInitialization) connectionDetails.open = false;
+      const keepFeedback = connection.open && (currentState.pending || connectionPhase !== 'idle');
+      showConnectionPanel(!checkingInitialization && (!connected || !!value?.needsRecovery || retryInitialization || keepFeedback));
+      syncConnectionState();
       renderStatus();
     },
     clearSecret() { connectionForm.elements.token.value = ''; },
+    beginConnectionSave() {
+      if (currentState.pending || currentState.frozen || currentState.unresolved || connectionPhase !== 'idle') return false;
+      connectionPhase = 'checking';
+      connectionError = '';
+      syncConnectionState();
+      return true;
+    },
+    finishConnectionSave() {
+      if (connectionPhase === 'checking') connectionPhase = 'idle';
+      syncConnectionState();
+    },
+    cancelConnection() {
+      if (currentState.pending || currentState.frozen || connectionPhase !== 'idle') return false;
+      resetConnectionForm();
+      originalConnectionCheck.querySelector('input').checked = false;
+      connectionError = '';
+      showConnectionPanel(false);
+      entryActions?.setDirty?.(false, 'connection');
+      syncConnectionState();
+      connectionToggle.focus?.();
+      return true;
+    },
+    showConnectionSuccess() {
+      if (!connection.open) return false;
+      connectionForm.elements.token.value = '';
+      connectionPhase = 'success';
+      connectionError = '';
+      syncConnectionState();
+      if (connectionTimer !== null) cancelSchedule(connectionTimer);
+      connectionTimer = schedule(() => {
+        connectionTimer = null;
+        resetConnectionForm();
+        originalConnectionCheck.querySelector('input').checked = false;
+        connectionPhase = 'idle';
+        showConnectionPanel(false);
+        syncConnectionState();
+        connectionToggle.focus?.();
+      }, 1000);
+      return true;
+    },
     setState(value) {
       const wasPending = currentState.pending;
       currentState = {
@@ -1087,17 +1192,22 @@ function buildResolutionForm(document, operation) {
 }
 
 function bindEvents({ page, nav, connectionForm, originalConnectionCheck, content, actions, document, view }) {
-  connectionForm.addEventListener('input', () => actions.setDirty(true, 'connection'));
+  connectionForm.addEventListener('input', event => {
+    if (!event.target.disabled) actions.setDirty(true, 'connection');
+  });
   connectionForm.addEventListener('submit', async event => {
     event.preventDefault();
     const form = event.currentTarget;
+    if (form.querySelector('button[type="submit"]')?.disabled || form.elements.token.disabled) return;
     const formData = new FormData(form);
+    if (!view.beginConnectionSave()) return;
     try {
       await actions.connect({
         token: formData.get('token'),
         dataSources: Object.fromEntries(SOURCE_FIELDS.map(([key]) => [key, formData.get(key)])),
       });
     } catch { /* Safe status text is supplied by the controller. */ }
+    finally { view.finishConnectionSave(); }
   });
 
   globalThis.window?.addEventListener?.('hashchange', () => view.renderRoute(globalThis.window.location.hash.slice(1)));
@@ -1117,9 +1227,7 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
       return;
     }
     if (action === 'cancel-connection') {
-      connectionForm.reset();
-      actions.setDirty(false, 'connection');
-      view.showStatus({ type: 'cancelled', message: '연결 입력을 취소했습니다.' });
+      if (view.cancelConnection()) view.showStatus({ type: 'cancelled', message: '연결 입력을 취소했습니다.' });
       return;
     }
     if (['delete-bean', 'delete-bag', 'delete-recipe', 'delete-record'].includes(action)) {

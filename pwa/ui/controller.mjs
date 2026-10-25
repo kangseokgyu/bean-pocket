@@ -245,6 +245,7 @@ export function createAppController({
       install(candidate, stack.nextClient, stack.nextRepository, stack.nextCommands);
       view.clearSecret?.();
       dirtyKinds.delete('connection');
+      view.showConnectionSuccess?.();
       view.showStatus?.({ type: 'connected', message: '연결을 확인하고 저장했습니다.' });
       try { await readLatest(); } catch { /* Saving the connection is independent of its first data read. */ }
       return true;

@@ -10,7 +10,7 @@ function harness({ verify = async () => true, readAll = async () => ({ beans: []
   lockBusyCount = 0, lockBusyAlways = false, inspectionError = null } = {}) {
   const events = [];
   let lockAttempts = 0;
-  const view = { showConnection(value) { events.push(['connection', value]); }, showStatus(value) { events.push(['status', value]); }, renderData() {}, clearSecret() { events.push(['clear']); } };
+  const view = { showConnection(value) { events.push(['connection', value]); }, showStatus(value) { events.push(['status', value]); }, renderData() {}, clearSecret() { events.push(['clear']); }, showConnectionSuccess() { events.push(['connection-success']); } };
   const context = { async inspect() { events.push(['inspect']); if (inspectionError) throw Object.freeze({ code: inspectionError }); return inspection; }, async readJournal() { return journal; }, async beginConnectionChange(value) { events.push(['begin', value.revision]); }, async commitConnectionChange() { events.push(['commit']); }, async confirmConnection(value) { events.push(['confirm', value.originalConfirmed]); }, async confirmResolution(key, options) { events.push(['confirm-resolution']); return options.freshRead(resolutionOperation); } };
   const state = { async withWriteLock(action) {
     events.push(['lock']);
@@ -29,6 +29,7 @@ test('connection verifies under the write lock before durable commit and never e
   const names = env.events.map(item => item[0]);
   assert.ok(names.indexOf('verify') < names.indexOf('begin'));
   assert.ok(names.indexOf('begin') < names.indexOf('commit'));
+  assert.ok(names.indexOf('commit') < names.indexOf('connection-success'), 'feedback follows the durable commit');
   assert.equal(env.controller.getState().connected, true);
   assert.equal(JSON.stringify(env.events).includes('secret-token'), false);
 });

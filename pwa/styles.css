@@ -156,7 +156,7 @@ footer .build-version { margin-top: 8px; letter-spacing: normal; font-weight: 40
 .bean-section {
   flex: 1;
   min-width: 0;
-  padding: clamp(24px, 6vh, 48px) 0;
+  padding: 16px 0;
 }
 
 h1, h2, h3, h4, h5, p { overflow-wrap: anywhere; }
@@ -303,11 +303,31 @@ button:focus-visible, .table-scroll:focus-visible {
   margin-top: 0;
 }
 
-.tabs .button { display: flex; gap: 6px; align-items: center; justify-content: center; min-width: 0; min-height: 44px; padding: 6px; font-size: 0.8125rem; white-space: nowrap; }
-.nav-icon { flex: 0 0 auto; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
-.tabs [aria-current="page"] { border-color: #224b3c; background: #224b3c; color: #fff; }
+.tabs .button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 44px;
+  padding: 6px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #587464;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.tabs .button:hover { color: #224b3c; }
+.tabs [aria-current="page"] {
+  color: #224b3c;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 2px;
+}
 
-.data-panel { padding: 16px; }
+.data-panel { margin-top: 0; padding: 16px; }
 .list-view { display: grid; gap: 16px; min-width: 0; }
 .list-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .list-header h2 { margin: 0; }
@@ -402,15 +422,14 @@ footer {
 
 @media (max-width: 600px) {
   .page { width: min(100% - 24px, 760px); padding-top: 14px; }
-  .bean-section { padding: 22px 0; }
+  .bean-section { padding: 12px 0; }
   .panel, .data-panel, .unresolved-panel { padding: 13px; border-radius: 13px; }
   .form-fieldset { grid-template-columns: minmax(0, 1fr); gap: 13px; padding: 13px; }
   .site-header { gap: 4px; }
   .eyebrow { font-size: 0.875rem; letter-spacing: 0.01em; }
   .button.connection-toggle { min-width: 28px; padding-inline: 2px; font-size: 1rem; }
   .tabs { grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.4fr); gap: 2px; }
-  .tabs .button { flex-direction: column; gap: 2px; min-height: 44px; padding: 3px 1px; font-size: 0.625rem; border-radius: 8px; }
-  .nav-icon { width: 16px; height: 16px; }
+  .tabs .button { padding: 3px 1px; font-size: 0.6875rem; }
   .form-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .form-actions .button { width: 100%; padding-inline: 8px; }
   .connection-panel .form-grid > .button { width: 100%; }

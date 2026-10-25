@@ -1162,13 +1162,12 @@ test('refresh requires a 240px downward pull and checks the release position', (
 });
 
 
-test('navigation uses four distinct decorative icons with accessible menu names', () => {
+test('navigation uses text-only menus with accessible names', () => {
   const document = new TestDocument();
   createAppView(document);
   const items = document.root.querySelector('nav.tabs').querySelectorAll('button');
   const expected = [['beans', '원두'], ['bags', '봉지'], ['recipes', '레시피'], ['records', '추출 기록']];
   assert.equal(items.length, expected.length);
-  const shapes = [];
   items.forEach((item, index) => {
     const [key, title] = expected[index];
     assert.equal(item.dataset.route, `/${key}`);
@@ -1176,15 +1175,9 @@ test('navigation uses four distinct decorative icons with accessible menu names'
     assert.equal(item.type, 'button');
     assert.equal(item.getAttribute('aria-label'), title);
     assert.equal(item.title, title);
-    assert.equal(item.textContent, title, 'menu labels remain visible beside their icons');
-    const icon = item.querySelector('svg');
-    assert.ok(icon, `${key} has an SVG icon`);
-    assert.equal(icon.namespaceURI, 'http://www.w3.org/2000/svg');
-    assert.equal(icon.getAttribute('aria-hidden'), 'true');
-    assert.equal(icon.getAttribute('focusable'), 'false');
-    shapes.push(icon.querySelector('path').getAttribute('d'));
+    assert.equal(item.textContent, title, 'menu labels remain visible');
+    assert.equal(item.querySelector('svg'), null, 'navigation contains text only');
   });
-  assert.equal(new Set(shapes).size, 4, 'menus have distinguishable shapes');
 });
 
 test('bean cards expose a labelled trash button and require confirmation before deleting', async () => {

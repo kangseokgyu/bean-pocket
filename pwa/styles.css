@@ -116,7 +116,7 @@ button { touch-action: manipulation; }
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 12px;
   padding: calc(env(safe-area-inset-top, 0px) + 8px) 0 12px;
   border-bottom: 1px solid #d8d1c3;
@@ -140,7 +140,7 @@ button { touch-action: manipulation; }
 
 footer .build-version { margin-top: 8px; letter-spacing: normal; font-weight: 400; }
 
-.header-tools { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
+.header-tools { margin-left: auto; flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
 #connection-tools { display: flex; }
 .button.connection-toggle {
   min-width: 44px;
@@ -295,11 +295,9 @@ button:focus-visible, .table-scroll:focus-visible {
 }
 
 .tabs {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  flex: 0 0 auto;
+  display: flex;
+  gap: 4px;
   margin-top: 0;
 }
 
@@ -309,7 +307,7 @@ button:focus-visible, .table-scroll:focus-visible {
   justify-content: center;
   min-width: 0;
   min-height: 44px;
-  padding: 6px;
+  padding: 6px 4px;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -428,8 +426,8 @@ footer {
   .site-header { gap: 4px; }
   .eyebrow { font-size: 0.875rem; letter-spacing: 0.01em; }
   .button.connection-toggle { min-width: 28px; padding-inline: 2px; font-size: 1rem; }
-  .tabs { grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.4fr); gap: 2px; }
-  .tabs .button { padding: 3px 1px; font-size: 0.6875rem; }
+  .tabs { gap: 2px; }
+  .tabs .button { padding: 3px 2px; font-size: 0.6875rem; }
   .form-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .form-actions .button { width: 100%; padding-inline: 8px; }
   .connection-panel .form-grid > .button { width: 100%; }

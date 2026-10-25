@@ -350,6 +350,6 @@
 - **범위:** 기존 recipe domain/공용 Notion codec, PWA·서버 schema 검증과 저장·읽기, 등록·복사 textarea, 상세 배치, 새 기록 snapshot을 함께 갱신한다. 저장된 기존 recipe 수정 기능은 추가하지 않는다.
 - **구버전 호환:** 과거 recipe와 version 1/2 snapshot의 필드 누락은 정상으로 읽는다. Notion `추출 가이드` 속성이 없는 데이터 소스도 조회·연결을 허용하고 빈 값은 생략해 저장한다. 값이 있는 가이드는 `not-sent` 오류로 막아 journal·원격 페이지를 만들지 않는다.
 - **완료 기준:** 먼저 실패 테스트를 확인하고 관련 테스트, `npm test`, `npm run build:pages`, `npm run check:pages`를 실행한다. 브라우저에서 320/390/desktop 폭의 입력·복사·표 아래 위치를 확인하고 결과를 `docs/evidence/recipe-guide-20261025/`에 남긴다.
-- **원격 schema 근거:** 사용자가 테스트·운영 recipe 데이터 소스에 속성을 추가하고 기존 속성 보존을 검증했으며, 메인 에이전트가 세션 도구로 원격 변경 결과를 직접 확인했다. 공개 증거에는 개인 식별자·recipe 내용·자격정보를 기록하지 않는다. 세부 내용은 `docs/notion-database-setup.md`와 전용 evidence README를 따른다.
+- **원격 schema 근거:** 메인 에이전트가 테스트·운영 recipe 데이터 소스에 REST API로 속성을 추가하고, PATCH/GET 결과 및 기존 속성 전체의 `deepEqual` 보존을 직접 검증했다. 공개 증거에는 개인 식별자·recipe 내용·자격정보를 기록하지 않는다. 세부 내용은 `docs/notion-database-setup.md`와 전용 evidence README를 따른다.
 - 이 추가 작업은 T00~T30의 완료 상태·소유권·미완료 판정을 소급 변경하지 않는다.
-- **추가 작업 결과:** 최신 `origin/main` 통합 후 전체 테스트(462/462), Pages 빌드·검사, Chromium 320/390/1440px 입력·복사·표시 순서 검증을 마쳤다. 결과 로그와 합성 fixture 스크린샷은 `docs/evidence/recipe-guide-20261025/`에 보관한다.
+- **추가 작업 결과:** 최신 `origin/main` 통합 후 전체 테스트(464/464), Pages 빌드·검사, Chromium 320/390/1440px 입력·복사·표시 순서 검증을 마쳤다. 결과 로그와 합성 fixture 스크린샷은 `docs/evidence/recipe-guide-20261025/`에 보관한다.

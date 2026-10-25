@@ -1,0 +1,47 @@
+✔ createCommands prepares an isolated bean draft and saves optional origin through the shared field (14.720291ms)
+✔ bean name is required before any operation is submitted (0.241792ms)
+✔ bean name alone is sufficient and absent optional fields stay empty (1.196958ms)
+▶ bean writes distinguish a clear rejection from an uncertain response
+  ✔ rejected (1.261667ms)
+  ✔ unknown (0.954583ms)
+✔ bean writes distinguish a clear rejection from an uncertain response (2.530583ms)
+✔ bag relation is checked from the latest repository snapshot inside the write lock (1.312708ms)
+✔ bag saves its own optional roast date and rejects malformed dates before write (0.792166ms)
+✔ old connection revision blocks even a prepared relation write (0.913958ms)
+✔ recipe saves parent then all stages in reverse order after full preflight (2.2575ms)
+✔ legacy recipe schema blocks a nonempty guide before journal creation for create and copy (0.594708ms)
+✔ any recipe payload over a Notion transport limit is rejected before the parent write (3.3155ms)
+✔ known stage rejection archives the confirmed parent before known stages in reverse order (2.14625ms)
+✔ unknown stage response stops immediately without further create or cleanup writes (2.790625ms)
+✔ failed parent archive prevents child cleanup and preserves the partial recipe (1.178083ms)
+✔ a rejected child archive leaves only that child active and still cleans later known children (2.275333ms)
+✔ copy creates a new independent recipe with changed values and rejects a stale source snapshot (2.107708ms)
+✔ copy blocks when only the source extraction guide changes after preparation (0.752542ms)
+✔ copy treats legacy undefined and empty extraction guides as equivalent (2.901375ms)
+✔ copied recipes stay independent of the legacy bean relation (2.159916ms)
+✔ a recipe can be created without selecting or storing a bean (0.913667ms)
+✔ record stores a fresh complete recipe snapshot and permits repeated same-day intent (1.422083ms)
+✔ record blocks a freshly selected bag that belongs to a different bean (0.752375ms)
+✔ record requires a valid date and an integer rating from one to five (0.157875ms)
+✔ old record drafts without a bean and unresolved journal entries cannot be resent (0.860542ms)
+✔ records writes fail before journal creation when the connected legacy schema lacks records.bean (0.195125ms)
+✔ T20 rereads the real T15 repository under lock and the saved record round-trips its snapshot (4.406708ms)
+✔ T18 partial recipe remains hidden by the real T15 completeness check (1.338292ms)
+✔ 레시피 입력은 선택 추출 가이드를 정규화하고 복사와 새 snapshot에 보존한다 (1.278958ms)
+✔ 추출 가이드가 없는 과거 recipe와 version 1/2 snapshot은 계속 유효하다 (0.413084ms)
+✔ 추출 가이드는 Notion rich_text로 왕복하고 과거 레시피 행은 빈 값으로 읽힌다 (1.308417ms)
+✔ PWA schema 검증은 추출 가이드 속성이 없는 구버전 DB를 허용하고 타입 오류는 거부한다 (24.829834ms)
+✔ PWA는 지원 schema에 rich_text 가이드를 저장하고 구버전에는 값 손실 없이 fail-closed 한다 (2.774791ms)
+✔ 서버 schema 검증도 구버전 속성을 허용하고 잘못된 guide 타입을 거부한다 (0.829459ms)
+✔ 서버는 구버전 schema에서 빈 guide를 생략하고 비어 있지 않은 guide 쓰기를 거부한다 (0.169125ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 146.098625
+
+command=node --test test/pwa-commands.test.mjs test/pwa-extraction-guide.test.mjs
+exit_code=0

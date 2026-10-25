@@ -360,6 +360,34 @@ test('copy creates a new independent recipe with changed values and rejects a st
   assert.equal(env.calls.filter(call => call.kind === 'recipes').length, 1);
 });
 
+test('copy blocks when only the source extraction guide changes after preparation', async () => {
+  const env = harness({ rows: { ...blankRows(), recipes: [storedRecipe(IDS.recipe, { extractionGuide: '교반 없음' })] } });
+  const draft = await env.commands.prepareCopy(IDS.recipe, {});
+  env.rows.recipes[0].extractionGuide = '교반 한 번';
+
+  const result = await env.commands.execute(draft);
+  assert.equal(result.status, 'failed');
+  assert.equal(env.calls.length, 0, 'a stale guide must be rejected before the recipe or stages are written');
+});
+
+test('copy treats legacy undefined and empty extraction guides as equivalent', async () => {
+  for (const [prepared, latest] of [[undefined, ''], ['', undefined]]) {
+    const source = storedRecipe();
+    if (prepared === undefined) delete source.extractionGuide;
+    else source.extractionGuide = prepared;
+    const env = harness({ rows: { ...blankRows(), recipes: [source] } });
+    const draft = await env.commands.prepareCopy(IDS.recipe, {});
+
+    if (latest === undefined) delete env.rows.recipes[0].extractionGuide;
+    else env.rows.recipes[0].extractionGuide = latest;
+    const result = await env.commands.execute(draft);
+
+    assert.equal(result.status, 'succeeded');
+    assert.equal(env.calls.filter(call => call.kind === 'recipes').length, 1);
+    assert.equal(env.calls.find(call => call.kind === 'recipes').data.extractionGuide, '');
+  }
+});
+
 test('copied recipes stay independent of the legacy bean relation', async () => {
   const env = harness({ rows: { ...blankRows(), beans: [bean(), bean(IDS.otherBean)], recipes: [storedRecipe()] } });
   const copy = await env.commands.prepareCopy(IDS.recipe, { beanId: IDS.otherBean });

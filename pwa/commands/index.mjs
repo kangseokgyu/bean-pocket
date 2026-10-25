@@ -155,6 +155,7 @@ function recipeSourceValue(recipe) {
     grind: recipe.grind,
     grinder: recipe.grinder,
     grinderSetting: recipe.grinderSetting,
+    extractionGuide: recipe.extractionGuide ?? '',
     microns: recipe.microns,
     temperature: recipe.temperature,
     totalWater: recipe.totalWater,

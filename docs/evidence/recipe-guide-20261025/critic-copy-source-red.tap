@@ -1,0 +1,48 @@
+✖ copy blocks when only the source extraction guide changes after preparation (12.105541ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'succeeded'
+  - 'failed'
+
+      at TestContext.<anonymous> (<WORKTREE>/test/pwa-commands.test.mjs:369:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'succeeded',
+    expected: 'failed',
+    operator: 'strictEqual'
+  }
+
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 91.596667
+
+✖ failing tests:
+
+test at test/pwa-commands.test.mjs:363:1
+✖ copy blocks when only the source extraction guide changes after preparation (12.105541ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'succeeded'
+  - 'failed'
+
+      at TestContext.<anonymous> (<WORKTREE>/test/pwa-commands.test.mjs:369:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'succeeded',
+    expected: 'failed',
+    operator: 'strictEqual'
+  }
+
+command=node --test --test-name-pattern="copy blocks when only the source extraction guide changes after preparation" test/pwa-commands.test.mjs
+exit_code=1

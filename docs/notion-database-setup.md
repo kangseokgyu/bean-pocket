@@ -62,6 +62,6 @@
 
 ### 2026-10-25 추출 가이드 schema 변경
 
-사용자가 테스트·운영 레시피 데이터 소스에 공식 REST API의 `PATCH /v1/data_sources/{id}`로 `추출 가이드`를 `rich_text` 타입으로 추가하고, 기존 14개 속성의 `deepEqual` 보존을 확인했다. 메인 에이전트는 이 세션 도구로 원격 변경 결과를 직접 확인했다. 두 데이터 소스 모두 PATCH HTTP 200 뒤 GET 재조회도 HTTP 200이었고, 각 데이터 소스는 14개에서 15개 속성이 되었다. 기존 레시피 페이지의 내용·값은 수정하지 않았다.
+메인 에이전트가 테스트·운영 레시피 데이터 소스에 공식 REST API `PATCH /v1/data_sources/{id}`로 `추출 가이드`를 `rich_text` 타입으로 추가하고, 두 곳 모두 PATCH HTTP 200 뒤 GET 재조회 HTTP 200을 확인했다. 각 데이터 소스는 14개에서 15개 속성이 되었고 기존 14개 속성 전체가 `deepEqual`로 보존된 것도 직접 검증했다. 기존 레시피 페이지의 내용·값은 수정하지 않았다.
 
 연결된 connector는 bare `ADD COLUMN` 및 `ALTER TABLE` 형식 모두 `INVALID_ARGUMENT`로 거부했으며 REST 요청으로 완료했다. 개인 데이터 소스 ID, 페이지·레시피 내용과 자격정보는 이 문서와 공개 증거에서 제외한다. 이번 확인은 schema 속성의 추가·재조회 결과이며 실제 앱을 통한 recipe 쓰기 검증과는 별도다. 상세한 익명 작업 기록은 [증거 README](evidence/recipe-guide-20261025/README.md)에 있다. API 참고: [Update a data source](https://developers.notion.com/reference/update-a-data-source).

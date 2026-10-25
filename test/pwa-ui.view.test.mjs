@@ -19,6 +19,7 @@ class TestElement {
     this.value = '';
     this.disabled = false;
     this.hidden = false;
+    this.open = false;
     this.selected = false;
     this.text = '';
     this.listeners = new Map();
@@ -38,6 +39,11 @@ class TestElement {
   set textContent(value) { this.text = String(value); this.replaceChildren(); }
   get textContent() { return this.text + this.children.map(child => child.textContent).join(''); }
   setAttribute(name, value) { this.attributes.set(name, String(value)); }
+  showModal() { this.open = true; }
+  close() { this.open = false; }
+  focus() { this.ownerDocument.activeElement = this; }
+  reset() { for (const field of this.querySelectorAll('input[name],textarea[name],select[name]')) field.value = ''; }
+  remove() { if (this.parentElement) this.parentElement.children = this.parentElement.children.filter(child => child !== this); this.parentElement = null; }
   addEventListener(type, listener) {
     const listeners = this.listeners.get(type) ?? [];
     listeners.push(listener);
@@ -60,7 +66,7 @@ class TestElement {
   }
   matches(selector) {
     const attr = selector.match(/\[([^\]=]+)(?:="([^"]*)")?\]/);
-    const tag = selector.match(/^[a-z]+/i)?.[0]?.toLowerCase();
+    const tag = selector.match(/^[a-z][a-z0-9-]*/i)?.[0]?.toLowerCase();
     const classes = [...selector.matchAll(/\.([a-z0-9_-]+)/gi)].map(match => match[1]);
     if (tag && this.tagName !== tag) return false;
     if (classes.some(name => !String(this.className ?? '').split(/\s+/).includes(name))) return false;
@@ -747,14 +753,14 @@ test('bean creation starts hidden, opens from the plus button, and closes on can
     for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target });
   };
   let form = document.root.querySelector('form[data-form="beans"]');
-  assert.equal(form.hidden, true);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"beans\"]').open, false);
   let add = document.root.querySelector('[data-action="show-bean-form"]');
   assert.ok(add);
   assert.equal(add.getAttribute('aria-label'), '새 원두 추가');
-  assert.equal(add.getAttribute('aria-controls'), form.id);
+  assert.equal(add.getAttribute('aria-controls'), document.root.querySelector('dialog[data-entry-dialog=\"beans\"]').id);
   assert.equal(add.getAttribute('aria-expanded'), 'false');
   await click(add);
-  assert.equal(form.hidden, false);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"beans\"]').open, true);
   assert.equal(add.getAttribute('aria-expanded'), 'true');
   assert.equal(dirty.length, 0);
   form.elements.name.value = '보존할 원두';
@@ -762,11 +768,11 @@ test('bean creation starts hidden, opens from the plus button, and closes on can
   view.renderRoute('/bags');
   view.renderRoute('/beans');
   form = document.root.querySelector('form[data-form="beans"]');
-  assert.equal(form.hidden, false);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"beans\"]').open, true);
   assert.equal(form.elements.name.value, '보존할 원두');
   await click(form.querySelector('[data-action="cancel-form"]'));
   form = document.root.querySelector('form[data-form="beans"]');
-  assert.equal(form.hidden, true);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"beans\"]').open, false);
   assert.equal(form.elements.name.value, '');
   assert.deepEqual(dirty, [[false, 'beans']]);
 });
@@ -782,14 +788,14 @@ test('bag creation starts hidden, opens from the plus button, and closes on canc
     for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target });
   };
   let form = document.root.querySelector('form[data-form="bags"]');
-  assert.equal(form.hidden, true);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"bags\"]').open, false);
   let add = document.root.querySelector('[data-action="show-bag-form"]');
   assert.ok(add);
   assert.equal(add.getAttribute('aria-label'), '새 봉지 추가');
-  assert.equal(add.getAttribute('aria-controls'), form.id);
+  assert.equal(add.getAttribute('aria-controls'), document.root.querySelector('dialog[data-entry-dialog=\"bags\"]').id);
   assert.equal(add.getAttribute('aria-expanded'), 'false');
   await click(add);
-  assert.equal(form.hidden, false);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"bags\"]').open, true);
   assert.equal(add.getAttribute('aria-expanded'), 'true');
   assert.equal(dirty.length, 0);
   form.elements.name.value = '보존할 봉지';
@@ -797,11 +803,11 @@ test('bag creation starts hidden, opens from the plus button, and closes on canc
   view.renderRoute('/beans');
   view.renderRoute('/bags');
   form = document.root.querySelector('form[data-form="bags"]');
-  assert.equal(form.hidden, false);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"bags\"]').open, true);
   assert.equal(form.elements.name.value, '보존할 봉지');
   await click(form.querySelector('[data-action="cancel-form"]'));
   form = document.root.querySelector('form[data-form="bags"]');
-  assert.equal(form.hidden, true);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"bags\"]').open, false);
   assert.equal(form.elements.name.value, '');
   assert.deepEqual(dirty, [[false, 'bags']]);
   await click(document.root.querySelector('[data-action="show-bag-form"]'));
@@ -809,7 +815,7 @@ test('bag creation starts hidden, opens from the plus button, and closes on canc
   assert.equal(document.root.querySelector('[data-action="show-bag-form"]').disabled, true);
   view.setState({ pending: false });
   view.clearDraft('bags');
-  assert.equal(document.root.querySelector('form[data-form="bags"]').hidden, true);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog="bags"]').open, false);
   assert.equal(document.root.querySelector('[data-action="show-bag-form"]').getAttribute('aria-expanded'), 'false');
   view.renderData({ ...data(), bags: [] });
   assert.equal(document.root.querySelector('.empty-state').textContent, '등록된 봉지가 없습니다.');
@@ -830,14 +836,14 @@ test('recipe creation opens from plus, preserves drafts, and closes on cancel', 
   };
   await click(tab);
   let form = document.root.querySelector('form[data-form="recipes"]');
-  assert.equal(form.hidden, true);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"recipes\"]').open, false);
   const add = document.root.querySelector('[data-action="show-recipe-form"]');
   assert.equal(add.getAttribute('aria-label'), '새 레시피 추가');
-  assert.equal(add.getAttribute('aria-controls'), form.id);
+  assert.equal(add.getAttribute('aria-controls'), document.root.querySelector('dialog[data-entry-dialog=\"recipes\"]').id);
   assert.equal(add.getAttribute('aria-expanded'), 'false');
   assert.ok(document.root.querySelector('.recipe-card'));
   await click(add);
-  assert.equal(form.hidden, false);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"recipes\"]').open, true);
   assert.equal(add.getAttribute('aria-expanded'), 'true');
   assert.equal(dirty.length, 0);
   form.elements.name.value = '보존할 레시피';
@@ -846,21 +852,21 @@ test('recipe creation opens from plus, preserves drafts, and closes on cancel', 
   view.renderRoute('/beans');
   view.renderRoute('/recipes');
   form = document.root.querySelector('form[data-form="recipes"]');
-  assert.equal(form.hidden, false);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"recipes\"]').open, true);
   assert.equal(form.elements.name.value, '보존할 레시피');
   assert.equal(form.querySelector('[name="stepName"]').value, '뜸 보존');
   await click(form.querySelector('[data-action="cancel-form"]'));
   form = document.root.querySelector('form[data-form="recipes"]');
-  assert.equal(form.hidden, true);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"recipes\"]').open, false);
   assert.equal(form.elements.name.value, '');
   assert.deepEqual(dirty, [[false, 'recipes']]);
   view.renderRoute('/recipes/new');
-  assert.equal(document.root.querySelector('form[data-form="recipes"]').hidden, false);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog="recipes"]').open, true);
   view.setState({ pending: true });
   assert.equal(document.root.querySelector('[data-action="show-recipe-form"]').disabled, true);
   view.setState({ pending: false });
   view.clearDraft('recipes');
-  assert.equal(document.root.querySelector('form[data-form="recipes"]').hidden, true);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog="recipes"]').open, false);
   view.renderData({ ...data(), recipes: [] });
   assert.equal(document.root.querySelector('.empty-state').textContent, '등록된 레시피가 없습니다.');
   view.renderRoute(`/recipes/${RECIPE}`);
@@ -881,14 +887,14 @@ test('record creation opens from plus, preserves drafts, and closes on cancel or
   assert.equal(tab.dataset.route, '/records');
   await click(tab);
   let form = document.root.querySelector('form[data-form="records"]');
-  assert.equal(form.hidden, true);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"records\"]').open, false);
   const add = document.root.querySelector('[data-action="show-record-form"]');
   assert.equal(add.getAttribute('aria-label'), '새 추출 기록 추가');
   assert.equal(add.querySelector('[aria-hidden="true"]').textContent, '+');
-  assert.equal(add.getAttribute('aria-controls'), form.id);
+  assert.equal(add.getAttribute('aria-controls'), document.root.querySelector('dialog[data-entry-dialog=\"records\"]').id);
   assert.equal(add.getAttribute('aria-expanded'), 'false');
   await click(add);
-  assert.equal(form.hidden, false);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"records\"]').open, true);
   assert.equal(add.getAttribute('aria-expanded'), 'true');
   assert.equal(dirty.length, 0);
   form.elements.cupNote.value = '보존할 컵노트';
@@ -896,25 +902,25 @@ test('record creation opens from plus, preserves drafts, and closes on cancel or
   view.renderRoute('/beans');
   view.renderRoute('/records');
   form = document.root.querySelector('form[data-form="records"]');
-  assert.equal(form.hidden, false);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"records\"]').open, true);
   assert.equal(form.elements.cupNote.value, '보존할 컵노트');
   await click(form.querySelector('[data-action="cancel-form"]'));
   form = document.root.querySelector('form[data-form="records"]');
-  assert.equal(form.hidden, true);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"records\"]').open, false);
   assert.equal(form.elements.cupNote.value, '');
   assert.deepEqual(dirty, [[false, 'records']]);
   view.renderRoute('/records/new');
-  assert.equal(document.root.querySelector('form[data-form="records"]').hidden, false);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog="records"]').open, true);
   view.setState({ pending: true });
   assert.equal(document.root.querySelector('[data-action="show-record-form"]').disabled, true);
   view.setState({ pending: false });
   view.clearDraft('records');
-  assert.equal(document.root.querySelector('form[data-form="records"]').hidden, true);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog="records"]').open, false);
   assert.equal(document.root.querySelector('[data-action="show-record-form"]').getAttribute('aria-expanded'), 'false');
   view.renderRoute(`/recipes/${RECIPE}`);
   await click(document.root.querySelector('[data-action="new-record"]'));
   form = document.root.querySelector('form[data-form="records"]');
-  assert.equal(form.hidden, false);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"records\"]').open, true);
   assert.equal(form.elements.recipeId.value, RECIPE);
 });
 
@@ -1305,4 +1311,171 @@ test('header navigation changes routes and remains locked while work is pending'
   assert.ok(nav.children.every(item => item.disabled));
   view.showConnection({ connected: false });
   assert.equal(nav.hidden, true);
+});
+
+test('bean entry opens and closes as a native modal without saving on cancel', async () => {
+  const document = new TestDocument();
+  let writes = 0;
+  const dirty = [];
+  const view = createAppView(document);
+  view.bind({ setDirty: (...args) => dirty.push(args), submit: async () => { writes += 1; return { status: 'succeeded' }; } });
+  view.renderData(data());
+  view.renderRoute('/beans');
+  const page = document.root.firstElementChild;
+  await page.listeners.get('click')[0]({ target: document.root.querySelector('[data-action="show-bean-form"]') });
+  const dialog = document.root.querySelector('dialog[data-entry-dialog="beans"]');
+  assert.equal(dialog.open, true);
+  assert.equal(dialog.getAttribute('aria-modal'), 'true');
+  const form = dialog.querySelector('form[data-form="beans"]');
+  assert.equal(document.activeElement, form.elements.name, 'opening moves focus into the modal');
+  let prevented = false;
+  for (const listener of dialog.listeners.get('cancel')) listener({ preventDefault() { prevented = true; } });
+  assert.equal(prevented, true);
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog="beans"]').open, false);
+  assert.equal(document.activeElement, document.root.querySelector('[data-action="show-bean-form"]'), 'closing restores focus to the launcher');
+  assert.deepEqual(dirty, [[false, 'beans']]);
+  assert.equal(writes, 0);
+});
+
+test('all four entry forms open as native dialogs and cancel without submitting', async () => {
+  const cases = [
+    ['/beans', 'show-bean-form', 'beans'],
+    ['/bags', 'show-bag-form', 'bags'],
+    ['/recipes', 'show-recipe-form', 'recipes'],
+    ['/records', 'show-record-form', 'records'],
+  ];
+  let writes = 0;
+  for (const [route, action, kind] of cases) {
+    const document = new TestDocument();
+    const view = createAppView(document);
+    view.bind({ setDirty() {}, submit: async () => { writes += 1; return { status: 'succeeded' }; } });
+    view.renderData(data());
+    view.renderRoute(route);
+    const click = async target => {
+      for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target });
+    };
+
+    const add = document.root.querySelector(`[data-action="${action}"]`);
+    const before = document.root.querySelector(`dialog[data-entry-dialog="${kind}"]`);
+    assert.ok(before, `${kind} has a dialog wrapper`);
+    assert.equal(before.open, false);
+    await click(add);
+
+    const dialog = document.root.querySelector(`dialog[data-entry-dialog="${kind}"]`);
+    const form = dialog.querySelector(`form[data-form="${kind}"]`);
+    assert.equal(dialog.open, true, `${kind} opens modally`);
+    assert.equal(dialog.getAttribute('aria-modal'), 'true');
+    assert.equal(dialog.getAttribute('aria-labelledby'), form.querySelector('h2').id);
+    assert.ok(form.querySelector('[data-action="cancel-form"]'));
+    assert.ok(form.querySelectorAll('button').some(control => control.type === 'submit'));
+    await click(form.querySelector('[data-action="cancel-form"]'));
+    assert.equal(document.root.querySelector(`dialog[data-entry-dialog="${kind}"]`).open, false);
+    assert.equal(writes, 0, 'cancelling an entry never submits it');
+  }
+});
+
+test('pending entry saves lock controls and Escape; success stays visible until the 1000ms close', async () => {
+  const scheduled = [];
+  const document = new TestDocument();
+  const view = createAppView(document, { schedule: (callback, delay) => scheduled.push({ callback, delay }) });
+  let duplicateSubmissions = 0;
+  view.bind({ setDirty() {}, getState: () => ({ pending: true }), submit: async () => { duplicateSubmissions += 1; return { status: 'succeeded' }; } });
+  view.renderData(data());
+  view.renderRoute('/beans');
+  const click = async target => {
+    for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target });
+  };
+  await click(document.root.querySelector('[data-action="show-bean-form"]'));
+  const dialog = document.root.querySelector('dialog[data-entry-dialog="beans"]');
+  const form = dialog.querySelector('form[data-form="beans"]');
+
+  view.setState({ pending: true });
+  assert.equal(form.querySelectorAll('button').find(control => control.type === 'submit').disabled, true);
+  assert.equal(form.querySelector('[data-action="cancel-form"]').disabled, true);
+  assert.equal(dialog.querySelector('[data-action="cancel-form"]').disabled, true);
+  let prevented = false;
+  for (const listener of dialog.listeners.get('cancel')) listener({ preventDefault() { prevented = true; } });
+  assert.equal(prevented, true);
+  assert.equal(dialog.open, true);
+  const pendingSubmit = { target: form, preventDefault() {} };
+  await Promise.all(document.root.querySelector('.data-panel').listeners.get('submit').map(listener => listener(pendingSubmit)));
+  assert.equal(duplicateSubmissions, 0, 'a second submit cannot reach storage while pending');
+
+  view.setState({ pending: false });
+  assert.equal(view.showEntrySuccess('beans'), true);
+  assert.equal(dialog.dataset.saveState, 'success');
+  assert.match(dialog.querySelector('[data-save-status]').textContent, /저장/);
+  assert.equal(dialog.open, true);
+  assert.equal(scheduled.length, 1);
+  assert.equal(scheduled[0].delay, 1000);
+  scheduled[0].callback();
+  assert.equal(dialog.open, false);
+  assert.equal(document.activeElement, document.root.querySelector('[data-action="show-bean-form"]'));
+});
+
+test('a failed modal save preserves its fields and enables a retry', async () => {
+  const originalFormData = globalThis.FormData;
+  class TestFormData {
+    constructor(form) {
+      this.fields = form.querySelectorAll('input[name],textarea[name],select[name]')
+        .filter(field => field.type !== 'radio' || field.checked)
+        .map(field => [field.name, field.value]);
+    }
+    [Symbol.iterator]() { return this.fields[Symbol.iterator](); }
+  }
+  globalThis.FormData = TestFormData;
+  try {
+    const scheduled = [];
+    const document = new TestDocument();
+    const view = createAppView(document, { schedule: (callback, delay) => scheduled.push({ callback, delay }) });
+    let attempts = 0;
+    let finishFailure;
+    view.bind({
+      setDirty() {},
+      setState: state => view.setState(state),
+      submit: async () => {
+        attempts += 1;
+        view.setState({ pending: true });
+        if (attempts === 1) {
+          await new Promise(resolve => { finishFailure = resolve; });
+          view.setState({ pending: false });
+          return { status: 'failed' };
+        }
+        view.setState({ pending: false });
+        view.showEntrySuccess('beans');
+        return { status: 'succeeded' };
+      },
+    });
+    view.renderData(data());
+    view.renderRoute('/beans');
+    const click = async target => {
+      for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target });
+    };
+    await click(document.root.querySelector('[data-action="show-bean-form"]'));
+    const dialog = document.root.querySelector('dialog[data-entry-dialog="beans"]');
+    const form = dialog.querySelector('form[data-form="beans"]');
+    form.elements.name.value = '입력 보존 원두';
+    const submit = async () => {
+      const event = { target: form, preventDefault() {} };
+      return Promise.all(document.root.querySelector('.data-panel').listeners.get('submit').map(listener => listener(event)));
+    };
+
+    const firstAttempt = submit();
+    await Promise.resolve();
+    assert.equal(form.querySelectorAll('button').find(control => control.type === 'submit').disabled, true);
+    finishFailure();
+    await firstAttempt;
+    assert.equal(form.elements.name.value, '입력 보존 원두');
+    assert.ok(form.querySelector('.field-error'));
+    assert.equal(form.querySelectorAll('button').find(control => control.type === 'submit').disabled, false);
+    assert.equal(dialog.open, true);
+
+    await submit();
+    assert.equal(attempts, 2);
+    assert.equal(dialog.dataset.saveState, 'success');
+    scheduled[0].callback();
+  } finally {
+    if (originalFormData === undefined) delete globalThis.FormData;
+    else globalThis.FormData = originalFormData;
+  }
 });

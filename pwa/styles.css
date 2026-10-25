@@ -86,6 +86,8 @@ html { overscroll-behavior-y: contain; }
   .startup-loading .startup-spinner,
   .startup-loading .operation-spinner { animation: none; }
   [data-pull-state] { transition: none; }
+  .entry-dialog[open], .entry-save-status .entry-success-check { animation: none; }
+  .entry-save-status .pull-refresh-spinner { animation: none; }
 }
 
 body {
@@ -214,6 +216,53 @@ p { line-height: 1.6; }
   font-weight: 700;
 }
 
+.entry-dialog {
+  width: min(720px, calc(100% - 32px));
+  max-width: 100%;
+  max-height: min(90dvh, 900px);
+  margin: auto;
+  padding: 22px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid #d8d1c3;
+  border-radius: 18px;
+  background: #fbf9f4;
+  color: #203d32;
+  box-shadow: 0 22px 70px rgb(22 37 29 / 24%);
+}
+.entry-dialog::backdrop { background: rgb(19 31 25 / 48%); backdrop-filter: blur(2px); }
+.entry-dialog[open] { animation: entry-dialog-in 160ms ease-out; }
+@keyframes entry-dialog-in {
+  from { opacity: 0; transform: translateY(8px) scale(.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.entry-dialog .form-actions {
+  position: sticky;
+  bottom: -22px;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0 -22px -22px;
+  padding: 14px 22px max(14px, env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid #d8d1c3;
+  background: #fbf9f4;
+}
+.entry-dialog .form-actions .button { min-height: 48px; }
+.entry-save-status {
+  display: flex;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin: 0;
+  color: #2d7051;
+  font-weight: 700;
+}
+.entry-save-status[hidden] { display: none; }
+.entry-save-status .pull-refresh-spinner { flex: 0 0 20px; width: 20px; height: 20px; animation: pull-refresh-spin .8s steps(12) infinite; }
+.entry-save-status .entry-success-check { display: inline-grid; width: 24px; height: 24px; place-items: center; border-radius: 50%; background: #2d7051; color: white; animation: entry-check-in 180ms ease-out both; }
+@keyframes entry-check-in { from { opacity: 0; transform: scale(.65); } to { opacity: 1; transform: scale(1); } }
+body:has(.entry-dialog[open]) { overflow: hidden; }
 .form-grid { display: grid; gap: 16px; min-width: 0; }
 .form-fieldset {
   display: grid;
@@ -431,6 +480,8 @@ footer {
   .tabs { grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.4fr); gap: 2px; }
   .tabs .button { padding: 3px 1px; font-size: 0.6875rem; }
   .form-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .entry-dialog { position: fixed; inset: auto 0 0; width: 100%; max-width: none; max-height: 92dvh; margin: 0; padding: 18px 14px max(14px, env(safe-area-inset-bottom, 0px)); border-radius: 18px 18px 0 0; }
+  .entry-dialog .form-actions { bottom: calc(-1 * max(14px, env(safe-area-inset-bottom, 0px))); margin: 0 -14px calc(-1 * max(14px, env(safe-area-inset-bottom, 0px))); padding: 12px 14px max(14px, env(safe-area-inset-bottom, 0px)); }
   .form-actions .button { width: 100%; padding-inline: 8px; }
   .connection-panel .form-grid > .button { width: 100%; }
 }

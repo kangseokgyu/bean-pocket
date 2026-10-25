@@ -21,8 +21,11 @@ test('controller public flows use real Notion, repository, commands and journal 
   const fake = fakePwaNotion();
   const state = createSubmissionState(native);
   const events = [];
+  const entrySuccesses = [];
+  const clearedForms = [];
   const view = { showConnection: value => events.push(['connection', value]), showStatus: value => events.push(['status', value]),
-    renderData: value => events.push(['data', value]), clearSecret() {}, clearForm() {}, setState() {} };
+    renderData: value => events.push(['data', value]), clearSecret() {}, clearForm: kind => clearedForms.push(kind),
+    showEntrySuccess(kind) { entrySuccesses.push(kind); return true; }, setState() {} };
   const app = createAppController({ view, state, file: { readConnection: async () => null },
     uuid: () => 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
     makeClient: connection => new NotionClient(connection.token, { dataSources: connection.dataSources, connectionRevision: connection.revision, fetchImpl: fake.fetch }),
@@ -46,6 +49,8 @@ test('controller public flows use real Notion, repository, commands and journal 
   assert.equal(latest.beans[0].origin, '시다마 · 테스트 농장');
   assert.deepEqual(latest.recipes.find(row => row.id === copied.value.id).stats, { count: 1, average: 5 });
   assert.equal(latest.records[0].snapshot.recipe.steps.length, 3);
+  assert.deepEqual(entrySuccesses, ['beans', 'bags', 'recipes', 'recipes', 'records']);
+  assert.deepEqual(clearedForms, [], 'the view keeps each confirmed entry open for its success feedback');
   assert.ok(native.journal().operations.every(operation => operation.status === 'succeeded'));
 });
 

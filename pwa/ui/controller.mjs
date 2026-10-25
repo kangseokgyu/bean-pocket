@@ -407,9 +407,12 @@ export function createAppController({
       const result = await commands.execute(draft);
       if (result.status === 'succeeded') {
         if (!deleting) {
-          dirtyKinds.delete(kind === 'copy' ? 'recipes' : kind);
-          view.clearForm?.(kind === 'copy' ? 'recipes' : kind);
-          view.clearDraft?.(kind === 'copy' ? 'recipes' : kind);
+          const formKind = kind === 'copy' ? 'recipes' : kind;
+          dirtyKinds.delete(formKind);
+          if (view.showEntrySuccess?.(formKind) !== true) {
+            view.clearForm?.(formKind);
+            view.clearDraft?.(formKind);
+          }
         }
         stateChanged();
         view.showStatus?.({ type: 'saved', message: deleting ? '삭제했습니다. 최신 목록을 다시 불러옵니다.' : '저장했습니다. 최신 목록을 다시 불러옵니다.' });

@@ -56,6 +56,11 @@ function recordName(record, recipe, snapshotRecipe) {
   return `${record.date || '추출 기록'} · ${recipe?.name || snapshotRecipe?.name || '추출 기록'}`;
 }
 
+const showNativeDialog = dialog => {
+  if (typeof dialog.showModal === 'function') dialog.showModal();
+  else dialog.open = true;
+};
+
 const makeSpinner = document => {
   const spinner = make(document, 'span', undefined, 'pull-refresh-spinner');
   spinner.setAttribute('aria-hidden', 'true');
@@ -76,7 +81,7 @@ const SOURCE_FIELDS = Object.freeze([
   ['steps', '레시피 단계'], ['records', '추출 기록'],
 ]);
 
-export function createAppView(document = globalThis.document) {
+export function createAppView(document = globalThis.document, { schedule = setTimeout, cancelSchedule = clearTimeout } = {}) {
   const root = document.querySelector('#app-root');
   if (!root) throw new Error('앱 화면을 만들 수 없습니다.');
   const page = make(document, 'div', undefined, 'app-content');
@@ -225,6 +230,7 @@ export function createAppView(document = globalThis.document) {
   function applyViewState() {
     applyState(page, currentState);
     applyState(nav, currentState);
+    syncEntryDialogState();
   }
 
   const unresolved = make(document, 'section', undefined, 'unresolved-panel');
@@ -237,6 +243,92 @@ export function createAppView(document = globalThis.document) {
   const content = make(document, 'section', undefined, 'data-panel');
   content.setAttribute('aria-label', '커피 기록');
   page.append(content);
+  let entryActions = null;
+  let activeEntryKind = null;
+  let entryPhase = 'idle';
+  let entryTimer = null;
+
+  function entryDialogFor(kind) {
+    return content.querySelector(`dialog[data-entry-dialog="${kind}"]`);
+  }
+  function bindEntryDialogCancels() {
+    for (const dialog of content.querySelectorAll('dialog[data-entry-dialog]')) {
+      if (dialog.dataset.cancelBound) continue;
+      dialog.dataset.cancelBound = 'true';
+      dialog.addEventListener('cancel', event => {
+        event.preventDefault();
+        const kind = dialog.dataset.entryDialog;
+        if (currentState.pending || currentState.frozen || currentState.unresolved || entryPhase === 'success') return;
+        view.clearDraft(kind);
+        entryActions?.setDirty(false, kind);
+        view.showStatus({ type: 'cancelled', message: '입력을 취소했습니다.' });
+      });
+    }
+  }
+  function syncEntryDialogState() {
+    for (const dialog of content.querySelectorAll('dialog[data-entry-dialog]')) {
+      const active = dialog.dataset.entryDialog === activeEntryKind;
+      const phase = active ? entryPhase : 'idle';
+      const saving = active && currentState.pending && phase !== 'success';
+      dialog.dataset.saveState = phase;
+      dialog.setAttribute('aria-busy', String(saving));
+      const status = dialog.querySelector('[data-save-status]');
+      if (status) {
+        status.hidden = phase === 'idle';
+        status.replaceChildren();
+        if (phase === 'saving' || saving) {
+          status.append(makeSpinner(document), make(document, 'span', '저장 중…'));
+        } else if (phase === 'success') {
+          status.append(make(document, 'span', '✓', 'entry-success-check'), make(document, 'span', '저장했습니다.'));
+        }
+      }
+      const submit = dialog.querySelector('[data-entry-submit]');
+      const cancel = dialog.querySelector('[data-action="cancel-form"]');
+      if (submit) {
+        submit.disabled = currentState.pending || currentState.frozen || currentState.unresolved || phase === 'success';
+        if (phase === 'success') submit.textContent = '저장 완료';
+        else if (saving) submit.textContent = '저장 중…';
+        else submit.textContent = submit.dataset.idleLabel || '저장';
+      }
+      if (cancel) cancel.disabled = currentState.pending || currentState.frozen || phase === 'success';
+    }
+  }
+  function finishContentRender() {
+    for (const dialog of content.querySelectorAll('dialog[data-entry-dialog]')) {
+      if (dialog.dataset.open === 'true' && !dialog.open) {
+        showNativeDialog(dialog);
+        activeEntryKind = dialog.dataset.entryDialog;
+      }
+    }
+    bindEntryDialogCancels();
+  }
+  function renderCurrentContent() {
+    renderPane(content, currentData, document, route, drafts, beanFormOpen, recipeFormOpen, bagFormOpen, recordFormOpen);
+    finishContentRender();
+    applyViewState();
+  }
+  function restoreEntryFocus(kind) {
+    const action = { beans: 'show-bean-form', bags: 'show-bag-form', recipes: 'show-recipe-form', records: 'show-record-form' }[kind];
+    (content.querySelector(`[data-action="${action}"]`) ?? nav.querySelector('[data-route="/beans"]'))?.focus?.();
+  }
+
+  function openEntryForm(kind, action, fieldName) {
+    const form = content.querySelector('form[data-form="' + kind + '"]');
+    const dialog = entryDialogFor(kind);
+    if (!form || !dialog || currentState.pending || currentState.frozen || currentState.unresolved) return;
+    if (kind === 'beans') beanFormOpen = true;
+    if (kind === 'bags') bagFormOpen = true;
+    if (kind === 'recipes') recipeFormOpen = true;
+    if (kind === 'records') recordFormOpen = true;
+    activeEntryKind = kind;
+    entryPhase = 'idle';
+    const opener = content.querySelector('[data-action="' + action + '"]');
+    dialog.dataset.open = 'true';
+    if (!dialog.open) showNativeDialog(dialog);
+    opener?.setAttribute('aria-expanded', 'true');
+    form.elements[fieldName]?.focus?.();
+    syncEntryDialogState();
+  }
 
   const view = {
     finishStartup,
@@ -272,6 +364,8 @@ export function createAppView(document = globalThis.document) {
         pending: !!value.pending,
         unresolved: !!value.unresolved,
       };
+      if (currentState.pending && activeEntryKind && entryPhase !== 'success') entryPhase = 'saving';
+      else if (!currentState.pending && entryPhase === 'saving') entryPhase = 'idle';
       renderStatus();
       applyViewState();
       if (currentState.pending) clearTimeout(statusHideTimer);
@@ -289,18 +383,23 @@ export function createAppView(document = globalThis.document) {
     },
     clearDraft(kind) {
       drafts.delete(kind);
+      const wasOpen = activeEntryKind === kind;
+      if (entryDialogFor(kind)?.open) entryDialogFor(kind).close();
       if (kind === 'beans') beanFormOpen = false;
       if (kind === 'bags') bagFormOpen = false;
       if (kind === 'recipes') recipeFormOpen = false;
       if (kind === 'records') recordFormOpen = false;
-      if (currentData) renderPane(content, currentData, document, route, drafts, beanFormOpen, recipeFormOpen, bagFormOpen, recordFormOpen);
-      applyViewState();
+      if (wasOpen) activeEntryKind = null;
+      if (currentData) renderCurrentContent();
+      if (wasOpen) {
+        entryPhase = 'idle';
+        restoreEntryFocus(kind);
+      }
     },
     renderData(nextData) {
       saveActiveDraft(content, drafts);
       currentData = nextData;
-      renderPane(content, nextData, document, route, drafts, beanFormOpen, recipeFormOpen, bagFormOpen, recordFormOpen);
-      applyViewState();
+      renderCurrentContent();
     },
     renderRoute(nextRoute) {
       route = nextRoute || '/beans';
@@ -308,41 +407,26 @@ export function createAppView(document = globalThis.document) {
       if (route === '/records/new') recordFormOpen = true;
       if (currentData) {
         saveActiveDraft(content, drafts);
-        renderPane(content, currentData, document, route, drafts, beanFormOpen, recipeFormOpen, bagFormOpen, recordFormOpen);
-        applyViewState();
+        renderCurrentContent();
       }
     },
-    showBeanForm() {
-      const form = content.querySelector('form[data-form="beans"]');
-      if (!form) return;
-      beanFormOpen = true;
-      form.hidden = false;
-      content.querySelector('[data-action="show-bean-form"]')?.setAttribute('aria-expanded', 'true');
-      form.elements.name.focus?.();
-    },
-    showBagForm() {
-      const form = content.querySelector('form[data-form="bags"]');
-      if (!form) return;
-      bagFormOpen = true;
-      form.hidden = false;
-      content.querySelector('[data-action="show-bag-form"]')?.setAttribute('aria-expanded', 'true');
-      form.elements.name.focus?.();
-    },
-    showRecipeForm() {
-      const form = content.querySelector('form[data-form="recipes"]');
-      if (!form) return;
-      recipeFormOpen = true;
-      form.hidden = false;
-      content.querySelector('[data-action="show-recipe-form"]')?.setAttribute('aria-expanded', 'true');
-      form.elements.name.focus?.();
-    },
-    showRecordForm() {
-      const form = content.querySelector('form[data-form="records"]');
-      if (!form) return;
-      recordFormOpen = true;
-      form.hidden = false;
-      content.querySelector('[data-action="show-record-form"]')?.setAttribute('aria-expanded', 'true');
-      form.elements.date.focus?.();
+    showBeanForm() { openEntryForm('beans', 'show-bean-form', 'name'); },
+    showBagForm() { openEntryForm('bags', 'show-bag-form', 'name'); },
+    showRecipeForm() { openEntryForm('recipes', 'show-recipe-form', 'name'); },
+    showRecordForm() { openEntryForm('records', 'show-record-form', 'date'); },
+    showEntrySuccess(kind) {
+      if (activeEntryKind !== kind || !entryDialogFor(kind)?.open) return false;
+      drafts.delete(kind);
+      entryPhase = 'success';
+      syncEntryDialogState();
+      if (entryTimer !== null) cancelSchedule(entryTimer);
+      entryTimer = schedule(() => {
+        entryTimer = null;
+        if (activeEntryKind !== kind || entryPhase !== 'success') return;
+        view.clearForm(kind);
+        view.clearDraft(kind);
+      }, 1000);
+      return true;
     },
     showUnresolved(items = []) {
       unresolved.replaceChildren(make(document, 'h2', '확인 대기 중인 저장', 'unresolved-title'));
@@ -352,6 +436,7 @@ export function createAppView(document = globalThis.document) {
       applyViewState();
     },
     bind(actions) {
+      entryActions = actions;
       bindEvents({ page, connectionForm, originalConnectionCheck, repair, nav, content,
         unresolved, actions, document, view });
       bindPullToRefresh({ page, document, actions });
@@ -499,8 +584,21 @@ function addFieldset(document, parent, title, fields, className = '') {
 function formBase(document, kind, title) {
   const form = make(document, 'form', undefined, 'form-grid');
   form.dataset.form = kind;
-  form.append(make(document, 'h2', title));
+  const heading = make(document, 'h2', title);
+  heading.id = `${kind}-form-title`;
+  form.append(heading);
   return form;
+}
+
+function makeEntryDialog(document, kind, form, open) {
+  const dialog = make(document, 'dialog', undefined, 'entry-dialog');
+  dialog.id = `${kind}-entry-dialog`;
+  dialog.dataset.entryDialog = kind;
+  dialog.dataset.open = String(open);
+  dialog.setAttribute('aria-modal', 'true');
+  dialog.setAttribute('aria-labelledby', `${kind}-form-title`);
+  dialog.append(form);
+  return dialog;
 }
 
 function renderPane(parent, data, document, route = '/beans', drafts = new Map(), beanFormOpen = false, recipeFormOpen = false, bagFormOpen = false, recordFormOpen = false) {
@@ -514,25 +612,25 @@ function renderPane(parent, data, document, route = '/beans', drafts = new Map()
   const actions = make(document, 'div', undefined, 'list-actions');
   if (section === 'beans' && !parts[1]) {
     const add = iconButton(document, '+', '새 원두 추가', 'show-bean-form');
-    add.setAttribute('aria-controls', 'new-bean-form');
+    add.setAttribute('aria-controls', 'beans-entry-dialog');
     add.setAttribute('aria-expanded', String(beanFormOpen));
     actions.append(add);
   }
   if (section === 'bags') {
     const add = iconButton(document, '+', '새 봉지 추가', 'show-bag-form');
-    add.setAttribute('aria-controls', 'new-bag-form');
+    add.setAttribute('aria-controls', 'bags-entry-dialog');
     add.setAttribute('aria-expanded', String(bagFormOpen));
     actions.append(add);
   }
   if (section === 'recipes' && (!parts[1] || parts[1] === 'new')) {
     const add = iconButton(document, '+', '새 레시피 추가', 'show-recipe-form');
-    add.setAttribute('aria-controls', 'new-recipe-form');
+    add.setAttribute('aria-controls', 'recipes-entry-dialog');
     add.setAttribute('aria-expanded', String(recipeFormOpen));
     actions.append(add);
   }
   if (section === 'records') {
     const add = iconButton(document, '+', '새 추출 기록 추가', 'show-record-form');
-    add.setAttribute('aria-controls', 'new-record-form');
+    add.setAttribute('aria-controls', 'records-entry-dialog');
     add.setAttribute('aria-expanded', String(recordFormOpen));
     actions.append(add);
   }
@@ -550,8 +648,7 @@ function renderPane(parent, data, document, route = '/beans', drafts = new Map()
   } else if (section === 'recipes') {
     const form = buildRecipeForm(document, data);
     form.id = 'new-recipe-form';
-    form.hidden = !recipeFormOpen;
-    pane.append(form);
+    pane.append(makeEntryDialog(document, 'recipes', form, recipeFormOpen));
     addStep(pane, document);
     updatePreview(pane);
     if (!data.recipes.length) pane.append(make(document, 'p', '등록된 레시피가 없습니다.', 'empty-state'));
@@ -582,7 +679,6 @@ function renderPane(parent, data, document, route = '/beans', drafts = new Map()
 function renderBeans(pane, data, document, formOpen) {
   const form = formBase(document, 'beans', '새 원두');
   form.id = 'new-bean-form';
-  form.hidden = !formOpen;
   addFieldset(document, form, '원두 정보', [
     ['원두 이름', 'name', 'text', true, { autocomplete: 'off' }],
     ['로스터리', 'roaster', 'text', false],
@@ -592,7 +688,7 @@ function renderBeans(pane, data, document, formOpen) {
     ['향미 노트', 'tastingNotes', 'textarea', false],
   ]);
   addFormActions(document, form, 'beans');
-  pane.append(form);
+  pane.append(makeEntryDialog(document, 'beans', form, formOpen));
 
   if (!data.beans.length) pane.append(make(document, 'p', '등록된 원두가 없습니다.', 'empty-state'));
   for (const bean of data.beans) {
@@ -652,7 +748,6 @@ function renderRecipeDetail(pane, data, document, recipeId) {
 function renderBags(pane, data, document, formOpen) {
   const form = formBase(document, 'bags', '새 봉지');
   form.id = 'new-bag-form';
-  form.hidden = !formOpen;
   addFieldset(document, form, '봉지 정보', [
     ['봉지 이름', 'name', 'text', true],
     ['원두', 'beanId', 'select', true],
@@ -660,7 +755,7 @@ function renderBags(pane, data, document, formOpen) {
   ]);
   fillSelect(form.elements.beanId, data.beans, '원두를 선택해 주세요.');
   addFormActions(document, form, 'bags');
-  pane.append(form);
+  pane.append(makeEntryDialog(document, 'bags', form, formOpen));
   if (!data.bags.length) pane.append(make(document, 'p', '등록된 봉지가 없습니다.', 'empty-state'));
   for (const bean of data.beans) {
     const group = make(document, 'section', undefined, 'bag-group');
@@ -812,8 +907,7 @@ function buildRecordForm(document, data) {
 function renderRecords(pane, data, document, formOpen) {
   const form = buildRecordForm(document, data);
   form.id = 'new-record-form';
-  form.hidden = !formOpen;
-  pane.append(form);
+  pane.append(makeEntryDialog(document, 'records', form, formOpen));
 
   const filters = make(document, 'div', undefined, 'record-filters');
   const beanLabel = make(document, 'label', '원두별 조회');
@@ -873,10 +967,19 @@ function recordCard(document, record, data) {
 }
 
 function addFormActions(document, form, kind) {
+  const nouns = { beans: '원두', bags: '봉지', recipes: '레시피', records: '기록' };
+  const status = make(document, 'p', '', 'entry-save-status');
+  status.dataset.saveStatus = '';
+  status.hidden = true;
+  status.setAttribute('role', 'status');
+  status.setAttribute('aria-live', 'polite');
   const actions = make(document, 'div', undefined, 'form-actions');
-  actions.append(button(document, `${{ beans: '원두', bags: '봉지', recipes: '레시피', records: '기록' }[kind]} 저장`));
-  actions.append(button(document, '입력 취소', 'button', 'cancel-form'));
-  form.append(actions);
+  const cancel = button(document, '입력 취소', 'button', 'cancel-form');
+  const submit = button(document, nouns[kind] + ' 저장');
+  submit.dataset.entrySubmit = '';
+  submit.dataset.idleLabel = nouns[kind] + ' 저장';
+  actions.append(cancel, submit);
+  form.append(status, actions);
 }
 
 function fillSelect(select, rows, placeholder, optional = false) {
@@ -1018,6 +1121,8 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
     }
     if (action === 'cancel-form') {
       const kind = target.closest('form')?.dataset.form;
+      const state = actions.getState?.() ?? {};
+      if (state.pending || state.frozen || target.closest('dialog')?.dataset.saveState === 'success') return;
       if (kind && FORM_KINDS.has(kind)) {
         view.clearDraft(kind);
         actions.setDirty(false, kind);
@@ -1098,16 +1203,29 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
     const kind = form.dataset.form;
     if (!FORM_KINDS.has(kind)) return;
     event.preventDefault();
+    const state = actions.getState?.() ?? {};
+    if (state.pending || state.frozen || state.unresolved || form.closest('dialog')?.dataset.saveState === 'success') return;
     clearFieldErrors(form);
     try {
       let payload;
       if (kind === 'recipes') {
         payload = recipePayload(form);
-        if (form.dataset.copyId) await actions.submit('copy', { recipeId: form.dataset.copyId, changes: payload });
-        else await actions.submit(kind, payload);
+        const result = form.dataset.copyId
+          ? await actions.submit('copy', { recipeId: form.dataset.copyId, changes: payload })
+          : await actions.submit(kind, payload);
+        if (result?.status && result.status !== 'succeeded') {
+          showFieldError(form, result.status === 'unknown' || result.status === 'partial'
+            ? '저장 확인이 필요합니다. 입력값을 보존했습니다.'
+            : '저장하지 못했습니다. 입력값을 보존했습니다.');
+        }
       } else {
         payload = Object.fromEntries(new FormData(form));
-        await actions.submit(kind, payload);
+        const result = await actions.submit(kind, payload);
+        if (result?.status && result.status !== 'succeeded') {
+          showFieldError(form, result.status === 'unknown' || result.status === 'partial'
+            ? '저장 확인이 필요합니다. 입력값을 보존했습니다.'
+            : '저장하지 못했습니다. 입력값을 보존했습니다.');
+        }
       }
     } catch (error) {
       const message = error?.status === 400 || error?.code === 'input' || error?.code === 'stale-read'
@@ -1226,7 +1344,7 @@ function updatePreview(content) {
 
 function saveActiveDraft(content, drafts) {
   const form = content.querySelector('form[data-form]');
-  if (!form) return;
+  if (!form || form.closest('dialog')?.dataset.saveState === 'success') return;
   const values = {};
   for (const field of form.querySelectorAll('input[name],textarea[name],select[name]')) {
     if (field.closest('.step-row')) continue;

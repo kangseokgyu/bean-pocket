@@ -18,7 +18,7 @@ const allowedFiles = new Set([
   'data/read-repository.mjs',
   'domain.mjs',
   'icons/bp-logo.png',
-  'icons/favicon-bp.png',
+  'icons/favicon-bp-ivory.png',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'index.html',
@@ -50,7 +50,7 @@ const requiredCacheFiles = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/bp-logo.png',
-  './icons/favicon-bp.png',
+  './icons/favicon-bp-ivory.png',
 ];
 
 async function collectFiles(directory, allowIncomplete, includeProbes) {
@@ -186,7 +186,7 @@ export async function checkPages(directory = defaultOutputDir, { allowIncomplete
   if (JSON.stringify(manifest.icons) !== JSON.stringify(expectedIcons)) {
     throw new Error('manifest 아이콘 경로·크기·형식이 빌드 산출물과 일치하지 않습니다.');
   }
-  pngDimensions(await readFile(path.join(directory, 'icons/favicon-bp.png')), 'icons/favicon-bp.png', 32);
+  pngDimensions(await readFile(path.join(directory, 'icons/favicon-bp-ivory.png')), 'icons/favicon-bp-ivory.png', 32);
   pngDimensions(await readFile(path.join(directory, 'icons/icon-192.png')), 'icons/icon-192.png', 192);
   pngDimensions(await readFile(path.join(directory, 'icons/icon-512.png')), 'icons/icon-512.png', 512);
 

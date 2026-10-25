@@ -14,7 +14,7 @@ const sourceFiles = [
   'data/notion-properties.mjs',
   'data/read-repository.mjs',
   'icons/bp-logo.png',
-  'icons/favicon-bp.png',
+  'icons/favicon-bp-ivory.png',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'index.html',

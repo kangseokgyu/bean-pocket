@@ -1701,6 +1701,33 @@ for (const type of ['disconnected', 'startup-busy', 'connection-error', 'read-er
   });
 }
 
+test('persistent error toast follows the settings modal opened and closed without a new status', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.showConnection({ connected: true });
+  const page = document.root.firstElementChild;
+  const toggle = document.root.querySelector('.connection-toggle');
+  const status = document.root.querySelector('.app-status');
+  view.showStatus({ type: 'read-error', message: '조회 오류를 확인해 주세요.' });
+  assert.equal(status.parentElement === page, true);
+  assert.equal(status.popoverOpen, true);
+
+  const clickSettings = () => toggle.listeners.get('click').forEach(listener => listener());
+  clickSettings();
+  const dialog = document.root.querySelector('dialog.connection-panel');
+  assert.equal(dialog.open, true);
+  assert.equal(status.parentElement === dialog, true, 'opening settings moves the existing toast into the modal');
+  assert.equal(status.popoverOpen, false);
+  assert.equal(status.getAttribute('popover'), null);
+  assert.equal(status.textContent, '조회 오류를 확인해 주세요.');
+
+  clickSettings();
+  assert.equal(dialog.open, false);
+  assert.equal(status.parentElement === page, true, 'closing settings returns the existing toast to the app layer');
+  assert.equal(status.popoverOpen, true);
+  assert.equal(status.textContent, '조회 오류를 확인해 주세요.');
+});
+
 test('connection modal opens from settings and Escape clears secrets, draft and restores focus', async () => {
   const document = new TestDocument();
   const dirty = [];

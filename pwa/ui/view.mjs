@@ -240,6 +240,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     }
     if (!connection.open) {
       showNativeDialog(connection);
+      syncStatusToast();
       const focus = !startupRetry.hidden ? startupRetry.querySelector('button')
         : !repair.hidden ? originalConnectionCheck.querySelector('input')
           : connectionForm.elements.token;

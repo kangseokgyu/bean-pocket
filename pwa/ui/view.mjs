@@ -178,6 +178,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   }
   let currentData = null;
   let route = globalThis.location?.hash?.slice(1) || '/beans';
+  let routeNeedsDataRender = true;
   let routeChangeListener = null;
   const drafts = new Map();
   const optionPages = new Map();
@@ -561,12 +562,18 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       saveActiveDraft(content, drafts);
       currentData = nextData;
       skeletons.hidden = true;
+      const routeNeedsRender = routeNeedsDataRender;
+      routeNeedsDataRender = false;
+      const activeDialog = activeEntryKind ? entryDialogFor(activeEntryKind) : null;
+      if (!routeNeedsRender && activeDialog?.open) return;
       renderCurrentContent();
     },
     currentRoute() { return route; },
     onRouteChange(handler) { routeChangeListener = typeof handler === 'function' ? handler : null; },
     renderRoute(nextRoute) {
-      route = nextRoute || '/beans';
+      const next = nextRoute || '/beans';
+      if (next !== route) routeNeedsDataRender = true;
+      route = next;
       if (route === '/recipes/new') recipeFormOpen = true;
       if (route === '/records/new') recordFormOpen = true;
       if (currentData) {

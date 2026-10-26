@@ -1010,6 +1010,58 @@ test('record creation opens from plus, preserves drafts, and closes on cancel or
   assert.equal(form.elements.recipeId.value, RECIPE);
 });
 
+test('background data updates defer pane replacement while an entry dialog is open', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.renderRoute('/records');
+  view.renderData(data());
+  view.showRecordForm();
+  const form = document.root.querySelector('form[data-form="records"]');
+  const cupNote = form.elements.cupNote;
+  const assertFormPreserved = label => {
+    const current = document.root.querySelector('form[data-form="records"]');
+    assert.ok(current === form, `${label} must not replace the open form`);
+    assert.ok(current?.elements.cupNote === cupNote, `${label} must not replace the form controls`);
+  };
+  try {
+    const parentUpdate = structuredClone(data());
+    parentUpdate.records[0].beanNameStatus = 'live';
+    parentUpdate.beans[0].name = 'Live bean';
+    view.renderData(parentUpdate);
+    assertFormPreserved('parent-name hydration');
+
+    const countUpdate = { ...parentUpdate, beans: parentUpdate.beans.map(bean => ({ ...bean,
+      recordCount: { status: 'ready', count: 2 } })) };
+    view.renderData(countUpdate);
+    assertFormPreserved('deferred counts');
+
+    const stageUpdate = { ...countUpdate, recipes: countUpdate.recipes.map(recipe => ({ ...recipe,
+      validationStatus: 'ready' })) };
+    view.renderData(stageUpdate);
+    assertFormPreserved('deferred recipe validation');
+
+    view.setSearchOptions('filters', 'beans', { items: [{ id: BEAN, name: 'Loaded bean' }],
+      nextCursor: null, hasMore: false }, false, 'Ethiopia');
+    assertFormPreserved('picker results');
+    const beanFilter = document.root.querySelector('[data-record-filter="beanId"]');
+    assert.equal(beanFilter.options.some(option => option.textContent === 'Loaded bean'), true);
+    const beanSearch = document.root.querySelectorAll('[data-option-search-kind]')
+      .find(input => input.dataset.optionSearchKind === 'beans' && input.dataset.optionTarget === 'filters');
+    assert.equal(beanSearch.value, 'Ethiopia');
+
+    view.renderRoute('/records/new');
+    const routedForm = document.root.querySelector('form[data-form="records"]');
+    assert.notEqual(routedForm.elements.cupNote, cupNote, 'an intentional route transition renders the new route');
+    const routeUpdate = structuredClone(stageUpdate);
+    routeUpdate.records[0].cupNote = 'updated route data';
+    view.renderData(routeUpdate);
+    assert.match(document.root.querySelector('.record-card').textContent, /updated route data/,
+      'the first data result after a route transition is rendered');
+  } finally {
+    view.clearDraft('records');
+  }
+});
+
 test('collection headers omit refresh and retain their add buttons', () => {
   const document = new TestDocument();
   const view = createAppView(document);

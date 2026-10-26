@@ -259,7 +259,7 @@ export function createAppController({
       saveCache(key, data);
       view.renderData?.(data);
       view.showStatus?.({ type: 'ready', message: '' });
-      startDeferredReads(route, generation, key, controller.signal, fetched);
+      startDeferredReads(route, generation, key, controller.signal);
       return data;
     } catch (error) {
       if (generation !== routeGeneration || controller.signal.aborted || error?.code === 'read-cancelled') return null;
@@ -268,45 +268,118 @@ export function createAppController({
     }
   }
 
-  function startDeferredReads(route, generation, key, signal, loaded) {
+  function startDeferredReads(route, generation, key, signal) {
     const update = patch => {
       if (generation !== routeGeneration || signal.aborted || currentRoute() !== route || !data) return;
       data = { ...data, ...patch };
       saveCache(key, data);
       view.renderData?.(data);
     };
-    if (route === '/beans' && loaded?.beans?.length && loaded.beans.some(bean => bean.recordCount?.status === 'loading') &&
-        typeof repository.getBeanRecordCounts === 'function') {
-      const beans = loaded.beans.filter(bean => bean.recordCount?.status === 'loading');
-      const ids = beans.map(bean => bean.id);
-      void client.verify(['records'], { signal }).then(() => repository.getBeanRecordCounts(ids, { signal })).then(result => {
-        const selected = new Set(ids);
-        update({ beans: data.beans.map(bean => selected.has(bean.id) ? { ...bean, recordCount: {
-          status: result.status, count: result.counts?.[bean.id] ?? null,
-        } } : bean) });
-      }).catch(() => {
-        const selected = new Set(ids);
-        update({ beans: data.beans.map(bean => selected.has(bean.id)
-          ? { ...bean, recordCount: { status: 'error', count: null } } : bean) });
+    const batches = (items, size) => Array.from({ length: Math.ceil(items.length / size) }, (_, index) =>
+      items.slice(index * size, (index + 1) * size));
+    if (data?.records?.some(record => record.beanNameStatus === 'loading' || record.recipeNameStatus === 'loading') &&
+        typeof repository.hydrateRecordParents === 'function') {
+      void (async () => {
+        let pendingRecords = data.records.filter(record =>
+          record.beanNameStatus === 'loading' || record.recipeNameStatus === 'loading');
+        while (pendingRecords.length && !signal.aborted) {
+          const result = await repository.hydrateRecordParents(pendingRecords, { signal });
+          const beanStatuses = result.beanStatuses ?? {};
+          const recipeStatuses = result.recipeStatuses ?? {};
+          const snapshotName = (record, kind) => {
+            const snapshot = record.snapshot;
+            if (snapshot?.version === 2) return kind === 'beans' ? snapshot.bean?.name : snapshot.recipe?.name;
+            return kind === 'recipes' ? snapshot?.name : '';
+          };
+          const visibleRecords = (data?.records ?? []).map(record => {
+            const beanStatus = beanStatuses[record.beanId];
+            const recipeStatus = recipeStatuses[record.recipeId];
+            const beanNameStatus = beanStatus === 'live' ? 'live'
+              : beanStatus === 'snapshot' ? snapshotName(record, 'beans') ? 'snapshot' : 'unavailable'
+                : beanStatus === 'error' ? 'error' : record.beanNameStatus;
+            const recipeNameStatus = recipeStatus === 'live' ? 'live'
+              : recipeStatus === 'snapshot' ? snapshotName(record, 'recipes') ? 'snapshot' : 'unavailable'
+                : recipeStatus === 'error' ? 'error' : record.recipeNameStatus;
+            return { ...record, beanNameStatus, recipeNameStatus,
+              beanResolution: beanStatus === 'snapshot' && record.beanId
+                ? 'needs-confirmation' : record.beanResolution };
+          });
+          const mergeKnown = (current, additions) => {
+            const byId = new Map((additions ?? []).map(item => [item.id, item]));
+            for (const item of current ?? []) byId.set(item.id, item);
+            return [...byId.values()];
+          };
+          update({ beans: mergeKnown(data?.beans, result.beans),
+            recipes: mergeKnown(data?.recipes, result.recipes), records: visibleRecords });
+          const remainingBeans = new Set(result.remainingBeanIds ?? []);
+          const remainingRecipes = new Set(result.remainingRecipeIds ?? []);
+          pendingRecords = (data?.records ?? []).filter(record =>
+            (record.beanNameStatus === 'loading' && remainingBeans.has(record.beanId)) ||
+            (record.recipeNameStatus === 'loading' && remainingRecipes.has(record.recipeId)));
+        }
+      })().catch(() => {
+        if (signal.aborted) return;
+        const unresolved = new Set(data?.records?.filter(record =>
+          record.beanNameStatus === 'loading' || record.recipeNameStatus === 'loading').map(record => record.id));
+        update({ records: (data?.records ?? []).map(record => unresolved.has(record.id) ? {
+          ...record,
+          beanNameStatus: record.beanNameStatus === 'loading' ? 'error' : record.beanNameStatus,
+          recipeNameStatus: record.recipeNameStatus === 'loading' ? 'error' : record.recipeNameStatus,
+        } : record) });
       });
     }
-    if (['/recipes', '/recipes/new'].includes(route) && loaded?.recipes?.some(recipe => recipe.validationStatus === 'checking') &&
-        typeof repository.validateRecipeSummaries === 'function') {
-      const ids = loaded.recipes.filter(recipe => recipe.validationStatus === 'checking').map(recipe => recipe.id);
+    const markCounts = (ids, status, counts = {}) => {
       const selected = new Set(ids);
-      void repository.validateRecipeSummaries(ids, { signal }).then(result => {
-        const validated = new Map(result.items.map(item => [item.id, item]));
-        update({ recipes: data.recipes.map(summary => {
-          if (!selected.has(summary.id)) return summary;
-          const item = validated.get(summary.id);
-          return item?.status === 'ready' ? { ...summary, ...item.recipe, stats: summary.stats }
-            : { ...summary, validationStatus: 'error' };
-        }) });
-      }).catch(() => update({ recipes: data.recipes.map(recipe => selected.has(recipe.id)
-        ? { ...recipe, validationStatus: 'error' } : recipe) }));
+      update({ beans: (data?.beans ?? []).map(bean => selected.has(bean.id) ? { ...bean, recordCount: {
+        status, count: status === 'ready' ? counts[bean.id] ?? null : null,
+      } } : bean) });
+    };
+    if (route === '/beans' && data?.beans?.some(bean => bean.recordCount?.status === 'loading') &&
+        typeof repository.getBeanRecordCounts === 'function') {
+      const ids = data.beans.filter(bean => bean.recordCount?.status === 'loading').map(bean => bean.id);
+      void (async () => {
+        try { await client.verify(['records'], { signal }); }
+        catch {
+          if (!signal.aborted) markCounts(ids, 'error');
+          return;
+        }
+        for (const batch of batches(ids, 20)) {
+          try {
+            const result = await repository.getBeanRecordCounts(batch, { signal });
+            markCounts(batch, result.status === 'ready' ? 'ready' : 'error', result.counts);
+          } catch {
+            if (signal.aborted) return;
+            markCounts(batch, 'error');
+          }
+        }
+      })();
+    }
+    if (['/recipes', '/recipes/new'].includes(route) && data?.recipes?.some(recipe => recipe.validationStatus === 'checking') &&
+        typeof repository.validateRecipeSummaries === 'function') {
+      const ids = data.recipes.filter(recipe => recipe.validationStatus === 'checking').map(recipe => recipe.id);
+      void (async () => {
+        for (const batch of batches(ids, 20)) {
+          try {
+            const result = await repository.validateRecipeSummaries(batch, { signal });
+            const selected = new Set(batch);
+            const validated = new Map(result.items.map(item => [item.id, item]));
+            update({ recipes: (data?.recipes ?? []).map(summary => {
+              if (!selected.has(summary.id)) return summary;
+              const item = validated.get(summary.id);
+              return item?.status === 'ready' ? { ...summary, ...item.recipe, stats: summary.stats }
+                : { ...summary, validationStatus: 'error' };
+            }) });
+          } catch {
+            if (signal.aborted) return;
+            const selected = new Set(batch);
+            update({ recipes: (data?.recipes ?? []).map(recipe => selected.has(recipe.id)
+              ? { ...recipe, validationStatus: 'error' } : recipe) });
+          }
+        }
+      })();
     }
     if (route.startsWith('/recipes/') && route !== '/recipes/new' && typeof repository.getRecipeStats === 'function') {
-      const recipe = loaded?.recipes?.find(item => item.id === route.split('/')[2]);
+      const recipe = data?.recipes?.find(item => item.id === route.split('/')[2]);
       if (recipe?.stats?.status === 'loading') {
         void repository.getRecipeStats(recipe.id, { signal, validatedRecipe: recipe }).then(stats => {
           update({ recipes: data.recipes.map(item => item.id === recipe.id ? { ...item, stats } : item) });
@@ -331,7 +404,7 @@ export function createAppController({
     const key = [connectionRevision, target, kind, query, cursor ?? 'first'].join('|');
     const cached = !append && currentCacheOption(key);
     if (cached) {
-      view.setSearchOptions?.(target, kind, cached, false);
+      view.setSearchOptions?.(target, kind, cached, false, query);
       return cached;
     }
     try {
@@ -340,7 +413,7 @@ export function createAppController({
       if (routeEpoch !== routeGeneration || optionSearchGeneration.get(optionIdentity) !== optionEpoch ||
           connectionRevision !== activeConnection?.revision || routeReadController?.signal.aborted) return null;
       optionCache.set(key, { value: result, savedAt: Date.now() });
-      view.setSearchOptions?.(target, kind, result, append);
+      view.setSearchOptions?.(target, kind, result, append, query);
       return result;
     } catch (error) {
       if (error?.code !== 'read-cancelled') showFailure(error, 'read-error');
@@ -377,6 +450,8 @@ export function createAppController({
   }
 
   function invalidateScreenCache(kind) {
+    if (kind === 'beans' || kind === 'delete-bean') repository?.invalidateRecordParentCache?.('beans');
+    if (['recipes', 'copy', 'delete-recipe'].includes(kind)) repository?.invalidateRecordParentCache?.('recipes');
     if (kind === 'beans') {
       view.clearSearchOptions?.('beans');
       for (const key of screenCache.keys()) if (key.includes('|/beans')) screenCache.delete(key);

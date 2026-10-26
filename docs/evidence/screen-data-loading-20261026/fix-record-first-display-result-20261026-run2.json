@@ -1,0 +1,268 @@
+{
+  "conditions": {
+    "delayMs": 100,
+    "beans": 60,
+    "recipes": 40,
+    "records": 1000,
+    "route": "/records",
+    "network": "in-process fake transport only",
+    "metric": "initialize start to first renderData callback",
+    "runs": 1
+  },
+  "criticBaseline": {
+    "ms": 6112,
+    "requests": 58
+  },
+  "criticOriginal": {
+    "ms": 28872,
+    "requests": 84
+  },
+  "fixed": {
+    "initialized": true,
+    "first": {
+      "ms": 735.699875,
+      "requests": 4,
+      "rows": 20,
+      "beanNameStatus": "loading",
+      "recipeNameStatus": "loading",
+      "snapshotBeanName": "Bean 019"
+    },
+    "settledMs": 14773.14725,
+    "totalRequests": 44,
+    "firstPageLiveNames": true,
+    "calls": [
+      {
+        "pathname": "/v1/data_sources/a1111111-1111-4111-8111-111111111111",
+        "body": null,
+        "atMs": 2.3385000000000105
+      },
+      {
+        "pathname": "/v1/data_sources/a3333333-3333-4333-8333-333333333333",
+        "body": null,
+        "atMs": 134.762375
+      },
+      {
+        "pathname": "/v1/data_sources/a5555555-5555-4555-8555-555555555555",
+        "body": null,
+        "atMs": 236.716709
+      },
+      {
+        "pathname": "/v1/data_sources/a5555555-5555-4555-8555-555555555555/query",
+        "body": {
+          "page_size": 100,
+          "sorts": [
+            {
+              "property": "날짜",
+              "direction": "descending"
+            },
+            {
+              "timestamp": "last_edited_time",
+              "direction": "descending"
+            }
+          ]
+        },
+        "atMs": 588.6681249999999
+      },
+      {
+        "pathname": "/v1/pages/aaaaaaaa-aaaa-4aaa-8aaa-000000000020",
+        "body": null,
+        "atMs": 938.367792
+      },
+      {
+        "pathname": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000020",
+        "body": null,
+        "atMs": 1289.655
+      },
+      {
+        "pathname": "/v1/pages/aaaaaaaa-aaaa-4aaa-8aaa-000000000019",
+        "body": null,
+        "atMs": 1640.525959
+      },
+      {
+        "pathname": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000019",
+        "body": null,
+        "atMs": 1991.4313750000001
+      },
+      {
+        "pathname": "/v1/pages/aaaaaaaa-aaaa-4aaa-8aaa-000000000018",
+        "body": null,
+        "atMs": 2342.196542
+      },
+      {
+        "pathname": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000018",
+        "body": null,
+        "atMs": 2692.633917
+      },
+      {
+        "pathname": "/v1/pages/aaaaaaaa-aaaa-4aaa-8aaa-000000000017",
+        "body": null,
+        "atMs": 3044.976209
+      },
+      {
+        "pathname": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000017",
+        "body": null,
+        "atMs": 3395.690709
+      },
+      {
+        "pathname": "/v1/pages/aaaaaaaa-aaaa-4aaa-8aaa-000000000016",
+        "body": null,
+        "atMs": 3746.993167
+      },
+      {
+        "pathname": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000016",
+        "body": null,
+        "atMs": 4098.234459
+      },
+      {
+        "pathname": "/v1/pages/aaaaaaaa-aaaa-4aaa-8aaa-000000000015",
+        "body": null,
+        "atMs": 4448.110042
+      },
+      {
+        "pathname": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000015",
+        "body": null,
+        "atMs": 4797.952584000001
+      },
+      {
+        "pathname": "/v1/pages/aaaaaaaa-aaaa-4aaa-8aaa-000000000014",
+        "body": null,
+        "atMs": 5147.962
+      },
+      {
+        "pathname": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000014",
+        "body": null,
+        "atMs": 5498.609375
+      },
+      {
+        "pathname": "/v1/pages/aaaaaaaa-aaaa-4aaa-8aaa-000000000013",
+        "body": null,
+        "atMs": 5849.4304170000005
+      },
+      {
+        "pathname": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000013",
+        "body": null,
+        "atMs": 6200.398209000001
+      },
+      {
+        "pathname": "/v1/pages/aaaaaaaa-aaaa-4aaa-8aaa-000000000012",
+        "body": null,
+        "atMs": 6551.511625
+      },
+      {
+        "pathname": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000012",
+        "body": null,
+        "atMs": 6902.805334000001
+      },
+      {
+        "pathname": "/v1/pages/aaaaaaaa-aaaa-4aaa-8aaa-000000000011",
+        "body": null,
+        "atMs": 7253.000167
+      },
+      {
+        "pathname": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000011",
+        "body": null,
+        "atMs": 7603.904459
+      },
+      {
+        "pathname": "/v1/pages/aaaaaaaa-aaaa-4aaa-8aaa-000000000010",
+        "body": null,
+        "atMs": 7954.410959000001
+      },
+      {
+        "pathname": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000010",
+        "body": null,
+        "atMs": 8305.482834
+      },
+      {
+        "pathname": "/v1/pages/aaaaaaaa-aaaa-4aaa-8aaa-000000000009",
+        "body": null,
+        "atMs": 8656.04875
+      },
+      {
+        "pathname": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000009",
+        "body": null,
+        "atMs": 9006.791625
+      },
+      {
+        "pathname": "/v1/pages/aaaaaaaa-aaaa-4aaa-8aaa-000000000008",
+        "body": null,
+        "atMs": 9357.420833999999
+      },
+      {
+        "pathname": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000008",
+        "body": null,
+        "atMs": 9708.885
+      },
+      {
+        "pathname": "/v1/pages/aaaaaaaa-aaaa-4aaa-8aaa-000000000007",
+        "body": null,
+        "atMs": 10059.878542
+      },
+      {
+        "pathname": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000007",
+        "body": null,
+        "atMs": 10410.640209
+      },
+      {
+        "pathname": "/v1/pages/aaaaaaaa-aaaa-4aaa-8aaa-000000000006",
+        "body": null,
+        "atMs": 10762.381
+      },
+      {
+        "pathname": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000006",
+        "body": null,
+        "atMs": 11113.78025
+      },
+      {
+        "pathname": "/v1/pages/aaaaaaaa-aaaa-4aaa-8aaa-000000000005",
+        "body": null,
+        "atMs": 11463.383209
+      },
+      {
+        "pathname": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000005",
+        "body": null,
+        "atMs": 11814.604167
+      },
+      {
+        "pathname": "/v1/pages/aaaaaaaa-aaaa-4aaa-8aaa-000000000004",
+        "body": null,
+        "atMs": 12166.022834
+      },
+      {
+        "pathname": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000004",
+        "body": null,
+        "atMs": 12517.222458999999
+      },
+      {
+        "pathname": "/v1/pages/aaaaaaaa-aaaa-4aaa-8aaa-000000000003",
+        "body": null,
+        "atMs": 12867.976417
+      },
+      {
+        "pathname": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000003",
+        "body": null,
+        "atMs": 13218.313417
+      },
+      {
+        "pathname": "/v1/pages/aaaaaaaa-aaaa-4aaa-8aaa-000000000002",
+        "body": null,
+        "atMs": 13570.052875
+      },
+      {
+        "pathname": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000002",
+        "body": null,
+        "atMs": 13921.050208999999
+      },
+      {
+        "pathname": "/v1/pages/aaaaaaaa-aaaa-4aaa-8aaa-000000000001",
+        "body": null,
+        "atMs": 14272.293542
+      },
+      {
+        "pathname": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000001",
+        "body": null,
+        "atMs": 14622.062209
+      }
+    ]
+  }
+}

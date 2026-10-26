@@ -1,0 +1,16 @@
+TAP version 13
+# Subtest: critic: records render from validated snapshots before bounded parent-name hydration
+ok 1 - critic: records render from validated snapshots before bounded parent-name hydration
+  ---
+  duration_ms: 30.225583
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 89.862292

@@ -200,11 +200,12 @@ function setRelation(page, propertyName, ids, hasMore = false) {
   };
 }
 
-test('모듈은 공개 factory와 두 읽기 메서드만 제공한다', () => {
+test('모듈은 공개 factory와 repository methods만 제공한다', () => {
   assert.deepEqual(Object.keys(repositoryModule), ['createReadRepository']);
   const repository = createReadRepository(fixture().client);
   assert.deepEqual(Object.keys(repository).sort(), ['getBean', 'getBeanRecordCounts', 'getRecipeDetail', 'getRecipeStats',
-    'listBeans', 'listRecipeSummaries', 'listRecords', 'readAll', 'readRecipeForSnapshot',
+    'hydrateRecordParents', 'invalidateRecordParentCache', 'listBeans', 'listRecipeSummaries', 'listRecords',
+    'readAll', 'readRecipeForSnapshot',
     'searchOptions', 'validateRecipeSummaries']);
   assert.ok(Object.isFrozen(repository));
 });
@@ -305,7 +306,7 @@ test('getRecipeDetail fetches and validates only the selected parent and its com
   assert.deepEqual(stepQuery[2].filter, { property: '레시피', relation: { contains: IDS.recipe } });
 });
 
-test('listRecords relation-filters the visible page and locally validates bagless-v1 snapshots', async () => {
+test('listRecords scans one globally sorted stream and locally matches bagless-v1 snapshots', async () => {
   const snapshot = baglessSnapshot();
   const current = rawPage('records', IDS.record, { name: '오늘 기록', beanId: IDS.bean, recipeId: IDS.recipe,
     date: '2026-10-26', rating: 5, cupNote: '살구', snapshot });
@@ -321,7 +322,7 @@ test('listRecords relation-filters the visible page and locally validates bagles
     },
     async queryPage(kind, options) {
       calls.push(['queryPage', kind, options]);
-      if (kind === 'records' && options.filter) {
+      if (kind === 'records') {
         return { items: [current], nextCursor: null, hasMore: false, complete: true };
       }
       return { items: [], nextCursor: null, hasMore: false, complete: true };
@@ -331,8 +332,13 @@ test('listRecords relation-filters the visible page and locally validates bagles
   assert.equal(page.items.length, 1);
   assert.equal(page.items[0].snapshotStatus, 'valid');
   assert.equal(page.items[0].snapshot.recordGeneration, 'bagless-v1');
-  assert.deepEqual(calls.find(call => call[0] === 'queryPage' && call[1] === 'records')[2].filter,
-    { property: '레시피', relation: { contains: IDS.recipe } });
+  const recordQueries = calls.filter(call => call[0] === 'queryPage' && call[1] === 'records');
+  assert.equal(recordQueries.length, 1);
+  assert.equal(recordQueries[0][2].filter, undefined);
+  assert.deepEqual(recordQueries[0][2].sorts, [
+    { property: '날짜', direction: 'descending' },
+    { timestamp: 'last_edited_time', direction: 'descending' },
+  ]);
   assert.equal(page.hasMore, false);
   assert.equal(page.complete, true);
 });

@@ -1,0 +1,74 @@
+TAP version 13
+# Subtest: critic: preserve the search query for fresh, cached, and continued options
+not ok 1 - critic: preserve the search query for fresh, cached, and continued options
+  ---
+  duration_ms: 2.613833
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/screen-data-loading/AX-1day/test/screen-data-loading-controller-critic.test.mjs:15:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+
+      [
+    +   undefined,
+    +   undefined,
+    +   undefined
+    -   'Ethiopia',
+    -   'Ethiopia',
+    -   'Ethiopia'
+      ]
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: 'Ethiopia'
+    1: 'Ethiopia'
+    2: 'Ethiopia'
+  actual:
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/screen-data-loading/AX-1day/test/screen-data-loading-controller-critic.test.mjs:26:9)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: critic: loading more restarts aborted validation for still visible summary cards
+not ok 2 - critic: loading more restarts aborted validation for still visible summary cards
+  ---
+  duration_ms: 12.50575
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/screen-data-loading/AX-1day/test/screen-data-loading-controller-critic.test.mjs:28:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+
+      [
+    +   'checking',
+        'ready',
+    -   'ready'
+      ]
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: 'ready'
+    1: 'ready'
+  actual:
+    0: 'checking'
+    1: 'ready'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/screen-data-loading/AX-1day/test/screen-data-loading-controller-critic.test.mjs:35:9)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 0
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 71.7395

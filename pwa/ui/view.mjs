@@ -1143,6 +1143,9 @@ function searchPicker(document, title, kind, target, page, placeholder, optional
   search.setAttribute('autocomplete', 'off');
   search.dataset.optionSearchKind = kind;
   search.dataset.optionTarget = target;
+  const query = typeof page?.query === 'string' ? page.query : '';
+  search.value = query;
+  search.dataset.optionQuery = query;
   wrap.append(search);
   const select = make(document, 'select');
   select.name = kind === 'beans' ? 'beanId' : 'recipeId';
@@ -1154,8 +1157,8 @@ function searchPicker(document, title, kind, target, page, placeholder, optional
   if (page) {
     select.dataset.optionLoaded = 'true';
     select.dataset.nextCursor = page.nextCursor ?? '';
+    select.dataset.optionQuery = query;
     search.dataset.optionLoaded = 'true';
-    search.dataset.optionQuery = '';
   }
   wrap.append(select);
   const more = button(document, '이름 더 보기', 'button', 'more-options');
@@ -1231,13 +1234,23 @@ function recordCard(document, record, data) {
   const bean = data.beans.find(item => item.id === record.beanId);
   const recipe = data.recipes.find(item => item.id === record.recipeId);
   const validSnapshot = record.snapshotStatus === 'valid' ? record.snapshot : null;
+  const snapshotBean = validSnapshot?.version === 2 ? validSnapshot.bean : null;
   const snapshotRecipe = validSnapshot?.version === 2 ? validSnapshot.recipe : validSnapshot;
   const validRating = Number.isInteger(record.rating) && record.rating >= 1 && record.rating <= 5;
+  const beanName = bean?.name || snapshotBean?.name || (record.beanNameStatus === 'loading'
+    ? '원두 이름 확인 중' : record.beanNameStatus === 'error' ? '원두 이름 불러오기 실패' : '원두 확인 필요');
+  const recipeName = recipe?.name || snapshotRecipe?.name || (record.recipeNameStatus === 'loading'
+    ? '레시피 이름 확인 중' : record.recipeNameStatus === 'error' ? '레시피 이름 불러오기 실패' : '확인할 수 없는 레시피');
   const header = make(document, 'div', undefined, 'entity-card-header');
-  header.append(make(document, 'h3', `${record.date || '날짜 확인 필요'} · ${bean?.name || '원두 확인 필요'}`),
+  header.append(make(document, 'h3', `${record.date || '날짜 확인 필요'} · ${beanName}`),
     trashButton(document, 'records', record.id, recordName(record, recipe, snapshotRecipe)));
   card.append(header);
-  card.append(make(document, 'p', `레시피: ${recipe?.name || snapshotRecipe?.name || '확인할 수 없는 레시피'} · ${record.rating ?? '별점 확인 필요'}/5 ${validRating ? '★'.repeat(record.rating) : ''}`));
+  card.append(make(document, 'p', `레시피: ${recipeName} · ${record.rating ?? '별점 확인 필요'}/5 ${validRating ? '★'.repeat(record.rating) : ''}`));
+  const nameNotes = [
+    recordParentNameNote('beans', record.beanNameStatus, snapshotBean?.name),
+    recordParentNameNote('recipes', record.recipeNameStatus, snapshotRecipe?.name),
+  ].filter(Boolean);
+  for (const note of nameNotes) card.append(make(document, 'p', note, 'muted-note'));
   if (record.beanResolution === 'needs-confirmation') card.append(make(document, 'p', '과거 원두 관계를 확인해야 합니다.', 'record-warning'));
   const invalidLabels = [
     ...(record.invalidFields?.includes('date') ? ['날짜'] : []),
@@ -1247,6 +1260,19 @@ function recordCard(document, record, data) {
   if (record.snapshotStatus === 'damaged') card.append(make(document, 'p', '스냅샷이 손상되어 당시 조건을 표시할 수 없습니다.', 'record-warning'));
   if (record.cupNote) card.append(make(document, 'p', `컵노트: ${record.cupNote}`));
   return card;
+}
+
+function recordParentNameNote(kind, status, snapshotName) {
+  const name = kind === 'beans' ? '원두' : '레시피';
+  if (status === 'loading') return snapshotName
+    ? `기록 당시 ${name} 이름을 표시하며 현재 이름을 확인 중입니다.`
+    : `현재 ${name} 이름을 확인 중입니다.`;
+  if (status === 'snapshot') return `기록 당시 ${name} 이름을 표시합니다.`;
+  if (status === 'unavailable') return `${name} 이름을 확인할 수 없습니다.`;
+  if (status === 'error') return snapshotName
+    ? `현재 ${name} 이름을 불러오지 못해 기록 당시 이름을 표시합니다.`
+    : `현재 ${name} 이름을 불러오지 못했습니다.`;
+  return '';
 }
 
 function addFormActions(document, form, kind) {

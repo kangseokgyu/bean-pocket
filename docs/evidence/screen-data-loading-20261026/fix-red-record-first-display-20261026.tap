@@ -1,0 +1,375 @@
+TAP version 13
+# Subtest: critic: records render from validated snapshots before bounded parent-name hydration
+not ok 1 - critic: records render from validated snapshots before bounded parent-name hydration
+  ---
+  duration_ms: 39.494583
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/screen-data-loading/AX-1day/test/screen-data-loading-critic-regressions.test.mjs:231:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+
+    + [
+    +   {
+    +     id: 'c1111111-1111-4111-8111-000000000001',
+    +     name: 'Bean 0',
+    +     origin: '구지',
+    +     process: '워시드',
+    +     roaster: '로스터리',
+    +     tastingNotes: '복숭아',
+    +     variety: ''
+    +   },
+    +   {
+    +     id: 'c1111111-1111-4111-8111-000000000002',
+    +     name: 'Bean 1',
+    +     origin: '구지',
+    +     process: '워시드',
+    +     roaster: '로스터리',
+    +     tastingNotes: '복숭아',
+    +     variety: ''
+    +   },
+    +   {
+    +     id: 'c1111111-1111-4111-8111-000000000003',
+    +     name: 'Bean 2',
+    +     origin: '구지',
+    +     process: '워시드',
+    +     roaster: '로스터리',
+    +     tastingNotes: '복숭아',
+    +     variety: ''
+    +   },
+    +   {
+    +     id: 'c1111111-1111-4111-8111-000000000004',
+    +     name: 'Bean 3',
+    +     origin: '구지',
+    +     process: '워시드',
+    +     roaster: '로스터리',
+    +     tastingNotes: '복숭아',
+    +     variety: ''
+    +   },
+    +   {
+    +     id: 'c1111111-1111-4111-8111-000000000005',
+    +     name: 'Bean 4',
+    +     origin: '구지',
+    +     process: '워시드',
+    +     roaster: '로스터리',
+    +     tastingNotes: '복숭아',
+    +     variety: ''
+    +   },
+    +   {
+    +     id: 'c1111111-1111-4111-8111-000000000006',
+    +     name: 'Bean 5',
+    +     origin: '구지',
+    +     process: '워시드',
+    +     roaster: '로스터리',
+    +     tastingNotes: '복숭아',
+    +     variety: ''
+    +   },
+    +   {
+    +     id: 'c1111111-1111-4111-8111-000000000007',
+    +     name: 'Bean 6',
+    +     origin: '구지',
+    +     process: '워시드',
+    +     roaster: '로스터리',
+    +     tastingNotes: '복숭아',
+    +     variety: ''
+    +   },
+    +   {
+    +     id: 'c1111111-1111-4111-8111-000000000008',
+    +     name: 'Bean 7',
+    +     origin: '구지',
+    +     process: '워시드',
+    +     roaster: '로스터리',
+    +     tastingNotes: '복숭아',
+    +     variety: ''
+    +   },
+    +   {
+    +     id: 'c1111111-1111-4111-8111-000000000009',
+    +     name: 'Bean 8',
+    +     origin: '구지',
+    +     process: '워시드',
+    +     roaster: '로스터리',
+    +     tastingNotes: '복숭아',
+    +     variety: ''
+    +   },
+    +   {
+    +     id: 'c1111111-1111-4111-8111-000000000010',
+    +     name: 'Bean 9',
+    +     origin: '구지',
+    +     process: '워시드',
+    +     roaster: '로스터리',
+    +     tastingNotes: '복숭아',
+    +     variety: ''
+    +   },
+    +   {
+    +     id: 'c1111111-1111-4111-8111-000000000011',
+    +     name: 'Bean 10',
+    +     origin: '구지',
+    +     process: '워시드',
+    +     roaster: '로스터리',
+    +     tastingNotes: '복숭아',
+    +     variety: ''
+    +   },
+    +   {
+    +     id: 'c1111111-1111-4111-8111-000000000012',
+    +     name: 'Bean 11',
+    +     origin: '구지',
+    +     process: '워시드',
+    +     roaster: '로스터리',
+    +     tastingNotes: '복숭아',
+    +     variety: ''
+    +   },
+    +   {
+    +     id: 'c1111111-1111-4111-8111-000000000013',
+    +     name: 'Bean 12',
+    +     origin: '구지',
+    +     process: '워시드',
+    +     roaster: '로스터리',
+    +     tastingNotes: '복숭아',
+    +     variety: ''
+    +   },
+    +   {
+    +     id: 'c1111111-1111-4111-8111-000000000014',
+    +     name: 'Bean 13',
+    +     origin: '구지',
+    +     process: '워시드',
+    +     roaster: '로스터리',
+    +     tastingNotes: '복숭아',
+    +     variety: ''
+    +   },
+    +   {
+    +     id: 'c1111111-1111-4111-8111-000000000015',
+    +     name: 'Bean 14',
+    +     origin: '구지',
+    +     process: '워시드',
+    +     roaster: '로스터리',
+    +     tastingNotes: '복숭아',
+    +     variety: ''
+    +   },
+    +   {
+    +     id: 'c1111111-1111-4111-8111-000000000016',
+    +     name: 'Bean 15',
+    +     origin: '구지',
+    +     process: '워시드',
+    +     roaster: '로스터리',
+    +     tastingNotes: '복숭아',
+    +     variety: ''
+    +   },
+    +   {
+    +     id: 'c1111111-1111-4111-8111-000000000017',
+    +     name: 'Bean 16',
+    +     origin: '구지',
+    +     process: '워시드',
+    +     roaster: '로스터리',
+    +     tastingNotes: '복숭아',
+    +     variety: ''
+    +   },
+    +   {
+    +     id: 'c1111111-1111-4111-8111-000000000018',
+    +     name: 'Bean 17',
+    +     origin: '구지',
+    +     process: '워시드',
+    +     roaster: '로스터리',
+    +     tastingNotes: '복숭아',
+    +     variety: ''
+    +   },
+    +   {
+    +     id: 'c1111111-1111-4111-8111-000000000019',
+    +     name: 'Bean 18',
+    +     origin: '구지',
+    +     process: '워시드',
+    +     roaster: '로스터리',
+    +     tastingNotes: '복숭아',
+    +     variety: ''
+    +   },
+    +   {
+    +     id: 'c1111111-1111-4111-8111-000000000020',
+    +     name: 'Bean 19',
+    +     origin: '구지',
+    +     process: '워시드',
+    +     roaster: '로스터리',
+    +     tastingNotes: '복숭아',
+    +     variety: ''
+    +   }
+    + ]
+    - []
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+    0:
+      id: 'c1111111-1111-4111-8111-000000000001'
+      name: 'Bean 0'
+      roaster: '로스터리'
+      origin: '구지'
+      variety: ''
+      process: '워시드'
+      tastingNotes: '복숭아'
+    1:
+      id: 'c1111111-1111-4111-8111-000000000002'
+      name: 'Bean 1'
+      roaster: '로스터리'
+      origin: '구지'
+      variety: ''
+      process: '워시드'
+      tastingNotes: '복숭아'
+    2:
+      id: 'c1111111-1111-4111-8111-000000000003'
+      name: 'Bean 2'
+      roaster: '로스터리'
+      origin: '구지'
+      variety: ''
+      process: '워시드'
+      tastingNotes: '복숭아'
+    3:
+      id: 'c1111111-1111-4111-8111-000000000004'
+      name: 'Bean 3'
+      roaster: '로스터리'
+      origin: '구지'
+      variety: ''
+      process: '워시드'
+      tastingNotes: '복숭아'
+    4:
+      id: 'c1111111-1111-4111-8111-000000000005'
+      name: 'Bean 4'
+      roaster: '로스터리'
+      origin: '구지'
+      variety: ''
+      process: '워시드'
+      tastingNotes: '복숭아'
+    5:
+      id: 'c1111111-1111-4111-8111-000000000006'
+      name: 'Bean 5'
+      roaster: '로스터리'
+      origin: '구지'
+      variety: ''
+      process: '워시드'
+      tastingNotes: '복숭아'
+    6:
+      id: 'c1111111-1111-4111-8111-000000000007'
+      name: 'Bean 6'
+      roaster: '로스터리'
+      origin: '구지'
+      variety: ''
+      process: '워시드'
+      tastingNotes: '복숭아'
+    7:
+      id: 'c1111111-1111-4111-8111-000000000008'
+      name: 'Bean 7'
+      roaster: '로스터리'
+      origin: '구지'
+      variety: ''
+      process: '워시드'
+      tastingNotes: '복숭아'
+    8:
+      id: 'c1111111-1111-4111-8111-000000000009'
+      name: 'Bean 8'
+      roaster: '로스터리'
+      origin: '구지'
+      variety: ''
+      process: '워시드'
+      tastingNotes: '복숭아'
+    9:
+      id: 'c1111111-1111-4111-8111-000000000010'
+      name: 'Bean 9'
+      roaster: '로스터리'
+      origin: '구지'
+      variety: ''
+      process: '워시드'
+      tastingNotes: '복숭아'
+    10:
+      id: 'c1111111-1111-4111-8111-000000000011'
+      name: 'Bean 10'
+      roaster: '로스터리'
+      origin: '구지'
+      variety: ''
+      process: '워시드'
+      tastingNotes: '복숭아'
+    11:
+      id: 'c1111111-1111-4111-8111-000000000012'
+      name: 'Bean 11'
+      roaster: '로스터리'
+      origin: '구지'
+      variety: ''
+      process: '워시드'
+      tastingNotes: '복숭아'
+    12:
+      id: 'c1111111-1111-4111-8111-000000000013'
+      name: 'Bean 12'
+      roaster: '로스터리'
+      origin: '구지'
+      variety: ''
+      process: '워시드'
+      tastingNotes: '복숭아'
+    13:
+      id: 'c1111111-1111-4111-8111-000000000014'
+      name: 'Bean 13'
+      roaster: '로스터리'
+      origin: '구지'
+      variety: ''
+      process: '워시드'
+      tastingNotes: '복숭아'
+    14:
+      id: 'c1111111-1111-4111-8111-000000000015'
+      name: 'Bean 14'
+      roaster: '로스터리'
+      origin: '구지'
+      variety: ''
+      process: '워시드'
+      tastingNotes: '복숭아'
+    15:
+      id: 'c1111111-1111-4111-8111-000000000016'
+      name: 'Bean 15'
+      roaster: '로스터리'
+      origin: '구지'
+      variety: ''
+      process: '워시드'
+      tastingNotes: '복숭아'
+    16:
+      id: 'c1111111-1111-4111-8111-000000000017'
+      name: 'Bean 16'
+      roaster: '로스터리'
+      origin: '구지'
+      variety: ''
+      process: '워시드'
+      tastingNotes: '복숭아'
+    17:
+      id: 'c1111111-1111-4111-8111-000000000018'
+      name: 'Bean 17'
+      roaster: '로스터리'
+      origin: '구지'
+      variety: ''
+      process: '워시드'
+      tastingNotes: '복숭아'
+    18:
+      id: 'c1111111-1111-4111-8111-000000000019'
+      name: 'Bean 18'
+      roaster: '로스터리'
+      origin: '구지'
+      variety: ''
+      process: '워시드'
+      tastingNotes: '복숭아'
+    19:
+      id: 'c1111111-1111-4111-8111-000000000020'
+      name: 'Bean 19'
+      roaster: '로스터리'
+      origin: '구지'
+      variety: ''
+      process: '워시드'
+      tastingNotes: '복숭아'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/screen-data-loading/AX-1day/test/screen-data-loading-critic-regressions.test.mjs:251:9)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 123.570458

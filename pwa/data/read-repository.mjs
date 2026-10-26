@@ -10,6 +10,8 @@ import {
 
 const KINDS = Object.freeze(['beans', 'recipes', 'steps', 'records']);
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const RECORD_PAGE_STATE_TTL_MS = 10 * 60 * 1000;
+const RECORD_PARENT_CACHE_TTL_MS = 60 * 1000;
 
 const safeFailures = new WeakSet();
 
@@ -178,6 +180,8 @@ export function createReadRepository(client) {
   const pendingRecipePages = new Map();
   const validatedRecipes = new Map();
   const recordPageStates = new Map();
+  const recordParentCache = { beans: new Map(), recipes: new Map() };
+  let recordParentCacheRevision = client.connectionRevision ?? null;
   let recordPageSequence = 0;
   try {
     queryAll = client.queryAll;
@@ -208,6 +212,74 @@ export function createReadRepository(client) {
     if (cursor == null) return null;
     return encodeURIComponent(JSON.stringify({ version: 1, revision: client.connectionRevision ?? null,
       kind, query, cursor }));
+  }
+
+  function pruneRecordPageStates(now = Date.now()) {
+    for (const [id, entry] of recordPageStates) {
+      if (now - entry.lastUsedAt > RECORD_PAGE_STATE_TTL_MS) recordPageStates.delete(id);
+    }
+  }
+
+  function ensureRecordParentCacheRevision() {
+    const revision = client.connectionRevision ?? null;
+    if (revision === recordParentCacheRevision) return;
+    recordParentCache.beans.clear();
+    recordParentCache.recipes.clear();
+    recordParentCacheRevision = revision;
+  }
+
+  function getRecordParentEntry(kind, id) {
+    ensureRecordParentCacheRevision();
+    const cache = recordParentCache[kind];
+    const key = normalizeUuid(id);
+    if (!cache || !key) return null;
+    const entry = cache.get(key);
+    if (!entry) return null;
+    if (Date.now() - entry.savedAt > RECORD_PARENT_CACHE_TTL_MS) {
+      cache.delete(key);
+      return null;
+    }
+    return entry;
+  }
+
+  function rememberRecordParent(kind, id, status, value = null) {
+    ensureRecordParentCacheRevision();
+    const key = normalizeUuid(id);
+    const cache = recordParentCache[kind];
+    if (!cache || !key) return;
+    cache.set(key, { status, value: status === 'live' ? deepFreeze(value) : null, savedAt: Date.now() });
+  }
+
+  function cachedRecordParents(kind, ids) {
+    const result = [];
+    for (const id of new Set(ids.map(normalizeUuid).filter(Boolean))) {
+      const entry = getRecordParentEntry(kind, id);
+      if (entry?.status === 'live') result.push(entry.value);
+    }
+    return result;
+  }
+
+  function recordParentNameStatus(kind, id, snapshotName) {
+    const key = normalizeUuid(id);
+    if (!key) return snapshotName ? 'snapshot' : 'unavailable';
+    const entry = getRecordParentEntry(kind, key);
+    if (!entry) return 'loading';
+    if (entry.status === 'live') return 'live';
+    return snapshotName ? 'snapshot' : 'unavailable';
+  }
+
+  function invalidateRecordParentCache(kind = 'all', ids = null) {
+    ensureRecordParentCacheRevision();
+    const kinds = kind === 'all' ? ['beans', 'recipes'] : [kind];
+    for (const currentKind of kinds) {
+      const cache = recordParentCache[currentKind];
+      if (!cache) continue;
+      if (ids == null) cache.clear();
+      else for (const id of ids) {
+        const key = normalizeUuid(id);
+        if (key) cache.delete(key);
+      }
+    }
   }
 
   function readError(error) {
@@ -246,6 +318,7 @@ export function createReadRepository(client) {
         if (!validateRawPage(raw, sourceIds.beans) || !validateRawProperties('beans', raw)) continue;
         const bean = decodePage('beans', raw);
         bean.id = normalizeUuid(raw.id);
+        rememberRecordParent('beans', bean.id, 'live', bean);
         items.push(bean);
       }
       return deepFreeze({ items, nextCursor: pageCursor('beans', query, page.nextCursor),
@@ -342,6 +415,9 @@ export function createReadRepository(client) {
         JSON.stringify(criteria) !== JSON.stringify(getRecipeParentCriteria(freshPage))) {
       throw safeFailure('stale-read');
     }
+    const currentParent = decodePage('recipes', freshPage);
+    currentParent.id = criteria.id;
+    rememberRecordParent('recipes', criteria.id, 'live', currentParent);
     recipe.validationStatus = 'ready';
     recipe.stats = { status: 'loading', count: null, average: null };
     const validated = deepFreeze(recipe);
@@ -424,6 +500,7 @@ export function createReadRepository(client) {
       }
       const bean = decodePage('beans', raw);
       bean.id = id;
+      rememberRecordParent('beans', id, 'live', bean);
       return deepFreeze(bean);
     } catch (error) {
       if (safeFailures.has(error)) throw error;
@@ -446,57 +523,6 @@ export function createReadRepository(client) {
     return deepFreeze(await validateSelectedRecipe(parent, stepPages, signal));
   }
 
-  function currentRawRecord(page) {
-    if (!validateRawPage(page, sourceIds.records) || !validateRawProperties('records', page)) return false;
-    const decoded = decodePage('records', page);
-    const relation = relationState(page.properties['레시피']);
-    const recipeIds = relation.ids;
-    const snapshotRecipeId = normalizeUuid(decoded.snapshot?.version === 2
-      ? decoded.snapshot.recipe?.id : decoded.snapshot?.id);
-    const recipeId = recipeIds.length === 1 ? recipeIds[0]
-      : recipeIds.length === 0 ? snapshotRecipeId
-        : recipeIds.includes(snapshotRecipeId) ? snapshotRecipeId : null;
-    const snapshot = readSnapshot(decoded.snapshot, recipeId);
-    return snapshot?.value.recordGeneration === CURRENT_RECORD_GENERATION;
-  }
-
-  async function referencedPages(records, signal) {
-    const beanIds = new Set();
-    const recipeIds = new Set();
-    for (const page of records) {
-      const decoded = decodePage('records', page);
-      const snapshot = decoded.snapshot;
-      for (const id of relationIds(page.properties['원두'])) beanIds.add(id);
-      if (snapshot?.version === 2) {
-        const beanId = normalizeUuid(snapshot.bean?.id);
-        const recipeId = normalizeUuid(snapshot.recipe?.id);
-        if (beanId) beanIds.add(beanId);
-        if (recipeId) recipeIds.add(recipeId);
-      } else {
-        const beanId = normalizeUuid(snapshot?.beanId);
-        const recipeId = normalizeUuid(snapshot?.id);
-        if (beanId) beanIds.add(beanId);
-        if (recipeId) recipeIds.add(recipeId);
-      }
-      for (const id of relationIds(page.properties['레시피'])) recipeIds.add(id);
-    }
-    const beans = [];
-    const recipes = [];
-    for (const id of beanIds) {
-      try {
-        const page = await getPage.call(client, id, { signal });
-        if (validateRawPage(page, sourceIds.beans) && validateRawProperties('beans', page)) beans.push(page);
-      } catch { /* Missing or inaccessible names are retained as unresolved record metadata. */ }
-    }
-    for (const id of recipeIds) {
-      try {
-        const page = await getPage.call(client, id, { signal });
-        if (validateRawPage(page, sourceIds.recipes) && validateRawProperties('recipes', page)) recipes.push(page);
-      } catch { /* Snapshot names remain available when a parent recipe was removed. */ }
-    }
-    return { beans, recipes };
-  }
-
   async function listRecords({ beanId = null, recipeId = null, cursor = null, limit = 20, signal } = {}) {
     if (typeof queryPage !== 'function') throw safeFailure('read-failed');
     const normalizedBean = beanId == null || beanId === '' ? null : normalizeUuid(beanId);
@@ -507,60 +533,34 @@ export function createReadRepository(client) {
     const query = { beanId: normalizedBean, recipeId: normalizedRecipe, sorts };
     const tokenState = queryCursor('records', query, cursor);
     let state;
-    let previousStateId = null;
+    const now = Date.now();
+    pruneRecordPageStates(now);
     if (tokenState === null) {
-      state = { rawCursor: null, relationCursor: null, rawDone: false, relationDone: false,
-        rawCursors: [], relationCursors: [], pendingRaw: [], seenIds: [] };
+      state = { rawCursor: null, rawDone: false, rawCursors: [], pendingRaw: [], seenIds: [] };
     } else {
-      if (!isRecord(tokenState) || typeof tokenState.id !== 'string' || !recordPageStates.has(tokenState.id)) {
+      const entry = isRecord(tokenState) && typeof tokenState.id === 'string'
+        ? recordPageStates.get(tokenState.id) : null;
+      if (!entry) {
         throw safeFailure('invalid-input');
       }
-      previousStateId = tokenState.id;
-      state = structuredClone(recordPageStates.get(tokenState.id));
+      entry.lastUsedAt = now;
+      state = structuredClone(entry.state);
     }
-    const directBeanSupported = client.recordBeanRelationSupported !== false;
-    const filters = [];
-    if (normalizedBean && directBeanSupported) filters.push(relationFilter(schemas.records.beanId[0], normalizedBean));
-    if (normalizedRecipe) filters.push(relationFilter(schemas.records.recipeId[0], normalizedRecipe));
-    const directFilter = filters.length > 1 ? { and: filters } : filters[0];
     const properties = Object.values(schemas.records).map(([name]) => name);
     const seen = new Set(state.seenIds);
     const queued = new Set(state.pendingRaw.map(page => normalizeUuid(page.id)));
-    const candidates = [];
-    const maxCandidates = Math.max(limit * 2, limit);
-    const add = page => {
-      const id = normalizeUuid(page?.id);
-      if (!id || seen.has(id) || !currentRawRecord(page)) return false;
-      seen.add(id);
-      candidates.push(page);
-      return true;
-    };
 
     try {
-      if (directFilter && !state.relationDone && candidates.length < maxCandidates) {
-        const page = await queryPageFor('records', { cursor: state.relationCursor, limit,
-          filter: directFilter, sorts, properties, signal });
-        for (const row of page.items) add(row);
-        state.relationDone = !page.hasMore;
-        state.relationCursor = page.nextCursor;
-        if (page.hasMore) {
-          if (state.relationCursors.includes(page.nextCursor)) throw safeFailure('pagination-error');
-          state.relationCursors.push(page.nextCursor);
-        }
-      } else if (!directFilter) state.relationDone = true;
-
-      while (state.pendingRaw.length && candidates.length < maxCandidates) {
-        const row = state.pendingRaw.shift();
-        queued.delete(normalizeUuid(row.id));
-        add(row);
-      }
       let scanned = 0;
-      while (scanned < 3 && !state.rawDone && candidates.length < maxCandidates) {
+      while (state.pendingRaw.length < limit && scanned < 3 && !state.rawDone) {
         const page = await queryPageFor('records', { cursor: state.rawCursor, limit: 100, sorts, properties, signal });
         scanned++;
         for (const row of page.items) {
           const id = normalizeUuid(row?.id);
-          if (!id || seen.has(id) || queued.has(id) || !currentRawRecord(row)) continue;
+          if (!id || seen.has(id) || queued.has(id)) continue;
+          const record = currentRawRecordValue(row);
+          if (!record || (normalizedBean && record.beanId !== normalizedBean) ||
+              (normalizedRecipe && record.recipeId !== normalizedRecipe)) continue;
           state.pendingRaw.push(row);
           queued.add(id);
         }
@@ -570,42 +570,25 @@ export function createReadRepository(client) {
           if (state.rawCursors.includes(page.nextCursor)) throw safeFailure('pagination-error');
           state.rawCursors.push(page.nextCursor);
         } else if (!page.complete) throw safeFailure('query-incomplete');
-        while (state.pendingRaw.length && candidates.length < maxCandidates) {
-          const row = state.pendingRaw.shift();
-          queued.delete(normalizeUuid(row.id));
-          add(row);
-        }
       }
 
-      const parents = await referencedPages(candidates, signal);
-      const assembled = await assembleData({ beans: parents.beans, recipes: parents.recipes, steps: [], records: candidates });
-      let items = assembled.records.filter(isCurrentRecord);
-      if (normalizedBean) items = items.filter(record => record.beanId === normalizedBean);
-      if (normalizedRecipe) items = items.filter(record => record.recipeId === normalizedRecipe);
-      items.sort((left, right) => String(right.date ?? '').localeCompare(String(left.date ?? '')) ||
-        String(right.id).localeCompare(String(left.id)));
-      const rawById = new Map(candidates.map(page => [normalizeUuid(page.id), page]));
-      const pageItems = items.slice(0, limit);
-      const remainingItems = items.slice(limit);
-      state.pendingRaw = [
-        ...remainingItems.map(item => rawById.get(item.id)).filter(Boolean),
-        ...state.pendingRaw,
-      ];
+      state.pendingRaw.sort((left, right) => {
+        const leftDate = currentRawRecordValue(left)?.date ?? '';
+        const rightDate = currentRawRecordValue(right)?.date ?? '';
+        return String(rightDate).localeCompare(String(leftDate)) || String(right.id).localeCompare(String(left.id));
+      });
+      const rawItems = state.pendingRaw.splice(0, limit);
+      const pageItems = rawItems.map(currentRawRecordValue).filter(Boolean);
       state.seenIds = [...new Set([...state.seenIds, ...pageItems.map(item => item.id)])];
-      const complete = state.rawDone && state.relationDone && state.pendingRaw.length === 0;
+      const beans = cachedRecordParents('beans', pageItems.map(item => item.beanId));
+      const recipes = cachedRecordParents('recipes', pageItems.map(item => item.recipeId));
+      const complete = state.rawDone && state.pendingRaw.length === 0;
       let nextCursor = null;
       if (!complete) {
         const id = String(++recordPageSequence);
-        recordPageStates.set(id, state);
+        recordPageStates.set(id, { state: structuredClone(state), lastUsedAt: Date.now() });
         nextCursor = pageCursor('records', query, { id });
       }
-      if (previousStateId) recordPageStates.delete(previousStateId);
-      const beans = assembled.beans;
-      const recipes = parents.recipes.map(page => {
-        const recipe = decodePage('recipes', page);
-        recipe.id = normalizeUuid(page.id);
-        return recipe;
-      });
       return deepFreeze({ items: pageItems, beans, recipes, nextCursor, hasMore: !complete, complete });
     } catch (error) {
       if (safeFailures.has(error)) throw error;
@@ -614,22 +597,99 @@ export function createReadRepository(client) {
   }
 
   function currentRawRecordValue(page) {
-    if (!currentRawRecord(page)) return null;
+    if (!validateRawPage(page, sourceIds.records)) return null;
     const decoded = decodePage('records', page);
-    const relation = relationState(page.properties['레시피']);
-    const recipeIds = relation.ids;
+    const recipeRelation = relationState(page.properties['레시피']);
+    const recipeIds = recipeRelation.ids;
     const snapshotRecipeId = normalizeUuid(decoded.snapshot?.version === 2
       ? decoded.snapshot.recipe?.id : decoded.snapshot?.id);
     const recipeId = recipeIds.length === 1 ? recipeIds[0]
       : recipeIds.length === 0 ? snapshotRecipeId
         : recipeIds.includes(snapshotRecipeId) ? snapshotRecipeId : null;
     const snapshot = readSnapshot(decoded.snapshot, recipeId);
+    if (!snapshot || snapshot.value.recordGeneration !== CURRENT_RECORD_GENERATION) return null;
+    const beanRelation = relationState(page.properties['원두']);
+    const snapshotBeanId = snapshot.beanId;
+    const beanCandidates = [...new Set([...beanRelation.ids, ...(snapshotBeanId ? [snapshotBeanId] : [])])];
+    const beanRelationAmbiguous = beanRelation.present && !beanRelation.complete;
+    const beanId = beanCandidates.length === 1 && !beanRelationAmbiguous ? beanCandidates[0] : null;
     if (!snapshot) return null;
     decoded.id = normalizeUuid(page.id);
     decoded.recipeId = recipeId;
+    decoded.beanId = beanId;
+    decoded.beanResolution = !beanId ? 'needs-confirmation'
+      : beanRelation.ids.includes(beanId) ? 'relation'
+        : snapshot.version === 2 ? 'snapshot-v2' : 'snapshot-v1';
+    decoded.relationEvidence = { bean: beanRelation, recipe: recipeRelation,
+      legacyRecipeBean: { ids: [], complete: true, present: false } };
+    if (recipeIds.length > 1 || !recipeRelation.complete) decoded.recipeCandidates = recipeIds;
+    if (beanCandidates.length > 1 || beanRelationAmbiguous) decoded.beanCandidates = beanCandidates;
     decoded.snapshot = snapshot.value;
     decoded.snapshotStatus = 'valid';
+    const issues = recordValidationIssues(decoded);
+    if (issues.length) decoded.invalidFields = issues;
+    const snapshotBean = snapshot.value.version === 2 ? snapshot.value.bean : null;
+    const snapshotRecipe = snapshot.value.version === 2 ? snapshot.value.recipe : snapshot.value;
+    decoded.beanNameStatus = recordParentNameStatus('beans', beanId, snapshotBean?.name);
+    decoded.recipeNameStatus = recordParentNameStatus('recipes', recipeId, snapshotRecipe?.name);
     return decoded;
+  }
+
+  async function hydrateRecordParents(records, { signal } = {}) {
+    if (!Array.isArray(records) || records.some(record => !isCurrentRecord(record))) {
+      throw safeFailure('invalid-input');
+    }
+    ensureRecordParentCacheRevision();
+    const beanIds = [...new Set(records.filter(record => record.beanNameStatus === 'loading')
+      .map(record => normalizeUuid(record.beanId)).filter(Boolean))];
+    const recipeIds = [...new Set(records.filter(record => record.recipeNameStatus === 'loading')
+      .map(record => normalizeUuid(record.recipeId)).filter(Boolean))];
+
+    async function hydrateKind(kind, ids) {
+      const statuses = {};
+      const missing = [];
+      for (const id of ids) {
+        const entry = getRecordParentEntry(kind, id);
+        if (entry) statuses[id] = entry.status;
+        else missing.push(id);
+      }
+      const batch = missing.slice(0, 20);
+      for (const id of batch) {
+        try {
+          const raw = await getPage.call(client, id, { signal });
+          if (!validateRawPage(raw, sourceIds[kind]) || !validateRawProperties(kind, raw) ||
+              normalizeUuid(raw.id) !== id) {
+            statuses[id] = 'error';
+            continue;
+          }
+          const value = decodePage(kind, raw);
+          value.id = id;
+          rememberRecordParent(kind, id, 'live', value);
+          statuses[id] = 'live';
+        } catch (error) {
+          if (signal?.aborted || error?.code === 'read-cancelled' || error?.name === 'AbortError') {
+            throw safeFailure('read-cancelled');
+          }
+          if (error?.httpStatus === 404) {
+            rememberRecordParent(kind, id, 'snapshot');
+            statuses[id] = 'snapshot';
+          } else statuses[id] = 'error';
+        }
+      }
+      return { statuses, remaining: missing.slice(batch.length) };
+    }
+
+    const [beans, recipes] = await Promise.all([
+      hydrateKind('beans', beanIds), hydrateKind('recipes', recipeIds),
+    ]);
+    return deepFreeze({
+      beans: cachedRecordParents('beans', beanIds),
+      recipes: cachedRecordParents('recipes', recipeIds),
+      beanStatuses: beans.statuses,
+      recipeStatuses: recipes.statuses,
+      remainingBeanIds: beans.remaining,
+      remainingRecipeIds: recipes.remaining,
+    });
   }
 
   async function getRecipeStats(recipeId, { signal, validatedRecipe } = {}) {
@@ -885,5 +945,6 @@ export function createReadRepository(client) {
   }
 
   return Object.freeze({ listBeans, listRecipeSummaries, validateRecipeSummaries, getBean, getRecipeDetail,
-    listRecords, searchOptions, getRecipeStats, getBeanRecordCounts, readAll, readRecipeForSnapshot });
+    listRecords, hydrateRecordParents, invalidateRecordParentCache, searchOptions,
+    getRecipeStats, getBeanRecordCounts, readAll, readRecipeForSnapshot });
 }

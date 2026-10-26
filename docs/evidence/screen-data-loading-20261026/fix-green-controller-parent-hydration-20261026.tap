@@ -1,0 +1,16 @@
+TAP version 13
+# Subtest: critic: records render before deferred live names arrive and then merge them
+ok 1 - critic: records render before deferred live names arrive and then merge them
+  ---
+  duration_ms: 13.499625
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 71.913042

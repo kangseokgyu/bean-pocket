@@ -2001,6 +2001,23 @@ test('record page shows continuation state instead of claiming the database is e
   assert.ok(document.root.querySelector('[data-action="load-more"]'));
 });
 
+test('record cards show snapshot names while current parent names are loading', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.renderRoute('/records');
+  const record = { ...data().records[0], beanNameStatus: 'loading', recipeNameStatus: 'loading',
+    snapshot: { version: 2, recordGeneration: 'bagless-v1',
+      bean: { id: BEAN, name: 'Snapshot bean' }, recipe: { id: RECIPE, name: 'Snapshot recipe' } } };
+  view.renderData({ ...data(), beans: [], recipes: [], records: [record], screen: { complete: true, hasMore: false } });
+  const card = document.root.querySelector('.record-card');
+
+  assert.match(card.querySelector('h3').textContent, /Snapshot bean/);
+  assert.match(card.textContent, /레시피: Snapshot recipe/);
+  assert.match(card.textContent, /기록 당시 원두 이름을 표시하며 현재 이름을 확인 중입니다/);
+  assert.match(card.textContent, /기록 당시 레시피 이름을 표시하며 현재 이름을 확인 중입니다/);
+  assert.doesNotMatch(card.textContent, /원두 확인 필요|확인할 수 없는 레시피/);
+});
+
 test('record name pickers load on focus and preserve filter selection across option pages', () => {
   const document = new TestDocument();
   const view = createAppView(document);
@@ -2019,16 +2036,17 @@ test('record name pickers load on focus and preserve filter selection across opt
   assert.deepEqual(requested, [['beans', '', null, 'filters', false]]);
 
   view.setSearchOptions('filters', 'beans', { items: [{ id: BEAN, name: '원두 선택' }],
-    nextCursor: 'names-next', hasMore: true }, false, '');
+    nextCursor: 'names-next', hasMore: true }, false, 'Search Ethiopia');
   assert.equal(beanFilter.value, BEAN);
   assert.equal(beanFilter.options.length, 2);
+  assert.equal(beanSearch.value, 'Search Ethiopia');
   const beanMore = content.querySelectorAll('[data-option-more]')
     .find(control => control.dataset.optionTarget === 'filters' && control.dataset.optionKind === 'beans');
   assert.equal(beanMore.hidden, false);
   assert.equal(beanFilter.dataset.nextCursor, 'names-next');
 
   view.setSearchOptions('filters', 'beans', { items: [{ id: '77777777-7777-4777-8777-777777777777', name: '다음 원두' }],
-    nextCursor: null, hasMore: false }, true, '');
+    nextCursor: null, hasMore: false }, true, 'Search Ethiopia');
   assert.equal(beanFilter.options.length, 3);
   assert.equal(beanFilter.value, BEAN);
 
@@ -2036,6 +2054,9 @@ test('record name pickers load on focus and preserve filter selection across opt
     nextCursor: 'names-next', hasMore: true } }, screen: { complete: true, hasMore: false,
     filters: { beanId: BEAN, recipeId: '' } } });
   const refreshedFilter = document.root.querySelector('[data-record-filter="beanId"]');
+  const refreshedSearch = document.root.querySelectorAll('[data-option-search-kind]')
+    .find(input => input.dataset.optionSearchKind === 'beans' && input.dataset.optionTarget === 'filters');
   assert.equal(refreshedFilter.options.length, 3, 'loaded options survive an unrelated page rerender');
   assert.equal(refreshedFilter.value, BEAN);
+  assert.equal(refreshedSearch.value, 'Search Ethiopia', 'the active query survives an unrelated page rerender');
 });

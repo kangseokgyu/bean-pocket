@@ -183,7 +183,7 @@ function formShell(content, label = '저장하기') {
 }
 
 function openConnection() {
-  openDialog('노션 연결', formShell(`<p class="form-help">노션 통합의 토큰을 입력해 주세요. 토큰은 이 서버의 메모리에서만 사용되며 브라우저와 파일에 저장되지 않습니다. 서버를 다시 시작하면 재입력이 필요합니다.</p><p class="form-help"><a href="https://www.notion.so/profile/integrations" target="_blank" rel="noreferrer">Notion 통합 설정 ↗</a>에서 통합을 만들고, 본인의 커피 레시피 북 페이지의 연결 메뉴에서 해당 통합을 추가해 주세요. 하위 5개 데이터베이스에 읽기·쓰기 권한이 필요합니다.</p><label class="field">통합 토큰 *<input type="password" name="token" required autocomplete="off" spellcheck="false" placeholder="노션 통합 토큰"></label><p class="form-help">로그인 설정이 아닙니다. 이 컴퓨터에서 실행하는 앱과 노션을 연결합니다.</p>`, '연결 확인하기'));
+  openDialog('노션 연결', formShell(`<p class="form-help">노션 통합의 토큰을 입력해 주세요. 토큰은 이 서버의 메모리에서만 사용되며 브라우저와 파일에 저장되지 않습니다. 서버를 다시 시작하면 재입력이 필요합니다.</p><p class="form-help"><a href="https://www.notion.so/profile/integrations" target="_blank" rel="noreferrer">Notion 통합 설정 ↗</a>에서 통합을 만들고, 본인의 커피 레시피 북 페이지의 연결 메뉴에서 해당 통합을 추가해 주세요. 하위 4개 데이터베이스에 읽기·쓰기 권한이 필요합니다.</p><label class="field">통합 토큰 *<input type="password" name="token" required autocomplete="off" spellcheck="false" placeholder="노션 통합 토큰"></label><p class="form-help">로그인 설정이 아닙니다. 이 컴퓨터에서 실행하는 앱과 노션을 연결합니다.</p>`, '연결 확인하기'));
   bindForm(async values => {
     const tokenInput = dialogContent.querySelector('[name="token"]');
     const token = values.token;
@@ -195,7 +195,7 @@ function openConnection() {
     data = emptyData();
     location.hash = '';
     await loadData({ quiet: true });
-  }, '5개 노션 데이터베이스 접근을 확인했습니다.');
+  }, '4개 노션 데이터베이스 접근을 확인했습니다.');
 }
 
 function bindForm(onSubmit, successMessage, buildPayload = values => values) {

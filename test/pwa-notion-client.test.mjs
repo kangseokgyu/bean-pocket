@@ -93,7 +93,7 @@ test('verify는 object/id/속성 누락·다른 타입·관계의 다른 데이�
     const { client } = harness(() => { const s = source('beans'); mutate(s); return response(200, s); });
     await rejected(client.verify(), 'not-sent', 'invalid-response');
   }
-  for (const kind of ['steps', 'records']) {
+  for (const kind of Object.keys(RELATIONS)) {
     const { client } = harness(url => {
       const key = kinds.find(k => url.endsWith(SOURCES[k]));
       const s = source(key);

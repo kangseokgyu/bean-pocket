@@ -45,3 +45,25 @@ PWA·Node 서버/public의 연결 설정, 스키마, 모델, 조회를 beans/rec
 - Orchestrator: 검토 후 통합·push·Pages 수동 게시(probes=false), 통합 필수 검증 및 공개 버전·파일 반영 확인. worker 버전은 로컬 산출물 버전이며 공개 게시 버전이 아님.
 
 원시 TAP 실패 출력에는 Node가 만든 공백 전용 diff 줄이 있어 전체 staged diff --check는 이를 지적한다. 증거 원문은 정리하지 않고 보존했으며 소스·문서만 검사하면 exit 0이다. build/check의 .log는 전역 ignore 대상이므로 두 합성 실행 로그만 명시적으로 포함했다.
+
+## Critic 지적 수정 — 2026-10-26 후속
+
+- 기준 구현 커밋 `53d0769`. Critic `critic-review.md`의 required P2 두 건과 사용자 추가 요청의 optional coverage만 수정했다.
+- `public/app.js`: Node/public 연결 안내와 성공 알림을 모두 4개 DB로 정정. 제품 로직 변경 없음.
+- `GLOSSARY.md`: domain-modeling 스킬과 GLOSSARY-FORMAT을 적용했다. 폐기된 봉지는 원격 원본만 보존하고 연결·조회·추론·삭제 의존에 사용하지 않는다고 정정했다. 숨겨진 과거 기록 보존과 원두 미확정 기록의 삭제 차단을 설명하며 구현 marker 세부는 SPEC의 기록 세대 계약으로 연결했다.
+- `test/pwa-notion-client.test.mjs`: relation 대상 불일치 검증 반복을 Object.keys(RELATIONS)로 복원했다. RELATIONS는 recipes/steps/records이며 bags만 제외된다. legacy recipes.bean 관계가 존재할 때 잘못된 대상 검증도 다시 실행한다.
+
+| 실제 실행 명령 | 종료 코드 | 결과 | 증거 |
+|---|---:|---|---|
+| `node --test test/http.test.mjs test/pwa-ui.view.test.mjs test/pwa-ui.integration.test.mjs test/pwa-notion-client.test.mjs` | 0 | 147/147, fail/skip 0 | worker-critic-fixes-focused.tap |
+| `rg -n '5개|다섯|봉지.*삭제 보호|기존 봉지 관계' public/app.js GLOSSARY.md` | 1 (기대) | 잔여 문구 0건 | worker-critic-fixes-source-check.txt |
+| 4DB 정정 문구·미확정 기록·relation 반복 소스 확인 | 0 | 의도한 문구·검증 복원 확인 | worker-critic-fixes-source-check.txt |
+| `git diff --check` | 0 | 이번 변경 공백 오류 없음 | worker-critic-fixes-source-check.txt |
+
+이번 후속은 문구·용어 정의와 테스트 사례 복원이다. Pages 입력 pwa/ 및 lib/domain.mjs는 바뀌지 않아 build/check를 반복하지 않았다. 이전 전체 508/508과 로컬 빌드 b56bc1934364 결과는 위 시점의 증거로 유지하며, 이번 후속의 영향 검증은 147/147이다.
+
+### Critic 증거 확인과 남은 사항 갱신
+
+Critic이 제공한 critic-review.md, critic-browser-check.cjs, critic-browser-results.json 및 연결/원두 화면 390/1280px PNG 4개를 직접 읽거나 열어 확인하고 선별 포함했다. 테스트 fixture의 합성 토큰·합성 source IDs·합성 원두/레시피만 사용하며 실제 credential·실제 Notion 식별자·개인 레코드는 없다. 스크립트에는 작성 환경의 로컬 Playwright 런타임 경로가 포함되어 있다. 스크립트는 재실행하지 않았으며 브라우저 통과는 Critic의 독립 실행 증거로 구분한다.
+
+따라서 위 초기 인계의 'Critic 브라우저 미완료'는 현재 일반 생성·삭제 공개 흐름에 대해서는 완료로 갱신한다. unknown/partial·숨겨진 과거 기록의 브라우저 상호작용, 실제 iPhone/Safari·native OPFS/locks·실제 Notion·공개 게시 검증은 해당 증거 범위에 포함되지 않는다. 이번 P2 수정의 Critic 재검토 및 main 통합·게시는 Orchestrator가 순차 진행한다. worker merge/push/deploy 없음.

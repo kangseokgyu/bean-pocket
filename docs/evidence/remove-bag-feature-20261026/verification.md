@@ -67,3 +67,9 @@ PWA·Node 서버/public의 연결 설정, 스키마, 모델, 조회를 beans/rec
 Critic이 제공한 critic-review.md, critic-browser-check.cjs, critic-browser-results.json 및 연결/원두 화면 390/1280px PNG 4개를 직접 읽거나 열어 확인하고 선별 포함했다. 테스트 fixture의 합성 토큰·합성 source IDs·합성 원두/레시피만 사용하며 실제 credential·실제 Notion 식별자·개인 레코드는 없다. 스크립트에는 작성 환경의 로컬 Playwright 런타임 경로가 포함되어 있다. 스크립트는 재실행하지 않았으며 브라우저 통과는 Critic의 독립 실행 증거로 구분한다.
 
 따라서 위 초기 인계의 'Critic 브라우저 미완료'는 현재 일반 생성·삭제 공개 흐름에 대해서는 완료로 갱신한다. unknown/partial·숨겨진 과거 기록의 브라우저 상호작용, 실제 iPhone/Safari·native OPFS/locks·실제 Notion·공개 게시 검증은 해당 증거 범위에 포함되지 않는다. 이번 P2 수정의 Critic 재검토 및 main 통합·게시는 Orchestrator가 순차 진행한다. worker merge/push/deploy 없음.
+
+## main 통합 후 필수 검사
+
+Orchestrator가 `42b00195f5ab698c105a16992a48f8804427f33f`를 깨끗한 원본 main에 fast-forward 통합했다. Worker(Kuhn, 생성 도구에 gpt-6.1-sol/low 명시)가 통합 main에서 필수 검사를 실제 실행했다. `npm test`: exit 0, 508/508, skip 0; `npm run build:pages`: exit 0, `b56bc1934364`; `npm run check:pages`: exit 0. 로그는 `main-test.txt`, `main-build.txt`, `main-check.txt`다. 최초 sandbox 테스트의 localhost listen EPERM은 `main-test-sandbox.txt`에 보존했고, 권한을 부여한 실행으로 환경 문제를 해소했다. 소스 변경은 없다.
+
+모델 사용: 최초 worker Curie는 gpt-6-luna/max로 설정·속성 테스트까지 수행했다. 사용자의 모델 변경 지시에 따라 중단하고 worker Kuhn을 gpt-6.1-sol/low로 새로 생성해 완료했다. critic Parfit도 최신 사용자 지시에 따라 gpt-6.1-sol/low로 생성했다. 모두 생성 도구 파라미터로 명시했으며 도구의 사용자 지정 이름 기능은 없다. 429에 의한 대체는 아니었다.

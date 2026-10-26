@@ -6,7 +6,7 @@ import {
   validateStoredSnapshot,
 } from '../domain.mjs';
 
-const KINDS = Object.freeze(['beans', 'bags', 'recipes', 'steps', 'records']);
+const KINDS = Object.freeze(['beans', 'recipes', 'steps', 'records']);
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const safeFailures = new WeakSet();
@@ -97,18 +97,6 @@ function extractSingleRelation(property) {
   if (property.has_more === true) return null;
   if (!Array.isArray(property.relation) || property.relation.length !== 1) return null;
   return normalizeUuid(property.relation[0]?.id);
-}
-
-function extractOptionalSingleRelation(property) {
-  if (!property || typeof property !== 'object') return null;
-  if (property.has_more === true) return null;
-  if (!Array.isArray(property.relation)) return null;
-  if (property.relation.length === 0) return { id: null };
-  if (property.relation.length === 1) {
-    const id = normalizeUuid(property.relation[0]?.id);
-    return id ? { id } : null;
-  }
-  return null;
 }
 
 function extractObservedRecipeIds(page) {
@@ -211,7 +199,7 @@ export function createReadRepository(client) {
   }
 
   async function assembleData(rawData) {
-    const excluded = { bags: 0, recipes: 0, records: 0, steps: 0 };
+    const excluded = { recipes: 0, records: 0, steps: 0 };
 
     // 1. Beans
     const beans = [];
@@ -222,30 +210,6 @@ export function createReadRepository(client) {
       decoded.id = normalizeUuid(page.id);
       beans.push(decoded);
       beanIdSet.add(decoded.id);
-    }
-
-    // 2. Bags
-    const bags = [];
-    const bagsById = new Map();
-    const bagBeanRelations = new Map();
-    for (const page of rawData.bags) {
-      if (validateRawPage(page, sourceIds.bags)) {
-        bagBeanRelations.set(normalizeUuid(page.id), relationState(page.properties['원두']));
-      }
-      if (!validateRawPage(page, sourceIds.bags) || !validateRawProperties('bags', page)) {
-        excluded.bags++;
-        continue;
-      }
-      const beanRelation = extractSingleRelation(page.properties['원두']);
-      if (!beanRelation || !beanIdSet.has(beanRelation)) {
-        excluded.bags++;
-        continue;
-      }
-      const decoded = decodePage('bags', page);
-      decoded.id = normalizeUuid(page.id);
-      decoded.beanId = beanRelation;
-      bags.push(decoded);
-      bagsById.set(decoded.id, decoded);
     }
 
     // 3. Raw Recipes & Parent criteria
@@ -342,10 +306,6 @@ export function createReadRepository(client) {
       const recipeRelation = recipeIds.length === 1 ? recipeIds[0]
         : recipeIds.length === 0 ? snapshotRecipeId
           : recipeIds.includes(snapshotRecipeId) ? snapshotRecipeId : null;
-      const bagRelationState = relationState(page.properties['원두 봉지']);
-      const bagRelation = extractOptionalSingleRelation(page.properties['원두 봉지']);
-      const bagId = bagRelation?.id ?? null;
-      const bag = bagId === null ? null : bagsById.get(bagId);
       const snapshot = readSnapshot(decoded.snapshot, recipeRelation);
       const snapshotWasPresent = snapshotWasStored(page);
       decoded.snapshot = snapshot?.value ?? null;
@@ -356,43 +316,31 @@ export function createReadRepository(client) {
         : recipeIds.length ? recipeIds : recipeRelation ? [recipeRelation] : [];
       const legacyRecipeBeanState = combineRelationStates(legacyRecipeIds
         .map(id => recipeBeanRelations.get(id)).filter(Boolean));
-      const bagBeanState = combineRelationStates(bagRelationState.ids
-        .map(id => bagBeanRelations.get(id) ?? { ids: [], complete: false, present: true }));
-      const bagBeanIds = bagBeanState.ids;
-      const bagBeanId = bag?.beanId ?? (bagBeanIds.length === 1 ? bagBeanIds[0] : null);
       const rowBeanIds = beanRelationState.ids;
       const candidates = [...new Set([
         ...rowBeanIds,
         ...(snapshotBeanId ? [snapshotBeanId] : []),
         ...legacyRecipeBeanState.ids,
-        ...bagBeanIds,
       ])];
       const relationEvidence = {
         bean: beanRelationState,
         recipe: recipeRelationState,
-        bag: bagRelationState,
         legacyRecipeBean: legacyRecipeBeanState,
-        bagBean: bagBeanState,
       };
-      const hasDirectBeanEvidence = rowBeanIds.length > 0 || Boolean(snapshotBeanId);
       const relationAmbiguous = [beanRelationState, legacyRecipeBeanState]
-        .some(state => state.present && !state.complete)
-        || (!hasDirectBeanEvidence && bagBeanState.present && !bagBeanState.complete);
+        .some(state => state.present && !state.complete);
       const selectedBeanId = candidates.length === 1 && !relationAmbiguous ? candidates[0] : null;
       const beanIsKnown = selectedBeanId !== null && beanIdSet.has(selectedBeanId);
-      const bagConflict = bagBeanId !== null && selectedBeanId !== null && bagBeanId !== selectedBeanId;
-      const beanResolution = candidates.length !== 1 || relationAmbiguous || !beanIsKnown || bagConflict
+      const beanResolution = candidates.length !== 1 || relationAmbiguous || !beanIsKnown
         ? 'needs-confirmation'
         : rowBeanIds.includes(selectedBeanId) ? 'relation'
           : snapshot?.version === 2 ? 'snapshot-v2'
             : snapshot?.version === 1 && snapshotBeanId ? 'snapshot-v1'
-              : legacyRecipeBeanState.ids.includes(selectedBeanId) ? 'legacy-recipe' : 'bag';
+              : 'legacy-recipe';
       decoded.id = normalizeUuid(page.id);
       decoded.recipeId = recipeRelation;
-      decoded.bagId = bagId;
       decoded.relationEvidence = relationEvidence;
       if (recipeIds.length > 1 || !recipeRelationState.complete) decoded.recipeCandidates = recipeIds;
-      if (!bagRelation || !bagRelationState.complete) decoded.bagCandidates = bagRelationState.ids;
       decoded.beanId = selectedBeanId;
       decoded.beanResolution = beanResolution;
       if (candidates.length > 1 || relationAmbiguous) decoded.beanCandidates = candidates;
@@ -406,7 +354,7 @@ export function createReadRepository(client) {
       recipe.stats = summarizeRatings(records, recipe.id);
     }
 
-    return deepFreeze({ beans, bags, recipes: validatedRecipes, records, excluded });
+    return deepFreeze({ beans, recipes: validatedRecipes, records, excluded });
   }
 
   async function readAll() {

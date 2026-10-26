@@ -10,7 +10,6 @@ const REVISION = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const OTHER_REVISION = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 const SOURCE_IDS = Object.freeze({
   beans: '11111111-1111-4111-8111-111111111111',
-  bags: '22222222-2222-4222-8222-222222222222',
   recipes: '33333333-3333-4333-8333-333333333333',
   steps: '44444444-4444-4444-8444-444444444444',
   records: '55555555-5555-4555-8555-555555555555',
@@ -180,7 +179,7 @@ test('write/read 재실행은 고정 경로의 schema v1 연결을 정규화해 
   assert.throws(() => { saved.dataSources.beans = OTHER_REVISION; }, TypeError);
   const parsed = JSON.parse(fs.state.content);
   assert.deepEqual(Object.keys(parsed).sort(), ['dataSources', 'revision', 'schemaVersion', 'token']);
-  assert.deepEqual(Object.keys(parsed.dataSources).sort(), ['bags', 'beans', 'recipes', 'records', 'steps']);
+  assert.deepEqual(Object.keys(parsed.dataSources).sort(), ['beans', 'recipes', 'records', 'steps']);
   assert.ok(fs.state.calls.some(call => call.method === 'getDirectoryHandle' && call.name === DIRECTORY && call.options.create === true));
   assert.ok(fs.state.calls.some(call => call.method === 'getFileHandle' && call.name === FILE && call.options.create === true));
   const update = await file.writeConnection(connection({ revision: OTHER_REVISION, token: '  updated  fake token  ' }));

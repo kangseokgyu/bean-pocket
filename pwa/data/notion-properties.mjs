@@ -1,5 +1,3 @@
-import { CURRENT_RECORD_GENERATION } from '../domain.mjs';
-
 // Only writable properties appear here. Formula and rollup fields stay untouched.
 export const schemas = {
   beans: {
@@ -9,11 +7,6 @@ export const schemas = {
     variety: ['품종', 'rich_text'],
     process: ['가공 방식', 'rich_text'],
     tastingNotes: ['로스터리 향미 노트', 'rich_text'],
-  },
-  bags: {
-    name: ['봉지 이름', 'title'],
-    beanId: ['원두', 'relation'],
-    roastedOn: ['로스팅 날짜', 'date'],
   },
   recipes: {
     name: ['레시피 이름', 'title'],
@@ -41,7 +34,6 @@ export const schemas = {
     name: ['기록 이름', 'title'],
     beanId: ['원두', 'relation'],
     recipeId: ['레시피', 'relation'],
-    bagId: ['원두 봉지', 'relation'],
     date: ['날짜', 'date'],
     rating: ['별점', 'number'],
     cupNote: ['컵노트', 'rich_text'],
@@ -61,7 +53,6 @@ function richText(value) {
 export function encodeProperties(kind, data) {
   const properties = {};
   for (const [key, [name, type]] of Object.entries(schemas[kind])) {
-    if (kind === 'records' && key === 'bagId' && data.snapshot?.recordGeneration === CURRENT_RECORD_GENERATION) continue;
     // New recipes are independent of beans; omit the legacy relation so its
     // stored values remain untouched and old schemas need not expose it.
     if (kind === 'recipes' && key === 'beanId') continue;
@@ -111,10 +102,9 @@ export function decodePage(kind, page) {
 }
 
 export const relationTargets = {
-  bags: { beanId: 'beans' },
   recipes: { beanId: 'beans' },
   steps: { recipeId: 'recipes' },
-  records: { beanId: 'beans', recipeId: 'recipes', bagId: 'bags' },
+  records: { beanId: 'beans', recipeId: 'recipes' },
 };
 
 // Older user databases can be read without the additive relations. Record

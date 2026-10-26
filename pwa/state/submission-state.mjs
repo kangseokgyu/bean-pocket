@@ -3,14 +3,16 @@ import { createConnectionFile } from '../platform/connection-file.mjs';
 const DIRECTORY = 'bean-pocket-private-v1';
 const FILE = 'submission-journal.json';
 const LOCK = 'bean-pocket-write-v1';
-const SOURCES = ['beans', 'bags', 'recipes', 'steps', 'records'];
+const SOURCES = ['beans', 'recipes', 'steps', 'records'];
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const HASH = /^[0-9a-f]{64}$/;
 const KIND = /^[a-z][a-z0-9-]{0,63}$/;
 const STATUSES = ['not-submitted', 'processing', 'succeeded', 'failed', 'unknown', 'partial'];
 const ARCHIVE_STATES = ['active', 'archived', 'unknown'];
 const DELETE_TARGET_KIND = Object.freeze({
-  'delete-bean': 'beans', 'delete-bag': 'bags', 'delete-recipe': 'recipes', 'delete-record': 'records',
+  // Read old unresolved journal targets so they keep blocking all new writes.
+  'delete-bag': 'bags',
+  'delete-bean': 'beans', 'delete-recipe': 'recipes', 'delete-record': 'records',
 });
 const SAFE_RESULT_CODES = ['delete-in-use', 'delete-dependency-unknown'];
 const drafts = new WeakSet();
@@ -124,7 +126,7 @@ function parseJournal(text) {
       } else if (Object.hasOwn(op, 'deleteTarget')) throw 0;
       const ids = new Set();
       for (const page of op.createdPages) {
-        if (!exact(page, ['kind', 'id', 'archiveState']) || !SOURCES.includes(page.kind) || !ARCHIVE_STATES.includes(page.archiveState)) throw 0;
+        if (!exact(page, ['kind', 'id', 'archiveState']) || (!SOURCES.includes(page.kind) && page.kind !== 'bags') || !ARCHIVE_STATES.includes(page.archiveState)) throw 0;
         const id = page.id = uuid(page.id);
         if (ids.has(id)) throw 0;
         ids.add(id);
@@ -297,7 +299,7 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
                   Object.keys(options).some(key => !['createdKind', 'archiveId', 'deleteId', 'deleteKind'].includes(key)) ||
                   ([options.createdKind, options.archiveId, options.deleteId].filter(Boolean).length > 1) ||
                   (options.createdKind && !SOURCES.includes(options.createdKind)) ||
-                  (options.deleteKind && !['beans', 'bags', 'recipes', 'records'].includes(options.deleteKind))) throw fail('invalid-write');
+                  (options.deleteKind && !['beans', 'recipes', 'records'].includes(options.deleteKind))) throw fail('invalid-write');
               const checked = await check(draft, clientRevision);
               journal = checked.journal; current = checked.operation;
               if (!current || current.status !== 'processing') throw fail('unresolved-operation');

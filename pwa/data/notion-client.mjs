@@ -1,7 +1,7 @@
 import { CURRENT_RECORD_GENERATION } from '../domain.mjs';
 import { schemas, relationTargets, optionalProperties, encodeProperties } from './notion-properties.mjs';
 
-const KINDS = Object.freeze(['beans', 'bags', 'recipes', 'steps', 'records']);
+const KINDS = Object.freeze(['beans', 'recipes', 'steps', 'records']);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const REJECTED = new Set([400, 401, 403, 404, 409, 413, 415, 422, 429]);
 const ownErrors = new WeakSet();
@@ -16,6 +16,13 @@ function uuid(value) {
   if (typeof value !== 'string') return null;
   const normalized = value.trim().toLowerCase();
   return UUID.test(normalized) ? normalized : null;
+}
+function hasValidSourceIds(dataSources) {
+  if (!record(dataSources)) return false;
+  const keys = Reflect.ownKeys(dataSources);
+  if (keys.some(key => typeof key !== 'string' || (!KINDS.includes(key) && key !== 'bags'))) return false;
+  return KINDS.every(key => Object.hasOwn(dataSources, key) && uuid(dataSources[key])) &&
+    new Set(KINDS.map(key => uuid(dataSources[key]))).size === KINDS.length;
 }
 function validPage(data, expectedId, sourceId) {
   if (!record(data) || data.object !== 'page' || !uuid(data.id) || !record(data.properties)) return false;
@@ -59,9 +66,8 @@ function serialize(body) {
 function createPayload(kind, data, dataSources) {
   try {
     if (typeof kind !== 'string' || !KINDS.includes(kind) || !record(data) ||
-        (kind === 'records' && (data.snapshot?.recordGeneration !== CURRENT_RECORD_GENERATION || Object.hasOwn(data, 'bagId'))) || !record(dataSources) ||
-        Object.keys(dataSources).length !== KINDS.length || !KINDS.every(key => Object.hasOwn(dataSources, key) && uuid(dataSources[key])) ||
-        new Set(KINDS.map(key => uuid(dataSources[key]))).size !== KINDS.length) {
+        (kind === 'records' && (data.snapshot?.recordGeneration !== CURRENT_RECORD_GENERATION || Object.hasOwn(data, 'bagId'))) ||
+        !hasValidSourceIds(dataSources)) {
       throw failure('invalid-input', 'not-sent');
     }
     return {
@@ -102,8 +108,7 @@ export class NotionClient {
     try {
       const { dataSources, connectionRevision, fetchImpl = globalThis.fetch, timeoutMs = 15000 } = options;
       if (typeof token !== 'string' || !token.trim() || /[\u0000-\u001f\u007f-\u009f]/.test(token) ||
-          !record(dataSources) || Object.keys(dataSources).length !== KINDS.length ||
-          !KINDS.every(kind => Object.hasOwn(dataSources, kind) && uuid(dataSources[kind])) ||
+          !hasValidSourceIds(dataSources) ||
           !uuid(connectionRevision) || typeof fetchImpl !== 'function' ||
           typeof timeoutMs !== 'number' || !Number.isFinite(timeoutMs) || timeoutMs <= 0) {
         throw failure('invalid-config', 'not-sent');
@@ -252,8 +257,8 @@ export class NotionClient {
   }
 
   async createPage(kind, domainData) {
-    if (kind === 'bags' || (kind === 'records' && record(domainData) &&
-        (domainData.snapshot?.recordGeneration !== CURRENT_RECORD_GENERATION || Object.hasOwn(domainData, 'bagId')))) {
+    if (kind === 'records' && record(domainData) &&
+        (domainData.snapshot?.recordGeneration !== CURRENT_RECORD_GENERATION || Object.hasOwn(domainData, 'bagId'))) {
       throw failure('invalid-input', 'not-sent');
     }
     const sourceId = this.#source(kind);

@@ -1,0 +1,14 @@
+✔ server environment exposes only four required data sources and ignores the old bags variable (1.960083ms)
+✔ server Notion adapter ignores an extra legacy bags source key (24.290959ms)
+✔ PWA Notion client ignores an extra legacy bags source key during verification (2.184417ms)
+✔ legacy connection data with a bags key is read without rewriting it (0.537666ms)
+✔ old bag create/archive and record bagId input never reach the network (0.373292ms)
+✔ records model and every record encoding omit the legacy bag relation (0.290584ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 131.416167

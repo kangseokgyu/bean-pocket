@@ -1,10 +1,10 @@
-const SOURCE_KEYS = Object.freeze(['beans', 'bags', 'recipes', 'steps', 'records']);
+const SOURCE_KEYS = Object.freeze(['beans', 'recipes', 'steps', 'records']);
 const SOURCE_BY_OPERATION = Object.freeze({
-  'delete-bean': ['beans'], 'delete-bag': ['bags'], 'delete-recipe': ['recipes'], 'delete-record': ['records'],
-  beans: ['beans'], bags: ['bags'], recipes: ['recipes', 'steps'], records: ['records'],
+  'delete-bean': ['beans'], 'delete-recipe': ['recipes'], 'delete-record': ['records'],
+  beans: ['beans'], recipes: ['recipes', 'steps'], records: ['records'],
 });
 const DELETE_TARGET_BY_OPERATION = Object.freeze({
-  'delete-bean': 'beans', 'delete-bag': 'bags', 'delete-recipe': 'recipes', 'delete-record': 'records',
+  'delete-bean': 'beans', 'delete-recipe': 'recipes', 'delete-record': 'records',
 });
 const STARTUP_LOCK_RETRY_DELAYS_MS = Object.freeze([100, 200, 300, 500, 700]);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -31,7 +31,7 @@ const SAFE_MESSAGES = Object.freeze({
   'invalid-resolution': '확인 입력을 처리하지 못했습니다. 원본 상태와 입력한 페이지를 확인해 주세요.',
   input: '입력 내용을 확인해 주세요.',
   'delete-failed': '삭제하지 못했습니다. 연결된 추출 기록이나 확인할 수 없는 관계가 있는지 확인하고 목록을 새로고침해 주세요.',
-  'delete-in-use': '이 봉지 또는 레시피를 사용하는 추출 기록이 있습니다. 먼저 해당 추출 기록을 삭제한 뒤 다시 시도해 주세요.',
+  'delete-in-use': '이 레시피를 사용하는 추출 기록이 있습니다. 먼저 해당 추출 기록을 삭제한 뒤 다시 시도해 주세요.',
   'delete-dependency-unknown': '연결 관계나 제외된 기록을 확인할 수 없어 안전을 위해 삭제를 막았습니다. 최신 목록을 새로고침해 주세요.',
 });
 

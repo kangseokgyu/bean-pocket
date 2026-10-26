@@ -2,7 +2,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const EXPECTED = Object.freeze({
   '원두 이름': 'title', '로스터리': 'rich_text', '원산지·농장': 'rich_text',
   '품종': 'rich_text', '가공 방식': 'rich_text', '로스터리 향미 노트': 'rich_text',
-  '원두 봉지': 'relation', '레시피': 'relation',
+  '레시피': 'relation',
 });
 const MESSAGES = Object.freeze({
   configured: '연결 입력을 메모리에 적용했습니다.',

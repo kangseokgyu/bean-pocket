@@ -5,10 +5,10 @@
 ## 1. 순수 로직·입력·연결 경계
 
 - 도메인 원본은 `lib/domain.mjs` 하나다. 같은 바이트를 `dist/domain.mjs`로 공급하며 계산·검증·복사·스냅샷을 수동 복제하지 않는다.
-- 원두 이름 필수·나머지 정보 선택, 봉지 이름·단일 원두 필수·로스팅 날짜 선택을 유지한다. 레시피는 공용이며 원두 관계 없이 이름·양수 dose/totalWater·0℃ 초과 100℃ 이하 온도·하나 이상 단계가 필수다. 드리퍼·분쇄도·그라인더 정보·μm는 선택이며 입력한 μm만 양수로 검증한다. 첫 단계 0초·간격 0, 이후 시간 증가·물 양 양수와 기존 합계 허용 오차 `0.000001`을 유지한다.
-- 추출 기록에는 원두·레시피를 각각 명시적으로 선택하고 날짜·정수 별점 1~5를 필수로 입력한다. 컵노트·봉지는 선택이며 선택 봉지는 선택한 원두에 속해야 한다. 기존 레시피 원두 관계는 legacy 해석에만 사용하고 새 레시피 쓰기에는 넣지 않는다.
-- 연결은 `{ revision, token, dataSources: { beans, bags, recipes, steps, records } }`다. revision은 연결 저장마다 새로 만드는 UUID 세대이며 토큰만 교체해도 바뀐다. 각 데이터 소스 값도 UUID이며 토큰·설정은 주입받는다. 브라우저에서 환경변수·Node API를 사용하지 않는다. 실제 값은 소스·빌드·URL·로그·앱 캐시에 넣지 않는다.
-- `createSnapshot(bean, recipe)`는 version 2에 당시 원두 전체 정보와 레시피 조건·전체 단계 값·순서를 보존한다. version 1 기록은 기존 원두 관계·봉지 관계 등 확인 가능한 근거를 함께 사용해 읽으며, 원두를 확정할 근거가 없거나 근거가 충돌하면 기록과 평가를 보존하고 확인 필요로 표시한다. 과거 내용을 현재 관계로 덮어쓰지 않는다. 복사 초안은 원본·단계와 참조를 공유하지 않으며 원본 ID·단계 ID·기록·평가 집계를 상속하지 않는다.
+- 원두 이름 필수·나머지 정보 선택을 유지한다. 레시피는 공용이며 원두 관계 없이 이름·양수 dose/totalWater·0℃ 초과 100℃ 이하 온도·하나 이상 단계가 필수다. 드리퍼·분쇄도·그라인더 정보·μm는 선택이며 입력한 μm만 양수로 검증한다. 첫 단계 0초·간격 0, 이후 시간 증가·물 양 양수와 기존 합계 허용 오차 `0.000001`을 유지한다.
+- 추출 기록에는 원두·레시피를 각각 명시적으로 선택하고 날짜·정수 별점 1~5를 필수로 입력한다. 컵노트는 선택이다. 기존 레시피 원두 관계는 legacy 해석에만 사용하고 새 레시피 쓰기에는 넣지 않는다.
+- 연결은 `{ revision, token, dataSources: { beans, recipes, steps, records } }`다. revision은 연결 저장마다 새로 만드는 UUID 세대이며 토큰만 교체해도 바뀐다. 각 데이터 소스 값도 UUID이며 토큰·설정은 주입받는다. 브라우저에서 환경변수·Node API를 사용하지 않는다. 실제 값은 소스·빌드·URL·로그·앱 캐시에 넣지 않는다.
+- `createSnapshot(bean, recipe)`는 version 2에 당시 원두 전체 정보와 레시피 조건·전체 단계 값·순서를 보존한다. version 1 기록은 기존 원두 관계·기존 레시피 원두 관계 등 확인 가능한 근거를 함께 사용해 읽으며, 원두를 확정할 근거가 없거나 근거가 충돌하면 기록과 평가를 보존하고 확인 필요로 표시한다. 과거 내용을 현재 관계로 덮어쓰지 않는다. 복사 초안은 원본·단계와 참조를 공유하지 않으며 원본 ID·단계 ID·기록·평가 집계를 상속하지 않는다.
 
 ## 11. 2026-10-25 레시피 추출 가이드
 
@@ -31,13 +31,13 @@
 
 | 메서드 | 의미 / 성공 반환 |
 |---|---|
-| `verify()` | 설정된 데이터 소스 5개의 GET·필수 속성 타입·관계 대상 접근을 검증해 `true` 반환. legacy 개인 DB에서 records.bean 관계가 없으면 조회 호환 상태로 허용하되 새 기록 쓰기는 막는다. 생성 권한 실증으로 확대하지 않음 |
+| `verify()` | 설정된 데이터 소스 4개의 GET·필수 속성 타입·관계 대상 접근을 검증해 `true` 반환. legacy 개인 DB에서 records.bean 관계가 없으면 조회 호환 상태로 허용하되 새 기록 쓰기는 막는다. 생성 권한 실증으로 확대하지 않음 |
 | `queryAll(kind)` | 설정된 kind의 데이터 소스를 POST query로 전체 조회해 원시 페이지 배열 반환. **조회용 POST는 원격 쓰기가 아님** |
 | `createPage(kind, domainData)` | 공유 `encodeProperties`로 변환·전송 한도 검증 후 해당 데이터 소스 부모로 페이지 생성, 검증된 원시 페이지 반환 |
 | `getPage(uuid)` | UUID 페이지 GET, 같은 ID의 정상 페이지 응답 반환 |
 | `archiveCreatedPage(uuid)` | T18이 journal의 현재 작업·현재 연결에 속한 확인된 신규 ID임을 검사한 뒤 호출하는 내부 취소만 허용. 정상 archive 상태의 같은 페이지 반환. 사용자용 삭제·기존 원본 수정 용도 금지 |
 
-kind는 `beans/bags/recipes/steps/records`만 받는다. 고정 origin `https://api.notion.com`, 고정 prefix `/v1`, `Notion-Version: 2025-09-03`을 사용한다. UUID는 형식 검증·정규화 후 고정 템플릿에 넣는다. endpoint는 `GET /data_sources/{uuid}`, `POST /data_sources/{uuid}/query`, `GET /pages/{uuid}`, `POST /pages`, 내부 취소 `PATCH /pages/{uuid}`뿐이다. 내부 취소 body는 `{ in_trash: true }`로 고정하고 같은 ID의 취소 상태를 확인한다. 사용자가 URL/path를 주입하는 API는 없고 redirect는 거부한다. 토큰은 Authorization에만 사용하며 응답·토큰은 캐시하지 않는다.
+kind는 `beans/recipes/steps/records`만 받는다. 고정 origin `https://api.notion.com`, 고정 prefix `/v1`, `Notion-Version: 2025-09-03`을 사용한다. UUID는 형식 검증·정규화 후 고정 템플릿에 넣는다. endpoint는 `GET /data_sources/{uuid}`, `POST /data_sources/{uuid}/query`, `GET /pages/{uuid}`, `POST /pages`, 내부 취소 `PATCH /pages/{uuid}`뿐이다. 내부 취소 body는 `{ in_trash: true }`로 고정하고 같은 ID의 취소 상태를 확인한다. 사용자가 URL/path를 주입하는 API는 없고 redirect는 거부한다. 토큰은 Authorization에만 사용하며 응답·토큰은 캐시하지 않는다.
 
 각 요청은 fetch 시작부터 응답 body 전체 읽기·JSON 해석·필수 응답 구조 검증까지 하나의 timeout 범위다. GET/query/create/archive별 object·ID·필수 구조를 검사한다. 생성 응답의 ID를 확인하지 못하거나 archive 응답에서 해당 ID의 취소 상태를 확인하지 못한 2xx는 성공이 아니다. 브라우저 통신 실패만으로 CORS 원인이라고 단정하지 않는다. **어떤 요청도 자동 재시도하지 않는다.**
 
@@ -81,7 +81,7 @@ BroadcastChannel은 상태 변경 알림·세대값으로 UI 재조회만 돕는
 
 ## 6. OPFS 연결 파일과 활성 연결 교체 — T13·T21
 
-전용 디렉터리는 `bean-pocket-private-v1`, 파일은 `connection.json`과 T14 소유 `submission-journal.json`이다. T07 가짜 시험 파일 경로와 섞지 않는다. Connection 형식은 `{ schemaVersion: 1, revision: UUID, token: string, dataSources: { beans, bags, recipes, steps, records } }`이며 revision·다섯 UUID·필수 키·토큰 문자열을 검증한다. 헤더만 있거나 0바이트인 파일, 손상 JSON, 맞지 않는 schemaVersion의 자동 복구·호환 지원은 없다. 부재와 손상·미지원·권한·용량·저장 불확실은 구분한다.
+전용 디렉터리는 `bean-pocket-private-v1`, 파일은 `connection.json`과 T14 소유 `submission-journal.json`이다. T07 가짜 시험 파일 경로와 섞지 않는다. Connection 형식은 `{ schemaVersion: 1, revision: UUID, token: string, dataSources: { beans, recipes, steps, records } }`이며 revision·네 UUID·필수 키·토큰 문자열을 검증한다. 헤더만 있거나 0바이트인 파일, 손상 JSON, 맞지 않는 schemaVersion의 자동 복구·호환 지원은 없다. 부재와 손상·미지원·권한·용량·저장 불확실은 구분한다.
 
 파일 어댑터는 `readConnection()`에서 유효 Connection 또는 부재인 경우만 null을 반환하고 나머지는 안전 오류로 구분한다. `writeConnection(candidate)`는 검증·serialize·쓰기·close·readback 검증까지 성공한 Connection을 반환한다. 어댑터가 활성 연결을 직접 바꾸지는 않는다.
 
@@ -97,7 +97,7 @@ T21은 동일한 withWriteLock 안에서 두 파일과 journal을 검사한 후 
 
 스키마 변경이나 새 완료 속성 없이 부모 레시피를 만든 후 단계를 **N → … → 2 → 1 역순으로 직렬 생성**한다. 저장하는 order 값은 원래 1..N이며 조회·스냅샷에서는 오름차순으로 정렬한다. 1번을 마지막 원격 생성의 commit gate로 사용하고 모든 성공·journal 기록을 확인한 뒤 작업 성공으로 확정한다.
 
-조회·저장 직전에는 queryAll의 **전체 페이지 조회 성공**, 삭제 상태, 레시피 관계의 0/1 관계, 추출 기록의 원두·레시피 관계 및 선택 봉지의 원두 일치를 검사한다. 새 레시피에는 원두 관계가 없다. 기존 recipes.bean 관계는 legacy 기록 해석을 위해 읽을 수 있으며 새로운 레시피 생성·복사에는 기록하지 않는다. has_more가 남은 관계나 잘린 조회를 임의의 단일 관계로 변환하지 않는다. 전체 단계를 order로 정렬해 `validateStoredRecipe`로 1부터 연속·중복 없음·첫 시간 0·이후 시간 증가·양수 물 양·간격/누적값·총량을 검증한다. 파생값을 조용히 재계산해 외부 원본을 정상화하지 않는다.
+조회·저장 직전에는 queryAll의 **전체 페이지 조회 성공**, 삭제 상태, 레시피 관계의 0/1 관계, 추출 기록의 원두·레시피 관계를 검사한다. 새 레시피에는 원두 관계가 없다. 기존 recipes.bean 관계는 legacy 기록 해석을 위해 읽을 수 있으며 새로운 레시피 생성·복사에는 기록하지 않는다. has_more가 남은 관계나 잘린 조회를 임의의 단일 관계로 변환하지 않는다. 전체 단계를 order로 정렬해 `validateStoredRecipe`로 1부터 연속·중복 없음·첫 시간 0·이후 시간 증가·양수 물 양·간격/누적값·총량을 검증한다. 파생값을 조용히 재계산해 외부 원본을 정상화하지 않는다.
 
 부모 우선 취소만으로 조회 경쟁까지 막았다고 판단하지 않는다. legacy 레시피 원두 관계가 있는 경우 이를 보존·비교할 수 있지만 공용 레시피의 유효성은 원두 관계에 의존하지 않는다. 레시피 조건 필드(name/dripper/dose/grind/grinder/grinderSetting/microns/temperature/totalWater)·단계·`last_edited_time`을 재검증하며, 값이나 버전이 바뀌거나 최종 확인에 실패하면 조립 결과를 폐기하고 재조회를 요구한다. 최종 확인 없이 오래된 활성 부모와 새 자식을 결합한 결과를 노출하거나 스냅샷으로 저장하지 않는다. 이는 실제 API에서 관측한 범위의 유효성 규칙이며 최종 GET 이후 외부 변경까지 막는 Notion transaction 보장이 아니다.
 
@@ -127,7 +127,7 @@ SW 자동 safe apply는 현재 활성 창만이 아니라 **같은 scope의 모�
 | T27 | 앱 수명·SW 세대별 모든 창 핸드셰이크 |
 | 부모 | 빌드 허용 목록·공유 코덱 정적 공급·hash·캐시·검사기·workflow·package.json 통합. 다른 worker가 동시에 수정하지 않음 |
 
-Node 내장 테스트에 fetch·OPFS·locks를 주입해 페이지 잘림·커서 순환·모든 쓰기/취소 실패 지점·close/readback 불확실·동시 창·종료 복구·구버전 응답을 검증한다. 후속 회귀 항목에는 다른 창의 연결 교체 후 오래된 client/초안의 쓰기 차단과 파일 한쪽 부재 복구, 부모 조회 뒤 archive·극소량 자식 삭제가 끼어든 조립 결과 거부를 포함한다. T27은 clean ACK 뒤 입력 시도·동결 실패·apply 직전 재확인·중단 시 해제·창 집합 변경을 자동화와 실제 브라우저에서 검증한다. CUA 실제 브라우저의 공개 흐름 결과는 Node 모의 결과와 별도로 기록한다. T28은 연결→원두/봉지/레시피→복사→반복 기록→재조회 흐름과 릴리스 산출물을 검증하고, T29는 실제 Pages·Notion·지정 iPhone·PC·셀룰러와 **최종 실제 연결 파일 수명**을 재검증한다. 모의 검증을 실제 Notion·실기기 통과로 보고하지 않는다.
+Node 내장 테스트에 fetch·OPFS·locks를 주입해 페이지 잘림·커서 순환·모든 쓰기/취소 실패 지점·close/readback 불확실·동시 창·종료 복구·구버전 응답을 검증한다. 후속 회귀 항목에는 다른 창의 연결 교체 후 오래된 client/초안의 쓰기 차단과 파일 한쪽 부재 복구, 부모 조회 뒤 archive·극소량 자식 삭제가 끼어든 조립 결과 거부를 포함한다. T27은 clean ACK 뒤 입력 시도·동결 실패·apply 직전 재확인·중단 시 해제·창 집합 변경을 자동화와 실제 브라우저에서 검증한다. CUA 실제 브라우저의 공개 흐름 결과는 Node 모의 결과와 별도로 기록한다. T28은 연결→원두/레시피→복사→반복 기록→재조회 흐름과 릴리스 산출물을 검증하고, T29는 실제 Pages·Notion·지정 iPhone·PC·셀룰러와 **최종 실제 연결 파일 수명**을 재검증한다. 모의 검증을 실제 Notion·실기기 통과로 보고하지 않는다.
 
 공식 근거와 결정 재현은 [T10 근거 확인](evidence/T10/source-check.md), [최소 재현](evidence/T10/completeness-probe.txt)을 따른다. 계약 작성 증거와 검토 상태는 [T10 기록](evidence/T10/README.md)에 남긴다.
 
@@ -137,6 +137,12 @@ Node 내장 테스트에 fetch·OPFS·locks를 주입해 페이지 잘림·커�
 
 - Notion `records.beanId`는 `원두` relation이며 대상은 beans다. relation 부재는 legacy 개인 DB 조회를 허용하지만 검증된 새 쓰기 지원으로 간주하지 않는다. 기록 생성은 schema 지원을 확인하고 원두·레시피 선택을 검증한 뒤에만 journal에 등록·전송한다.
 - 새 레시피는 beans와 독립적으로 생성·복사한다. 과거 recipes.bean relation은 이름 변경·삭제하지 않고 legacy 근거로 읽는다.
-- 새 기록은 beanId와 recipeId를 각각 저장하며 bagId는 선택이다. version 2 snapshot에는 당시 원두 전체 정보와 레시피 전체 조건·단계 순서를 기록한다. 기존 version 1 snapshot은 원두 관계·기존 레시피 원두 관계·봉지 관계 등 일치하는 근거로만 해석한다. 추론 불가·충돌은 기록을 버리거나 평가를 초기화하지 않고 확인 필요로 보존한다.
+- 새 기록은 beanId와 recipeId를 각각 저장하며 bagId는 허용하지 않는다. version 2 snapshot에는 당시 원두 전체 정보와 레시피 전체 조건·단계 순서를 기록한다. 기존 version 1 snapshot은 원두 관계·기존 레시피 원두 관계·기존 레시피 원두 관계 등 일치하는 근거로만 해석한다. 추론 불가·충돌은 기록을 버리거나 평가를 초기화하지 않고 확인 필요로 보존한다.
 - 이미 준비된 journal이나 다른 탭에서 온 과거 record payload에 bean 선택이 없으면 새 버전에서 보완 추정하거나 자동 재전송하지 않는다. 차단은 원격 요청 전 `not-sent`로 확정되어 기존 작업을 중복 전송하지 않는다.
-- 원두 삭제는 실제 봉지·기록 의존성 및 unresolved legacy 기록이 있으면 차단한다. 독립 레시피의 legacy relation 하나만으로 삭제를 막지는 않는다.
+- 원두 삭제는 실제 기록 의존성 및 unresolved legacy 기록이 있으면 차단한다. 독립 레시피의 legacy relation 하나만으로 삭제를 막지는 않는다.
+
+## 11. 2026-10-26 봉지 전체 제거 계약
+
+앱·서버는 beans/recipes/steps/records 4개 DB만 설정·검증·조회한다. 봉지 스키마·모델·record.bagId·봉지 기반 원두 추론은 제거한다. 과거 연결의 추가 bags 키는 사용하지 않으며 파일을 읽는 것만으로 다시 쓰지 않는다. 원격 DB·속성·행의 마이그레이션이나 호환 조회는 하지 않는다.
+
+유효한 v2 snapshot의 `recordGeneration: "bagless-v1"` 표시·집계 정책을 유지한다. 숨겨진 과거 기록은 원시 기록과 삭제 보호에 보존한다. 봉지에서만 원두를 알 수 있던 기록은 unresolved로 남겨 원두 삭제를 차단한다. 레시피 관계의 불완전·다중·제외 기록도 삭제를 fail-closed로 막는다. 봉지 입력은 네트워크 전 거절하며, 과거 journal은 자동 전송하지 않고 unknown/partial·lock·중복 차단을 유지한다.

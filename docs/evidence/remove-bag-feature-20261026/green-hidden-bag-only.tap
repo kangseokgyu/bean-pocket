@@ -1,0 +1,124 @@
+TAP version 13
+# Subtest: bean deletion persists its target before PATCH and refreshes the list
+ok 1 - bean deletion persists its target before PATCH and refreshes the list
+  ---
+  duration_ms: 47.535417
+  type: 'test'
+  ...
+# Subtest: bean deletion ignores an unqueried legacy bag and preserves its remote row
+ok 2 - bean deletion ignores an unqueried legacy bag and preserves its remote row
+  ---
+  duration_ms: 5.109167
+  type: 'test'
+  ...
+# Subtest: bean deletion permits a legacy recipe relation without a record or bag dependency
+ok 3 - bean deletion permits a legacy recipe relation without a record or bag dependency
+  ---
+  duration_ms: 6.958417
+  type: 'test'
+  ...
+# Subtest: bean deletion protects a known extraction record and an unresolved legacy record
+ok 4 - bean deletion protects a known extraction record and an unresolved legacy record
+  ---
+  duration_ms: 12.5545
+  type: 'test'
+  ...
+# Subtest: bean deletion protects a v1 record when its legacy recipe has multiple bean candidates
+ok 5 - bean deletion protects a v1 record when its legacy recipe has multiple bean candidates
+  ---
+  duration_ms: 6.049292
+  type: 'test'
+  ...
+# Subtest: bean deletion stays blocked when a truncated legacy relation exposes only one candidate
+ok 6 - bean deletion stays blocked when a truncated legacy relation exposes only one candidate
+  ---
+  duration_ms: 5.591375
+  type: 'test'
+  ...
+# Subtest: unqueried malformed bag rows have no effect while failed fresh reads fail closed
+ok 7 - unqueried malformed bag rows have no effect while failed fresh reads fail closed
+  ---
+  duration_ms: 3.141875
+  type: 'test'
+  ...
+# Subtest: archiveBean refuses another data source and validates the PATCH response
+ok 8 - archiveBean refuses another data source and validates the PATCH response
+  ---
+  duration_ms: 2.199292
+  type: 'test'
+  ...
+# Subtest: lost deletion response recovers after restart from actual target (true)
+ok 9 - lost deletion response recovers after restart from actual target (true)
+  ---
+  duration_ms: 4.917333
+  type: 'test'
+  ...
+# Subtest: lost deletion response recovers after restart from actual target (false)
+ok 10 - lost deletion response recovers after restart from actual target (false)
+  ---
+  duration_ms: 3.583792
+  type: 'test'
+  ...
+# Subtest: 404 cannot resolve an unknown deletion as success
+ok 11 - 404 cannot resolve an unknown deletion as success
+  ---
+  duration_ms: 3.03875
+  type: 'test'
+  ...
+# Subtest: pending, frozen and busy locks prevent deletion dispatch
+ok 12 - pending, frozen and busy locks prevent deletion dispatch
+  ---
+  duration_ms: 2.301916
+  type: 'test'
+  ...
+# Subtest: delete target cannot use creation cleanup and stale connections cannot dispatch
+ok 13 - delete target cannot use creation cleanup and stale connections cannot dispatch
+  ---
+  duration_ms: 1.600333
+  type: 'test'
+  ...
+# Subtest: successful deletion with failed final refresh reports success separately
+ok 14 - successful deletion with failed final refresh reports success separately
+  ---
+  duration_ms: 2.526333
+  type: 'test'
+  ...
+# Subtest: a rejected deletion remains active and does not retry automatically
+ok 15 - a rejected deletion remains active and does not retry automatically
+  ---
+  duration_ms: 1.792708
+  type: 'test'
+  ...
+# Subtest: a duplicate delete intent never dispatches twice and unsaved form state survives deletion
+ok 16 - a duplicate delete intent never dispatches twice and unsaved form state survives deletion
+  ---
+  duration_ms: 6.4445
+  type: 'test'
+  ...
+# Subtest: missing and invalid targets cannot dispatch a deletion
+ok 17 - missing and invalid targets cannot dispatch a deletion
+  ---
+  duration_ms: 1.63425
+  type: 'test'
+  ...
+# Subtest: malformed durable delete targets block all further writes
+ok 18 - malformed durable delete targets block all further writes
+  ---
+  duration_ms: 3.117084
+  type: 'test'
+  ...
+# Subtest: delete write hooks reject a different target and arbitrary untracked writes
+ok 19 - delete write hooks reject a different target and arbitrary untracked writes
+  ---
+  duration_ms: 2.29475
+  type: 'test'
+  ...
+1..19
+# tests 19
+# suites 0
+# pass 19
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 192.453209

@@ -38,6 +38,6 @@ test('환경변수에서 ID를 읽고 공백을 제거하며 개인 ID로 대체
     `NOTION_${kind.toUpperCase()}_DATA_SOURCE_ID`, `  ${id}  `,
   ]));
   assert.deepEqual(readDataSources(env), DATA_SOURCES);
-  assert.deepEqual(readDataSources({}), { beans: '', bags: '', recipes: '', steps: '', records: '' });
+  assert.deepEqual(readDataSources({}), { beans: '', recipes: '', steps: '', records: '' });
   assert.equal(Object.isFrozen(readDataSources(env)), true);
 });

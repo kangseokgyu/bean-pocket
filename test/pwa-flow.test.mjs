@@ -47,7 +47,7 @@ test('release modules: connection → bean/recipe → copy → repeated records 
   for (const rating of [1, 5]) await save('Record', { beanId: bean.id, recipeId: recipe.id, date: '2026-10-19', rating });
   let data = await repository.readAll();
   assert.equal(data.beans[0].origin, '시다마 · 테스트 농장');
-  assert.equal(data.bags.length, 0);
+  assert.equal(Object.hasOwn(data, 'bags'), false);
   assert.equal(data.recipes[0].steps[2].interval, 40);
   assert.equal(data.recipes[0].steps[2].cumulativeWater, 250);
   assert.deepEqual(data.recipes[0].stats, { count: 2, average: 3 });
@@ -67,7 +67,7 @@ test('release modules: connection → bean/recipe → copy → repeated records 
   assert.deepEqual(data.records.map(record => record.snapshot.recipe.temperature), [93, 93, 91]);
   assert.ok(data.records.every(record => record.snapshot.recipe.extractionGuide === recipe.extractionGuide));
   assert.ok(data.records.every(record => record.snapshot.recordGeneration === 'bagless-v1'));
-  assert.ok(data.records.every(record => record.bagId === null));
+  assert.ok(data.records.every(record => !Object.hasOwn(record, 'bagId')));
   assert.ok(fake.rows.filter(row => row.parent.data_source_id === DATA_SOURCES.records)
     .every(row => !Object.hasOwn(row.properties, '원두 봉지')));
   assert.ok(data.records.every(record => record.snapshot.recipe.steps.length === 3));

@@ -6,10 +6,9 @@ import { encodeProperties } from '../pwa/data/notion-properties.mjs';
 import * as repositoryModule from '../pwa/data/read-repository.mjs';
 
 const { createReadRepository } = repositoryModule;
-const KINDS = ['beans', 'bags', 'recipes', 'steps', 'records'];
+const KINDS = ['beans', 'recipes', 'steps', 'records'];
 const SOURCES = Object.freeze({
   beans: 'a1111111-1111-4111-8111-111111111111',
-  bags: 'a2222222-2222-4222-8222-222222222222',
   recipes: 'a3333333-3333-4333-8333-333333333333',
   steps: 'a4444444-4444-4444-8444-444444444444',
   records: 'a5555555-5555-4555-8555-555555555555',
@@ -111,7 +110,7 @@ function standardStepPages(recipeId = IDS.recipe, idPrefix = IDS.pageA) {
 }
 
 function bagPage(id = IDS.bag, beanId = IDS.bean, name = '봄 봉지') {
-  return rawPage('bags', id, { name, beanId, roastedOn: '2026-10-01' });
+  return { ...rawPage('beans', id, { name }), properties: { '원두': { type: 'relation', relation: [{ id: beanId }], has_more: false } } };
 }
 
 function recordPage({ id = IDS.record, recipeId = IDS.recipe, beanId = IDS.bean, bagId = null, snapshot = legacySnapshot(storedRecipe(recipeId)), rating = 4 } = {}) {
@@ -208,7 +207,7 @@ test('모듈은 공개 factory와 두 읽기 메서드만 제공한다', () => {
   assert.ok(Object.isFrozen(repository));
 });
 
-test('factory는 다섯 source ID를 검증하고 생성 시점 값을 복사한다', async () => {
+test('factory는 네 source ID를 검증하고 생성 시점 값을 복사한다', async () => {
   const f = fixture();
   const sourceIds = { ...SOURCES };
   f.client.dataSources = sourceIds;
@@ -217,7 +216,7 @@ test('factory는 다섯 source ID를 검증하고 생성 시점 값을 복사한
 
   const result = await repository.readAll();
   assert.equal(result.beans.length, 1);
-  assert.equal(result.bags.length, 1);
+  assert.equal(Object.hasOwn(result, 'bags'), false);
   assert.equal(result.recipes.length, 1);
 
   const invalidClient = { ...f.client, dataSources: { ...SOURCES, steps: 'bad-source-id' } };
@@ -230,32 +229,32 @@ test('factory는 다섯 source ID를 검증하고 생성 시점 값을 복사한
   });
 });
 
-test('다섯 source를 모두 읽고 단계 정렬·기록 snapshot·별점 집계를 만든 뒤 깊게 고정한다', async () => {
+test('네 source를 모두 읽고 단계 정렬·기록 snapshot·별점 집계를 만든 뒤 깊게 고정한다', async () => {
   const rows = baselineRows();
   rows.steps.reverse();
   rows.records.push(recordPage({ id: IDS.secondRecord, bagId: null, rating: 1 }));
   const f = fixture({ rows });
   const result = await f.repository.readAll();
   assert.deepEqual(f.calls.filter(call => call.method === 'queryAll').map(call => call.kind), KINDS);
-  assert.deepEqual(Object.keys(result), ['beans', 'bags', 'recipes', 'records', 'excluded']);
+  assert.deepEqual(Object.keys(result), ['beans', 'recipes', 'records', 'excluded']);
   assert.equal(result.beans.length, 1);
-  assert.equal(result.bags.length, 1);
+  assert.equal(Object.hasOwn(result, 'bags'), false);
   assert.equal(result.recipes.length, 1);
   assert.deepEqual(result.recipes[0].steps.map(step => step.order), [1, 2, 3]);
   assert.deepEqual(result.recipes[0].stats, { count: 0, average: null }, 'unmarked historical rows stay raw but do not affect current aggregates');
   assert.deepEqual(result.records[0].snapshot, legacySnapshot(storedRecipe()));
-  assert.deepEqual(result.excluded, { bags: 0, recipes: 0, records: 0, steps: 0 });
+  assert.deepEqual(result.excluded, { recipes: 0, records: 0, steps: 0 });
   assertDeepFrozen(result);
   assert.throws(() => { result.recipes[0].steps[0].water = 999; }, TypeError);
   rows.beans[0].properties['원두 이름'].title[0].text.content = '바뀐 원두';
   assert.equal(result.beans[0].name, '에티오피아');
 });
 
-test('진짜 빈 다섯 source는 빈 데이터로 반환하고 조회 실패와 구분한다', async () => {
+test('진짜 빈 네 source는 빈 데이터로 반환하고 조회 실패와 구분한다', async () => {
   const empty = await fixture({ empty: true }).repository.readAll();
   assert.deepEqual(empty, {
-    beans: [], bags: [], recipes: [], records: [],
-    excluded: { bags: 0, recipes: 0, records: 0, steps: 0 },
+    beans: [], recipes: [], records: [],
+    excluded: { recipes: 0, records: 0, steps: 0 },
   });
   await expectSafeFailure(() => fixture({ failQuery: 'records' }).repository.readAll(), 'read-failed');
 });
@@ -282,9 +281,9 @@ test('삭제·잘못된 ID·source·parent 페이지는 codec 전에 제외한�
   const f = fixture({ rows });
   const result = await f.repository.readAll();
   assert.deepEqual(result.beans.map(bean => bean.id), [IDS.bean]);
-  assert.deepEqual(result.bags.map(bag => bag.id), [IDS.bag]);
+  assert.equal(Object.hasOwn(result, 'bags'), false);
   assert.deepEqual(result.recipes.map(recipe => recipe.id), [IDS.recipe]);
-  assert.equal(result.excluded.bags, 2);
+  assert.equal(Object.hasOwn(result.excluded, 'bags'), false);
   assert.equal(result.excluded.recipes, 2);
   assert.equal(result.excluded.steps, 2);
 });
@@ -295,9 +294,9 @@ test('raw history is retained while only bagless-generation snapshots affect agg
   const result = await fixture({ rows }).repository.readAll();
   assert.equal(result.records.length, 2);
   assert.equal(result.records[0].snapshot.version, 1);
-  assert.equal(result.records[0].bagId, IDS.bag);
+  assert.equal(Object.hasOwn(result.records[0], 'bagId'), false);
   assert.equal(result.records[1].snapshot.recordGeneration, 'bagless-v1');
-  assert.equal(result.records[1].bagId, null);
+  assert.equal(Object.hasOwn(result.records[0], 'bagId'), false);
   assert.equal(Object.hasOwn(rows.records[1].properties, '원두 봉지'), false);
   assert.deepEqual(result.recipes[0].stats, { count: 1, average: 1 });
   assert.equal(rows.bags.length, 1, 'raw bag rows remain part of the repository projection');
@@ -321,18 +320,18 @@ test('잘리거나 다중인 관계가 있어도 기존 기록과 평가는 보�
   rows.records.push(recordPage({ id: IDS.pageC, bagId: IDS.otherBag }));
   const f = fixture({ rows });
   const result = await f.repository.readAll();
-  assert.deepEqual(result.bags.map(bag => bag.id), [IDS.bag, IDS.pageD]);
+  assert.equal(Object.hasOwn(result, 'bags'), false);
   assert.deepEqual(result.recipes, []);
   assert.deepEqual(result.records.map(record => record.id), [IDS.record, IDS.secondRecord, IDS.pageC]);
   assert.deepEqual(result.records[0].snapshot, legacySnapshot(storedRecipe()));
   assert.equal(result.records[1].beanResolution, 'relation');
   assert.equal(result.records[1].rating, 4);
-  assert.deepEqual(result.records[1].bagCandidates, [IDS.bag, IDS.otherBag]);
+  assert.equal(Object.hasOwn(result.records[1], 'bagCandidates'), false);
   assert.equal(result.records[2].beanResolution, 'relation');
-  assert.deepEqual(result.excluded, { bags: 3, recipes: 3, records: 0, steps: 1 });
+  assert.deepEqual(result.excluded, { recipes: 3, records: 0, steps: 1 });
 });
 
-test('기록의 봉지 관계와 과거 원두 충돌은 평가를 보존하고 확인 대상으로 둔다', async () => {
+test('기록의 폐기된 봉지 관계는 원두 판독에 사용하지 않고 평가를 보존한다', async () => {
   const rows = baselineRows();
   rows.beans.push(beanPage(IDS.otherBean, '다른 원두'));
   rows.bags.push(bagPage(IDS.otherBag, IDS.otherBean, '다른 원두 봉지'));
@@ -344,8 +343,8 @@ test('기록의 봉지 관계와 과거 원두 충돌은 평가를 보존하고 
 
   const result = await fixture({ rows }).repository.readAll();
   assert.deepEqual(result.records.map(record => record.id), [IDS.record, IDS.secondRecord, IDS.pageB]);
-  assert.equal(result.records[1].bagId, 'b2222222-2222-4222-8222-999999999999');
-  assert.equal(result.records[2].beanResolution, 'needs-confirmation');
+  assert.equal(Object.hasOwn(result.records[0], 'bagId'), false);
+  assert.equal(result.records[2].beanResolution, 'relation');
   assert.equal(result.records[2].rating, 4);
   assert.equal(result.excluded.records, 0);
 });
@@ -600,7 +599,7 @@ test('현재 recipe가 삭제되어도 유효한 과거 record snapshot은 저�
   assert.equal(result.records.length, 1);
   assert.equal(result.records[0].recipeId, IDS.recipe);
   assert.equal(result.records[0].snapshot.temperature, 91);
-  assert.deepEqual(result.excluded, { bags: 0, recipes: 0, records: 0, steps: 0 });
+  assert.deepEqual(result.excluded, { recipes: 0, records: 0, steps: 0 });
 });
 
 test('손상되거나 버전이 다른 record snapshot은 제외하고 원본을 공개하지 않는다', async () => {
@@ -620,7 +619,7 @@ test('손상되거나 버전이 다른 record snapshot은 제외하고 원본을
   assert.doesNotMatch(JSON.stringify(result), new RegExp(TOKEN));
 });
 
-test('readRecipeForSnapshot은 매 호출마다 다섯 source와 parent를 새로 확인한다', async () => {
+test('readRecipeForSnapshot은 매 호출마다 네 source와 parent를 새로 확인한다', async () => {
   const f = fixture();
   const first = await f.repository.readRecipeForSnapshot(IDS.recipe.toUpperCase());
   assert.equal(first.id, IDS.recipe);
@@ -630,7 +629,7 @@ test('readRecipeForSnapshot은 매 호출마다 다섯 source와 parent를 새�
   const second = await f.repository.readRecipeForSnapshot(IDS.recipe);
   assert.equal(second.temperature, 90);
   assert.notEqual(first, second);
-  assert.equal(f.calls.filter(call => call.method === 'queryAll').length, 10);
+  assert.equal(f.calls.filter(call => call.method === 'queryAll').length, 8);
   assert.equal(f.calls.filter(call => call.method === 'getPage').length, 2);
   await expectSafeFailure(() => f.repository.readRecipeForSnapshot('bad-id'), 'invalid-input');
   await expectSafeFailure(() => f.repository.readRecipeForSnapshot(IDS.otherRecipe ?? IDS.secondRecipe), 'recipe-unavailable');

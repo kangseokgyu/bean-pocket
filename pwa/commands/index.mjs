@@ -104,9 +104,9 @@ function requireRecord(data, recordId) {
 
 function recordDependency(data, kind, targetId) {
   if (!Array.isArray(data?.records) || !Number.isInteger(data?.excluded?.records) || data.excluded.records > 0) return 'unknown';
-  const relationKey = kind === 'bags' ? 'bag' : 'recipe';
-  const idKey = kind === 'bags' ? 'bagId' : 'recipeId';
-  const candidatesKey = kind === 'bags' ? 'bagCandidates' : 'recipeCandidates';
+  const relationKey = 'recipe';
+  const idKey = 'recipeId';
+  const candidatesKey = 'recipeCandidates';
   for (const record of data.records) {
     const relation = record?.relationEvidence?.[relationKey];
     if (!relation || !Array.isArray(relation.ids) || typeof relation.complete !== 'boolean' || typeof relation.present !== 'boolean') return 'unknown';
@@ -160,7 +160,7 @@ function normalizedRecordInput(value) {
   const recipeId = normalizedId(input.recipeId, '레시피');
   if (Object.hasOwn(input, 'bagId')) throw new InputError('추출 기록에 봉지를 지정할 수 없습니다.');
   // The real recipe and bean are reloaded under the write lock before save.
-  const { bagId: _legacyBagId, ...record } = validateRecord(input, { id: recipeId }, { id: beanId }, null);
+  const record = validateRecord(input, { id: recipeId }, { id: beanId });
   return { ...record, beanId, recipeId };
 }
 
@@ -322,12 +322,10 @@ export function createCommands({ client, repository, submissionState } = {}) {
           const hasRecordDependency = Array.isArray(latest.records) && latest.records.some(record =>
             record.beanId === payload.id || record.beanCandidates?.includes(payload.id) ||
             record.beanResolution === 'needs-confirmation');
-          if (!Array.isArray(latest.bags) || !Array.isArray(latest.recipes) ||
-              latest.bags.some(bag => bag.beanId === payload.id) ||
+          if (!Array.isArray(latest.records) || !Array.isArray(latest.recipes) ||
               hasRecordDependency ||
-              (latest.excluded?.bags ?? 0) > 0 ||
               (latest.excluded?.records ?? 0) > 0) {
-            throw new InputError('연결된 봉지·추출 기록 또는 확인할 수 없는 기록이 있어 삭제할 수 없습니다.');
+            throw new InputError('연결된 추출 기록 또는 확인할 수 없는 기록이 있어 삭제할 수 없습니다.');
           }
           return operation.write(() => archiveTarget('beans', payload.id), { deleteId: payload.id, deleteKind: 'beans' });
         }
@@ -357,7 +355,7 @@ export function createCommands({ client, repository, submissionState } = {}) {
         if (metadata.kind === 'records') {
           const bean = requireBean(latest, payload.beanId);
           const recipe = requireRecipe(latest, payload.recipeId);
-          const { bagId: _legacyBagId, ...validated } = validateRecord(payload, recipe, bean, null);
+          const validated = validateRecord(payload, recipe, bean);
           const record = {
             ...validated,
             name: `${validated.date} · ${recipe.name}`,

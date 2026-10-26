@@ -1,6 +1,6 @@
 const DIRECTORY = 'bean-pocket-private-v1';
 const FILE = 'connection.json';
-const DATA_SOURCE_KEYS = Object.freeze(['beans', 'bags', 'recipes', 'steps', 'records']);
+const DATA_SOURCE_KEYS = Object.freeze(['beans', 'recipes', 'steps', 'records']);
 const CONNECTION_KEYS = Object.freeze(['schemaVersion', 'revision', 'token', 'dataSources']);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const CONTROL_CHARACTERS = /[\u0000-\u001f\u007f-\u009f]/;
@@ -49,6 +49,17 @@ function normalizedUuid(value) {
   if (typeof value !== 'string' || !UUID.test(value)) return null;
   return value.toLowerCase();
 }
+function validDataSources(value) {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return false;
+  const prototype = Object.getPrototypeOf(value);
+  if (prototype !== Object.prototype && prototype !== null) return false;
+  const keys = Reflect.ownKeys(value);
+  if (keys.some(key => typeof key !== 'string' || (!DATA_SOURCE_KEYS.includes(key) && key !== 'bags'))) return false;
+  return DATA_SOURCE_KEYS.every(key => {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    return descriptor && Object.hasOwn(descriptor, 'value') && descriptor.enumerable;
+  });
+}
 
 function normalizeConnection(value, invalidCode) {
   try {
@@ -58,7 +69,7 @@ function normalizeConnection(value, invalidCode) {
     if (!revision || typeof value.token !== 'string' || value.token.trim().length === 0 || CONTROL_CHARACTERS.test(value.token)) {
       throw new TypeError();
     }
-    if (!exactDataObject(value.dataSources, DATA_SOURCE_KEYS)) throw new TypeError();
+    if (!validDataSources(value.dataSources)) throw new TypeError();
     const dataSources = {};
     for (const key of DATA_SOURCE_KEYS) {
       const id = normalizedUuid(value.dataSources[key]);

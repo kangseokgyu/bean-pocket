@@ -1,0 +1,82 @@
+TAP version 13
+# Subtest: server environment exposes only four required data sources and ignores the old bags variable
+ok 1 - server environment exposes only four required data sources and ignores the old bags variable
+  ---
+  duration_ms: 1.159208
+  type: 'test'
+  ...
+# Subtest: server Notion adapter ignores an extra legacy bags source key
+ok 2 - server Notion adapter ignores an extra legacy bags source key
+  ---
+  duration_ms: 22.887792
+  type: 'test'
+  ...
+# Subtest: PWA Notion client ignores an extra legacy bags source key during verification
+ok 3 - PWA Notion client ignores an extra legacy bags source key during verification
+  ---
+  duration_ms: 1.6065
+  type: 'test'
+  ...
+# Subtest: PWA read repository queries only four sources and omits bags from its model
+ok 4 - PWA read repository queries only four sources and omits bags from its model
+  ---
+  duration_ms: 0.382541
+  type: 'test'
+  ...
+# Subtest: legacy connection data with a bags key is read without rewriting it
+ok 5 - legacy connection data with a bags key is read without rewriting it
+  ---
+  duration_ms: 0.3875
+  type: 'test'
+  ...
+# Subtest: old bag create/archive and record bagId input never reach the network
+ok 6 - old bag create/archive and record bagId input never reach the network
+  ---
+  duration_ms: 0.281875
+  type: 'test'
+  ...
+# Subtest: bag-only legacy evidence does not resolve a bean in the PWA repository
+ok 7 - bag-only legacy evidence does not resolve a bean in the PWA repository
+  ---
+  duration_ms: 5.787167
+  type: 'test'
+  ...
+# Subtest: bag-only legacy evidence does not resolve a bean in the server repository
+ok 8 - bag-only legacy evidence does not resolve a bean in the server repository
+  ---
+  duration_ms: 0.723292
+  type: 'test'
+  ...
+# Subtest: missing or malformed legacy bag properties do not exclude PWA history
+ok 9 - missing or malformed legacy bag properties do not exclude PWA history
+  ---
+  duration_ms: 0.877542
+  type: 'test'
+  ...
+# Subtest: missing or malformed legacy bag properties do not exclude server history
+ok 10 - missing or malformed legacy bag properties do not exclude server history
+  ---
+  duration_ms: 1.2395
+  type: 'test'
+  ...
+# Subtest: records model and every record encoding omit the legacy bag relation
+ok 11 - records model and every record encoding omit the legacy bag relation
+  ---
+  duration_ms: 0.128416
+  type: 'test'
+  ...
+# Subtest: domain record model contains no bag field
+ok 12 - domain record model contains no bag field
+  ---
+  duration_ms: 0.268833
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 100.95825

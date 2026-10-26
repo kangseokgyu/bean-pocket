@@ -1,0 +1,337 @@
+✖ server environment exposes only four required data sources and ignores the old bags variable (2.435792ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   bags: '00000005-1111-4111-8111-111111111111',
+      beans: '00000001-1111-4111-8111-111111111111',
+      recipes: '00000002-1111-4111-8111-111111111111',
+      records: '00000004-1111-4111-8111-111111111111',
+      steps: '00000003-1111-4111-8111-111111111111'
+    }
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/remove-bag-feature/AX-1day/test/remove-bag-feature.test.mjs:111:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { beans: '00000001-1111-4111-8111-111111111111', bags: '00000005-1111-4111-8111-111111111111', recipes: '00000002-1111-4111-8111-111111111111', steps: '00000003-1111-4111-8111-111111111111', records: '00000004-1111-4111-8111-111111111111' },
+    expected: { beans: '00000001-1111-4111-8111-111111111111', recipes: '00000002-1111-4111-8111-111111111111', steps: '00000003-1111-4111-8111-111111111111', records: '00000004-1111-4111-8111-111111111111' },
+    operator: 'deepStrictEqual'
+  }
+
+✖ server Notion adapter ignores an extra legacy bags source key (28.159542ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/remove-bag-feature/AX-1day/test/remove-bag-feature.test.mjs:129:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+✖ PWA Notion client ignores an extra legacy bags source key during verification (1.394542ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      '00000001-1111-4111-8111-111111111111',
+  +   '00000005-1111-4111-8111-111111111111',
+      '00000002-1111-4111-8111-111111111111',
+      '00000003-1111-4111-8111-111111111111',
+      '00000004-1111-4111-8111-111111111111'
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/remove-bag-feature/AX-1day/test/remove-bag-feature.test.mjs:146:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '00000001-1111-4111-8111-111111111111', '00000005-1111-4111-8111-111111111111', '00000002-1111-4111-8111-111111111111', '00000003-1111-4111-8111-111111111111', '00000004-1111-4111-8111-111111111111' ],
+    expected: [ '00000001-1111-4111-8111-111111111111', '00000002-1111-4111-8111-111111111111', '00000003-1111-4111-8111-111111111111', '00000004-1111-4111-8111-111111111111' ],
+    operator: 'deepStrictEqual'
+  }
+
+✖ PWA read repository queries only four sources and omits bags from its model (0.52025ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'beans',
+  +   'bags',
+      'recipes',
+      'steps',
+      'records'
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/remove-bag-feature/AX-1day/test/remove-bag-feature.test.mjs:157:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'beans', 'bags', 'recipes', 'steps', 'records' ],
+    expected: [ 'beans', 'recipes', 'steps', 'records' ],
+    operator: 'deepStrictEqual'
+  }
+
+✖ legacy connection data with a bags key is read without rewriting it (0.631041ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   bags: '00000005-1111-4111-8111-111111111111',
+      beans: '00000001-1111-4111-8111-111111111111',
+      recipes: '00000002-1111-4111-8111-111111111111',
+      records: '00000004-1111-4111-8111-111111111111',
+      steps: '00000003-1111-4111-8111-111111111111'
+    }
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/remove-bag-feature/AX-1day/test/remove-bag-feature.test.mjs:166:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { beans: '00000001-1111-4111-8111-111111111111', bags: '00000005-1111-4111-8111-111111111111', recipes: '00000002-1111-4111-8111-111111111111', steps: '00000003-1111-4111-8111-111111111111', records: '00000004-1111-4111-8111-111111111111' },
+    expected: { beans: '00000001-1111-4111-8111-111111111111', recipes: '00000002-1111-4111-8111-111111111111', steps: '00000003-1111-4111-8111-111111111111', records: '00000004-1111-4111-8111-111111111111' },
+    operator: 'deepStrictEqual'
+  }
+
+✔ old bag create/archive and record bagId input never reach the network (0.299209ms)
+✖ bag-only legacy evidence does not resolve a bean in the PWA repository (6.562875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '00000065-1111-4111-8111-111111111111'
+  - null
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/remove-bag-feature/AX-1day/test/remove-bag-feature.test.mjs:199:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '00000065-1111-4111-8111-111111111111',
+    expected: null,
+    operator: 'strictEqual'
+  }
+
+✖ bag-only legacy evidence does not resolve a bean in the server repository (0.5695ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '00000065-1111-4111-8111-111111111111'
+  - null
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/remove-bag-feature/AX-1day/test/remove-bag-feature.test.mjs:219:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '00000065-1111-4111-8111-111111111111',
+    expected: null,
+    operator: 'strictEqual'
+  }
+
+✔ missing or malformed legacy bag properties do not exclude PWA history (1.28675ms)
+✔ missing or malformed legacy bag properties do not exclude server history (0.773ms)
+✖ records model and every record encoding omit the legacy bag relation (0.15275ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/remove-bag-feature/AX-1day/test/remove-bag-feature.test.mjs:262:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+ℹ tests 11
+ℹ suites 0
+ℹ pass 3
+ℹ fail 8
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 134.306875
+
+✖ failing tests:
+
+test at test/remove-bag-feature.test.mjs:108:1
+✖ server environment exposes only four required data sources and ignores the old bags variable (2.435792ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   bags: '00000005-1111-4111-8111-111111111111',
+      beans: '00000001-1111-4111-8111-111111111111',
+      recipes: '00000002-1111-4111-8111-111111111111',
+      records: '00000004-1111-4111-8111-111111111111',
+      steps: '00000003-1111-4111-8111-111111111111'
+    }
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/remove-bag-feature/AX-1day/test/remove-bag-feature.test.mjs:111:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { beans: '00000001-1111-4111-8111-111111111111', bags: '00000005-1111-4111-8111-111111111111', recipes: '00000002-1111-4111-8111-111111111111', steps: '00000003-1111-4111-8111-111111111111', records: '00000004-1111-4111-8111-111111111111' },
+    expected: { beans: '00000001-1111-4111-8111-111111111111', recipes: '00000002-1111-4111-8111-111111111111', steps: '00000003-1111-4111-8111-111111111111', records: '00000004-1111-4111-8111-111111111111' },
+    operator: 'deepStrictEqual'
+  }
+
+test at test/remove-bag-feature.test.mjs:115:1
+✖ server Notion adapter ignores an extra legacy bags source key (28.159542ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/remove-bag-feature/AX-1day/test/remove-bag-feature.test.mjs:129:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+test at test/remove-bag-feature.test.mjs:133:1
+✖ PWA Notion client ignores an extra legacy bags source key during verification (1.394542ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      '00000001-1111-4111-8111-111111111111',
+  +   '00000005-1111-4111-8111-111111111111',
+      '00000002-1111-4111-8111-111111111111',
+      '00000003-1111-4111-8111-111111111111',
+      '00000004-1111-4111-8111-111111111111'
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/remove-bag-feature/AX-1day/test/remove-bag-feature.test.mjs:146:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '00000001-1111-4111-8111-111111111111', '00000005-1111-4111-8111-111111111111', '00000002-1111-4111-8111-111111111111', '00000003-1111-4111-8111-111111111111', '00000004-1111-4111-8111-111111111111' ],
+    expected: [ '00000001-1111-4111-8111-111111111111', '00000002-1111-4111-8111-111111111111', '00000003-1111-4111-8111-111111111111', '00000004-1111-4111-8111-111111111111' ],
+    operator: 'deepStrictEqual'
+  }
+
+test at test/remove-bag-feature.test.mjs:149:1
+✖ PWA read repository queries only four sources and omits bags from its model (0.52025ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'beans',
+  +   'bags',
+      'recipes',
+      'steps',
+      'records'
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/remove-bag-feature/AX-1day/test/remove-bag-feature.test.mjs:157:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'beans', 'bags', 'recipes', 'steps', 'records' ],
+    expected: [ 'beans', 'recipes', 'steps', 'records' ],
+    operator: 'deepStrictEqual'
+  }
+
+test at test/remove-bag-feature.test.mjs:161:1
+✖ legacy connection data with a bags key is read without rewriting it (0.631041ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   bags: '00000005-1111-4111-8111-111111111111',
+      beans: '00000001-1111-4111-8111-111111111111',
+      recipes: '00000002-1111-4111-8111-111111111111',
+      records: '00000004-1111-4111-8111-111111111111',
+      steps: '00000003-1111-4111-8111-111111111111'
+    }
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/remove-bag-feature/AX-1day/test/remove-bag-feature.test.mjs:166:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { beans: '00000001-1111-4111-8111-111111111111', bags: '00000005-1111-4111-8111-111111111111', recipes: '00000002-1111-4111-8111-111111111111', steps: '00000003-1111-4111-8111-111111111111', records: '00000004-1111-4111-8111-111111111111' },
+    expected: { beans: '00000001-1111-4111-8111-111111111111', recipes: '00000002-1111-4111-8111-111111111111', steps: '00000003-1111-4111-8111-111111111111', records: '00000004-1111-4111-8111-111111111111' },
+    operator: 'deepStrictEqual'
+  }
+
+test at test/remove-bag-feature.test.mjs:189:1
+✖ bag-only legacy evidence does not resolve a bean in the PWA repository (6.562875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '00000065-1111-4111-8111-111111111111'
+  - null
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/remove-bag-feature/AX-1day/test/remove-bag-feature.test.mjs:199:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '00000065-1111-4111-8111-111111111111',
+    expected: null,
+    operator: 'strictEqual'
+  }
+
+test at test/remove-bag-feature.test.mjs:207:1
+✖ bag-only legacy evidence does not resolve a bean in the server repository (0.5695ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '00000065-1111-4111-8111-111111111111'
+  - null
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/remove-bag-feature/AX-1day/test/remove-bag-feature.test.mjs:219:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '00000065-1111-4111-8111-111111111111',
+    expected: null,
+    operator: 'strictEqual'
+  }
+
+test at test/remove-bag-feature.test.mjs:261:1
+✖ records model and every record encoding omit the legacy bag relation (0.15275ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/remove-bag-feature/AX-1day/test/remove-bag-feature.test.mjs:262:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }

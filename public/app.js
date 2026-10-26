@@ -6,7 +6,7 @@ const dialog = document.querySelector('#form-dialog');
 const dialogContent = document.querySelector('#dialog-content');
 const notice = document.querySelector('#notice');
 const connectionState = document.querySelector('#connection-state');
-const emptyData = () => ({ beans: [], bags: [], recipes: [], records: [] });
+const emptyData = () => ({ beans: [], recipes: [], records: [] });
 let data = emptyData();
 let connected = false;
 let demo = false;
@@ -250,7 +250,7 @@ async function saveData(kind, payload, key) {
     if (kind === 'records') {
       const recipe = data.recipes.find(item => item.id === payload.recipeId);
       const bean = data.beans.find(item => item.id === payload.beanId);
-      const { bagId: _legacyBagId, ...record } = validateRecord(payload, recipe, bean, null);
+      const record = validateRecord(payload, recipe, bean);
       item = { ...record, snapshot: createSnapshot(bean, recipe), snapshotStatus: 'valid' };
     }
     item.id = crypto.randomUUID();

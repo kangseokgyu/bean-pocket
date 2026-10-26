@@ -87,7 +87,7 @@ export function createApp({ fetchImpl = globalThis.fetch, initialToken = process
       const bean = requireItem(data.beans, body.beanId, '원두');
       const recipe = requireItem(data.recipes, body.recipeId, '레시피');
       validateStoredRecipe(recipe);
-      const { bagId: _legacyBagId, ...record } = validateRecord(body, recipe, bean, null);
+      const record = validateRecord(body, recipe, bean);
       record.name = `${record.date} · ${recipe.name}`;
       record.snapshot = createSnapshot(bean, recipe);
       return targetRepository.create('records', record);

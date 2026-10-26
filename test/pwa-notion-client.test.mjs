@@ -6,11 +6,11 @@ import { encodeProperties as serverEncode, decodePage as serverDecode } from '..
 
 // 전부 합성 값이다. 환경 파일·비공개 설정·실제 API를 사용하지 않는다.
 const uuid = n => n.toString(16).padStart(8, '0') + '-1111-4111-8111-111111111111';
-const kinds = ['beans', 'bags', 'recipes', 'steps', 'records'];
+const kinds = ['beans', 'recipes', 'steps', 'records'];
 const SOURCES = Object.fromEntries(kinds.map((kind, i) => [kind, uuid(i + 1)]));
 const REVISION = uuid(10), PAGE = uuid(20), OTHER = uuid(21);
 const TOKEN = 'unit-credential-only', RAW = 'private-response-sentinel';
-const RELATIONS = { bags: { beanId: 'beans' }, recipes: { beanId: 'beans' }, steps: { recipeId: 'recipes' }, records: { beanId: 'beans', recipeId: 'recipes', bagId: 'bags' } };
+const RELATIONS = { recipes: { beanId: 'beans' }, steps: { recipeId: 'recipes' }, records: { beanId: 'beans', recipeId: 'recipes' } };
 function source(kind) {
   return { object: 'data_source', id: SOURCES[kind], properties: Object.fromEntries(Object.entries(schemas[kind] || {}).map(([key, [name, type]]) =>
     [name, { type, ...(type === 'relation' ? { relation: { data_source_id: SOURCES[RELATIONS[kind][key]] } } : {}) }])) };
@@ -71,13 +71,13 @@ test('validateCreatePayload reuses the create transport limits without issuing a
   }
 });
 
-test('verify는 설정된 다섯 스키마와 forward 관계 타입·대상을 읽기만 검증한다', async () => {
+test('verify는 설정된 네 스키마와 forward 관계 타입·대상을 읽기만 검증한다', async () => {
   const { client, calls } = harness(url => {
     const kind = kinds.find(k => url.endsWith(SOURCES[k]));
     return response(200, source(kind));
   });
   assert.equal(await client.verify(), true);
-  assert.equal(calls.length, 5);
+  assert.equal(calls.length, 4);
   assert.deepEqual(calls.map(c => c.url), kinds.map(k => 'https://api.notion.com/v1/data_sources/' + SOURCES[k]));
   assert.ok(calls.every(c => c.init.method === 'GET' && c.init.body === undefined));
 });
@@ -93,7 +93,7 @@ test('verify는 object/id/속성 누락·다른 타입·관계의 다른 데이�
     const { client } = harness(() => { const s = source('beans'); mutate(s); return response(200, s); });
     await rejected(client.verify(), 'not-sent', 'invalid-response');
   }
-  for (const kind of Object.keys(RELATIONS)) {
+  for (const kind of ['steps', 'records']) {
     const { client } = harness(url => {
       const key = kinds.find(k => url.endsWith(SOURCES[k]));
       const s = source(key);
@@ -346,8 +346,8 @@ test('배열·UTF-8 500000byte 한도와 stringify 오류는 fetch 전 안전하
   assert.equal(calls.length, 0);
 });
 
-test('canonical 35속성·긴 snapshot 왕복과 기존 decode 의미·서버 함수 동일성을 유지한다', () => {
-  assert.equal(Object.values(schemas).reduce((sum, fields) => sum + Object.keys(fields).length, 0), 35);
+test('canonical 31속성·긴 snapshot 왕복과 기존 decode 의미·서버 함수 동일성을 유지한다', () => {
+  assert.equal(Object.values(schemas).reduce((sum, fields) => sum + Object.keys(fields).length, 0), 31);
   assert.equal(serverEncode, encodeProperties); assert.equal(serverDecode, decodePage);
   const snapshot = { version: 1, name: '원본', steps: [{ order: 1, seconds: 0, water: 50 }], note: '가'.repeat(5000) };
   const properties = encodeProperties('records', { name: '기록', recipeId: PAGE, snapshot });
@@ -356,8 +356,6 @@ test('canonical 35속성·긴 snapshot 왕복과 기존 decode 의미·서버 �
   assert.deepEqual(decodePage('records', { id: OTHER, properties }).snapshot, snapshot);
   assert.equal(decodePage('records', { id: OTHER, properties: {} }).snapshot, null);
   const multiple = { properties: { '원두': { relation: [{ id: PAGE }, { id: OTHER }] } } };
-  assert.equal(decodePage('bags', multiple).beanId, null);
-  assert.equal(decodePage('bags', { properties: {} }).roastedOn, null);
   assert.equal(decodePage('beans', { properties: {} }).name, '');
 });
 
@@ -421,7 +419,7 @@ test('client의 긴 스냅샷 wire 분할·응답 raw page·shared decode 왕복
   assert.equal(returned.object, 'page');
 });
 
-test('bag source stays readable while bag create/archive and bagId record writes stop before fetch', async () => {
+test('bag create/archive and bagId record writes stop before fetch', async () => {
   const { client, calls } = await recordsHarness();
   await rejected(client.createPage('bags', { name: '구버전 봉지', beanId: PAGE }), 'not-sent');
   await rejected(client.createPage('records', {

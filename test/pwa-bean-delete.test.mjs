@@ -31,7 +31,7 @@ const recipe = beanId => ({ name: 'V60', beanId, dose: 15, totalWater: 250, temp
 
 function seedRawBag(env, beanId, id = '22222222-2222-4222-8222-222222222222') {
   env.fake.rows.push({ object: 'page', id,
-    parent: { type: 'data_source_id', data_source_id: env.connection().dataSources.bags },
+    parent: { type: 'data_source_id', data_source_id: '22222222-2222-4222-8222-222222222222' },
     archived: false, in_trash: false, last_edited_time: '2026-10-22T00:00:00.000Z',
     properties: {
       '봉지 이름': { type: 'title', title: [{ plain_text: '과거 봉지' }] },
@@ -70,13 +70,14 @@ test('bean deletion persists its target before PATCH and refreshes the list', as
   assert.equal(env.native.journal().operations.at(-1).deleteTarget.archiveState, 'archived');
 });
 
-test('bean deletion refuses a linked raw legacy bag without PATCH', async () => {
+test('bean deletion ignores an unqueried legacy bag and preserves its remote row', async () => {
   const env = await setup();
   seedRawBag(env, env.id);
-  assert.equal((await env.app.submit('delete-bean', { id: env.id })).status, 'failed');
-  assert.equal(patches(env).length, 0);
-  assert.equal(env.fake.rows[0].in_trash, false);
-  assert.equal(env.fake.rows[1].parent.data_source_id, env.connection().dataSources.bags);
+  assert.equal((await env.app.submit('delete-bean', { id: env.id })).status, 'succeeded');
+  assert.equal(patches(env).length, 1);
+  assert.equal(env.fake.rows[0].in_trash, true);
+  assert.equal(env.fake.rows[1].in_trash, false);
+  assert.equal(env.fake.calls.some(call => call.pathname.includes('22222222-2222-4222-8222-222222222222')), false);
 });
 
 test('bean deletion permits a legacy recipe relation without a record or bag dependency', async () => {
@@ -101,20 +102,29 @@ test('bean deletion protects a known extraction record and an unresolved legacy 
   const legacyRecipe = await unresolved.app.submit('recipes', recipe(unresolved.id));
   const savedRecord = unresolved.fake.rows.find(row => row.id === legacyRecipe.value.id);
   const recordPage = {
+    object: 'page',
     id: 'eeeeeeee-5555-4555-8555-111111111111',
     parent: { type: 'data_source_id', data_source_id: unresolved.connection().dataSources.records },
     in_trash: false, archived: false, last_edited_time: '2026-10-22T00:00:00.000Z',
     properties: {
       '기록 이름': { id: 'record-title', type: 'title', title: [{ plain_text: '과거 기록' }] },
       '레시피': { id: 'record-recipe', type: 'relation', relation: [{ id: savedRecord.id }], has_more: false },
-      '원두 봉지': { id: 'record-bag', type: 'relation', relation: [], has_more: false },
+      '원두 봉지': { id: 'record-bag', type: 'relation', relation: [{ id: '22222222-2222-4222-8222-222222222222' }], has_more: false },
       '날짜': { id: 'record-date', type: 'date', date: { start: '2026-10-21' } },
       '별점': { id: 'record-rating', type: 'number', number: 4 },
       '컵노트': { id: 'record-note', type: 'rich_text', rich_text: [] },
       '당시 레시피 스냅샷': { id: 'record-snapshot', type: 'rich_text', rich_text: [] },
     },
   };
+  seedRawBag(unresolved, unresolved.id);
   unresolved.fake.rows.push(recordPage);
+  const c = unresolved.connection();
+  const raw = await createReadRepository(new NotionClient(c.token, { dataSources: c.dataSources, connectionRevision: c.revision, fetchImpl: unresolved.fake.fetch })).readAll();
+  assert.equal(raw.records[0].beanId, null);
+  assert.equal(raw.records[0].beanResolution, 'needs-confirmation');
+  assert.equal(raw.records[0].rating, 4);
+  assert.equal(raw.records[0].snapshotStatus, 'missing');
+  assert.equal(Object.hasOwn(raw.records[0], 'bagId'), false);
   assert.equal((await unresolved.app.submit('delete-bean', { id: unresolved.id })).status, 'failed');
   assert.equal(patches(unresolved).length, 0);
 });
@@ -148,21 +158,23 @@ test('bean deletion stays blocked when a truncated legacy relation exposes only 
   assert.equal(patches(env).length, 0);
 });
 
-test('excluded malformed raw bag rows and failed fresh reads fail closed', async () => {
+test('unqueried malformed bag rows have no effect while failed fresh reads fail closed', async () => {
   const env = await setup();
   seedRawBag(env, env.id);
   env.fake.rows[1].properties['원두'].relation = [];
-  assert.equal((await env.app.submit('delete-bean', { id: env.id })).status, 'failed');
-  assert.equal(patches(env).length, 0);
   env.fake.intercept = ({ pathname }) => pathname.includes('/query') ? Response.json({}, { status: 503 }) : null;
   assert.equal((await env.app.submit('delete-bean', { id: env.id })).status, 'failed');
   assert.equal(patches(env).length, 0);
+  env.fake.intercept = null;
+  assert.equal((await env.app.submit('delete-bean', { id: env.id })).status, 'succeeded');
+  assert.equal(patches(env).length, 1);
+  assert.equal(env.fake.rows[1].in_trash, false);
 });
 
 test('archiveBean refuses another data source and validates the PATCH response', async () => {
   const env = await setup(), c = env.connection();
   const client = new NotionClient(c.token, { dataSources: c.dataSources, connectionRevision: c.revision, fetchImpl: env.fake.fetch });
-  env.fake.rows[0].parent.data_source_id = c.dataSources.bags;
+  env.fake.rows[0].parent.data_source_id = c.dataSources.recipes;
   await assert.rejects(client.archiveBean(env.id));
   assert.equal(patches(env).length, 0);
   env.fake.rows[0].parent.data_source_id = c.dataSources.beans;

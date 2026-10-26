@@ -1,5 +1,7 @@
 # 봉지 기능 제외 작업 체크리스트
 
+> 과거 1차 제거 작업 기록이다. 5DB 호환·봉지 조회 정책은 후속 `codex/remove-bag-feature`의 전체 제거(4DB·봉지 미조회)로 대체되었다. 이 문서의 과거 검증 결과와 evidence는 보존한다. 현재 진행은 `tasks/todo.md` 및 `docs/evidence/remove-bag-feature-20261026/`를 따른다.
+
 - 기준 브랜치: `codex/remove-bags`
 - 기준 커밋: `209e4e912f83469bbed145c4b4832952299476fd`
 - 메인·origin 기준 SHA 일치와 원본 작업 폴더 clean은 메인 제공 정보로 확인했다. 통합·push·게시 담당은 메인이다.

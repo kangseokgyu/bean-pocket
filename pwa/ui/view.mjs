@@ -79,7 +79,7 @@ const FORM_KINDS = new Set(['beans', 'recipes', 'records']);
 const AUTO_HIDE_STATUS_TYPES = new Set(['connected', 'saved', 'resolved', 'cancelled']);
 const STATUS_DISPLAY_MS = 3000;
 const SOURCE_FIELDS = Object.freeze([
-  ['beans', '원두'], ['bags', '원두 봉지'], ['recipes', '레시피'],
+  ['beans', '원두'], ['recipes', '레시피'],
   ['steps', '레시피 단계'], ['records', '추출 기록'],
 ]);
 
@@ -416,7 +416,6 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     syncStatusToast();
   }
   function renderCurrentContent() {
-    drafts.delete('bags');
     renderPane(content, currentData, document, route, drafts, beanFormOpen, recipeFormOpen, recordFormOpen);
     finishContentRender();
     applyViewState();
@@ -1135,8 +1134,8 @@ function fillSelect(select, rows, placeholder, optional = false) {
 
 function buildResolutionForm(document, operation) {
   const deleting = operation.kind.startsWith('delete-');
-  const deleteNames = { beans: '원두', bags: '봉지', recipes: '레시피', records: '추출 기록' };
-  const names = { beans: '원두', bags: '원두 봉지', recipes: '레시피', records: '추출 기록' };
+  const deleteNames = { beans: '원두', recipes: '레시피', records: '추출 기록' };
+  const names = { beans: '원두', recipes: '레시피', records: '추출 기록' };
   const targetName = deleteNames[operation.targetKind] ?? '항목';
   const hasKnownPages = deleting || operation.knownPageCount > 0;
   const card = make(document, 'article', undefined, 'resolution-card');

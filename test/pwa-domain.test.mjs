@@ -54,12 +54,12 @@ test('정적 모듈의 시간·간격·누적 물 양과 입력 검증이 유지
 test('정적 모듈의 날짜·정수 별점·원두 관계와 빈 평균 의미가 유지된다', async () => {
   const d = await loadDomain();
   assert.equal(d.validateBean({ name: '원두' }).name, '원두');
-  assert.equal(d.validateBag({ name: '봉지', beanId: 'b' }).roastedOn, null);
+  assert.equal(d.validateBag, undefined);
   assert.throws(() => d.validateDate('2026-02-30'), d.InputError);
   for (const rating of [0, 6, 1.5, '', [4]]) {
     assert.throws(() => d.validateRecord({ date: '2026-10-18', rating }, recipe(), { id: 'b' }), d.InputError);
   }
-  assert.throws(() => d.validateRecord({ date: '2026-10-18', rating: 4 }, recipe(), { id: 'b' }, { beanId: 'other' }), d.InputError);
+  assert.throws(() => d.validateRecord({ date: '2026-10-18', rating: 4 }, recipe(), null), d.InputError);
   assert.equal(d.validateRecord({ date: '2026-10-18', rating: 5 }, recipe(), { id: 'b' }).rating, 5);
   assert.deepEqual(d.summarizeRatings([], 'r'), { count: 0, average: null });
   const current = { snapshotStatus: 'valid', snapshot: { recordGeneration: 'bagless-v1' } };

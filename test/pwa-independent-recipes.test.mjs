@@ -7,7 +7,6 @@ import { createReadRepository } from '../pwa/data/read-repository.mjs';
 
 const SOURCES = Object.freeze({
   beans: '11111111-1111-4111-8111-111111111111',
-  bags: '22222222-2222-4222-8222-222222222222',
   recipes: '33333333-3333-4333-8333-333333333333',
   steps: '44444444-4444-4444-8444-444444444444',
   records: '55555555-5555-4555-8555-555555555555',
@@ -92,17 +91,16 @@ test('새 레시피는 원두 관계 없이 검증된다', () => {
   assert.equal(Object.hasOwn(encodeProperties('recipes', { ...recipe, beanId: IDS.bean }), '원두'), false);
 });
 
-test('추출 기록은 선택한 원두와 레시피를 각각 보관하고 봉지는 원두와 일치시킨다', () => {
+test('추출 기록은 선택한 원두와 레시피를 각각 보관하며 봉지 필드가 없다', () => {
   const recipe = { id: IDS.recipe, ...validateRecipe(recipeInput()) };
   const selectedBean = { ...bean, id: IDS.secondBean };
-  const bag = { id: IDS.bag, beanId: IDS.secondBean };
-  const record = validateRecord({ date: '2026-10-22', rating: 5, cupNote: '살구' }, recipe, selectedBean, bag);
+  const record = validateRecord({ date: '2026-10-22', rating: 5, cupNote: '살구' }, recipe, selectedBean);
   assert.deepEqual(record, {
-    beanId: IDS.secondBean, recipeId: IDS.recipe, bagId: IDS.bag,
+    beanId: IDS.secondBean, recipeId: IDS.recipe,
     date: '2026-10-22', rating: 5, cupNote: '살구',
   });
   assert.throws(() => validateRecord({ date: '2026-10-22', rating: 5 }, recipe, null, null), /원두/);
-  assert.throws(() => validateRecord({ date: '2026-10-22', rating: 5 }, recipe, selectedBean, { id: IDS.bag, beanId: IDS.bean }), /봉지/);
+  assert.equal(Object.hasOwn(record, 'bagId'), false);
 });
 
 test('기록 snapshot v2는 당시 원두 전체 정보와 레시피 조건·단계를 함께 보존한다', () => {

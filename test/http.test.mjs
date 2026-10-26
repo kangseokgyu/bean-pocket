@@ -143,7 +143,7 @@ test('공개 HTTP 흐름: 연결→원두→레시피→평가→재조회, 봉�
   }
   const before = (await request('/api/data')).body;
   assert.equal(before.beans.length, 1);
-  assert.equal(before.bags.length, 0);
+  assert.equal(Object.hasOwn(before, 'bags'), false);
   assert.equal(before.recipes[0].steps[2].interval, 40);
   assert.equal(before.recipes[0].steps[2].cumulativeWater, 250);
   assert.deepEqual(before.recipes[0].stats, { count: 3, average: 13 / 3 });
@@ -232,7 +232,7 @@ test('records.bean 관계가 없는 개인 스키마에서는 legacy 조회를 �
     return { status: response.status, body: await response.json() };
   };
   assert.equal((await request('/api/connect', { token: 'legacy-schema' })).status, 200);
-  assert.deepEqual((await request('/api/data')).body, { beans: [], bags: [], recipes: [], records: [] });
+  assert.deepEqual((await request('/api/data')).body, { beans: [], recipes: [], records: [] });
   const bean = (await request('/api/beans', { name: '원두' })).body;
   const recipe = (await request('/api/recipes', recipeInput())).body;
   assert.equal(recipe.id !== undefined, true);
@@ -246,8 +246,8 @@ test('records.bean 관계가 없는 개인 스키마에서는 legacy 조회를 �
 test('연결 검증 실패 시 기존 연결 유지·토큰 미노출·진짜 빈 DB는 빈 목록', async t => {
   const { fake, request } = await setup(t);
   await request('/api/connect', { token: 'good-token' });
-  assert.deepEqual((await request('/api/data')).body, { beans: [], bags: [], recipes: [], records: [] });
-  assert.equal(fake.calls.filter(call => call.method === 'GET').length, 5);
+  assert.deepEqual((await request('/api/data')).body, { beans: [], recipes: [], records: [] });
+  assert.equal(fake.calls.filter(call => call.method === 'GET').length, 4);
   fake.rejectToken = 'bad-private-token';
   const failure = await request('/api/connect', { token: fake.rejectToken });
   assert.equal(failure.status, 502);

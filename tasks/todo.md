@@ -16,3 +16,17 @@
 
 - [x] P3 조사 문구 세 곳 및 Orchestrator 요청 주체 정정, 공개용 Critic 근거 선별/민감정보 검사
 - [x] 문구 변경 후 UI 49/49, 전체 448/448, Pages build/check 각 한 차례 통과; raw 로그 보관 (`45fc966c78bd`)
+
+## 2026-10-26 봉지 기능 전체 제거 — worker 체크리스트
+
+- [x] 기존 완료 체크리스트 확인; 이 작업 전용 계획·증거 경로 기록
+- [x] 테스트를 먼저 갱신해 4개 DB 설정/조회, legacy 봉지 속성 무시, 봉지 전용 원두 추론 없음의 RED 증거 저장
+- [x] PWA·Node 서버 모델, 속성, 설정, 조회, 생성/삭제 경로에서 봉지 제거; 기록 `bagless-v1`, 잠금·unknown/partial·복구 보존
+- [x] 기록 기반 원두/레시피 삭제 보호와 미해결 기록 fail-closed 유지; 봉지 관계만 있는 원두 삭제 허용
+- [x] 구형 봉지 입력·명령이 fake Notion 요청/PATCH 없이 거절되는 테스트 및 PWA/public 화면 회귀 확인
+- [x] `.env.example`, README, SPEC, PLAN, 현재 DB 설정 안내 및 tasks 계획을 4개 DB 정책으로 정합화; 과거 evidence 변경 금지
+- [x] 변경 관련 `node --test`, 전체 `npm test`, `npm run build:pages`, `npm run check:pages` GREEN 로그 보관
+- [x] fake Notion 외부 쓰기 0건 확인; 브라우저 확인은 격리 실행 가능 여부를 기록하고 Critic에 인계
+- [x] 변경 파일·dirty 상태·검증 증거와 미검증 범위를 요약하고 Orchestrator/Critic에 인계; merge/push/deploy 하지 않음
+
+브라우저(fake Notion) 직접 상호작용과 독립 검토는 미완료이며 Critic 담당이다. merge/push/deploy와 공개 반영 확인은 Orchestrator 담당이다. worker 자동 검증: 508/508, Pages build/check exit 0, 산출물 버전 `b56bc1934364`. 상세: `docs/evidence/remove-bag-feature-20261026/verification.md`.

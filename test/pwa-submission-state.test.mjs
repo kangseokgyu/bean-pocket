@@ -7,7 +7,7 @@ import { createSubmissionState, createSubmissionDraft } from '../pwa/state/submi
 const REV = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
 const NEXT = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
 const ID = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
-const KEYS = ['beans', 'bags', 'recipes', 'steps', 'records'];
+const KEYS = ['beans', 'recipes', 'steps', 'records'];
 const sources = Object.fromEntries(KEYS.map((key, n) => [key, String(n + 1).repeat(8) + '-1111-1111-1111-111111111111']));
 const connection = revision => ({ schemaVersion: 1, revision, token: 'fake-private-token', dataSources: { ...sources } });
 const journalName = 'submission-journal.json';

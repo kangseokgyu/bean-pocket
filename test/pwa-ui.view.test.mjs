@@ -1928,3 +1928,45 @@ test('bean card deletion never opens records, including clicks on its icon', asy
     if (original === undefined) delete globalThis.confirm; else globalThis.confirm = original;
   }
 });
+
+test('recipe list cards link their entire surface to details without a details button', async () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.renderData(data());
+  view.renderRoute('/recipes');
+  view.bind({});
+  const card = document.root.querySelector('.recipe-card');
+  const link = card.querySelector('a');
+  assert.ok(link, 'recipe title is a native keyboard-accessible link');
+  assert.equal(link.getAttribute('href'), `#/recipes/${RECIPE}`);
+  assert.equal(link.getAttribute('aria-label'), 'V60 상세 보기');
+  assert.equal(card.querySelectorAll('button').length, 1, 'only delete remains');
+  assert.equal(card.querySelector('button').dataset.action, 'delete-recipe');
+  assert.ok(card.textContent.includes('15g · 93℃ · 물 250g'));
+  for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: link });
+  assert.ok(document.root.querySelector('[data-action="copy-recipe"]'));
+  assert.ok(document.root.textContent.includes('교반 없음'));
+  assert.equal(document.root.querySelector('.recipe-card-link'), null, 'detail card has no full-card overlay');
+  assert.equal(document.root.querySelector('.recipe-summary-card'), null);
+});
+
+test('recipe list card delete icon stays independent of detail navigation', async () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.renderData(data());
+  view.renderRoute('/recipes');
+  const calls = [];
+  view.bind({ submit: (...args) => calls.push(args) });
+  const trash = document.root.querySelector('[data-action="delete-recipe"]');
+  const original = globalThis.confirm;
+  try {
+    for (const confirmed of [false, true]) {
+      globalThis.confirm = () => confirmed;
+      for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: trash.querySelector('svg') });
+      assert.equal(document.root.querySelector('[data-action="copy-recipe"]'), null);
+    }
+    assert.deepEqual(calls, [['delete-recipe', { id: RECIPE }]]);
+  } finally {
+    if (original === undefined) delete globalThis.confirm; else globalThis.confirm = original;
+  }
+});

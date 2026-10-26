@@ -813,14 +813,18 @@ function renderPane(parent, data, document, route = '/beans', drafts = new Map()
     updatePreview(pane);
     if (!data.recipes.length) pane.append(make(document, 'p', '등록된 레시피가 없습니다.', 'empty-state'));
     for (const recipe of data.recipes) {
-      const card = make(document, 'article', undefined, 'recipe-card');
+      const card = make(document, 'article', undefined, 'recipe-card recipe-summary-card');
       const recipeHeader = make(document, 'div', undefined, 'entity-card-header');
-      recipeHeader.append(make(document, 'h3', recipe.name), trashButton(document, 'recipes', recipe.id, recipe.name));
+      const title = make(document, 'h3');
+      const link = make(document, 'a', recipe.name, 'recipe-card-link');
+      link.setAttribute('href', `#/recipes/${recipe.id}`);
+      link.setAttribute('aria-label', `${recipe.name} 상세 보기`);
+      link.dataset.action = 'navigate';
+      link.dataset.route = `/recipes/${recipe.id}`;
+      title.append(link);
+      recipeHeader.append(title, trashButton(document, 'recipes', recipe.id, recipe.name));
       card.append(recipeHeader);
       card.append(make(document, 'p', `${recipe.dose}g · ${recipe.temperature}℃ · 물 ${recipe.totalWater}g`));
-      const open = button(document, '레시피 상세 보기', 'button', 'navigate');
-      open.dataset.route = `/recipes/${recipe.id}`;
-      card.append(open);
       pane.append(card);
     }
   } else if (section === 'records') {

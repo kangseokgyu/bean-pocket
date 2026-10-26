@@ -1,0 +1,51 @@
+[
+  {
+    "width": 320,
+    "summaryAndPaddingClick": true,
+    "keyboard": true,
+    "deleteIsolated": true,
+    "copyWorks": true,
+    "hover": true,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "summaryAndPaddingClick": true,
+    "keyboard": true,
+    "deleteIsolated": true,
+    "copyWorks": true,
+    "hover": true,
+    "errors": []
+  },
+  {
+    "width": 768,
+    "summaryAndPaddingClick": true,
+    "keyboard": true,
+    "deleteIsolated": true,
+    "copyWorks": true,
+    "hover": true,
+    "errors": []
+  },
+  {
+    "width": 1024,
+    "summaryAndPaddingClick": true,
+    "keyboard": true,
+    "deleteIsolated": true,
+    "copyWorks": true,
+    "hover": true,
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "summaryAndPaddingClick": true,
+    "keyboard": true,
+    "deleteIsolated": true,
+    "copyWorks": true,
+    "hover": true,
+    "errors": []
+  },
+  {
+    "touchNavigation": true,
+    "detailRecordAction": true
+  }
+]

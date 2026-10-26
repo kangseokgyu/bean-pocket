@@ -1,0 +1,36 @@
+TAP version 13
+# Subtest: recipe list cards link their entire surface to details without a details button
+not ok 1 - recipe list cards link their entire surface to details without a details button
+  ---
+  duration_ms: 8.713333
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/bean-card-records/AX-1day/test/pwa-ui.view.test.mjs:1932:1'
+  failureType: 'testCodeFailure'
+  error: 'recipe title is a native keyboard-accessible link'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: ~
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/bean-card-records/AX-1day/test/pwa-ui.view.test.mjs:1940:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: recipe list card delete icon stays independent of detail navigation
+ok 2 - recipe list card delete icon stays independent of detail navigation
+  ---
+  duration_ms: 3.582916
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 1
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 83.2285

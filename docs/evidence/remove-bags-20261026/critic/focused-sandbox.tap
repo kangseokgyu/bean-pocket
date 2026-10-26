@@ -1,0 +1,94 @@
+TAP version 13
+# Subtest: 새 snapshot에는 bagless generation marker를 붙이고 marker 없는 기록은 평점 집계에서 제외한다
+ok 1 - 새 snapshot에는 bagless generation marker를 붙이고 marker 없는 기록은 평점 집계에서 제외한다
+  ---
+  duration_ms: 1.885167
+  type: 'test'
+  ...
+# Subtest: 공개 HTTP 흐름: 연결→원두→레시피→평가→재조회, 봉지 쓰기는 비활성화
+not ok 2 - 공개 HTTP 흐름: 연결→원두→레시피→평가→재조회, 봉지 쓰기는 비활성화
+  ---
+  duration_ms: 6.938125
+  type: 'test'
+  location: '/private/tmp/remove-bags-critic/snapshot/test/http.test.mjs:113:1'
+  failureType: 'testCodeFailure'
+  error: 'listen EPERM: operation not permitted 127.0.0.1'
+  code: 'EPERM'
+  stack: |-
+    Server.setupListenHandle [as _listen2] (node:net:1918:21)
+    listenInCluster (node:net:1997:12)
+    node:net:2206:7
+    process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+  ...
+# Subtest: legacy bagId=null 추출 요청은 Notion 읽기/쓰기 전에 거부한다
+not ok 3 - legacy bagId=null 추출 요청은 Notion 읽기/쓰기 전에 거부한다
+  ---
+  duration_ms: 1.927083
+  type: 'test'
+  location: '/private/tmp/remove-bags-critic/snapshot/test/http.test.mjs:210:1'
+  failureType: 'testCodeFailure'
+  error: 'listen EPERM: operation not permitted 127.0.0.1'
+  code: 'EPERM'
+  stack: |-
+    Server.setupListenHandle [as _listen2] (node:net:1918:21)
+    listenInCluster (node:net:1997:12)
+    node:net:2206:7
+    process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+  ...
+# Subtest: legacy server repository blocks bag pages and bag-linked record writes before Notion
+ok 4 - legacy server repository blocks bag pages and bag-linked record writes before Notion
+  ---
+  duration_ms: 1.046041
+  type: 'test'
+  ...
+# Subtest: bagless generation omits the bag relation in encoded record writes
+ok 5 - bagless generation omits the bag relation in encoded record writes
+  ---
+  duration_ms: 0.310667
+  type: 'test'
+  ...
+# Subtest: bag source stays readable while bag create/archive and bagId record writes stop before fetch
+ok 6 - bag source stays readable while bag create/archive and bagId record writes stop before fetch
+  ---
+  duration_ms: 2.905459
+  type: 'test'
+  ...
+# Subtest: bagless generation writes no legacy bag relation property
+ok 7 - bagless generation writes no legacy bag relation property
+  ---
+  duration_ms: 0.95725
+  type: 'test'
+  ...
+# Subtest: raw history is retained while only bagless-generation snapshots affect aggregates
+ok 8 - raw history is retained while only bagless-generation snapshots affect aggregates
+  ---
+  duration_ms: 6.206084
+  type: 'test'
+  ...
+# Subtest: legacy bag journals stay unresolved after startup and never auto-send
+ok 9 - legacy bag journals stay unresolved after startup and never auto-send
+  ---
+  duration_ms: 23.741292
+  type: 'test'
+  ...
+# Subtest: damaged historical records are excluded from bagless recipe views
+ok 10 - damaged historical records are excluded from bagless recipe views
+  ---
+  duration_ms: 5.120625
+  type: 'test'
+  ...
+# Subtest: legacy extraction records remain in raw input but are hidden from current lists and details
+ok 11 - legacy extraction records remain in raw input but are hidden from current lists and details
+  ---
+  duration_ms: 4.887666
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 9
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 107.621167

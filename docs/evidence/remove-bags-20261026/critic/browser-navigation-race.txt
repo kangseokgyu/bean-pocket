@@ -1,0 +1,11 @@
+AssertionError [ERR_ASSERTION]: The input did not match the regular expression /평가 1회 · 평균 4.0점/. Input:
+
+'검토 레시피\n\n15g · 93℃ · 물 250g'
+
+    at /private/tmp/remove-bags-critic/browser.cjs:24:73 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: '검토 레시피\n\n15g · 93℃ · 물 250g',
+  expected: /평가 1회 · 평균 4.0점/,
+  operator: 'match'
+}

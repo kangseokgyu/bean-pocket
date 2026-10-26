@@ -1,0 +1,26 @@
+[
+  {
+    "width": 1280,
+    "checks": [
+      "no bag menu/form; historical record hidden; current record visible",
+      "record submitted through actual form; snapshot roundtrip; mean (4+2)/2=3; recipe card summary click opens detail; guide preserved",
+      "copy guide preserved; current record deletion updates aggregate",
+      "hidden legacy record and raw bag continue to block recipe/bean archive after current records removed"
+    ],
+    "errors": [],
+    "external": [],
+    "rawRecordCount": 3
+  },
+  {
+    "width": 390,
+    "checks": [
+      "no bag menu/form; historical record hidden; current record visible",
+      "record submitted through actual form; snapshot roundtrip; mean (4+2)/2=3; recipe card summary click opens detail; guide preserved",
+      "copy guide preserved; current record deletion updates aggregate",
+      "hidden legacy record and raw bag continue to block recipe/bean archive after current records removed"
+    ],
+    "errors": [],
+    "external": [],
+    "rawRecordCount": 3
+  }
+]

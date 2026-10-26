@@ -33,3 +33,12 @@
 - unknown/partial journal 및 lock 처리 코드는 유지했다. 이 변경은 봉지 쓰기 경로만 제거하고 구형 미완료 작업을 재전송하지 않는다.
 - 실제 브라우저 인터랙션은 수행하지 않았다. 사용자 지시대로 Critic의 순차 검토에서 필요하면 확인한다. 실제 Notion, iPhone/Safari, OPFS 재시작, Pages 공개 반영·공개 version은 미검증이며 worker 범위가 아니다.
 - GitHub Pages build ID는 로컬 산출물 결과다. 공개 Pages 반영을 의미하지 않는다. merge·push·배포는 메인이 수행한다.
+
+## 최신 main 통합 검증
+
+- 레시피 카드 상세 열기 변경 `af828a0`을 보존하여 `923a08a`에서 통합했다. 테스트 파일 끝 추가 충돌은 양쪽 테스트를 모두 보존했다.
+- `npm test`: exit 0, 497/497 pass, fail/skip 0 ([원문](integrated-test.txt)).
+- `npm run build:pages`: exit 0, build `da92f2364938` ([원문](integrated-build.txt)).
+- `npm run check:pages`: exit 0 ([원문](integrated-check.txt)).
+- 후속 `f02437b`는 README/GLOSSARY 문서만 바뀌었고 제품·빌드 입력은 같다. Critic 재검토에서 P3 종결 및 APPROVE. [독립 검토](critic-report.md).
+- Worker는 생성 도구에서 `gpt-6-luna/max` (Gauss), Critic은 `gpt-6.1-sol/medium` (Carver)로 지정했다. 모델 429나 대체 실행은 없었다.

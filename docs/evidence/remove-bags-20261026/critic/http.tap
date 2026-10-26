@@ -1,0 +1,22 @@
+TAP version 13
+# Subtest: 공개 HTTP 흐름: 연결→원두→레시피→평가→재조회, 봉지 쓰기는 비활성화
+ok 1 - 공개 HTTP 흐름: 연결→원두→레시피→평가→재조회, 봉지 쓰기는 비활성화
+  ---
+  duration_ms: 44.387583
+  type: 'test'
+  ...
+# Subtest: legacy bagId=null 추출 요청은 Notion 읽기/쓰기 전에 거부한다
+ok 2 - legacy bagId=null 추출 요청은 Notion 읽기/쓰기 전에 거부한다
+  ---
+  duration_ms: 8.171833
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 114.937708

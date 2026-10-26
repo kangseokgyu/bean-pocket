@@ -1,0 +1,40 @@
+TAP version 13
+# Subtest: snapshot status and marker matrix fail closed without losing raw records
+ok 1 - snapshot status and marker matrix fail closed without losing raw records
+  ---
+  duration_ms: 32.799167
+  type: 'test'
+  ...
+# Subtest: direct bag commands, forged drafts, null/empty bagId and remote client writes never send
+ok 2 - direct bag commands, forged drafts, null/empty bagId and remote client writes never send
+  ---
+  duration_ms: 5.263666
+  type: 'test'
+  ...
+# Subtest: legacy records/processing never resumes writes and keeps lock
+ok 3 - legacy records/processing never resumes writes and keeps lock
+  ---
+  duration_ms: 1.297167
+  type: 'test'
+  ...
+# Subtest: legacy bags/partial never resumes writes and keeps lock
+ok 4 - legacy bags/partial never resumes writes and keeps lock
+  ---
+  duration_ms: 0.73225
+  type: 'test'
+  ...
+# Subtest: legacy delete-bag/unknown never resumes writes and keeps lock
+ok 5 - legacy delete-bag/unknown never resumes writes and keeps lock
+  ---
+  duration_ms: 0.740916
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 90.366584

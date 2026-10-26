@@ -1,0 +1,87 @@
+TAP version 13
+# Subtest: 새 snapshot에는 bagless generation marker를 붙이고 marker 없는 기록은 평점 집계에서 제외한다
+not ok 1 - 새 snapshot에는 bagless generation marker를 붙이고 marker 없는 기록은 평점 집계에서 제외한다
+  ---
+  duration_ms: 1.707334
+  type: 'test'
+  location: '/private/tmp/remove-bags-critic/snapshot/test/domain.test.mjs:12:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      {
+    +   average: null,
+    +   count: 0
+    -   average: 4,
+    -   count: 1
+      }
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    count: 1
+    average: 4
+  actual:
+    count: 0
+    average: ~
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/remove-bags-critic/snapshot/test/domain.test.mjs:12:201)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: raw history is retained while only bagless-generation snapshots affect aggregates
+not ok 2 - raw history is retained while only bagless-generation snapshots affect aggregates
+  ---
+  duration_ms: 5.838208
+  type: 'test'
+  location: '/private/tmp/remove-bags-critic/snapshot/test/pwa-read-repository.test.mjs:292:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      {
+    +   average: 4,
+    -   average: 1,
+        count: 1
+      }
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    count: 1
+    average: 1
+  actual:
+    count: 1
+    average: 4
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/remove-bags-critic/snapshot/test/pwa-read-repository.test.mjs:302:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: damaged historical records are excluded from bagless recipe views
+ok 3 - damaged historical records are excluded from bagless recipe views
+  ---
+  duration_ms: 4.870875
+  type: 'test'
+  ...
+# Subtest: legacy extraction records remain in raw input but are hidden from current lists and details
+ok 4 - legacy extraction records remain in raw input but are hidden from current lists and details
+  ---
+  duration_ms: 4.448875
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 2
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 68.227375

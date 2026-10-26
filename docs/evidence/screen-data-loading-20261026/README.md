@@ -53,3 +53,14 @@ The independent report and raw repros are retained unchanged in `critic/independ
 - `npm run check:pages` — **exit 0**; output: `fix-check-pages-20261026.tap`.
 - `git diff --check` — run after the final documentation and code changes; exit status recorded in the task report.
 - No real-browser run, live Notion check, merge, push, or deployment was performed by the worker; browser runtime review remains with the parent Critic.
+
+## Focus preservation follow-up (Critic recheck of `b19681c`)
+
+While an entry dialog is open, `renderData()` now records the newest data but defers replacing the pane. Cancel/save closes the dialog and renders using that newest data. Explicit route changes allow the first result for the new route to render, and picker option updates continue to update their existing controls directly. This keeps the active form and composition DOM in place instead of restoring focus after replacement.
+
+- `fix-focus-red-20261026.tap` is the focused RED before the view change; `fix-focus-green-20261026.tap` is the matching GREEN.
+- `fix-focus-focused-green-20261026.tap`: `node --test test/pwa-ui.view.test.mjs test/pwa-ui.integration.test.mjs test/pwa-screen-loading.test.mjs test/screen-data-loading-controller-critic.test.mjs` — **99/99 passed**. The regression checks form/control DOM identity across parent-name, deferred count, and recipe-stage updates; picker updates and an explicit route transition also remain functional.
+- `fix-focus-npm-test-20261026.tap`: `npm test` with local loopback permission — **537/537 passed**.
+- `fix-focus-build-pages-20261026.tap`: `npm run build:pages` — **exit 0**, version `f9182ee741c6`.
+- `fix-focus-check-pages-20261026.tap`: `npm run check:pages` — **exit 0**. `git diff --check` was also run after the code/test change; it will be rerun after this evidence update.
+- The worker did not repeat Chrome verification. The fake DOM regression asserts stable DOM identity; the parent Critic's recheck owns confirmation of actual caret and IME behavior at both viewport sizes.

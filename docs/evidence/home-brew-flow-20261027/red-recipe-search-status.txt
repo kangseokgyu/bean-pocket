@@ -1,0 +1,2 @@
+command: node --test test/pwa-read-repository.test.mjs
+exit_code: 1

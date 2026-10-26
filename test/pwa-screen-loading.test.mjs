@@ -160,3 +160,74 @@ test('late response from a previous route cannot replace the current screen', as
   assert.equal(rendered.at(-1).screen.route, '/records');
   assert.deepEqual(rendered.at(-1).recipes, []);
 });
+
+
+test('home startup performs no screen reads and brew routes use scoped repository methods', async () => {
+  const calls = [];
+  const rendered = [];
+  let currentRoute = '/home';
+  let routeChanged;
+  const connection = { schemaVersion: 1, revision: REVISION, token: 'fake-only', dataSources: SOURCES };
+  const context = {
+    async inspect() { return { initialized: true, blocked: false }; },
+    async readJournal() { return { operations: [], activeConnectionRevision: REVISION, connectionGuard: null }; },
+  };
+  const bean = { id: '11111111-1111-4111-8111-111111111111', name: '홈 흐름 원두' };
+  const recipe = { id: '22222222-2222-4222-8222-222222222222', name: '홈 흐름 레시피', beanId: bean.id,
+    steps: [{ name: '뜸', seconds: 0, water: 50, cumulativeWater: 50 }], validationStatus: 'ready' };
+  const repository = {
+    async listBeans(options) { calls.push(['listBeans', options]); return { items: [bean], nextCursor: null, hasMore: false, complete: true }; },
+    async listRecipeSummaries(options) { calls.push(['listRecipeSummaries', options]); return { items: [recipe], nextCursor: null, hasMore: false, complete: true }; },
+    async getBean(id) { calls.push(['getBean', id]); return bean; },
+    async getRecipeDetail(id) { calls.push(['getRecipeDetail', id]); return recipe; },
+    async listRecords(options) { calls.push(['listRecords', options]); return { items: [], beans: [], recipes: [], nextCursor: null, hasMore: false, complete: true }; },
+    async searchOptions(options) { calls.push(['searchOptions', options]); return { items: [], nextCursor: null, hasMore: false, complete: true }; },
+  };
+  const app = createAppController({
+    view: { currentRoute: () => currentRoute, onRouteChange(handler) { routeChanged = handler; }, bind() {},
+      setState() {}, showConnection() {}, showStatus() {}, showConnectionSuccess() {}, clearSecret() {},
+      renderData(value) { rendered.push(value); } },
+    state: { async withWriteLock(action) { return action(context); } },
+    file: { async readConnection() { return connection; } }, uuid: () => REVISION,
+    makeClient: () => ({ async verify(kinds) { calls.push(['verify', kinds]); } }),
+    makeRepository: () => repository, makeCommands: () => ({}),
+  });
+  app.bind();
+  assert.equal(await app.initialize(), true);
+  assert.deepEqual(calls.filter(([name]) => name !== 'verify'), [], 'the home screen must not query entity lists');
+  assert.equal(calls.some(([name, kinds]) => name === 'verify' && kinds.length > 0), false);
+
+  currentRoute = '/brew/bean';
+  await routeChanged(currentRoute);
+  assert.ok(calls.some(([name]) => name === 'listBeans'));
+
+  currentRoute = `/brew/recipe?beanId=${bean.id}`;
+  await routeChanged(currentRoute);
+  assert.ok(calls.some(([name, id]) => name === 'getBean' && id === bean.id));
+  assert.ok(calls.some(([name]) => name === 'listRecipeSummaries'));
+
+  currentRoute = `/brew/run?beanId=${bean.id}&recipeId=${recipe.id}`;
+  await routeChanged(currentRoute);
+  assert.ok(calls.some(([name, id]) => name === 'getBean' && id === bean.id));
+  assert.ok(calls.some(([name, id]) => name === 'getRecipeDetail' && id === recipe.id));
+  assert.equal(rendered.at(-1).screen.route, currentRoute);
+  assert.equal(rendered.at(-1).screen.error, undefined);
+
+  currentRoute = `/records/new?beanId=${bean.id}&recipeId=${recipe.id}`;
+  await routeChanged(currentRoute);
+  const prefilled = rendered.at(-1);
+  assert.ok(prefilled.beans.some(item => item.id === bean.id), 'selected bean is included even when absent from the first search page');
+  assert.ok(prefilled.recipes.some(item => item.id === recipe.id), 'selected recipe is included for form prefill');
+  assert.ok(calls.some(([name, id]) => name === 'getBean' && id === bean.id));
+  assert.ok(calls.some(([name, id]) => name === 'getRecipeDetail' && id === recipe.id));
+
+  currentRoute = `/brew/run?beanId=${bean.id}&recipeId=${recipe.id}`;
+  repository.getRecipeDetail = async id => ({ ...recipe, id, beanId: '99999999-9999-4999-8999-999999999999' });
+  await app.loadRoute(currentRoute, { force: true });
+  assert.equal(rendered.at(-1).screen.error, 'recipe-unavailable', 'a recipe linked to another bean must be rejected');
+
+  currentRoute = `/brew/recipe?beanId=${bean.id}`;
+  repository.getBean = async () => { throw Object.freeze({ code: 'bean-unavailable' }); };
+  await app.loadRoute(currentRoute, { force: true });
+  assert.equal(rendered.at(-1).screen.error, 'bean-unavailable', 'a missing selected parent gets an actionable route error');
+});

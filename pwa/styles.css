@@ -515,3 +515,43 @@ footer {
   .entry-dialog[open] { animation: none; }
   .skeleton-line { animation: none; }
 }
+
+.home-view { min-height: min(68vh, 720px); align-content: center; }
+.home-hero {
+  display: grid;
+  justify-items: start;
+  gap: 16px;
+  padding: clamp(24px, 7vw, 56px);
+  border: 1px solid #d8d1c3;
+  border-radius: 16px;
+  background: #e8eee7;
+}
+.home-hero h1 { max-width: 12ch; margin: 0; color: #203d32; }
+.home-hero-copy { max-width: 34rem; margin: 0; color: #4b6254; }
+.primary-button { min-height: 50px; padding: 12px 22px; border-color: #224b3c; background: #224b3c; color: #fffefa; font-weight: 700; }
+.primary-button:hover:not(:disabled) { background: #173c2f; }
+.brew-flow-pane { display: grid; gap: 16px; min-width: 0; }
+.brew-flow-pane h1 { margin: 0; font-size: clamp(1.6rem, 7vw, 2.25rem); }
+.brew-flow-pane h2 { margin: 8px 0 0; }
+.brew-flow-pane > .button { justify-self: start; }
+.brew-flow-pane > input[type="search"] { width: 100%; min-height: 48px; padding: 10px 12px; border: 1px solid #aaa394; border-radius: 8px; background: #fffefa; color: #203d32; }
+.brew-selected-bean { margin: 0; color: #587464; font-weight: 650; }
+.brew-option-list { display: grid; gap: 12px; min-width: 0; }
+.brew-option-card { min-width: 0; padding: 12px; border: 1px solid #e0dbcf; border-radius: 12px; background: #fffefa; }
+.brew-option-card > .button { width: 100%; min-height: 48px; justify-content: flex-start; text-align: left; border-color: #d8d1c3; background: #faf8f2; color: #203d32; font-weight: 700; }
+.brew-option-card > .button[aria-pressed="true"] { border-color: #587464; background: #e8eee7; }
+.brew-option-card > p { margin: 8px 0 0; }
+.brew-selected-label { color: #224b3c; font-size: 0.875rem; font-weight: 700; }
+.brew-conditions { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 16px; margin: 0; padding: 16px; border: 1px solid #e0dbcf; border-radius: 12px; background: #fffefa; line-height: 1.55; }
+.brew-conditions dt { color: #68685e; }
+.brew-conditions dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
+.brew-extraction-guide { margin: 0; padding: 14px 16px; border-left: 3px solid #8ab59a; background: #f8f6ef; color: #3d5147; white-space: pre-wrap; }
+@media (min-width: 640px) {
+  .brew-option-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 420px) {
+  .home-view { min-height: 60vh; }
+  .home-hero { gap: 12px; padding: 24px 18px; }
+  .brew-conditions { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .brew-conditions dd { margin-bottom: 10px; }
+}

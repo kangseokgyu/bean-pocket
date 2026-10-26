@@ -33,7 +33,7 @@ async function productPage(native, { active = false, timeoutMs = 5000, window = 
   let lifecycle;
   const app = createAppController({ state,
     file: { readConnection: async () => JSON.parse(native.files.get('connection.json')) },
-    view: { setFrozen(value) { freezes.push(value); if (!value) onThaw?.(); }, setState() {}, renderData() {}, showStatus() {}, showConnection() {} },
+    view: { currentRoute() { return '/beans'; }, setFrozen(value) { freezes.push(value); if (!value) onThaw?.(); }, setState() {}, renderData() {}, showStatus() {}, showConnection() {} },
     onStateChange: () => lifecycle?.notifyStateChange(),
     makeClient: () => ({ verify: async () => true }),
     makeRepository: () => ({ readAll: () => readAll(), async listBeans() {

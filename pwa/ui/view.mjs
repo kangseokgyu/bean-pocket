@@ -83,6 +83,25 @@ const SOURCE_FIELDS = Object.freeze([
   ['steps', '레시피 단계'], ['records', '추출 기록'],
 ]);
 
+function routePath(route) {
+  const path = String(route ?? '/home').split('?', 1)[0];
+  return path || '/home';
+}
+
+function routeParams(route) {
+  return new URLSearchParams(String(route ?? '').split('?').slice(1).join('?'));
+}
+
+function normalizeRoute(route) {
+  const value = typeof route === 'string' ? route.trim() : '';
+  const [rawPath, ...queryParts] = value.split('?');
+  const path = rawPath || '/home';
+  if (!path.startsWith('/') || path === '/') return '/home';
+  const normalizedPath = path.length > 1 ? path.replace(/\/+$/, '') : path;
+  const query = queryParts.join('?');
+  return query ? `${normalizedPath}?${query}` : normalizedPath;
+}
+
 export function createAppView(document = globalThis.document, { schedule = setTimeout, cancelSchedule = clearTimeout } = {}) {
   const root = document.querySelector('#app-root');
   if (!root) throw new Error('앱 화면을 만들 수 없습니다.');
@@ -177,14 +196,14 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     }, STATUS_DISPLAY_MS);
   }
   let currentData = null;
-  let route = globalThis.location?.hash?.slice(1) || '/beans';
+  let route = normalizeRoute(globalThis.location?.hash?.slice(1) || '/home');
   let routeNeedsDataRender = true;
   let routeChangeListener = null;
   const drafts = new Map();
   const optionPages = new Map();
   let beanFormOpen = false;
-  let recipeFormOpen = route === '/recipes/new';
-  let recordFormOpen = route === '/records/new';
+  let recipeFormOpen = routePath(route) === '/recipes/new';
+  let recordFormOpen = routePath(route) === '/records/new';
   let statusHideTimer;
 
   const status = make(document, 'p', '', 'app-status');
@@ -318,7 +337,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   const nav = make(document, 'nav', undefined, 'tabs');
   nav.setAttribute('aria-label', '커피 기록 메뉴');
   for (const [key, title] of [
-    ['beans', '원두'], ['recipes', '레시피'], ['records', '추출 기록'],
+    ['home', '홈'], ['beans', '원두'], ['recipes', '레시피'], ['records', '추출 기록'],
   ]) {
     const item = button(document, '', 'button', 'navigate');
     item.setAttribute('aria-label', title);
@@ -571,11 +590,11 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     currentRoute() { return route; },
     onRouteChange(handler) { routeChangeListener = typeof handler === 'function' ? handler : null; },
     renderRoute(nextRoute) {
-      const next = nextRoute || '/beans';
+      const next = normalizeRoute(nextRoute || '/home');
       if (next !== route) routeNeedsDataRender = true;
       route = next;
-      if (route === '/recipes/new') recipeFormOpen = true;
-      if (route === '/records/new') recordFormOpen = true;
+      if (routePath(route) === '/recipes/new') recipeFormOpen = true;
+      if (routePath(route) === '/records/new') recordFormOpen = true;
       if (currentData) {
         saveActiveDraft(content, drafts);
         renderCurrentContent();
@@ -586,6 +605,16 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     showRecipeForm() { openEntryForm('recipes', 'show-recipe-form', 'name'); },
     showRecordForm() { openEntryForm('records', 'show-record-form', 'date'); },
     setSearchOptions(target, kind, page, append = false, query = '') {
+      const optionKey = `${target}:${kind}`;
+      const previousPage = optionPages.get(optionKey);
+      const optionItems = append && previousPage
+        ? [...previousPage.items, ...(page.items ?? []).filter(item => !previousPage.items.some(existing => existing.id === item.id))]
+        : [...(page.items ?? [])];
+      if (target === 'brew') {
+        optionPages.set(optionKey, { ...page, items: optionItems, query, savedAt: Date.now() });
+        if (currentData) renderCurrentContent();
+        return;
+      }
       const select = target === 'filters'
         ? content.querySelector(`[data-record-filter="${kind === 'beans' ? 'beanId' : 'recipeId'}"]`)
         : content.querySelector(`form[data-form="records"] [data-option-select-kind="${kind}"]`);
@@ -595,11 +624,6 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       const previousOption = Array.from(select.options).find(option => option.value === previousValue);
       const placeholder = select.options[0]?.textContent ?? (kind === 'beans' ? '원두를 선택해 주세요.' : '레시피를 선택해 주세요.');
       const optional = target === 'filters';
-      const optionKey = `${target}:${kind}`;
-      const previousPage = optionPages.get(optionKey);
-      const optionItems = append && previousPage
-        ? [...previousPage.items, ...(page.items ?? []).filter(item => !previousPage.items.some(existing => existing.id === item.id))]
-        : [...(page.items ?? [])];
       if (previousValue && !optionItems.some(item => item.id === previousValue)) {
         optionItems.push({ id: previousValue, name: previousOption?.textContent ?? '선택한 항목', status: 'ready' });
       }
@@ -829,12 +853,206 @@ function makeEntryDialog(document, kind, form, open) {
   return dialog;
 }
 
-function renderPane(parent, data, document, route = '/beans', drafts = new Map(), optionPages = new Map(),
+function renderHome(pane, document) {
+  pane.className = 'list-view home-view';
+  const hero = make(document, 'section', undefined, 'home-hero');
+  hero.setAttribute('aria-labelledby', 'home-hero-title');
+  const title = make(document, 'h1', '오늘의 한 잔을 시작해 보세요.');
+  title.id = 'home-hero-title';
+  hero.append(title, make(document, 'p', '원두와 레시피를 골라 오늘의 추출을 준비해 보세요.', 'home-hero-copy'));
+  const start = button(document, '추출 시작', 'button', 'start-brew');
+  start.className = 'button primary-button';
+  hero.append(start);
+  pane.append(hero);
+}
+
+function routeButton(document, title, route, action = 'navigate') {
+  const control = button(document, title, 'button', action);
+  control.dataset.route = route;
+  return control;
+}
+
+function brewOptionPage(data, optionPages, kind, routeQuery) {
+  const cached = optionPages.get(`brew:${kind}`);
+  if (cached && Date.now() - cached.savedAt < 60000 && (!routeQuery || cached.query === routeQuery)) return cached;
+  return { items: kind === 'beans' ? data.beans ?? [] : data.recipes ?? [],
+    nextCursor: data.screen?.nextCursor ?? null, hasMore: !!data.screen?.hasMore,
+    complete: data.screen?.complete !== false, query: routeQuery };
+}
+
+function renderUnavailableRoute(pane, document, route, error) {
+  const path = routePath(route);
+  const params = routeParams(route);
+  pane.append(make(document, 'h1', '선택한 항목을 확인할 수 없습니다.'));
+  pane.append(make(document, 'p', error === 'recipe-unavailable'
+    ? '레시피가 없거나 선택한 원두와 연결되어 있지 않습니다. 최신 목록에서 다시 선택해 주세요.'
+    : '선택한 원두가 없거나 주소가 올바르지 않습니다. 원두 목록을 새로 확인해 주세요.', 'record-warning'));
+  const beanId = params.get('beanId');
+  if (path === '/brew/run' && beanId) {
+    pane.append(routeButton(document, '레시피 다시 선택', `/brew/recipe?beanId=${encodeURIComponent(beanId)}`));
+  } else if (path === '/records/new' && beanId) {
+    pane.append(routeButton(document, '추출 다시 선택', `/brew/recipe?beanId=${encodeURIComponent(beanId)}`));
+  } else {
+    pane.append(routeButton(document, '원두 선택으로', '/brew/bean'));
+  }
+  pane.append(routeButton(document, '홈으로', '/home'));
+}
+
+function renderBrewOptions(pane, data, document, route, optionPages, kind, selectedBean, params) {
+  const isBeans = kind === 'beans';
+  const selectedId = params.get(isBeans ? 'selectedBeanId' : 'selectedRecipeId') ?? '';
+  const routeQuery = params.get('q') ?? '';
+  const page = brewOptionPage(data, optionPages, kind, routeQuery);
+  const title = isBeans ? '원두 선택' : '레시피 선택';
+  pane.append(routeButton(document, isBeans ? '홈으로' : '원두 선택으로', isBeans ? '/home'
+    : `/brew/bean?selectedBeanId=${encodeURIComponent(selectedBean.id)}`, isBeans ? 'navigate' : 'back-to-beans'));
+  pane.append(make(document, 'h1', title));
+  if (selectedBean) pane.append(make(document, 'p', `선택한 원두: ${selectedBean.name}`, 'brew-selected-bean'));
+  const search = make(document, 'input');
+  search.type = 'search';
+  search.setAttribute('aria-label', isBeans ? '원두 검색' : '레시피 검색');
+  search.setAttribute('autocomplete', 'off');
+  search.dataset.optionSearchKind = kind;
+  search.dataset.optionTarget = 'brew';
+  search.dataset.optionLoaded = 'true';
+  search.value = page.query ?? routeQuery;
+  pane.append(search);
+
+  const items = isBeans ? page.items ?? [] : (page.items ?? []).filter(item => item.beanId === selectedBean?.id);
+  if (!items.length) {
+    const stillLoading = page.hasMore || page.complete === false;
+    const message = isBeans
+      ? search.value ? '검색한 원두가 없습니다.' : '원두가 아직 등록되지 않았습니다. 원두를 먼저 등록한 뒤 추출을 시작해 주세요.'
+      : search.value ? '검색한 레시피가 이 원두에 없습니다.' : '이 원두에 연결된 레시피가 없습니다. 레시피를 등록한 뒤 다시 선택해 주세요.';
+    pane.append(make(document, 'p', stillLoading ? `${message} 다른 항목도 계속 확인할 수 있습니다.` : message, 'empty-state'));
+    if (isBeans) {
+      pane.append(routeButton(document, '원두 등록하기', '/beans'));
+      pane.append(routeButton(document, '홈으로 돌아가기', '/home'));
+    } else {
+      pane.append(routeButton(document, '레시피 메뉴에서 등록하기', '/recipes'));
+      pane.append(routeButton(document, '원두 다시 선택', `/brew/bean?selectedBeanId=${encodeURIComponent(selectedBean.id)}`, 'back-to-beans'));
+    }
+  }
+
+  const list = make(document, 'div', undefined, 'brew-option-list');
+  for (const item of items) {
+    const card = make(document, 'article', undefined, 'brew-option-card');
+    const control = button(document, item.name, 'button', isBeans ? 'select-brew-bean' : 'select-brew-recipe');
+    control.dataset[isBeans ? 'beanId' : 'recipeId'] = item.id;
+    if (!isBeans) control.dataset.beanId = selectedBean.id;
+    control.setAttribute('aria-pressed', String(item.id === selectedId));
+    const ready = isBeans || item.status === 'ready' || item.validationStatus === 'ready' ||
+      (item.status === undefined && item.validationStatus === undefined && Array.isArray(item.steps) && item.steps.length > 0);
+    control.disabled = !ready;
+    card.append(control);
+    if (isBeans) {
+      const details = [item.origin, item.roaster].filter(Boolean).join(' · ');
+      if (details) card.append(make(document, 'p', details, 'muted-note'));
+      if (item.id === selectedId) card.append(make(document, 'p', '선택한 원두', 'brew-selected-label'));
+    } else {
+      card.append(make(document, 'p', `${item.dose}g · ${item.temperature}℃ · 물 ${item.totalWater}g · ${item.steps?.length ?? 0}단계`));
+      if (!ready) card.append(make(document, 'p', item.status === 'error' || item.validationStatus === 'error'
+        ? '레시피를 확인할 수 없어 선택할 수 없습니다.' : '레시피 단계를 확인 중입니다.', 'muted-note'));
+      if (item.id === selectedId) card.append(make(document, 'p', '선택한 레시피', 'brew-selected-label'));
+    }
+    list.append(card);
+  }
+  if (items.length) pane.append(list);
+  if (page.hasMore) {
+    const more = routeButton(document, '더 불러오기', '', 'more-options');
+    more.className = 'button page-load-more';
+    more.dataset.optionTarget = 'brew';
+    more.dataset.optionKind = kind;
+    more.dataset.nextCursor = page.nextCursor ?? '';
+    pane.append(more);
+  } else if (page.complete === false) {
+    pane.append(make(document, 'p', '전체 목록을 확인하지 못했습니다. 다시 조회해 주세요.', 'record-warning'));
+  }
+}
+
+function renderBrewRun(pane, data, document, route, params) {
+  const beanId = params.get('beanId');
+  const recipeId = params.get('recipeId');
+  const bean = data.beans?.find(item => item.id === beanId);
+  const recipe = data.recipes?.find(item => item.id === recipeId);
+  if (!bean || !recipe || recipe.beanId !== bean.id || !Array.isArray(recipe.steps) || !recipe.steps.length) {
+    renderUnavailableRoute(pane, document, route, 'recipe-unavailable');
+    return;
+  }
+  pane.append(routeButton(document, '레시피 선택으로',
+    `/brew/recipe?beanId=${encodeURIComponent(bean.id)}&selectedRecipeId=${encodeURIComponent(recipe.id)}`,
+    'back-to-recipes'));
+  pane.append(make(document, 'h1', '추출 안내'));
+  pane.append(make(document, 'p', `원두: ${bean.name} · 레시피: ${recipe.name}`, 'brew-selected-bean'));
+  const conditions = make(document, 'dl', undefined, 'brew-conditions');
+  for (const [title, value] of [
+    ['드리퍼', recipe.dripper], ['원두량', `${recipe.dose}g`], ['분쇄도', recipe.grind],
+    ['그라인더', recipe.grinder], ['그라인더 설정', recipe.grinderSetting],
+    ['물 온도', `${recipe.temperature}℃`], ['총 물 양', `${recipe.totalWater}g`],
+  ]) {
+    if (value !== undefined && value !== null && value !== '') conditions.append(make(document, 'dt', title), make(document, 'dd', value));
+  }
+  pane.append(conditions, make(document, 'h2', '붓기 단계'), makeStepTable(document, recipe.steps));
+  if (typeof recipe.extractionGuide === 'string' && recipe.extractionGuide.trim()) {
+    pane.append(make(document, 'h2', '추출 가이드'), make(document, 'p', recipe.extractionGuide, 'brew-extraction-guide'));
+  }
+  const complete = button(document, '추출 완료', 'button', 'complete-brew');
+  complete.className = 'button primary-button';
+  complete.dataset.beanId = bean.id;
+  complete.dataset.recipeId = recipe.id;
+  pane.append(complete);
+}
+
+function renderBrewFlow(parent, data, document, route, optionPages) {
+  const path = routePath(route);
+  const params = routeParams(route);
+  const pane = make(document, 'section', undefined, 'brew-flow-pane');
+  if (path === '/brew/run') pane.className += ' brew-run-pane';
+  if (data.screen?.error) {
+    renderUnavailableRoute(pane, document, route, data.screen.error);
+  } else if (path === '/brew/bean') {
+    renderBrewOptions(pane, data, document, route, optionPages, 'beans', null, params);
+  } else if (path === '/brew/recipe') {
+    const beanId = params.get('beanId');
+    const bean = data.beans?.find(item => item.id === beanId);
+    if (!bean) renderUnavailableRoute(pane, document, route, 'bean-unavailable');
+    else renderBrewOptions(pane, data, document, route, optionPages, 'recipes', bean, params);
+  } else if (path === '/brew/run') {
+    renderBrewRun(pane, data, document, route, params);
+  } else {
+    renderUnavailableRoute(pane, document, route, 'bean-unavailable');
+  }
+  parent.replaceChildren(pane);
+}
+
+function renderPane(parent, data, document, route = '/home', drafts = new Map(), optionPages = new Map(),
   beanFormOpen = false, recipeFormOpen = false, recordFormOpen = false) {
-  const parts = route.split('/').filter(Boolean);
-  const section = parts[0] ?? 'beans';
+  const path = routePath(route);
+  const parts = path.split('/').filter(Boolean);
+  const section = parts[0] ?? 'home';
   const pane = make(document, 'div', undefined, 'list-view');
   pane.dataset.section = section;
+  if (path === '/home') {
+    renderHome(pane, document);
+    parent.dataset.section = 'home';
+    parent.replaceChildren(pane);
+    updateNavigationCurrent(parent.ownerDocument, route);
+    return;
+  }
+  if (section === 'brew') {
+    renderBrewFlow(pane, data, document, route, optionPages);
+    parent.dataset.section = 'home';
+    parent.replaceChildren(pane);
+    updateNavigationCurrent(parent.ownerDocument, route);
+    return;
+  }
+  if (section === 'records' && parts[1] === 'new' && data.screen?.error) {
+    renderUnavailableRoute(pane, document, route, data.screen.error);
+    parent.dataset.section = 'records';
+    parent.replaceChildren(pane);
+    updateNavigationCurrent(parent.ownerDocument, route);
+    return;
+  }
   const titles = { beans: '원두', recipes: '레시피', records: '추출 기록' };
   const header = make(document, 'div', undefined, 'list-header');
   header.append(make(document, 'h2', titles[section] ?? '커피 기록'));
@@ -894,7 +1112,7 @@ function renderPane(parent, data, document, route = '/beans', drafts = new Map()
       pane.append(card);
     }
   } else if (section === 'records') {
-    renderRecords(pane, data, document, recordFormOpen, optionPages);
+    renderRecords(pane, data, document, recordFormOpen, optionPages, route);
   } else {
     pane.append(make(document, 'p', '화면을 찾을 수 없습니다. 메뉴에서 이동해 주세요.'));
   }
@@ -1124,20 +1342,27 @@ function buildRecipeForm(document, data) {
   return form;
 }
 
-function buildRecordForm(document, data, optionPages) {
+function buildRecordForm(document, data, optionPages, route) {
   const form = formBase(document, 'records', '추출 후 빠른 기록');
   const fields = make(document, 'fieldset', undefined, 'form-fieldset');
-  fields.append(make(document, 'legend', '기록'));
-  fields.append(searchPicker(document, '원두', 'beans', 'form', preferredOptionPage(data.options?.beans, optionPages.get('form:beans')),
-    '원두를 선택해 주세요.', false));
-  fields.append(searchPicker(document, '레시피', 'recipes', 'form', preferredOptionPage(data.options?.recipes, optionPages.get('form:recipes')),
-    '레시피를 선택해 주세요.', false));
+  const params = routeParams(route);
+  const beanPicker = searchPicker(document, '원두', 'beans', 'form', preferredOptionPage(data.options?.beans, optionPages.get('form:beans')),
+    '원두를 선택해 주세요.', false);
+  const recipePicker = searchPicker(document, '레시피', 'recipes', 'form', preferredOptionPage(data.options?.recipes, optionPages.get('form:recipes')),
+    '레시피를 선택해 주세요.', false);
+  fields.append(make(document, 'legend', '기록'), beanPicker, recipePicker);
+  for (const [picker, name] of [[beanPicker, 'beanId'], [recipePicker, 'recipeId']]) {
+    const selectedId = params.get(name);
+    const select = picker.querySelector('select');
+    if (selectedId && Array.from(select.options).some(option => option.value === selectedId)) select.value = selectedId;
+  }
   fields.append(label(document, '날짜', 'date', 'date', true));
   fields.append(label(document, '별점 (1~5)', 'rating', 'number', true, { min: 1, max: 5, step: 1 }));
   fields.append(label(document, '컵노트 (선택)', 'cupNote', 'textarea', false));
   form.append(fields);
   addFormActions(document, form, 'records');
-  form.elements.date.value = localDate();
+  const requestedDate = params.get('date');
+  form.elements.date.value = isIsoDate(requestedDate) ? requestedDate : localDate();
   return form;
 }
 
@@ -1186,8 +1411,8 @@ function preferredOptionPage(serverPage, cachedPage) {
   return cachedPage && Date.now() - cachedPage.savedAt < 60000 ? cachedPage : serverPage;
 }
 
-function renderRecords(pane, data, document, formOpen, optionPages) {
-  const form = buildRecordForm(document, data, optionPages);
+function renderRecords(pane, data, document, formOpen, optionPages, route = '/records/new') {
+  const form = buildRecordForm(document, data, optionPages, route);
   form.id = 'new-record-form';
   pane.append(makeEntryDialog(document, 'records', form, formOpen));
 
@@ -1389,6 +1614,15 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
   const loadOptions = (target, kind, query = '', cursor = null, append = false) => {
     void actions.loadSearchOptions?.(kind, query, cursor, target, append);
   };
+  const navigateTo = (next, replaceCurrent = null) => {
+    const currentWindow = globalThis.window;
+    if (!currentWindow?.location) { view.renderRoute(next); return; }
+    if (replaceCurrent && currentWindow.history?.replaceState) {
+      const base = `${currentWindow.location.pathname ?? ''}${currentWindow.location.search ?? ''}`;
+      currentWindow.history.replaceState(null, '', `${base}#${replaceCurrent}`);
+    }
+    currentWindow.location.hash = next;
+  };
 
   const handleClick = async event => {
     const target = event.target.closest('[data-action]');
@@ -1398,10 +1632,32 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
       try { await actions.initialize(); } catch { /* Safe status text is supplied by the controller. */ }
       return;
     }
-    if (action === 'navigate') {
-      const next = target.dataset.route;
-      if (next && globalThis.window?.location) globalThis.window.location.hash = next;
-      else view.renderRoute(next);
+    if (action === 'navigate' || action === 'back-to-beans' || action === 'back-to-recipes') {
+      navigateTo(target.dataset.route);
+      return;
+    }
+    if (action === 'start-brew') {
+      navigateTo('/brew/bean');
+      return;
+    }
+    if (action === 'select-brew-bean') {
+      const beanId = target.dataset.beanId;
+      if (!beanId) return;
+      navigateTo(`/brew/recipe?beanId=${encodeURIComponent(beanId)}`,
+        `/brew/bean?selectedBeanId=${encodeURIComponent(beanId)}`);
+      return;
+    }
+    if (action === 'select-brew-recipe') {
+      const { beanId, recipeId } = target.dataset;
+      if (!beanId || !recipeId) return;
+      navigateTo(`/brew/run?beanId=${encodeURIComponent(beanId)}&recipeId=${encodeURIComponent(recipeId)}`,
+        `/brew/recipe?beanId=${encodeURIComponent(beanId)}&selectedRecipeId=${encodeURIComponent(recipeId)}`);
+      return;
+    }
+    if (action === 'complete-brew') {
+      const { beanId, recipeId } = target.dataset;
+      if (!beanId || !recipeId) return;
+      navigateTo(`/records/new?beanId=${encodeURIComponent(beanId)}&recipeId=${encodeURIComponent(recipeId)}&date=${localDate()}`);
       return;
     }
     if (action === 'cancel-connection') {
@@ -1442,10 +1698,10 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
     }
     if (action === 'more-options') {
       const { optionTarget: targetName, optionKind: kind } = target.dataset;
-      const picker = target.closest('.form-field');
+      const picker = target.closest('.form-field') ?? target.closest('.brew-flow-pane');
       const search = picker?.querySelector('[data-option-search-kind]');
       const select = picker?.querySelector('select');
-      loadOptions(targetName, kind, search?.value ?? '', select?.dataset.nextCursor || null, true);
+      loadOptions(targetName, kind, search?.value ?? '', target.dataset.nextCursor || select?.dataset.nextCursor || null, true);
       return;
     }
     if (action === 'cancel-form') {
@@ -1727,7 +1983,8 @@ function markInvalidField(form, field) {
 }
 
 function updateNavigationCurrent(document, route) {
-  const selected = route.split('/').filter(Boolean)[0] ?? 'beans';
+  const section = routePath(route).split('/').filter(Boolean)[0] ?? 'home';
+  const selected = section === 'brew' ? 'home' : section;
   document.querySelectorAll('.tabs [data-route]').forEach(item => {
     const key = item.dataset.route.split('/').filter(Boolean)[0];
     if (key === selected) item.setAttribute('aria-current', 'page');
@@ -1744,6 +2001,13 @@ function parseInputTime(value) {
 
 function formatTime(seconds) {
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+}
+
+function isIsoDate(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value ?? '')) return false;
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
 }
 
 function localDate() {

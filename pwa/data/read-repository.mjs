@@ -746,9 +746,13 @@ export function createReadRepository(client) {
       : await listRecipeSummaries({ query: normalizedQuery, cursor, limit, signal });
     if (kind === 'recipes' && page.items.length) {
       const validation = await validateRecipeSummaries(page.items.map(item => item.id), { signal });
-      const statusById = new Map(validation.items.map(item => [item.id, item.status]));
-      return deepFreeze({ ...page, items: page.items.map(item => ({ id: item.id, name: item.name,
-        status: statusById.get(item.id) ?? 'error' })) });
+      const recipeById = new Map(validation.items.map(item => [item.id,
+        item.status === 'ready' ? item.recipe : null]));
+      return deepFreeze({ ...page, items: page.items.map(item => {
+        const recipe = recipeById.get(item.id);
+        return { id: item.id, name: item.name, beanId: recipe?.beanId ?? null,
+          status: recipe ? 'ready' : 'error' };
+      }) });
     }
     return deepFreeze({ ...page, items: page.items.map(item => ({ id: item.id, name: item.name, status: 'ready' })) });
   }

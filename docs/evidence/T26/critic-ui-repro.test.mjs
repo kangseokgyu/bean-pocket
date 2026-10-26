@@ -147,7 +147,8 @@ test('C3-R1 checked connection-recovery checkbox reaches confirmCurrent', async 
 
 test('C3-R2 successful token replacement preserves the active unsaved product form', async () => {
   const document = new TestDocument();
-  const { app } = connected(document);
+  const { app, view } = connected(document);
+  view.renderRoute('/beans');
   await app.connect(connection);
   document.root.querySelector('form[data-form="beans"]').elements.name.value = 'must survive token replacement';
   app.setDirty(true, 'beans');
@@ -159,6 +160,7 @@ test('C3-R2 successful token replacement preserves the active unsaved product fo
 test('C3-R2b hidden drafts must still prevent update freezing after token replacement', async () => {
   const document = new TestDocument();
   const { app, view } = connected(document);
+  view.renderRoute('/beans');
   await app.connect(connection);
   document.root.querySelector('form[data-form="beans"]').elements.name.value = 'hidden unsaved draft';
   app.setDirty(true, 'beans');

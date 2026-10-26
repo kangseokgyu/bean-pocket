@@ -884,3 +884,25 @@ test('listRecords retains valid raw rows beyond the visible page for its continu
   assert.equal(second.complete, true);
   assert.equal(new Set([...first.items, ...second.items].map(item => item.id)).size, 25);
 });
+
+test('recipe search options retain the validated bean parent for scoped selection', async () => {
+  const parent = recipePage();
+  const client = {
+    dataSources: SOURCES,
+    async queryAll() { throw new Error('recipe search is paged'); },
+    async getPage(id) {
+      assert.equal(id, IDS.recipe);
+      return structuredClone(parent);
+    },
+    async queryPage(kind) {
+      if (kind === 'recipes') return { items: [structuredClone(parent)], nextCursor: null, hasMore: false, complete: true };
+      if (kind === 'steps') return { items: standardStepPages(), nextCursor: null, hasMore: false, complete: true };
+      throw new Error(`unexpected ${kind} query`);
+    },
+  };
+  const repository = createReadRepository(client);
+
+  const page = await repository.searchOptions({ kind: 'recipes', query: 'V60', limit: 20 });
+
+  assert.deepEqual(page.items, [{ id: IDS.recipe, name: 'V60', beanId: IDS.bean, status: 'ready' }]);
+});

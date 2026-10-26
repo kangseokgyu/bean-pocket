@@ -136,6 +136,12 @@ function mountInPage(document) {
   return { body, page };
 }
 
+function createBeanView(document) {
+  const view = createAppView(document);
+  view.renderRoute('/beans');
+  return view;
+}
+
 const data = () => ({
   beans: [{ id: BEAN, name: '원두 <안전>', origin: '시다마 · 테스트 농장', roaster: '로스터리', variety: '74110', process: '워시드', tastingNotes: '복숭아' }],
   bags: [{ id: '22222222-2222-4222-8222-222222222222', name: '6월 봉지', beanId: BEAN, roastedOn: '2026-06-01' }],
@@ -152,7 +158,7 @@ const CONNECTION = { token: 'test-only-token', dataSources: {} };
 
 test('connection settings open only after no saved connection is found', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const panel = document.root.querySelector('.connection-panel');
   assert.equal(panel.hidden, true);
   view.showConnection({ connected: false, retryInitialization: true });
@@ -165,7 +171,7 @@ test('connection settings open only after no saved connection is found', () => {
 test('startup checking shows one body overlay until retry is needed', () => {
   const document = new TestDocument();
   const { body, page } = mountInPage(document);
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.setState({ pending: true, frozen: false, unresolved: false });
   view.showConnection({ connected: false, checkingInitialization: true });
   view.showStatus({ type: 'startup-checking', message: '저장된 연결 확인 중' });
@@ -220,7 +226,7 @@ for (const outcome of ['saved', 'missing', 'error', 'recovery', 'busy', 'read-er
   test(`initialization spinner ends on ${outcome}`, async () => {
     const document = new TestDocument();
     const { body, page } = mountInPage(document);
-    const view = createAppView(document);
+    const view = createBeanView(document);
     let finishRead;
     const connectionRead = new Promise(resolve => { finishRead = resolve; });
     const context = {
@@ -267,7 +273,7 @@ for (const outcome of ['saved', 'missing', 'error', 'recovery', 'busy', 'read-er
 test('shared loading overlay stays outside transformed page through ready completion', () => {
   const document = new TestDocument();
   const { body, page } = mountInPage(document);
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const loading = body.querySelector('.startup-loading');
   assert.ok(loading, 'overlay belongs to body, outside pull-to-refresh transforms');
   assert.equal(loading.parentElement === body, true);
@@ -295,7 +301,7 @@ test('saved connection opens settings modally and closing discards unsaved secre
   const tools = document.createElement('div');
   const querySelector = document.querySelector.bind(document);
   document.querySelector = selector => selector === '#connection-tools' ? tools : querySelector(selector);
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const icon = tools.querySelector('button');
   assert.ok(icon, 'settings icon belongs in the header slot before build information');
   assert.equal(icon.getAttribute('aria-label'), 'Notion 연결 설정');
@@ -324,7 +330,7 @@ test('saved connection opens settings modally and closing discards unsaved secre
 test('successful status messages stay visible for three seconds then hide', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const status = document.root.querySelector('.app-status');
   for (const type of ['connected', 'saved', 'resolved', 'cancelled']) {
     view.showStatus({ type, message: '완료했습니다.' });
@@ -341,7 +347,7 @@ test('successful status messages stay visible for three seconds then hide', t =>
 test('errors, recovery notices and pending work stay visible after replacing success', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const status = document.root.querySelector('.app-status');
   for (const type of ['error', 'read-error', 'connection-error', 'validation-error', 'resolution-error',
     'saved-read-error', 'unknown', 'partial', 'failed', 'resolution-required', 'startup-busy',
@@ -361,7 +367,7 @@ test('status messages share one bottom safe-area toast above native modal dialog
   const toastRule = stylesheet.match(/\.connection-note,\s*\.app-status\s*\{([^}]*)\}/s);
   assert.ok(toastRule, 'the startup note and app status share toast positioning');
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const status = document.root.querySelector('.app-status');
   assert.equal(status.getAttribute('popover'), 'manual');
 
@@ -407,7 +413,7 @@ test('status messages share one bottom safe-area toast above native modal dialog
 
 test('native form validation marks its field and reports the error in the shared toast', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.renderData(data());
   view.bind({ setDirty() {}, getState: () => ({}) });
   const form = document.root.querySelector('form[data-form="beans"]');
@@ -436,7 +442,7 @@ test('operation spinner stays in body overlay outside the touch-transformed page
 
   const document = new TestDocument();
   const { body, page } = mountInPage(document);
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const status = document.root.querySelector('.app-status');
   const loading = body.querySelector('.startup-loading');
   view.setState({ pending: true, frozen: false, unresolved: false });
@@ -464,7 +470,7 @@ test('operation spinner stays visible through success, ready and timeout, then c
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const document = new TestDocument();
   const { body } = mountInPage(document);
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const status = document.root.querySelector('.app-status');
   const loading = body.querySelector('.startup-loading');
   let spinner;
@@ -511,7 +517,7 @@ test('operation spinner stays visible through success, ready and timeout, then c
 test('a new success gets a full display interval and empty messages hide immediately', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const status = document.root.querySelector('.app-status');
   view.showStatus({ type: 'saved', message: '저장했습니다.' });
   t.mock.timers.tick(2000);
@@ -547,7 +553,7 @@ function controllerFor(view) {
 
 test('draft values survive tab navigation and a fresh data render', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.renderData(data());
   let form = document.root.querySelector('form[data-form="beans"]');
   form.elements.name.value = '보존 검증 초안';
@@ -566,7 +572,7 @@ test('draft values survive tab navigation and a fresh data render', () => {
 
 test('bean, recipe, and record detail text is rendered as text and retains brew details', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.renderData(data());
   view.renderRoute(`/beans/${BEAN}`);
   assert.match(document.root.textContent, /원두 <안전>/);
@@ -586,7 +592,7 @@ test('bean, recipe, and record detail text is rendered as text and retains brew 
 
 test('pour tables group cumulative values before interval and current water in three columns', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const current = data();
   current.recipes[0].steps = [
     { name: '뜸 <안전>', seconds: 0, interval: 0, water: 30, cumulativeWater: 30 },
@@ -614,7 +620,7 @@ test('pour tables group cumulative values before interval and current water in t
 
 test('damaged historical records are excluded from bagless recipe views', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const current = data();
   current.records[0].snapshot.steps = { broken: true };
   current.records[0].snapshotStatus = 'damaged';
@@ -628,7 +634,7 @@ test('damaged historical records are excluded from bagless recipe views', () => 
 
 test('invalid stored date and rating remain visible with field-specific warnings', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const current = data();
   current.records[0].date = 'not-a-date';
   current.records[0].rating = 6;
@@ -645,7 +651,7 @@ test('invalid stored date and rating remain visible with field-specific warnings
 
 test('recipes have no bean selector and records require both bean and shared recipe with browse filters', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.renderData(data());
 
   view.renderRoute('/recipes/new');
@@ -670,7 +676,7 @@ test('recipes have no bean selector and records require both bean and shared rec
 
 test('resolution controls follow the native journal page-list contract', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
 
   view.showUnresolved([{ kind: 'beans', status: 'partial', knownPageCount: 1, resolve() {} }]);
 
@@ -686,7 +692,7 @@ test('resolution controls follow the native journal page-list contract', () => {
 
 test('recipe step time permits a keyboard with colon while retaining minute-second validation', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.renderData(data());
   view.renderRoute('/recipes/new');
   const input = document.root.querySelector('[name="time"]');
@@ -701,7 +707,7 @@ test('recipe step time permits a keyboard with colon while retaining minute-seco
 
 test('the bean origin label uses user-facing wording rather than the storage field name', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.renderData(data());
   const fieldLabel = document.root.querySelector('form[data-form="beans"]').elements.origin.closest('label');
 
@@ -718,7 +724,7 @@ test('the record date default follows the device calendar across the KST UTC bou
   };
   try {
     const document = new TestDocument();
-    const view = createAppView(document);
+    const view = createBeanView(document);
     view.renderData(data());
     view.renderRoute('/records/new');
 
@@ -732,7 +738,7 @@ test('the record date default follows the device calendar across the KST UTC bou
 
 test('checked connection-recovery checkbox reaches the current-connection verifier', async () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   let confirmations = 0;
   view.bind({ confirmCurrent: async checked => { assert.equal(checked, true); confirmations++; } });
   view.showConnection({ connected: false, needsRecovery: true });
@@ -747,7 +753,7 @@ test('checked connection-recovery checkbox reaches the current-connection verifi
 
 test('startup lock contention hides connection entry and retries the saved connection read', async () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   let retries = 0;
   view.bind({ initialize: async () => { retries++; } });
   view.showConnection({ connected: false, retryInitialization: true });
@@ -768,7 +774,7 @@ test('startup lock contention hides connection entry and retries the saved conne
 
 test('successful connection replacement preserves the active product draft', async () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const app = controllerFor(view);
   await app.connect(CONNECTION);
   document.root.querySelector('form[data-form="beans"]').elements.name.value = 'active unsaved bean';
@@ -781,7 +787,7 @@ test('successful connection replacement preserves the active product draft', asy
 
 test('successful connection replacement preserves hidden drafts and their dirty signal', async () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const app = controllerFor(view);
   await app.connect(CONNECTION);
   document.root.querySelector('form[data-form="beans"]').elements.name.value = 'hidden unsaved bean';
@@ -798,7 +804,7 @@ test('successful connection replacement preserves hidden drafts and their dirty 
 
 test('recipe input minimums allow every positive sub-cent value accepted by the domain', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.renderData(data());
   view.renderRoute('/recipes/new');
   const form = document.root.querySelector('form[data-form="recipes"]');
@@ -815,7 +821,7 @@ test('recipe input minimums allow every positive sub-cent value accepted by the 
 
 test('recipe history never displays legacy bag relations', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const rows = data();
   rows.bags.push({ id: 'second-bag', name: '7월 봉지', beanId: BEAN });
   rows.records = [
@@ -833,7 +839,7 @@ test('recipe history never displays legacy bag relations', () => {
 
 test('bean creation starts hidden, opens from the plus button, and closes on cancel', async () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const dirty = [];
   view.bind({ setDirty: (...args) => dirty.push(args) });
   view.renderData(data());
@@ -867,7 +873,7 @@ test('bean creation starts hidden, opens from the plus button, and closes on can
 
 test('bag route has no entry, delete or relation selection surface', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.renderData(data());
   view.renderRoute('/bags');
   assert.equal(Boolean(document.root.querySelector('[data-route="/bags"]')), false);
@@ -880,7 +886,7 @@ test('bag route has no entry, delete or relation selection surface', () => {
 
 test('recipe creation opens from plus, preserves drafts, and closes on cancel', async () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const dirty = [];
   view.bind({ setDirty: (...args) => dirty.push(args) });
   view.renderData(data());
@@ -935,7 +941,7 @@ test('recipe creation opens from plus, preserves drafts, and closes on cancel', 
 
 test('recipe detail places the guide below the pour table and copy preserves its text', async () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.bind({ setDirty() {} });
   view.renderData(data());
   view.renderRoute(`/recipes/${RECIPE}`);
@@ -961,7 +967,7 @@ test('recipe detail places the guide below the pour table and copy preserves its
 
 test('record creation opens from plus, preserves drafts, and closes on cancel or save', async () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const dirty = [];
   view.bind({ setDirty: (...args) => dirty.push(args) });
   view.renderData(data());
@@ -1012,7 +1018,7 @@ test('record creation opens from plus, preserves drafts, and closes on cancel or
 
 test('background data updates defer pane replacement while an entry dialog is open', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.renderRoute('/records');
   view.renderData(data());
   view.showRecordForm();
@@ -1064,7 +1070,7 @@ test('background data updates defer pane replacement while an entry dialog is op
 
 test('collection headers omit refresh and retain their add buttons', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.renderData(data());
   for (const [section, kind] of [['beans', 'bean'], ['recipes', 'recipe'], ['records', 'record']]) {
     view.renderRoute(`/${section}`);
@@ -1089,7 +1095,7 @@ function pullHarness() {
   document.defaultView = { location: { reload() { reloads++; } },
     requestAnimationFrame(callback) { frames.push(callback); },
     setTimeout(callback, delay) { timers.push({ callback, delay }); } };
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.renderData(data());
   view.bind({ getState: () => state, refresh: async () => { reads++; } });
   const fire = (type, x = 20, y = 100, options = {}) => {
@@ -1308,9 +1314,9 @@ test('refresh requires a 240px downward pull and checks the release position', (
 
 test('navigation uses text-only menus with accessible names', () => {
   const document = new TestDocument();
-  createAppView(document);
+  createBeanView(document);
   const items = document.root.querySelector('nav.tabs').querySelectorAll('button');
-  const expected = [['beans', '원두'], ['recipes', '레시피'], ['records', '추출 기록']];
+  const expected = [['home', '홈'], ['beans', '원두'], ['recipes', '레시피'], ['records', '추출 기록']];
   assert.equal(items.length, expected.length);
   items.forEach((item, index) => {
     const [key, title] = expected[index];
@@ -1325,7 +1331,7 @@ test('navigation uses text-only menus with accessible names', () => {
 });
 
 test('bean cards expose a labelled trash button and require confirmation before deleting', async () => {
-  const document = new TestDocument(), view = createAppView(document);
+  const document = new TestDocument(), view = createBeanView(document);
   view.showConnection({ connected: true });
   view.renderData(data());
   const calls = [];
@@ -1354,7 +1360,7 @@ test('bean cards expose a labelled trash button and require confirmation before 
 });
 
 test('recipe and record cards expose named trash controls and confirm each item before submission', async () => {
-  const document = new TestDocument(), view = createAppView(document);
+  const document = new TestDocument(), view = createBeanView(document);
   view.showConnection({ connected: true });
   view.renderData(data());
   const calls = [];
@@ -1401,7 +1407,7 @@ test('recipe and record cards expose named trash controls and confirm each item 
 
 test('bean cards pair each metadata value with its own visible label', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.renderData(data());
   const card = document.root.querySelector('.bean-card');
   assert.deepEqual(card.querySelectorAll('dt').map(node => node.textContent),
@@ -1412,7 +1418,7 @@ test('bean cards pair each metadata value with its own visible label', () => {
 
 test('bean cards keep missing metadata explicit and render values as text', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const rows = data();
   rows.beans = [{ id: BEAN, name: '최소 원두', roaster: '<img src=x onerror=alert(1)>' }];
   view.renderData(rows);
@@ -1429,11 +1435,11 @@ test('header navigation changes routes and remains locked while work is pending'
   header.className = 'site-header';
   const querySelector = document.querySelector.bind(document);
   document.querySelector = selector => selector === '.site-header' ? header : querySelector(selector);
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const nav = header.querySelector('nav.tabs');
   assert.ok(nav, 'primary navigation belongs in the site header');
   assert.equal(document.root.querySelector('nav.tabs'), null);
-  assert.deepEqual(nav.children.map(item => item.textContent), ['원두', '레시피', '추출 기록']);
+  assert.deepEqual(nav.children.map(item => item.textContent), ['홈', '원두', '레시피', '추출 기록']);
   view.bind({});
   view.renderData(data());
   view.showConnection({ connected: true });
@@ -1454,7 +1460,7 @@ test('bean entry opens and closes as a native modal without saving on cancel', a
   const document = new TestDocument();
   let writes = 0;
   const dirty = [];
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.bind({ setDirty: (...args) => dirty.push(args), submit: async () => { writes += 1; return { status: 'succeeded' }; } });
   view.renderData(data());
   view.renderRoute('/beans');
@@ -1483,7 +1489,7 @@ test('available entry forms open as native dialogs and cancel without submitting
   let writes = 0;
   for (const [route, action, kind] of cases) {
     const document = new TestDocument();
-    const view = createAppView(document);
+    const view = createBeanView(document);
     view.bind({ setDirty() {}, submit: async () => { writes += 1; return { status: 'succeeded' }; } });
     view.renderData(data());
     view.renderRoute(route);
@@ -1657,6 +1663,7 @@ test('success delay ignores late input events and closes without a dirty draft',
   const callbacks = [];
   let dirty = false;
   const view = createAppView(document, { schedule: callback => { callbacks.push(callback); return 1; } });
+  view.renderRoute('/beans');
   view.bind({ setDirty: value => { dirty = value; } });
   view.renderData(data());
   view.showBeanForm();
@@ -1684,7 +1691,7 @@ test('reduced motion overrides modal entrance and blocking spinner animations', 
 
 test('initial card load shows decorative skeletons until real data replaces them', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.setState({ pending: true });
   view.showConnection({ connected: false, checkingInitialization: true });
   view.showStatus({ type: 'startup-checking', message: '저장된 연결 확인 중' });
@@ -1709,7 +1716,7 @@ test('initial card load shows decorative skeletons until real data replaces them
 for (const type of ['disconnected', 'startup-busy', 'connection-error', 'read-error']) {
   test(`card skeleton clears after ${type}`, () => {
     const document = new TestDocument();
-    const view = createAppView(document);
+    const view = createBeanView(document);
     view.setState({ pending: true });
     view.showStatus({ type: 'startup-checking', message: '연결 확인 중' });
     const skeleton = document.root.querySelector('.card-skeletons');
@@ -1722,7 +1729,7 @@ for (const type of ['disconnected', 'startup-busy', 'connection-error', 'read-er
 
 test('persistent error toast follows the settings modal opened and closed without a new status', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.showConnection({ connected: true });
   const page = document.root.firstElementChild;
   const toggle = document.root.querySelector('.connection-toggle');
@@ -1750,7 +1757,7 @@ test('persistent error toast follows the settings modal opened and closed withou
 test('connection modal opens from settings and Escape clears secrets, draft and restores focus', async () => {
   const document = new TestDocument();
   const dirty = [];
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.bind({ setDirty: (...args) => dirty.push(args) });
   view.showConnection({ connected: true });
   const toggle = document.root.querySelector('.connection-toggle');
@@ -1892,7 +1899,7 @@ test('connection modal preserves failed inputs for retry and exposes safe errors
 
 test('startup retry and recovery remain reachable after dismissing and reopening connection settings', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.bind({ initialize() {} });
   view.showConnection({ connected: false, retryInitialization: true });
   const dialog = document.root.querySelector('dialog.connection-panel');
@@ -1913,7 +1920,7 @@ test('startup retry and recovery remain reachable after dismissing and reopening
 
 test('bean cards open their records through a full-card native link without a records button', async () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.renderData(data());
   view.bind({});
   const card = document.root.querySelector('.bean-card');
@@ -1933,7 +1940,7 @@ test('bean cards open their records through a full-card native link without a re
 
 test('bean card deletion never opens records, including clicks on its icon', async () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.renderData(data());
   view.bind({});
   const trash = document.root.querySelector('[data-action="delete-bean"]');
@@ -1950,7 +1957,7 @@ test('bean card deletion never opens records, including clicks on its icon', asy
 
 test('legacy extraction records remain in raw input but are hidden from current lists and details', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const rows = data();
   rows.records[0].snapshot.recordGeneration = 'bagless-v1';
   const legacy = structuredClone(rows.records[0]);
@@ -1970,7 +1977,7 @@ test('legacy extraction records remain in raw input but are hidden from current 
 
 test('PWA removes bag navigation, entry and record selection or display surfaces', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const rows = data();
   rows.records[0].snapshot.recordGeneration = 'bagless-v1';
   view.renderData(rows);
@@ -1990,7 +1997,7 @@ test('PWA removes bag navigation, entry and record selection or display surfaces
 
 test('recipe list cards link their entire surface to details without a details button', async () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.renderData(data());
   view.renderRoute('/recipes');
   view.bind({});
@@ -2011,7 +2018,7 @@ test('recipe list cards link their entire surface to details without a details b
 
 test('recipe list card delete icon stays independent of detail navigation', async () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.renderData(data());
   view.renderRoute('/recipes');
   const calls = [];
@@ -2032,7 +2039,7 @@ test('recipe list card delete icon stays independent of detail navigation', asyn
 
 test('view notifies the controller when the current route changes', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   const routes = [];
   view.onRouteChange(route => routes.push(route));
 
@@ -2044,7 +2051,7 @@ test('view notifies the controller when the current route changes', () => {
 
 test('record page shows continuation state instead of claiming the database is empty', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.renderRoute('/records');
   view.renderData({ ...data(), records: [], screen: { complete: false, hasMore: true, nextCursor: 'next' } });
 
@@ -2055,7 +2062,7 @@ test('record page shows continuation state instead of claiming the database is e
 
 test('record cards show snapshot names while current parent names are loading', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.renderRoute('/records');
   const record = { ...data().records[0], beanNameStatus: 'loading', recipeNameStatus: 'loading',
     snapshot: { version: 2, recordGeneration: 'bagless-v1',
@@ -2072,7 +2079,7 @@ test('record cards show snapshot names while current parent names are loading', 
 
 test('record name pickers load on focus and preserve filter selection across option pages', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
+  const view = createBeanView(document);
   view.renderRoute('/records');
   view.renderData({ ...data(), records: [], screen: { complete: false, hasMore: true,
     nextCursor: 'records-next', filters: { beanId: BEAN, recipeId: '' } } });
@@ -2111,4 +2118,192 @@ test('record name pickers load on focus and preserve filter selection across opt
   assert.equal(refreshedFilter.options.length, 3, 'loaded options survive an unrelated page rerender');
   assert.equal(refreshedFilter.value, BEAN);
   assert.equal(refreshedSearch.value, 'Search Ethiopia', 'the active query survives an unrelated page rerender');
+});
+
+
+test('home is the default and root route, with the requested hero and four menu destinations', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.renderData({ beans: [], recipes: [], records: [] });
+
+  assert.equal(view.currentRoute(), '/home');
+  const hero = document.root.querySelector('.home-hero');
+  assert.ok(hero);
+  assert.match(hero.textContent, /오늘의 한 잔을 시작해 보세요\./);
+  assert.equal(hero.querySelector('[data-action="start-brew"]').textContent, '추출 시작');
+  assert.deepEqual(document.root.querySelector('nav.tabs').children.map(item => [item.dataset.route, item.textContent]), [
+    ['/home', '홈'], ['/beans', '원두'], ['/recipes', '레시피'], ['/records', '추출 기록'],
+  ]);
+
+  view.renderRoute('/');
+  assert.equal(view.currentRoute(), '/home');
+  assert.ok(document.root.querySelector('.home-hero'));
+});
+
+test('brew routes preserve selected parents and show the saved recipe guide without an automatic timer', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+
+  view.renderRoute('/brew/bean');
+  const beanOption = document.root.querySelector('[data-action="select-brew-bean"]');
+  assert.ok(beanOption);
+  assert.equal(beanOption.dataset.beanId, BEAN);
+
+  view.renderRoute(`/brew/recipe?beanId=${BEAN}&selectedRecipeId=${RECIPE}`);
+  const recipeOption = document.root.querySelector('[data-action="select-brew-recipe"]');
+  assert.ok(recipeOption);
+  assert.equal(recipeOption.dataset.beanId, BEAN);
+  assert.equal(recipeOption.dataset.recipeId, RECIPE);
+  assert.equal(document.root.querySelector('[data-action="back-to-beans"]').dataset.route,
+    `/brew/bean?selectedBeanId=${BEAN}`);
+
+  view.renderRoute(`/brew/run?beanId=${BEAN}&recipeId=${RECIPE}`);
+  const run = document.root.querySelector('.brew-run-pane');
+  assert.ok(run);
+  assert.match(run.textContent, /15g/);
+  assert.match(run.textContent, /93℃/);
+  assert.match(run.textContent, /250g/);
+  assert.match(run.textContent, /교반 없음/);
+  assert.match(run.textContent, /목표 추출 완료 시간: 2분 30초/);
+  assert.equal(run.querySelectorAll('.steps-table').length, 1);
+  assert.equal(run.querySelector('[data-action="start-timer"]'), null);
+  const back = run.querySelector('[data-action="back-to-recipes"]');
+  assert.equal(back.dataset.route, `/brew/recipe?beanId=${BEAN}&selectedRecipeId=${RECIPE}`);
+  const complete = run.querySelector('[data-action="complete-brew"]');
+  assert.equal(complete.dataset.beanId, BEAN);
+  assert.equal(complete.dataset.recipeId, RECIPE);
+});
+
+test('empty bean selection explains registration and provides routes to register or return', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData({ ...data(), beans: [], screen: { complete: true, hasMore: false } });
+  view.renderRoute('/brew/bean');
+
+  const pane = document.root.querySelector('.brew-flow-pane');
+  assert.match(pane.textContent, /원두를 먼저 등록/);
+  assert.equal(pane.querySelector('[data-route="/beans"]')?.textContent, '원두 등록하기');
+  assert.ok(pane.querySelectorAll('[data-route="/home"]').some(item => item.textContent.includes('홈으로')));
+});
+
+test('brew search pages render validated options and keep pagination controls', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+  view.renderRoute('/brew/bean');
+  view.setSearchOptions('brew', 'beans', {
+    items: [{ id: BEAN, name: '검색된 원두', status: 'ready' }],
+    nextCursor: 'bean-next', hasMore: true, complete: false,
+  }, false, '검색');
+
+  const pane = document.root.querySelector('.brew-flow-pane');
+  assert.equal(pane.querySelector('[data-option-search-kind="beans"]').value, '검색');
+  assert.match(pane.textContent, /검색된 원두/);
+  const more = pane.querySelector('[data-action="more-options"]');
+  assert.ok(more);
+  assert.equal(more.dataset.optionTarget, 'brew');
+  assert.equal(more.dataset.optionKind, 'beans');
+  assert.equal(more.dataset.nextCursor, 'bean-next');
+
+  view.renderRoute(`/brew/recipe?beanId=${BEAN}`);
+  view.setSearchOptions('brew', 'recipes', {
+    items: [{ id: RECIPE, name: '검증된 레시피', status: 'ready', beanId: BEAN }],
+    nextCursor: null, hasMore: false, complete: true,
+  }, false, 'V60');
+  assert.equal(document.root.querySelector('[data-action="select-brew-recipe"]').dataset.recipeId, RECIPE);
+  assert.equal(document.root.querySelector('.brew-flow-pane').querySelector('[data-option-search-kind="recipes"]').value, 'V60');
+});
+
+test('brew completion preselects bean and recipe and defaults the record date to today', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderRoute(`/records/new?beanId=${BEAN}&recipeId=${RECIPE}`);
+  const current = data();
+  current.options = {
+    beans: { items: [{ id: BEAN, name: '원두 <안전>', status: 'ready' }], nextCursor: null, hasMore: false },
+    recipes: { items: [{ id: RECIPE, name: 'V60', status: 'ready' }], nextCursor: null, hasMore: false },
+  };
+  view.renderData(current);
+
+  const dialog = document.root.querySelector('dialog[data-entry-dialog="records"]');
+  const form = dialog.querySelector('form[data-form="records"]');
+  assert.equal(dialog.open, true);
+  assert.equal(form.elements.beanId.value, BEAN);
+  assert.equal(form.elements.recipeId.value, RECIPE);
+  const now = new Date();
+  const expectedToday = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0')].join('-');
+  assert.equal(form.elements.date.value, expectedToday);
+});
+
+
+test('brew clicks preserve bean and recipe in browser history and complete into a prefilled record form', async () => {
+  const previousWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
+  const previousLocation = Object.getOwnPropertyDescriptor(globalThis, 'location');
+  let hash = '#/home';
+  const replacements = [];
+  const location = {
+    pathname: '/index.html', search: '',
+    get hash() { return hash; },
+    set hash(value) { hash = value.startsWith('#') ? value : `#${value}`; },
+  };
+  const window = {
+    location,
+    history: { replaceState(_state, _title, url) {
+      replacements.push(url);
+      hash = `#${url.split('#').at(-1)}`;
+    } },
+    addEventListener() {},
+  };
+  Object.defineProperty(globalThis, 'window', { configurable: true, writable: true, value: window });
+  Object.defineProperty(globalThis, 'location', { configurable: true, writable: true, value: location });
+  try {
+    const document = new TestDocument();
+    const view = createAppView(document);
+    const current = data();
+    current.options = {
+      beans: { items: [{ id: BEAN, name: current.beans[0].name, status: 'ready' }], hasMore: false },
+      recipes: { items: [{ id: RECIPE, name: current.recipes[0].name, beanId: BEAN, status: 'ready' }], hasMore: false },
+    };
+    view.renderData(current);
+    view.bind({});
+    const click = async target => {
+      for (const listener of document.root.firstElementChild.listeners.get('click') ?? []) await listener({ target });
+    };
+    const showHashRoute = () => view.renderRoute(location.hash.slice(1));
+
+    await click(document.root.querySelector('[data-action="start-brew"]'));
+    assert.equal(location.hash, '#/brew/bean');
+    showHashRoute();
+    await click(document.root.querySelector('[data-action="select-brew-bean"]'));
+    assert.match(replacements.at(-1), new RegExp(`#/brew/bean\\?selectedBeanId=${BEAN}`));
+    assert.equal(location.hash, `#/brew/recipe?beanId=${BEAN}`);
+
+    hash = replacements.at(-1).slice(replacements.at(-1).indexOf('#'));
+    showHashRoute();
+    assert.equal(document.root.querySelector('[data-action="select-brew-bean"]').getAttribute('aria-pressed'), 'true');
+    await click(document.root.querySelector('[data-action="select-brew-bean"]'));
+    showHashRoute();
+    await click(document.root.querySelector('[data-action="select-brew-recipe"]'));
+    assert.match(replacements.at(-1), new RegExp(`#/brew/recipe\\?beanId=${BEAN}&selectedRecipeId=${RECIPE}`));
+    assert.equal(location.hash, `#/brew/run?beanId=${BEAN}&recipeId=${RECIPE}`);
+
+    hash = replacements.at(-1).slice(replacements.at(-1).indexOf('#'));
+    showHashRoute();
+    assert.equal(document.root.querySelector('[data-action="select-brew-recipe"]').getAttribute('aria-pressed'), 'true');
+    await click(document.root.querySelector('[data-action="select-brew-recipe"]'));
+    showHashRoute();
+    await click(document.root.querySelector('[data-action="complete-brew"]'));
+    assert.match(location.hash, new RegExp(`^#/records/new\\?beanId=${BEAN}&recipeId=${RECIPE}&date=\\d{4}-\\d{2}-\\d{2}$`));
+    showHashRoute();
+    const form = document.root.querySelector('form[data-form="records"]');
+    assert.equal(form.elements.beanId.value, BEAN);
+    assert.equal(form.elements.recipeId.value, RECIPE);
+  } finally {
+    if (previousWindow) Object.defineProperty(globalThis, 'window', previousWindow);
+    else delete globalThis.window;
+    if (previousLocation) Object.defineProperty(globalThis, 'location', previousLocation);
+    else delete globalThis.location;
+  }
 });

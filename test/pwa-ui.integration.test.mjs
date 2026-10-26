@@ -169,7 +169,7 @@ test('legacy bag journals stay unresolved after startup and never auto-send', as
     const unresolved = [];
     const state = createSubmissionState(native);
     const app = createAppController({ view: {
-      showConnection() {}, showStatus() {}, renderData() {}, clearSecret() {}, setState() {},
+      currentRoute() { return '/beans'; }, showConnection() {}, showStatus() {}, renderData() {}, clearSecret() {}, setState() {},
       showUnresolved(items) { unresolved.push(...items); },
     }, state, file: { readConnection: async () => JSON.parse(native.files.get('connection.json')) },
     makeClient: connection => new NotionClient(connection.token, { dataSources: connection.dataSources,

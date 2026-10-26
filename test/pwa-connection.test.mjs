@@ -10,7 +10,7 @@ function harness({ verify = async () => true, readAll = async () => ({ beans: []
   lockBusyCount = 0, lockBusyAlways = false, inspectionError = null } = {}) {
   const events = [];
   let lockAttempts = 0;
-  const view = { showConnection(value) { events.push(['connection', value]); }, showStatus(value) { events.push(['status', value]); }, renderData() {}, clearSecret() { events.push(['clear']); }, showConnectionSuccess() { events.push(['connection-success']); } };
+  const view = { currentRoute() { return '/beans'; }, showConnection(value) { events.push(['connection', value]); }, showStatus(value) { events.push(['status', value]); }, renderData() {}, clearSecret() { events.push(['clear']); }, showConnectionSuccess() { events.push(['connection-success']); } };
   const context = { async inspect() { events.push(['inspect']); if (inspectionError) throw Object.freeze({ code: inspectionError }); return inspection; }, async readJournal() { return journal; }, async beginConnectionChange(value) { events.push(['begin', value.revision]); }, async commitConnectionChange() { events.push(['commit']); }, async confirmConnection(value) { events.push(['confirm', value.originalConfirmed]); }, async confirmResolution(key, options) { events.push(['confirm-resolution']); return options.freshRead(resolutionOperation); } };
   const state = { async withWriteLock(action) {
     events.push(['lock']);
@@ -137,6 +137,7 @@ test('current-connection recovery keeps pending through reinitialization and its
   };
   const controller = createAppController({
     view: {
+      currentRoute() { return '/beans'; },
       setState(value) { states.push(value.pending); },
       showConnection() {}, showStatus() {}, renderData() {}, showUnresolved() {}, finishStartup() {},
     },

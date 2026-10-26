@@ -13,7 +13,7 @@ async function setup() {
   const make = () => {
     const state = createSubmissionState(native);
     const app = createAppController({
-      view: { showStatus: v => events.push(v), renderData: d => events.push({ data: d }), setState() {}, clearSecret() {} },
+      view: { currentRoute() { return '/beans'; }, showStatus: v => events.push(v), renderData: d => events.push({ data: d }), setState() {}, clearSecret() {} },
       state, file: { readConnection: async () => native.files.has('connection.json') ? connection() : null },
       makeClient: c => new NotionClient(c.token, { dataSources: c.dataSources, connectionRevision: c.revision, fetchImpl: fake.fetch }),
       makeRepository: createReadRepository, makeCommands: createCommands,

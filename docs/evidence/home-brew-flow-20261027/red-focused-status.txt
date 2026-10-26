@@ -1,0 +1,2 @@
+command: node --test test/pwa-ui.view.test.mjs test/pwa-screen-loading.test.mjs
+exit_code: 1

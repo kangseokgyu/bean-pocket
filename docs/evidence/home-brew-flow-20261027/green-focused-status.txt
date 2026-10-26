@@ -1,0 +1,2 @@
+command: node --check pwa/ui/view.mjs && node --test test/pwa-ui.view.test.mjs test/pwa-screen-loading.test.mjs test/pwa-read-repository.test.mjs
+exit_code: 0

@@ -117,18 +117,30 @@ export function createAppController({
     view.showConnection?.({ connected: true });
   }
 
+  function routeLocation(route) {
+    const [path = '/home', query = ''] = String(route ?? '/home').split('?', 2);
+    return { path: path || '/home', params: new URLSearchParams(query) };
+  }
+
   function currentRoute() {
     const route = view.currentRoute?.();
-    return typeof route === 'string' && route.startsWith('/') ? route : '/beans';
+    return typeof route === 'string' && route.startsWith('/') ? route : '/home';
   }
 
   function routeSchemas(route) {
-    const [section, id] = route.split('/').filter(Boolean);
+    const { path } = routeLocation(route);
+    const [section, id] = path.split('/').filter(Boolean);
+    if (!section || section === 'home') return [];
+    if (section === 'brew') {
+      if (id === 'bean') return ['beans'];
+      if (id === 'recipe' || id === 'run') return ['beans', 'recipes', 'steps'];
+      return [];
+    }
     if (section === 'beans') return id ? ['beans', 'records', 'recipes'] : ['beans'];
     if (section === 'recipes') return id && id !== 'new' ? ['beans', 'recipes', 'steps', 'records'] : ['recipes', 'steps'];
     if (section === 'records') return id === 'new'
       ? ['beans', 'recipes', 'steps', 'records'] : ['beans', 'recipes', 'records'];
-    return ['beans'];
+    return [];
   }
 
   function routeCacheKey(route, cursor = null) {
@@ -175,9 +187,69 @@ export function createAppController({
     return merged;
   }
 
+  function unavailableScreen(route, error) {
+    if (!['bean-unavailable', 'recipe-unavailable', 'invalid-input'].includes(error?.code)) return null;
+    return { beans: [], recipes: [], records: [], excluded: {},
+      screen: { route, error: error.code === 'invalid-input' ? 'bean-unavailable' : error.code,
+        nextCursor: null, hasMore: false, complete: true } };
+  }
+
+  function optionWithSelectedItem(page, item, kind) {
+    if (!item || page.items.some(option => option.id === item.id)) return page;
+    return { ...page, items: [{ id: item.id, name: item.name,
+      ...(kind === 'recipes' ? { beanId: item.beanId } : {}), status: 'ready' }, ...page.items] };
+  }
+
   async function fetchScreen(route, cursor, signal) {
-    const [section, id] = route.split('/').filter(Boolean);
+    const { path, params } = routeLocation(route);
+    const [section, id] = path.split('/').filter(Boolean);
+    const query = params.get('q')?.trim() ?? '';
     const pageOptions = { cursor, limit: SCREEN_PAGE_SIZE, signal };
+
+    if (!section || section === 'home') {
+      return { beans: [], recipes: [], records: [], excluded: {},
+        screen: { route, nextCursor: null, hasMore: false, complete: true } };
+    }
+    if (section === 'brew' && id === 'bean') {
+      const page = await repository.listBeans({ ...pageOptions, query });
+      return { beans: page.items, recipes: [], records: [], excluded: {},
+        screen: { route, nextCursor: page.nextCursor, hasMore: page.hasMore, complete: page.complete } };
+    }
+    if (section === 'brew' && id === 'recipe') {
+      const beanId = params.get('beanId');
+      if (!beanId) return unavailableScreen(route, { code: 'bean-unavailable' });
+      try {
+        const [bean, page] = await Promise.all([
+          repository.getBean(beanId, { signal }),
+          repository.listRecipeSummaries({ ...pageOptions, query }),
+        ]);
+        return { beans: [bean], recipes: page.items.filter(recipe => recipe.beanId === bean.id),
+          records: [], excluded: {},
+          screen: { route, nextCursor: page.nextCursor, hasMore: page.hasMore, complete: page.complete } };
+      } catch (error) {
+        const unavailable = unavailableScreen(route, error);
+        if (unavailable) return unavailable;
+        throw error;
+      }
+    }
+    if (section === 'brew' && id === 'run') {
+      const beanId = params.get('beanId');
+      const recipeId = params.get('recipeId');
+      if (!beanId || !recipeId) return unavailableScreen(route, { code: 'invalid-input' });
+      try {
+        const [bean, recipe] = await Promise.all([
+          repository.getBean(beanId, { signal }),
+          repository.getRecipeDetail(recipeId, { signal }),
+        ]);
+        if (recipe.beanId !== bean.id) return unavailableScreen(route, { code: 'recipe-unavailable' });
+        return { beans: [bean], recipes: [recipe], records: [], excluded: {},
+          screen: { route, nextCursor: null, hasMore: false, complete: true } };
+      } catch (error) {
+        const unavailable = unavailableScreen(route, error);
+        if (unavailable) return unavailable;
+        throw error;
+      }
+    }
     if (section === 'beans' && !id) {
       const page = await repository.listBeans(pageOptions);
       return { beans: page.items.map(bean => ({ ...bean, recordCount: { status: 'loading', count: null } })),
@@ -207,6 +279,26 @@ export function createAppController({
         screen: { route, nextCursor: page.nextCursor, hasMore: page.hasMore, complete: page.complete } };
     }
     if (section === 'records') {
+      let selectedBean = null;
+      let selectedRecipe = null;
+      if (id === 'new' && cursor == null) {
+        const beanId = params.get('beanId');
+        const recipeId = params.get('recipeId');
+        try {
+          [selectedBean, selectedRecipe] = await Promise.all([
+            beanId ? repository.getBean(beanId, { signal }) : null,
+            recipeId ? repository.getRecipeDetail(recipeId, { signal }) : null,
+          ]);
+          if (selectedRecipe && !selectedBean) selectedBean = await repository.getBean(selectedRecipe.beanId, { signal });
+          if (selectedBean && selectedRecipe && selectedRecipe.beanId !== selectedBean.id) {
+            return unavailableScreen(route, { code: 'recipe-unavailable' });
+          }
+        } catch (error) {
+          const unavailable = unavailableScreen(route, error);
+          if (unavailable) return unavailable;
+          throw error;
+        }
+      }
       const page = await repository.listRecords({ ...recordFilters, ...pageOptions });
       const result = { beans: page.beans, recipes: page.recipes, records: page.items, excluded: {},
         screen: { route, filters: { ...recordFilters }, nextCursor: page.nextCursor,
@@ -214,11 +306,13 @@ export function createAppController({
       if (id === 'new' && cursor == null) {
         const beanOptions = await readOptionPage('form', 'beans', '', null, signal);
         const recipeOptions = await readOptionPage('form', 'recipes', '', null, signal);
-        result.options = { beans: beanOptions, recipes: recipeOptions,
+        const selectedBeans = optionWithSelectedItem(beanOptions, selectedBean, 'beans');
+        const selectedRecipes = optionWithSelectedItem(recipeOptions, selectedRecipe, 'recipes');
+        result.options = { beans: selectedBeans, recipes: selectedRecipes,
           filterBeans: cachedFilterOptions('beans', page.beans, recordFilters.beanId),
           filterRecipes: cachedFilterOptions('recipes', page.recipes, recordFilters.recipeId) };
-        result.beans = beanOptions.items;
-        result.recipes = recipeOptions.items;
+        result.beans = selectedBeans.items;
+        result.recipes = selectedRecipes.items;
       } else {
         const filterBeans = cachedFilterOptions('beans', page.beans, recordFilters.beanId);
         const filterRecipes = cachedFilterOptions('recipes', page.recipes, recordFilters.recipeId);
@@ -334,7 +428,8 @@ export function createAppController({
         status, count: status === 'ready' ? counts[bean.id] ?? null : null,
       } } : bean) });
     };
-    if (route === '/beans' && data?.beans?.some(bean => bean.recordCount?.status === 'loading') &&
+    const path = routeLocation(route).path;
+    if (path === '/beans' && data?.beans?.some(bean => bean.recordCount?.status === 'loading') &&
         typeof repository.getBeanRecordCounts === 'function') {
       const ids = data.beans.filter(bean => bean.recordCount?.status === 'loading').map(bean => bean.id);
       void (async () => {
@@ -354,7 +449,7 @@ export function createAppController({
         }
       })();
     }
-    if (['/recipes', '/recipes/new'].includes(route) && data?.recipes?.some(recipe => recipe.validationStatus === 'checking') &&
+    if (['/recipes', '/recipes/new', '/brew/recipe'].includes(path) && data?.recipes?.some(recipe => recipe.validationStatus === 'checking') &&
         typeof repository.validateRecipeSummaries === 'function') {
       const ids = data.recipes.filter(recipe => recipe.validationStatus === 'checking').map(recipe => recipe.id);
       void (async () => {

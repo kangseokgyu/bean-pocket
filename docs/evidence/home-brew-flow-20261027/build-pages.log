@@ -1,0 +1,5 @@
+
+> build:pages
+> node scripts/build-pages.mjs
+
+Pages 산출물 생성 완료 (cede81a6d1b3)

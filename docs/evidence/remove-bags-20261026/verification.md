@@ -19,12 +19,12 @@
 
 | 명령 | 종료 코드 | 결과 | 원문 로그 |
 |---|---:|---|---|
-| `npm test` | 0 | 495 tests, 495 pass, 0 fail | [`npm-test.log`](npm-test.log) |
-| `npm run build:pages` | 0 | Pages 산출물 생성 완료, build ID `47967a532411` | [`build-pages.log`](build-pages.log) |
-| `npm run check:pages` | 0 | Pages 산출물 검사 통과 | [`check-pages.log`](check-pages.log) |
+| `npm test` | 0 | 495 tests, 495 pass, 0 fail | [`npm-test.txt`](npm-test.txt) |
+| `npm run build:pages` | 0 | Pages 산출물 생성 완료, build ID `47967a532411` | [`build-pages.txt`](build-pages.txt) |
+| `npm run check:pages` | 0 | Pages 산출물 검사 통과 | [`check-pages.txt`](check-pages.txt) |
 | `git diff --check` | 0 | whitespace 오류 없음 | 실행 결과만 기록; 별도 로그 없음 |
 
-`npm test`는 기존 과거 원두 관계 미해결 테스트에서 1건 실패했다. 원시 기록의 관계 판독·평점 보존 단언은 유지하고, marker 없는 기록이 집계에는 포함되지 않는 새 정책에 맞춰 집계 기대를 0으로 조정했다. 실패 원문은 [`npm-test-before-legacy-expectation-fix.log`](npm-test-before-legacy-expectation-fix.log)에 남겼고, 수정 후 전체 495개가 통과했다.
+`npm test`는 기존 과거 원두 관계 미해결 테스트에서 1건 실패했다. 원시 기록의 관계 판독·평점 보존 단언은 유지하고, marker 없는 기록이 집계에는 포함되지 않는 새 정책에 맞춰 집계 기대를 0으로 조정했다. 실패 원문은 [`npm-test-before-legacy-expectation-fix.txt`](npm-test-before-legacy-expectation-fix.txt)에 남겼고, 수정 후 전체 495개가 통과했다.
 
 ## 보존·제약 확인
 

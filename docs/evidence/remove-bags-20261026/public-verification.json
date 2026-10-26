@@ -1,0 +1,126 @@
+{
+  "base": "https://kangseokgyu.github.io/bean-pocket/",
+  "files": [
+    {
+      "file": "app.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "58395ab633d65cce0adf93649b16d00786c2d6a78bcb0e1a07bdad625e9b417f"
+    },
+    {
+      "file": "commands/index.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "40401230f751d889057775c956b4bdbec2522e919d56f009a151194d369c50e3"
+    },
+    {
+      "file": "data/notion-client.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "4430010da9a964bb0ac6e1edfddbf27d0c2dd6f6e535269a2c7bb8138c4630b0"
+    },
+    {
+      "file": "data/notion-properties.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "3a492ef5cb28657231e723c74014416fed6e26707f3dba14db3a9589e70ff834"
+    },
+    {
+      "file": "data/read-repository.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "521c991fc704037ac8c3dc14c5920513981881e4d19c57e78ac9f2f134886a78"
+    },
+    {
+      "file": "domain.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "9d5ac0048fecdddfa39fa72fa6b7bc240b98db05dd624b480ba0e1c7f9118f1c"
+    },
+    {
+      "file": "icons/bp-logo.png",
+      "status": 200,
+      "match": true,
+      "sha256": "c96f9250074f8f84d9585267bcc5d41fe663a1b90cffa4765e3acf184baadaf7"
+    },
+    {
+      "file": "icons/favicon-bp-ivory.png",
+      "status": 200,
+      "match": true,
+      "sha256": "1f0378cc66162d82ca61a427e277f28e2160df29c9963a205cf999be6e6caa1f"
+    },
+    {
+      "file": "icons/icon-192.png",
+      "status": 200,
+      "match": true,
+      "sha256": "fed6a73c7549eae8cb25324bab6e5d9f831120b8db329cfa7a66e3bda4296761"
+    },
+    {
+      "file": "icons/icon-512.png",
+      "status": 200,
+      "match": true,
+      "sha256": "0b0197281031a51957ae1c3a43037dcef08eb8d8d187f4b6df5eb212d0303316"
+    },
+    {
+      "file": "index.html",
+      "status": 200,
+      "match": true,
+      "sha256": "328001dbf4d170e7269b68af74b48562f609f24504e24540c2e9c3ad3e1d41d4"
+    },
+    {
+      "file": "manifest.webmanifest",
+      "status": 200,
+      "match": true,
+      "sha256": "83dc529ee8004d5aa06cf728873d97c04ece2143d3026f275780f293dedb1bdb"
+    },
+    {
+      "file": "platform/app-lifecycle.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "ca5b6d7fc53f473000945a14c6951f39a74c8ba829571cdc2c236e463d77c09b"
+    },
+    {
+      "file": "platform/connection-file.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "11410ac903f9f261ca467b2a5eee613d3b15d9d17831f19609456f4b026dbb98"
+    },
+    {
+      "file": "platform/update-coordinator.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "56015c1ff7738219e963bd29e9b5c77b73d043cf76b6f1698c692b9f4d32bbe7"
+    },
+    {
+      "file": "state/submission-state.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "40add8e9c904edb22c33ae24edbf44ba479749bd5b0e75ff93ec008828d08c8f"
+    },
+    {
+      "file": "styles.css",
+      "status": 200,
+      "match": true,
+      "sha256": "0694b3d16de8ee422c9c5d8662f04d0be3d799f3e6041dfbce5ec100bb9f6d95"
+    },
+    {
+      "file": "sw.js",
+      "status": 200,
+      "match": true,
+      "sha256": "bfa4cc532aa7af77ee1a2fe6866344e76912cc4c040cc889f55d32576821ce23"
+    },
+    {
+      "file": "ui/controller.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "aefdffadfe0bcce170be1b80c25ba42b2ba8fca6947240722792b58883d24bc0"
+    },
+    {
+      "file": "ui/view.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "55c8da7b9f47b54c2e7749b9eb3eafc2d8e28b83440467f9bdc7a0124f196111"
+    }
+  ],
+  "allMatch": true
+}

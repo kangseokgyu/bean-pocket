@@ -39,3 +39,12 @@
 - 필수 자동 검증 통과. 합성 데이터만 사용했고 실제 Notion·공개 배포는 건드리지 않았다.
 - 브라우저 수동 상호작용은 Critic 검토 시 확인 가능하도록 미실행 상태로 인계한다.
 - commit SHA와 테스트 결과는 작업 완료 보고에 기록한다.
+
+## 통합·게시 완료
+
+- [x] 최신 main 레시피 카드 개선 통합 및 전체497/497·Pages build/check 통과
+- [x] Critic 독립 안전성·Chrome 1280/390 검증 및 문서 P3 보완 재검토 승인
+- [x] main 통합·push·일반판 Pages 게시 (실행40270176908)
+- [x] 공개 build `da92f2364938`, HTTPS20개 파일 바이트 일치 확인
+
+[게시 근거](../docs/evidence/remove-bags-20261026/deployment.md). 실 Notion/iPhone/Safari/실제 OPFS 장애·SW 업데이트 적용은 미검증.

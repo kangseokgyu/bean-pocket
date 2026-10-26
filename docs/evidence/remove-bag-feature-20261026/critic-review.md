@@ -48,3 +48,15 @@
 **수정 필요:** 위 두 P2 문구·문서 불일치 수정 후 Critic 재검토. 핵심 봉지 제거 및 기록 보호 구현에서 추가 기능 차단 이슈는 발견하지 못했다.
 
 이번 브라우저 검증은 일반 생성·삭제 흐름 범위다. unknown/partial 복구·중복 제출·숨겨진 과거 기록의 브라우저 상호작용은 별도 재현하지 않았으며 기존 자동 테스트와 코드 검토로 확인했다. 실제 iPhone/Safari·설치/삭제/재설치·native OPFS/locks·파일 picker·실제 Notion 권한/쓰기·배포/공개 반영은 검증하지 않았다. 제품 소스 변경이 생기면 영향받는 검증을 Worker가 실행하고 재검토해야 한다.
+
+## 수정 재검토 — 2026-10-26 — 승인
+
+- 재검토 대상: `53d0769..2bcb24623c0d33965abb4a2d37399f1e4428fee9`. 시작 시 HEAD와 clean working tree를 직접 확인했다. 위 최초 수정 필요 판정은 당시 이력으로 보존한다.
+- **P2 두 건 해결:** public/app.js의 연결 안내·성공 알림이 모두 4개로 정정되었다. GLOSSARY의 폐기된 봉지는 연결·조회·원두 판별·삭제 의존에 사용하지 않는다는 정의와, 숨겨진 과거 기록 보존·봉지 전용 원두 근거 기록의 미확정 삭제 차단 설명이 현재 계약과 일치한다. 현재 세대 정의가 연결하는 SPEC의 해당 heading과 `bagless-v1` 계약도 확인했다.
+- **Optional coverage 해결:** relation 대상 불일치 검증이 `Object.keys(RELATIONS)`로 복원되었고 RELATIONS는 recipes/steps/records다. bags를 제외하면서 legacy recipes.bean 대상 검증을 다시 포함한다.
+- 수정 diff 전체 파일 목록과 실제 제품·테스트 변경, verification.md의 후속 기록, worker-critic-fixes-focused.tap 및 worker-critic-fixes-source-check.txt를 독립 대조했다. focused TAP는 147/147, fail/skip/cancelled 0이다. 이는 Worker 실행 증거 검토이며 Critic이 테스트를 재실행했다고 주장하지 않는다.
+- Critic이 이번에 직접 실행한 제품·용어집·테스트 diff 공백 검사는 exit 0이다. `git diff --quiet 53d0769..2bcb246 -- pwa lib/domain.mjs scripts/build-pages.mjs scripts/check-pages.mjs`도 exit 0으로 해당 Pages 입력·빌드/검사 스크립트가 바뀌지 않았음을 확인했다.
+- 제품 변경은 기존 Node/public 연결 문구 두 곳뿐이며 PWA 기능·브라우저 동작·Pages 빌드 입력 변경은 없다. 따라서 기존 390/1280px fake-only 브라우저 결과와 이전 전체 508/508 및 로컬 빌드 b56bc1934364 근거를 유지하고 브라우저·전체 테스트·빌드는 반복하지 않았다.
+- **최종 판정: 승인.** 최초 required/optional 항목이 모두 해결되었다. 요구한 봉지 전체 제거, 4DB 설정·조회, 기록 세대 및 직접/snapshot/legacy-recipe·숨겨진/unresolved 삭제 보호, 구형 봉지 요청 no-transport와 journal 안전성에 핵심 누락 또는 추가 차단 이슈를 발견하지 못했다.
+- 잔여 한계는 최초 리뷰와 같다. unknown/partial 복구·중복 제출·숨겨진 과거 기록의 브라우저 직접 조작, 실제 iPhone/Safari·설치 수명·native OPFS/locks·파일 picker·실제 Notion·배포/공개 반영은 이 승인으로 검증 완료 처리하지 않는다. 해당 안전성은 기존 자동 테스트와 코드 검토 범위에서 판단했다.
+- 이번 재검토에서는 이 문서만 추가 기록했으며 소스·테스트 수정, 추가 에이전트 생성, commit/merge/push/deploy를 수행하지 않았다. 요청된 gpt-6.1-sol/low 설정을 변경하는 작업도 하지 않았다.

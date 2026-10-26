@@ -1,0 +1,12 @@
+[
+  {
+    "width": 1280,
+    "checks": [],
+    "error": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded.",
+    "body": "Screen loading fixture",
+    "errors": [
+      "SyntaxError: Invalid regular expression flags"
+    ],
+    "external": []
+  }
+]

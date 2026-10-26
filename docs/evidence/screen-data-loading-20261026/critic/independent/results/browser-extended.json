@@ -1,0 +1,68 @@
+[
+  {
+    "width": 1280,
+    "errors": [],
+    "external": [],
+    "cacheReplay": {
+      "rows": 20,
+      "state": "read-error"
+    },
+    "search": {
+      "value": "",
+      "before": 21,
+      "after": 21,
+      "state": "read-error"
+    },
+    "race": {
+      "route": "/records"
+    },
+    "draftBefore": {
+      "bean": "cccccccc-cccc-4ccc-8ccc-000000000001",
+      "recipe": "cccccccc-cccc-4ccc-8ccc-000000000002",
+      "text": "critic draft"
+    },
+    "delete": {
+      "status": "succeeded",
+      "archived": true
+    },
+    "draftAfter": {
+      "bean": "cccccccc-cccc-4ccc-8ccc-000000000001",
+      "recipe": "cccccccc-cccc-4ccc-8ccc-000000000002",
+      "text": "critic draft"
+    },
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "errors": [],
+    "external": [],
+    "cacheReplay": {
+      "rows": 20,
+      "state": "read-error"
+    },
+    "search": {
+      "value": "",
+      "before": 21,
+      "after": 21,
+      "state": "read-error"
+    },
+    "race": {
+      "route": "/records"
+    },
+    "draftBefore": {
+      "bean": "cccccccc-cccc-4ccc-8ccc-000000000001",
+      "recipe": "cccccccc-cccc-4ccc-8ccc-000000000002",
+      "text": "critic draft"
+    },
+    "delete": {
+      "status": "succeeded",
+      "archived": true
+    },
+    "draftAfter": {
+      "bean": "cccccccc-cccc-4ccc-8ccc-000000000001",
+      "recipe": "cccccccc-cccc-4ccc-8ccc-000000000002",
+      "text": "critic draft"
+    },
+    "overflow": false
+  }
+]

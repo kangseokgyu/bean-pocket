@@ -1,0 +1,14 @@
+[
+  {
+    "width": 1280,
+    "errors": [],
+    "external": [],
+    "error": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded."
+  },
+  {
+    "width": 390,
+    "errors": [],
+    "external": [],
+    "error": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded."
+  }
+]

@@ -1,0 +1,457 @@
+{
+  "conditions": {
+    "delayMs": 100,
+    "beans": 60,
+    "recipes": 40,
+    "steps": 120,
+    "records": 1000,
+    "ratePacing": "production defaults (current 350ms)",
+    "network": "fake injected transport only",
+    "metric": "controller first renderData callback, not device paint",
+    "runsPerCase": 1
+  },
+  "result": [
+    {
+      "version": "baseline",
+      "route": "/recipes",
+      "initialized": true,
+      "first": {
+        "ms": 6156.015959,
+        "requests": 58,
+        "serializedCodeUnits": 1974566,
+        "rows": 40
+      },
+      "settledMs": 6156.072334,
+      "totalRequests": 58,
+      "calls": [
+        {
+          "path": "/v1/data_sources/a1111111-1111-4111-8111-111111111111",
+          "body": null,
+          "atMs": 0.838916999999995,
+          "serializedCodeUnits": 341
+        },
+        {
+          "path": "/v1/data_sources/a3333333-3333-4333-8333-333333333333",
+          "body": null,
+          "atMs": 120.11295899999999,
+          "serializedCodeUnits": 604
+        },
+        {
+          "path": "/v1/data_sources/a4444444-4444-4444-8444-444444444444",
+          "body": null,
+          "atMs": 223.51633400000003,
+          "serializedCodeUnits": 416
+        },
+        {
+          "path": "/v1/data_sources/a5555555-5555-4555-8555-555555555555",
+          "body": null,
+          "atMs": 327.276209,
+          "serializedCodeUnits": 465
+        },
+        {
+          "path": "/v1/data_sources/a1111111-1111-4111-8111-111111111111/query",
+          "body": {
+            "page_size": 100
+          },
+          "atMs": 433.055209,
+          "serializedCodeUnits": 50765
+        },
+        {
+          "path": "/v1/data_sources/a3333333-3333-4333-8333-333333333333/query",
+          "body": {
+            "page_size": 100
+          },
+          "atMs": 541.1401669999999,
+          "serializedCodeUnits": 49785
+        },
+        {
+          "path": "/v1/data_sources/a4444444-4444-4444-8444-444444444444/query",
+          "body": {
+            "page_size": 100
+          },
+          "atMs": 649.42725,
+          "serializedCodeUnits": 79095
+        },
+        {
+          "path": "/v1/data_sources/a4444444-4444-4444-8444-444444444444/query",
+          "body": {
+            "page_size": 100,
+            "start_cursor": "100"
+          },
+          "atMs": 757.528292,
+          "serializedCodeUnits": 15875
+        },
+        {
+          "path": "/v1/data_sources/a5555555-5555-4555-8555-555555555555/query",
+          "body": {
+            "page_size": 100
+          },
+          "atMs": 862.3617919999999,
+          "serializedCodeUnits": 172655
+        },
+        {
+          "path": "/v1/data_sources/a5555555-5555-4555-8555-555555555555/query",
+          "body": {
+            "page_size": 100,
+            "start_cursor": "100"
+          },
+          "atMs": 976.390625,
+          "serializedCodeUnits": 172765
+        },
+        {
+          "path": "/v1/data_sources/a5555555-5555-4555-8555-555555555555/query",
+          "body": {
+            "page_size": 100,
+            "start_cursor": "200"
+          },
+          "atMs": 1082.505292,
+          "serializedCodeUnits": 172765
+        },
+        {
+          "path": "/v1/data_sources/a5555555-5555-4555-8555-555555555555/query",
+          "body": {
+            "page_size": 100,
+            "start_cursor": "300"
+          },
+          "atMs": 1186.798542,
+          "serializedCodeUnits": 172765
+        },
+        {
+          "path": "/v1/data_sources/a5555555-5555-4555-8555-555555555555/query",
+          "body": {
+            "page_size": 100,
+            "start_cursor": "400"
+          },
+          "atMs": 1293.0249589999999,
+          "serializedCodeUnits": 172765
+        },
+        {
+          "path": "/v1/data_sources/a5555555-5555-4555-8555-555555555555/query",
+          "body": {
+            "page_size": 100,
+            "start_cursor": "500"
+          },
+          "atMs": 1406.055292,
+          "serializedCodeUnits": 172765
+        },
+        {
+          "path": "/v1/data_sources/a5555555-5555-4555-8555-555555555555/query",
+          "body": {
+            "page_size": 100,
+            "start_cursor": "600"
+          },
+          "atMs": 1514.596084,
+          "serializedCodeUnits": 172765
+        },
+        {
+          "path": "/v1/data_sources/a5555555-5555-4555-8555-555555555555/query",
+          "body": {
+            "page_size": 100,
+            "start_cursor": "700"
+          },
+          "atMs": 1625.940584,
+          "serializedCodeUnits": 172765
+        },
+        {
+          "path": "/v1/data_sources/a5555555-5555-4555-8555-555555555555/query",
+          "body": {
+            "page_size": 100,
+            "start_cursor": "800"
+          },
+          "atMs": 1742.289,
+          "serializedCodeUnits": 172765
+        },
+        {
+          "path": "/v1/data_sources/a5555555-5555-4555-8555-555555555555/query",
+          "body": {
+            "page_size": 100,
+            "start_cursor": "900"
+          },
+          "atMs": 1850.607334,
+          "serializedCodeUnits": 172765
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000001",
+          "body": null,
+          "atMs": 1968.8069169999999,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000002",
+          "body": null,
+          "atMs": 2072.8302089999997,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000003",
+          "body": null,
+          "atMs": 2176.101709,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000004",
+          "body": null,
+          "atMs": 2279.558167,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000005",
+          "body": null,
+          "atMs": 2383.218875,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000006",
+          "body": null,
+          "atMs": 2486.814834,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000007",
+          "body": null,
+          "atMs": 2590.428125,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000008",
+          "body": null,
+          "atMs": 2694.22125,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000009",
+          "body": null,
+          "atMs": 2798.245959,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000010",
+          "body": null,
+          "atMs": 2902.198625,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000011",
+          "body": null,
+          "atMs": 3005.984125,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000012",
+          "body": null,
+          "atMs": 3109.553417,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000013",
+          "body": null,
+          "atMs": 3212.216709,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000014",
+          "body": null,
+          "atMs": 3315.722417,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000015",
+          "body": null,
+          "atMs": 3419.2408339999997,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000016",
+          "body": null,
+          "atMs": 3522.427875,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000017",
+          "body": null,
+          "atMs": 3625.991125,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000018",
+          "body": null,
+          "atMs": 3728.314417,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000019",
+          "body": null,
+          "atMs": 3831.764417,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000020",
+          "body": null,
+          "atMs": 3935.3023749999998,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000021",
+          "body": null,
+          "atMs": 4038.838542,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000022",
+          "body": null,
+          "atMs": 4141.985459,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000023",
+          "body": null,
+          "atMs": 4245.206917,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000024",
+          "body": null,
+          "atMs": 4346.951834,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000025",
+          "body": null,
+          "atMs": 4450.315250000001,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000026",
+          "body": null,
+          "atMs": 4553.406875000001,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000027",
+          "body": null,
+          "atMs": 4656.650459,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000028",
+          "body": null,
+          "atMs": 4759.953459,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000029",
+          "body": null,
+          "atMs": 4863.349,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000030",
+          "body": null,
+          "atMs": 4966.25075,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000031",
+          "body": null,
+          "atMs": 5068.728042000001,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000032",
+          "body": null,
+          "atMs": 5171.559167,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000033",
+          "body": null,
+          "atMs": 5274.605750000001,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000034",
+          "body": null,
+          "atMs": 5377.749709000001,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000035",
+          "body": null,
+          "atMs": 5480.466959,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000036",
+          "body": null,
+          "atMs": 5583.2474170000005,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000037",
+          "body": null,
+          "atMs": 5687.037625000001,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000038",
+          "body": null,
+          "atMs": 5789.155500000001,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000039",
+          "body": null,
+          "atMs": 5892.960167,
+          "serializedCodeUnits": 1242
+        },
+        {
+          "path": "/v1/pages/baaaaaaa-aaaa-4aaa-8aaa-000000000040",
+          "body": null,
+          "atMs": 5994.528625000001,
+          "serializedCodeUnits": 1242
+        }
+      ]
+    },
+    {
+      "version": "current",
+      "route": "/recipes",
+      "initialized": true,
+      "first": {
+        "ms": 564.7219159999995,
+        "requests": 3,
+        "serializedCodeUnits": 25944,
+        "rows": 20
+      },
+      "settledMs": 565.4803750000001,
+      "totalRequests": 3,
+      "calls": [
+        {
+          "path": "/v1/data_sources/a3333333-3333-4333-8333-333333333333",
+          "body": null,
+          "atMs": 1.3427910000000338,
+          "serializedCodeUnits": 604
+        },
+        {
+          "path": "/v1/data_sources/a4444444-4444-4444-8444-444444444444",
+          "body": null,
+          "atMs": 104.9027500000002,
+          "serializedCodeUnits": 416
+        },
+        {
+          "path": "/v1/data_sources/a3333333-3333-4333-8333-333333333333/query",
+          "body": {
+            "page_size": 20,
+            "sorts": [
+              {
+                "property": "레시피 이름",
+                "direction": "ascending"
+              }
+            ]
+          },
+          "atMs": 458.5296250000001,
+          "serializedCodeUnits": 24924
+        }
+      ]
+    }
+  ]
+}

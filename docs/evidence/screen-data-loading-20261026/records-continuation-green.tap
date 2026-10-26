@@ -1,0 +1,11 @@
+✔ listRecords preserves continuation after bounded raw pages with no visible bagless rows (2.524708ms)
+✔ recipe statistics reuse the exact recently validated detail when supplied by its caller (2.678791ms)
+✔ listRecords retains valid raw rows beyond the visible page for its continuation (25.656083ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 124.051333

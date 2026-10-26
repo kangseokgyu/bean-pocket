@@ -203,7 +203,9 @@ function setRelation(page, propertyName, ids, hasMore = false) {
 test('모듈은 공개 factory와 두 읽기 메서드만 제공한다', () => {
   assert.deepEqual(Object.keys(repositoryModule), ['createReadRepository']);
   const repository = createReadRepository(fixture().client);
-  assert.deepEqual(Object.keys(repository).sort(), ['readAll', 'readRecipeForSnapshot']);
+  assert.deepEqual(Object.keys(repository).sort(), ['getBean', 'getBeanRecordCounts', 'getRecipeDetail', 'getRecipeStats',
+    'listBeans', 'listRecipeSummaries', 'listRecords', 'readAll', 'readRecipeForSnapshot',
+    'searchOptions', 'validateRecipeSummaries']);
   assert.ok(Object.isFrozen(repository));
 });
 
@@ -226,6 +228,183 @@ test('factory는 네 source ID를 검증하고 생성 시점 값을 복사한다
     assert.ok(Object.isFrozen(failure));
     assert.doesNotMatch(JSON.stringify(failure) + inspect(failure), /bad-source-id|synthetic-private-read-token/);
     return true;
+  });
+});
+
+test('listBeans reads one metadata page without touching other sources or re-reading recipe parents', async () => {
+  const calls = [];
+  const client = {
+    dataSources: SOURCES,
+    async queryAll() { throw new Error('legacy full read should not be used'); },
+    async getPage() { calls.push('getPage'); throw new Error('bean summaries need no parent read'); },
+    async queryPage(kind, options) {
+      calls.push({ kind, options });
+      return { items: [beanPage()], nextCursor: 'bean-next', hasMore: true, complete: false };
+    },
+  };
+  const result = await createReadRepository(client).listBeans({ cursor: null, limit: 20 });
+  assert.deepEqual(result.items, [{ id: IDS.bean, name: '에티오피아', roaster: '로스터리', origin: '구지', variety: '', process: '워시드', tastingNotes: '복숭아' }]);
+  const cursor = JSON.parse(decodeURIComponent(result.nextCursor));
+  assert.equal(cursor.cursor, 'bean-next');
+  assert.equal(cursor.kind, 'beans');
+  assert.equal(cursor.revision, null);
+  assert.equal(result.hasMore, true);
+  assert.equal(result.complete, false);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].kind, 'beans');
+  assert.equal(calls[0].options.limit, 20);
+});
+
+test('listRecipeSummaries reads only one metadata page and leaves stage validation marked pending', async () => {
+  const calls = [];
+  const raw = recipePage();
+  const client = {
+    dataSources: SOURCES,
+    async queryAll() { throw new Error('full read must not be used for a summary page'); },
+    async getPage() { calls.push('getPage'); throw new Error('summaries do not reread every parent'); },
+    async queryPage(kind, options) {
+      calls.push({ kind, options });
+      return { items: [raw], nextCursor: null, hasMore: false, complete: true };
+    },
+  };
+  const page = await createReadRepository(client).listRecipeSummaries({ cursor: null, limit: 20 });
+  assert.equal(page.items.length, 1);
+  assert.equal(page.items[0].id, IDS.recipe);
+  assert.equal(page.items[0].name, 'V60');
+  assert.equal(page.items[0].validationStatus, 'checking');
+  assert.equal(page.items[0].stats.status, 'loading');
+  assert.equal(page.hasMore, false);
+  assert.equal(page.complete, true);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].kind, 'recipes');
+});
+
+test('getRecipeDetail fetches and validates only the selected parent and its complete relation-filtered stages', async () => {
+  const calls = [];
+  const parent = recipePage();
+  const steps = standardStepPages();
+  const client = {
+    dataSources: SOURCES,
+    async queryAll() { throw new Error('full read must not be used for a selected detail'); },
+    async getPage(id) { calls.push(['getPage', id]); return structuredClone(parent); },
+    async queryPage(kind, options) {
+      calls.push(['queryPage', kind, options]);
+      if (kind === 'steps') return { items: steps, nextCursor: null, hasMore: false, complete: true };
+      if (kind === 'records') return { items: [], nextCursor: null, hasMore: false, complete: true };
+      throw new Error('unexpected data source');
+    },
+  };
+  const recipe = await createReadRepository(client).getRecipeDetail(IDS.recipe);
+  assert.equal(recipe.id, IDS.recipe);
+  assert.deepEqual(recipe.steps.map(step => step.order), [1, 2, 3]);
+  assert.equal(recipe.validationStatus, 'ready');
+  assert.equal(recipe.stats.status, 'loading');
+  assert.equal(calls.filter(call => call[0] === 'getPage').length, 2,
+    'selected parent is read once and reread after the complete stages');
+  const stepQuery = calls.find(call => call[0] === 'queryPage' && call[1] === 'steps');
+  assert.deepEqual(stepQuery[2].filter, { property: '레시피', relation: { contains: IDS.recipe } });
+});
+
+test('listRecords relation-filters the visible page and locally validates bagless-v1 snapshots', async () => {
+  const snapshot = baglessSnapshot();
+  const current = rawPage('records', IDS.record, { name: '오늘 기록', beanId: IDS.bean, recipeId: IDS.recipe,
+    date: '2026-10-26', rating: 5, cupNote: '살구', snapshot });
+  const calls = [];
+  const client = {
+    dataSources: SOURCES,
+    async queryAll() { throw new Error('records screen must not use the full read'); },
+    async getPage(id) {
+      calls.push(['getPage', id]);
+      if (id === IDS.bean) return beanPage();
+      if (id === IDS.recipe) return recipePage();
+      throw new Error('unexpected lookup');
+    },
+    async queryPage(kind, options) {
+      calls.push(['queryPage', kind, options]);
+      if (kind === 'records' && options.filter) {
+        return { items: [current], nextCursor: null, hasMore: false, complete: true };
+      }
+      return { items: [], nextCursor: null, hasMore: false, complete: true };
+    },
+  };
+  const page = await createReadRepository(client).listRecords({ recipeId: IDS.recipe, cursor: null, limit: 20 });
+  assert.equal(page.items.length, 1);
+  assert.equal(page.items[0].snapshotStatus, 'valid');
+  assert.equal(page.items[0].snapshot.recordGeneration, 'bagless-v1');
+  assert.deepEqual(calls.find(call => call[0] === 'queryPage' && call[1] === 'records')[2].filter,
+    { property: '레시피', relation: { contains: IDS.recipe } });
+  assert.equal(page.hasMore, false);
+  assert.equal(page.complete, true);
+});
+
+test('listRecords preserves continuation after bounded raw pages with no visible bagless rows', async () => {
+  const calls = [];
+  const client = {
+    dataSources: SOURCES,
+    async queryAll() { throw new Error('screen reads never use the full read'); },
+    async getPage() { throw new Error('empty scans have no referenced pages'); },
+    async queryPage(kind, options) {
+      calls.push(options);
+      if (options.filter) return { items: [], nextCursor: null, hasMore: false, complete: true };
+      const cursor = options.cursor;
+      if (cursor === null) return { items: [], nextCursor: 'raw-2', hasMore: true, complete: false };
+      if (cursor === 'raw-2') return { items: [], nextCursor: 'raw-3', hasMore: true, complete: false };
+      if (cursor === 'raw-3') return { items: [], nextCursor: 'raw-4', hasMore: true, complete: false };
+      return { items: [], nextCursor: null, hasMore: false, complete: true };
+    },
+  };
+  const repository = createReadRepository(client);
+  const first = await repository.listRecords({ recipeId: IDS.recipe, limit: 20 });
+  assert.deepEqual(first.items, []);
+  assert.equal(first.hasMore, true);
+  assert.equal(first.complete, false);
+  assert.ok(first.nextCursor);
+  assert.equal(calls.filter(options => options.filter === undefined).length, 3);
+  const next = await repository.listRecords({ recipeId: IDS.recipe, limit: 20, cursor: first.nextCursor });
+  assert.deepEqual(next.items, []);
+  assert.equal(next.hasMore, false);
+  assert.equal(next.complete, true);
+});
+
+test('searchOptions applies the typed title filter and binds continuation to the query', async () => {
+  const calls = [];
+  const client = {
+    dataSources: SOURCES,
+    async queryAll() { throw new Error('search is paged'); },
+    async getPage() { throw new Error('bean search needs no related page'); },
+    async queryPage(kind, options) {
+      calls.push({ kind, options });
+      return { items: [beanPage()], nextCursor: 'next', hasMore: true, complete: false };
+    },
+  };
+  const repository = createReadRepository(client);
+  const page = await repository.searchOptions({ kind: 'beans', query: '에티오피아', limit: 20 });
+  assert.deepEqual(page.items, [{ id: IDS.bean, name: '에티오피아', status: 'ready' }]);
+  assert.deepEqual(calls[0].options.filter, { property: '원두 이름', title: { contains: '에티오피아' } });
+  await assert.rejects(repository.searchOptions({ kind: 'beans', query: '다른 검색', cursor: page.nextCursor }),
+    error => error.code === 'invalid-input');
+});
+
+test('bean counts and recipe stats scan exact current-generation snapshots on demand', async () => {
+  const snapshot = baglessSnapshot();
+  const current = rawPage('records', IDS.record, { name: '오늘 기록', beanId: IDS.bean, recipeId: IDS.recipe,
+    date: '2026-10-26', rating: 5, cupNote: '', snapshot });
+  const client = {
+    dataSources: SOURCES,
+    async queryAll() { throw new Error('aggregates use a controlled records scan'); },
+    async getPage(id) { return id === IDS.bean ? beanPage() : recipePage(); },
+    async queryPage(kind) {
+      if (kind === 'steps') return { items: standardStepPages(), nextCursor: null, hasMore: false, complete: true };
+      assert.equal(kind, 'records');
+      return { items: [current], nextCursor: null, hasMore: false, complete: true };
+    },
+  };
+  const repository = createReadRepository(client);
+  assert.deepEqual(await repository.getBeanRecordCounts([IDS.bean, IDS.otherBean]), {
+    status: 'ready', complete: true, counts: { [IDS.bean]: 1, [IDS.otherBean]: 0 },
+  });
+  assert.deepEqual(await repository.getRecipeStats(IDS.recipe), {
+    status: 'ready', complete: true, count: 1, average: 5,
   });
 });
 
@@ -638,4 +817,64 @@ test('readRecipeForSnapshot은 매 호출마다 네 source와 parent를 새로 �
 test('관계 부재와 완전 조회 실패는 빈 collection으로 위장하지 않는다', async () => {
   const f = fixture({ failQuery: 'steps' });
   await expectSafeFailure(() => f.repository.readAll(), 'read-failed');
+});
+
+test('recipe statistics reuse the exact recently validated detail when supplied by its caller', async () => {
+  const calls = [];
+  const rows = baselineRows();
+  const current = rawPage('records', IDS.record, { name: '오늘 기록', beanId: IDS.bean, recipeId: IDS.recipe,
+    date: '2026-10-26', rating: 5, cupNote: '', snapshot: baglessSnapshot() });
+  const client = {
+    dataSources: SOURCES,
+    async queryAll() { throw new Error('screen reads are paged'); },
+    async getPage(id) {
+      calls.push(['getPage', id]);
+      return id === IDS.bean ? beanPage() : recipePage();
+    },
+    async queryPage(kind, options) {
+      calls.push(['queryPage', kind, options]);
+      if (kind === 'steps') return { items: standardStepPages(), nextCursor: null, hasMore: false, complete: true };
+      assert.equal(kind, 'records');
+      return { items: [current], nextCursor: null, hasMore: false, complete: true };
+    },
+  };
+  const repository = createReadRepository(client);
+  const detail = await repository.getRecipeDetail(IDS.recipe);
+  const statReadsBefore = calls.filter(([method, kind]) => method === 'getPage' && kind === IDS.recipe).length;
+  assert.equal(statReadsBefore, 2, 'selected detail reads and re-reads the latest parent');
+
+  const stats = await repository.getRecipeStats(IDS.recipe, { validatedRecipe: detail });
+
+  assert.deepEqual(stats, { status: 'ready', complete: true, count: 1, average: 5 });
+  assert.equal(calls.filter(([method, kind]) => method === 'getPage' && kind === IDS.recipe).length, statReadsBefore);
+  assert.equal(calls.filter(([method, kind]) => method === 'queryPage' && kind === 'steps').length, 1);
+});
+
+test('listRecords retains valid raw rows beyond the visible page for its continuation', async () => {
+  const rows = Array.from({ length: 25 }, (_, index) => rawPage('records',
+    `aaaaaaaa-aaaa-4aaa-8aaa-${String(index + 1).padStart(12, '0')}`, {
+      name: `기록 ${index + 1}`, beanId: IDS.bean, recipeId: IDS.recipe,
+      date: `2026-10-${String(index + 1).padStart(2, '0')}`, rating: 5, cupNote: '', snapshot: baglessSnapshot(),
+    }));
+  const client = {
+    dataSources: SOURCES,
+    async queryAll() { throw new Error('screen records stay paged'); },
+    async getPage(id) { return id === IDS.bean ? beanPage() : recipePage(); },
+    async queryPage(kind) {
+      assert.equal(kind, 'records');
+      return { items: rows, nextCursor: null, hasMore: false, complete: true };
+    },
+  };
+  const repository = createReadRepository(client);
+
+  const first = await repository.listRecords({ limit: 20 });
+  assert.equal(first.items.length, 20);
+  assert.equal(first.hasMore, true);
+  assert.equal(first.complete, false);
+
+  const second = await repository.listRecords({ limit: 20, cursor: first.nextCursor });
+  assert.equal(second.items.length, 5);
+  assert.equal(second.hasMore, false);
+  assert.equal(second.complete, true);
+  assert.equal(new Set([...first.items, ...second.items].map(item => item.id)).size, 25);
 });

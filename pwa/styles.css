@@ -402,6 +402,9 @@ button:focus-visible, .table-scroll:focus-visible {
 .bag-card > :last-child, .bean-card > :last-child, .recipe-card > :last-child, .record-card > :last-child { margin-bottom: 0; }
 .record-summary-header { align-items: center; }
 .record-summary-header p { min-width: 0; margin: 0 0 12px; overflow-wrap: anywhere; }
+.record-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 14px 0; padding: 0; border: 0; }
+.record-filters legend { grid-column: 1 / -1; padding: 0; color: #3d5147; font-weight: 700; }
+.page-load-more { width: 100%; margin-top: 12px; }
 .muted-note, .empty-state { color: #68685e; }
 .repair-panel { margin-top: 14px; padding-top: 14px; border-top: 1px solid #ded7ca; }
 .startup-retry-panel { margin-top: 14px; padding: 14px; border: 1px solid #c6b98b; border-radius: 12px; background: #fffbed; }
@@ -464,6 +467,8 @@ footer {
   .bean-section { padding: 12px 0; }
   .panel, .data-panel, .unresolved-panel, .card-skeletons { padding: 13px; border-radius: 13px; }
   .form-fieldset { grid-template-columns: minmax(0, 1fr); gap: 13px; padding: 13px; }
+  .record-filters { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .record-filters legend { grid-column: auto; }
   .site-header { gap: 4px; }
   .brand-logo { width: 52px; height: 32px; }
   .button.connection-toggle { min-width: 28px; padding-inline: 2px; font-size: 1rem; }

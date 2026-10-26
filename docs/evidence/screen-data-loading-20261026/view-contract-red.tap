@@ -1,0 +1,66 @@
+✖ view notifies the controller when the current route changes (2.538083ms)
+  TypeError [Error]: view.onRouteChange is not a function
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/screen-data-loading/AX-1day/test/pwa-ui.view.test.mjs:1981:8)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17)
+
+✖ record page shows continuation state instead of claiming the database is empty (4.6225ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /더 확인/. Input:
+
+  '⚙Notion 연결 설정저장된 연결을 확인하지 못했습니다다른 창이 저장소를 사용 중이면 잠시 기다린 뒤, 연결 정보를 입력하지 말고 다시 시도해 주세요.저장된 연결 다시 읽기닫기연결 저장 확인원본 연결 파일을 직접 확인한 뒤에만 복구할 수 있습니다. 확인이 끝나면 아래 항목을 선택해 주세요.원본 연결 파일의 현재 내용을 직접 확인했습니다.현재 연결을 다시 검증연결 정보는 이 기기의 앱 저장소에 보관됩니다.통합 토큰원두 데이터 소스 ID레시피 데이터 소스 ID레시피 단계 데이터 소스 ID추출 기록 데이터 소스 ID연결 입력 취소연결 확인 및 저장원두레시피추출 기록확인 대기 중인 저장추출 기록+추출 후 빠른 기록기록원두원두를 선택해 주세요.원두 <안전>레시피레시피를 선택해 주세요.V60날짜별점 (1~5)컵노트 (선택)입력 취소기록 저장원두별 조회모든 원두원두 <안전>레시피별 조회모든 레시피V60새 버전에서 작성한 추출 기록이 없습니다.'
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/screen-data-loading/AX-1day/test/pwa-ui.view.test.mjs:1995:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '⚙Notion 연결 설정저장된 연결을 확인하지 못했습니다다른 창이 저장소를 사용 중이면 잠시 기다린 뒤, 연결 정보를 입력하지 말고 다시 시도해 주세요.저장된 연결 다시 읽기닫기연결 저장 확인원본 연결 파일을 직접 확인한 뒤에만 복구할 수 있습니다. 확인이 끝나면 아래 항목을 선택해 주세요.원본 연결 파일의 현재 내용을 직접 확인했습니다.현재 연결을 다시 검증연결 정보는 이 기기의 앱 저장소에 보관됩니다.통합 토큰원두 데이터 소스 ID레시피 데이터 소스 ID레시피 단계 데이터 소스 ID추출 기록 데이터 소스 ID연결 입력 취소연결 확인 및 저장원두레시피추출 기록확인 대기 중인 저장추출 기록+추출 후 빠른 기록기록원두원두를 선택해 주세요.원두 <안전>레시피레시피를 선택해 주세요.V60날짜별점 (1~5)컵노트 (선택)입력 취소기록 저장원두별 조회모든 원두원두 <안전>레시피별 조회모든 레시피V60새 버전에서 작성한 추출 기록이 없습니다.',
+    expected: /더 확인/,
+    operator: 'match'
+  }
+
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 100.172834
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:1977:1
+✖ view notifies the controller when the current route changes (2.538083ms)
+  TypeError [Error]: view.onRouteChange is not a function
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/screen-data-loading/AX-1day/test/pwa-ui.view.test.mjs:1981:8)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17)
+
+test at test/pwa-ui.view.test.mjs:1989:1
+✖ record page shows continuation state instead of claiming the database is empty (4.6225ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /더 확인/. Input:
+
+  '⚙Notion 연결 설정저장된 연결을 확인하지 못했습니다다른 창이 저장소를 사용 중이면 잠시 기다린 뒤, 연결 정보를 입력하지 말고 다시 시도해 주세요.저장된 연결 다시 읽기닫기연결 저장 확인원본 연결 파일을 직접 확인한 뒤에만 복구할 수 있습니다. 확인이 끝나면 아래 항목을 선택해 주세요.원본 연결 파일의 현재 내용을 직접 확인했습니다.현재 연결을 다시 검증연결 정보는 이 기기의 앱 저장소에 보관됩니다.통합 토큰원두 데이터 소스 ID레시피 데이터 소스 ID레시피 단계 데이터 소스 ID추출 기록 데이터 소스 ID연결 입력 취소연결 확인 및 저장원두레시피추출 기록확인 대기 중인 저장추출 기록+추출 후 빠른 기록기록원두원두를 선택해 주세요.원두 <안전>레시피레시피를 선택해 주세요.V60날짜별점 (1~5)컵노트 (선택)입력 취소기록 저장원두별 조회모든 원두원두 <안전>레시피별 조회모든 레시피V60새 버전에서 작성한 추출 기록이 없습니다.'
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/screen-data-loading/AX-1day/test/pwa-ui.view.test.mjs:1995:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '⚙Notion 연결 설정저장된 연결을 확인하지 못했습니다다른 창이 저장소를 사용 중이면 잠시 기다린 뒤, 연결 정보를 입력하지 말고 다시 시도해 주세요.저장된 연결 다시 읽기닫기연결 저장 확인원본 연결 파일을 직접 확인한 뒤에만 복구할 수 있습니다. 확인이 끝나면 아래 항목을 선택해 주세요.원본 연결 파일의 현재 내용을 직접 확인했습니다.현재 연결을 다시 검증연결 정보는 이 기기의 앱 저장소에 보관됩니다.통합 토큰원두 데이터 소스 ID레시피 데이터 소스 ID레시피 단계 데이터 소스 ID추출 기록 데이터 소스 ID연결 입력 취소연결 확인 및 저장원두레시피추출 기록확인 대기 중인 저장추출 기록+추출 후 빠른 기록기록원두원두를 선택해 주세요.원두 <안전>레시피레시피를 선택해 주세요.V60날짜별점 (1~5)컵노트 (선택)입력 취소기록 저장원두별 조회모든 원두원두 <안전>레시피별 조회모든 레시피V60새 버전에서 작성한 추출 기록이 없습니다.',
+    expected: /더 확인/,
+    operator: 'match'
+  }

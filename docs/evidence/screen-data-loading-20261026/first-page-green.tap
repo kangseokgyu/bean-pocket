@@ -1,0 +1,13 @@
+✔ verify can validate only the current screen source while verify() keeps full onboarding checks (2.354667ms)
+✔ queryPage sends one scoped filtered page and returns continuation metadata (1.200959ms)
+✔ queryPage rejects bad limits and malformed or incomplete pages, and retries 429 only a finite number of times (1.797666ms)
+✔ listBeans reads one metadata page without touching other sources or re-reading recipe parents (3.161958ms)
+✔ saved-connection startup verifies and reads only the current beans page (1.902875ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 101.878084

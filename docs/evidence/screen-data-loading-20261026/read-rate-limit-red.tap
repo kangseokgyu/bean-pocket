@@ -1,0 +1,17 @@
+✖ read-only page reads retry rate limits finitely before returning the validated page (5.284167ms)
+  { code: 'rate-limited', writeState: 'not-sent', httpStatus: 429, retryAfterSeconds: 0 }
+
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 180.103875
+
+✖ failing tests:
+
+test at test/pwa-notion-client.test.mjs:257:1
+✖ read-only page reads retry rate limits finitely before returning the validated page (5.284167ms)
+  { code: 'rate-limited', writeState: 'not-sent', httpStatus: 429, retryAfterSeconds: 0 }

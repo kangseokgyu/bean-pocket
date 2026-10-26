@@ -178,7 +178,9 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   }
   let currentData = null;
   let route = globalThis.location?.hash?.slice(1) || '/beans';
+  let routeChangeListener = null;
   const drafts = new Map();
+  const optionPages = new Map();
   let beanFormOpen = false;
   let recipeFormOpen = route === '/recipes/new';
   let recordFormOpen = route === '/records/new';
@@ -416,7 +418,8 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     syncStatusToast();
   }
   function renderCurrentContent() {
-    renderPane(content, currentData, document, route, drafts, beanFormOpen, recipeFormOpen, recordFormOpen);
+    renderPane(content, currentData, document, route, drafts, optionPages,
+      beanFormOpen, recipeFormOpen, recordFormOpen);
     finishContentRender();
     applyViewState();
   }
@@ -560,6 +563,8 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       skeletons.hidden = true;
       renderCurrentContent();
     },
+    currentRoute() { return route; },
+    onRouteChange(handler) { routeChangeListener = typeof handler === 'function' ? handler : null; },
     renderRoute(nextRoute) {
       route = nextRoute || '/beans';
       if (route === '/recipes/new') recipeFormOpen = true;
@@ -568,10 +573,68 @@ export function createAppView(document = globalThis.document, { schedule = setTi
         saveActiveDraft(content, drafts);
         renderCurrentContent();
       }
+      routeChangeListener?.(route);
     },
     showBeanForm() { openEntryForm('beans', 'show-bean-form', 'name'); },
     showRecipeForm() { openEntryForm('recipes', 'show-recipe-form', 'name'); },
     showRecordForm() { openEntryForm('records', 'show-record-form', 'date'); },
+    setSearchOptions(target, kind, page, append = false, query = '') {
+      const select = target === 'filters'
+        ? content.querySelector(`[data-record-filter="${kind === 'beans' ? 'beanId' : 'recipeId'}"]`)
+        : content.querySelector(`form[data-form="records"] [data-option-select-kind="${kind}"]`);
+      if (!select) return;
+      const filterKey = kind === 'beans' ? 'beanId' : 'recipeId';
+      const previousValue = select.value || (target === 'filters' ? currentData?.screen?.filters?.[filterKey] : '');
+      const previousOption = Array.from(select.options).find(option => option.value === previousValue);
+      const placeholder = select.options[0]?.textContent ?? (kind === 'beans' ? '원두를 선택해 주세요.' : '레시피를 선택해 주세요.');
+      const optional = target === 'filters';
+      const optionKey = `${target}:${kind}`;
+      const previousPage = optionPages.get(optionKey);
+      const optionItems = append && previousPage
+        ? [...previousPage.items, ...(page.items ?? []).filter(item => !previousPage.items.some(existing => existing.id === item.id))]
+        : [...(page.items ?? [])];
+      if (previousValue && !optionItems.some(item => item.id === previousValue)) {
+        optionItems.push({ id: previousValue, name: previousOption?.textContent ?? '선택한 항목', status: 'ready' });
+      }
+      optionPages.set(optionKey, { ...page, items: optionItems, query, savedAt: Date.now() });
+      if (append) {
+        const known = new Set(Array.from(select.options, option => option.value));
+        for (const item of page.items ?? []) {
+          if (known.has(idOf(item.id))) continue;
+          const option = document.createElement('option');
+          option.value = idOf(item.id);
+          option.textContent = item.name;
+          option.disabled = item.status === 'error';
+          select.append(option);
+          known.add(option.value);
+        }
+      } else {
+        fillSelect(select, page.items ?? [], placeholder, optional);
+        if (previousValue && !Array.from(select.options).some(option => option.value === previousValue) && previousOption) {
+          const preserved = document.createElement('option');
+          preserved.value = previousOption.value;
+          preserved.textContent = previousOption.textContent;
+          select.append(preserved);
+        }
+      }
+      if (previousValue && Array.from(select.options).some(option => option.value === previousValue)) select.value = previousValue;
+      select.dataset.optionQuery = query;
+      select.dataset.optionLoaded = 'true';
+      select.dataset.nextCursor = page.nextCursor ?? '';
+      const search = Array.from(content.querySelectorAll('[data-option-search-kind]'))
+        .find(item => item.dataset.optionSearchKind === kind && item.dataset.optionTarget === target);
+      if (search && search.value !== query) search.value = query;
+      if (search) {
+        search.dataset.optionLoaded = 'true';
+        search.dataset.optionQuery = query;
+      }
+      const more = Array.from(content.querySelectorAll('[data-option-more]'))
+        .find(item => item.dataset.optionTarget === target && item.dataset.optionKind === kind);
+      if (more) more.hidden = !page.hasMore;
+    },
+    clearSearchOptions(kind) {
+      for (const key of optionPages.keys()) if (!kind || key.endsWith(`:${kind}`)) optionPages.delete(key);
+    },
     showEntrySuccess(kind) {
       if (activeEntryKind !== kind || !entryDialogFor(kind)?.open) return false;
       drafts.delete(kind);
@@ -759,7 +822,8 @@ function makeEntryDialog(document, kind, form, open) {
   return dialog;
 }
 
-function renderPane(parent, data, document, route = '/beans', drafts = new Map(), beanFormOpen = false, recipeFormOpen = false, recordFormOpen = false) {
+function renderPane(parent, data, document, route = '/beans', drafts = new Map(), optionPages = new Map(),
+  beanFormOpen = false, recipeFormOpen = false, recordFormOpen = false) {
   const parts = route.split('/').filter(Boolean);
   const section = parts[0] ?? 'beans';
   const pane = make(document, 'div', undefined, 'list-view');
@@ -801,7 +865,10 @@ function renderPane(parent, data, document, route = '/beans', drafts = new Map()
     pane.append(makeEntryDialog(document, 'recipes', form, recipeFormOpen));
     addStep(pane, document);
     updatePreview(pane);
-    if (!data.recipes.length) pane.append(make(document, 'p', '등록된 레시피가 없습니다.', 'empty-state'));
+    if (!data.recipes.length) pane.append(make(document, 'p', data.screen?.hasMore
+      ? '레시피를 더 확인 중입니다. 더 보기로 계속 확인해 주세요.'
+      : data.screen?.complete === false ? '레시피 목록을 끝까지 확인하지 못했습니다. 새로고침해 주세요.'
+        : '등록된 레시피가 없습니다.', 'empty-state'));
     for (const recipe of data.recipes) {
       const card = make(document, 'article', undefined, 'recipe-card recipe-summary-card');
       const recipeHeader = make(document, 'div', undefined, 'entity-card-header');
@@ -815,12 +882,22 @@ function renderPane(parent, data, document, route = '/beans', drafts = new Map()
       recipeHeader.append(title, trashButton(document, 'recipes', recipe.id, recipe.name));
       card.append(recipeHeader);
       card.append(make(document, 'p', `${recipe.dose}g · ${recipe.temperature}℃ · 물 ${recipe.totalWater}g`));
+      if (recipe.validationStatus === 'checking') card.append(make(document, 'p', '레시피 단계를 확인 중입니다.', 'muted-note'));
+      if (recipe.validationStatus === 'error') card.append(make(document, 'p', '레시피 단계 확인에 실패했습니다.', 'record-warning'));
       pane.append(card);
     }
   } else if (section === 'records') {
-    renderRecords(pane, data, document, recordFormOpen);
+    renderRecords(pane, data, document, recordFormOpen, optionPages);
   } else {
     pane.append(make(document, 'p', '화면을 찾을 수 없습니다. 메뉴에서 이동해 주세요.'));
+  }
+
+  if (data.screen?.hasMore) {
+    const more = button(document, '더 불러오기', 'button', 'load-more');
+    more.className = 'button page-load-more';
+    pane.append(more);
+  } else if (data.screen?.complete === false) {
+    pane.append(make(document, 'p', '전체 목록을 확인하지 못했습니다. 새로고침해 주세요.', 'record-warning'));
   }
 
   parent.dataset.section = section;
@@ -844,7 +921,10 @@ function renderBeans(pane, data, document, formOpen) {
   addFormActions(document, form, 'beans');
   pane.append(makeEntryDialog(document, 'beans', form, formOpen));
 
-  if (!data.beans.length) pane.append(make(document, 'p', '등록된 원두가 없습니다.', 'empty-state'));
+  if (!data.beans.length) pane.append(make(document, 'p', data.screen?.hasMore
+    ? '원두를 더 확인 중입니다. 더 보기로 계속 확인해 주세요.'
+    : data.screen?.complete === false ? '원두 목록을 끝까지 확인하지 못했습니다. 새로고침해 주세요.'
+      : '등록된 원두가 없습니다.', 'empty-state'));
   for (const bean of data.beans) {
     const card = make(document, 'article', undefined, 'bean-card');
     const header = make(document, 'div', undefined, 'entity-card-header');
@@ -869,7 +949,11 @@ function renderBeans(pane, data, document, formOpen) {
     }
     card.append(metadata);
     const records = currentRecords(data).filter(record => record.beanId === bean.id);
-    card.append(make(document, 'p', `추출 기록 ${records.length}개`));
+    const count = bean.recordCount;
+    const countLabel = count?.status === 'ready' ? `${count.count}개`
+      : count?.status === 'error' ? '확인하지 못함'
+        : count?.status === 'loading' ? '확인 중' : `${records.length}개`;
+    card.append(make(document, 'p', `추출 기록 ${countLabel}`));
     pane.append(card);
   }
 }
@@ -887,7 +971,10 @@ function renderBeanDetail(pane, data, document, beanId) {
   if (bean.origin) pane.append(make(document, 'p', `원산지·농장: ${bean.origin}`));
   const records = currentRecords(data).filter(record => record.beanId === bean.id).sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
   pane.append(make(document, 'h4', '이 원두의 추출 기록'));
-  if (!records.length) pane.append(make(document, 'p', '등록된 추출 기록이 없습니다.'));
+  if (!records.length) pane.append(make(document, 'p', data.screen?.hasMore
+    ? '기록을 더 확인 중입니다. 더 보기로 계속 확인해 주세요.'
+    : data.screen?.complete === false ? '전체 기록을 확인하지 못했습니다. 새로고침해 주세요.'
+      : '등록된 추출 기록이 없습니다.'));
   for (const record of records) pane.append(recordCard(document, record, data));
 }
 
@@ -916,7 +1003,9 @@ function recipeCard(document, recipe, data, detailed = false) {
   for (const [title, value] of details) article.append(make(document, 'p', `${title}: ${value}`));
 
   const stats = recipe.stats ?? { count: 0, average: null };
-  article.append(make(document, 'p', stats.count ? `평가 ${stats.count}회 · 평균 ${Number(stats.average).toFixed(1)}점` : '평가 없음 · 0회'));
+  article.append(make(document, 'p', stats.status === 'loading' ? '평가 통계를 확인 중입니다.'
+    : stats.status === 'error' ? '평가 통계를 확인하지 못했습니다.'
+      : stats.count ? `평가 ${stats.count}회 · 평균 ${Number(stats.average).toFixed(1)}점` : '평가 없음 · 0회'));
   article.append(makeStepTable(document, recipe.steps));
   if (typeof recipe.extractionGuide === 'string' && recipe.extractionGuide.trim()) {
     const guide = make(document, 'section', undefined, 'recipe-extraction-guide');
@@ -926,7 +1015,9 @@ function recipeCard(document, recipe, data, detailed = false) {
 
   const records = currentRecords(data).filter(record => record.recipeId === recipe.id).sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
   article.append(make(document, 'h4', '추출 기록'));
-  if (!records.length) article.append(make(document, 'p', '기록 없음'));
+  if (!records.length) article.append(make(document, 'p', data.screen?.hasMore
+    ? '기록을 더 확인 중입니다. 더 보기로 계속 확인해 주세요.'
+    : data.screen?.complete === false ? '전체 기록을 확인하지 못했습니다.' : '기록 없음'));
   for (const record of records) {
     const bean = data.beans.find(item => item.id === record.beanId);
     const validRating = Number.isInteger(record.rating) && record.rating >= 1 && record.rating <= 5;
@@ -955,10 +1046,12 @@ function recipeCard(document, recipe, data, detailed = false) {
   if (detailed) {
     const record = button(document, '이 레시피로 추출 기록', 'button', 'new-record');
     record.dataset.id = recipe.id;
+    record.disabled = !recipeReady(recipe);
     article.append(record);
   }
   const copy = button(document, '이 레시피 복사', 'button', 'copy-recipe');
   copy.dataset.id = recipe.id;
+  copy.disabled = !recipeReady(recipe);
   article.append(copy);
   return article;
 }
@@ -1024,45 +1117,94 @@ function buildRecipeForm(document, data) {
   return form;
 }
 
-function buildRecordForm(document, data) {
+function buildRecordForm(document, data, optionPages) {
   const form = formBase(document, 'records', '추출 후 빠른 기록');
-  addFieldset(document, form, '기록', [
-    ['원두', 'beanId', 'select', true],
-    ['레시피', 'recipeId', 'select', true],
-    ['날짜', 'date', 'date', true],
-    ['별점 (1~5)', 'rating', 'number', true, { min: 1, max: 5, step: 1 }],
-    ['컵노트 (선택)', 'cupNote', 'textarea', false],
-  ]);
-  fillSelect(form.elements.beanId, data.beans, '원두를 선택해 주세요.');
-  fillSelect(form.elements.recipeId, data.recipes, '레시피를 선택해 주세요.');
-  form.elements.date.value = localDate();
+  const fields = make(document, 'fieldset', undefined, 'form-fieldset');
+  fields.append(make(document, 'legend', '기록'));
+  fields.append(searchPicker(document, '원두', 'beans', 'form', preferredOptionPage(data.options?.beans, optionPages.get('form:beans')),
+    '원두를 선택해 주세요.', false));
+  fields.append(searchPicker(document, '레시피', 'recipes', 'form', preferredOptionPage(data.options?.recipes, optionPages.get('form:recipes')),
+    '레시피를 선택해 주세요.', false));
+  fields.append(label(document, '날짜', 'date', 'date', true));
+  fields.append(label(document, '별점 (1~5)', 'rating', 'number', true, { min: 1, max: 5, step: 1 }));
+  fields.append(label(document, '컵노트 (선택)', 'cupNote', 'textarea', false));
+  form.append(fields);
   addFormActions(document, form, 'records');
+  form.elements.date.value = localDate();
   return form;
 }
 
-function renderRecords(pane, data, document, formOpen) {
-  const form = buildRecordForm(document, data);
+function searchPicker(document, title, kind, target, page, placeholder, optional) {
+  const wrap = make(document, 'div', undefined, 'form-field');
+  wrap.append(make(document, 'span', title, 'form-field-label'));
+  const search = make(document, 'input');
+  search.type = 'search';
+  search.setAttribute('aria-label', `${title} 검색`);
+  search.setAttribute('autocomplete', 'off');
+  search.dataset.optionSearchKind = kind;
+  search.dataset.optionTarget = target;
+  wrap.append(search);
+  const select = make(document, 'select');
+  select.name = kind === 'beans' ? 'beanId' : 'recipeId';
+  select.required = !optional;
+  select.setAttribute('aria-label', title);
+  select.dataset.optionSelectKind = kind;
+  select.dataset.optionTarget = target;
+  fillSelect(select, page?.items ?? [], placeholder, optional);
+  if (page) {
+    select.dataset.optionLoaded = 'true';
+    select.dataset.nextCursor = page.nextCursor ?? '';
+    search.dataset.optionLoaded = 'true';
+    search.dataset.optionQuery = '';
+  }
+  wrap.append(select);
+  const more = button(document, '이름 더 보기', 'button', 'more-options');
+  more.dataset.optionMore = '';
+  more.dataset.optionTarget = target;
+  more.dataset.optionKind = kind;
+  more.hidden = !page?.hasMore;
+  wrap.append(more);
+  return wrap;
+}
+
+function recipeReady(recipe) {
+  if (recipe.validationStatus !== undefined) return recipe.validationStatus === 'ready';
+  return Array.isArray(recipe.steps) && recipe.steps.length > 0;
+}
+
+function preferredOptionPage(serverPage, cachedPage) {
+  return cachedPage && Date.now() - cachedPage.savedAt < 60000 ? cachedPage : serverPage;
+}
+
+function renderRecords(pane, data, document, formOpen, optionPages) {
+  const form = buildRecordForm(document, data, optionPages);
   form.id = 'new-record-form';
   pane.append(makeEntryDialog(document, 'records', form, formOpen));
 
-  const filters = make(document, 'div', undefined, 'record-filters');
-  const beanLabel = make(document, 'label', '원두별 조회');
-  const beanFilter = document.createElement('select');
-  beanFilter.dataset.recordFilter = 'beanId';
-  fillSelect(beanFilter, data.beans, '모든 원두', true);
-  beanLabel.append(beanFilter);
-  const recipeLabel = make(document, 'label', '레시피별 조회');
-  const recipeFilter = document.createElement('select');
-  recipeFilter.dataset.recordFilter = 'recipeId';
-  fillSelect(recipeFilter, data.recipes, '모든 레시피', true);
-  recipeLabel.append(recipeFilter);
-  filters.append(beanLabel, recipeLabel);
+  const filters = make(document, 'fieldset', undefined, 'record-filters');
+  filters.append(make(document, 'legend', '기록 필터'));
+  const beanPicker = searchPicker(document, '원두별 조회', 'beans', 'filters', preferredOptionPage(data.options?.filterBeans, optionPages.get('filters:beans')),
+    '모든 원두', true);
+  const beanSearch = beanPicker.querySelector('[data-option-search-kind]');
+  beanSearch.dataset.recordFilterSearch = 'beanId';
+  beanPicker.querySelector('select').dataset.recordFilter = 'beanId';
+  const recipePicker = searchPicker(document, '레시피별 조회', 'recipes', 'filters', preferredOptionPage(data.options?.filterRecipes, optionPages.get('filters:recipes')),
+    '모든 레시피', true);
+  const recipeSearch = recipePicker.querySelector('[data-option-search-kind]');
+  recipeSearch.dataset.recordFilterSearch = 'recipeId';
+  recipePicker.querySelector('select').dataset.recordFilter = 'recipeId';
+  const selectedFilters = data.screen?.filters ?? {};
+  filters.append(beanPicker, recipePicker);
+  const beanSelect = beanPicker.querySelector('select');
+  const recipeSelect = recipePicker.querySelector('select');
+  if (selectedFilters.beanId) beanSelect.value = selectedFilters.beanId;
+  if (selectedFilters.recipeId) recipeSelect.value = selectedFilters.recipeId;
   pane.append(filters);
 
   const list = make(document, 'div', undefined, 'record-list');
   list.dataset.recordList = '';
   pane.append(list);
-  renderRecordRows(list, data, '', '');
+  renderRecordRows(list, data, selectedFilters.beanId ?? '', selectedFilters.recipeId ?? '');
 }
 
 function currentRecords(data) {
@@ -1076,7 +1218,9 @@ function renderRecordRows(list, data, beanId, recipeId) {
     .sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
   list.replaceChildren();
   if (!records.length) {
-    list.append(make(list.ownerDocument, 'p', visibleRecords.length ? '선택한 조건에 맞는 기록이 없습니다.' : '새 버전에서 작성한 추출 기록이 없습니다.', 'empty-state'));
+    const pending = data.screen?.hasMore || data.screen?.complete === false;
+    list.append(make(list.ownerDocument, 'p', pending ? '기록을 더 확인 중입니다. 더 보기를 눌러 계속 확인해 주세요.'
+      : visibleRecords.length ? '선택한 조건에 맞는 기록이 없습니다.' : '새 버전에서 작성한 추출 기록이 없습니다.', 'empty-state'));
     return;
   }
   for (const record of records) list.append(recordCard(list.ownerDocument, record, data));
@@ -1128,6 +1272,7 @@ function fillSelect(select, rows, placeholder, optional = false) {
     const option = select.ownerDocument.createElement('option');
     option.value = idOf(row.id);
     option.textContent = row.name;
+    option.disabled = row.status === 'error';
     select.append(option);
   }
 }
@@ -1207,6 +1352,11 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
 
   globalThis.window?.addEventListener?.('hashchange', () => view.renderRoute(globalThis.window.location.hash.slice(1)));
 
+  const optionSearchTimers = new Map();
+  const loadOptions = (target, kind, query = '', cursor = null, append = false) => {
+    void actions.loadSearchOptions?.(kind, query, cursor, target, append);
+  };
+
   const handleClick = async event => {
     const target = event.target.closest('[data-action]');
     const action = target?.dataset.action;
@@ -1249,6 +1399,20 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
     }
     if (action === 'show-record-form') {
       view.showRecordForm();
+      loadOptions('form', 'beans');
+      loadOptions('form', 'recipes');
+      return;
+    }
+    if (action === 'load-more') {
+      try { await actions.loadMore?.(); } catch { /* Controller supplies a safe status. */ }
+      return;
+    }
+    if (action === 'more-options') {
+      const { optionTarget: targetName, optionKind: kind } = target.dataset;
+      const picker = target.closest('.form-field');
+      const search = picker?.querySelector('[data-option-search-kind]');
+      const select = picker?.querySelector('select');
+      loadOptions(targetName, kind, search?.value ?? '', select?.dataset.nextCursor || null, true);
       return;
     }
     if (action === 'cancel-form') {
@@ -1266,6 +1430,11 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
       const recipeId = target.dataset.id;
       const form = navigateAndGetForm(view, content, '/records/new', 'records');
       if (form) {
+        const option = document.createElement('option');
+        const recipe = windowData?.recipes.find(item => item.id === recipeId);
+        option.value = recipeId;
+        option.textContent = recipe?.name ?? '선택한 레시피';
+        if (!Array.from(form.elements.recipeId.options).some(item => item.value === recipeId)) form.elements.recipeId.append(option);
         form.elements.recipeId.value = recipeId;
         actions.setDirty(true, 'records');
       }
@@ -1311,6 +1480,16 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
 
   content.addEventListener('input', event => {
     if (event.target.disabled) return;
+    if (event.target.matches('[data-option-search-kind]')) {
+      const { optionSearchKind: kind, optionTarget: targetName } = event.target.dataset;
+      const key = `${targetName}:${kind}`;
+      const searchRoute = view.currentRoute();
+      clearTimeout(optionSearchTimers.get(key));
+      optionSearchTimers.set(key, setTimeout(() => {
+        if (view.currentRoute() === searchRoute) loadOptions(targetName, kind, event.target.value);
+      }, 250));
+      return;
+    }
     const form = event.target.form;
     if (FORM_KINDS.has(form?.dataset.form)) actions.setDirty(true, form.dataset.form);
     updatePreview(content);
@@ -1321,10 +1500,18 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
     if (event.target.matches('[data-record-filter]') && windowData) {
       const beanId = content.querySelector('[data-record-filter="beanId"]')?.value ?? '';
       const recipeId = content.querySelector('[data-record-filter="recipeId"]')?.value ?? '';
-      const list = content.querySelector('[data-record-list]');
-      if (list) renderRecordRows(list, windowData, beanId, recipeId);
+      const update = actions.setRecordFilters?.({ beanId, recipeId });
+      if (update?.catch) void update.catch(() => {});
     }
     updatePreview(content);
+  });
+  content.addEventListener('focusin', event => {
+    const select = event.target.closest('[data-option-select-kind]');
+    const search = event.target.closest('[data-option-search-kind]');
+    const control = search ?? select;
+    if (!control || control.dataset.optionLoaded === 'true') return;
+    loadOptions(control.dataset.optionTarget, control.dataset.optionSearchKind ?? control.dataset.optionSelectKind,
+      search?.value ?? '');
   });
   content.addEventListener('submit', async event => {
     const form = event.target;

@@ -1,0 +1,12 @@
+✔ listRecords relation-filters the visible page and locally validates bagless-v1 snapshots (8.229792ms)
+✔ listRecords preserves continuation after bounded raw pages with no visible bagless rows (0.329417ms)
+✔ searchOptions applies the typed title filter and binds continuation to the query (0.690167ms)
+✔ bean counts and recipe stats scan exact current-generation snapshots on demand (1.479083ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 86.776958

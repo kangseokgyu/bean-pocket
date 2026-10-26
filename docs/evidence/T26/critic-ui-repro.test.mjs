@@ -121,7 +121,9 @@ function connected(document) {
   };
   const app = createAppController({ view, state: { withWriteLock: action => action(context) },
     file: {}, makeClient: () => ({ verify: async () => true }),
-    makeRepository: () => ({ readAll: async () => data() }), makeCommands: () => ({}),
+    makeRepository: () => ({ readAll: async () => data(), async listBeans() {
+      return { items: data().beans, nextCursor: null, hasMore: false, complete: true };
+    } }), makeCommands: () => ({}),
     uuid: () => 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
   });
   app.bind();

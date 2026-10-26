@@ -86,6 +86,28 @@ export function validateCreatePayload(kind, data, dataSources) {
   return true;
 }
 
+function validReadSignal(signal) {
+  return signal === undefined || (record(signal) && typeof signal.aborted === 'boolean' &&
+    typeof signal.addEventListener === 'function' && typeof signal.removeEventListener === 'function');
+}
+
+function waitForRead(ms, signal) {
+  if (signal?.aborted) return Promise.reject(failure('read-cancelled', 'not-sent'));
+  if (ms <= 0) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const finish = () => {
+      clearTimeout(timer);
+      signal?.removeEventListener?.('abort', cancel);
+    };
+    const cancel = () => {
+      finish();
+      reject(failure('read-cancelled', 'not-sent'));
+    };
+    const timer = setTimeout(() => { finish(); resolve(); }, ms);
+    signal?.addEventListener?.('abort', cancel, { once: true });
+  });
+}
+
 function retryAfter(response) {
   try {
     const value = response.headers?.get('Retry-After');
@@ -103,6 +125,8 @@ export class NotionClient {
   #timeoutMs;
   #recipeExtractionGuideSupported = null;
   #recordBeanRelationSupported = null;
+  #readTail = Promise.resolve();
+  #lastReadAt = 0;
 
   constructor(token, options = {}) {
     try {
@@ -139,10 +163,13 @@ export class NotionClient {
     return id;
   }
 
-  async #request(path, { method = 'GET', body, writing = false, validate }) {
+  async #request(path, { method = 'GET', body, writing = false, validate, signal }) {
     const text = body === undefined ? undefined : serialize(body);
     const controller = new AbortController();
     const state = writing ? 'unknown' : 'not-sent';
+    if (signal?.aborted) throw failure('read-cancelled', state);
+    const cancelRequest = () => controller.abort();
+    signal?.addEventListener?.('abort', cancelRequest, { once: true });
     const headers = Object.freeze({
       Authorization: 'Bearer ' + this.#token,
       'Notion-Version': '2025-09-03',
@@ -187,6 +214,7 @@ export class NotionClient {
         return data;
       } catch (error) {
         if (ownErrors.has(error)) throw error;
+        if (signal?.aborted) throw failure('read-cancelled', state, status());
         throw failure(phase === 'fetch' ? 'network-unconfirmed' : 'invalid-response', state, status());
       }
     };
@@ -197,15 +225,25 @@ export class NotionClient {
       }, this.#timeoutMs);
     });
     try { return await Promise.race([run(), timeout]); }
-    finally { clearTimeout(timer); }
+    finally {
+      clearTimeout(timer);
+      signal?.removeEventListener?.('abort', cancelRequest);
+    }
   }
 
-  async verify() {
-    for (const kind of KINDS) {
+  async verify(kinds = KINDS, { signal } = {}) {
+    const requested = typeof kinds === 'string' ? [kinds] : kinds;
+    if (!Array.isArray(requested) || requested.length === 0 ||
+        requested.some(kind => typeof kind !== 'string' || !KINDS.includes(kind)) ||
+        new Set(requested).size !== requested.length || !validReadSignal(signal)) {
+      throw failure('invalid-input', 'not-sent');
+    }
+    for (const kind of requested) {
       const sourceId = this.#dataSources[kind];
       let recipeExtractionGuideSupported = false;
       let recordBeanRelationSupported = false;
-      await this.#request('/data_sources/' + sourceId, {
+      await this.#scheduleRead(() => this.#request('/data_sources/' + sourceId, {
+        signal,
         validate: data => {
           if (!record(data) || data.object !== 'data_source' || uuid(data.id) !== sourceId || !record(data.properties)) return false;
           return Object.entries(schemas[kind]).every(([field, [name, type]]) => {
@@ -219,18 +257,89 @@ export class NotionClient {
               uuid(property.relation.data_source_id) === this.#dataSources[relationTargets[kind][field]];
           });
         },
-      });
+      }), signal, { pace: signal !== undefined });
       if (kind === 'recipes') this.#recipeExtractionGuideSupported = recipeExtractionGuideSupported;
       if (kind === 'records') this.#recordBeanRelationSupported = recordBeanRelationSupported;
     }
     return true;
   }
 
+  async queryPage(kind, options = {}) {
+    if (!record(options)) throw failure('invalid-input', 'not-sent');
+    const { cursor, limit = 20, filter, sorts, properties, signal } = options;
+    const sourceId = this.#source(kind);
+    if ((cursor !== undefined && cursor !== null &&
+          (typeof cursor !== 'string' || !cursor.trim() || cursor.length > 2000)) ||
+        !Number.isInteger(limit) || limit < 1 || limit > 100 ||
+        (filter !== undefined && !record(filter)) ||
+        (sorts !== undefined && (!Array.isArray(sorts) || sorts.length > 100 || !sorts.every(record))) ||
+        (properties !== undefined && (!Array.isArray(properties) || properties.length > 100 ||
+          !properties.every(value => typeof value === 'string' && value.trim() && value.length <= 100))) ||
+        !validReadSignal(signal)) {
+      throw failure('invalid-input', 'not-sent');
+    }
+
+    const query = new URLSearchParams();
+    for (const property of properties ?? []) query.append('filter_properties', property);
+    const path = '/data_sources/' + sourceId + '/query' + (query.size ? '?' + query.toString() : '');
+    const body = {
+      page_size: limit,
+      ...(cursor == null ? {} : { start_cursor: cursor }),
+      ...(filter === undefined ? {} : { filter }),
+      ...(sorts === undefined ? {} : { sorts }),
+    };
+    return this.#scheduleRead(async () => {
+      const data = await this.#request(path, {
+        method: 'POST', body, signal,
+        validate: response => {
+          if (!record(response) || response.object !== 'list' || !Array.isArray(response.results) ||
+              response.results.length > limit || typeof response.has_more !== 'boolean' ||
+              !response.results.every(item => validPage(item, undefined, sourceId))) return false;
+          if (response.request_status !== undefined) {
+            if (!record(response.request_status)) return false;
+            if (response.request_status.type === 'incomplete') throw failure('query-incomplete', 'not-sent');
+            if (response.request_status.type !== 'complete') return false;
+          }
+          if (response.has_more) {
+            if (typeof response.next_cursor !== 'string' || !response.next_cursor.trim()) {
+              throw failure('pagination-error', 'not-sent');
+            }
+          } else if (response.next_cursor !== null) return false;
+          return true;
+        },
+      });
+      return Object.freeze({ items: data.results, nextCursor: data.has_more ? data.next_cursor : null,
+        hasMore: data.has_more, complete: !data.has_more });
+    }, signal);
+  }
+
+  #scheduleRead(operation, signal, { pace = true, retryRateLimit = true } = {}) {
+    const execute = async () => {
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const spacing = pace ? Math.max(0, 350 - (Date.now() - this.#lastReadAt)) : 0;
+        await waitForRead(spacing, signal);
+        this.#lastReadAt = Date.now();
+        try { return await operation(); }
+        catch (error) {
+          if (error?.code !== 'rate-limited' || !retryRateLimit || attempt === 2) throw error;
+          const retryAfterSeconds = Number.isInteger(error.retryAfterSeconds)
+            ? error.retryAfterSeconds : Math.min(2 ** attempt, 4);
+          if (retryAfterSeconds > 60) throw error;
+          await waitForRead(retryAfterSeconds * 1000, signal);
+        }
+      }
+      throw failure('rate-limited', 'not-sent');
+    };
+    const task = this.#readTail.then(execute);
+    this.#readTail = task.catch(() => undefined);
+    return task;
+  }
+
   async queryAll(kind) {
     const sourceId = this.#source(kind), rows = [], cursors = new Set();
     let cursor;
     do {
-      const data = await this.#request('/data_sources/' + sourceId + '/query', {
+      const data = await this.#scheduleRead(() => this.#request('/data_sources/' + sourceId + '/query', {
         method: 'POST', body: { page_size: 100, ...(cursor === undefined ? {} : { start_cursor: cursor }) },
         validate: data => {
           if (!record(data) || data.object !== 'list' || !Array.isArray(data.results) ||
@@ -248,7 +357,7 @@ export class NotionClient {
           } else if (data.next_cursor !== null) return false;
           return true;
         },
-      });
+      }), undefined, { pace: false, retryRateLimit: false });
       rows.push(...data.results);
       cursor = data.has_more ? data.next_cursor : undefined;
       if (cursor !== undefined) cursors.add(cursor);
@@ -283,9 +392,12 @@ export class NotionClient {
     });
   }
 
-  async getPage(value) {
+  async getPage(value, { signal } = {}) {
     const id = this.#pageId(value);
-    return this.#request('/pages/' + id, { validate: data => validPage(data, id) });
+    if (!validReadSignal(signal)) throw failure('invalid-input', 'not-sent');
+    return this.#scheduleRead(() => this.#request('/pages/' + id, {
+      signal, validate: data => validPage(data, id),
+    }), signal, { pace: signal !== undefined });
   }
 
   async archivePage(kind, value) {

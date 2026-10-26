@@ -7,6 +7,8 @@ const DELETE_TARGET_BY_OPERATION = Object.freeze({
   'delete-bean': 'beans', 'delete-recipe': 'recipes', 'delete-record': 'records',
 });
 const STARTUP_LOCK_RETRY_DELAYS_MS = Object.freeze([100, 200, 300, 500, 700]);
+const SCREEN_PAGE_SIZE = 20;
+const SCREEN_CACHE_TTL_MS = 60000;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const SAFE_MESSAGES = Object.freeze({
   unauthorized: 'Notion 토큰을 확인해 주세요.',
@@ -52,6 +54,12 @@ export function createAppController({
   let repository = null;
   let commands = null;
   let data = null;
+  let routeGeneration = 0;
+  let routeReadController = null;
+  let recordFilters = { beanId: '', recipeId: '' };
+  const screenCache = new Map();
+  const optionCache = new Map();
+  const optionSearchGeneration = new Map();
   let frozen = false;
   let pending = false;
   const dirtyKinds = new Set();
@@ -98,26 +106,296 @@ export function createAppController({
   }
 
   function install(connection, nextClient, nextRepository, nextCommands) {
+    screenCache.clear();
+    optionCache.clear();
+    optionSearchGeneration.clear();
     activeConnection = connection;
     client = nextClient;
     repository = nextRepository;
     commands = nextCommands;
+    view.clearSearchOptions?.();
     view.showConnection?.({ connected: true });
   }
 
-  async function readLatest() {
+  function currentRoute() {
+    const route = view.currentRoute?.();
+    return typeof route === 'string' && route.startsWith('/') ? route : '/beans';
+  }
+
+  function routeSchemas(route) {
+    const [section, id] = route.split('/').filter(Boolean);
+    if (section === 'beans') return id ? ['beans', 'records', 'recipes'] : ['beans'];
+    if (section === 'recipes') return id && id !== 'new' ? ['beans', 'recipes', 'steps', 'records'] : ['recipes', 'steps'];
+    if (section === 'records') return id === 'new'
+      ? ['beans', 'recipes', 'steps', 'records'] : ['beans', 'recipes', 'records'];
+    return ['beans'];
+  }
+
+  function routeCacheKey(route, cursor = null) {
+    const query = route.startsWith('/records') ? recordFilters : {};
+    return [activeConnection?.revision ?? 'disconnected', route, JSON.stringify(query), cursor ?? 'first'].join('|');
+  }
+
+  function currentCache(key) {
+    const entry = screenCache.get(key);
+    if (!entry || Date.now() - entry.savedAt > SCREEN_CACHE_TTL_MS) {
+      screenCache.delete(key);
+      return null;
+    }
+    return entry.value;
+  }
+
+  function saveCache(key, value) {
+    screenCache.set(key, { value, savedAt: Date.now() });
+  }
+
+  async function readOptionPage(target, kind, query, cursor, signal) {
+    const key = [activeConnection?.revision, target, kind, query, cursor ?? 'first'].join('|');
+    if (cursor == null) {
+      const cached = currentCacheOption(key);
+      if (cached) return cached;
+    }
+    const result = await repository.searchOptions({ kind, query, cursor, limit: SCREEN_PAGE_SIZE, signal });
+    optionCache.set(key, { value: result, savedAt: Date.now() });
+    return result;
+  }
+
+  function mergeScreenData(previous, next) {
+    if (!previous || !next?.screen?.append) return next;
+    const merged = { ...previous, ...next };
+    for (const key of ['beans', 'recipes', 'records']) {
+      const seen = new Set();
+      merged[key] = [...(previous[key] ?? []), ...(next[key] ?? [])].filter(item => {
+        if (!item?.id || seen.has(item.id)) return false;
+        seen.add(item.id);
+        return true;
+      });
+    }
+    merged.screen = { ...next.screen, append: false };
+    return merged;
+  }
+
+  async function fetchScreen(route, cursor, signal) {
+    const [section, id] = route.split('/').filter(Boolean);
+    const pageOptions = { cursor, limit: SCREEN_PAGE_SIZE, signal };
+    if (section === 'beans' && !id) {
+      const page = await repository.listBeans(pageOptions);
+      return { beans: page.items.map(bean => ({ ...bean, recordCount: { status: 'loading', count: null } })),
+        recipes: [], records: [], excluded: {}, screen: { route, nextCursor: page.nextCursor,
+          hasMore: page.hasMore, complete: page.complete } };
+    }
+    if (section === 'beans' && id) {
+      const bean = cursor && data?.screen?.route === route
+        ? data.beans.find(item => item.id === id) ?? await repository.getBean(id, { signal })
+        : await repository.getBean(id, { signal });
+      const page = await repository.listRecords({ beanId: id, ...pageOptions });
+      return { beans: [bean], recipes: page.recipes, records: page.items, excluded: {},
+        screen: { route, nextCursor: page.nextCursor, hasMore: page.hasMore, complete: page.complete } };
+    }
+    if (section === 'recipes' && !id) {
+      const page = await repository.listRecipeSummaries(pageOptions);
+      return { beans: [], recipes: page.items, records: [], excluded: {},
+        screen: { route, nextCursor: page.nextCursor, hasMore: page.hasMore, complete: page.complete } };
+    }
+    if (section === 'recipes' && id && id !== 'new') {
+      const detail = cursor && data?.screen?.route === route
+        ? data.recipes.find(item => item.id === id) ?? await repository.getRecipeDetail(id, { signal })
+        : await repository.getRecipeDetail(id, { signal });
+      const page = await repository.listRecords({ recipeId: id, ...pageOptions });
+      return { beans: page.beans, recipes: [detail, ...page.recipes.filter(item => item.id !== detail.id)],
+        records: page.items, excluded: {},
+        screen: { route, nextCursor: page.nextCursor, hasMore: page.hasMore, complete: page.complete } };
+    }
+    if (section === 'records') {
+      const page = await repository.listRecords({ ...recordFilters, ...pageOptions });
+      const result = { beans: page.beans, recipes: page.recipes, records: page.items, excluded: {},
+        screen: { route, filters: { ...recordFilters }, nextCursor: page.nextCursor,
+          hasMore: page.hasMore, complete: page.complete } };
+      if (id === 'new' && cursor == null) {
+        const beanOptions = await readOptionPage('form', 'beans', '', null, signal);
+        const recipeOptions = await readOptionPage('form', 'recipes', '', null, signal);
+        result.options = { beans: beanOptions, recipes: recipeOptions,
+          filterBeans: cachedFilterOptions('beans', page.beans, recordFilters.beanId),
+          filterRecipes: cachedFilterOptions('recipes', page.recipes, recordFilters.recipeId) };
+        result.beans = beanOptions.items;
+        result.recipes = recipeOptions.items;
+      } else {
+        const filterBeans = cachedFilterOptions('beans', page.beans, recordFilters.beanId);
+        const filterRecipes = cachedFilterOptions('recipes', page.recipes, recordFilters.recipeId);
+        if (filterBeans || filterRecipes) result.options = { filterBeans, filterRecipes };
+      }
+      return result;
+    }
+    if (section === 'recipes' && id === 'new') {
+      const page = await repository.listRecipeSummaries(pageOptions);
+      return { beans: [], recipes: page.items, records: [], excluded: {},
+        screen: { route, nextCursor: page.nextCursor, hasMore: page.hasMore, complete: page.complete } };
+    }
+    return { beans: [], recipes: [], records: [], excluded: {},
+      screen: { route, nextCursor: null, hasMore: false, complete: true } };
+  }
+
+  async function loadRoute(route = currentRoute(), { cursor = null, append = false, force = false, skipVerify = false } = {}) {
     if (frozen) throw Object.freeze({ code: 'lifecycle-frozen' });
-    if (!repository) throw Object.freeze({ code: 'read-failed' });
+    if (!repository || !client) return null;
+    routeReadController?.abort();
+    const controller = new AbortController();
+    routeReadController = controller;
+    const generation = ++routeGeneration;
+    const key = routeCacheKey(route, cursor);
+    const isFirstPage = cursor == null;
     try {
-      const next = await repository.readAll();
-      data = next;
-      view.renderData?.(next);
+      if (!skipVerify) {
+        const kinds = routeSchemas(route);
+        if (kinds.length) await client.verify(kinds, { signal: controller.signal });
+      }
+      if (generation !== routeGeneration || controller.signal.aborted) return null;
+      const cached = !force && isFirstPage ? currentCache(key) : null;
+      const previous = append ? data : null;
+      const fetched = cached ?? await fetchScreen(route, cursor, controller.signal);
+      if (generation !== routeGeneration || controller.signal.aborted) return null;
+      fetched.screen = { ...fetched.screen, append };
+      data = mergeScreenData(previous, fetched);
+      saveCache(key, data);
+      view.renderData?.(data);
       view.showStatus?.({ type: 'ready', message: '' });
-      return next;
+      startDeferredReads(route, generation, key, controller.signal, fetched);
+      return data;
     } catch (error) {
+      if (generation !== routeGeneration || controller.signal.aborted || error?.code === 'read-cancelled') return null;
       showFailure(error, 'read-error');
       throw error;
     }
+  }
+
+  function startDeferredReads(route, generation, key, signal, loaded) {
+    const update = patch => {
+      if (generation !== routeGeneration || signal.aborted || currentRoute() !== route || !data) return;
+      data = { ...data, ...patch };
+      saveCache(key, data);
+      view.renderData?.(data);
+    };
+    if (route === '/beans' && loaded?.beans?.length && loaded.beans.some(bean => bean.recordCount?.status === 'loading') &&
+        typeof repository.getBeanRecordCounts === 'function') {
+      const beans = loaded.beans.filter(bean => bean.recordCount?.status === 'loading');
+      const ids = beans.map(bean => bean.id);
+      void client.verify(['records'], { signal }).then(() => repository.getBeanRecordCounts(ids, { signal })).then(result => {
+        const selected = new Set(ids);
+        update({ beans: data.beans.map(bean => selected.has(bean.id) ? { ...bean, recordCount: {
+          status: result.status, count: result.counts?.[bean.id] ?? null,
+        } } : bean) });
+      }).catch(() => {
+        const selected = new Set(ids);
+        update({ beans: data.beans.map(bean => selected.has(bean.id)
+          ? { ...bean, recordCount: { status: 'error', count: null } } : bean) });
+      });
+    }
+    if (['/recipes', '/recipes/new'].includes(route) && loaded?.recipes?.some(recipe => recipe.validationStatus === 'checking') &&
+        typeof repository.validateRecipeSummaries === 'function') {
+      const ids = loaded.recipes.filter(recipe => recipe.validationStatus === 'checking').map(recipe => recipe.id);
+      const selected = new Set(ids);
+      void repository.validateRecipeSummaries(ids, { signal }).then(result => {
+        const validated = new Map(result.items.map(item => [item.id, item]));
+        update({ recipes: data.recipes.map(summary => {
+          if (!selected.has(summary.id)) return summary;
+          const item = validated.get(summary.id);
+          return item?.status === 'ready' ? { ...summary, ...item.recipe, stats: summary.stats }
+            : { ...summary, validationStatus: 'error' };
+        }) });
+      }).catch(() => update({ recipes: data.recipes.map(recipe => selected.has(recipe.id)
+        ? { ...recipe, validationStatus: 'error' } : recipe) }));
+    }
+    if (route.startsWith('/recipes/') && route !== '/recipes/new' && typeof repository.getRecipeStats === 'function') {
+      const recipe = loaded?.recipes?.find(item => item.id === route.split('/')[2]);
+      if (recipe?.stats?.status === 'loading') {
+        void repository.getRecipeStats(recipe.id, { signal, validatedRecipe: recipe }).then(stats => {
+          update({ recipes: data.recipes.map(item => item.id === recipe.id ? { ...item, stats } : item) });
+        }).catch(() => update({ recipes: data.recipes.map(item => item.id === recipe.id
+          ? { ...item, stats: { status: 'error', count: null, average: null } } : item) }));
+      }
+    }
+  }
+
+  async function loadMore() {
+    if (!data?.screen?.hasMore || !data.screen.nextCursor) return null;
+    return loadRoute(currentRoute(), { cursor: data.screen.nextCursor, append: true });
+  }
+
+  async function loadSearchOptions(kind, query = '', cursor = null, target = 'form', append = false) {
+    if (!repository || !['beans', 'recipes'].includes(kind)) return null;
+    const routeEpoch = routeGeneration;
+    const connectionRevision = activeConnection?.revision;
+    const optionIdentity = target + ':' + kind;
+    const optionEpoch = (optionSearchGeneration.get(optionIdentity) ?? 0) + 1;
+    optionSearchGeneration.set(optionIdentity, optionEpoch);
+    const key = [connectionRevision, target, kind, query, cursor ?? 'first'].join('|');
+    const cached = !append && currentCacheOption(key);
+    if (cached) {
+      view.setSearchOptions?.(target, kind, cached, false);
+      return cached;
+    }
+    try {
+      const result = await repository.searchOptions({ kind, query, cursor, limit: SCREEN_PAGE_SIZE,
+        signal: routeReadController?.signal });
+      if (routeEpoch !== routeGeneration || optionSearchGeneration.get(optionIdentity) !== optionEpoch ||
+          connectionRevision !== activeConnection?.revision || routeReadController?.signal.aborted) return null;
+      optionCache.set(key, { value: result, savedAt: Date.now() });
+      view.setSearchOptions?.(target, kind, result, append);
+      return result;
+    } catch (error) {
+      if (error?.code !== 'read-cancelled') showFailure(error, 'read-error');
+      return null;
+    }
+  }
+
+  function currentCacheOption(key) {
+    const entry = optionCache.get(key);
+    if (!entry || Date.now() - entry.savedAt > SCREEN_CACHE_TTL_MS) { optionCache.delete(key); return null; }
+    return entry.value;
+  }
+
+  function cachedFilterOptions(kind, relatedRows, selectedId) {
+    const revision = activeConnection?.revision ?? 'disconnected';
+    const prefix = [revision, 'filters', kind, ''].join('|');
+    const first = currentCacheOption([revision, 'filters', kind, '', 'first'].join('|'));
+    if (!first) return null;
+    const items = [...first.items];
+    if (selectedId && !items.some(item => item.id === selectedId)) {
+      const cached = [...optionCache.entries()].find(([key, entry]) => key.startsWith(prefix) &&
+        entry.value.items.some(item => item.id === selectedId))?.[1]?.value.items.find(item => item.id === selectedId);
+      const related = relatedRows.find(item => item.id === selectedId);
+      const selected = cached ?? (related ? { id: related.id, name: related.name, status: 'ready' } : null);
+      if (selected) items.push(selected);
+    }
+    return { ...first, items };
+  }
+
+  function setRecordFilters(filters = {}) {
+    recordFilters = { beanId: filters.beanId || '', recipeId: filters.recipeId || '' };
+    for (const key of screenCache.keys()) if (key.includes('|/records|')) screenCache.delete(key);
+    return loadRoute(currentRoute(), { force: true });
+  }
+
+  function invalidateScreenCache(kind) {
+    if (kind === 'beans') {
+      view.clearSearchOptions?.('beans');
+      for (const key of screenCache.keys()) if (key.includes('|/beans')) screenCache.delete(key);
+      for (const key of optionCache.keys()) if (key.includes('|beans|')) optionCache.delete(key);
+    } else if (kind === 'recipes' || kind === 'copy' || kind === 'delete-recipe') {
+      view.clearSearchOptions?.('recipes');
+      for (const key of screenCache.keys()) if (key.includes('|/recipes') || key.includes('|/records')) screenCache.delete(key);
+      for (const key of optionCache.keys()) if (key.includes('|recipes|')) optionCache.delete(key);
+    } else if (kind === 'records' || kind === 'delete-record') {
+      for (const key of screenCache.keys()) if (key.includes('|/records') || key.includes('|/beans') || key.includes('|/recipes/')) screenCache.delete(key);
+    } else if (kind === 'delete-bean') {
+      view.clearSearchOptions?.('beans');
+      for (const key of screenCache.keys()) if (key.includes('|/beans') || key.includes('|/records')) screenCache.delete(key);
+      for (const key of optionCache.keys()) if (key.includes('|beans|')) optionCache.delete(key);
+    }
+  }
+
+  async function readLatest({ skipVerify = false } = {}) {
+    return loadRoute(currentRoute(), { force: true, skipVerify });
   }
 
   async function refresh() {
@@ -174,7 +452,7 @@ export function createAppController({
           throw Object.freeze({ code: journal?.connectionGuard ? 'unresolved-connection' : 'connection-mismatch' });
         }
         const stack = makeStack(connection);
-        await stack.nextClient.verify();
+        await stack.nextClient.verify(routeSchemas(currentRoute()));
         return { connection, ...stack };
       });
       if (!loaded) {
@@ -183,7 +461,7 @@ export function createAppController({
         return null;
       }
       install(loaded.connection, loaded.nextClient, loaded.nextRepository, loaded.nextCommands);
-      try { await readLatest(); } catch { /* A verified connection remains usable when its first read fails. */ }
+      try { await readLatest({ skipVerify: true }); } catch { /* A verified connection remains usable when its first read fails. */ }
       return true;
     } catch (error) {
       if (error?.code === 'lock-busy') {
@@ -247,7 +525,7 @@ export function createAppController({
       dirtyKinds.delete('connection');
       view.showConnectionSuccess?.();
       view.showStatus?.({ type: 'connected', message: '연결을 확인하고 저장했습니다.' });
-      try { await readLatest(); } catch { /* Saving the connection is independent of its first data read. */ }
+      try { await readLatest({ skipVerify: true }); } catch { /* Saving the connection is independent of its first data read. */ }
       return true;
     } catch (error) {
       showFailure(error, 'connection-error');
@@ -377,7 +655,7 @@ export function createAppController({
       await readUnresolved();
       view.showStatus?.({ type: 'resolved', message: '확인 결과를 저장했습니다. 다시 제출하기 전에 최신 목록을 확인해 주세요.' });
       if (activeConnection) {
-        try { await readLatest(); } catch { /* Resolution is durable even when the final refresh fails. */ }
+        try { await readLatest({ skipVerify: true }); } catch { /* Resolution is durable even when the final refresh fails. */ }
       }
       return true;
     } catch (error) {
@@ -398,6 +676,7 @@ export function createAppController({
     const deleting = Boolean(DELETE_TARGET_BY_OPERATION[kind]);
     view.showStatus?.({ type: 'saving', message: deleting ? '삭제 중입니다.' : '저장 중입니다.' });
     try {
+      await client.verify();
       const prepare = {
           'delete-bean': 'prepareDeleteBean', 'delete-recipe': 'prepareDeleteRecipe',
           'delete-record': 'prepareDeleteRecord', beans: 'prepareBean', recipes: 'prepareRecipe', records: 'prepareRecord',
@@ -417,8 +696,9 @@ export function createAppController({
           }
         }
         stateChanged();
+        invalidateScreenCache(kind);
         view.showStatus?.({ type: 'saved', message: deleting ? '삭제했습니다. 최신 목록을 다시 불러옵니다.' : '저장했습니다. 최신 목록을 다시 불러옵니다.' });
-        try { await readLatest(); }
+        try { await readLatest({ skipVerify: true }); }
         catch { view.showStatus?.({ type: deleting ? 'deleted-read-error' : 'saved-read-error', message: deleting ? '삭제는 성공했지만 최신 목록을 불러오지 못했습니다. 목록을 새로고침해 주세요.' : '저장은 성공했지만 최신 목록을 불러오지 못했습니다. 다시 제출하지 마세요.' }); }
         return result;
       }
@@ -454,11 +734,14 @@ export function createAppController({
   }
 
   function bind() {
-    view.bind?.({ initialize, connect, refresh, submit, confirmCurrent, resolveOperation, setDirty, setFrozen, getState });
+    view.onRouteChange?.(route => client && repository ? loadRoute(route).catch(() => {}) : null);
+    view.bind?.({ initialize, connect, refresh, submit, confirmCurrent, resolveOperation, setDirty, setFrozen, getState,
+      loadMore, loadSearchOptions, setRecordFilters });
   }
 
   return Object.freeze({
     initialize, connect, confirmCurrent, resolveOperation, refresh, submit, setDirty, setFrozen, getState, bind,
+    loadRoute, loadMore, loadSearchOptions, setRecordFilters,
   });
 }
 

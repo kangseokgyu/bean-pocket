@@ -1,0 +1,75 @@
+✖ saved-connection startup verifies and reads only the current beans page (2.905666ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+    [
+      [
+        'verify',
+  +     undefined
+  -     [
+  -       'beans'
+  -     ]
+      ],
+      [
+  +     'readAll'
+  -     'listBeans',
+  -     {
+  -       cursor: null,
+  -       limit: 20
+  -     }
+      ]
+    ]
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/screen-data-loading/AX-1day/test/pwa-screen-loading.test.mjs:42:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 'verify', undefined ], [ 'readAll' ] ],
+    expected: [ [ 'verify', [Array] ], [ 'listBeans', [Object] ] ],
+    operator: 'deepStrictEqual'
+  }
+
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 88.385583
+
+✖ failing tests:
+
+test at test/pwa-screen-loading.test.mjs:13:1
+✖ saved-connection startup verifies and reads only the current beans page (2.905666ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+    [
+      [
+        'verify',
+  +     undefined
+  -     [
+  -       'beans'
+  -     ]
+      ],
+      [
+  +     'readAll'
+  -     'listBeans',
+  -     {
+  -       cursor: null,
+  -       limit: 20
+  -     }
+      ]
+    ]
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/screen-data-loading/AX-1day/test/pwa-screen-loading.test.mjs:42:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 'verify', undefined ], [ 'readAll' ] ],
+    expected: [ [ 'verify', [Array] ], [ 'listBeans', [Object] ] ],
+    operator: 'deepStrictEqual'
+  }

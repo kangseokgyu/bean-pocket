@@ -1,0 +1,11 @@
+✔ queryPage rejects bad limits and malformed or incomplete pages, and retries 429 only a finite number of times (1063.041458ms)
+✔ read-only page reads retry rate limits finitely before returning the validated page (2.070667ms)
+✔ HTTP 429 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다 (2.351708ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1211.919459

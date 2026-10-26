@@ -1,0 +1,12 @@
+✔ recipe statistics reuse the exact recently validated detail when supplied by its caller (4.317916ms)
+✔ route reads stay scoped, record filters query the server, and name options load on form use (4.57925ms)
+✔ view notifies the controller when the current route changes (4.633375ms)
+✔ record page shows continuation state instead of claiming the database is empty (5.209375ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 113.135416

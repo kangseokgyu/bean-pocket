@@ -1,0 +1,70 @@
+✖ verify can validate only the current screen source while verify() keeps full onboarding checks (2.890625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+    [
+      'https://api.notion.com/v1/data_sources/00000001-1111-4111-8111-111111111111',
+  +   'https://api.notion.com/v1/data_sources/00000002-1111-4111-8111-111111111111',
+  +   'https://api.notion.com/v1/data_sources/00000003-1111-4111-8111-111111111111',
+  +   'https://api.notion.com/v1/data_sources/00000004-1111-4111-8111-111111111111'
+    ]
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/screen-data-loading/AX-1day/test/pwa-notion-client.test.mjs:80:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'https://api.notion.com/v1/data_sources/00000001-1111-4111-8111-111111111111', 'https://api.notion.com/v1/data_sources/00000002-1111-4111-8111-111111111111', 'https://api.notion.com/v1/data_sources/00000003-1111-4111-8111-111111111111', 'https://api.notion.com/v1/data_sources/00000004-1111-4111-8111-111111111111' ],
+    expected: [ 'https://api.notion.com/v1/data_sources/00000001-1111-4111-8111-111111111111' ],
+    operator: 'deepStrictEqual'
+  }
+
+✖ listBeans reads one metadata page without touching other sources or re-reading recipe parents (0.945666ms)
+  TypeError [Error]: createReadRepository(...).listBeans is not a function
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/screen-data-loading/AX-1day/test/pwa-read-repository.test.mjs:243:53)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17)
+
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 92.031334
+
+✖ failing tests:
+
+test at test/pwa-notion-client.test.mjs:74:1
+✖ verify can validate only the current screen source while verify() keeps full onboarding checks (2.890625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+    [
+      'https://api.notion.com/v1/data_sources/00000001-1111-4111-8111-111111111111',
+  +   'https://api.notion.com/v1/data_sources/00000002-1111-4111-8111-111111111111',
+  +   'https://api.notion.com/v1/data_sources/00000003-1111-4111-8111-111111111111',
+  +   'https://api.notion.com/v1/data_sources/00000004-1111-4111-8111-111111111111'
+    ]
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/screen-data-loading/AX-1day/test/pwa-notion-client.test.mjs:80:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'https://api.notion.com/v1/data_sources/00000001-1111-4111-8111-111111111111', 'https://api.notion.com/v1/data_sources/00000002-1111-4111-8111-111111111111', 'https://api.notion.com/v1/data_sources/00000003-1111-4111-8111-111111111111', 'https://api.notion.com/v1/data_sources/00000004-1111-4111-8111-111111111111' ],
+    expected: [ 'https://api.notion.com/v1/data_sources/00000001-1111-4111-8111-111111111111' ],
+    operator: 'deepStrictEqual'
+  }
+
+test at test/pwa-read-repository.test.mjs:232:1
+✖ listBeans reads one metadata page without touching other sources or re-reading recipe parents (0.945666ms)
+  TypeError [Error]: createReadRepository(...).listBeans is not a function
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/screen-data-loading/AX-1day/test/pwa-read-repository.test.mjs:243:53)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17)

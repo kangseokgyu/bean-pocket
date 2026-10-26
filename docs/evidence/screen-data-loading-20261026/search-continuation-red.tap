@@ -1,0 +1,56 @@
+✔ listRecords preserves continuation after bounded raw pages with no visible bagless rows (3.332083ms)
+✖ searchOptions applies the typed title filter and binds continuation to the query (1.477375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+  + undefined
+  - {
+  -   property: '원두 이름',
+  -   title: {
+  -     contains: '에티오피아'
+  -   }
+  - }
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/screen-data-loading/AX-1day/test/pwa-read-repository.test.mjs:381:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { property: '원두 이름', title: { contains: '에티오피아' } },
+    operator: 'deepStrictEqual'
+  }
+
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 93.27125
+
+✖ failing tests:
+
+test at test/pwa-read-repository.test.mjs:367:1
+✖ searchOptions applies the typed title filter and binds continuation to the query (1.477375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+  + undefined
+  - {
+  -   property: '원두 이름',
+  -   title: {
+  -     contains: '에티오피아'
+  -   }
+  - }
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/screen-data-loading/AX-1day/test/pwa-read-repository.test.mjs:381:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { property: '원두 이름', title: { contains: '에티오피아' } },
+    operator: 'deepStrictEqual'
+  }

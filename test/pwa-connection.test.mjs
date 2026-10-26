@@ -19,7 +19,13 @@ function harness({ verify = async () => true, readAll = async () => ({ beans: []
     return action(context);
   } };
   const file = { async readConnection() { return connection; } };
-  const controller = createAppController({ view, state, file, makeClient: () => ({ async verify() { events.push(['verify']); return verify(); } }), makeRepository: () => ({ readAll }), makeCommands: () => ({}), uuid: () => REVISION });
+  const controller = createAppController({ view, state, file,
+    makeClient: () => ({ async verify() { events.push(['verify']); return verify(); } }),
+    makeRepository: () => ({ readAll, async listBeans() {
+      const snapshot = await readAll();
+      return { items: snapshot.beans, nextCursor: null, hasMore: false, complete: true };
+    } }),
+    makeCommands: () => ({}), uuid: () => REVISION });
   return { controller, events, get lockAttempts() { return lockAttempts; } };
 }
 
@@ -144,6 +150,9 @@ test('current-connection recovery keeps pending through reinitialization and its
         await finalReadGate;
       }
       return { beans: [], bags: [], recipes: [], records: [] };
+    }, async listBeans() {
+      const snapshot = await this.readAll();
+      return { items: snapshot.beans, nextCursor: null, hasMore: false, complete: true };
     } }),
     makeCommands: () => ({}),
   });

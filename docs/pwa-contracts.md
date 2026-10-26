@@ -146,3 +146,14 @@ Node 내장 테스트에 fetch·OPFS·locks를 주입해 페이지 잘림·커�
 앱·서버는 beans/recipes/steps/records 4개 DB만 설정·검증·조회한다. 봉지 스키마·모델·record.bagId·봉지 기반 원두 추론은 제거한다. 과거 연결의 추가 bags 키는 사용하지 않으며 파일을 읽는 것만으로 다시 쓰지 않는다. 원격 DB·속성·행의 마이그레이션이나 호환 조회는 하지 않는다.
 
 유효한 v2 snapshot의 `recordGeneration: "bagless-v1"` 표시·집계 정책을 유지한다. 숨겨진 과거 기록은 원시 기록과 삭제 보호에 보존한다. 봉지에서만 원두를 알 수 있던 기록은 unresolved로 남겨 원두 삭제를 차단한다. 레시피 관계의 불완전·다중·제외 기록도 삭제를 fail-closed로 막는다. 봉지 입력은 네트워크 전 거절하며, 과거 journal은 자동 전송하지 않고 unknown/partial·lock·중복 차단을 유지한다.
+
+## 12. 2026-10-26 Screen-specific lazy reads
+
+Saved-connection startup verifies the schemas needed by the current route and reads only that screen. Screen reads use `queryPage` with a 20-row visible page, an opaque continuation bound to the query and connection revision, and controlled read-only retry for rate-limited queries. Summary and detail screen data are cached independently for up to 60 seconds by connection revision, route, and active filters. Route generations and abort signals prevent late responses from replacing a newer route; successful mutations invalidate the affected screen caches.
+
+- The beans list reads bean metadata only. Exact current-generation record counts are a deferred records scan and show pending/error states until the scan resolves.
+- Bean detail reads that bean and its matching record page. Recipe summaries read only the visible recipe page; stage completeness and latest-parent checks run for those visible recipes. Opening a recipe reads and validates the selected parent and all of its stages, then loads its matching record page. Exact rating statistics are deferred and reuse the selected detail's freshly validated recipe object.
+- Record filters query matching pages. Searchable bean/recipe name options are fetched in pages only when a filter or record form is used. With legacy schemas that lack `records.원두`, the bagless snapshot fallback scans at most three raw pages per call, retains unreturned records in an opaque continuation, and keeps an empty-but-incomplete page distinct from a complete empty result.
+- Onboarding and required write checks retain complete source verification. Write preflight `readAll`, journal state, locks, unknown/partial recovery, source ownership checks, recipe completeness/latest-parent validation, and legacy delete dependencies remain the safety boundary.
+
+Worker implementation and command evidence are recorded in [screen-data-loading evidence](evidence/screen-data-loading-20261026/README.md). The fake-only browser harness is intended for independent Critic execution and does not use a live Notion workspace or personal browser profile.

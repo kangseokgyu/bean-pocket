@@ -16,28 +16,40 @@ async function setup() {
   const native = memoryPlatform({ initialized: false });
   const fake = fakePwaNotion();
   const events = [];
+  let route = '/beans';
+  let routeChange;
   const connection = () => JSON.parse(native.files.get('connection.json'));
   const make = () => {
     const state = createSubmissionState(native);
+    const view = { currentRoute: () => route, onRouteChange(handler) { routeChange = handler; },
+      renderRoute(nextRoute) { route = nextRoute; return routeChange?.(route); },
+      showStatus: value => events.push({ status: value }), renderData: value => events.push({ data: value }),
+      setState() {}, clearSecret() {}, showConnection() {}, showUnresolved() {} };
     const app = createAppController({
-      view: { showStatus: value => events.push({ status: value }), renderData: value => events.push({ data: value }),
-        setState() {}, clearSecret() {}, showConnection() {}, showUnresolved() {} },
+      view,
       state, file: { readConnection: async () => native.files.has('connection.json') ? connection() : null },
       makeClient: current => new NotionClient(current.token, { dataSources: current.dataSources,
         connectionRevision: current.revision, fetchImpl: fake.fetch }),
       makeRepository: createReadRepository, makeCommands: createCommands,
     });
-    return { app, state };
+    app.bind();
+    return { app, state, view };
   };
   const { app, state } = make();
   await app.connect(testConnection());
   const bean = await app.submit('beans', { name: '삭제 검증 원두' });
-  return { native, fake, events, app, state, make, connection, beanId: bean.value.id };
+  return { native, fake, events, app, state, make, connection, beanId: bean.value.id,
+    navigate(nextRoute) { route = nextRoute; return app.loadRoute(route, { force: true }); } };
 }
 
 const sourceRows = (env, kind) => env.fake.rows.filter(row => row.parent.data_source_id === env.connection().dataSources[kind]);
 const patches = env => env.fake.calls.filter(call => call.method === 'PATCH');
 const latestData = env => env.events.filter(event => event.data).at(-1).data;
+async function waitFor(predicate, message) {
+  const deadline = Date.now() + 10000;
+  while (!predicate() && Date.now() < deadline) await new Promise(resolve => setTimeout(resolve, 25));
+  assert.ok(predicate(), message);
+}
 
 test('a hidden historical record still blocks recipe deletion', async () => {
   const env = await setup();
@@ -151,7 +163,9 @@ test('record deletion refreshes rating totals and keeps unsaved draft state', as
   const env = await setup();
   const recipe = await env.app.submit('recipes', recipeInput(env.beanId));
   const record = await env.app.submit('records', recordInput(env.beanId, recipe.value.id));
-  assert.deepEqual(latestData(env).recipes.find(item => item.id === recipe.value.id).stats, { count: 1, average: 5 });
+  await env.navigate(`/recipes/${recipe.value.id}`);
+  await waitFor(() => latestData(env).recipes[0]?.stats?.status === 'ready', 'selected recipe stats should finish loading');
+  assert.deepEqual(latestData(env).recipes[0].stats, { status: 'ready', complete: true, count: 1, average: 5 });
   env.app.setDirty(true, 'records');
   const readsBefore = env.fake.calls.filter(call => call.pathname.endsWith('/query')).length;
 
@@ -169,7 +183,8 @@ test('record deletion refreshes rating totals and keeps unsaved draft state', as
   assert.equal(result.status, 'succeeded');
   assert.equal(sourceRows(env, 'records')[0].in_trash, true);
   assert.equal(latestData(env).records.length, 0);
-  assert.deepEqual(latestData(env).recipes.find(item => item.id === recipe.value.id).stats, { count: 0, average: null });
+  await waitFor(() => latestData(env).recipes[0]?.stats?.status === 'ready', 'selected recipe stats should refresh after deletion');
+  assert.deepEqual(latestData(env).recipes[0].stats, { status: 'ready', complete: true, count: 0, average: null });
   assert.ok(env.fake.calls.filter(call => call.pathname.endsWith('/query')).length > readsBefore);
   assert.equal(env.app.getState().dirty, true);
 });

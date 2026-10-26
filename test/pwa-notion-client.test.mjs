@@ -71,6 +71,18 @@ test('validateCreatePayload reuses the create transport limits without issuing a
   }
 });
 
+test('verify can validate only the current screen source while verify() keeps full onboarding checks', async () => {
+  const { client, calls } = harness(url => {
+    const kind = kinds.find(key => url.endsWith(SOURCES[key]));
+    return response(200, source(kind));
+  });
+  assert.equal(await client.verify(['beans']), true);
+  assert.deepEqual(calls.map(call => call.url), ['https://api.notion.com/v1/data_sources/' + SOURCES.beans]);
+  calls.length = 0;
+  assert.equal(await client.verify(), true);
+  assert.deepEqual(calls.map(call => call.url), kinds.map(kind => 'https://api.notion.com/v1/data_sources/' + SOURCES[kind]));
+});
+
 test('verify는 설정된 네 스키마와 forward 관계 타입·대상을 읽기만 검증한다', async () => {
   const { client, calls } = harness(url => {
     const kind = kinds.find(k => url.endsWith(SOURCES[k]));
@@ -195,6 +207,64 @@ test('query는 잘못된 목록·페이지·음수 개수 형태와 중간 HTTP 
   }
   const { client, calls } = harness((url, init, n) => n === 1 ? response(200, list([page()], true, 'next')) : response(503, { message: RAW }));
   await rejected(client.queryAll('beans'), 'not-sent'); assert.equal(calls.length, 2);
+});
+
+test('queryPage sends one scoped filtered page and returns continuation metadata', async () => {
+  const expectedFilter = { property: '레시피', relation: { contains: PAGE } };
+  const expectedSorts = [{ property: '날짜', direction: 'descending' }];
+  const expectedPage = page(PAGE, 'records');
+  const { client, calls } = harness(() => response(200, list([expectedPage], true, 'opaque/next')));
+  const result = await client.queryPage('records', {
+    cursor: 'opaque/first', limit: 20, filter: expectedFilter, sorts: expectedSorts,
+    properties: ['날짜', '컵노트'], signal: new AbortController().signal,
+  });
+  assert.deepEqual(result, { items: [expectedPage], nextCursor: 'opaque/next', hasMore: true, complete: false });
+  assert.equal(calls.length, 1);
+  const url = new URL(calls[0].url);
+  assert.equal(url.pathname, '/v1/data_sources/' + SOURCES.records + '/query');
+  assert.deepEqual(url.searchParams.getAll('filter_properties'), ['날짜', '컵노트']);
+  assert.deepEqual(JSON.parse(calls[0].init.body), {
+    page_size: 20, start_cursor: 'opaque/first', filter: expectedFilter, sorts: expectedSorts,
+  });
+});
+
+test('queryPage rejects bad limits and malformed or incomplete pages, and retries 429 only a finite number of times', async () => {
+  const badOptions = harness();
+  for (const limit of [0, 101, 1.5, '20']) {
+    await rejected(badOptions.client.queryPage('beans', { limit }), 'not-sent', 'invalid-input');
+  }
+  assert.equal(badOptions.calls.length, 0);
+
+  for (const body of [list([], false, 'unexpected'), list([], true, null),
+    list([], false, null, { request_status: { type: 'incomplete' } })]) {
+    const { client } = harness(() => response(200, body));
+    await rejected(client.queryPage('beans', { limit: 20 }), 'not-sent');
+  }
+
+  let attempts = 0;
+  const retried = harness(() => ++attempts === 1
+    ? response(429, { message: RAW }, '0') : response(200, list([page()])));
+  const result = await retried.client.queryPage('beans', { limit: 20 });
+  assert.equal(result.items.length, 1);
+  assert.equal(attempts, 2);
+
+  attempts = 0;
+  const exhausted = harness(() => { attempts++; return response(429, { message: RAW }, '0'); });
+  await rejected(exhausted.client.queryPage('beans', { limit: 20 }), 'not-sent', 'rate-limited');
+  assert.equal(attempts, 3);
+});
+
+test('read-only page reads retry rate limits finitely before returning the validated page', async () => {
+  let attempts = 0;
+  const retried = harness(() => ++attempts < 3
+    ? response(429, { message: RAW }, '0') : response(200, page()));
+  assert.deepEqual(await retried.client.getPage(PAGE), page());
+  assert.equal(attempts, 3);
+
+  attempts = 0;
+  const exhausted = harness(() => { attempts++; return response(429, { message: RAW }, '0'); });
+  await rejected(exhausted.client.getPage(PAGE), 'not-sent', 'rate-limited');
+  assert.equal(attempts, 3);
 });
 
 test('kind와 UUID의 URL/path 주입은 fetch 전에 차단한다', async () => {

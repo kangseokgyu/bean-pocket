@@ -237,7 +237,10 @@ for (const outcome of ['saved', 'missing', 'error', 'recovery', 'busy', 'read-er
         return { ...CONNECTION, revision: outcome === 'recovery' ? 2 : 1 };
       } },
       makeClient: () => ({ async verify() {} }),
-      makeRepository: () => ({ async readAll() { if (outcome === 'read-error') throw { code: 'read-failed' }; return data(); } }),
+      makeRepository: () => ({ async listBeans() {
+        if (outcome === 'read-error') throw { code: 'read-failed' };
+        return { items: data().beans, nextCursor: null, hasMore: false, complete: true };
+      }, async readAll() { return data(); } }),
       makeCommands: () => ({}),
     });
     const initializing = app.initialize();
@@ -535,7 +538,8 @@ function controllerFor(view) {
     state: { withWriteLock: action => action(context) },
     file: {},
     makeClient: () => ({ async verify() {} }),
-    makeRepository: () => ({ async readAll() { return data(); } }),
+    makeRepository: () => ({ async listBeans() { return { items: data().beans, nextCursor: null, hasMore: false, complete: true }; },
+      async readAll() { return data(); } }),
     makeCommands: () => ({}),
     uuid: () => 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
   });
@@ -1972,4 +1976,66 @@ test('recipe list card delete icon stays independent of detail navigation', asyn
   } finally {
     if (original === undefined) delete globalThis.confirm; else globalThis.confirm = original;
   }
+});
+
+test('view notifies the controller when the current route changes', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  const routes = [];
+  view.onRouteChange(route => routes.push(route));
+
+  view.renderRoute('/recipes');
+  view.renderRoute('/records');
+
+  assert.deepEqual(routes, ['/recipes', '/records']);
+});
+
+test('record page shows continuation state instead of claiming the database is empty', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.renderRoute('/records');
+  view.renderData({ ...data(), records: [], screen: { complete: false, hasMore: true, nextCursor: 'next' } });
+
+  assert.match(document.root.textContent, /더 확인/);
+  assert.doesNotMatch(document.root.textContent, /새 버전에서 작성한 추출 기록이 없습니다/);
+  assert.ok(document.root.querySelector('[data-action="load-more"]'));
+});
+
+test('record name pickers load on focus and preserve filter selection across option pages', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.renderRoute('/records');
+  view.renderData({ ...data(), records: [], screen: { complete: false, hasMore: true,
+    nextCursor: 'records-next', filters: { beanId: BEAN, recipeId: '' } } });
+  const content = document.root.querySelector('.data-panel');
+  const beanFilter = content.querySelector('[data-record-filter="beanId"]');
+  assert.equal(beanFilter.options.length, 1, 'filter options are not fetched with the record page');
+  const beanSearch = content.querySelectorAll('[data-option-search-kind]')
+    .find(input => input.dataset.optionSearchKind === 'beans' && input.dataset.optionTarget === 'filters');
+  assert.ok(beanSearch);
+  const requested = [];
+  view.bind({ loadSearchOptions(...args) { requested.push(args); }, setDirty() {}, getState() { return {}; } });
+  for (const listener of content.listeners.get('focusin') ?? []) listener({ target: beanSearch });
+  assert.deepEqual(requested, [['beans', '', null, 'filters', false]]);
+
+  view.setSearchOptions('filters', 'beans', { items: [{ id: BEAN, name: '원두 선택' }],
+    nextCursor: 'names-next', hasMore: true }, false, '');
+  assert.equal(beanFilter.value, BEAN);
+  assert.equal(beanFilter.options.length, 2);
+  const beanMore = content.querySelectorAll('[data-option-more]')
+    .find(control => control.dataset.optionTarget === 'filters' && control.dataset.optionKind === 'beans');
+  assert.equal(beanMore.hidden, false);
+  assert.equal(beanFilter.dataset.nextCursor, 'names-next');
+
+  view.setSearchOptions('filters', 'beans', { items: [{ id: '77777777-7777-4777-8777-777777777777', name: '다음 원두' }],
+    nextCursor: null, hasMore: false }, true, '');
+  assert.equal(beanFilter.options.length, 3);
+  assert.equal(beanFilter.value, BEAN);
+
+  view.renderData({ ...data(), records: [], options: { filterBeans: { items: [{ id: BEAN, name: '원두 선택' }],
+    nextCursor: 'names-next', hasMore: true } }, screen: { complete: true, hasMore: false,
+    filters: { beanId: BEAN, recipeId: '' } } });
+  const refreshedFilter = document.root.querySelector('[data-record-filter="beanId"]');
+  assert.equal(refreshedFilter.options.length, 3, 'loaded options survive an unrelated page rerender');
+  assert.equal(refreshedFilter.value, BEAN);
 });

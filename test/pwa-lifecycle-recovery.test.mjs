@@ -36,7 +36,10 @@ async function productPage(native, { active = false, timeoutMs = 5000, window = 
     view: { setFrozen(value) { freezes.push(value); if (!value) onThaw?.(); }, setState() {}, renderData() {}, showStatus() {}, showConnection() {} },
     onStateChange: () => lifecycle?.notifyStateChange(),
     makeClient: () => ({ verify: async () => true }),
-    makeRepository: () => ({ readAll: () => readAll() }),
+    makeRepository: () => ({ readAll: () => readAll(), async listBeans() {
+      const snapshot = await readAll();
+      return { items: snapshot.beans, nextCursor: null, hasMore: false, complete: true };
+    } }),
     makeCommands: () => ({}),
   });
   assert.equal(await app.initialize(), initialized);

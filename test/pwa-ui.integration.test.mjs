@@ -21,11 +21,12 @@ test('controller public flows use real Notion, repository, commands and journal 
   const native = memoryPlatform({ initialized: false });
   const fake = fakePwaNotion();
   const state = createSubmissionState(native);
+  let route = '/beans';
   const events = [];
   const entrySuccesses = [];
   const clearedForms = [];
   const view = { showConnection: value => events.push(['connection', value]), showStatus: value => events.push(['status', value]),
-    renderData: value => events.push(['data', value]), clearSecret() {}, clearForm: kind => clearedForms.push(kind),
+    currentRoute: () => route, renderData: value => events.push(['data', value]), clearSecret() {}, clearForm: kind => clearedForms.push(kind),
     showEntrySuccess(kind) { entrySuccesses.push(kind); return true; }, setState() {} };
   const app = createAppController({ view, state, file: { readConnection: async () => null },
     uuid: () => 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
@@ -44,9 +45,20 @@ test('controller public flows use real Notion, repository, commands and journal 
   const record = await app.submit('records', { beanId: bean.value.id, recipeId: copied.value.id,
     date: '2026-06-15', rating: '5', cupNote: '꿀, 살구' });
   assert.equal(record.status, 'succeeded');
-  const latest = events.filter(([type]) => type === 'data').at(-1)[1];
-  assert.equal(latest.beans[0].origin, '시다마 · 테스트 농장');
-  assert.deepEqual(latest.recipes.find(row => row.id === copied.value.id).stats, { count: 1, average: 5 });
+  const beanPage = events.filter(([type]) => type === 'data').at(-1)[1];
+  assert.equal(beanPage.beans[0].origin, '시다마 · 테스트 농장');
+  assert.deepEqual(beanPage.recipes, [], 'the beans route does not load recipes');
+  assert.deepEqual(beanPage.records, [], 'the beans route does not load records');
+
+  route = `/recipes/${copied.value.id}`;
+  await app.loadRoute(route, { force: true });
+  const deadline = Date.now() + 10000;
+  let latest = events.filter(([type]) => type === 'data').at(-1)[1];
+  while (latest.recipes[0]?.stats?.status === 'loading' && Date.now() < deadline) {
+    await new Promise(resolve => setTimeout(resolve, 25));
+    latest = events.filter(([type]) => type === 'data').at(-1)[1];
+  }
+  assert.deepEqual(latest.recipes[0].stats, { status: 'ready', complete: true, count: 1, average: 5 });
   assert.equal(latest.records[0].snapshot.recipe.steps.length, 3);
   assert.deepEqual(entrySuccesses, ['beans', 'recipes', 'recipes', 'records']);
   assert.deepEqual(clearedForms, [], 'the view keeps each confirmed entry open for its success feedback');
@@ -115,11 +127,13 @@ test('a second native UI client waits for startup lock release and reads the sav
   const leaderState = createSubmissionState(native);
   const followerState = createSubmissionState(native);
   const createClient = (state, verify) => createAppController({ view: {
+    currentRoute() { return '/beans'; },
     showConnection() {}, showStatus() {}, renderData() {}, showUnresolved() {}, setState() {},
   }, state,
   file: { readConnection: async () => JSON.parse(native.files.get('connection.json')) },
   makeClient: () => ({ async verify() { await verify(); } }),
-  makeRepository: () => ({ async readAll() { return { beans: [], bags: [], recipes: [], records: [] }; } }),
+  makeRepository: () => ({ async listBeans() { return { items: [], nextCursor: null, hasMore: false, complete: true }; },
+    async readAll() { return { beans: [], bags: [], recipes: [], records: [] }; } }),
   makeCommands: () => ({}) });
   const leader = createClient(leaderState, () => new Promise(resolve => {
     releaseLeader = resolve;

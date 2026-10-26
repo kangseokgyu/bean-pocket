@@ -103,3 +103,8 @@ test('server keeps invalid stored fields and damaged snapshots visible only as w
   assert.equal(result.records[0].snapshotStatus, 'damaged');
   assert.deepEqual(result.recipes[0].stats, { count: 0, average: null });
 });
+
+
+test('legacy server repository blocks bag pages and bag-linked record writes before Notion',async()=>{let calls=0;const repo=new NotionRepository({dataSources:DATA_SOURCES,recordBeanRelationSupported:true,createPage:async()=>{calls++;return{id:'unexpected'};}});await assert.rejects(()=>repo.create('bags',{name:'old bag',beanId:CRITIC_IDS.beanA}),/봉지|지원하지/);await assert.rejects(()=>repo.create('records',{name:'record',beanId:CRITIC_IDS.beanA,recipeId:CRITIC_IDS.recipe,bagId:null}),/봉지|bagId/);assert.equal(calls,0);});
+
+test('bagless generation omits the bag relation in encoded record writes',()=>{const properties=encodeProperties('records',{name:'기록',beanId:CRITIC_IDS.beanA,recipeId:CRITIC_IDS.recipe,date:'2026-10-26',rating:5,snapshot:{version:2,recordGeneration:'bagless-v1'}});assert.equal(Object.hasOwn(properties,'원두 봉지'),false);});

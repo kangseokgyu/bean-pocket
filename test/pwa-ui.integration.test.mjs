@@ -37,20 +37,18 @@ test('controller public flows use real Notion, repository, commands and journal 
   assert.equal(connected, true);
   const bean = await app.submit('beans', { name: '에티오피아', origin: '시다마 · 테스트 농장', tastingNotes: '복숭아' });
   assert.equal(bean.status, 'succeeded');
-  const bag = await app.submit('bags', { name: '6월 봉지', beanId: bean.value.id, roastedOn: '2026-06-01' });
-  assert.equal(bag.status, 'succeeded');
   const recipe = await app.submit('recipes', validRecipe(bean.value.id));
   assert.equal(recipe.status, 'succeeded');
   const copied = await app.submit('copy', { recipeId: recipe.value.id, changes: { name: '복사 레시피', temperature: 91 } });
   assert.equal(copied.status, 'succeeded');
-  const record = await app.submit('records', { beanId: bean.value.id, recipeId: copied.value.id, bagId: bag.value.id,
+  const record = await app.submit('records', { beanId: bean.value.id, recipeId: copied.value.id,
     date: '2026-06-15', rating: '5', cupNote: '꿀, 살구' });
   assert.equal(record.status, 'succeeded');
   const latest = events.filter(([type]) => type === 'data').at(-1)[1];
   assert.equal(latest.beans[0].origin, '시다마 · 테스트 농장');
   assert.deepEqual(latest.recipes.find(row => row.id === copied.value.id).stats, { count: 1, average: 5 });
   assert.equal(latest.records[0].snapshot.recipe.steps.length, 3);
-  assert.deepEqual(entrySuccesses, ['beans', 'bags', 'recipes', 'recipes', 'records']);
+  assert.deepEqual(entrySuccesses, ['beans', 'recipes', 'recipes', 'records']);
   assert.deepEqual(clearedForms, [], 'the view keeps each confirmed entry open for its success feedback');
   assert.ok(native.journal().operations.every(operation => operation.status === 'succeeded'));
 });
@@ -137,6 +135,43 @@ test('a second native UI client waits for startup lock release and reads the sav
   assert.equal(await leaderReady, true);
   assert.equal(follower.getState().connected, true);
   assert.equal((await follower.refresh()).recipes.length, 0);
+});
+
+test('legacy bag journals stay unresolved after startup and never auto-send', async () => {
+  for (const [kind, status] of [['bags', 'processing'], ['delete-bag', 'unknown']]) {
+    const native = memoryPlatform();
+    const operation = {
+      key: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd', kind,
+      connectionRevision: testConnection().revision,
+      targetFingerprint: 'a'.repeat(64), payloadFingerprint: 'b'.repeat(64),
+      status, createdPages: [], updatedAt: '2026-10-26T00:00:00.000Z',
+    };
+    if (kind === 'delete-bag') operation.deleteTarget = {
+      kind: 'bags', id: 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee', archiveState: 'unknown',
+    };
+    native.files.set('submission-journal.json', JSON.stringify({ schemaVersion: 1,
+      activeConnectionRevision: testConnection().revision, connectionGuard: null, operations: [operation] }));
+    const fake = fakePwaNotion();
+    const unresolved = [];
+    const state = createSubmissionState(native);
+    const app = createAppController({ view: {
+      showConnection() {}, showStatus() {}, renderData() {}, clearSecret() {}, setState() {},
+      showUnresolved(items) { unresolved.push(...items); },
+    }, state, file: { readConnection: async () => JSON.parse(native.files.get('connection.json')) },
+    makeClient: connection => new NotionClient(connection.token, { dataSources: connection.dataSources,
+      connectionRevision: connection.revision, fetchImpl: fake.fetch }),
+    makeRepository: client => createReadRepository(client),
+    makeCommands: options => createCommands(options) });
+
+    assert.equal(await app.initialize(), true);
+    assert.equal(native.journal().operations[0].status, 'unknown');
+    assert.deepEqual(unresolved.map(item => [item.kind, item.status]), [[kind, 'unknown']]);
+    assert.equal(app.getState().unresolved, true);
+    await assert.rejects(app.submit('bags', { name: '자동 재전송 금지' }), error => error.code === 'unresolved-operation');
+    assert.equal(fake.calls.some(call => (call.pathname === '/v1/pages' && call.method === 'POST') ||
+      (call.pathname.startsWith('/v1/pages/') && call.method === 'PATCH')), false);
+    assert.equal(native.journal().operations[0].status, 'unknown');
+  }
 });
 
 test('saved resolution rejects a recipe parent that is absent from the complete fresh projection', async () => {

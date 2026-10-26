@@ -110,7 +110,7 @@ test('임의의 호스트에서 조회와 같은 출처의 연결 요청을 허�
   }
 });
 
-test('공개 HTTP 흐름: 연결→원두→봉지→레시피→같은 날 평가→재조회', async t => {
+test('공개 HTTP 흐름: 연결→원두→레시피→평가→재조회, 봉지 쓰기는 비활성화', async t => {
   const { fake, request } = await setup(t);
   assert.equal((await request('/api/status')).body.connected, false);
   const connected = await request('/api/connect', { token: 'secret-test' });
@@ -118,8 +118,9 @@ test('공개 HTTP 흐름: 연결→원두→봉지→레시피→같은 날 평�
   assert.equal(JSON.stringify(connected.body).includes('secret-test'), false);
   const bean = (await request('/api/beans', { name: '에티오피아' })).body;
   assert.ok(bean.id);
-  const bag = (await request('/api/bags', { name: '첫 봉지', beanId: bean.id, roastedOn: '2026-10-01' })).body;
-  const secondBag = (await request('/api/bags', { name: '두 번째 봉지', beanId: bean.id, roastedOn: '2026-10-15' })).body;
+  const bagWrite = await request('/api/bags', { name: '구버전 봉지', beanId: bean.id, roastedOn: '2026-10-01' });
+  assert.equal(bagWrite.status, 410);
+  assert.equal(fake.rows.some(row => row.parent.data_source_id === DATA_SOURCES.bags), false);
   const input = recipeInput();
   const first = await request('/api/recipes', input, { 'Idempotency-Key': 'one' });
   assert.equal(first.status, 201);
@@ -130,7 +131,7 @@ test('공개 HTTP 흐름: 연결→원두→봉지→레시피→같은 날 평�
   assert.equal(recipe.extractionGuide, input.extractionGuide);
   for (const rating of [4, 4, 5]) {
     const result = await request('/api/records', {
-      beanId: bean.id, recipeId: recipe.id, bagId: bag.id, date: '2026-10-15', rating,
+      beanId: bean.id, recipeId: recipe.id, date: '2026-10-15', rating,
       snapshot: { temperature: 1 }, temperature: 1,
     });
     assert.equal(result.status, 201);
@@ -142,8 +143,7 @@ test('공개 HTTP 흐름: 연결→원두→봉지→레시피→같은 날 평�
   }
   const before = (await request('/api/data')).body;
   assert.equal(before.beans.length, 1);
-  assert.equal(before.bags.length, 2);
-  assert.equal(before.bags.find(item => item.id === secondBag.id).roastedOn, '2026-10-15');
+  assert.equal(before.bags.length, 0);
   assert.equal(before.recipes[0].steps[2].interval, 40);
   assert.equal(before.recipes[0].steps[2].cumulativeWater, 250);
   assert.deepEqual(before.recipes[0].stats, { count: 3, average: 13 / 3 });
@@ -157,7 +157,7 @@ test('공개 HTTP 흐름: 연결→원두→봉지→레시피→같은 날 평�
   assert.equal(after.recipes[0].temperature, 90);
   assert.equal(after.records[0].snapshot.recipe.temperature, 93);
   assert.equal(after.records[0].snapshot.recipe.steps[0].name, '뜸');
-  const newRecord = await request('/api/records', { beanId: bean.id, recipeId: recipe.id, bagId: secondBag.id, date: '2026-10-15', rating: 1 });
+  const newRecord = await request('/api/records', { beanId: bean.id, recipeId: recipe.id, date: '2026-10-15', rating: 1 });
   assert.equal(newRecord.body.snapshot.recipe.temperature, 90);
   assert.equal(newRecord.body.snapshot.recipe.steps[0].name, '노션에서 바꾼 이름');
   const copy = await request('/api/recipes', { ...input, name: '복사', temperature: 90, copyFromId: recipe.id });
@@ -187,18 +187,16 @@ test('다른 Origin과 Host·Origin 불일치 및 잘못된 Content-Type 거부'
   assert.equal(hostileHostStatus, 403);
 });
 
-test('명시적 기록 원두·봉지 일치·날짜·별점 검증 및 독립 레시피 생성', async t => {
+test('기록의 bagId 제거, 날짜·별점 검증 및 독립 레시피 생성', async t => {
   const { fake, request } = await setup(t);
   await request('/api/connect', { token: 'secret' });
-  assert.equal((await request('/api/bags', { beanId: 'foreign', name: 'x' })).status, 400);
+  assert.equal((await request('/api/bags', { beanId: 'foreign', name: 'x' })).status, 410);
   const bean = (await request('/api/beans', { name: 'a' })).body;
-  const otherBean = (await request('/api/beans', { name: 'b' })).body;
-  const bag = (await request('/api/bags', { beanId: otherBean.id, name: 'b' })).body;
   const recipe = (await request('/api/recipes', recipeInput())).body;
   const record = { beanId: bean.id, recipeId: recipe.id, date: '2026-10-15', rating: 4 };
-  assert.equal((await request('/api/records', { ...record, bagId: bag.id })).status, 400);
-  assert.equal((await request('/api/records', { ...record, recipeId: bag.id })).status, 400);
-  assert.equal((await request('/api/records', { ...record, bagId: [bag.id, bag.id] })).status, 400);
+  assert.equal((await request('/api/records', { ...record, bagId: null })).status, 400);
+  assert.equal((await request('/api/records', { ...record, bagId: 'legacy-page-id' })).status, 400);
+  assert.equal((await request('/api/records', { ...record, recipeId: 'not-a-recipe' })).status, 400);
   assert.equal((await request('/api/records', { ...record, date: '2026-02-30' })).status, 400);
   for (const rating of [0, 6, 1.5, null, [4], true]) {
     assert.equal((await request('/api/records', { ...record, rating })).status, 400);
@@ -207,6 +205,19 @@ test('명시적 기록 원두·봉지 일치·날짜·별점 검증 및 독립 �
   const independent = await request('/api/recipes', { ...recipeInput(), beanId: 'not-a-bean' });
   assert.equal(independent.status, 201);
   assert.deepEqual(fake.rows.find(row => row.id === independent.body.id).properties['원두'], undefined);
+});
+
+test('legacy bagId=null 추출 요청은 Notion 읽기/쓰기 전에 거부한다', async t => {
+  const { fake, request } = await setup(t);
+  await request('/api/connect', { token: 'secret' });
+  const bean = (await request('/api/beans', { name: '원두' })).body;
+  const recipe = (await request('/api/recipes', recipeInput())).body;
+  const before = fake.rows.length;
+  const rejected = await request('/api/records', {
+    beanId: bean.id, recipeId: recipe.id, bagId: null, date: '2026-10-22', rating: 4,
+  });
+  assert.equal(rejected.status, 400);
+  assert.equal(fake.rows.length, before);
 });
 
 test('records.bean 관계가 없는 개인 스키마에서는 legacy 조회를 허용하고 신규 기록 쓰기를 보호한다', async t => {
@@ -311,14 +322,15 @@ test('회귀 2: 429와 저장 전 조회 실패는 같은 키로 복구되며 �
   assert.equal(saved.status, 201);
   assert.equal((await request('/api/data')).body.beans.length, 1);
 
+  const recipe = (await request('/api/recipes', recipeInput())).body;
   fake.beforeRequest = async path => {
     if (path.includes('/query')) throw Error('조회 연결 실패');
   };
-  const bag = { beanId: saved.body.id, name: '봉지' };
+  const record = { beanId: saved.body.id, recipeId: recipe.id, date: '2026-10-22', rating: 4 };
   const queryHeaders = { 'Idempotency-Key': 'query-failure' };
-  assert.equal((await request('/api/bags', bag, queryHeaders)).status, 502);
+  assert.equal((await request('/api/records', record, queryHeaders)).status, 502);
   fake.beforeRequest = null;
-  assert.equal((await request('/api/bags', bag, queryHeaders)).status, 201);
+  assert.equal((await request('/api/records', record, queryHeaders)).status, 201);
 
   let writes = 0;
   fake.beforeRequest = async path => {

@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { NotionClient, NotionRepository, readDataSources } from './lib/notion.mjs';
-import { InputError, validateBean, validateBag, validateRecipe, validateRecord, validateStoredRecipe, createSnapshot } from './lib/domain.mjs';
+import { InputError, validateBean, validateRecipe, validateRecord, validateStoredRecipe, createSnapshot } from './lib/domain.mjs';
 
 const publicDirectory = new URL('./public/', import.meta.url);
 const staticFiles = {
@@ -66,12 +66,15 @@ export function createApp({ fetchImpl = globalThis.fetch, initialToken = process
       throw error;
     }
     if (path === '/api/beans') return targetRepository.create('beans', validateBean(body));
-    const data = await targetRepository.all();
     if (path === '/api/bags') {
-      const bag = validateBag(body);
-      requireItem(data.beans, bag.beanId, '원두');
-      return targetRepository.create('bags', bag);
+      const error = new InputError('봉지 기록 기능은 지원하지 않습니다.');
+      error.status = 410;
+      throw error;
     }
+    if (path === '/api/records' && Object.hasOwn(body, 'bagId')) {
+      throw new InputError('추출 기록에 봉지를 지정할 수 없습니다.');
+    }
+    const data = await targetRepository.all();
     if (path === '/api/recipes') {
       const recipeInput = { ...body };
       delete recipeInput.beanId;
@@ -84,8 +87,7 @@ export function createApp({ fetchImpl = globalThis.fetch, initialToken = process
       const bean = requireItem(data.beans, body.beanId, '원두');
       const recipe = requireItem(data.recipes, body.recipeId, '레시피');
       validateStoredRecipe(recipe);
-      const bag = body.bagId ? requireItem(data.bags, body.bagId, '원두 봉지') : null;
-      const record = validateRecord(body, recipe, bean, bag);
+      const { bagId: _legacyBagId, ...record } = validateRecord(body, recipe, bean, null);
       record.name = `${record.date} · ${recipe.name}`;
       record.snapshot = createSnapshot(bean, recipe);
       return targetRepository.create('records', record);
@@ -116,6 +118,9 @@ export function createApp({ fetchImpl = globalThis.fetch, initialToken = process
         response.writeHead(200, { 'Content-Type': type });
         return response.end(file);
       }
+      if (request.method === 'POST' && url.pathname === '/api/bags') {
+        return json(410, { error: '봉지 기록 기능은 지원하지 않습니다.' });
+      }
       await initialization;
       if (request.method === 'GET' && url.pathname === '/api/status') {
         return json(200, { connected: Boolean(repository), error: lastConnectionError });
@@ -136,7 +141,7 @@ export function createApp({ fetchImpl = globalThis.fetch, initialToken = process
         lastConnectionError = null;
         return json(200, { connected: true });
       }
-      const saveRoutes = ['/api/beans', '/api/bags', '/api/recipes', '/api/records'];
+      const saveRoutes = ['/api/beans', '/api/recipes', '/api/records'];
       if (request.method === 'POST' && saveRoutes.includes(url.pathname)) {
         const body = await readJson(request);
         const key = request.headers['idempotency-key'];

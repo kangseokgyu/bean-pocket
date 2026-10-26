@@ -29,6 +29,18 @@ const patches = env => env.fake.calls.filter(c => c.method === 'PATCH');
 const recipe = beanId => ({ name: 'V60', beanId, dose: 15, totalWater: 250, temperature: 93,
   steps: [{ time: '0:00', water: 50 }, { time: '0:30', water: 200 }] });
 
+function seedRawBag(env, beanId, id = '22222222-2222-4222-8222-222222222222') {
+  env.fake.rows.push({ object: 'page', id,
+    parent: { type: 'data_source_id', data_source_id: env.connection().dataSources.bags },
+    archived: false, in_trash: false, last_edited_time: '2026-10-22T00:00:00.000Z',
+    properties: {
+      '봉지 이름': { type: 'title', title: [{ plain_text: '과거 봉지' }] },
+      '원두': { type: 'relation', relation: [{ id: beanId }], has_more: false },
+      '로스팅 날짜': { type: 'date', date: { start: '2026-10-22' } },
+    },
+  });
+}
+
 function convertRecordToLegacyV1(env, recipeId) {
   const row = env.fake.rows.find(item => item.parent.data_source_id === env.connection().dataSources.records);
   row.properties['원두'].relation = [];
@@ -58,12 +70,13 @@ test('bean deletion persists its target before PATCH and refreshes the list', as
   assert.equal(env.native.journal().operations.at(-1).deleteTarget.archiveState, 'archived');
 });
 
-test('bean deletion refuses a linked bag without PATCH', async () => {
+test('bean deletion refuses a linked raw legacy bag without PATCH', async () => {
   const env = await setup();
-  await env.app.submit('bags', { name: '봉지', beanId: env.id, roastedOn: '2026-10-22' });
+  seedRawBag(env, env.id);
   assert.equal((await env.app.submit('delete-bean', { id: env.id })).status, 'failed');
   assert.equal(patches(env).length, 0);
   assert.equal(env.fake.rows[0].in_trash, false);
+  assert.equal(env.fake.rows[1].parent.data_source_id, env.connection().dataSources.bags);
 });
 
 test('bean deletion permits a legacy recipe relation without a record or bag dependency', async () => {
@@ -135,9 +148,9 @@ test('bean deletion stays blocked when a truncated legacy relation exposes only 
   assert.equal(patches(env).length, 0);
 });
 
-test('excluded malformed related rows and failed fresh reads fail closed', async () => {
+test('excluded malformed raw bag rows and failed fresh reads fail closed', async () => {
   const env = await setup();
-  await env.app.submit('bags', { name: '봉지', beanId: env.id, roastedOn: '2026-10-22' });
+  seedRawBag(env, env.id);
   env.fake.rows[1].properties['원두'].relation = [];
   assert.equal((await env.app.submit('delete-bean', { id: env.id })).status, 'failed');
   assert.equal(patches(env).length, 0);

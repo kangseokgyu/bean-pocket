@@ -143,14 +143,14 @@ test('legacy v1 snapshot resolves a record bean when both new relations are abse
   assert.equal(data.records[0].cupNote, '복숭아');
 });
 
-test('unresolved legacy bean keeps its record and rating visible as needing confirmation', async () => {
+test('unresolved legacy bean remains readable but does not enter current ratings', async () => {
   const { rows, recipePage } = legacyRows(legacySnapshot(null));
   const data = await repositoryFor(rows, recipePage).readAll();
   assert.equal(data.records.length, 1);
   assert.equal(data.records[0].beanId, null);
   assert.equal(data.records[0].beanResolution, 'needs-confirmation');
   assert.equal(data.records[0].rating, 4);
-  assert.equal(data.recipes[0].stats.count, 1);
+  assert.equal(data.recipes[0].stats.count, 0);
 });
 
 test('legacy data-source verification accepts a missing records.bean relation for read compatibility', async () => {

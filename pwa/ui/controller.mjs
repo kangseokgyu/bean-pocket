@@ -399,8 +399,8 @@ export function createAppController({
     view.showStatus?.({ type: 'saving', message: deleting ? '삭제 중입니다.' : '저장 중입니다.' });
     try {
       const prepare = {
-          'delete-bean': 'prepareDeleteBean', 'delete-bag': 'prepareDeleteBag', 'delete-recipe': 'prepareDeleteRecipe',
-          'delete-record': 'prepareDeleteRecord', beans: 'prepareBean', bags: 'prepareBag', recipes: 'prepareRecipe', records: 'prepareRecord',
+          'delete-bean': 'prepareDeleteBean', 'delete-recipe': 'prepareDeleteRecipe',
+          'delete-record': 'prepareDeleteRecord', beans: 'prepareBean', recipes: 'prepareRecipe', records: 'prepareRecord',
         }[kind];
       if (kind !== 'copy' && !prepare) throw Object.freeze({ code: 'input' });
       const draft = kind === 'copy'

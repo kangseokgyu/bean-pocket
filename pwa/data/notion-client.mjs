@@ -1,3 +1,4 @@
+import { CURRENT_RECORD_GENERATION } from '../domain.mjs';
 import { schemas, relationTargets, optionalProperties, encodeProperties } from './notion-properties.mjs';
 
 const KINDS = Object.freeze(['beans', 'bags', 'recipes', 'steps', 'records']);
@@ -57,7 +58,8 @@ function serialize(body) {
 
 function createPayload(kind, data, dataSources) {
   try {
-    if (typeof kind !== 'string' || !KINDS.includes(kind) || !record(data) || !record(dataSources) ||
+    if (typeof kind !== 'string' || !KINDS.includes(kind) || !record(data) ||
+        (kind === 'records' && (data.snapshot?.recordGeneration !== CURRENT_RECORD_GENERATION || Object.hasOwn(data, 'bagId'))) || !record(dataSources) ||
         Object.keys(dataSources).length !== KINDS.length || !KINDS.every(key => Object.hasOwn(dataSources, key) && uuid(dataSources[key])) ||
         new Set(KINDS.map(key => uuid(dataSources[key]))).size !== KINDS.length) {
       throw failure('invalid-input', 'not-sent');
@@ -250,6 +252,10 @@ export class NotionClient {
   }
 
   async createPage(kind, domainData) {
+    if (kind === 'bags' || (kind === 'records' && record(domainData) &&
+        (domainData.snapshot?.recordGeneration !== CURRENT_RECORD_GENERATION || Object.hasOwn(domainData, 'bagId')))) {
+      throw failure('invalid-input', 'not-sent');
+    }
     const sourceId = this.#source(kind);
     if (kind === 'records' && this.#recordBeanRelationSupported !== true) {
       throw failure('schema-unsupported', 'not-sent');
@@ -278,7 +284,7 @@ export class NotionClient {
   }
 
   async archivePage(kind, value) {
-    if (!['beans', 'bags', 'recipes', 'records'].includes(kind)) throw failure('invalid-input', 'not-sent');
+    if (!['beans', 'recipes', 'records'].includes(kind)) throw failure('invalid-input', 'not-sent');
     const id = this.#pageId(value);
     const sourceId = this.#source(kind);
     const page = await this.getPage(id);

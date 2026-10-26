@@ -62,8 +62,9 @@ test('정적 모듈의 날짜·정수 별점·원두 관계와 빈 평균 의미
   assert.throws(() => d.validateRecord({ date: '2026-10-18', rating: 4 }, recipe(), { id: 'b' }, { beanId: 'other' }), d.InputError);
   assert.equal(d.validateRecord({ date: '2026-10-18', rating: 5 }, recipe(), { id: 'b' }).rating, 5);
   assert.deepEqual(d.summarizeRatings([], 'r'), { count: 0, average: null });
-  assert.deepEqual(d.summarizeRatings([{ recipeId: 'r', rating: 1 }, { recipeId: 'r', rating: 5 },
-    { recipeId: 'other', rating: 5 }], 'r'), { count: 2, average: 3 });
+  const current = { snapshotStatus: 'valid', snapshot: { recordGeneration: 'bagless-v1' } };
+  assert.deepEqual(d.summarizeRatings([{ ...current, recipeId: 'r', rating: 1 }, { ...current, recipeId: 'r', rating: 5 },
+    { ...current, recipeId: 'other', rating: 5 }], 'r'), { count: 2, average: 3 });
 });
 
 test('공급 모듈의 복사·스냅샷은 원본 조건·단계·평가를 공유하지 않는다', async () => {
@@ -86,4 +87,5 @@ test('공급 모듈의 복사·스냅샷은 원본 조건·단계·평가를 공
   assert.equal(snapshot.recipe.steps[1].water, 100);
   assert.equal(snapshot.recipe.stats, undefined);
   assert.equal(snapshot.version, 2);
+  assert.equal(snapshot.recordGeneration, 'bagless-v1');
 });

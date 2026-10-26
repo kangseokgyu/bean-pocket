@@ -1,5 +1,5 @@
 import { createSubmissionKeys } from '/submission.mjs';
-import { calculateSteps, formatTime, validateBean, validateBag, validateRecipe, validateRecord, copyRecipe, createSnapshot, summarizeRatings } from '/domain.mjs';
+import { calculateSteps, formatTime, validateBean, validateRecipe, validateRecord, copyRecipe, createSnapshot, isCurrentRecord, summarizeRatings } from '/domain.mjs';
 
 const main = document.querySelector('#main');
 const dialog = document.querySelector('#form-dialog');
@@ -23,6 +23,7 @@ const recipeLink = id => '#recipe/' + encodeURIComponent(id);
 const stars = rating => Number.isInteger(rating) && rating >= 1 && rating <= 5 ? '★'.repeat(rating) : '';
 const canSave = () => (connected || demo) && !stale && !loading;
 const disabled = () => canSave() ? '' : 'disabled';
+const currentRecords = () => data.records.filter(isCurrentRecord);
 
 document.querySelector('#today').textContent = new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' }).format(new Date());
 
@@ -72,7 +73,7 @@ function heading(eyebrow, title, subtitle, actions = '') {
 }
 
 function beanCard(bean) {
-  const records = data.records.filter(record => record.beanId === bean.id);
+  const records = currentRecords().filter(record => record.beanId === bean.id);
   return `<a class="card" href="${beanLink(bean.id)}"><div class="bean-icon" aria-hidden="true">◒</div><p class="eyebrow">${escape(bean.process || 'COFFEE BEANS')}</p><h2>${escape(bean.name)}</h2><p class="roaster">${escape(bean.roaster || '로스터리 미입력')}</p><div class="card-bottom"><span>추출 기록 ${records.length}개</span><span aria-hidden="true">↗</span></div></a>`;
 }
 
@@ -98,7 +99,6 @@ function recipeChips(recipe) {
 }
 
 function renderRecord(record) {
-  const bag = data.bags.find(item => item.id === record.bagId);
   const bean = data.beans.find(item => item.id === record.beanId);
   const recipe = data.recipes.find(item => item.id === record.recipeId);
   const validSnapshot = record.snapshotStatus === 'valid' ? record.snapshot : null;
@@ -116,7 +116,7 @@ function renderRecord(record) {
   const snapshotMessage = record.snapshotStatus === 'damaged'
     ? '기록 당시 조건을 검증할 수 없는 기록입니다.'
     : '당시 조건이 저장되지 않은 기록입니다.';
-  return `<article class="record"><div class="record-header"><span class="stars" aria-label="5점 만점에 ${escape(record.rating ?? '확인 필요')}점">${stars(record.rating)}</span><span>${displayDate(record.date)}</span><span class="muted">별점: ${escape(record.rating ?? '확인 필요')}/5</span></div><p>원두: ${escape(bean?.name || '원두 확인 필요')} · 레시피: ${escape(recipe?.name || snapshot?.name || '확인할 수 없는 레시피')}</p>${warnings.map(message => `<p class="muted">${escape(message)}</p>`).join('')}${bag ? `<p class="muted">원두 봉지: ${escape(bag.name)}</p>` : record.bagCandidates?.length ? '<p class="muted">원두 봉지 관계 확인 필요</p>' : ''}${record.cupNote ? `<p>${escape(record.cupNote)}</p>` : '<p class="muted">컵노트 없이 남긴 한 잔</p>'}<details><summary>당시 레시피 확인</summary><div class="snapshot">${snapshot ? `<strong>${escape(snapshot.name || '당시 레시피')}</strong>${recipeChips(snapshot)}${Array.isArray(snapshot.steps) ? stepsTable(snapshot.steps) : ''}` : snapshotMessage}</div></details></article>`;
+  return `<article class="record"><div class="record-header"><span class="stars" aria-label="5점 만점에 ${escape(record.rating ?? '확인 필요')}점">${stars(record.rating)}</span><span>${displayDate(record.date)}</span><span class="muted">별점: ${escape(record.rating ?? '확인 필요')}/5</span></div><p>원두: ${escape(bean?.name || '원두 확인 필요')} · 레시피: ${escape(recipe?.name || snapshot?.name || '확인할 수 없는 레시피')}</p>${warnings.map(message => `<p class="muted">${escape(message)}</p>`).join('')}${record.cupNote ? `<p>${escape(record.cupNote)}</p>` : '<p class="muted">컵노트 없이 남긴 한 잔</p>'}<details><summary>당시 레시피 확인</summary><div class="snapshot">${snapshot ? `<strong>${escape(snapshot.name || '당시 레시피')}</strong>${recipeChips(snapshot)}${Array.isArray(snapshot.steps) ? stepsTable(snapshot.steps) : ''}` : snapshotMessage}</div></details></article>`;
 }
 
 function render() {
@@ -125,23 +125,21 @@ function render() {
   const selectedRecipe = route[0] === 'recipe' ? data.recipes.find(recipe => recipe.id === decodeURIComponent(route[1] || '')) : null;
   const refresh = connected && !demo ? `<button class="button small secondary" data-action="reload" ${loading ? 'disabled' : ''}>${loading ? '불러오는 중…' : '다시 불러오기'}</button>` : '';
   if (route[0] === 'records') {
-    const records = [...data.records].sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
+    const records = currentRecords().sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
     main.innerHTML = heading('BREW JOURNAL', '추출 기록', '원두와 레시피를 골라 한 잔의 경험을 다시 찾아보세요.', `<button class="button" data-action="record" ${disabled()}>＋ 추출 기록</button>${refresh}`)
       + `<div class="fields record-filters"><label class="field">원두별 조회<select data-record-filter="beanId"><option value="">모든 원두</option>${data.beans.map(bean => `<option value="${escape(bean.id)}">${escape(bean.name)}</option>`).join('')}</select></label><label class="field">레시피별 조회<select data-record-filter="recipeId"><option value="">모든 레시피</option>${data.recipes.map(recipe => `<option value="${escape(recipe.id)}">${escape(recipe.name)}</option>`).join('')}</select></label></div>`
       + `<div data-record-list>${records.length ? records.map(renderRecord).join('') : '<div class="empty"><h2>아직 추출 기록이 없어요</h2><p>원두와 공용 레시피를 선택해 첫 잔을 기록해보세요.</p></div>'}</div>`;
   } else if (selectedRecipe) {
-    const records = data.records.filter(record => record.recipeId === selectedRecipe.id).sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
+    const records = currentRecords().filter(record => record.recipeId === selectedRecipe.id).sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
     main.innerHTML = breadcrumbs(null, selectedRecipe) + heading('BREW RECIPE', selectedRecipe.name, '오늘도 같은 취향을 만날 수 있도록.', `<a class="button secondary" href="#records">추출 기록</a><button class="button secondary" data-action="copy" data-id="${escape(selectedRecipe.id)}" ${disabled()}>레시피 복사</button>${refresh}`)
       + recipeChips(selectedRecipe) + `<div class="section-heading"><h2>물 붓기</h2><span class="muted">시간과 물 양을 함께 확인하세요</span></div>` + stepsTable(selectedRecipe.steps)
       + `<div class="section-heading"><h2>한 잔의 기록 <span class="muted">${records.length}</span></h2><button class="button" data-action="record" data-id="${escape(selectedRecipe.id)}" ${disabled()}>＋ 추출 기록</button></div>`
       + (records.length ? records.map(renderRecord).join('') : '<div class="empty"><h2>첫 번째 한 잔을 기다려요</h2><p>날짜와 별점만으로도 충분해요.<br>기억하고 싶은 향과 맛은 컵노트에 남겨보세요.</p></div>');
   } else if (selectedBean) {
-    const records = data.records.filter(record => record.beanId === selectedBean.id).sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
-    const bags = data.bags.filter(bag => bag.beanId === selectedBean.id);
+    const records = currentRecords().filter(record => record.beanId === selectedBean.id).sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
     main.innerHTML = breadcrumbs(selectedBean) + heading('BEAN COLLECTION', selectedBean.name, selectedBean.roaster || '나만의 원두 컬렉션', `<a class="button secondary" href="#records">추출 기록</a><button class="button" data-action="recipe" data-id="${escape(selectedBean.id)}" ${disabled()}>＋ 레시피 추가</button>${refresh}`)
       + `<dl class="summary">${[['원산지 · 농장', selectedBean.origin], ['품종', selectedBean.variety], ['가공 방식', selectedBean.process]].map(([label, value]) => `<div><dt>${label}</dt><dd>${escape(value || '미입력')}</dd></div>`).join('')}</dl>`
       + (selectedBean.tastingNotes ? `<div class="note"><strong>로스터리 향미 노트</strong><br>${escape(selectedBean.tastingNotes)}</div>` : '')
-      + `<div class="section-heading"><h2>원두 봉지</h2><button class="button small secondary" data-action="bag" data-id="${escape(selectedBean.id)}" ${disabled()}>＋ 봉지 추가</button></div><div class="bag-list">${bags.length ? bags.map(bag => `<div class="bag">${escape(bag.name)}<span>로스팅 ${displayDate(bag.roastedOn)}</span></div>`).join('') : '<p class="muted">구매한 봉지별로 로스팅 날짜를 따로 남길 수 있어요.</p>'}</div>`
       + `<div class="section-heading"><h2>이 원두의 추출 기록 <span class="muted">${records.length}</span></h2></div>`
       + (records.length ? records.map(renderRecord).join('') : '<div class="empty"><h2>아직 추출 기록이 없어요</h2><p>원두와 공용 레시피를 선택해 한 잔을 남겨보세요.</p></div>');
   } else {
@@ -242,16 +240,18 @@ function bindForm(onSubmit, successMessage, buildPayload = values => values) {
 }
 
 async function saveData(kind, payload, key) {
+  if (kind === 'bags' || (kind === 'records' && Object.hasOwn(payload, 'bagId'))) {
+    throw new Error('봉지 저장 기능은 지원하지 않습니다.');
+  }
   if (demo) {
     let item;
     if (kind === 'beans') item = validateBean(payload);
-    if (kind === 'bags') item = validateBag(payload);
     if (kind === 'recipes') item = validateRecipe(payload);
     if (kind === 'records') {
       const recipe = data.recipes.find(item => item.id === payload.recipeId);
       const bean = data.beans.find(item => item.id === payload.beanId);
-      const bag = data.bags.find(item => item.id === payload.bagId);
-      item = { ...validateRecord(payload, recipe, bean, bag), snapshot: createSnapshot(bean, recipe), snapshotStatus: 'valid' };
+      const { bagId: _legacyBagId, ...record } = validateRecord(payload, recipe, bean, null);
+      item = { ...record, snapshot: createSnapshot(bean, recipe), snapshotStatus: 'valid' };
     }
     item.id = crypto.randomUUID();
     data[kind].push(item);
@@ -271,11 +271,6 @@ function openBean() {
     const bean = await saveData('beans', values, key);
     location.hash = beanLink(bean.id);
   }, '원두를 노션에 저장했습니다.');
-}
-
-function openBag(beanId) {
-  openDialog('원두 봉지 추가', formShell(`${field('name', '봉지 이름', '', { required: true, placeholder: '예: 10월에 산 봉지' })}${field('roastedOn', '로스팅 날짜 (선택)', '', { type: 'date' })}<p class="form-help">같은 원두를 다시 구매했다면 봉지만 새로 추가해 주세요.</p>`));
-  bindForm((payload, key) => saveData('bags', payload, key), '원두 봉지를 노션에 저장했습니다.', values => ({ ...values, beanId }));
 }
 
 function stepEditor(step, index) {
@@ -332,15 +327,7 @@ function removeStep(event) {
 function openRecord(recipe) {
   const beanOptions = data.beans.map(bean => `<option value="${escape(bean.id)}">${escape(bean.name)}</option>`).join('');
   const recipeOptions = data.recipes.map(item => `<option value="${escape(item.id)}" ${item.id === recipe?.id ? 'selected' : ''}>${escape(item.name)}</option>`).join('');
-  openDialog('한 잔의 기록', formShell(`<p class="form-help">원두와 공용 레시피를 선택합니다. 당시 원두 정보와 전체 레시피 단계가 함께 보존됩니다.</p><label class="field">원두 *<select name="beanId" required><option value="">원두를 선택해 주세요.</option>${beanOptions}</select></label><label class="field">레시피 *<select name="recipeId" required><option value="">레시피를 선택해 주세요.</option>${recipeOptions}</select></label>${field('date', '추출 날짜', today(), { type: 'date', required: true })}<fieldset><legend>전체 만족도 * (1~5점)</legend><div class="rating-options">${[1, 2, 3, 4, 5].map(rating => `<label><input name="rating" type="radio" value="${rating}" required>${rating} <span class="stars" aria-hidden="true">★</span></label>`).join('')}</div></fieldset><label class="field">사용한 원두 봉지 (선택)<select name="bagId"><option value="">원두 봉지를 선택하지 않음</option></select></label>${textArea('cupNote', '컵노트 (선택)')}`));
-  const beanSelect = dialogContent.querySelector('[name="beanId"]');
-  beanSelect.addEventListener('change', () => {
-    const bagSelect = dialogContent.querySelector('[name="bagId"]');
-    const selected = bagSelect.value;
-    const bags = data.bags.filter(bag => bag.beanId === beanSelect.value);
-    bagSelect.innerHTML = '<option value="">원두 봉지를 선택하지 않음</option>' + bags.map(bag => `<option value="${escape(bag.id)}">${escape(bag.name)}${bag.roastedOn ? ' · ' + escape(bag.roastedOn) : ''}</option>`).join('');
-    if (bags.some(bag => bag.id === selected)) bagSelect.value = selected;
-  });
+  openDialog('한 잔의 기록', formShell(`<p class="form-help">원두와 공용 레시피를 선택합니다. 당시 원두 정보와 전체 레시피 단계가 함께 보존됩니다.</p><label class="field">원두 *<select name="beanId" required><option value="">원두를 선택해 주세요.</option>${beanOptions}</select></label><label class="field">레시피 *<select name="recipeId" required><option value="">레시피를 선택해 주세요.</option>${recipeOptions}</select></label>${field('date', '추출 날짜', today(), { type: 'date', required: true })}<fieldset><legend>전체 만족도 * (1~5점)</legend><div class="rating-options">${[1, 2, 3, 4, 5].map(rating => `<label><input name="rating" type="radio" value="${rating}" required>${rating} <span class="stars" aria-hidden="true">★</span></label>`).join('')}</div></fieldset>${textArea('cupNote', '컵노트 (선택)')}`));
   bindForm((payload, key) => saveData('records', payload, key), '추출 기록과 당시 원두·레시피를 노션에 저장했습니다.');
 }
 
@@ -367,7 +354,6 @@ main.addEventListener('click', event => {
   if (action === 'demo') return startDemo();
   if (action === 'bean') return openBean();
   if (!canSave()) return showNotice('연결을 확인하고 다시 시도해 주세요.', true);
-  if (action === 'bag') return openBag(id);
   if (action === 'recipe') return openRecipe(null);
   const recipe = data.recipes.find(item => item.id === id);
   if (action === 'copy' && recipe) return openRecipe(null, recipe);
@@ -378,7 +364,8 @@ main.addEventListener('change', event => {
   if (!event.target.matches('[data-record-filter]')) return;
   const beanId = main.querySelector('[data-record-filter="beanId"]')?.value ?? '';
   const recipeId = main.querySelector('[data-record-filter="recipeId"]')?.value ?? '';
-  const records = data.records.filter(record => (!beanId || record.beanId === beanId) && (!recipeId || record.recipeId === recipeId))
+  const visibleRecords = currentRecords();
+  const records = visibleRecords.filter(record => (!beanId || record.beanId === beanId) && (!recipeId || record.recipeId === recipeId))
     .sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
   const list = main.querySelector('[data-record-list]');
   if (!list) return;

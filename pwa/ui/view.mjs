@@ -1,3 +1,5 @@
+import { isCurrentRecord } from '../domain.mjs';
+
 const make = (document, tag, text, className) => {
   const node = document.createElement(tag);
   if (text !== undefined) node.textContent = String(text);
@@ -36,7 +38,7 @@ const iconButton = (document, icon, title, action) => {
 };
 
 function trashButton(document, kind, id, name) {
-  const action = { beans: 'delete-bean', bags: 'delete-bag', recipes: 'delete-recipe', records: 'delete-record' }[kind];
+  const action = { beans: 'delete-bean', recipes: 'delete-recipe', records: 'delete-record' }[kind];
   const remove = iconButton(document, '', `${name} 삭제`, action);
   remove.className += ' entity-delete';
   remove.dataset.id = id;
@@ -73,7 +75,7 @@ const makeSpinner = document => {
 };
 
 const idOf = value => String(value ?? '');
-const FORM_KINDS = new Set(['beans', 'bags', 'recipes', 'records']);
+const FORM_KINDS = new Set(['beans', 'recipes', 'records']);
 const AUTO_HIDE_STATUS_TYPES = new Set(['connected', 'saved', 'resolved', 'cancelled']);
 const STATUS_DISPLAY_MS = 3000;
 const SOURCE_FIELDS = Object.freeze([
@@ -178,7 +180,6 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   let route = globalThis.location?.hash?.slice(1) || '/beans';
   const drafts = new Map();
   let beanFormOpen = false;
-  let bagFormOpen = false;
   let recipeFormOpen = route === '/recipes/new';
   let recordFormOpen = route === '/records/new';
   let statusHideTimer;
@@ -314,7 +315,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   const nav = make(document, 'nav', undefined, 'tabs');
   nav.setAttribute('aria-label', '커피 기록 메뉴');
   for (const [key, title] of [
-    ['beans', '원두'], ['bags', '봉지'], ['recipes', '레시피'], ['records', '추출 기록'],
+    ['beans', '원두'], ['recipes', '레시피'], ['records', '추출 기록'],
   ]) {
     const item = button(document, '', 'button', 'navigate');
     item.setAttribute('aria-label', title);
@@ -415,12 +416,13 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     syncStatusToast();
   }
   function renderCurrentContent() {
-    renderPane(content, currentData, document, route, drafts, beanFormOpen, recipeFormOpen, bagFormOpen, recordFormOpen);
+    drafts.delete('bags');
+    renderPane(content, currentData, document, route, drafts, beanFormOpen, recipeFormOpen, recordFormOpen);
     finishContentRender();
     applyViewState();
   }
   function restoreEntryFocus(kind) {
-    const action = { beans: 'show-bean-form', bags: 'show-bag-form', recipes: 'show-recipe-form', records: 'show-record-form' }[kind];
+    const action = { beans: 'show-bean-form', recipes: 'show-recipe-form', records: 'show-record-form' }[kind];
     (content.querySelector(`[data-action="${action}"]`) ?? nav.querySelector('[data-route="/beans"]'))?.focus?.();
   }
 
@@ -429,7 +431,6 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     const dialog = entryDialogFor(kind);
     if (!form || !dialog || currentState.pending || currentState.frozen || currentState.unresolved) return;
     if (kind === 'beans') beanFormOpen = true;
-    if (kind === 'bags') bagFormOpen = true;
     if (kind === 'recipes') recipeFormOpen = true;
     if (kind === 'records') recordFormOpen = true;
     activeEntryKind = kind;
@@ -544,7 +545,6 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       const wasOpen = activeEntryKind === kind;
       if (entryDialogFor(kind)?.open) entryDialogFor(kind).close();
       if (kind === 'beans') beanFormOpen = false;
-      if (kind === 'bags') bagFormOpen = false;
       if (kind === 'recipes') recipeFormOpen = false;
       if (kind === 'records') recordFormOpen = false;
       if (wasOpen) activeEntryKind = null;
@@ -571,7 +571,6 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       }
     },
     showBeanForm() { openEntryForm('beans', 'show-bean-form', 'name'); },
-    showBagForm() { openEntryForm('bags', 'show-bag-form', 'name'); },
     showRecipeForm() { openEntryForm('recipes', 'show-recipe-form', 'name'); },
     showRecordForm() { openEntryForm('records', 'show-record-form', 'date'); },
     showEntrySuccess(kind) {
@@ -723,7 +722,7 @@ function applyState(page, state) {
     control.disabled = globallyDisabled;
   });
   if (globallyDisabled || !state.unresolved) return;
-  page.querySelectorAll('[data-action="delete-bean"], [data-action="delete-bag"], [data-action="delete-recipe"], [data-action="delete-record"]').forEach(control => { control.disabled = true; });
+  page.querySelectorAll('[data-action="delete-bean"], [data-action="delete-recipe"], [data-action="delete-record"]').forEach(control => { control.disabled = true; });
 
   page.querySelectorAll('form[data-form]').forEach(form => {
     form.querySelectorAll('input,button,select,textarea').forEach(control => {
@@ -761,12 +760,12 @@ function makeEntryDialog(document, kind, form, open) {
   return dialog;
 }
 
-function renderPane(parent, data, document, route = '/beans', drafts = new Map(), beanFormOpen = false, recipeFormOpen = false, bagFormOpen = false, recordFormOpen = false) {
+function renderPane(parent, data, document, route = '/beans', drafts = new Map(), beanFormOpen = false, recipeFormOpen = false, recordFormOpen = false) {
   const parts = route.split('/').filter(Boolean);
   const section = parts[0] ?? 'beans';
   const pane = make(document, 'div', undefined, 'list-view');
   pane.dataset.section = section;
-  const titles = { beans: '원두', bags: '봉지', recipes: '레시피', records: '추출 기록' };
+  const titles = { beans: '원두', recipes: '레시피', records: '추출 기록' };
   const header = make(document, 'div', undefined, 'list-header');
   header.append(make(document, 'h2', titles[section] ?? '커피 기록'));
   const actions = make(document, 'div', undefined, 'list-actions');
@@ -774,12 +773,6 @@ function renderPane(parent, data, document, route = '/beans', drafts = new Map()
     const add = iconButton(document, '+', '새 원두 추가', 'show-bean-form');
     add.setAttribute('aria-controls', 'beans-entry-dialog');
     add.setAttribute('aria-expanded', String(beanFormOpen));
-    actions.append(add);
-  }
-  if (section === 'bags') {
-    const add = iconButton(document, '+', '새 봉지 추가', 'show-bag-form');
-    add.setAttribute('aria-controls', 'bags-entry-dialog');
-    add.setAttribute('aria-expanded', String(bagFormOpen));
     actions.append(add);
   }
   if (section === 'recipes' && (!parts[1] || parts[1] === 'new')) {
@@ -803,8 +796,6 @@ function renderPane(parent, data, document, route = '/beans', drafts = new Map()
     renderRecipeDetail(pane, data, document, parts[1]);
   } else if (section === 'beans') {
     renderBeans(pane, data, document, beanFormOpen);
-  } else if (section === 'bags') {
-    renderBags(pane, data, document, bagFormOpen);
   } else if (section === 'recipes') {
     const form = buildRecipeForm(document, data);
     form.id = 'new-recipe-form';
@@ -874,7 +865,7 @@ function renderBeans(pane, data, document, formOpen) {
       metadata.append(make(document, 'dt', label), make(document, 'dd', value || '기록 없음'));
     }
     card.append(metadata);
-    const records = data.records.filter(record => record.beanId === bean.id);
+    const records = currentRecords(data).filter(record => record.beanId === bean.id);
     card.append(make(document, 'p', `추출 기록 ${records.length}개`));
     pane.append(card);
   }
@@ -891,7 +882,7 @@ function renderBeanDetail(pane, data, document, beanId) {
   }
   pane.append(make(document, 'h3', bean.name));
   if (bean.origin) pane.append(make(document, 'p', `원산지·농장: ${bean.origin}`));
-  const records = data.records.filter(record => record.beanId === bean.id).sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
+  const records = currentRecords(data).filter(record => record.beanId === bean.id).sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
   pane.append(make(document, 'h4', '이 원두의 추출 기록'));
   if (!records.length) pane.append(make(document, 'p', '등록된 추출 기록이 없습니다.'));
   for (const record of records) pane.append(recordCard(document, record, data));
@@ -907,35 +898,6 @@ function renderRecipeDetail(pane, data, document, recipeId) {
     return;
   }
   pane.append(recipeCard(document, recipe, data, true));
-}
-
-function renderBags(pane, data, document, formOpen) {
-  const form = formBase(document, 'bags', '새 봉지');
-  form.id = 'new-bag-form';
-  addFieldset(document, form, '봉지 정보', [
-    ['봉지 이름', 'name', 'text', true],
-    ['원두', 'beanId', 'select', true],
-    ['로스팅 날짜 (선택)', 'roastedOn', 'date', false],
-  ]);
-  fillSelect(form.elements.beanId, data.beans, '원두를 선택해 주세요.');
-  addFormActions(document, form, 'bags');
-  pane.append(makeEntryDialog(document, 'bags', form, formOpen));
-  if (!data.bags.length) pane.append(make(document, 'p', '등록된 봉지가 없습니다.', 'empty-state'));
-  for (const bean of data.beans) {
-    const group = make(document, 'section', undefined, 'bag-group');
-    group.append(make(document, 'h3', bean.name));
-    const bags = data.bags.filter(item => item.beanId === bean.id);
-    if (!bags.length) group.append(make(document, 'p', '등록된 봉지가 없습니다.'));
-    for (const bag of bags) {
-      const card = make(document, 'article', undefined, 'bag-card');
-      const header = make(document, 'div', undefined, 'entity-card-header');
-      header.append(make(document, 'h4', bag.name), trashButton(document, 'bags', bag.id, bag.name));
-      card.append(header);
-      if (bag.roastedOn) card.append(make(document, 'p', `로스팅 ${bag.roastedOn}`));
-      group.append(card);
-    }
-    pane.append(group);
-  }
 }
 
 function recipeCard(document, recipe, data, detailed = false) {
@@ -959,7 +921,7 @@ function recipeCard(document, recipe, data, detailed = false) {
     article.append(guide);
   }
 
-  const records = data.records.filter(record => record.recipeId === recipe.id).sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
+  const records = currentRecords(data).filter(record => record.recipeId === recipe.id).sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
   article.append(make(document, 'h4', '추출 기록'));
   if (!records.length) article.append(make(document, 'p', '기록 없음'));
   for (const record of records) {
@@ -978,9 +940,6 @@ function recipeCard(document, recipe, data, detailed = false) {
     if (invalidLabels.length) article.append(make(document, 'p', `기록 오류: ${invalidLabels.join(', ')}`, 'record-warning'));
     if (record.snapshotStatus === 'damaged') article.append(make(document, 'p', '스냅샷이 손상되어 당시 조건을 표시할 수 없습니다.', 'record-warning'));
     if (record.cupNote) article.append(make(document, 'p', `컵노트: ${record.cupNote}`));
-    const bag = data.bags.find(item => item.id === record.bagId);
-    const bagName = record.bagId ? (bag?.name || '조회할 수 없는 봉지') : record.bagCandidates?.length ? '관계 확인 필요' : '선택 안 함';
-    article.append(make(document, 'p', `원두 봉지: ${bagName}`, 'record-bag'));
     if (Array.isArray(snapshot?.steps)) {
       article.append(make(document, 'p', `기록 당시 조건: ${snapshot.dripper || '드리퍼 미기록'} · ${snapshot.dose}g · ${snapshot.temperature}℃ · 물 ${snapshot.totalWater}g`));
       article.append(make(document, 'h5', '당시 단계'));
@@ -1069,12 +1028,10 @@ function buildRecordForm(document, data) {
     ['레시피', 'recipeId', 'select', true],
     ['날짜', 'date', 'date', true],
     ['별점 (1~5)', 'rating', 'number', true, { min: 1, max: 5, step: 1 }],
-    ['원두 봉지 (선택)', 'bagId', 'select', false],
     ['컵노트 (선택)', 'cupNote', 'textarea', false],
   ]);
   fillSelect(form.elements.beanId, data.beans, '원두를 선택해 주세요.');
   fillSelect(form.elements.recipeId, data.recipes, '레시피를 선택해 주세요.');
-  fillSelect(form.elements.bagId, [], '봉지 선택 안 함', true);
   form.elements.date.value = localDate();
   addFormActions(document, form, 'records');
   return form;
@@ -1105,13 +1062,18 @@ function renderRecords(pane, data, document, formOpen) {
   renderRecordRows(list, data, '', '');
 }
 
+function currentRecords(data) {
+  return Array.isArray(data?.records) ? data.records.filter(isCurrentRecord) : [];
+}
+
 function renderRecordRows(list, data, beanId, recipeId) {
-  const records = data.records
+  const visibleRecords = currentRecords(data);
+  const records = visibleRecords
     .filter(record => (!beanId || record.beanId === beanId) && (!recipeId || record.recipeId === recipeId))
     .sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
   list.replaceChildren();
   if (!records.length) {
-    list.append(make(list.ownerDocument, 'p', data.records.length ? '선택한 조건에 맞는 기록이 없습니다.' : '등록된 추출 기록이 없습니다.', 'empty-state'));
+    list.append(make(list.ownerDocument, 'p', visibleRecords.length ? '선택한 조건에 맞는 기록이 없습니다.' : '새 버전에서 작성한 추출 기록이 없습니다.', 'empty-state'));
     return;
   }
   for (const record of records) list.append(recordCard(list.ownerDocument, record, data));
@@ -1137,13 +1099,11 @@ function recordCard(document, record, data) {
   if (invalidLabels.length) card.append(make(document, 'p', `기록 오류: ${invalidLabels.join(', ')}`, 'record-warning'));
   if (record.snapshotStatus === 'damaged') card.append(make(document, 'p', '스냅샷이 손상되어 당시 조건을 표시할 수 없습니다.', 'record-warning'));
   if (record.cupNote) card.append(make(document, 'p', `컵노트: ${record.cupNote}`));
-  const bag = data.bags.find(item => item.id === record.bagId);
-  card.append(make(document, 'p', `원두 봉지: ${record.bagId ? bag?.name || '조회할 수 없는 봉지' : record.bagCandidates?.length ? '관계 확인 필요' : '선택 안 함'}`));
   return card;
 }
 
 function addFormActions(document, form, kind) {
-  const nouns = { beans: '원두', bags: '봉지', recipes: '레시피', records: '기록' };
+  const nouns = { beans: '원두', recipes: '레시피', records: '기록' };
   const actions = make(document, 'div', undefined, 'form-actions');
   const cancel = button(document, '입력 취소', 'button', 'cancel-form');
   const submit = button(document, nouns[kind] + ' 저장');
@@ -1262,13 +1222,12 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
       if (view.cancelConnection()) view.showStatus({ type: 'cancelled', message: '연결 입력을 취소했습니다.' });
       return;
     }
-    if (['delete-bean', 'delete-bag', 'delete-recipe', 'delete-record'].includes(action)) {
+    if (['delete-bean', 'delete-recipe', 'delete-record'].includes(action)) {
       const state = actions.getState?.() ?? {};
       if (target.disabled || state.pending || state.frozen || state.unresolved) return;
-      const nouns = { 'delete-bean': '원두를', 'delete-bag': '봉지를', 'delete-recipe': '레시피를', 'delete-record': '추출 기록을' };
+      const nouns = { 'delete-bean': '원두를', 'delete-recipe': '레시피를', 'delete-record': '추출 기록을' };
       const dependencies = {
-        'delete-bean': '연결된 봉지나 추출 기록이 있으면 삭제할 수 없습니다.',
-        'delete-bag': '추출 기록에서 사용 중인 봉지는 먼저 해당 추출 기록을 삭제해야 합니다.',
+        'delete-bean': '연결된 추출 기록이 있으면 삭제할 수 없습니다.',
         'delete-recipe': '추출 기록에서 사용 중인 레시피는 먼저 해당 추출 기록을 삭제해야 합니다.',
         'delete-record': '해당 기록만 휴지통으로 이동합니다.',
       };
@@ -1279,10 +1238,6 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
     }
     if (action === 'show-bean-form') {
       view.showBeanForm();
-      return;
-    }
-    if (action === 'show-bag-form') {
-      view.showBagForm();
       return;
     }
     if (action === 'show-recipe-form') {
@@ -1309,7 +1264,6 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
       const form = navigateAndGetForm(view, content, '/records/new', 'records');
       if (form) {
         form.elements.recipeId.value = recipeId;
-        updateBagChoices(form, windowData);
         actions.setDirty(true, 'records');
       }
       return;
@@ -1361,9 +1315,6 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
   });
   content.addEventListener('change', event => {
     if (event.target.disabled) return;
-    if (event.target.name === 'beanId' && event.target.form?.dataset.form === 'records' && windowData) {
-      updateBagChoices(event.target.form, windowData);
-    }
     if (event.target.matches('[data-record-filter]') && windowData) {
       const beanId = content.querySelector('[data-record-filter="beanId"]')?.value ?? '';
       const recipeId = content.querySelector('[data-record-filter="recipeId"]')?.value ?? '';
@@ -1417,14 +1368,6 @@ function navigateAndGetForm(view, content, nextRoute, kind) {
   if (globalThis.window?.location) globalThis.window.location.hash = nextRoute;
   view.renderRoute(nextRoute);
   return content.querySelector(`form[data-form="${kind}"]`);
-}
-
-function updateBagChoices(form, data) {
-  if (!form?.elements?.beanId || !form.elements.bagId) return;
-  const selectedBag = form.elements.bagId.value;
-  const beanId = form.elements.beanId.value;
-  fillSelect(form.elements.bagId, data.bags.filter(bag => bag.beanId === beanId), '봉지 선택 안 함', true);
-  if ([...form.elements.bagId.options].some(option => option.value === selectedBag)) form.elements.bagId.value = selectedBag;
 }
 
 function addStep(content, document) {
@@ -1523,13 +1466,8 @@ function saveActiveDraft(content, drafts) {
 function restoreDraft(form, draft, data) {
   if (!draft) return;
   for (const [name, value] of Object.entries(draft.values)) {
-    if (form.dataset.form === 'records' && name === 'bagId') continue;
     const field = form.elements[name];
     if (field) field.value = value;
-  }
-  if (form.dataset.form === 'records') {
-    updateBagChoices(form, data);
-    form.elements.bagId.value = draft.values.bagId ?? '';
   }
   if (form.dataset.form === 'recipes' && draft.steps?.length) {
     const panel = form.closest('.data-panel');

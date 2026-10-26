@@ -145,7 +145,7 @@ const data = () => ({
       { id: '44444444-4444-4444-8444-444444444444', name: '뜸', seconds: 0, interval: 0, water: 50, cumulativeWater: 50 },
       { id: '55555555-5555-4555-8555-555555555555', name: '붓기', seconds: 70, interval: 40, water: 200, cumulativeWater: 250 },
     ] }],
-  records: [{ id: '66666666-6666-4666-8666-666666666666', beanId: BEAN, beanResolution: 'relation', recipeId: RECIPE, date: '2026-06-15', rating: 5, cupNote: '꿀, 살구', snapshotStatus: 'valid', snapshot: { version: 1, id: RECIPE, beanId: BEAN, name: 'V60', dripper: 'V60', dose: 15, temperature: 93, totalWater: 250, steps: [{ name: '뜸', seconds: 0, water: 50, cumulativeWater: 50 }] } }],
+  records: [{ id: '66666666-6666-4666-8666-666666666666', beanId: BEAN, beanResolution: 'relation', recipeId: RECIPE, date: '2026-06-15', rating: 5, cupNote: '꿀, 살구', snapshotStatus: 'valid', snapshot: { version: 1, recordGeneration: 'bagless-v1', id: RECIPE, beanId: BEAN, name: 'V60', dripper: 'V60', dose: 15, temperature: 93, totalWater: 250, steps: [{ name: '뜸', seconds: 0, water: 50, cumulativeWater: 50 }] } }],
 });
 
 const CONNECTION = { token: 'test-only-token', dataSources: {} };
@@ -608,7 +608,7 @@ test('pour tables group cumulative values before interval and current water in t
   }
 });
 
-test('malformed snapshot is never rendered as recipe detail and shows a damage warning', () => {
+test('damaged historical records are excluded from bagless recipe views', () => {
   const document = new TestDocument();
   const view = createAppView(document);
   const current = data();
@@ -618,8 +618,8 @@ test('malformed snapshot is never rendered as recipe detail and shows a damage w
 
   assert.doesNotThrow(() => view.renderRoute(`/recipes/${RECIPE}`));
   const detail = document.root.querySelector('.recipe-card');
-  assert.match(detail.textContent, /스냅샷이 손상되어 당시 조건을 표시할 수 없습니다/);
-  assert.doesNotMatch(detail.textContent, /기록 당시 조건:/);
+  assert.equal(detail.querySelectorAll('.record-summary-header').length, 0);
+  assert.match(detail.textContent, /기록 없음/);
 });
 
 test('invalid stored date and rating remain visible with field-specific warnings', () => {
@@ -809,7 +809,7 @@ test('recipe input minimums allow every positive sub-cent value accepted by the 
   }
 });
 
-test('recipe records distinguish selected bags, no selection, and unavailable bags', () => {
+test('recipe history never displays legacy bag relations', () => {
   const document = new TestDocument();
   const view = createAppView(document);
   const rows = data();
@@ -823,11 +823,8 @@ test('recipe records distinguish selected bags, no selection, and unavailable ba
   view.renderData(rows);
   view.renderRoute(`/recipes/${RECIPE}`);
   const detail = document.root.querySelector('.recipe-card');
-  const labels = detail.querySelectorAll('.record-bag').map(node => node.textContent);
-  assert.deepEqual(labels, [
-    '원두 봉지: 6월 봉지', '원두 봉지: 7월 봉지',
-    '원두 봉지: 선택 안 함', '원두 봉지: 조회할 수 없는 봉지',
-  ]);
+  assert.equal(detail.querySelectorAll('.record-bag').length, 0);
+  assert.doesNotMatch(detail.textContent, /봉지|로스팅 날짜/);
 });
 
 test('bean creation starts hidden, opens from the plus button, and closes on cancel', async () => {
@@ -864,48 +861,17 @@ test('bean creation starts hidden, opens from the plus button, and closes on can
   assert.deepEqual(dirty, [[false, 'beans']]);
 });
 
-test('bag creation starts hidden, opens from the plus button, and closes on cancel', async () => {
+test('bag route has no entry, delete or relation selection surface', () => {
   const document = new TestDocument();
   const view = createAppView(document);
-  const dirty = [];
-  view.bind({ setDirty: (...args) => dirty.push(args) });
   view.renderData(data());
   view.renderRoute('/bags');
-  const click = async target => {
-    for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target });
-  };
-  let form = document.root.querySelector('form[data-form="bags"]');
-  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"bags\"]').open, false);
-  let add = document.root.querySelector('[data-action="show-bag-form"]');
-  assert.ok(add);
-  assert.equal(add.getAttribute('aria-label'), '새 봉지 추가');
-  assert.equal(add.getAttribute('aria-controls'), document.root.querySelector('dialog[data-entry-dialog=\"bags\"]').id);
-  assert.equal(add.getAttribute('aria-expanded'), 'false');
-  await click(add);
-  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"bags\"]').open, true);
-  assert.equal(add.getAttribute('aria-expanded'), 'true');
-  assert.equal(dirty.length, 0);
-  form.elements.name.value = '보존할 봉지';
-  view.renderData(data());
-  view.renderRoute('/beans');
-  view.renderRoute('/bags');
-  form = document.root.querySelector('form[data-form="bags"]');
-  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"bags\"]').open, true);
-  assert.equal(form.elements.name.value, '보존할 봉지');
-  await click(form.querySelector('[data-action="cancel-form"]'));
-  form = document.root.querySelector('form[data-form="bags"]');
-  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"bags\"]').open, false);
-  assert.equal(form.elements.name.value, '');
-  assert.deepEqual(dirty, [[false, 'bags']]);
-  await click(document.root.querySelector('[data-action="show-bag-form"]'));
-  view.setState({ pending: true });
-  assert.equal(document.root.querySelector('[data-action="show-bag-form"]').disabled, true);
-  view.setState({ pending: false });
-  view.clearDraft('bags');
-  assert.equal(document.root.querySelector('dialog[data-entry-dialog="bags"]').open, false);
-  assert.equal(document.root.querySelector('[data-action="show-bag-form"]').getAttribute('aria-expanded'), 'false');
-  view.renderData({ ...data(), bags: [] });
-  assert.equal(document.root.querySelector('.empty-state').textContent, '등록된 봉지가 없습니다.');
+  assert.equal(Boolean(document.root.querySelector('[data-route="/bags"]')), false);
+  assert.equal(Boolean(document.root.querySelector('form[data-form="bags"]')), false);
+  assert.equal(Boolean(document.root.querySelector('[data-action="show-bag-form"]')), false);
+  assert.equal(Boolean(document.root.querySelector('[data-action="delete-bag"]')), false);
+  view.renderRoute('/records/new');
+  assert.equal(document.root.querySelector('form[data-form="records"]').elements.bagId, undefined);
 });
 
 test('recipe creation opens from plus, preserves drafts, and closes on cancel', async () => {
@@ -1044,7 +1010,7 @@ test('collection headers omit refresh and retain their add buttons', () => {
   const document = new TestDocument();
   const view = createAppView(document);
   view.renderData(data());
-  for (const [section, kind] of [['beans', 'bean'], ['bags', 'bag'], ['recipes', 'recipe'], ['records', 'record']]) {
+  for (const [section, kind] of [['beans', 'bean'], ['recipes', 'recipe'], ['records', 'record']]) {
     view.renderRoute(`/${section}`);
     assert.ok(document.root.querySelector('[data-action="refresh"]') === null, `${section}: refresh button must be absent`);
     assert.ok(document.root.querySelector(`[data-action="show-${kind}-form"]`), section);
@@ -1288,7 +1254,7 @@ test('navigation uses text-only menus with accessible names', () => {
   const document = new TestDocument();
   createAppView(document);
   const items = document.root.querySelector('nav.tabs').querySelectorAll('button');
-  const expected = [['beans', '원두'], ['bags', '봉지'], ['recipes', '레시피'], ['records', '추출 기록']];
+  const expected = [['beans', '원두'], ['recipes', '레시피'], ['records', '추출 기록']];
   assert.equal(items.length, expected.length);
   items.forEach((item, index) => {
     const [key, title] = expected[index];
@@ -1331,7 +1297,7 @@ test('bean cards expose a labelled trash button and require confirmation before 
   }
 });
 
-test('bag, recipe, and record cards expose named trash controls and confirm each item before submission', async () => {
+test('recipe and record cards expose named trash controls and confirm each item before submission', async () => {
   const document = new TestDocument(), view = createAppView(document);
   view.showConnection({ connected: true });
   view.renderData(data());
@@ -1340,8 +1306,8 @@ test('bag, recipe, and record cards expose named trash controls and confirm each
   view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }),
     submit: async (...args) => calls.push(args) });
   const original = globalThis.confirm;
+  assert.equal(Boolean(document.root.querySelector('[data-action="delete-bag"]')), false);
   const cases = [
-    ['/bags', 'delete-bag', '6월 봉지', '6월 봉지'],
     ['/recipes', 'delete-recipe', 'V60', 'V60'],
     ['/records', 'delete-record', '2026-06-15 · V60', '2026-06-15 · V60'],
   ];
@@ -1368,7 +1334,6 @@ test('bag, recipe, and record cards expose named trash controls and confirm each
       assert.match(confirmations.at(-1), /Notion 휴지통으로 이동/);
     }
     assert.deepEqual(calls, [
-      ['delete-bag', { id: '22222222-2222-4222-8222-222222222222' }],
       ['delete-recipe', { id: RECIPE }],
       ['delete-record', { id: '66666666-6666-4666-8666-666666666666' }],
     ]);
@@ -1412,7 +1377,7 @@ test('header navigation changes routes and remains locked while work is pending'
   const nav = header.querySelector('nav.tabs');
   assert.ok(nav, 'primary navigation belongs in the site header');
   assert.equal(document.root.querySelector('nav.tabs'), null);
-  assert.deepEqual(nav.children.map(item => item.textContent), ['원두', '봉지', '레시피', '추출 기록']);
+  assert.deepEqual(nav.children.map(item => item.textContent), ['원두', '레시피', '추출 기록']);
   view.bind({});
   view.renderData(data());
   view.showConnection({ connected: true });
@@ -1453,10 +1418,9 @@ test('bean entry opens and closes as a native modal without saving on cancel', a
   assert.equal(writes, 0);
 });
 
-test('all four entry forms open as native dialogs and cancel without submitting', async () => {
+test('available entry forms open as native dialogs and cancel without submitting', async () => {
   const cases = [
     ['/beans', 'show-bean-form', 'beans'],
-    ['/bags', 'show-bag-form', 'bags'],
     ['/recipes', 'show-recipe-form', 'recipes'],
     ['/records', 'show-record-form', 'records'],
   ];
@@ -1607,8 +1571,7 @@ test('a failed modal save preserves its fields and enables a retry', async () =>
 
 test('success delay locks every entry field and recipe step after refresh finishes', async () => {
   for (const [kind, open] of [
-    ['beans', 'showBeanForm'], ['bags', 'showBagForm'],
-    ['recipes', 'showRecipeForm'], ['records', 'showRecordForm'],
+    ['beans', 'showBeanForm'], ['recipes', 'showRecipeForm'], ['records', 'showRecordForm'],
   ]) {
     const document = new TestDocument();
     const view = createAppView(document, { schedule: () => 1 });
@@ -1927,4 +1890,44 @@ test('bean card deletion never opens records, including clicks on its icon', asy
   } finally {
     if (original === undefined) delete globalThis.confirm; else globalThis.confirm = original;
   }
+});
+
+test('legacy extraction records remain in raw input but are hidden from current lists and details', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  const rows = data();
+  rows.records[0].snapshot.recordGeneration = 'bagless-v1';
+  const legacy = structuredClone(rows.records[0]);
+  legacy.id = 'legacy-record';
+  delete legacy.snapshot.recordGeneration;
+  rows.records.push(legacy);
+  view.renderData(rows);
+
+  view.renderRoute('/records');
+  assert.equal(rows.records.length, 2, 'rendering must not mutate or discard raw records');
+  assert.equal(document.root.querySelectorAll('.record-card').length, 1);
+  view.renderRoute(`/beans/${BEAN}`);
+  assert.equal(document.root.querySelectorAll('.record-card').length, 1);
+  view.renderRoute(`/recipes/${RECIPE}`);
+  assert.equal(document.root.querySelectorAll('.record-summary-header').length, 1);
+});
+
+test('PWA removes bag navigation, entry and record selection or display surfaces', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  const rows = data();
+  rows.records[0].snapshot.recordGeneration = 'bagless-v1';
+  view.renderData(rows);
+
+  assert.equal(Boolean(document.root.querySelector('[data-route="/bags"]')), false);
+  view.renderRoute('/bags');
+  assert.equal(Boolean(document.root.querySelector('form[data-form="bags"]')), false);
+  assert.equal(Boolean(document.root.querySelector('[data-action="show-bag-form"]')), false);
+  assert.equal(Boolean(document.root.querySelector('[data-action="delete-bag"]')), false);
+  assert.doesNotMatch(document.root.querySelector('.data-panel').textContent, /봉지|로스팅 날짜/);
+
+  view.renderRoute('/records/new');
+  assert.equal(document.root.querySelector('form[data-form="records"]').elements.bagId, undefined);
+  view.renderRoute(`/recipes/${RECIPE}`);
+  assert.doesNotMatch(document.root.querySelector('.data-panel').textContent, /원두 봉지|6월 봉지/);
 });

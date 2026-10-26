@@ -2,7 +2,6 @@ import {
   InputError,
   copyRecipe,
   createSnapshot,
-  validateBag,
   validateBean,
   validateRecord,
   validateRecipe,
@@ -13,7 +12,7 @@ import { createSubmissionDraft } from '../state/submission-state.mjs';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DELETE_TARGET_BY_OPERATION = Object.freeze({
-  'delete-bean': 'beans', 'delete-bag': 'bags', 'delete-recipe': 'recipes', 'delete-record': 'records',
+  'delete-bean': 'beans', 'delete-recipe': 'recipes', 'delete-record': 'records',
 });
 
 function isPlainRecord(value) {
@@ -64,11 +63,6 @@ function normalizedId(value, label) {
   return value.trim().toLowerCase();
 }
 
-function optionalId(value, label) {
-  if (value === undefined || value === null || value === '') return null;
-  return normalizedId(value, label);
-}
-
 function safeState(error) {
   try {
     return ['not-sent', 'rejected', 'unknown'].includes(error?.writeState) ? error.writeState : 'unknown';
@@ -100,22 +94,6 @@ function requireRecipe(data, recipeId) {
   try { validateStoredRecipe(recipe); }
   catch { throw new InputError('레시피 단계가 완전하지 않습니다. 다시 조회해 주세요.'); }
   return recipe;
-}
-
-function requireBag(data, bagId, bean) {
-  const bag = oneById(data?.bags, bagId);
-  if (!bag) throw new InputError('최신 조회에서 선택한 봉지를 찾을 수 없습니다. 다시 조회해 주세요.');
-  const bagBeanId = normalizedId(bag.beanId, '봉지의 원두');
-  if (bagBeanId !== bean.id) throw new InputError('봉지와 선택한 원두가 다릅니다. 다시 조회해 주세요.');
-  return bag;
-}
-
-function requireBagById(data, bagId) {
-  const bag = oneById(data?.bags, bagId);
-  if (!bag) throw new InputError('최신 조회에서 봉지를 찾을 수 없습니다. 다시 조회해 주세요.');
-  const bean = requireBean(data, normalizedId(bag.beanId, '봉지의 원두'));
-  requireBag(data, bagId, bean);
-  return bag;
 }
 
 function requireRecord(data, recordId) {
@@ -176,21 +154,14 @@ function normalizedRecipeInput(value) {
   return validateRecipe(input);
 }
 
-function normalizedBagInput(value) {
-  const input = inputObject(value, '봉지');
-  const bag = validateBag(input);
-  return { ...bag, beanId: normalizedId(bag.beanId, '원두') };
-}
-
 function normalizedRecordInput(value) {
   const input = inputObject(value, '추출 기록');
   const beanId = normalizedId(input.beanId, '원두');
   const recipeId = normalizedId(input.recipeId, '레시피');
-  const bagId = optionalId(input.bagId, '원두 봉지');
-  // Validate the independent record fields with the shared domain rules. The
-  // real recipe and optional bag are reloaded under the write lock before save.
-  const record = validateRecord(input, { id: recipeId }, { id: beanId }, null);
-  return { ...record, beanId, recipeId, bagId };
+  if (Object.hasOwn(input, 'bagId')) throw new InputError('추출 기록에 봉지를 지정할 수 없습니다.');
+  // The real recipe and bean are reloaded under the write lock before save.
+  const { bagId: _legacyBagId, ...record } = validateRecord(input, { id: recipeId }, { id: beanId }, null);
+  return { ...record, beanId, recipeId };
 }
 
 export function createCommands({ client, repository, submissionState } = {}) {
@@ -224,12 +195,11 @@ export function createCommands({ client, repository, submissionState } = {}) {
     const targetKind = DELETE_TARGET_BY_OPERATION[kind];
     if (!targetKind) throw new InputError('삭제 대상을 확인해 주세요.');
     const input = inputObject(payload, `삭제할 ${targetKind}`);
-    const labels = { beans: '원두', bags: '봉지', recipes: '레시피', records: '추출 기록' };
+    const labels = { beans: '원두', recipes: '레시피', records: '추출 기록' };
     return prepare(kind, { id: normalizedId(input.id, labels[targetKind]) });
   }
 
   const prepareDeleteBean = payload => prepareDelete('delete-bean', payload);
-  const prepareDeleteBag = payload => prepareDelete('delete-bag', payload);
   const prepareDeleteRecipe = payload => prepareDelete('delete-recipe', payload);
   const prepareDeleteRecord = payload => prepareDelete('delete-record', payload);
 
@@ -239,9 +209,6 @@ export function createCommands({ client, repository, submissionState } = {}) {
     throw Object.freeze({ code: 'delete-unavailable', writeState: 'not-sent' });
   }
 
-  async function prepareBag(payload) {
-    return prepare('bags', normalizedBagInput(payload));
-  }
 
   async function prepareRecipe(payload) {
     return prepare('recipes', normalizedRecipeInput(payload));
@@ -366,20 +333,14 @@ export function createCommands({ client, repository, submissionState } = {}) {
         }
         const deleteKind = DELETE_TARGET_BY_OPERATION[metadata.kind];
         if (deleteKind && deleteKind !== 'beans') {
-          if (deleteKind === 'bags') requireBagById(latest, payload.id);
-          else if (deleteKind === 'recipes') requireRecipe(latest, payload.id);
+          if (deleteKind === 'recipes') requireRecipe(latest, payload.id);
           else requireRecord(latest, payload.id);
-          if (deleteKind === 'bags' || deleteKind === 'recipes') {
+          if (deleteKind === 'recipes') {
             const dependency = recordDependency(latest, deleteKind, payload.id);
             if (dependency === 'in-use') throw deletionFailure('delete-in-use');
             if (dependency === 'unknown') throw deletionFailure('delete-dependency-unknown');
           }
           return operation.write(() => archiveTarget(deleteKind, payload.id), { deleteKind, deleteId: payload.id });
-        }
-        if (metadata.kind === 'bags') {
-          requireBean(latest, payload.beanId);
-          validateCreatePayload('bags', payload, client.dataSources);
-          return writeCreate(operation, 'bags', payload);
         }
 
         if (metadata.kind === 'recipes') {
@@ -396,8 +357,7 @@ export function createCommands({ client, repository, submissionState } = {}) {
         if (metadata.kind === 'records') {
           const bean = requireBean(latest, payload.beanId);
           const recipe = requireRecipe(latest, payload.recipeId);
-          const bag = payload.bagId ? requireBag(latest, payload.bagId, bean) : null;
-          const validated = validateRecord(payload, recipe, bean, bag);
+          const { bagId: _legacyBagId, ...validated } = validateRecord(payload, recipe, bean, null);
           const record = {
             ...validated,
             name: `${validated.date} · ${recipe.name}`,
@@ -412,5 +372,5 @@ export function createCommands({ client, repository, submissionState } = {}) {
     ));
   }
 
-  return Object.freeze({ prepareBean, prepareDeleteBean, prepareDeleteBag, prepareDeleteRecipe, prepareDeleteRecord, prepareBag, prepareRecipe, prepareRecord, prepareCopy, execute });
+  return Object.freeze({ prepareBean, prepareDeleteBean, prepareDeleteRecipe, prepareDeleteRecord, prepareRecipe, prepareRecord, prepareCopy, execute });
 }

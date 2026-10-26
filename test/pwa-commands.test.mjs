@@ -212,30 +212,21 @@ test('bean writes distinguish a clear rejection from an uncertain response', asy
   }
 });
 
-test('bag relation is checked from the latest repository snapshot inside the write lock', async () => {
-  const env = harness({ rows: { ...blankRows(), beans: [bean()] } });
-  const draft = await env.commands.prepareBag({ name: '봄 봉지', beanId: IDS.bean, roastedOn: '2026-10-01' });
-  env.rows.beans = [];
-  const result = await env.commands.execute(draft);
-  assert.equal(result.status, 'failed');
+test('legacy bag relation writes are rejected before creating a journal entry', async () => {
+  const env = harness({ rows: { ...blankRows(), beans: [bean()], recipes: [storedRecipe()] } });
+  assert.equal(typeof env.commands.prepareBag, 'undefined');
+  assert.equal(typeof env.commands.prepareDeleteBag, 'undefined');
+  await assert.rejects(env.commands.prepareRecord({
+    beanId: IDS.bean, recipeId: IDS.recipe, bagId: IDS.bag, date: '2026-10-18', rating: 5,
+  }));
+  assert.deepEqual(env.journal().operations, []);
   assert.deepEqual(env.calls, []);
-  assert.equal(env.journal().operations[0].status, 'failed');
 });
 
-test('bag saves its own optional roast date and rejects malformed dates before write', async () => {
-  const env = harness({ rows: { ...blankRows(), beans: [bean()] } });
-  const draft = await env.commands.prepareBag({ name: '봄 봉지', beanId: IDS.bean, roastedOn: '2026-10-01' });
-  const result = await env.commands.execute(draft);
-  assert.equal(result.status, 'succeeded');
-  assert.equal(env.calls[0].kind, 'bags');
-  assert.equal(env.calls[0].data.roastedOn, '2026-10-01');
-  await assert.rejects(env.commands.prepareBag({ name: '잘못된 봉지', beanId: IDS.bean, roastedOn: '2026-02-30' }));
-  assert.equal(env.calls.length, 1);
-});
-
-test('old connection revision blocks even a prepared relation write', async () => {
-  const env = harness({ rows: { ...blankRows(), beans: [bean()] }, revision: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' });
-  const draft = await env.commands.prepareBag({ name: '봄 봉지', beanId: IDS.bean });
+test('old connection revision blocks a prepared record before any Notion write', async () => {
+  const env = harness({ rows: { ...blankRows(), beans: [bean()], recipes: [storedRecipe()] },
+    revision: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' });
+  const draft = await env.commands.prepareRecord({ beanId: IDS.bean, recipeId: IDS.recipe, date: '2026-10-19', rating: 4 });
   await assert.rejects(env.commands.execute(draft), error => error.code === 'stale-connection' && error.writeState === 'not-sent');
   assert.equal(env.calls.length, 0);
 });
@@ -411,8 +402,8 @@ test('a recipe can be created without selecting or storing a bean', async () => 
 test('record stores a fresh complete recipe snapshot and permits repeated same-day intent', async () => {
   const recipe = storedRecipe();
   const selectedBean = bean(IDS.otherBean);
-  const env = harness({ rows: { ...blankRows(), beans: [bean(), selectedBean], bags: [{ id: IDS.bag, beanId: IDS.otherBean, name: '봄 봉지', roastedOn: '2026-10-01' }], recipes: [recipe] } });
-  const input = { beanId: IDS.otherBean, recipeId: IDS.recipe, bagId: IDS.bag, date: '2026-10-19', rating: 5, cupNote: '복숭아와 꿀' };
+  const env = harness({ rows: { ...blankRows(), beans: [bean(), selectedBean], recipes: [recipe] } });
+  const input = { beanId: IDS.otherBean, recipeId: IDS.recipe, date: '2026-10-19', rating: 5, cupNote: '복숭아와 꿀' };
   const first = await env.commands.prepareRecord(input);
   const second = await env.commands.prepareRecord(input);
   assert.notEqual(first.key, second.key);
@@ -425,21 +416,20 @@ test('record stores a fresh complete recipe snapshot and permits repeated same-d
     assert.equal(record.name, '2026-10-19 · V60 기본');
     assert.equal(record.rating, 5);
     assert.equal(record.beanId, IDS.otherBean);
-    assert.equal(record.bagId, IDS.bag);
+    assert.equal(Object.hasOwn(record, 'bagId'), false);
     assert.deepEqual(record.snapshot, createSnapshot(selectedBean, storedRecipe()));
+    assert.equal(record.snapshot.recordGeneration, 'bagless-v1');
   }
   assert.equal(recipe.temperature, 93);
 });
 
-test('record blocks a freshly selected bag that belongs to a different bean', async () => {
-  const env = harness({ rows: {
-    ...blankRows(), beans: [bean(), bean(IDS.otherBean)], bags: [{ id: IDS.otherBag, beanId: IDS.otherBean, name: '다른 봉지', roastedOn: null }],
-    recipes: [storedRecipe()],
-  } });
-  const draft = await env.commands.prepareRecord({ beanId: IDS.bean, recipeId: IDS.recipe, bagId: IDS.otherBag, date: '2026-10-19', rating: 4 });
-  const result = await env.commands.execute(draft);
-  assert.equal(result.status, 'failed');
-  assert.equal(env.calls.length, 0);
+test('legacy bagId record payloads are rejected before journaling or writes', async () => {
+  const env = harness({ rows: { ...blankRows(), beans: [bean()], recipes: [storedRecipe()] } });
+  await assert.rejects(env.commands.prepareRecord({
+    beanId: IDS.bean, recipeId: IDS.recipe, bagId: IDS.otherBag, date: '2026-10-19', rating: 4,
+  }));
+  assert.deepEqual(env.journal().operations, []);
+  assert.deepEqual(env.calls, []);
 });
 
 test('record requires a valid date and an integer rating from one to five', async () => {
@@ -577,3 +567,14 @@ test('T18 partial recipe remains hidden by the real T15 completeness check', asy
   assert.equal(reread.excluded.recipes, 1);
 });
 
+
+test('bag operations are unavailable and a legacy bagId record payload is rejected before journal creation', async () => {
+  const env = harness();
+  assert.equal(typeof env.commands.prepareBag, 'undefined');
+  assert.equal(typeof env.commands.prepareDeleteBag, 'undefined');
+  await assert.rejects(env.commands.prepareRecord({
+    beanId: IDS.bean, recipeId: IDS.recipe, bagId: IDS.bag, date: '2026-10-18', rating: 5,
+  }));
+  assert.deepEqual(env.journal().operations, []);
+  assert.deepEqual(env.calls, []);
+});

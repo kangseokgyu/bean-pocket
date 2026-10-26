@@ -1,3 +1,5 @@
+import { CURRENT_RECORD_GENERATION } from '../domain.mjs';
+
 // Only writable properties appear here. Formula and rollup fields stay untouched.
 export const schemas = {
   beans: {
@@ -59,6 +61,7 @@ function richText(value) {
 export function encodeProperties(kind, data) {
   const properties = {};
   for (const [key, [name, type]] of Object.entries(schemas[kind])) {
+    if (kind === 'records' && key === 'bagId' && data.snapshot?.recordGeneration === CURRENT_RECORD_GENERATION) continue;
     // New recipes are independent of beans; omit the legacy relation so its
     // stored values remain untouched and old schemas need not expose it.
     if (kind === 'recipes' && key === 'beanId') continue;

@@ -353,3 +353,30 @@
 - **원격 schema 근거:** 메인 에이전트가 테스트·운영 recipe 데이터 소스에 REST API로 속성을 추가하고, PATCH/GET 결과 및 기존 속성 전체의 `deepEqual` 보존을 직접 검증했다. 공개 증거에는 개인 식별자·recipe 내용·자격정보를 기록하지 않는다. 세부 내용은 `docs/notion-database-setup.md`와 전용 evidence README를 따른다.
 - 이 추가 작업은 T00~T30의 완료 상태·소유권·미완료 판정을 소급 변경하지 않는다.
 - **추가 작업 결과:** 최신 `origin/main` 통합 후 전체 테스트(464/464), Pages 빌드·검사, Chromium 320/390/1440px 입력·복사·표시 순서 검증을 마쳤다. 결과 로그와 합성 fixture 스크린샷은 `docs/evidence/recipe-guide-20261025/`에 보관한다.
+
+
+## 8. 2026-10-26 작업 — 봉지 기능 제외
+
+### 범위와 완료 조건
+
+- 봉지 UI·명령·쓰기 경로를 PWA와 기존 서버/public에서 제거하고, 새 기록의 선택적 `bagId` 전송을 막는다.
+- version 2 snapshot 본문은 유지하고 `recordGeneration: "bagless-v1"`을 새 기록에 추가한다. marker가 없는 과거 기록은 UI와 집계에서 제외하되 원시 조회·삭제 보호에서 보존한다.
+- Notion 5개 데이터 소스 설정과 기존 속성·데이터를 보존한다. 봉지·숨겨진 기록을 포함한 원두/레시피 삭제 보호, unknown/partial journal과 lock/recovery 동작을 회귀시키지 않는다.
+- TDD RED/GREEN과 해당 변경 테스트, `npm test`, `npm run build:pages`, `npm run check:pages`를 실제 실행한다. 가능한 범위에서 fake-only 브라우저를 확인하고 결과·한계를 `docs/evidence/remove-bags-20261026/`에 기록한다.
+- 변경을 기능 브랜치에서만 커밋한다. merge·push·게시와 공개 build version 확인은 메인 담당자에게 인계한다.
+
+### 순서
+
+1. marker 생성·평점 집계, 과거 기록 보존·필터의 테스트를 먼저 추가해 RED를 확인한다.
+2. PWA 명령, Notion client, 기존 서버/public 쓰기 경계에서 봉지 생성·삭제 및 기록 `bagId` 입력을 차단한다. 구버전 미완료 bag journal은 재전송하지 않고 unresolved 상태·잠금을 보존한다.
+3. PWA와 기존 public 화면에서 봉지 메뉴·목록·폼·삭제·기록 선택·상세 및 봉지 초안을 제거하고, 모든 과거 기록을 사용자 표시에서 숨긴다.
+4. 원두·레시피/기록·평가·가이드 기능과 봉지·숨겨진 기록 기반 삭제 보호, 5개 DB 설정 호환을 검증한다.
+5. 전체 필수 검증을 실행하고 evidence와 체크리스트를 완료한 뒤 이번 변경만 커밋한다.
+
+
+### Worker 실행 결과 (2026-10-26)
+
+- 구현·기능 테스트·필수 전체 검증을 완료했다. 현재 worker branch의 세부 결과와 RED/GREEN 로그는 `tasks/remove-bags.md` 및 `docs/evidence/remove-bags-20261026/verification.md`를 따른다.
+- `npm test` 495/495, `npm run build:pages`, `npm run check:pages` 모두 통과했다.
+- 브라우저 상호작용과 실제 Notion·iPhone·공개 배포 확인은 하지 않았으며, 사용자의 최신 지시에 따라 Critic 검토 항목으로 남긴다.
+- merge·push·Pages 게시·공개 build version 확인은 main 담당자 단계다.

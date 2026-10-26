@@ -117,7 +117,7 @@ test('legacy 설정은 records.bean 관계 없이 조회 검증을 통과하지�
   });
   assert.equal(await client.verify(), true);
   assert.equal(client.recordBeanRelationSupported, false);
-  await assert.rejects(client.createPage('records', { beanId: PAGE, recipeId: OTHER, rating: 4 }), error => {
+  await assert.rejects(client.createPage('records', { beanId: PAGE, recipeId: OTHER, rating: 4, snapshot: { version: 2, recordGeneration: 'bagless-v1' } }), error => {
     assert.equal(error.code, 'schema-unsupported');
     assert.equal(error.writeState, 'not-sent');
     return true;
@@ -214,7 +214,7 @@ test('생성은 domain 입력을 공유 encode로 직렬화하며 호출 뒤 입
   const calls = []; let finish;
   const fetchImpl = (url, init) => { calls.push({ url, init }); return new Promise(resolve => { finish = resolve; }); };
   const { client } = await recordsHarness(undefined, { fetchImpl });
-  const input = { name: '기록', recipeId: OTHER, bagId: null, date: '2026-10-18', rating: 5, cupNote: '처음', snapshot: { version: 1, steps: [{ water: 50 }] } };
+  const input = { name: '기록', recipeId: OTHER, date: '2026-10-18', rating: 5, cupNote: '처음', snapshot: { version: 2, recordGeneration: 'bagless-v1', steps: [{ water: 50 }] } };
   const expected = encodeProperties('records', structuredClone(input));
   const pending = client.createPage('records', input);
   input.cupNote = '나중'; input.snapshot.steps[0].water = 100;
@@ -236,7 +236,7 @@ test('getPage 정규화와 archiveCreatedPage 고정 body·취소 확인', async
 });
 
 test('archivePage verifies the target data source for each user-deletable entity', async () => {
-  for (const kind of ['beans', 'bags', 'recipes', 'records']) {
+  for (const kind of ['beans', 'recipes', 'records']) {
     const { client, calls } = harness((url, init) => {
       const source = Object.keys(SOURCES).find(key => SOURCES[key] === page(PAGE, kind).parent.data_source_id);
       return response(200, page(PAGE, source, { in_trash: init.method === 'PATCH' }));
@@ -246,7 +246,10 @@ test('archivePage verifies the target data source for each user-deletable entity
     assert.deepEqual(calls.map(call => call.init.method), ['GET', 'PATCH']);
     assert.deepEqual(JSON.parse(calls[1].init.body), { in_trash: true });
   }
-  for (const kind of ['beans', 'bags', 'recipes', 'records']) {
+  const { client: bagClient, calls: bagCalls } = harness();
+  await rejected(bagClient.archivePage('bags', PAGE), 'not-sent', 'invalid-input');
+  assert.equal(bagCalls.length, 0);
+  for (const kind of ['beans', 'recipes', 'records']) {
     const wrongKind = kind === 'recipes' ? 'bags' : 'recipes';
     const { client, calls } = harness(() => response(200, page(PAGE, wrongKind)));
     await assert.rejects(client.archivePage(kind, PAGE));
@@ -336,8 +339,8 @@ test('배열·UTF-8 500000byte 한도와 stringify 오류는 fetch 전 안전하
     { dose: 1n }, { dose: NaN }, { dose: { toJSON() { throw new Error(TOKEN + RAW); } } },
   ]) await rejected(client.createPage('recipes', input), 'not-sent');
   const { client: readyClient, calls: readyCalls } = await recordsHarness();
-  await rejected(readyClient.createPage('records', { cupNote: '가'.repeat(170000) }), 'not-sent', 'payload-limit');
-  const circular = {}; circular.self = circular;
+  await rejected(readyClient.createPage('records', { cupNote: '가'.repeat(170000), snapshot: { version: 2, recordGeneration: 'bagless-v1' } }), 'not-sent', 'payload-limit');
+  const circular = { version: 2, recordGeneration: 'bagless-v1' }; circular.self = circular;
   await rejected(readyClient.createPage('records', { snapshot: circular }), 'not-sent');
   assert.equal(readyCalls.length, 0);
   assert.equal(calls.length, 0);
@@ -376,11 +379,11 @@ test('5xx·408은 거절로 오해시키는 code가 아닌 http-error로 표시�
 test('실제 wire payload의 500000byte 경계를 정확히 적용한다', async () => {
   const { client, calls } = await recordsHarness((url, init) => response(200, page(PAGE, 'records')));
   // request 내 JSON 키를 숫자 속성의 toJSON으로 넓혀 배열/텍스트 한도와 독립적으로 바이트 한도를 검증한다.
-  const paddingInput = { rating: { toJSON() { return { padding: '' }; } } };
+  const paddingInput = { rating: { toJSON() { return { padding: '' }; } }, snapshot: { version: 2, recordGeneration: 'bagless-v1' } };
   const overhead = new TextEncoder().encode(JSON.stringify({ parent: { type: 'data_source_id', data_source_id: SOURCES.records }, properties: encodeProperties('records', paddingInput) })).length;
-  await client.createPage('records', { rating: { toJSON() { return { padding: 'a'.repeat(500000 - overhead) }; } } });
+  await client.createPage('records', { rating: { toJSON() { return { padding: 'a'.repeat(500000 - overhead) }; } }, snapshot: { version: 2, recordGeneration: 'bagless-v1' } });
   assert.equal(new TextEncoder().encode(calls[0].init.body).length, 500000);
-  await rejected(client.createPage('records', { rating: { toJSON() { return { padding: 'a'.repeat(500001 - overhead) }; } } }), 'not-sent', 'payload-limit');
+  await rejected(client.createPage('records', { rating: { toJSON() { return { padding: 'a'.repeat(500001 - overhead) }; } }, snapshot: { version: 2, recordGeneration: 'bagless-v1' } }), 'not-sent', 'payload-limit');
   assert.equal(calls.length, 1);
 });
 
@@ -409,11 +412,36 @@ test('동기 JSON 해석이 timer를 지연해도 전체 기한을 넘기면 tim
 });
 
 test('client의 긴 스냅샷 wire 분할·응답 raw page·shared decode 왕복을 확인한다', async () => {
-  const snapshot = { version: 1, name: '당시 조건', steps: [{ order: 1, seconds: 0, interval: 0, water: 50, cumulativeWater: 50 }], note: '가'.repeat(5000) };
+  const snapshot = { version: 2, recordGeneration: 'bagless-v1', name: '당시 조건', steps: [{ order: 1, seconds: 0, interval: 0, water: 50, cumulativeWater: 50 }], note: '가'.repeat(5000) };
   const { client, calls } = await recordsHarness((url, init) => response(200, page(PAGE, 'records', { properties: JSON.parse(init.body).properties })));
   const returned = await client.createPage('records', { name: '기록', recipeId: OTHER, date: '2026-10-18', rating: 5, snapshot });
   const wire = JSON.parse(calls[0].init.body);
   assert.equal(wire.properties['당시 레시피 스냅샷'].rich_text.length, 3);
   assert.deepEqual(decodePage('records', returned).snapshot, snapshot);
   assert.equal(returned.object, 'page');
+});
+
+test('bag source stays readable while bag create/archive and bagId record writes stop before fetch', async () => {
+  const { client, calls } = await recordsHarness();
+  await rejected(client.createPage('bags', { name: '구버전 봉지', beanId: PAGE }), 'not-sent');
+  await rejected(client.createPage('records', {
+    name: '기록', beanId: PAGE, recipeId: OTHER, bagId: PAGE,
+    date: '2026-10-18', rating: 5, snapshot: { version: 2, recordGeneration: 'bagless-v1' },
+  }), 'not-sent');
+  await rejected(client.createPage('records', {
+    name: '미완료 구버전 기록', beanId: PAGE, recipeId: OTHER,
+    date: '2026-10-18', rating: 5, snapshot: { version: 2 },
+  }), 'not-sent');
+  await rejected(client.archivePage('bags', PAGE), 'not-sent');
+  assert.equal(calls.length, 0);
+});
+
+test('bagless generation writes no legacy bag relation property', async () => {
+  const { client, calls } = await recordsHarness((url, init) => response(200, page(PAGE, 'records', { properties: JSON.parse(init.body).properties })));
+  await client.createPage('records', {
+    name: '기록', beanId: PAGE, recipeId: OTHER, date: '2026-10-26', rating: 5,
+    snapshot: { version: 2, recordGeneration: 'bagless-v1' },
+  });
+  const properties = JSON.parse(calls[0].init.body).properties;
+  assert.equal(Object.hasOwn(properties, '원두 봉지'), false);
 });

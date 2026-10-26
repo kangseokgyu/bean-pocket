@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { inspect } from 'node:util';
-import { validateRecipe } from '../lib/domain.mjs';
+import { createSnapshot, validateRecipe } from '../lib/domain.mjs';
 import { encodeProperties } from '../pwa/data/notion-properties.mjs';
 import * as repositoryModule from '../pwa/data/read-repository.mjs';
 
@@ -121,6 +121,12 @@ function recordPage({ id = IDS.record, recipeId = IDS.recipe, beanId = IDS.bean,
   });
 }
 
+function baglessSnapshot(recipeId = IDS.recipe) {
+  const currentRecipe = storedRecipe(recipeId);
+  return createSnapshot({ id: IDS.bean, name: '에티오피아', roaster: '로스터리', origin: '구지',
+    variety: '', process: '워시드', tastingNotes: '복숭아' }, currentRecipe);
+}
+
 function baselineRows() {
   return {
     beans: [beanPage()],
@@ -236,7 +242,7 @@ test('다섯 source를 모두 읽고 단계 정렬·기록 snapshot·별점 집�
   assert.equal(result.bags.length, 1);
   assert.equal(result.recipes.length, 1);
   assert.deepEqual(result.recipes[0].steps.map(step => step.order), [1, 2, 3]);
-  assert.deepEqual(result.recipes[0].stats, { count: 2, average: 2.5 });
+  assert.deepEqual(result.recipes[0].stats, { count: 0, average: null }, 'unmarked historical rows stay raw but do not affect current aggregates');
   assert.deepEqual(result.records[0].snapshot, legacySnapshot(storedRecipe()));
   assert.deepEqual(result.excluded, { bags: 0, recipes: 0, records: 0, steps: 0 });
   assertDeepFrozen(result);
@@ -281,6 +287,20 @@ test('삭제·잘못된 ID·source·parent 페이지는 codec 전에 제외한�
   assert.equal(result.excluded.bags, 2);
   assert.equal(result.excluded.recipes, 2);
   assert.equal(result.excluded.steps, 2);
+});
+
+test('raw history is retained while only bagless-generation snapshots affect aggregates', async () => {
+  const rows = baselineRows();
+  rows.records.push(recordPage({ id: IDS.secondRecord, bagId: null, rating: 1, snapshot: baglessSnapshot() }));
+  const result = await fixture({ rows }).repository.readAll();
+  assert.equal(result.records.length, 2);
+  assert.equal(result.records[0].snapshot.version, 1);
+  assert.equal(result.records[0].bagId, IDS.bag);
+  assert.equal(result.records[1].snapshot.recordGeneration, 'bagless-v1');
+  assert.equal(result.records[1].bagId, null);
+  assert.equal(Object.hasOwn(rows.records[1].properties, '원두 봉지'), false);
+  assert.deepEqual(result.recipes[0].stats, { count: 1, average: 1 });
+  assert.equal(rows.bags.length, 1, 'raw bag rows remain part of the repository projection');
 });
 
 test('잘리거나 다중인 관계가 있어도 기존 기록과 평가는 보존하고 불확실성을 표시한다', async () => {
@@ -365,7 +385,7 @@ test('버전 1 snapshot 전체·기록 날짜·별점을 검증한다', async ()
   assert.deepEqual(result.records[2].invalidFields, ['date']);
   assert.equal(result.records[3].rating, 6);
   assert.deepEqual(result.records[3].invalidFields, ['rating']);
-  assert.deepEqual(result.recipes[0].stats, { count: 3, average: 4 });
+  assert.deepEqual(result.recipes[0].stats, { count: 0, average: null }, 'historical rows stay out of current aggregates');
   assert.equal(result.excluded.records, 0);
 });
 

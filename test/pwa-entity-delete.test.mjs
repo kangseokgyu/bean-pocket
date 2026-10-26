@@ -9,7 +9,7 @@ import { memoryPlatform, fakePwaNotion, testConnection } from './fixtures/pwa-en
 
 const recipeInput = beanId => ({ name: 'V60', beanId, dose: 15, totalWater: 250, temperature: 93,
   steps: [{ time: '0:00', water: 50 }, { time: '0:30', water: 200 }] });
-const recordInput = (beanId, recipeId, bagId) => ({ beanId, recipeId, ...(bagId ? { bagId } : {}),
+const recordInput = (beanId, recipeId) => ({ beanId, recipeId,
   date: '2026-10-23', rating: 5, cupNote: '미저장 초안 보존 확인' });
 
 async function setup() {
@@ -39,19 +39,22 @@ const sourceRows = (env, kind) => env.fake.rows.filter(row => row.parent.data_so
 const patches = env => env.fake.calls.filter(call => call.method === 'PATCH');
 const latestData = env => env.events.filter(event => event.data).at(-1).data;
 
-for (const kind of ['bags', 'recipes']) test(`${kind} deletion is blocked when an extraction record uses the target`, async () => {
+test('a hidden historical record still blocks recipe deletion', async () => {
   const env = await setup();
-  const bag = await env.app.submit('bags', { name: '기록에서 사용 중인 봉지', beanId: env.beanId });
   const recipe = await env.app.submit('recipes', recipeInput(env.beanId));
-  await env.app.submit('records', recordInput(env.beanId, recipe.value.id, bag.value.id));
-  const target = kind === 'bags' ? bag.value.id : recipe.value.id;
+  await env.app.submit('records', recordInput(env.beanId, recipe.value.id));
+  const recordPage = sourceRows(env, 'records')[0];
+  const snapshotProperty = recordPage.properties['당시 레시피 스냅샷'];
+  const snapshot = JSON.parse(snapshotProperty.rich_text.map(item => item.text.content).join(''));
+  delete snapshot.recordGeneration;
+  snapshotProperty.rich_text = [{ type: 'text', text: { content: JSON.stringify(snapshot) } }];
 
-  const result = await env.app.submit(`delete-${kind === 'bags' ? 'bag' : 'recipe'}`, { id: target });
+  const result = await env.app.submit('delete-recipe', { id: recipe.value.id });
 
   assert.equal(result.status, 'failed');
   assert.equal(result.code, 'delete-in-use');
-  assert.match(env.events.filter(event => event.status).at(-1).status.message, /먼저.*추출 기록을 삭제/);
   assert.equal(patches(env).length, 0);
+  assert.equal(recordPage.in_trash, false);
 });
 
 test('an incomplete record relation protects unrelated recipe deletion', async () => {
@@ -69,7 +72,7 @@ test('an incomplete record relation protects unrelated recipe deletion', async (
   assert.equal(patches(env).length, 0);
 });
 
-test('excluded record rows protect bag and recipe deletion', async () => {
+test('excluded historical record rows keep recipe deletion fail-closed', async () => {
   const dataSources = testConnection().dataSources;
   const beanId = '11111111-1111-4111-8111-111111111111';
   const bagId = '22222222-2222-4222-8222-222222222222';
@@ -94,37 +97,24 @@ test('excluded record rows protect bag and recipe deletion', async () => {
   });
   await app.connect(testConnection());
 
-  for (const [kind, id] of [['bag', bagId], ['recipe', recipeId]]) {
-    const result = await app.submit(`delete-${kind}`, { id });
-    assert.equal(result.status, 'failed');
-    assert.equal(result.code, 'delete-dependency-unknown');
-  }
+  const result = await app.submit('delete-recipe', { id: recipeId });
+  assert.equal(result.status, 'failed');
+  assert.equal(result.code, 'delete-dependency-unknown');
   assert.deepEqual(archived, []);
 });
 
-test('unused bag deletion journals and archives only the selected bag', async () => {
+test('bag deletion commands are unavailable and raw bag pages remain active', async () => {
   const env = await setup();
-  const selected = await env.app.submit('bags', { name: '삭제할 봉지', beanId: env.beanId });
-  const retained = await env.app.submit('bags', { name: '남길 봉지', beanId: env.beanId });
-  env.app.setDirty(true, 'recipes');
-  env.fake.intercept = ({ method }) => {
-    if (method === 'PATCH') {
-      const operation = env.native.journal().operations.at(-1);
-      assert.equal(operation.kind, 'delete-bag');
-      assert.equal(operation.status, 'processing');
-      assert.deepEqual(operation.deleteTarget, { kind: 'bags', id: selected.value.id, archiveState: 'active' });
-    }
-    return null;
-  };
+  const bagId = '22222222-2222-4222-8222-222222222222';
+  const row = { id: bagId, parent: { type: 'data_source_id', data_source_id: env.connection().dataSources.bags },
+    in_trash: false, archived: false };
+  env.fake.rows.push(row);
 
-  const result = await env.app.submit('delete-bag', { id: selected.value.id });
+  await assert.rejects(env.app.submit('delete-bag', { id: bagId }), error => error.code === 'input');
 
-  assert.equal(result.status, 'succeeded');
-  assert.deepEqual(patches(env).map(call => call.pathname), [`/v1/pages/${selected.value.id}`]);
-  assert.equal(sourceRows(env, 'bags').find(item => item.id === selected.value.id).in_trash, true);
-  assert.equal(sourceRows(env, 'bags').find(item => item.id === retained.value.id).in_trash, false);
-  assert.equal(latestData(env).bags.some(item => item.id === selected.value.id), false);
-  assert.equal(env.app.getState().dirty, true);
+  assert.equal(patches(env).length, 0);
+  assert.equal(row.in_trash, false);
+  assert.equal(env.native.journal().operations.some(operation => operation.kind === 'delete-bag'), false);
 });
 
 test('recipe deletion trashes only the parent and removes it from fresh recipe choices', async () => {

@@ -1,0 +1,2 @@
+command: node --test --test-name-pattern=critic|record draft conflicts|same brew record test/pwa-ui.view.test.mjs
+exit_code: 1

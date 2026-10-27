@@ -1,0 +1,2 @@
+command: node --test --test-name-pattern=home startup performs no screen reads test/pwa-screen-loading.test.mjs
+exit_code: 1

@@ -1,0 +1,86 @@
+[
+  {
+    "width": 320,
+    "build": "df39b205d8b3",
+    "overflow": false,
+    "buttons": [
+      {
+        "text": "취소",
+        "height": 44,
+        "width": 140,
+        "fontSize": "14px",
+        "background": "rgb(232, 240, 232)",
+        "hasIcon": true,
+        "animation": "none"
+      },
+      {
+        "text": "연결 확인 및 저장",
+        "height": 44,
+        "width": 140,
+        "fontSize": "14px",
+        "background": "rgb(34, 75, 60)",
+        "hasIcon": true,
+        "animation": "none"
+      }
+    ],
+    "errors": [],
+    "failed": [],
+    "cancelClosed": true
+  },
+  {
+    "width": 390,
+    "build": "df39b205d8b3",
+    "overflow": false,
+    "buttons": [
+      {
+        "text": "취소",
+        "height": 44,
+        "width": 175,
+        "fontSize": "14px",
+        "background": "rgb(232, 240, 232)",
+        "hasIcon": true,
+        "animation": "none"
+      },
+      {
+        "text": "연결 확인 및 저장",
+        "height": 44,
+        "width": 175,
+        "fontSize": "14px",
+        "background": "rgb(34, 75, 60)",
+        "hasIcon": true,
+        "animation": "none"
+      }
+    ],
+    "errors": [],
+    "failed": [],
+    "cancelClosed": true
+  },
+  {
+    "width": 1280,
+    "build": "df39b205d8b3",
+    "overflow": false,
+    "buttons": [
+      {
+        "text": "취소",
+        "height": 44,
+        "width": 332,
+        "fontSize": "14px",
+        "background": "rgb(232, 240, 232)",
+        "hasIcon": true,
+        "animation": "none"
+      },
+      {
+        "text": "연결 확인 및 저장",
+        "height": 44,
+        "width": 332,
+        "fontSize": "14px",
+        "background": "rgb(34, 75, 60)",
+        "hasIcon": true,
+        "animation": "none"
+      }
+    ],
+    "errors": [],
+    "failed": [],
+    "cancelClosed": true
+  }
+]

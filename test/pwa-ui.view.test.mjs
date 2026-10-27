@@ -445,9 +445,15 @@ test('toast clears the actual action row of a centered modal', () => {
   view.renderData(data());
   view.showBeanForm();
   const actions = document.root.querySelector('dialog[data-entry-dialog="beans"]').querySelector('.form-actions');
-  actions.getBoundingClientRect = () => ({ top: 648 });
+  actions.getBoundingClientRect = () => ({ top: 648, height: 76 });
   view.showStatus({ type: 'validation-error', message: '확인해 주세요.' });
   assert.equal(document.root.querySelector('.app-status').style['--toast-bottom'], '268px');
+  actions.getBoundingClientRect = () => ({ top: 0, height: 0 });
+  const retry = document.root.querySelector('dialog[data-entry-dialog="beans"]').querySelector('button');
+  retry.getBoundingClientRect = () => ({ top: 600, height: 44 });
+  view.showStatus({ type: 'read-error', message: '다시 시도해 주세요.' });
+  assert.equal(document.root.querySelector('.app-status').style['--toast-bottom'], '316px',
+    'a hidden form row falls back to the visible recovery buttons');
 });
 
 test('native form validation marks its field and reports the error in the shared toast', () => {

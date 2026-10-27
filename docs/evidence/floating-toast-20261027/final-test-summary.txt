@@ -1,0 +1,9 @@
+✔ critic: records render from validated snapshots before bounded parent-name hydration (9.269375ms)
+ℹ tests 577
+ℹ suites 0
+ℹ pass 577
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42986.405292

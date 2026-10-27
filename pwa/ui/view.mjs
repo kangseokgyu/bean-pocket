@@ -165,7 +165,10 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   function syncStatusToast(promote = false) {
     const visible = !status.hidden;
     const openDialog = [...page.querySelectorAll('dialog')].find(dialog => dialog.open);
-    const actionsRect = openDialog?.querySelector('.form-actions')?.getBoundingClientRect?.();
+    const actionRowRect = openDialog?.querySelector('.form-actions')?.getBoundingClientRect?.();
+    const actionsRect = actionRowRect?.height > 0 ? actionRowRect
+      : [...(openDialog?.querySelectorAll('button') ?? [])]
+        .map(button => button.getBoundingClientRect?.()).find(rect => rect?.height > 0);
     const viewportHeight = document.documentElement?.clientHeight;
     const bottom = actionsRect && viewportHeight ? Math.max(160, viewportHeight - actionsRect.top + 16) : 160;
     status.style.setProperty('--toast-bottom', `${bottom}px`);

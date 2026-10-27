@@ -1,0 +1,202 @@
+[
+  {
+    "engine": "chromium",
+    "width": 320,
+    "toast": {
+      "top": 672.080322265625,
+      "bottom": 746.9181518554688,
+      "left": 17.440006256103516,
+      "right": 302.560001373291
+    },
+    "buttons": [
+      {
+        "top": 831.068115234375,
+        "bottom": 876.608154296875,
+        "overlap": false
+      },
+      {
+        "top": 831.068115234375,
+        "bottom": 876.608154296875,
+        "overlap": false
+      }
+    ],
+    "overflow": false,
+    "hiddenAfterThreeSeconds": true,
+    "errors": []
+  },
+  {
+    "engine": "chromium",
+    "width": 390,
+    "toast": {
+      "top": 669.476806640625,
+      "bottom": 744.5568237304688,
+      "left": 17.21656036376953,
+      "right": 372.78345489501953
+    },
+    "buttons": [
+      {
+        "top": 828.9791259765625,
+        "bottom": 874.66650390625,
+        "overlap": false
+      },
+      {
+        "top": 828.9791259765625,
+        "bottom": 874.66650390625,
+        "overlap": false
+      }
+    ],
+    "overflow": false,
+    "hiddenAfterThreeSeconds": true,
+    "errors": []
+  },
+  {
+    "engine": "chromium",
+    "width": 768,
+    "toast": {
+      "top": 138.21311950683594,
+      "bottom": 188.58689880371094,
+      "left": 200.2310028076172,
+      "right": 567.7689056396484
+    },
+    "buttons": [
+      {
+        "top": 508.819091796875,
+        "bottom": 554.4359130859375,
+        "overlap": false
+      },
+      {
+        "top": 508.819091796875,
+        "bottom": 554.4359130859375,
+        "overlap": false
+      }
+    ],
+    "overflow": false,
+    "hiddenAfterThreeSeconds": true,
+    "errors": []
+  },
+  {
+    "engine": "chromium",
+    "width": 1280,
+    "toast": {
+      "top": 136.49612426757812,
+      "bottom": 186.94769287109375,
+      "left": 455.94720458984375,
+      "right": 824.052734375
+    },
+    "buttons": [
+      {
+        "top": 507.6744384765625,
+        "bottom": 553.3617553710938,
+        "overlap": false
+      },
+      {
+        "top": 507.6744384765625,
+        "bottom": 553.3617553710938,
+        "overlap": false
+      }
+    ],
+    "overflow": false,
+    "hiddenAfterThreeSeconds": true,
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 320,
+    "toast": {
+      "top": 669.3273315429688,
+      "bottom": 744.4049072265625,
+      "left": 16.98318099975586,
+      "right": 303.0168113708496
+    },
+    "buttons": [
+      {
+        "top": 828.8245849609375,
+        "bottom": 874.510498046875,
+        "overlap": false
+      },
+      {
+        "top": 828.8245849609375,
+        "bottom": 874.510498046875,
+        "overlap": false
+      }
+    ],
+    "overflow": false,
+    "hiddenAfterThreeSeconds": true,
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 390,
+    "toast": {
+      "top": 669.82470703125,
+      "bottom": 744.8753051757812,
+      "left": 17.286113739013672,
+      "right": 372.7139091491699
+    },
+    "buttons": [
+      {
+        "top": 829.2645874023438,
+        "bottom": 874.93408203125,
+        "overlap": false
+      },
+      {
+        "top": 829.2645874023438,
+        "bottom": 874.93408203125,
+        "overlap": false
+      }
+    ],
+    "overflow": false,
+    "hiddenAfterThreeSeconds": true,
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 768,
+    "toast": {
+      "top": 136.92959594726562,
+      "bottom": 187.3614959716797,
+      "left": 200.0189666748047,
+      "right": 567.9810028076172
+    },
+    "buttons": [
+      {
+        "top": 507.96319580078125,
+        "bottom": 553.6326904296875,
+        "overlap": false
+      },
+      {
+        "top": 507.96319580078125,
+        "bottom": 553.6326904296875,
+        "overlap": false
+      }
+    ],
+    "overflow": false,
+    "hiddenAfterThreeSeconds": true,
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 1280,
+    "toast": {
+      "top": 136.92959594726562,
+      "bottom": 187.3614959716797,
+      "left": 456.01898193359375,
+      "right": 823.9810180664062
+    },
+    "buttons": [
+      {
+        "top": 507.96319580078125,
+        "bottom": 553.6326904296875,
+        "overlap": false
+      },
+      {
+        "top": 507.96319580078125,
+        "bottom": 553.6326904296875,
+        "overlap": false
+      }
+    ],
+    "overflow": false,
+    "hiddenAfterThreeSeconds": true,
+    "errors": []
+  }
+]

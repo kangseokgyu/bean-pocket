@@ -39,6 +39,7 @@ window.control = { calls: [], pending,
   resolveNext(status, message) {
     const request = pending.shift();
     if (!request) throw new Error('삭제 요청이 대기 중이 아닙니다.');
+    view.showStatus({ type: status === 'succeeded' ? 'saved' : status, message });
     view.showDeleteResult({ status, message });
     request.resolve({ status, message });
   },
@@ -183,6 +184,10 @@ const server = http.createServer(async (request, response) => {
     await page.keyboard.press('Escape');
     await dialog.waitFor({ state: 'hidden' });
     check('Escape can dismiss a settled uncertain result', await page.evaluate(() => document.activeElement?.getAttribute('aria-label') === '원두 <안전> 삭제'));
+    check('Escape preserves the uncertain-result notice after closing', await page.evaluate(() => {
+      const status = document.querySelector('.app-status');
+      return !status.hidden && status.textContent === '삭제 여부 확인이 필요합니다. Notion 원본을 확인해 주세요.';
+    }));
 
     for (const width of [390, 320]) {
       await page.setViewportSize({ width, height: 844 });

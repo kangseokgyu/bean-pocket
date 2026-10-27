@@ -1414,6 +1414,7 @@ test('bean deletion opens a safe native dialog and restores focus after cancel o
   await clickViewTarget(document, dialog.querySelector('[data-action="cancel-delete"]'));
   assert.equal(dialog.open, false);
   assert.equal(document.activeElement, trash);
+  assert.equal(document.root.querySelector('.app-status').textContent, '삭제를 취소했습니다.');
 
   await clickViewTarget(document, trash);
   let prevented = false;
@@ -1421,11 +1422,53 @@ test('bean deletion opens a safe native dialog and restores focus after cancel o
   assert.equal(prevented, true, 'Escape is handled by the dialog cancel event');
   assert.equal(dialog.open, false);
   assert.equal(document.activeElement, trash);
+  assert.equal(document.root.querySelector('.app-status').textContent, '삭제를 취소했습니다.');
   assert.equal(calls.length, 0);
 
   for (const state of [{ pending: true }, { frozen: true }, { unresolved: true }]) {
     view.setState(state);
     assert.equal(trash.disabled, true);
+  }
+});
+
+test('dismissing a deletion result preserves its notice for button and Escape', async t => {
+  const results = [
+    { status: 'unknown', toastType: 'unknown', message: '삭제 여부 확인이 필요합니다. Notion 원본을 확인해 주세요.' },
+    { status: 'partial', toastType: 'partial', message: '일부 삭제 결과를 확인해야 합니다. Notion 원본을 확인해 주세요.' },
+    { status: 'succeeded', toastType: 'deleted-read-error', message: '삭제는 성공했지만 최신 목록을 불러오지 못했습니다. 목록을 새로고침해 주세요.' },
+  ];
+
+  for (const result of results) {
+    for (const dismissal of ['button', 'Escape']) {
+      await t.test(`${result.status} result dismissed with ${dismissal}`, async () => {
+        const scheduled = [];
+        const document = new TestDocument();
+        const view = createBeanView(document, { schedule: callback => scheduled.push(callback) });
+        view.renderData(data());
+        view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }),
+          submit: async () => {
+            view.showStatus({ type: result.toastType, message: result.message });
+            return { status: result.status, message: result.message };
+          } });
+        const trash = document.root.querySelector('[data-action="delete-bean"]');
+        const dialog = document.root.querySelector('.delete-confirm-dialog');
+        await clickViewTarget(document, trash);
+        await clickViewTarget(document, dialog.querySelector('[data-action="confirm-delete"]'));
+        assert.equal(dialog.open, true);
+        assert.equal(document.root.querySelector('.app-status').textContent, result.message);
+
+        if (dismissal === 'button') {
+          await clickViewTarget(document, dialog.querySelector('[data-action="cancel-delete"]'));
+        } else {
+          for (const listener of dialog.listeners.get('cancel') ?? []) listener({ preventDefault() {} });
+        }
+
+        assert.equal(dialog.open, false);
+        assert.equal(document.root.querySelector('.app-status').textContent, result.message);
+        assert.notEqual(result.message, '삭제를 취소했습니다.');
+        assert.equal(scheduled.length, result.status === 'succeeded' ? 1 : 0);
+      });
+    }
   }
 });
 

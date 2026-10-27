@@ -24,6 +24,7 @@
     "failure dialog cancel restores focus",
     "uncertain result blocks retry but remains dismissible",
     "Escape can dismiss a settled uncertain result",
+    "Escape preserves the uncertain-result notice after closing",
     "390px modal fits without horizontal overflow",
     "320px modal fits without horizontal overflow",
     "focus falls back to the app content when a successful delete removes its trigger",

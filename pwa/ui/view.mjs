@@ -580,6 +580,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       cancelSchedule(deleteCloseTimer);
       deleteCloseTimer = null;
     }
+    const cancelledBeforeRequest = activeDelete.resultStatus === null;
     const trigger = activeDelete.trigger;
     activeDelete = null;
     if (deleteDialog.open && typeof deleteDialog.close === 'function') deleteDialog.close();
@@ -588,7 +589,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     renderStatus();
     if (trigger?.parentElement && trigger.isConnected !== false) trigger.focus?.();
     else (content.querySelector('.entity-delete') ?? page).focus?.();
-    return true;
+    return cancelledBeforeRequest ? 'cancelled' : 'dismissed';
   }
 
   function openDeleteDialog(trigger, action) {
@@ -693,7 +694,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   deleteDialog.addEventListener('cancel', event => {
     event.preventDefault();
     if (deleteRequestPending) return;
-    if (closeDeleteDialog()) view.showStatus({ type: 'cancelled', message: '삭제를 취소했습니다.' });
+    if (closeDeleteDialog() === 'cancelled') view.showStatus({ type: 'cancelled', message: '삭제를 취소했습니다.' });
   });
 
   function openEntryForm(kind, action, fieldName) {
@@ -2030,7 +2031,7 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
     const action = target?.dataset.action;
     if (!action || target.disabled) return;
     if (action === 'cancel-delete') {
-      if (closeDeleteDialog()) view.showStatus({ type: 'cancelled', message: '삭제를 취소했습니다.' });
+      if (closeDeleteDialog() === 'cancelled') view.showStatus({ type: 'cancelled', message: '삭제를 취소했습니다.' });
       return;
     }
     if (action === 'confirm-delete') {

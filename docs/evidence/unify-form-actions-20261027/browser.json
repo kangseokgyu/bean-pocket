@@ -1,0 +1,74 @@
+[
+  {
+    "width": 320,
+    "kind": "beans",
+    "labels": true,
+    "cancel": true
+  },
+  {
+    "width": 320,
+    "kind": "recipes",
+    "labels": true,
+    "cancel": true
+  },
+  {
+    "width": 320,
+    "kind": "records",
+    "labels": true,
+    "cancel": true
+  },
+  {
+    "width": 320,
+    "kind": "copy",
+    "labels": true,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "kind": "beans",
+    "labels": true,
+    "cancel": true
+  },
+  {
+    "width": 390,
+    "kind": "recipes",
+    "labels": true,
+    "cancel": true
+  },
+  {
+    "width": 390,
+    "kind": "records",
+    "labels": true,
+    "cancel": true
+  },
+  {
+    "width": 390,
+    "kind": "copy",
+    "labels": true,
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "kind": "beans",
+    "labels": true,
+    "cancel": true
+  },
+  {
+    "width": 1280,
+    "kind": "recipes",
+    "labels": true,
+    "cancel": true
+  },
+  {
+    "width": 1280,
+    "kind": "records",
+    "labels": true,
+    "cancel": true
+  },
+  {
+    "width": 1280,
+    "kind": "copy",
+    "labels": true,
+    "errors": []
+  }
+]

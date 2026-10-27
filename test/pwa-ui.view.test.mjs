@@ -1517,8 +1517,8 @@ test('available entry forms open as native dialogs and cancel without submitting
     assert.equal(dialog.open, true, `${kind} opens modally`);
     assert.equal(dialog.getAttribute('aria-modal'), 'true');
     assert.equal(dialog.getAttribute('aria-labelledby'), form.querySelector('h2').id);
-    assert.ok(form.querySelector('[data-action="cancel-form"]'));
-    assert.ok(form.querySelectorAll('button').some(control => control.type === 'submit'));
+    assert.equal(form.querySelector('[data-action="cancel-form"]').textContent, '취소');
+    assert.equal(form.querySelectorAll('button').find(control => control.type === 'submit').textContent, '저장');
     await click(form.querySelector('[data-action="cancel-form"]'));
     assert.equal(document.root.querySelector(`dialog[data-entry-dialog="${kind}"]`).open, false);
     assert.equal(writes, 0, 'cancelling an entry never submits it');

@@ -1257,7 +1257,7 @@ function renderBeans(pane, data, document, formOpen) {
     ['가공 방식', 'process', 'text', false],
     ['향미 노트', 'tastingNotes', 'textarea', false],
   ]);
-  addFormActions(document, form, 'beans');
+  addFormActions(document, form);
   pane.append(makeEntryDialog(document, 'beans', form, formOpen));
 
   if (!data.beans.length) pane.append(make(document, 'p', data.screen?.hasMore
@@ -1452,7 +1452,7 @@ function buildRecipeForm(document, data) {
   preview.setAttribute('aria-live', 'polite');
   preview.setAttribute('aria-label', '단계 입력 미리보기');
   form.append(preview);
-  addFormActions(document, form, 'recipes');
+  addFormActions(document, form);
   return form;
 }
 
@@ -1501,7 +1501,7 @@ function buildRecordForm(document, data, optionPages, route) {
   fields.append(label(document, '별점 (1~5)', 'rating', 'number', true, { min: 1, max: 5, step: 1 }));
   fields.append(label(document, '컵노트 (선택)', 'cupNote', 'textarea', false));
   form.append(fields);
-  addFormActions(document, form, 'records');
+  addFormActions(document, form);
   const requestedDate = params.get('date');
   form.elements.date.value = isIsoDate(requestedDate) ? requestedDate : localDate();
   form.dataset.draftRoute = route;
@@ -1652,13 +1652,12 @@ function recordParentNameNote(kind, status, snapshotName) {
   return '';
 }
 
-function addFormActions(document, form, kind) {
-  const nouns = { beans: '원두', recipes: '레시피', records: '기록' };
+function addFormActions(document, form) {
   const actions = make(document, 'div', undefined, 'form-actions');
-  const cancel = button(document, '입력 취소', 'button', 'cancel-form');
-  const submit = button(document, nouns[kind] + ' 저장');
+  const cancel = button(document, '취소', 'button', 'cancel-form');
+  const submit = button(document, '저장');
   submit.dataset.entrySubmit = '';
-  submit.dataset.idleLabel = nouns[kind] + ' 저장';
+  submit.dataset.idleLabel = '저장';
   actions.append(cancel, submit);
   form.append(actions);
 }

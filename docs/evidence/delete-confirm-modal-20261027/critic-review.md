@@ -26,3 +26,16 @@
 - 실브라우저 재실행, 실제 Notion 쓰기, 게시/공개 반영은 수행하지 않았다. 기존 28개 브라우저 체크는 Worker의 실행 근거로만 구분했다.
 
 위 P2 수정 및 영향받는 회귀 검증 후 재검토가 필요하다.
+
+
+## 최종 재검토 — 2026-10-27
+
+- **최종 판정: Approve. 기존 P2 해결, 추가 필수 수정사항 없음.** 앞선 Request changes는 최초 구현에 대한 이력이며, 이 판정이 최신이다.
+- 재검토 커밋: `5d2b4fa23bd1393e9e202b6ff94b3993acdadf91`. 직전 리뷰 커밋 `7c44df3` 이후 변경분과 갱신된 검증 원문을 독립 확인했다.
+- `closeDeleteDialog`가 activeDelete를 지우기 전에 `resultStatus === null`로 요청 전 취소 여부를 결정하고, 버튼/Escape 양쪽 모두 반환값이 `cancelled`일 때만 취소 안내를 표시한다. 이미 요청한 결과 화면은 `dismissed`로 닫혀 기존 불명/부분/성공·조회 실패 안내를 보존한다. 자동 성공 닫힘과 포커스 복귀 경로도 유지된다.
+- 독립 실행: `node --test --test-name-pattern='dismissing a deletion result|bean deletion opens a safe native dialog' test/pwa-ui.view.test.mjs` — exit **0**, **8/8 통과**. 결과 3종 × 버튼/Escape 6경로 및 요청 전 취소/포커스 테스트를 확인했다. 로그: `/tmp/delete-confirm-critic-recheck.log`.
+- RED/GREEN 증거와 추가 테스트를 확인했다. 실제 결과 안내의 동일성, 모달 닫힘, 성공 시에만 완료 타이머 예약을 검사하며 기존 요청 전 취소 안내 검사도 추가됐다.
+- `browser-test.cjs` → `browser-check.cjs` 리네임과 수동 harness의 추가 상태 안내 검사를 확인했다. docs 하위 `browser-check.cjs`는 기본 Node test 파일명 패턴에 해당하지 않으며, package.json/CI runner 변경은 없다. 최종 `critic-npm-test-portable.txt`에 두 browser 파일명 모두 없고 **585/585 통과**, exit 0임을 확인했다. 로컬 Chrome 검증은 수동 실행으로 분리된다.
+- Worker 증거를 원문으로 확인: UI/controller **144/144**, 최종 전체 **585/585**, build/check exit **0**, 빌드 버전 **16ec6cfaa391**, 브라우저 **29 checks**, consoleIssues/outsideRequests 빈 배열. 최종 근거는 README의 `critic-*-portable` 파일이며 초기 `npm-test.txt`/`build-pages.txt`의 579개·deab17d2eea1은 과거 이력이다.
+- 전체 suite/build/check 및 브라우저는 불필요하게 반복하지 않았다. 실제 Notion 쓰기와 게시/공개 반영은 검증하지 않았다. 해당 커밋의 merge·게시 판단을 막는 리뷰 이슈는 없다.
+- 추가 에이전트/코드 수정/commit/배포 없음. 이번 재검토는 이 리뷰 문서만 갱신했다.

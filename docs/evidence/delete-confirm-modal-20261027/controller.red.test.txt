@@ -1,0 +1,159 @@
+✖ successful deletion with failed final refresh reports success separately (1791.316792ms)
+  TypeError [Error]: Cannot read properties of undefined (reading 'deleteResult')
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/delete-confirm-modal/AX-1day/test/pwa-bean-delete.test.mjs:265:73)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3)
+
+✖ a rejected deletion remains active and does not retry automatically (1414.280709ms)
+  TypeError [Error]: Cannot read properties of undefined (reading 'deleteResult')
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/delete-confirm-modal/AX-1day/test/pwa-bean-delete.test.mjs:277:73)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7)
+
+✖ an incomplete record relation protects unrelated recipe deletion (4627.853209ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+  + undefined
+  - {
+  -   message: '연결 관계나 제외된 기록을 확인할 수 없어 안전을 위해 삭제를 막았습니다. 최신 목록을 새로고침해 주세요.',
+  -   status: 'failed'
+  - }
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/delete-confirm-modal/AX-1day/test/pwa-entity-delete.test.mjs:86:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { status: 'failed', message: '연결 관계나 제외된 기록을 확인할 수 없어 안전을 위해 삭제를 막았습니다. 최신 목록을 새로고침해 주세요.' },
+    operator: 'deepStrictEqual'
+  }
+
+✖ recipe deletion trashes only the parent and removes it from fresh recipe choices (2824.879291ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+  + undefined
+  - {
+  -   message: '삭제했습니다.',
+  -   status: 'succeeded'
+  - }
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/delete-confirm-modal/AX-1day/test/pwa-entity-delete.test.mjs:153:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { status: 'succeeded', message: '삭제했습니다.' },
+    operator: 'deepStrictEqual'
+  }
+
+✖ lost record deletion response recovers from the fresh target without a second PATCH (3529.230333ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+  + undefined
+  - {
+  -   message: '삭제 여부 확인이 필요합니다. 다시 삭제하지 말고 Notion 원본을 확인해 주세요.',
+  -   status: 'unknown'
+  - }
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/delete-confirm-modal/AX-1day/test/pwa-entity-delete.test.mjs:212:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { status: 'unknown', message: '삭제 여부 확인이 필요합니다. 다시 삭제하지 말고 Notion 원본을 확인해 주세요.' },
+    operator: 'deepStrictEqual'
+  }
+
+ℹ tests 5
+ℹ suites 0
+ℹ pass 0
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11074.476542
+
+✖ failing tests:
+
+test at test/pwa-bean-delete.test.mjs:257:1
+✖ successful deletion with failed final refresh reports success separately (1791.316792ms)
+  TypeError [Error]: Cannot read properties of undefined (reading 'deleteResult')
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/delete-confirm-modal/AX-1day/test/pwa-bean-delete.test.mjs:265:73)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3)
+
+test at test/pwa-bean-delete.test.mjs:269:1
+✖ a rejected deletion remains active and does not retry automatically (1414.280709ms)
+  TypeError [Error]: Cannot read properties of undefined (reading 'deleteResult')
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/delete-confirm-modal/AX-1day/test/pwa-bean-delete.test.mjs:277:73)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7)
+
+test at test/pwa-entity-delete.test.mjs:73:1
+✖ an incomplete record relation protects unrelated recipe deletion (4627.853209ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+  + undefined
+  - {
+  -   message: '연결 관계나 제외된 기록을 확인할 수 없어 안전을 위해 삭제를 막았습니다. 최신 목록을 새로고침해 주세요.',
+  -   status: 'failed'
+  - }
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/delete-confirm-modal/AX-1day/test/pwa-entity-delete.test.mjs:86:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { status: 'failed', message: '연결 관계나 제외된 기록을 확인할 수 없어 안전을 위해 삭제를 막았습니다. 최신 목록을 새로고침해 주세요.' },
+    operator: 'deepStrictEqual'
+  }
+
+test at test/pwa-entity-delete.test.mjs:135:1
+✖ recipe deletion trashes only the parent and removes it from fresh recipe choices (2824.879291ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+  + undefined
+  - {
+  -   message: '삭제했습니다.',
+  -   status: 'succeeded'
+  - }
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/delete-confirm-modal/AX-1day/test/pwa-entity-delete.test.mjs:153:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { status: 'succeeded', message: '삭제했습니다.' },
+    operator: 'deepStrictEqual'
+  }
+
+test at test/pwa-entity-delete.test.mjs:197:1
+✖ lost record deletion response recovers from the fresh target without a second PATCH (3529.230333ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+  + undefined
+  - {
+  -   message: '삭제 여부 확인이 필요합니다. 다시 삭제하지 말고 Notion 원본을 확인해 주세요.',
+  -   status: 'unknown'
+  - }
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/delete-confirm-modal/AX-1day/test/pwa-entity-delete.test.mjs:212:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { status: 'unknown', message: '삭제 여부 확인이 필요합니다. 다시 삭제하지 말고 Notion 원본을 확인해 주세요.' },
+    operator: 'deepStrictEqual'
+  }

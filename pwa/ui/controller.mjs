@@ -898,8 +898,13 @@ export function createAppController({
         stateChanged();
         invalidateScreenCache(kind);
         view.showStatus?.({ type: 'saved', message: deleting ? '삭제했습니다. 최신 목록을 다시 불러옵니다.' : '저장했습니다. 최신 목록을 다시 불러옵니다.' });
+        let deleteMessage = '삭제했습니다.';
         try { await readLatest({ skipVerify: true }); }
-        catch { view.showStatus?.({ type: deleting ? 'deleted-read-error' : 'saved-read-error', message: deleting ? '삭제는 성공했지만 최신 목록을 불러오지 못했습니다. 목록을 새로고침해 주세요.' : '저장은 성공했지만 최신 목록을 불러오지 못했습니다. 다시 제출하지 마세요.' }); }
+        catch {
+          deleteMessage = '삭제는 성공했지만 최신 목록을 불러오지 못했습니다. 목록을 새로고침해 주세요.';
+          view.showStatus?.({ type: deleting ? 'deleted-read-error' : 'saved-read-error', message: deleting ? deleteMessage : '저장은 성공했지만 최신 목록을 불러오지 못했습니다. 다시 제출하지 마세요.' });
+        }
+        if (deleting) view.showDeleteResult?.({ status: 'succeeded', message: deleteMessage });
         return result;
       }
       if (['unknown', 'partial'].includes(result.status)) await readUnresolved();
@@ -908,11 +913,16 @@ export function createAppController({
           ? '삭제 여부 확인이 필요합니다. 다시 삭제하지 말고 Notion 원본을 확인해 주세요.'
           : SAFE_MESSAGES[result.code] ?? SAFE_MESSAGES['delete-failed'];
         view.showStatus?.({ type: result.status, message });
+        view.showDeleteResult?.({ status: result.status, message });
       } else showFailure({ code: result.status }, result.status);
       return result;
     } catch (error) {
       if (error?.writeState === 'unknown' || error?.writeState === 'partial') await readUnresolved();
       showFailure(error, error?.writeState === 'unknown' ? 'unknown' : 'validation-error');
+      if (deleting) view.showDeleteResult?.({
+        status: ['unknown', 'partial'].includes(error?.writeState) ? error.writeState : 'failed',
+        message: messageFor(error),
+      });
       throw error;
     } finally {
       pending = false;

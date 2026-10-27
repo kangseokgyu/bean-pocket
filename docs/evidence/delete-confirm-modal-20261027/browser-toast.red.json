@@ -1,0 +1,25 @@
+{
+  "checks": [
+    "Enter opens the native accessible dialog",
+    "initial focus moves to Cancel",
+    "untrusted target name is visible as text",
+    "bean dependency restriction is explained",
+    "desktop dialog and buttons render to spec",
+    "Escape cancels and restores focus"
+  ],
+  "measurements": {
+    "desktop": {
+      "dialogWidth": 460,
+      "buttonHeights": [
+        44,
+        44
+      ],
+      "gap": "10px",
+      "transition": "0.14s, 0.14s, 0.14s, 0.14s",
+      "red": "rgb(167, 51, 44)"
+    }
+  },
+  "consoleIssues": [],
+  "outsideRequests": [],
+  "failure": "AssertionError [ERR_ASSERTION]: global status toast stays hidden while the delete dialog is open\n    at check (/Users/kangseokgyu/.codex/worktrees/delete-confirm-modal/AX-1day/docs/evidence/delete-confirm-modal-20261027/browser-test.cjs:16:10)\n    at /Users/kangseokgyu/.codex/worktrees/delete-confirm-modal/AX-1day/docs/evidence/delete-confirm-modal-20261027/browser-test.cjs:130:5"
+}

@@ -24,6 +24,7 @@ async function setup() {
     const view = { currentRoute: () => route, onRouteChange(handler) { routeChange = handler; },
       renderRoute(nextRoute) { route = nextRoute; return routeChange?.(route); },
       showStatus: value => events.push({ status: value }), renderData: value => events.push({ data: value }),
+      showDeleteResult: value => events.push({ deleteResult: value }),
       setState() {}, clearSecret() {}, showConnection() {}, showUnresolved() {} };
     const app = createAppController({
       view,
@@ -82,6 +83,8 @@ test('an incomplete record relation protects unrelated recipe deletion', async (
   assert.equal(result.status, 'failed');
   assert.equal(result.code, 'delete-dependency-unknown');
   assert.equal(patches(env).length, 0);
+  assert.deepEqual(env.events.filter(event => event.deleteResult).at(-1)?.deleteResult,
+    { status: 'failed', message: '연결 관계나 제외된 기록을 확인할 수 없어 안전을 위해 삭제를 막았습니다. 최신 목록을 새로고침해 주세요.' });
 });
 
 test('excluded historical record rows keep recipe deletion fail-closed', async () => {
@@ -147,6 +150,8 @@ test('recipe deletion trashes only the parent and removes it from fresh recipe c
   const result = await env.app.submit('delete-recipe', { id: recipe.value.id });
 
   assert.equal(result.status, 'succeeded');
+  assert.deepEqual(env.events.filter(event => event.deleteResult).at(-1)?.deleteResult,
+    { status: 'succeeded', message: '삭제했습니다.' });
   assert.deepEqual(patches(env).map(call => call.pathname), [`/v1/pages/${recipe.value.id}`]);
   assert.equal(sourceRows(env, 'recipes')[0].in_trash, true);
   assert.equal(sourceRows(env, 'steps').length, 2);
@@ -204,6 +209,8 @@ test('lost record deletion response recovers from the fresh target without a sec
 
   const outcome = await env.app.submit('delete-record', { id: record.value.id });
   assert.equal(outcome.status, 'unknown');
+  assert.deepEqual(env.events.filter(event => event.deleteResult).at(-1)?.deleteResult,
+    { status: 'unknown', message: '삭제 여부 확인이 필요합니다. 다시 삭제하지 말고 Notion 원본을 확인해 주세요.' });
   const operation = env.native.journal().operations.at(-1);
   assert.equal(operation.kind, 'delete-record');
   assert.deepEqual(operation.deleteTarget, { kind: 'records', id: record.value.id, archiveState: 'unknown' });

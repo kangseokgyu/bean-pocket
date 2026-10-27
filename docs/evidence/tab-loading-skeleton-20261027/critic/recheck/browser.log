@@ -1,0 +1,188 @@
+[
+  {
+    "width": 390,
+    "checks": [
+      {
+        "name": "initial skeleton retained",
+        "pass": true
+      },
+      {
+        "name": "first beans data clears skeleton",
+        "pass": true
+      },
+      {
+        "name": "recipes skeleton hides stale/empty and navigation usable",
+        "pass": true
+      },
+      {
+        "name": "stale rejection cannot clear active skeleton",
+        "pass": true
+      },
+      {
+        "name": "records first data shown",
+        "pass": true
+      },
+      {
+        "name": "active error clears skeleton with no cards or empty",
+        "pass": true
+      },
+      {
+        "name": "cache has no artificial delay",
+        "pass": true
+      },
+      {
+        "name": "new-route first read preserves modal DOM and focus",
+        "pass": true
+      },
+      {
+        "name": "new-route draft value preserved",
+        "pass": true
+      },
+      {
+        "name": "hidden-sibling diagnostic",
+        "beforeHidden": [
+          {
+            "tag": "DIV",
+            "cls": "list-header",
+            "hidden": false
+          },
+          {
+            "tag": "ARTICLE",
+            "cls": "recipe-card recipe-summary-card",
+            "hidden": false
+          },
+          {
+            "tag": "DIALOG",
+            "cls": "entry-dialog",
+            "hidden": false
+          }
+        ],
+        "afterHidden": [
+          {
+            "tag": "DIV",
+            "cls": "list-header",
+            "hidden": false
+          },
+          {
+            "tag": "ARTICLE",
+            "cls": "recipe-card recipe-summary-card",
+            "hidden": false
+          },
+          {
+            "tag": "DIALOG",
+            "cls": "entry-dialog",
+            "hidden": false
+          }
+        ]
+      },
+      {
+        "name": "modal loading-ready restores hidden siblings",
+        "pass": true
+      },
+      {
+        "name": "modal close retains visible fresh list",
+        "pass": true
+      },
+      {
+        "name": "no wrong-route cards or empty state in observed browser frames",
+        "pass": true
+      }
+    ],
+    "errors": [],
+    "findings": [],
+    "frames": 92
+  },
+  {
+    "width": 1280,
+    "checks": [
+      {
+        "name": "initial skeleton retained",
+        "pass": true
+      },
+      {
+        "name": "first beans data clears skeleton",
+        "pass": true
+      },
+      {
+        "name": "recipes skeleton hides stale/empty and navigation usable",
+        "pass": true
+      },
+      {
+        "name": "stale rejection cannot clear active skeleton",
+        "pass": true
+      },
+      {
+        "name": "records first data shown",
+        "pass": true
+      },
+      {
+        "name": "active error clears skeleton with no cards or empty",
+        "pass": true
+      },
+      {
+        "name": "cache has no artificial delay",
+        "pass": true
+      },
+      {
+        "name": "new-route first read preserves modal DOM and focus",
+        "pass": true
+      },
+      {
+        "name": "new-route draft value preserved",
+        "pass": true
+      },
+      {
+        "name": "hidden-sibling diagnostic",
+        "beforeHidden": [
+          {
+            "tag": "DIV",
+            "cls": "list-header",
+            "hidden": false
+          },
+          {
+            "tag": "ARTICLE",
+            "cls": "recipe-card recipe-summary-card",
+            "hidden": false
+          },
+          {
+            "tag": "DIALOG",
+            "cls": "entry-dialog",
+            "hidden": false
+          }
+        ],
+        "afterHidden": [
+          {
+            "tag": "DIV",
+            "cls": "list-header",
+            "hidden": false
+          },
+          {
+            "tag": "ARTICLE",
+            "cls": "recipe-card recipe-summary-card",
+            "hidden": false
+          },
+          {
+            "tag": "DIALOG",
+            "cls": "entry-dialog",
+            "hidden": false
+          }
+        ]
+      },
+      {
+        "name": "modal loading-ready restores hidden siblings",
+        "pass": true
+      },
+      {
+        "name": "modal close retains visible fresh list",
+        "pass": true
+      },
+      {
+        "name": "no wrong-route cards or empty state in observed browser frames",
+        "pass": true
+      }
+    ],
+    "errors": [],
+    "findings": [],
+    "frames": 88
+  }
+]

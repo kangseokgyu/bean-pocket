@@ -1,0 +1,3 @@
+import http from 'node:http';import {readFile} from 'node:fs/promises';import path from 'node:path';
+const root='/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day';
+http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost');const file=url.pathname==='/'?path.join(root,'docs/evidence/tab-loading-skeleton-20261027/critic/fixture.html'):path.resolve(root,'.'+url.pathname);if(!file.startsWith(root+'/')){res.writeHead(403).end();return}res.setHeader('Content-Type',file.endsWith('.html')?'text/html':file.endsWith('.css')?'text/css':'text/javascript');res.end(await readFile(file));}catch{res.writeHead(404).end()}}).listen(4283,'127.0.0.1');

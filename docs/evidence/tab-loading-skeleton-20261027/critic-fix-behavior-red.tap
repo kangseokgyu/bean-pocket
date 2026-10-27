@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: first route data keeps an open recipe modal node and focus while updating its list
+not ok 1 - first route data keeps an open recipe modal node and focus while updating its list
+  ---
+  duration_ms: 15.441375
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1694:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    dialog DOM survives first response
+
+    false !== true
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1737:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: route loading-ready restores only list siblings hidden for the open modal
+not ok 2 - route loading-ready restores only list siblings hidden for the open modal
+  ---
+  duration_ms: 11.947542
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1747:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+
+      assert.ok(siblings().filter(child => child !== intentionallyHidden).every(child => !child.hidden))
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1767:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 0
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1079.562084

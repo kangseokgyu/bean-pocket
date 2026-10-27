@@ -1,0 +1,81 @@
+✔ saved-connection startup verifies and reads only the current beans page (3.094375ms)
+✔ route reads stay scoped, record filters query the server, and name options load on form use (1.194125ms)
+✖ route transition loading is independent from writes and ends after the first page (0.912542ms)
+✖ route read failure and cancellation clear loading without rendering previous-route data (0.468875ms)
+✖ late response from a previous route cannot replace the current screen (0.76275ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 2
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 65.262875
+
+✖ failing tests:
+
+test at test/pwa-screen-loading.test.mjs:119:1
+✖ route transition loading is independent from writes and ends after the first page (0.912542ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+  + []
+  - [
+  -   'loading'
+  - ]
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-screen-loading.test.mjs:158:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ 'loading' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test/pwa-screen-loading.test.mjs:170:1
+✖ route read failure and cancellation clear loading without rendering previous-route data (0.468875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+  + []
+  - [
+  -   'loading',
+  -   'error'
+  - ]
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-screen-loading.test.mjs:202:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ 'loading', 'error' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test/pwa-screen-loading.test.mjs:213:1
+✖ late response from a previous route cannot replace the current screen (0.76275ms)
+  AssertionError [ERR_ASSERTION]: the stale error cannot clear the current route state
+  + actual - expected
+
+  + []
+  - [
+  -   'loading',
+  -   'loading',
+  -   'ready'
+  - ]
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-screen-loading.test.mjs:259:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ 'loading', 'loading', 'ready' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

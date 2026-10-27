@@ -163,7 +163,7 @@ p { line-height: 1.6; }
 .connection-note, .app-status {
   position: fixed;
   z-index: 110;
-  inset: auto max(12px, env(safe-area-inset-right, 0px)) calc(var(--toast-bottom, 160px) + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));
+  inset: auto max(12px, env(safe-area-inset-right, 0px)) calc(var(--toast-bottom, 104px) + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));
   width: fit-content;
   max-width: min(480px, calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - 32px));
   max-height: min(30dvh, 8rem);

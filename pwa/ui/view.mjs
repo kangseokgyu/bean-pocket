@@ -170,7 +170,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       : [...(openDialog?.querySelectorAll('button') ?? [])]
         .map(button => button.getBoundingClientRect?.()).find(rect => rect?.height > 0);
     const viewportHeight = document.documentElement?.clientHeight;
-    const bottom = actionsRect && viewportHeight ? Math.max(160, viewportHeight - actionsRect.top + 16) : 160;
+    const bottom = actionsRect && viewportHeight ? Math.max(104, viewportHeight - actionsRect.top + 8) : 104;
     status.style.setProperty('--toast-bottom', `${bottom}px`);
     if (!visible) {
       if (statusPopoverOpen) status.hidePopover();

@@ -342,7 +342,9 @@ test('home startup performs no screen reads and brew routes use scoped repositor
   app.bind();
   assert.equal(await app.initialize(), true);
   assert.deepEqual(calls.filter(([name]) => name !== 'verify'), [], 'the home screen must not query entity lists');
-  assert.equal(calls.some(([name, kinds]) => name === 'verify' && kinds.length > 0), false);
+  assert.deepEqual(calls.filter(([name]) => name === 'verify'),
+    [['verify', ['beans', 'recipes', 'steps', 'records']]],
+    'home verifies the saved connection without querying entity lists');
 
   currentRoute = '/brew/bean';
   await routeChanged(currentRoute);

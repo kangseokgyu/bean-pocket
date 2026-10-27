@@ -1,0 +1,91 @@
+{
+  "checks": [
+    {
+      "scenario": "saved",
+      "pass": true,
+      "initial": true,
+      "connected": true,
+      "calls": 4
+    },
+    {
+      "scenario": "temporary",
+      "pass": true,
+      "initial": false,
+      "connected": false,
+      "calls": 1
+    },
+    {
+      "scenario": "http401",
+      "pass": true,
+      "initial": false,
+      "connected": false,
+      "calls": 1
+    },
+    {
+      "scenario": "http403",
+      "pass": true,
+      "initial": false,
+      "connected": false,
+      "calls": 1
+    },
+    {
+      "scenario": "http404",
+      "pass": true,
+      "initial": false,
+      "connected": false,
+      "calls": 1
+    },
+    {
+      "scenario": "http429",
+      "pass": true,
+      "initial": false,
+      "connected": false,
+      "calls": 3
+    },
+    {
+      "scenario": "absent",
+      "pass": true,
+      "initial": null,
+      "connected": false,
+      "calls": 0
+    },
+    {
+      "scenario": "storage",
+      "pass": true,
+      "initial": false,
+      "connected": false,
+      "calls": 0
+    },
+    {
+      "scenario": "guard",
+      "pass": true,
+      "initial": false,
+      "connected": false,
+      "calls": 0
+    },
+    {
+      "scenario": "mismatch",
+      "pass": true,
+      "initial": false,
+      "connected": false,
+      "calls": 0
+    },
+    {
+      "scenario": "unknown",
+      "pass": true,
+      "initial": true,
+      "connected": true,
+      "calls": 4
+    },
+    {
+      "scenario": "partial",
+      "pass": true,
+      "initial": true,
+      "connected": true,
+      "calls": 4
+    }
+  ],
+  "errors": [],
+  "console": [],
+  "external": []
+}

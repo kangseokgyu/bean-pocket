@@ -619,27 +619,34 @@ export function createAppController({
   }
 
   async function runInitialization() {
+    let canEditConnection = false;
     view.showConnection?.({ connected: !!activeConnection, checkingInitialization: true });
     view.showStatus?.({ type: 'startup-checking', message: '저장된 연결 확인 중' });
     try {
       const loaded = await withStartupLock(async context => {
-        const connection = await file.readConnection();
-        const inspection = await context.inspect();
-        const journal = await context.readJournal();
-        setUnresolved(journal?.operations ?? []);
-        const hasUnresolvedOperations = journal?.operations.some(operation => ['unknown', 'partial'].includes(operation.status));
-        if (inspection.blocked && !journal?.connectionGuard && !hasUnresolvedOperations) {
-          throw Object.freeze({ code: 'state-blocked' });
-        }
-        if (!connection) return null;
-        if (!inspection.initialized || journal?.connectionGuard ||
-            journal?.activeConnectionRevision !== connection.revision) {
-          throw Object.freeze({ code: journal?.connectionGuard ? 'unresolved-connection' : 'connection-mismatch' });
-        }
-        const stack = makeStack(connection);
-        await stack.nextClient.verify(routeSchemas(currentRoute()));
-        return { connection, ...stack };
+        // Keep startup failures outside the write-lock adapter's generic action-error boundary.
+        try {
+          const connection = await file.readConnection();
+          const inspection = await context.inspect();
+          const journal = await context.readJournal();
+          setUnresolved(journal?.operations ?? []);
+          const hasUnresolvedOperations = journal?.operations.some(operation => ['unknown', 'partial'].includes(operation.status));
+          if (inspection.blocked && !journal?.connectionGuard && !hasUnresolvedOperations) {
+            throw Object.freeze({ code: 'state-blocked' });
+          }
+          if (!connection) return null;
+          if (!inspection.initialized || journal?.connectionGuard ||
+              journal?.activeConnectionRevision !== connection.revision) {
+            throw Object.freeze({ code: journal?.connectionGuard ? 'unresolved-connection' : 'connection-mismatch' });
+          }
+          const stack = makeStack(connection);
+          canEditConnection = true;
+          const kinds = routeSchemas(currentRoute());
+          await stack.nextClient.verify(kinds.length ? kinds : SOURCE_KEYS);
+          return { connection, ...stack };
+        } catch (error) { return { error }; }
       });
+      if (loaded?.error) throw loaded.error;
       if (!loaded) {
         view.showConnection?.({ connected: false });
         view.showStatus?.({ type: 'disconnected', message: 'Notion 연결 정보를 입력해 주세요.' });
@@ -654,13 +661,21 @@ export function createAppController({
         view.showConnection?.({ connected: !!activeConnection, retryInitialization: true });
         return false;
       }
-      showFailure(error, 'connection-error');
+      const startupMessage = canEditConnection
+        ? messageFor(error)
+        : '저장된 연결을 읽지 못했습니다. 기기 저장소를 확인한 뒤 다시 시도해 주세요.';
       const needsRecovery = ['connection-mismatch', 'unresolved-connection'].includes(error?.code);
       if (needsRecovery || error?.code === 'state-blocked') {
         activeConnection = null;
         client = repository = commands = null;
       }
-      view.showConnection?.({ connected: !!activeConnection, needsRecovery });
+      view.showStatus?.({ type: 'connection-error', message: needsRecovery || error?.code === 'state-blocked'
+        ? messageFor(error)
+        : canEditConnection && ![401, 403, 404, 429].includes(error?.httpStatus)
+          ? `저장된 연결을 확인하지 못했습니다. ${startupMessage}` : startupMessage });
+      view.showConnection?.(needsRecovery
+        ? { connected: !!activeConnection, needsRecovery: true }
+        : { connected: !!activeConnection, retryInitialization: true, canEditConnection });
       return false;
     } finally {
       view.finishStartup?.();

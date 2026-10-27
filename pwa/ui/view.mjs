@@ -323,8 +323,11 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   const startupRetry = make(document, 'section', undefined, 'startup-retry-panel');
   startupRetry.hidden = true;
   startupRetry.append(make(document, 'h2', '저장된 연결을 확인하지 못했습니다'));
-  startupRetry.append(make(document, 'p', '다른 창이 저장소를 사용 중이면 잠시 기다린 뒤, 연결 정보를 입력하지 말고 다시 시도해 주세요.'));
+  startupRetry.append(make(document, 'p', '저장소·네트워크·Notion 권한을 확인해 주세요. 다른 창이 저장소를 사용 중이면 잠시 기다린 뒤, 연결 정보를 입력하지 말고 다시 시도해 주세요.'));
   startupRetry.append(button(document, '저장된 연결 다시 읽기', 'button', 'retry-initialize'));
+  const editConnection = button(document, '연결 설정 수정', 'button', 'edit-connection');
+  editConnection.hidden = true;
+  startupRetry.append(editConnection);
   startupRetry.append(button(document, '닫기', 'button', 'cancel-connection'));
   connection.append(startupRetry);
 
@@ -491,8 +494,9 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       const checkingInitialization = !!value?.checkingInitialization;
       connection.dataset.connected = connected ? 'true' : 'false';
       connectionAvailable = !checkingInitialization;
-      connectionDetails.hidden = retryInitialization || checkingInitialization;
+      connectionDetails.hidden = retryInitialization || checkingInitialization || !!value?.needsRecovery;
       startupRetry.hidden = !retryInitialization;
+      editConnection.hidden = !retryInitialization || !value?.canEditConnection;
       repair.hidden = !value?.needsRecovery;
       nav.hidden = !connected;
       unresolved.hidden = !connected || unresolved.dataset.count === '0';
@@ -512,6 +516,13 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     finishConnectionSave() {
       if (connectionPhase === 'checking') connectionPhase = 'idle';
       syncConnectionState();
+    },
+    editConnection() {
+      if (editConnection.hidden || currentState.pending || currentState.frozen) return false;
+      startupRetry.hidden = true;
+      connectionDetails.hidden = false;
+      connectionForm.elements.token.focus?.();
+      return true;
     },
     cancelConnection() {
       if (currentState.pending || currentState.frozen || connectionPhase !== 'idle') return false;
@@ -1762,6 +1773,10 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
     const target = event.target.closest('[data-action]');
     const action = target?.dataset.action;
     if (!action || target.disabled) return;
+    if (action === 'edit-connection') {
+      view.editConnection();
+      return;
+    }
     if (action === 'retry-initialize') {
       try { await actions.initialize(); } catch { /* Safe status text is supplied by the controller. */ }
       return;

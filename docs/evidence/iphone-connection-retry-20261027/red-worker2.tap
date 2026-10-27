@@ -1,0 +1,816 @@
+TAP version 13
+# Subtest: the shipped page has a real UI mount point
+ok 1 - the shipped page has a real UI mount point
+  ---
+  duration_ms: 5.665708
+  type: 'test'
+  ...
+# Subtest: controller public flows use real Notion, repository, commands and journal adapters
+ok 2 - controller public flows use real Notion, repository, commands and journal adapters
+  ---
+  duration_ms: 7077.758042
+  type: 'test'
+  ...
+# Subtest: unknown writes preserve the draft state and prevent a second UI submission
+ok 3 - unknown writes preserve the draft state and prevent a second UI submission
+  ---
+  duration_ms: 5.132625
+  type: 'test'
+  ...
+# Subtest: unknown write resolution requires explicit confirmation and a fresh read before writes resume
+ok 4 - unknown write resolution requires explicit confirmation and a fresh read before writes resume
+  ---
+  duration_ms: 8.626334
+  type: 'test'
+  ...
+# Subtest: a second native UI client waits for startup lock release and reads the saved connection
+ok 5 - a second native UI client waits for startup lock release and reads the saved connection
+  ---
+  duration_ms: 102.693792
+  type: 'test'
+  ...
+# Subtest: home startup verifies a saved connection through the real Notion client
+not ok 6 - home startup verifies a saved connection through the real Notion client
+  ---
+  duration_ms: 1.552834
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/iphone-connection-retry/AX-1day/test/pwa-ui.integration.test.mjs:175:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/iphone-connection-retry/AX-1day/test/pwa-ui.integration.test.mjs:178:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: home startup keeps the saved settings on a temporary verify failure and restores them on retry
+not ok 7 - home startup keeps the saved settings on a temporary verify failure and restores them on retry
+  ---
+  duration_ms: 1.383709
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/iphone-connection-retry/AX-1day/test/pwa-ui.integration.test.mjs:185:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/iphone-connection-retry/AX-1day/test/pwa-ui.integration.test.mjs:195:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: home startup shows a safe retry state when saved connection storage cannot be read
+not ok 8 - home startup shows a safe retry state when saved connection storage cannot be read
+  ---
+  duration_ms: 0.460584
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/iphone-connection-retry/AX-1day/test/pwa-ui.integration.test.mjs:209:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/iphone-connection-retry/AX-1day/test/pwa-ui.integration.test.mjs:215:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: home startup opens first-time connection entry only when the connection file is absent
+ok 9 - home startup opens first-time connection entry only when the connection file is absent
+  ---
+  duration_ms: 0.75325
+  type: 'test'
+  ...
+# Subtest: saved connection authorization failures keep retry and settings edit entry available
+not ok 10 - saved connection authorization failures keep retry and settings edit entry available
+  ---
+  duration_ms: 1.066541
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/iphone-connection-retry/AX-1day/test/pwa-ui.integration.test.mjs:231:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/iphone-connection-retry/AX-1day/test/pwa-ui.integration.test.mjs:239:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: startup recovery guards remain repair-only and block connection replacement
+not ok 11 - startup recovery guards remain repair-only and block connection replacement
+  ---
+  duration_ms: 0.597209
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/iphone-connection-retry/AX-1day/test/pwa-ui.integration.test.mjs:245:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/iphone-connection-retry/AX-1day/test/pwa-ui.integration.test.mjs:259:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: legacy bag journals stay unresolved after startup and never auto-send
+ok 12 - legacy bag journals stay unresolved after startup and never auto-send
+  ---
+  duration_ms: 705.430833
+  type: 'test'
+  ...
+# Subtest: saved resolution rejects a recipe parent that is absent from the complete fresh projection
+ok 13 - saved resolution rejects a recipe parent that is absent from the complete fresh projection
+  ---
+  duration_ms: 9.315458
+  type: 'test'
+  ...
+# (node:49859) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: connection settings open only after no saved connection is found
+ok 14 - connection settings open only after no saved connection is found
+  ---
+  duration_ms: 5.081333
+  type: 'test'
+  ...
+# Subtest: startup checking shows one body overlay until retry is needed
+ok 15 - startup checking shows one body overlay until retry is needed
+  ---
+  duration_ms: 4.169541
+  type: 'test'
+  ...
+# Subtest: initialization spinner ends on saved
+ok 16 - initialization spinner ends on saved
+  ---
+  duration_ms: 5.673334
+  type: 'test'
+  ...
+# Subtest: initialization spinner ends on missing
+ok 17 - initialization spinner ends on missing
+  ---
+  duration_ms: 2.366916
+  type: 'test'
+  ...
+# Subtest: initialization spinner ends on error
+ok 18 - initialization spinner ends on error
+  ---
+  duration_ms: 2.063583
+  type: 'test'
+  ...
+# Subtest: initialization spinner ends on recovery
+ok 19 - initialization spinner ends on recovery
+  ---
+  duration_ms: 2.196708
+  type: 'test'
+  ...
+# Subtest: initialization spinner ends on busy
+ok 20 - initialization spinner ends on busy
+  ---
+  duration_ms: 1.434333
+  type: 'test'
+  ...
+# Subtest: initialization spinner ends on read-error
+ok 21 - initialization spinner ends on read-error
+  ---
+  duration_ms: 1.794167
+  type: 'test'
+  ...
+# Subtest: shared loading overlay stays outside transformed page through ready completion
+ok 22 - shared loading overlay stays outside transformed page through ready completion
+  ---
+  duration_ms: 1.07375
+  type: 'test'
+  ...
+# Subtest: saved connection opens settings modally and closing discards unsaved secrets
+ok 23 - saved connection opens settings modally and closing discards unsaved secrets
+  ---
+  duration_ms: 1.268833
+  type: 'test'
+  ...
+# Subtest: successful status messages stay visible for three seconds then hide
+ok 24 - successful status messages stay visible for three seconds then hide
+  ---
+  duration_ms: 1.126375
+  type: 'test'
+  ...
+# Subtest: errors, recovery notices and pending work stay visible after replacing success
+ok 25 - errors, recovery notices and pending work stay visible after replacing success
+  ---
+  duration_ms: 0.761
+  type: 'test'
+  ...
+# Subtest: status messages share one bottom safe-area toast above native modal dialogs
+ok 26 - status messages share one bottom safe-area toast above native modal dialogs
+  ---
+  duration_ms: 2.698375
+  type: 'test'
+  ...
+# Subtest: native form validation marks its field and reports the error in the shared toast
+ok 27 - native form validation marks its field and reports the error in the shared toast
+  ---
+  duration_ms: 1.648416
+  type: 'test'
+  ...
+# Subtest: operation spinner stays in body overlay outside the touch-transformed page
+ok 28 - operation spinner stays in body overlay outside the touch-transformed page
+  ---
+  duration_ms: 1.042541
+  type: 'test'
+  ...
+# Subtest: operation spinner stays visible through success, ready and timeout, then clears on completion or failure
+ok 29 - operation spinner stays visible through success, ready and timeout, then clears on completion or failure
+  ---
+  duration_ms: 2.892416
+  type: 'test'
+  ...
+# Subtest: a new success gets a full display interval and empty messages hide immediately
+ok 30 - a new success gets a full display interval and empty messages hide immediately
+  ---
+  duration_ms: 0.739583
+  type: 'test'
+  ...
+# Subtest: draft values survive tab navigation and a fresh data render
+ok 31 - draft values survive tab navigation and a fresh data render
+  ---
+  duration_ms: 3.153583
+  type: 'test'
+  ...
+# Subtest: bean, recipe, and record detail text is rendered as text and retains brew details
+ok 32 - bean, recipe, and record detail text is rendered as text and retains brew details
+  ---
+  duration_ms: 2.312834
+  type: 'test'
+  ...
+# Subtest: pour tables group cumulative values before interval and current water in three columns
+ok 33 - pour tables group cumulative values before interval and current water in three columns
+  ---
+  duration_ms: 1.598375
+  type: 'test'
+  ...
+# Subtest: damaged historical records are excluded from bagless recipe views
+ok 34 - damaged historical records are excluded from bagless recipe views
+  ---
+  duration_ms: 1.23825
+  type: 'test'
+  ...
+# Subtest: invalid stored date and rating remain visible with field-specific warnings
+ok 35 - invalid stored date and rating remain visible with field-specific warnings
+  ---
+  duration_ms: 4.477792
+  type: 'test'
+  ...
+# Subtest: recipes have no bean selector and records require both bean and shared recipe with browse filters
+ok 36 - recipes have no bean selector and records require both bean and shared recipe with browse filters
+  ---
+  duration_ms: 5.525292
+  type: 'test'
+  ...
+# Subtest: resolution controls follow the native journal page-list contract
+ok 37 - resolution controls follow the native journal page-list contract
+  ---
+  duration_ms: 0.687042
+  type: 'test'
+  ...
+# Subtest: recipe step time permits a keyboard with colon while retaining minute-second validation
+ok 38 - recipe step time permits a keyboard with colon while retaining minute-second validation
+  ---
+  duration_ms: 1.553209
+  type: 'test'
+  ...
+# Subtest: the bean origin label uses user-facing wording rather than the storage field name
+ok 39 - the bean origin label uses user-facing wording rather than the storage field name
+  ---
+  duration_ms: 0.596209
+  type: 'test'
+  ...
+# Subtest: the record date default follows the device calendar across the KST UTC boundary
+ok 40 - the record date default follows the device calendar across the KST UTC boundary
+  ---
+  duration_ms: 2.094125
+  type: 'test'
+  ...
+# Subtest: checked connection-recovery checkbox reaches the current-connection verifier
+ok 41 - checked connection-recovery checkbox reaches the current-connection verifier
+  ---
+  duration_ms: 0.463875
+  type: 'test'
+  ...
+# Subtest: startup lock contention hides connection entry and retries the saved connection read
+ok 42 - startup lock contention hides connection entry and retries the saved connection read
+  ---
+  duration_ms: 0.696459
+  type: 'test'
+  ...
+# Subtest: successful connection replacement preserves the active product draft
+ok 43 - successful connection replacement preserves the active product draft
+  ---
+  duration_ms: 3.387458
+  type: 'test'
+  ...
+# Subtest: successful connection replacement preserves hidden drafts and their dirty signal
+ok 44 - successful connection replacement preserves hidden drafts and their dirty signal
+  ---
+  duration_ms: 2.85975
+  type: 'test'
+  ...
+# Subtest: recipe input minimums allow every positive sub-cent value accepted by the domain
+ok 45 - recipe input minimums allow every positive sub-cent value accepted by the domain
+  ---
+  duration_ms: 1.8035
+  type: 'test'
+  ...
+# Subtest: recipe history never displays legacy bag relations
+ok 46 - recipe history never displays legacy bag relations
+  ---
+  duration_ms: 15.094916
+  type: 'test'
+  ...
+# Subtest: bean creation starts hidden, opens from the plus button, and closes on cancel
+ok 47 - bean creation starts hidden, opens from the plus button, and closes on cancel
+  ---
+  duration_ms: 2.876584
+  type: 'test'
+  ...
+# Subtest: bag route has no entry, delete or relation selection surface
+ok 48 - bag route has no entry, delete or relation selection surface
+  ---
+  duration_ms: 1.352208
+  type: 'test'
+  ...
+# Subtest: recipe creation opens from plus, preserves drafts, and closes on cancel
+ok 49 - recipe creation opens from plus, preserves drafts, and closes on cancel
+  ---
+  duration_ms: 10.264375
+  type: 'test'
+  ...
+# Subtest: recipe detail places the guide below the pour table and copy preserves its text
+ok 50 - recipe detail places the guide below the pour table and copy preserves its text
+  ---
+  duration_ms: 3.3945
+  type: 'test'
+  ...
+# Subtest: record creation opens from plus, preserves drafts, and closes on cancel or save
+ok 51 - record creation opens from plus, preserves drafts, and closes on cancel or save
+  ---
+  duration_ms: 8.272375
+  type: 'test'
+  ...
+# Subtest: background data updates defer pane replacement while an entry dialog is open
+ok 52 - background data updates defer pane replacement while an entry dialog is open
+  ---
+  duration_ms: 4.241958
+  type: 'test'
+  ...
+# Subtest: collection headers omit refresh and retain their add buttons
+ok 53 - collection headers omit refresh and retain their add buttons
+  ---
+  duration_ms: 4.0725
+  type: 'test'
+  ...
+# Subtest: pulling from the top reloads the entire page once on release
+ok 54 - pulling from the top reloads the entire page once on release
+  ---
+  duration_ms: 1.372375
+  type: 'test'
+  ...
+# Subtest: pulling progressively reveals a twelve-spoke spinner and moves the page down
+ok 55 - pulling progressively reveals a twelve-spoke spinner and moves the page down
+  ---
+  duration_ms: 1.001625
+  type: 'test'
+  ...
+# Subtest: work starting while the released spinner paints cancels the scheduled reload
+ok 56 - work starting while the released spinner paints cancels the scheduled reload
+  ---
+  duration_ms: 1.941666
+  type: 'test'
+  ...
+# Subtest: short pulls, retracted pulls and cancelled gestures do not reload
+ok 57 - short pulls, retracted pulls and cancelled gestures do not reload
+  ---
+  duration_ms: 1.748875
+  type: 'test'
+  ...
+# Subtest: normal scrolling and horizontal or upward swipes do not trigger reload
+ok 58 - normal scrolling and horizontal or upward swipes do not trigger reload
+  ---
+  duration_ms: 2.665292
+  type: 'test'
+  ...
+# Subtest: multitouch never reloads and a later single finger gesture can refresh
+ok 59 - multitouch never reloads and a later single finger gesture can refresh
+  ---
+  duration_ms: 0.780042
+  type: 'test'
+  ...
+# Subtest: downward pulls from controls and their child elements reload the whole page
+ok 60 - downward pulls from controls and their child elements reload the whole page
+  ---
+  duration_ms: 4.860917
+  type: 'test'
+  ...
+# Subtest: control taps keep their normal action and short drags suppress accidental taps
+ok 61 - control taps keep their normal action and short drags suppress accidental taps
+  ---
+  duration_ms: 0.843875
+  type: 'test'
+  ...
+# Subtest: horizontal gestures and scrollable controls away from their top keep native scrolling
+ok 62 - horizontal gestures and scrollable controls away from their top keep native scrolling
+  ---
+  duration_ms: 2.77975
+  type: 'test'
+  ...
+# Subtest: saving and update freeze prevent a reload even when they begin during a pull
+ok 63 - saving and update freeze prevent a reload even when they begin during a pull
+  ---
+  duration_ms: 2.501875
+  type: 'test'
+  ...
+# Subtest: refresh requires a 240px downward pull and checks the release position
+ok 64 - refresh requires a 240px downward pull and checks the release position
+  ---
+  duration_ms: 2.608708
+  type: 'test'
+  ...
+# Subtest: navigation uses text-only menus with accessible names
+ok 65 - navigation uses text-only menus with accessible names
+  ---
+  duration_ms: 0.221167
+  type: 'test'
+  ...
+# Subtest: bean cards expose a labelled trash button and require confirmation before deleting
+ok 66 - bean cards expose a labelled trash button and require confirmation before deleting
+  ---
+  duration_ms: 1.976875
+  type: 'test'
+  ...
+# Subtest: recipe and record cards expose named trash controls and confirm each item before submission
+ok 67 - recipe and record cards expose named trash controls and confirm each item before submission
+  ---
+  duration_ms: 9.11925
+  type: 'test'
+  ...
+# Subtest: bean cards pair each metadata value with its own visible label
+ok 68 - bean cards pair each metadata value with its own visible label
+  ---
+  duration_ms: 0.595958
+  type: 'test'
+  ...
+# Subtest: bean cards keep missing metadata explicit and render values as text
+ok 69 - bean cards keep missing metadata explicit and render values as text
+  ---
+  duration_ms: 0.50925
+  type: 'test'
+  ...
+# Subtest: header navigation changes routes and remains locked while work is pending
+ok 70 - header navigation changes routes and remains locked while work is pending
+  ---
+  duration_ms: 3.036
+  type: 'test'
+  ...
+# Subtest: bean entry opens and closes as a native modal without saving on cancel
+ok 71 - bean entry opens and closes as a native modal without saving on cancel
+  ---
+  duration_ms: 1.968084
+  type: 'test'
+  ...
+# Subtest: available entry forms open as native dialogs and cancel without submitting
+ok 72 - available entry forms open as native dialogs and cancel without submitting
+  ---
+  duration_ms: 6.995458
+  type: 'test'
+  ...
+# Subtest: pending entry saves lock controls and Escape; success stays visible until the 1000ms close
+ok 73 - pending entry saves lock controls and Escape; success stays visible until the 1000ms close
+  ---
+  duration_ms: 2.416375
+  type: 'test'
+  ...
+# Subtest: a failed modal save preserves its fields and enables a retry
+ok 74 - a failed modal save preserves its fields and enables a retry
+  ---
+  duration_ms: 12.487
+  type: 'test'
+  ...
+# Subtest: success delay locks every entry field and recipe step after refresh finishes
+ok 75 - success delay locks every entry field and recipe step after refresh finishes
+  ---
+  duration_ms: 6.756208
+  type: 'test'
+  ...
+# Subtest: success delay ignores late input events and closes without a dirty draft
+ok 76 - success delay ignores late input events and closes without a dirty draft
+  ---
+  duration_ms: 1.3995
+  type: 'test'
+  ...
+# Subtest: reduced motion overrides modal entrance and blocking spinner animations
+ok 77 - reduced motion overrides modal entrance and blocking spinner animations
+  ---
+  duration_ms: 0.359583
+  type: 'test'
+  ...
+# Subtest: first route data keeps an open recipe modal node and focus while updating its list
+ok 78 - first route data keeps an open recipe modal node and focus while updating its list
+  ---
+  duration_ms: 4.046166
+  type: 'test'
+  ...
+# Subtest: route loading-ready restores only list siblings hidden for the open modal
+ok 79 - route loading-ready restores only list siblings hidden for the open modal
+  ---
+  duration_ms: 1.75725
+  type: 'test'
+  ...
+# Subtest: initial card load shows decorative skeletons until real data replaces them
+ok 80 - initial card load shows decorative skeletons until real data replaces them
+  ---
+  duration_ms: 1.823083
+  type: 'test'
+  ...
+# Subtest: route transition skeleton hides stale data and exposes an error until a fresh page arrives
+ok 81 - route transition skeleton hides stale data and exposes an error until a fresh page arrives
+  ---
+  duration_ms: 1.597958
+  type: 'test'
+  ...
+# Subtest: route loading preserves an open modal, draft DOM, and focus
+ok 82 - route loading preserves an open modal, draft DOM, and focus
+  ---
+  duration_ms: 1.19975
+  type: 'test'
+  ...
+# Subtest: card skeleton clears after disconnected
+ok 83 - card skeleton clears after disconnected
+  ---
+  duration_ms: 0.420625
+  type: 'test'
+  ...
+# Subtest: card skeleton clears after startup-busy
+ok 84 - card skeleton clears after startup-busy
+  ---
+  duration_ms: 0.343959
+  type: 'test'
+  ...
+# Subtest: card skeleton clears after connection-error
+ok 85 - card skeleton clears after connection-error
+  ---
+  duration_ms: 0.338083
+  type: 'test'
+  ...
+# Subtest: card skeleton clears after read-error
+ok 86 - card skeleton clears after read-error
+  ---
+  duration_ms: 0.429541
+  type: 'test'
+  ...
+# Subtest: persistent error toast follows the settings modal opened and closed without a new status
+ok 87 - persistent error toast follows the settings modal opened and closed without a new status
+  ---
+  duration_ms: 0.495583
+  type: 'test'
+  ...
+# Subtest: connection modal opens from settings and Escape clears secrets, draft and restores focus
+ok 88 - connection modal opens from settings and Escape clears secrets, draft and restores focus
+  ---
+  duration_ms: 0.61275
+  type: 'test'
+  ...
+# Subtest: connection modal protects pending and success phases across product rerenders
+ok 89 - connection modal protects pending and success phases across product rerenders
+  ---
+  duration_ms: 1.604875
+  type: 'test'
+  ...
+# Subtest: connection success closes at 1000ms and defers focus until settings is enabled
+ok 90 - connection success closes at 1000ms and defers focus until settings is enabled
+  ---
+  duration_ms: 1.048459
+  type: 'test'
+  ...
+# Subtest: connection modal preserves failed inputs for retry and exposes safe errors inside the dialog
+ok 91 - connection modal preserves failed inputs for retry and exposes safe errors inside the dialog
+  ---
+  duration_ms: 1.755417
+  type: 'test'
+  ...
+# Subtest: startup retry and recovery remain reachable after dismissing and reopening connection settings
+ok 92 - startup retry and recovery remain reachable after dismissing and reopening connection settings
+  ---
+  duration_ms: 0.589084
+  type: 'test'
+  ...
+# Subtest: saved connection retry keeps the form closed and exposes editing only when allowed
+not ok 93 - saved connection retry keeps the form closed and exposes editing only when allowed
+  ---
+  duration_ms: 0.475833
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/iphone-connection-retry/AX-1day/test/pwa-ui.view.test.mjs:2068:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of null (reading 'hidden')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/iphone-connection-retry/AX-1day/test/pwa-ui.view.test.mjs:2080:21)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: bean cards open their records through a full-card native link without a records button
+ok 94 - bean cards open their records through a full-card native link without a records button
+  ---
+  duration_ms: 1.109959
+  type: 'test'
+  ...
+# Subtest: bean card deletion never opens records, including clicks on its icon
+ok 95 - bean card deletion never opens records, including clicks on its icon
+  ---
+  duration_ms: 0.724792
+  type: 'test'
+  ...
+# Subtest: legacy extraction records remain in raw input but are hidden from current lists and details
+ok 96 - legacy extraction records remain in raw input but are hidden from current lists and details
+  ---
+  duration_ms: 2.342542
+  type: 'test'
+  ...
+# Subtest: PWA removes bag navigation, entry and record selection or display surfaces
+ok 97 - PWA removes bag navigation, entry and record selection or display surfaces
+  ---
+  duration_ms: 1.886875
+  type: 'test'
+  ...
+# Subtest: recipe list cards link their entire surface to details without a details button
+ok 98 - recipe list cards link their entire surface to details without a details button
+  ---
+  duration_ms: 1.929708
+  type: 'test'
+  ...
+# Subtest: recipe list card delete icon stays independent of detail navigation
+ok 99 - recipe list card delete icon stays independent of detail navigation
+  ---
+  duration_ms: 1.79925
+  type: 'test'
+  ...
+# Subtest: view notifies the controller when the current route changes
+ok 100 - view notifies the controller when the current route changes
+  ---
+  duration_ms: 0.101125
+  type: 'test'
+  ...
+# Subtest: record page shows continuation state instead of claiming the database is empty
+ok 101 - record page shows continuation state instead of claiming the database is empty
+  ---
+  duration_ms: 0.5965
+  type: 'test'
+  ...
+# Subtest: record cards show snapshot names while current parent names are loading
+ok 102 - record cards show snapshot names while current parent names are loading
+  ---
+  duration_ms: 0.607541
+  type: 'test'
+  ...
+# Subtest: record name pickers load on focus and preserve filter selection across option pages
+ok 103 - record name pickers load on focus and preserve filter selection across option pages
+  ---
+  duration_ms: 1.63825
+  type: 'test'
+  ...
+# Subtest: home is the default and root route, with the requested hero and four menu destinations
+ok 104 - home is the default and root route, with the requested hero and four menu destinations
+  ---
+  duration_ms: 0.435083
+  type: 'test'
+  ...
+# Subtest: brew routes preserve selected parents and show the saved recipe guide without an automatic timer
+ok 105 - brew routes preserve selected parents and show the saved recipe guide without an automatic timer
+  ---
+  duration_ms: 1.574708
+  type: 'test'
+  ...
+# Subtest: empty bean selection explains registration and provides routes to register or return
+ok 106 - empty bean selection explains registration and provides routes to register or return
+  ---
+  duration_ms: 0.586209
+  type: 'test'
+  ...
+# Subtest: brew search pages render validated options and keep pagination controls
+ok 107 - brew search pages render validated options and keep pagination controls
+  ---
+  duration_ms: 1.625959
+  type: 'test'
+  ...
+# Subtest: brew completion preselects bean and recipe and defaults the record date to today
+ok 108 - brew completion preselects bean and recipe and defaults the record date to today
+  ---
+  duration_ms: 0.696417
+  type: 'test'
+  ...
+# Subtest: brew clicks preserve bean and recipe in browser history and complete into a prefilled record form
+ok 109 - brew clicks preserve bean and recipe in browser history and complete into a prefilled record form
+  ---
+  duration_ms: 2.346
+  type: 'test'
+  ...
+# Subtest: critic: shared recipes remain selectable and usable with an explicitly selected bean
+ok 110 - critic: shared recipes remain selectable and usable with an explicitly selected bean
+  ---
+  duration_ms: 1.040625
+  type: 'test'
+  ...
+# Subtest: critic: visiting the record list does not overwrite later brew prefill with an empty form
+ok 111 - critic: visiting the record list does not overwrite later brew prefill with an empty form
+  ---
+  duration_ms: 1.940375
+  type: 'test'
+  ...
+# Subtest: record draft conflicts require an explicit resume or new-record choice
+ok 112 - record draft conflicts require an explicit resume or new-record choice
+  ---
+  duration_ms: 3.415666
+  type: 'test'
+  ...
+# Subtest: same brew record draft survives leaving and returning to its URL
+ok 113 - same brew record draft survives leaving and returning to its URL
+  ---
+  duration_ms: 2.4485
+  type: 'test'
+  ...
+# Subtest: critic: initial and later brew pages append uniquely without leaking into a search
+ok 114 - critic: initial and later brew pages append uniquely without leaking into a search
+  ---
+  duration_ms: 2.072708
+  type: 'test'
+  ...
+# Subtest: record draft keeps selected IDs while its option pages reload after navigation
+ok 115 - record draft keeps selected IDs while its option pages reload after navigation
+  ---
+  duration_ms: 3.496125
+  type: 'test'
+  ...
+# Subtest: integration: first record response hydrates prefills without replacing the live modal (edited=false)
+ok 116 - integration: first record response hydrates prefills without replacing the live modal (edited=false)
+  ---
+  duration_ms: 3.001541
+  type: 'test'
+  ...
+# Subtest: integration: first record response hydrates prefills without replacing the live modal (edited=true)
+ok 117 - integration: first record response hydrates prefills without replacing the live modal (edited=true)
+  ---
+  duration_ms: 1.995792
+  type: 'test'
+  ...
+# Subtest: integration: invalid record prefill closes the initial modal and exposes the validated error
+ok 118 - integration: invalid record prefill closes the initial modal and exposes the validated error
+  ---
+  duration_ms: 1.572958
+  type: 'test'
+  ...
+1..118
+# tests 118
+# suites 0
+# pass 112
+# fail 6
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7993.026916

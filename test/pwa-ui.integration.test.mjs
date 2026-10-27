@@ -11,6 +11,27 @@ import { readFile } from 'node:fs/promises';
 const validRecipe = beanId => ({ name: 'V60', beanId, dose: 15, totalWater: 250, temperature: 93,
   steps: [{ time: '0:00', water: 50 }, { time: '0:30', water: 100 }, { time: '1:10', water: 100 }] });
 
+function startupApp({ native = memoryPlatform(), fake = fakePwaNotion(), route = '/home', readConnection } = {}) {
+  const connectionStates = [];
+  const statuses = [];
+  const state = createSubmissionState(native);
+  const readSavedConnection = readConnection ?? (async () => {
+    const source = native.files.get('connection.json');
+    return source == null ? null : JSON.parse(source);
+  });
+  const app = createAppController({ view: {
+    currentRoute() { return route; },
+    showConnection(value) { connectionStates.push(value); },
+    showStatus(value) { statuses.push(value); },
+    renderData() {}, setState() {}, showUnresolved() {},
+  }, state, file: { readConnection: readSavedConnection },
+  makeClient: connection => new NotionClient(connection.token, { dataSources: connection.dataSources,
+    connectionRevision: connection.revision, fetchImpl: fake.fetch }),
+  makeRepository: client => createReadRepository(client),
+  makeCommands: options => createCommands(options) });
+  return { app, native, fake, connectionStates, statuses };
+}
+
 test('the shipped page has a real UI mount point', async () => {
   const html = await readFile(new URL('../pwa/index.html', import.meta.url), 'utf8');
   assert.match(html, /id="app-root"/);
@@ -149,6 +170,123 @@ test('a second native UI client waits for startup lock release and reads the sav
   assert.equal(await leaderReady, true);
   assert.equal(follower.getState().connected, true);
   assert.equal((await follower.refresh()).recipes.length, 0);
+});
+
+test('home startup verifies a saved connection through the real Notion client', async () => {
+  const { app, fake } = startupApp();
+
+  assert.equal(await app.initialize(), true);
+  assert.equal(app.getState().connected, true);
+  const reads = fake.calls.filter(call => call.pathname.startsWith('/v1/data_sources/'));
+  assert.equal(reads.length, 4);
+  assert.ok(reads.every(call => call.method === 'GET'));
+});
+
+test('home startup keeps the saved settings on a temporary verify failure and restores them on retry', async () => {
+  const setup = startupApp();
+  const { app, native, fake, connectionStates, statuses } = setup;
+  const savedConnection = native.files.get('connection.json');
+  const savedJournal = native.files.get('submission-journal.json');
+  fake.intercept = call => call.method === 'GET' && call.pathname.startsWith('/v1/data_sources/')
+    ? Response.json({ message: 'private token and source id' }, { status: 503 }) : null;
+
+  assert.equal(await app.initialize(), false);
+  assert.equal(app.getState().connected, false);
+  assert.equal(connectionStates.at(-1).retryInitialization, true);
+  assert.equal(connectionStates.at(-1).canEditConnection, true);
+  assert.match(statuses.at(-1).message, /저장된 연결/);
+  assert.doesNotMatch(statuses.at(-1).message, /private token|source id/);
+  assert.equal(native.files.get('connection.json'), savedConnection);
+  assert.equal(native.files.get('submission-journal.json'), savedJournal);
+
+  fake.intercept = null;
+  assert.equal(await app.initialize(), true);
+  assert.equal(app.getState().connected, true);
+  assert.equal(native.files.get('connection.json'), savedConnection);
+  assert.equal(native.files.get('submission-journal.json'), savedJournal);
+});
+
+test('home startup shows a safe retry state when saved connection storage cannot be read', async () => {
+  const setup = startupApp({ readConnection: async () => { throw new Error('private token source id raw storage details'); } });
+  const { app, connectionStates, statuses } = setup;
+
+  assert.equal(await app.initialize(), false);
+  assert.equal(app.getState().connected, false);
+  assert.equal(connectionStates.at(-1).retryInitialization, true);
+  assert.equal(connectionStates.at(-1).canEditConnection, false);
+  assert.match(statuses.at(-1).message, /저장된 연결/);
+  assert.doesNotMatch(statuses.at(-1).message, /private token|source id|raw storage details/);
+});
+
+test('home startup opens first-time connection entry only when the connection file is absent', async () => {
+  const setup = startupApp({ native: memoryPlatform({ initialized: false }) });
+  const { app, connectionStates, statuses } = setup;
+
+  assert.equal(await app.initialize(), null);
+  assert.equal(connectionStates.at(-1).retryInitialization, undefined);
+  assert.equal(connectionStates.at(-1).needsRecovery, undefined);
+  assert.match(statuses.at(-1).message, /연결 정보를 입력/);
+});
+
+test('saved connection authorization failures keep retry and settings edit entry available', async () => {
+  const setup = startupApp();
+  const { app, fake, connectionStates, statuses } = setup;
+  fake.intercept = call => call.method === 'GET' && call.pathname.startsWith('/v1/data_sources/')
+    ? Response.json({ message: 'private response' }, { status: 401 }) : null;
+
+  assert.equal(await app.initialize(), false);
+  assert.equal(app.getState().connected, false);
+  assert.equal(connectionStates.at(-1).retryInitialization, true);
+  assert.equal(connectionStates.at(-1).canEditConnection, true);
+  assert.equal(statuses.at(-1).message, 'Notion 토큰을 확인해 주세요.');
+  assert.doesNotMatch(statuses.at(-1).message, /private response/);
+});
+
+test('startup recovery guards remain repair-only and block connection replacement', async () => {
+  for (const journalChange of [
+    journal => { journal.connectionGuard = { phase: 'processing',
+      candidateRevision: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', targetFingerprint: 'a'.repeat(64) }; },
+    journal => { journal.activeConnectionRevision = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'; },
+  ]) {
+    const native = memoryPlatform();
+    const journal = JSON.parse(native.files.get('submission-journal.json'));
+    journalChange(journal);
+    native.files.set('submission-journal.json', JSON.stringify(journal));
+    const setup = startupApp({ native });
+    const { app, fake, connectionStates } = setup;
+
+    assert.equal(await app.initialize(), false);
+    assert.equal(connectionStates.at(-1).needsRecovery, true);
+    assert.equal(connectionStates.at(-1).retryInitialization, undefined);
+    assert.equal(fake.calls.length, 0);
+    await assert.rejects(app.connect(testConnection()), error =>
+      ['unresolved-connection', 'connection-mismatch', 'action-error'].includes(error.code));
+    assert.equal(fake.calls.length, 0);
+  }
+});
+
+test('saved startup keeps route-specific verification and query loading lazy', async () => {
+  const { app, fake } = startupApp({ route: '/beans' });
+  assert.equal(await app.initialize(), true);
+  assert.equal(fake.calls.filter(call => call.method === 'GET').length, 1);
+  assert.ok(fake.calls.every(call => call.pathname.includes(testConnection().dataSources.beans)));
+});
+
+test('unreadable saved storage can recover on retry without replacing settings', async () => {
+  const native = memoryPlatform();
+  const original = native.files.get('connection.json');
+  let unreadable = true;
+  const { app, fake } = startupApp({ native, readConnection: async () => {
+    if (unreadable) throw new Error('private storage details');
+    return JSON.parse(original);
+  } });
+  assert.equal(await app.initialize(), false);
+  assert.equal(fake.calls.length, 0);
+  await assert.rejects(app.submit('beans', { name: 'blocked' }));
+  assert.equal(fake.calls.length, 0);
+  unreadable = false;
+  assert.equal(await app.initialize(), true);
+  assert.equal(native.files.get('connection.json'), original);
 });
 
 test('legacy bag journals stay unresolved after startup and never auto-send', async () => {

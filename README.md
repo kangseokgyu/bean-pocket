@@ -13,7 +13,7 @@ npm run check:pages
 
 게시 대상은 생성된 `dist/`뿐이다. `.env.local`이나 Notion 토큰을 빌드에 전달하지 않는다. [게시 준비 상태](docs/pages-readiness.md)와 [수동 게시·복귀·아이폰 확인 절차](docs/pages-deploy.md)를 따른다. 로컬 검증을 실제 Pages 게시나 iPhone 실기기 통과로 해석하지 않는다.
 
-PWA의 기기별 연결·입력·불확실 저장 복구는 [PWA 사용 안내](docs/pwa-usage.md)를 참고한다. 기존 운영 연결·읽기는 사용자 확인을 완료했으며, [최종 인계](docs/evidence/T30/README.md)에 범위와 검증 근거를 기록했다. 아래 환경변수와 서버 메모리 토큰 설명은 기존 Node 서버에만 해당한다.
+PWA는 재실행할 때 기기에 저장된 연결을 검증해 복원하며, 확인에 실패하면 재입력 대신 재시도를 안내한다. 기기별 연결·입력·불확실 저장 복구는 [PWA 사용 안내](docs/pwa-usage.md)를 참고한다. 기존 운영 연결·읽기는 사용자 확인을 완료했으며, [최종 인계](docs/evidence/T30/README.md)에 범위와 검증 근거를 기록했다. 아래 환경변수와 서버 메모리 토큰 설명은 기존 Node 서버에만 해당한다.
 
 ## 기존 Node 서버 로컬 실행
 

@@ -273,9 +273,9 @@ for (const outcome of ['saved', 'missing', 'error', 'recovery', 'busy', 'read-er
     if (outcome === 'saved') assert.equal(status.textContent, '');
     assert.equal(status.dataset.state, { saved: 'ready', missing: 'disconnected', error: 'connection-error',
       recovery: 'connection-error', busy: 'startup-busy', 'read-error': 'read-error' }[outcome]);
-    assert.equal(document.root.querySelector('.startup-retry-panel').hidden, outcome !== 'busy');
+    assert.equal(document.root.querySelector('.startup-retry-panel').hidden, !['busy', 'error'].includes(outcome));
     assert.equal(document.root.querySelector('.repair-panel').hidden, outcome !== 'recovery');
-    assert.equal(document.root.querySelector('.connection-details').hidden, outcome === 'busy');
+    assert.equal(document.root.querySelector('.connection-details').hidden, ['busy', 'error', 'recovery'].includes(outcome));
   });
 }
 
@@ -2063,6 +2063,27 @@ test('startup retry and recovery remain reachable after dismissing and reopening
   view.showConnection({ connected: false, needsRecovery: true });
   assert.equal(dialog.querySelector('.repair-panel').hidden, false);
   assert.equal(dialog.querySelector('[data-action="confirm-connection"]').disabled, false);
+});
+
+test('saved connection retry keeps the form closed and exposes editing only when allowed', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.bind({ initialize() {} });
+  view.showConnection({ connected: false, retryInitialization: true, canEditConnection: true });
+  const dialog = document.root.querySelector('dialog.connection-panel');
+  const details = dialog.querySelector('.connection-details');
+  const retry = dialog.querySelector('.startup-retry-panel');
+  const edit = dialog.querySelector('[data-action="edit-connection"]');
+
+  assert.equal(details.hidden, true);
+  assert.equal(retry.hidden, false);
+  assert.equal(edit.hidden, false);
+  for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: edit });
+  assert.equal(details.hidden, false);
+
+  view.showConnection({ connected: false, retryInitialization: true, canEditConnection: false });
+  assert.equal(details.hidden, true);
+  assert.equal(edit.hidden, true);
 });
 
 test('bean cards open their records through a full-card native link without a records button', async () => {

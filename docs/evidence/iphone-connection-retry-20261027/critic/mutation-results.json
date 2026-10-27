@@ -1,0 +1,34 @@
+{
+  "controlExit": 0,
+  "results": [
+    {
+      "mutation": "empty-home-verification",
+      "exit": 1,
+      "detected": true,
+      "failedTests": [
+        "not ok 6 - home startup verifies a saved connection through the real Notion client",
+        "not ok 7 - home startup keeps the saved settings on a temporary verify failure and restores them on retry",
+        "not ok 10 - saved connection authorization failures keep retry and settings edit entry available",
+        "not ok 13 - unreadable saved storage can recover on retry without replacing settings"
+      ]
+    },
+    {
+      "mutation": "error-cause-loss",
+      "exit": 1,
+      "detected": true,
+      "failedTests": [
+        "not ok 10 - saved connection authorization failures keep retry and settings edit entry available",
+        "not ok 11 - startup recovery guards remain repair-only and block connection replacement"
+      ]
+    },
+    {
+      "mutation": "guard-bypass",
+      "exit": 1,
+      "detected": true,
+      "failedTests": [
+        "not ok 11 - startup recovery guards remain repair-only and block connection replacement"
+      ]
+    }
+  ],
+  "initialAttempt": "Missing lib copy caused module resolution failure; corrected with lib copy and passing unchanged control. Initial results discarded."
+}

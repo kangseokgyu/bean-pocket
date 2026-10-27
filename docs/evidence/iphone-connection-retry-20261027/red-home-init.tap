@@ -1,0 +1,32 @@
+TAP version 13
+# Subtest: home startup verifies a saved connection through the real Notion client
+not ok 1 - home startup verifies a saved connection through the real Notion client
+  ---
+  duration_ms: 6.881084
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/iphone-connection-retry/AX-1day/test/pwa-ui.integration.test.mjs:154:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/iphone-connection-retry/AX-1day/test/pwa-ui.integration.test.mjs:166:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 70.570583

@@ -20,3 +20,12 @@
 - 숨겨진 행은 제외하고 현재 보이는 복구 버튼 위치를 사용하도록 보완했다. 회귀 테스트에서 `916px`와 기대값 `316px`의 차이로 의도한 실패를 확인했다 (`floating-toast-hidden-row-red.txt`).
 - 보완 후 전체 테스트 577/577, build/check exit 0. 최종 제품 빌드 `c0384dd5a735` (`final-test-summary.txt`, `floating-toast-final-build.txt`, `floating-toast-final-check.txt`).
 - 보완 후 브라우저 확인: Chromium·WebKit × 4개 너비 × 원두/연결 설정/복구 화면 24개 조합 모두 겹침 없음·자동 숨김·오류 없음 통과. 최종 JSON 3개 참고. WebKit의 실제 Notion 저장·OPFS 정상 초기화는 검증하지 못했다.
+
+## 최종 게시 확인
+
+- 제품 커밋 `1e54f653ffe3faa213bbf99e62331f74145a25af`, 빌드 `c0384dd5a735`.
+- main 통합 후 `npm test` 577/577, build/check exit 0 (`final-integrated-test-summary.txt`, `floating-toast-final-integrated-*.txt`).
+- 일반판 `probes=false` 게시 성공: https://github.com/kangseokgyu/bean-pocket/actions/runs/40507122039
+- https://kangseokgyu.github.io/bean-pocket/ 의 정적 파일 20개 모두 SHA-256 일치 (`floating-toast-final-public-files.json`).
+- 공개 Chromium 390px 입력 오류 및 WebKit 390px 복구 안내에서 최종 버전, 버튼 겹침 없음, 토스트 자동 숨김, pageerror/HTTP 오류 없음 확인 (`floating-toast-public.json`, `public-mobile-toast.png`). WebKit은 초기 저장소 확인 실패로 복구 안내 경로를 검증했으며 정상 연결·실제 저장은 검증하지 않았다.
+- 최종 리뷰: 높이 0인 숨김 행 제외, 보이는 버튼 기준 fallback 및 타이머 정책 확인. `git diff --check` 통과. 실기기 iPhone·키보드·스크린 리더·Notion 실제 쓰기는 미검증.

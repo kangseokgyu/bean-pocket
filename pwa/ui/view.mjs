@@ -624,11 +624,21 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       routeNeedsDataRender = false;
       const activeDialog = activeEntryKind ? entryDialogFor(activeEntryKind) : null;
       if (activeDialog?.open) {
+        if (routeNeedsRender && activeEntryKind === 'records' && currentData.screen?.error &&
+            currentData.screen.route === route) {
+          activeDialog.close();
+          renderCurrentContent();
+          return;
+        }
         if (routeNeedsRender) {
           // Refresh the list around the live top-layer dialog without detaching it.
           const refreshed = make(document, 'section');
           renderPane(refreshed, currentData, document, route, new Map(), optionPages,
             beanFormOpen, recipeFormOpen, recordFormOpen);
+          if (activeEntryKind === 'records') {
+            hydrateRecordPickers(activeDialog.querySelector('form'),
+              refreshed.querySelector('form[data-form="records"]'));
+          }
           const pane = activeDialog.parentElement;
           for (const child of [...pane.children]) {
             if (child !== activeDialog) child.remove();
@@ -1433,6 +1443,33 @@ function buildRecipeForm(document, data) {
   form.append(preview);
   addFormActions(document, form, 'recipes');
   return form;
+}
+
+function hydrateRecordPickers(form, freshForm) {
+  if (!form || !freshForm) return;
+  const initial = JSON.parse(form.dataset.initialValues || '{}');
+  for (const name of ['beanId', 'recipeId']) {
+    const select = form.elements[name];
+    const freshSelect = freshForm.elements[name];
+    const defaultValue = freshSelect.value;
+    const selectedValue = select.value === initial[name] ? defaultValue : select.value;
+    if (selectedValue && !Array.from(freshSelect.options).some(option => option.value === selectedValue)) {
+      const previous = Array.from(select.options).find(option => option.value === selectedValue);
+      const option = make(form.ownerDocument, 'option', previous?.textContent ?? '이전 선택 항목');
+      option.value = selectedValue;
+      freshSelect.append(option);
+    }
+    select.replaceChildren(...freshSelect.options);
+    select.value = selectedValue;
+    Object.assign(select.dataset, freshSelect.dataset);
+    const search = select.parentElement.querySelector('[data-option-search-kind]');
+    const freshSearch = freshSelect.parentElement.querySelector('[data-option-search-kind]');
+    if (search.value === freshSearch.value) Object.assign(search.dataset, freshSearch.dataset);
+    select.parentElement.querySelector('[data-option-more]').hidden =
+      freshSelect.parentElement.querySelector('[data-option-more]').hidden;
+    initial[name] = defaultValue;
+  }
+  form.dataset.initialValues = JSON.stringify(initial);
 }
 
 function buildRecordForm(document, data, optionPages, route) {

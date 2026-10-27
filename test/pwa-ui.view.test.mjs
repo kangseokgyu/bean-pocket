@@ -2623,3 +2623,55 @@ test('record draft keeps selected IDs while its option pages reload after naviga
   assert.equal(loaded.elements.recipeId.value, RECIPE);
   assert.equal(loaded.elements.cupNote.value, '옵션 로딩 중에도 유지');
 });
+
+for (const edited of [false, true]) {
+  test(`integration: first record response hydrates prefills without replacing the live modal (edited=${edited})`, () => {
+    const document = new TestDocument();
+    const view = createAppView(document);
+    view.renderData({ beans: [], recipes: [], records: [], screen: { route: '/home' } });
+    const route = '/records/new?beanId=' + BEAN + '&recipeId=' + RECIPE + '&date=2026-10-27';
+    view.renderRoute(route);
+    const dialog = document.root.querySelector('dialog[data-entry-dialog="records"]');
+    const form = dialog.querySelector('form');
+    if (edited) {
+      form.elements.rating.value = '4';
+      form.elements.cupNote.value = '첫 응답 전 입력';
+    }
+    form.elements.cupNote.focus();
+    view.setRouteReadState('loading');
+    const current = data();
+    current.screen = { route };
+    current.options = { beans: { items: current.beans, hasMore: true, nextCursor: 'beans-next' },
+      recipes: { items: current.recipes } };
+    view.renderData(current);
+    view.setRouteReadState('ready');
+    assert.ok(document.root.querySelector('dialog[data-entry-dialog="records"]') === dialog);
+    assert.ok(dialog.querySelector('form') === form);
+    assert.ok(document.activeElement === form.elements.cupNote);
+    assert.equal(form.elements.beanId.value, BEAN);
+    assert.equal(form.elements.recipeId.value, RECIPE);
+    assert.equal(form.elements.date.value, '2026-10-27');
+    assert.equal(form.elements.rating.value, edited ? '4' : '');
+    assert.equal(form.elements.cupNote.value, edited ? '첫 응답 전 입력' : '');
+    assert.equal(form.elements.beanId.dataset.nextCursor, 'beans-next');
+    assert.equal(dialog.open, true);
+    assert.equal(document.root.querySelector('.card-skeletons').hidden, true);
+    if (!edited) {
+      view.renderRoute('/home');
+      view.renderRoute('/records/new?beanId=' + BEAN + '&recipeId=' + RECIPE + '&date=2026-10-28');
+      assert.equal(document.root.querySelector('.record-draft-conflict'), null, 'hydrated defaults alone are not a meaningful draft');
+    }
+  });
+}
+
+test('integration: invalid record prefill closes the initial modal and exposes the validated error', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.renderData({ beans: [], recipes: [], records: [], screen: { route: '/home' } });
+  const route = '/records/new?recipeId=' + RECIPE;
+  view.renderRoute(route);
+  assert.ok(document.root.querySelector('dialog[data-entry-dialog="records"]').open);
+  view.renderData({ beans: [], recipes: [], records: [], screen: { route, error: 'bean-required' } });
+  assert.ok(!document.root.querySelector('form[data-form="records"]'));
+  assert.match(document.root.querySelector('.record-warning').textContent, /원두를 먼저/);
+});

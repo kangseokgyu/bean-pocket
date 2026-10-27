@@ -1,0 +1,38 @@
+{
+  "external": [],
+  "errors": [],
+  "consoleErrors": [],
+  "checks": [
+    {
+      "name": "real commands create independent recipe; home → bean → shared recipe → guide",
+      "pass": true
+    },
+    {
+      "name": "browser back retains selections; direct run refresh",
+      "pass": true
+    },
+    {
+      "name": "guide no horizontal overflow at 320/390/768/1280",
+      "pass": true
+    },
+    {
+      "name": "complete prefills bean, shared recipe and local today after list visit",
+      "pass": true
+    },
+    {
+      "name": "same brew draft survives navigation",
+      "pass": true
+    },
+    {
+      "name": "different flow requires choice; resume preserves original draft",
+      "pass": true
+    }
+  ],
+  "ids": {
+    "bean": "cccccccc-cccc-4ccc-8ccc-000000000001",
+    "recipe": "cccccccc-cccc-4ccc-8ccc-000000000002"
+  },
+  "recordBefore": "추출 기록\n+\n추출 후 빠른 기록\n기록\n원두\n원두를 선택해 주세요.\n레시피\n레시피를 선택해 주세요.\n날짜\n별점 (1~5)\n컵노트 (선택)\n입력 취소\n기록 저장\n기록 필터\n원두별 조회\n모든 원두\n레시피별 조회\n모든 레시피\n\n새 버전에서 작성한 추출 기록이 없습니다.",
+  "recordOptions": "<option value=\"\" disabled=\"\">원두를 선택해 주세요.</option>",
+  "failure": "page.waitForFunction: Timeout 10000ms exceeded.\n    at /Users/kangseokgyu/.codex/worktrees/home-brew-flow/AX-1day/docs/evidence/home-brew-flow-20261027/worker2-browser.cjs:68:13"
+}

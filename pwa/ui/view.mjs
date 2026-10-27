@@ -601,17 +601,37 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       }
       routeChangeListener?.(route);
     },
+    resolveRecordDraft(startNew = false) {
+      const previousRoute = drafts.get('records')?.route ?? '/records';
+      if (startNew) {
+        drafts.delete('records');
+        renderCurrentContent();
+      }
+      return previousRoute;
+    },
     showBeanForm() { openEntryForm('beans', 'show-bean-form', 'name'); },
     showRecipeForm() { openEntryForm('recipes', 'show-recipe-form', 'name'); },
     showRecordForm() { openEntryForm('records', 'show-record-form', 'date'); },
     setSearchOptions(target, kind, page, append = false, query = '') {
       const optionKey = `${target}:${kind}`;
-      const previousPage = optionPages.get(optionKey);
-      const optionItems = append && previousPage
-        ? [...previousPage.items, ...(page.items ?? []).filter(item => !previousPage.items.some(existing => existing.id === item.id))]
-        : [...(page.items ?? [])];
+      const cachedPage = optionPages.get(optionKey);
+      let previousPage = cachedPage;
       if (target === 'brew') {
-        optionPages.set(optionKey, { ...page, items: optionItems, query, savedAt: Date.now() });
+        const sameScope = cachedPage?.scope === brewOptionScope(route, kind);
+        previousPage = sameScope && cachedPage?.query === query ? cachedPage : null;
+        if (!previousPage && query === (routeParams(route).get('q') ?? '')) {
+          previousPage = { items: currentData?.[kind] ?? [] };
+        }
+      }
+      const seen = new Set();
+      const optionItems = [...(append ? previousPage?.items ?? [] : []), ...(page.items ?? [])]
+        .filter(item => {
+          if (seen.has(item.id)) return false;
+          seen.add(item.id);
+          return true;
+        });
+      if (target === 'brew') {
+        optionPages.set(optionKey, { ...page, items: optionItems, query, scope: brewOptionScope(route, kind), savedAt: Date.now() });
         if (currentData) renderCurrentContent();
         return;
       }
@@ -872,9 +892,13 @@ function routeButton(document, title, route, action = 'navigate') {
   return control;
 }
 
-function brewOptionPage(data, optionPages, kind, routeQuery) {
+function brewOptionScope(route, kind) {
+  return kind === 'recipes' ? routeParams(route).get('beanId') ?? '' : 'beans';
+}
+
+function brewOptionPage(data, optionPages, kind, routeQuery, route) {
   const cached = optionPages.get(`brew:${kind}`);
-  if (cached && Date.now() - cached.savedAt < 60000 && (!routeQuery || cached.query === routeQuery)) return cached;
+  if (cached && Date.now() - cached.savedAt < 60000 && cached.scope === brewOptionScope(route, kind) && (!routeQuery || cached.query === routeQuery)) return cached;
   return { items: kind === 'beans' ? data.beans ?? [] : data.recipes ?? [],
     nextCursor: data.screen?.nextCursor ?? null, hasMore: !!data.screen?.hasMore,
     complete: data.screen?.complete !== false, query: routeQuery };
@@ -885,8 +909,9 @@ function renderUnavailableRoute(pane, document, route, error) {
   const params = routeParams(route);
   pane.append(make(document, 'h1', '선택한 항목을 확인할 수 없습니다.'));
   pane.append(make(document, 'p', error === 'recipe-unavailable'
-    ? '레시피가 없거나 선택한 원두와 연결되어 있지 않습니다. 최신 목록에서 다시 선택해 주세요.'
-    : '선택한 원두가 없거나 주소가 올바르지 않습니다. 원두 목록을 새로 확인해 주세요.', 'record-warning'));
+    ? '레시피가 없거나 추출 단계가 유효하지 않습니다. 최신 목록에서 다시 선택해 주세요.'
+    : error === 'bean-required' ? '추출에 사용할 원두를 먼저 선택해 주세요.'
+      : '선택한 원두가 없거나 주소가 올바르지 않습니다. 원두 목록을 새로 확인해 주세요.', 'record-warning'));
   const beanId = params.get('beanId');
   if (path === '/brew/run' && beanId) {
     pane.append(routeButton(document, '레시피 다시 선택', `/brew/recipe?beanId=${encodeURIComponent(beanId)}`));
@@ -902,7 +927,7 @@ function renderBrewOptions(pane, data, document, route, optionPages, kind, selec
   const isBeans = kind === 'beans';
   const selectedId = params.get(isBeans ? 'selectedBeanId' : 'selectedRecipeId') ?? '';
   const routeQuery = params.get('q') ?? '';
-  const page = brewOptionPage(data, optionPages, kind, routeQuery);
+  const page = brewOptionPage(data, optionPages, kind, routeQuery, route);
   const title = isBeans ? '원두 선택' : '레시피 선택';
   pane.append(routeButton(document, isBeans ? '홈으로' : '원두 선택으로', isBeans ? '/home'
     : `/brew/bean?selectedBeanId=${encodeURIComponent(selectedBean.id)}`, isBeans ? 'navigate' : 'back-to-beans'));
@@ -918,12 +943,12 @@ function renderBrewOptions(pane, data, document, route, optionPages, kind, selec
   search.value = page.query ?? routeQuery;
   pane.append(search);
 
-  const items = isBeans ? page.items ?? [] : (page.items ?? []).filter(item => item.beanId === selectedBean?.id);
+  const items = page.items ?? [];
   if (!items.length) {
     const stillLoading = page.hasMore || page.complete === false;
     const message = isBeans
       ? search.value ? '검색한 원두가 없습니다.' : '원두가 아직 등록되지 않았습니다. 원두를 먼저 등록한 뒤 추출을 시작해 주세요.'
-      : search.value ? '검색한 레시피가 이 원두에 없습니다.' : '이 원두에 연결된 레시피가 없습니다. 레시피를 등록한 뒤 다시 선택해 주세요.';
+      : search.value ? '검색한 레시피가 없습니다.' : '등록된 레시피가 없습니다. 레시피를 등록한 뒤 다시 선택해 주세요.';
     pane.append(make(document, 'p', stillLoading ? `${message} 다른 항목도 계속 확인할 수 있습니다.` : message, 'empty-state'));
     if (isBeans) {
       pane.append(routeButton(document, '원두 등록하기', '/beans'));
@@ -975,7 +1000,7 @@ function renderBrewRun(pane, data, document, route, params) {
   const recipeId = params.get('recipeId');
   const bean = data.beans?.find(item => item.id === beanId);
   const recipe = data.recipes?.find(item => item.id === recipeId);
-  if (!bean || !recipe || recipe.beanId !== bean.id || !Array.isArray(recipe.steps) || !recipe.steps.length) {
+  if (!bean || !recipe || !Array.isArray(recipe.steps) || !recipe.steps.length) {
     renderUnavailableRoute(pane, document, route, 'recipe-unavailable');
     return;
   }
@@ -1112,7 +1137,18 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
       pane.append(card);
     }
   } else if (section === 'records') {
-    renderRecords(pane, data, document, recordFormOpen, optionPages, route);
+    const draft = drafts.get('records');
+    if (parts[1] === 'new' && draft && draft.flowKey !== recordFlowKey(route)) {
+      const conflict = make(document, 'section', undefined, 'record-draft-conflict');
+      conflict.setAttribute('role', 'status');
+      conflict.append(make(document, 'h3', '저장하지 않은 추출 기록이 있습니다.'));
+      conflict.append(make(document, 'p', `${draft.values.date} · 별점 ${draft.values.rating || '미입력'} · ${draft.values.cupNote || '컵노트 없음'}`));
+      conflict.append(button(document, '이전 기록 이어쓰기', 'button', 'resume-record-draft'));
+      conflict.append(button(document, '이전 초안을 버리고 새 기록 작성', 'button', 'start-new-record'));
+      pane.append(conflict);
+    } else {
+      renderRecords(pane, data, document, recordFormOpen, optionPages, route);
+    }
   } else {
     pane.append(make(document, 'p', '화면을 찾을 수 없습니다. 메뉴에서 이동해 주세요.'));
   }
@@ -1363,6 +1399,10 @@ function buildRecordForm(document, data, optionPages, route) {
   addFormActions(document, form, 'records');
   const requestedDate = params.get('date');
   form.elements.date.value = isIsoDate(requestedDate) ? requestedDate : localDate();
+  form.dataset.draftRoute = route;
+  form.dataset.draftFlow = recordFlowKey(route);
+  form.dataset.initialValues = JSON.stringify(Object.fromEntries(
+    ['beanId', 'recipeId', 'date', 'rating', 'cupNote'].map(name => [name, form.elements[name].value])));
   return form;
 }
 
@@ -1634,6 +1674,14 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
     }
     if (action === 'navigate' || action === 'back-to-beans' || action === 'back-to-recipes') {
       navigateTo(target.dataset.route);
+      return;
+    }
+    if (action === 'resume-record-draft') {
+      navigateTo(view.resolveRecordDraft());
+      return;
+    }
+    if (action === 'start-new-record') {
+      view.resolveRecordDraft(true);
       return;
     }
     if (action === 'start-brew') {
@@ -1929,6 +1977,12 @@ function updatePreview(content) {
   preview.append(make(content.ownerDocument, 'p', `단계 물 합계 ${Number(cumulative.toFixed(6))}g`, 'preview-total'));
 }
 
+function recordFlowKey(route) {
+  const params = routeParams(route);
+  if (routePath(route) !== '/records/new') return '';
+  return JSON.stringify([params.get('beanId') ?? '', params.get('recipeId') ?? '', params.get('date') || localDate()]);
+}
+
 function saveActiveDraft(content, drafts) {
   const form = content.querySelector('form[data-form]');
   if (!form || form.closest('dialog')?.dataset.saveState === 'success') return;
@@ -1937,15 +1991,28 @@ function saveActiveDraft(content, drafts) {
     if (field.closest('.step-row')) continue;
     values[field.name] = field.value;
   }
+  if (form.dataset.form === 'records') {
+    const initial = JSON.parse(form.dataset.initialValues || '{}');
+    if (Object.keys(initial).every(name => values[name] === initial[name])) return;
+  }
   const steps = [...form.querySelectorAll('.step-row')].map(row =>
     Object.fromEntries([...row.querySelectorAll('[name]')].map(field => [field.name, field.value])));
-  drafts.set(form.dataset.form, { values, steps, copyId: form.dataset.copyId || null });
+  drafts.set(form.dataset.form, { values, steps, copyId: form.dataset.copyId || null,
+    route: form.dataset.draftRoute, flowKey: form.dataset.draftFlow });
 }
 
 function restoreDraft(form, draft, data) {
   if (!draft) return;
   for (const [name, value] of Object.entries(draft.values)) {
     const field = form.elements[name];
+    if (field?.tagName.toLowerCase() === 'select' && value &&
+        !Array.from(field.options).some(option => option.value === value)) {
+      const kind = name === 'beanId' ? 'beans' : 'recipes';
+      const selected = data[kind]?.find(item => item.id === value);
+      const option = make(form.ownerDocument, 'option', selected?.name ?? (kind === 'beans' ? '이전 선택 원두' : '이전 선택 레시피'));
+      option.value = value;
+      field.append(option);
+    }
     if (field) field.value = value;
   }
   if (form.dataset.form === 'recipes' && draft.steps?.length) {

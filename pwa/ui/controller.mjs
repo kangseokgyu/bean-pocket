@@ -188,7 +188,7 @@ export function createAppController({
   }
 
   function unavailableScreen(route, error) {
-    if (!['bean-unavailable', 'recipe-unavailable', 'invalid-input'].includes(error?.code)) return null;
+    if (!['bean-required', 'bean-unavailable', 'recipe-unavailable', 'invalid-input'].includes(error?.code)) return null;
     return { beans: [], recipes: [], records: [], excluded: {},
       screen: { route, error: error.code === 'invalid-input' ? 'bean-unavailable' : error.code,
         nextCursor: null, hasMore: false, complete: true } };
@@ -223,7 +223,7 @@ export function createAppController({
           repository.getBean(beanId, { signal }),
           repository.listRecipeSummaries({ ...pageOptions, query }),
         ]);
-        return { beans: [bean], recipes: page.items.filter(recipe => recipe.beanId === bean.id),
+        return { beans: [bean], recipes: page.items,
           records: [], excluded: {},
           screen: { route, nextCursor: page.nextCursor, hasMore: page.hasMore, complete: page.complete } };
       } catch (error) {
@@ -235,13 +235,14 @@ export function createAppController({
     if (section === 'brew' && id === 'run') {
       const beanId = params.get('beanId');
       const recipeId = params.get('recipeId');
-      if (!beanId || !recipeId) return unavailableScreen(route, { code: 'invalid-input' });
+      if (!beanId) return unavailableScreen(route, { code: 'bean-required' });
+      if (!recipeId) return unavailableScreen(route, { code: 'recipe-unavailable' });
       try {
         const [bean, recipe] = await Promise.all([
           repository.getBean(beanId, { signal }),
           repository.getRecipeDetail(recipeId, { signal }),
         ]);
-        if (recipe.beanId !== bean.id) return unavailableScreen(route, { code: 'recipe-unavailable' });
+        if (!Array.isArray(recipe.steps) || !recipe.steps.length) return unavailableScreen(route, { code: 'recipe-unavailable' });
         return { beans: [bean], recipes: [recipe], records: [], excluded: {},
           screen: { route, nextCursor: null, hasMore: false, complete: true } };
       } catch (error) {
@@ -284,13 +285,13 @@ export function createAppController({
       if (id === 'new' && cursor == null) {
         const beanId = params.get('beanId');
         const recipeId = params.get('recipeId');
+        if (recipeId && !beanId) return unavailableScreen(route, { code: 'bean-required' });
         try {
           [selectedBean, selectedRecipe] = await Promise.all([
             beanId ? repository.getBean(beanId, { signal }) : null,
             recipeId ? repository.getRecipeDetail(recipeId, { signal }) : null,
           ]);
-          if (selectedRecipe && !selectedBean) selectedBean = await repository.getBean(selectedRecipe.beanId, { signal });
-          if (selectedBean && selectedRecipe && selectedRecipe.beanId !== selectedBean.id) {
+          if (selectedRecipe && (!Array.isArray(selectedRecipe.steps) || !selectedRecipe.steps.length)) {
             return unavailableScreen(route, { code: 'recipe-unavailable' });
           }
         } catch (error) {

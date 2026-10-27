@@ -2307,3 +2307,172 @@ test('brew clicks preserve bean and recipe in browser history and complete into 
     else delete globalThis.location;
   }
 });
+
+test('critic: shared recipes remain selectable and usable with an explicitly selected bean', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  current.recipes[0].beanId = null;
+  current.options = {
+    beans: { items: [{ id: BEAN, name: current.beans[0].name, status: 'ready' }] },
+    recipes: { items: [{ id: RECIPE, name: current.recipes[0].name, status: 'ready' }] },
+  };
+  view.renderData(current);
+
+  view.renderRoute('/brew/recipe?beanId=' + BEAN);
+  assert.ok(document.root.querySelector('[data-action="select-brew-recipe"]'),
+    'a recipe without a legacy bean relation is still public');
+
+  view.renderRoute('/brew/run?beanId=' + BEAN + '&recipeId=' + RECIPE);
+  assert.ok(document.root.querySelector('.brew-run-pane'));
+  assert.equal(document.root.querySelector('.record-warning'), null);
+});
+
+test('critic: visiting the record list does not overwrite later brew prefill with an empty form', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  current.options = {
+    beans: { items: [{ id: BEAN, name: '원두 선택', status: 'ready' }] },
+    recipes: { items: [{ id: RECIPE, name: 'V60', status: 'ready' }] },
+  };
+  view.renderData(current);
+  view.renderRoute('/records');
+  view.renderRoute('/home');
+  view.renderRoute('/records/new?beanId=' + BEAN + '&recipeId=' + RECIPE);
+
+  const form = document.root.querySelector('form[data-form="records"]');
+  assert.equal(form.elements.beanId.value, BEAN);
+  assert.equal(form.elements.recipeId.value, RECIPE);
+});
+
+test('record draft conflicts require an explicit resume or new-record choice', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  current.options = { beans: { items: current.beans }, recipes: { items: current.recipes } };
+  view.renderData(current);
+  view.renderRoute('/records');
+  view.showRecordForm();
+  const form = document.root.querySelector('form[data-form="records"]');
+  form.elements.beanId.value = BEAN;
+  form.elements.recipeId.value = RECIPE;
+  form.elements.rating.value = '4';
+  form.elements.cupNote.value = '이어 써야 하는 컵노트';
+
+  view.renderRoute('/home');
+  view.renderRoute('/records/new?beanId=99999999-9999-4999-8999-999999999999&recipeId=' + RECIPE);
+
+  const conflict = document.root.querySelector('.record-draft-conflict');
+  assert.ok(conflict, 'a meaningful draft must be protected from a different brew flow');
+  assert.ok(conflict.querySelector('[data-action="resume-record-draft"]'));
+  assert.ok(conflict.querySelector('[data-action="start-new-record"]'));
+  assert.match(conflict.textContent, /이어 써야 하는 컵노트/);
+  view.bind({});
+  const click = async target => {
+    for (const listener of document.root.firstElementChild.listeners.get('click') ?? []) await listener({ target });
+  };
+  await click(conflict.querySelector('[data-action="resume-record-draft"]'));
+  let resumed = document.root.querySelector('form[data-form="records"]');
+  assert.equal(resumed.elements.beanId.value, BEAN);
+  assert.equal(resumed.elements.rating.value, '4');
+  assert.equal(resumed.elements.cupNote.value, '이어 써야 하는 컵노트');
+  view.renderRoute('/records/new?beanId=' + BEAN + '&recipeId=' + RECIPE);
+  await click(document.root.querySelector('[data-action="start-new-record"]'));
+  resumed = document.root.querySelector('form[data-form="records"]');
+  assert.equal(resumed.elements.beanId.value, BEAN);
+  assert.equal(resumed.elements.rating.value, '');
+  assert.equal(resumed.elements.cupNote.value, '');
+});
+
+test('same brew record draft survives leaving and returning to its URL', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  current.options = {
+    beans: { items: [{ id: BEAN, name: current.beans[0].name, status: 'ready' }] },
+    recipes: { items: [{ id: RECIPE, name: current.recipes[0].name, status: 'ready' }] },
+  };
+  const route = '/records/new?beanId=' + BEAN + '&recipeId=' + RECIPE + '&date=2026-10-27';
+  view.renderData(current);
+  view.renderRoute(route);
+  let form = document.root.querySelector('form[data-form="records"]');
+  form.elements.rating.value = '5';
+  form.elements.cupNote.value = '같은 흐름';
+
+  view.renderRoute('/home');
+  view.renderRoute(route);
+  form = document.root.querySelector('form[data-form="records"]');
+  assert.equal(form.elements.beanId.value, BEAN);
+  assert.equal(form.elements.recipeId.value, RECIPE);
+  assert.equal(form.elements.rating.value, '5');
+  assert.equal(form.elements.cupNote.value, '같은 흐름');
+});
+
+test('critic: initial and later brew pages append uniquely without leaking into a search', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const secondBeanId = '77777777-7777-4777-8777-777777777777';
+  const thirdBeanId = '88888888-8888-4888-8888-888888888888';
+  const current = data();
+  current.screen = { route: '/brew/bean', hasMore: true, nextCursor: 'bean-page-2', complete: false };
+  view.renderData(current);
+  view.renderRoute('/brew/bean');
+  view.setSearchOptions('brew', 'beans', { items: [{ id: secondBeanId, name: '두 번째 원두', status: 'ready' }],
+    nextCursor: 'bean-page-3', hasMore: true, complete: false }, true, '');
+  assert.deepEqual(document.root.querySelectorAll('[data-action="select-brew-bean"]').map(item => item.dataset.beanId),
+    [BEAN, secondBeanId]);
+
+  view.setSearchOptions('brew', 'beans', { items: [
+    { id: secondBeanId, name: '중복 원두', status: 'ready' },
+    { id: thirdBeanId, name: '세 번째 원두', status: 'ready' },
+    { id: thirdBeanId, name: '페이지 내부 중복', status: 'ready' },
+  ], nextCursor: null, hasMore: false, complete: true }, true, '');
+  assert.deepEqual(document.root.querySelectorAll('[data-action="select-brew-bean"]').map(item => item.dataset.beanId),
+    [BEAN, secondBeanId, thirdBeanId]);
+
+  view.setSearchOptions('brew', 'beans', { items: [{ id: secondBeanId, name: '검색 결과 1', status: 'ready' }],
+    nextCursor: 'search-page-2', hasMore: true, complete: false }, false, '검색');
+  view.setSearchOptions('brew', 'beans', { items: [
+    { id: secondBeanId, name: '중복 검색 결과', status: 'ready' },
+    { id: thirdBeanId, name: '검색 결과 2', status: 'ready' },
+  ], nextCursor: null, hasMore: false, complete: true }, true, '검색');
+  assert.deepEqual(document.root.querySelectorAll('[data-action="select-brew-bean"]').map(item => item.dataset.beanId),
+    [secondBeanId, thirdBeanId], 'search pages replace the unfiltered repository page and deduplicate IDs');
+
+  const recipePage = { ...data(), screen: { route: '/brew/recipe?beanId=' + BEAN,
+    hasMore: true, nextCursor: 'recipe-page-2', complete: false } };
+  recipePage.recipes = [{ ...recipePage.recipes[0], validationStatus: 'ready' }];
+  view.renderData(recipePage);
+  view.renderRoute('/brew/recipe?beanId=' + BEAN);
+  view.setSearchOptions('brew', 'recipes', { items: [{ id: thirdBeanId, name: '두 번째 레시피', beanId: BEAN,
+    dose: 15, temperature: 93, totalWater: 250, steps: [], validationStatus: 'ready' }],
+  nextCursor: null, hasMore: false, complete: true }, true, '');
+  assert.deepEqual(document.root.querySelectorAll('[data-action="select-brew-recipe"]').map(item => item.dataset.recipeId),
+    [RECIPE, thirdBeanId], 'recipe pagination also appends its initial repository page');
+});
+
+
+test('record draft keeps selected IDs while its option pages reload after navigation', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  current.options = { beans: { items: current.beans }, recipes: { items: current.recipes } };
+  const route = '/records/new?beanId=' + BEAN + '&recipeId=' + RECIPE;
+  view.renderData(current);
+  view.renderRoute(route);
+  const form = document.root.querySelector('form[data-form="records"]');
+  form.elements.rating.value = '5';
+  form.elements.cupNote.value = '옵션 로딩 중에도 유지';
+  view.renderRoute('/home');
+  view.renderData({ beans: [], recipes: [], records: [] });
+  view.renderRoute(route);
+  const restored = document.root.querySelector('form[data-form="records"]');
+  assert.ok(restored.elements.beanId.options.some(option => option.value === BEAN), 'native selects need a matching option to retain a draft ID');
+  assert.ok(restored.elements.recipeId.options.some(option => option.value === RECIPE));
+  view.renderData(current);
+  const loaded = document.root.querySelector('form[data-form="records"]');
+  assert.equal(loaded.elements.beanId.value, BEAN);
+  assert.equal(loaded.elements.recipeId.value, RECIPE);
+  assert.equal(loaded.elements.cupNote.value, '옵션 로딩 중에도 유지');
+});

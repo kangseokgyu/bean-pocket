@@ -1,0 +1,119 @@
+TAP version 13
+# Subtest: critic: shared recipes remain selectable and usable with an explicitly selected bean
+not ok 1 - critic: shared recipes remain selectable and usable with an explicitly selected bean
+  ---
+  duration_ms: 5.993833
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/home-brew-flow/AX-1day/test/pwa-ui.view.test.mjs:2311:1'
+  failureType: 'testCodeFailure'
+  error: 'a recipe without a legacy bean relation is still public'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: ~
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/home-brew-flow/AX-1day/test/pwa-ui.view.test.mjs:2323:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: critic: visiting the record list does not overwrite later brew prefill with an empty form
+not ok 2 - critic: visiting the record list does not overwrite later brew prefill with an empty form
+  ---
+  duration_ms: 7.859166
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/home-brew-flow/AX-1day/test/pwa-ui.view.test.mjs:2331:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + ''
+    - '11111111-1111-4111-8111-111111111111'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '11111111-1111-4111-8111-111111111111'
+  actual: ''
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/home-brew-flow/AX-1day/test/pwa-ui.view.test.mjs:2345:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: record draft conflicts require an explicit resume or new-record choice
+not ok 3 - record draft conflicts require an explicit resume or new-record choice
+  ---
+  duration_ms: 4.45
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/home-brew-flow/AX-1day/test/pwa-ui.view.test.mjs:2349:1'
+  failureType: 'testCodeFailure'
+  error: 'a meaningful draft must be protected from a different brew flow'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: ~
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/home-brew-flow/AX-1day/test/pwa-ui.view.test.mjs:2365:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: same brew record draft survives leaving and returning to its URL
+ok 4 - same brew record draft survives leaving and returning to its URL
+  ---
+  duration_ms: 4.060292
+  type: 'test'
+  ...
+# Subtest: critic: initial and later brew pages append uniquely without leaking into a search
+not ok 5 - critic: initial and later brew pages append uniquely without leaking into a search
+  ---
+  duration_ms: 2.573916
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/home-brew-flow/AX-1day/test/pwa-ui.view.test.mjs:2395:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+
+      [
+    -   '11111111-1111-4111-8111-111111111111',
+        '77777777-7777-4777-8777-777777777777'
+      ]
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: '11111111-1111-4111-8111-111111111111'
+    1: '77777777-7777-4777-8777-777777777777'
+  actual:
+    0: '77777777-7777-4777-8777-777777777777'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/home-brew-flow/AX-1day/test/pwa-ui.view.test.mjs:2406:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 1
+# fail 4
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 105.055875

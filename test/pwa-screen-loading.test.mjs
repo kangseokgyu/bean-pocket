@@ -173,7 +173,7 @@ test('home startup performs no screen reads and brew routes use scoped repositor
     async readJournal() { return { operations: [], activeConnectionRevision: REVISION, connectionGuard: null }; },
   };
   const bean = { id: '11111111-1111-4111-8111-111111111111', name: '홈 흐름 원두' };
-  const recipe = { id: '22222222-2222-4222-8222-222222222222', name: '홈 흐름 레시피', beanId: bean.id,
+  const recipe = { id: '22222222-2222-4222-8222-222222222222', name: '홈 흐름 레시피', beanId: null,
     steps: [{ name: '뜸', seconds: 0, water: 50, cumulativeWater: 50 }], validationStatus: 'ready' };
   const repository = {
     async listBeans(options) { calls.push(['listBeans', options]); return { items: [bean], nextCursor: null, hasMore: false, complete: true }; },
@@ -205,6 +205,8 @@ test('home startup performs no screen reads and brew routes use scoped repositor
   await routeChanged(currentRoute);
   assert.ok(calls.some(([name, id]) => name === 'getBean' && id === bean.id));
   assert.ok(calls.some(([name]) => name === 'listRecipeSummaries'));
+  assert.ok(rendered.at(-1).recipes.some(item => item.id === recipe.id),
+    'public recipes remain selectable after validating the explicitly selected bean');
 
   currentRoute = `/brew/run?beanId=${bean.id}&recipeId=${recipe.id}`;
   await routeChanged(currentRoute);
@@ -221,10 +223,29 @@ test('home startup performs no screen reads and brew routes use scoped repositor
   assert.ok(calls.some(([name, id]) => name === 'getBean' && id === bean.id));
   assert.ok(calls.some(([name, id]) => name === 'getRecipeDetail' && id === recipe.id));
 
+  repository.getRecipeDetail = async id => ({ ...recipe, id, beanId: bean.id });
+  currentRoute = '/brew/run?recipeId=' + recipe.id;
+  await app.loadRoute(currentRoute, { force: true });
+  assert.equal(rendered.at(-1).screen.error, 'bean-required', 'a legacy recipe relation never supplies the selected bean');
+
+  currentRoute = '/records/new?recipeId=' + recipe.id;
+  await app.loadRoute(currentRoute, { force: true });
+  assert.equal(rendered.at(-1).screen.error, 'bean-required', 'record prefill requires an explicit bean selection');
+
   currentRoute = `/brew/run?beanId=${bean.id}&recipeId=${recipe.id}`;
   repository.getRecipeDetail = async id => ({ ...recipe, id, beanId: '99999999-9999-4999-8999-999999999999' });
   await app.loadRoute(currentRoute, { force: true });
-  assert.equal(rendered.at(-1).screen.error, 'recipe-unavailable', 'a recipe linked to another bean must be rejected');
+  assert.equal(rendered.at(-1).screen.error, undefined, 'legacy recipe relations do not restrict an explicit bean choice');
+  currentRoute = `/records/new?beanId=${bean.id}&recipeId=${recipe.id}`;
+  await app.loadRoute(currentRoute, { force: true });
+  assert.equal(rendered.at(-1).screen.error, undefined, 'legacy relations also permit record prefill');
+
+  repository.getRecipeDetail = async id => ({ ...recipe, id, steps: [] });
+  for (const route of [`/brew/run?beanId=${bean.id}&recipeId=${recipe.id}`,
+    `/records/new?beanId=${bean.id}&recipeId=${recipe.id}`]) {
+    await app.loadRoute(route, { force: true });
+    assert.equal(rendered.at(-1).screen.error, 'recipe-unavailable', 'missing steps still block guidance and prefill');
+  }
 
   currentRoute = `/brew/recipe?beanId=${bean.id}`;
   repository.getBean = async () => { throw Object.freeze({ code: 'bean-unavailable' }); };

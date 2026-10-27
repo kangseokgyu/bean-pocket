@@ -1,0 +1,30 @@
+TAP version 13
+# Subtest: record draft keeps selected IDs while its option pages reload after navigation
+not ok 1 - record draft keeps selected IDs while its option pages reload after navigation
+  ---
+  duration_ms: 8.519667
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/home-brew-flow/AX-1day/test/pwa-ui.view.test.mjs:2456:1'
+  failureType: 'testCodeFailure'
+  error: 'native selects need a matching option to retain a draft ID'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/home-brew-flow/AX-1day/test/pwa-ui.view.test.mjs:2471:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 61.9845

@@ -1,0 +1,14 @@
+✔ save and cancel actions use the compact save and close icons across product forms (7.888708ms)
+✔ save buttons show loading and success only when their async operation changes state (6.90625ms)
+✔ confirmation-result save disables duplicate submits and reflects its resolved result (0.8925ms)
+✔ pending entry saves lock controls and Escape; success stays visible until the 1000ms close (6.556708ms)
+✔ connection modal protects pending and success phases across product rerenders (2.791834ms)
+✔ connection modal preserves failed inputs for retry and exposes safe errors inside the dialog (24.324ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3118.679208

@@ -1,0 +1,432 @@
+{
+  "checks": [
+    {
+      "name": "PWA 320/390/1280 compact dimensions + no overflow",
+      "ok": true
+    },
+    {
+      "name": "PWA cancel closes idle dialog without writes",
+      "ok": true
+    },
+    {
+      "name": "PWA pending spinner, duplicate submit and cancel/Escape lock",
+      "ok": true
+    },
+    {
+      "name": "PWA reduced motion disables spinner animation",
+      "ok": true
+    },
+    {
+      "name": "PWA success check follows actual fake write",
+      "ok": true
+    },
+    {
+      "name": "PWA definite rejection restores controls, draft and idle icon",
+      "ok": true
+    },
+    {
+      "name": "PWA uncertain write blocks resubmit and Escape",
+      "ok": true
+    },
+    {
+      "name": "public 320/390/1280 compact dimensions + no overflow",
+      "ok": true
+    },
+    {
+      "name": "public idle cancel without write",
+      "ok": true
+    },
+    {
+      "name": "public duplicate submit and cancel/Escape lock",
+      "ok": true
+    },
+    {
+      "name": "public reduced motion transition disabled",
+      "ok": true
+    },
+    {
+      "name": "public rejection restores controls, label and draft",
+      "ok": true
+    },
+    {
+      "name": "public actual success closes dialog",
+      "ok": true
+    }
+  ],
+  "findings": [
+    {
+      "id": "P2-public-spinner",
+      "observed": {
+        "text": "저장 중…",
+        "height": 44,
+        "width": 106.421875,
+        "font": "14px",
+        "radius": "10px",
+        "bg": "rgb(34, 75, 60)",
+        "icon": 16,
+        "iconState": "idle",
+        "animation": "none",
+        "content": "none",
+        "svgDisplay": "block"
+      }
+    },
+    {
+      "id": "P2-public-success-never-painted",
+      "frames": 6
+    }
+  ],
+  "errors": [],
+  "external": [],
+  "metrics": [
+    {
+      "surface": "pwa",
+      "width": 320,
+      "buttons": [
+        {
+          "text": "취소",
+          "height": 43.7010498046875,
+          "width": 139.0488739013672,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(232, 240, 232)",
+          "icon": 15.891304016113281,
+          "iconState": "idle",
+          "animation": "none",
+          "content": "none",
+          "svgDisplay": "block"
+        },
+        {
+          "text": "연결 저장 완료",
+          "height": 43.7010498046875,
+          "width": 139.04885864257812,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(34, 75, 60)",
+          "icon": 15.89129638671875,
+          "iconState": "success",
+          "animation": "none",
+          "content": "none",
+          "svgDisplay": "block"
+        },
+        {
+          "text": "취소",
+          "height": 0,
+          "width": 0,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(232, 240, 232)",
+          "icon": 0,
+          "iconState": "idle",
+          "animation": "none",
+          "content": "none",
+          "svgDisplay": "block"
+        },
+        {
+          "text": "저장",
+          "height": 0,
+          "width": 0,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(34, 75, 60)",
+          "icon": 0,
+          "iconState": "idle",
+          "animation": "none",
+          "content": "none",
+          "svgDisplay": "block"
+        }
+      ]
+    },
+    {
+      "surface": "pwa",
+      "width": 390,
+      "buttons": [
+        {
+          "text": "취소",
+          "height": 43.9525146484375,
+          "width": 174.8112335205078,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(232, 240, 232)",
+          "icon": 15.982742309570312,
+          "iconState": "idle",
+          "animation": "none",
+          "content": "none",
+          "svgDisplay": "block"
+        },
+        {
+          "text": "연결 저장 완료",
+          "height": 43.9525146484375,
+          "width": 174.8112335205078,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(34, 75, 60)",
+          "icon": 15.98272705078125,
+          "iconState": "success",
+          "animation": "none",
+          "content": "none",
+          "svgDisplay": "block"
+        },
+        {
+          "text": "취소",
+          "height": 0,
+          "width": 0,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(232, 240, 232)",
+          "icon": 0,
+          "iconState": "idle",
+          "animation": "none",
+          "content": "none",
+          "svgDisplay": "block"
+        },
+        {
+          "text": "저장",
+          "height": 0,
+          "width": 0,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(34, 75, 60)",
+          "icon": 0,
+          "iconState": "idle",
+          "animation": "none",
+          "content": "none",
+          "svgDisplay": "block"
+        }
+      ]
+    },
+    {
+      "surface": "pwa",
+      "width": 1280,
+      "buttons": [
+        {
+          "text": "취소",
+          "height": 44,
+          "width": 332,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(232, 240, 232)",
+          "icon": 16,
+          "iconState": "idle",
+          "animation": "none",
+          "content": "none",
+          "svgDisplay": "block"
+        },
+        {
+          "text": "연결 저장 완료",
+          "height": 44,
+          "width": 332,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(34, 75, 60)",
+          "icon": 16,
+          "iconState": "success",
+          "animation": "none",
+          "content": "none",
+          "svgDisplay": "block"
+        },
+        {
+          "text": "취소",
+          "height": 0,
+          "width": 0,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(232, 240, 232)",
+          "icon": 0,
+          "iconState": "idle",
+          "animation": "none",
+          "content": "none",
+          "svgDisplay": "block"
+        },
+        {
+          "text": "저장",
+          "height": 0,
+          "width": 0,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(34, 75, 60)",
+          "icon": 0,
+          "iconState": "idle",
+          "animation": "none",
+          "content": "none",
+          "svgDisplay": "block"
+        }
+      ]
+    },
+    {
+      "surface": "pwa-pending",
+      "buttons": [
+        {
+          "text": "저장 중…",
+          "height": 44,
+          "width": 332,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(34, 75, 60)",
+          "icon": 16,
+          "iconState": "saving",
+          "animation": "action-button-spin",
+          "content": "\"\"",
+          "svgDisplay": "none"
+        }
+      ]
+    },
+    {
+      "surface": "public",
+      "width": 320,
+      "buttons": [
+        {
+          "text": "취소",
+          "height": 44,
+          "width": 78.234375,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(237, 240, 232)",
+          "icon": 16,
+          "iconState": "idle",
+          "animation": "none",
+          "content": "none",
+          "svgDisplay": "block"
+        },
+        {
+          "text": "저장",
+          "height": 44,
+          "width": 78.234375,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(34, 75, 60)",
+          "icon": 16,
+          "iconState": "idle",
+          "animation": "none",
+          "content": "none",
+          "svgDisplay": "block"
+        }
+      ]
+    },
+    {
+      "surface": "public",
+      "width": 390,
+      "buttons": [
+        {
+          "text": "취소",
+          "height": 44,
+          "width": 78.234375,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(237, 240, 232)",
+          "icon": 16,
+          "iconState": "idle",
+          "animation": "none",
+          "content": "none",
+          "svgDisplay": "block"
+        },
+        {
+          "text": "저장",
+          "height": 44,
+          "width": 78.234375,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(34, 75, 60)",
+          "icon": 16,
+          "iconState": "idle",
+          "animation": "none",
+          "content": "none",
+          "svgDisplay": "block"
+        }
+      ]
+    },
+    {
+      "surface": "public",
+      "width": 1280,
+      "buttons": [
+        {
+          "text": "취소",
+          "height": 44,
+          "width": 78.234375,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(237, 240, 232)",
+          "icon": 16,
+          "iconState": "idle",
+          "animation": "none",
+          "content": "none",
+          "svgDisplay": "block"
+        },
+        {
+          "text": "저장",
+          "height": 44,
+          "width": 78.234375,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(34, 75, 60)",
+          "icon": 16,
+          "iconState": "idle",
+          "animation": "none",
+          "content": "none",
+          "svgDisplay": "block"
+        }
+      ]
+    },
+    {
+      "surface": "public-pending",
+      "buttons": [
+        {
+          "text": "저장 중…",
+          "height": 44,
+          "width": 106.421875,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(34, 75, 60)",
+          "icon": 16,
+          "iconState": "idle",
+          "animation": "none",
+          "content": "none",
+          "svgDisplay": "block"
+        }
+      ]
+    },
+    {
+      "surface": "public-reduced",
+      "buttons": [
+        {
+          "text": "저장 중…",
+          "height": 44,
+          "width": 106.421875,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(34, 75, 60)",
+          "icon": 16,
+          "iconState": "idle",
+          "animation": "none",
+          "content": "none",
+          "svgDisplay": "block"
+        }
+      ]
+    }
+  ],
+  "publicSuccessFrames": [
+    {
+      "open": true,
+      "check": false
+    },
+    {
+      "open": true,
+      "check": false
+    },
+    {
+      "open": true,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    }
+  ]
+}

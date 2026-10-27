@@ -1,0 +1,59 @@
+[
+  {
+    "width": 320,
+    "dimensions": [
+      {
+        "text": "취소",
+        "height": 44,
+        "font": "14px",
+        "radius": "10px",
+        "icon": 16
+      },
+      {
+        "text": "저장",
+        "height": 44,
+        "font": "14px",
+        "radius": "10px",
+        "icon": 16
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "dimensions": [
+      {
+        "text": "취소",
+        "height": 44,
+        "font": "14px",
+        "radius": "10px",
+        "icon": 16
+      },
+      {
+        "text": "저장",
+        "height": 44,
+        "font": "14px",
+        "radius": "10px",
+        "icon": 16
+      }
+    ]
+  },
+  {
+    "width": 1280,
+    "dimensions": [
+      {
+        "text": "취소",
+        "height": 44,
+        "font": "14px",
+        "radius": "10px",
+        "icon": 16
+      },
+      {
+        "text": "저장",
+        "height": 44,
+        "font": "14px",
+        "radius": "10px",
+        "icon": 16
+      }
+    ]
+  }
+]

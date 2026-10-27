@@ -317,6 +317,72 @@ button:focus-visible, .table-scroll:focus-visible {
   color: #fff;
 }
 
+.button.action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: transform 140ms ease, background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.button.action-button.action-save {
+  border-color: #224b3c;
+  background: #224b3c;
+  color: #fff;
+}
+.button.action-button.action-cancel {
+  border-color: #b9c7bb;
+  background: #e8f0e8;
+  color: #234737;
+}
+.button.action-save:hover:not(:disabled) { background: #1c4033; box-shadow: 0 3px 10px rgb(34 75 60 / 14%); }
+.button.action-cancel:hover:not(:disabled) { background: #dfeadf; border-color: #8fa596; }
+.button.action-button:active:not(:disabled) { transform: scale(.98); }
+.entry-dialog .form-actions .button.action-button { min-height: 44px; }
+
+.button-icon {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 16px;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+.button-icon svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.button-icon[data-state="saving"] svg { display: none; }
+.button-icon[data-state="saving"]::after {
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  content: "";
+  animation: action-button-spin 700ms linear infinite;
+}
+@keyframes action-button-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .button.action-button { transition: none; }
+  .button-icon[data-state="saving"]::after { animation: none; }
+}
+
 .button:disabled, input:disabled, select:disabled, textarea:disabled {
   opacity: 0.58;
   cursor: not-allowed;

@@ -1,0 +1,423 @@
+{
+  "checks": [
+    {
+      "name": "public idle cancel without write",
+      "ok": true
+    },
+    {
+      "name": "public duplicate submit and cancel/Escape lock",
+      "ok": true
+    },
+    {
+      "name": "public pending icon state + real spinner",
+      "ok": true
+    },
+    {
+      "name": "public reduced motion disables animation and transition",
+      "ok": true
+    },
+    {
+      "name": "public rejection restores controls, label and draft",
+      "ok": true
+    },
+    {
+      "name": "public success feedback locks duplicate submit, cancel, close and Escape",
+      "ok": true
+    },
+    {
+      "name": "public actual success closes dialog",
+      "ok": true
+    },
+    {
+      "name": "public success check is observed in open animation frames",
+      "ok": true
+    }
+  ],
+  "findings": [],
+  "errors": [],
+  "external": [],
+  "metrics": [
+    {
+      "surface": "public-pending",
+      "buttons": [
+        {
+          "text": "저장 중…",
+          "height": 44,
+          "width": 106.421875,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(34, 75, 60)",
+          "icon": 16,
+          "iconState": "saving",
+          "animation": "action-button-spin",
+          "content": "\"\"",
+          "svgDisplay": "none"
+        }
+      ]
+    },
+    {
+      "surface": "public-reduced",
+      "buttons": [
+        {
+          "text": "저장 중…",
+          "height": 44,
+          "width": 106.421875,
+          "font": "14px",
+          "radius": "10px",
+          "bg": "rgb(34, 75, 60)",
+          "icon": 16,
+          "iconState": "saving",
+          "animation": "none",
+          "content": "\"\"",
+          "svgDisplay": "none"
+        }
+      ]
+    }
+  ],
+  "publicSuccessFrames": [
+    {
+      "open": true,
+      "check": false
+    },
+    {
+      "open": true,
+      "check": false
+    },
+    {
+      "open": true,
+      "check": false
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": true,
+      "check": true
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    },
+    {
+      "open": false,
+      "check": false
+    }
+  ]
+}

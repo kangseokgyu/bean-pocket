@@ -14,6 +14,7 @@ let stale = false;
 let loading = false;
 let lastFocused = null;
 let saving = false;
+const FORM_SUCCESS_HOLD_MS = 1000;
 
 const escape = value => String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
@@ -178,8 +179,33 @@ dialog.addEventListener('close', () => { dialogContent.innerHTML = ''; lastFocus
 document.querySelector('#close-dialog').addEventListener('click', closeDialog);
 document.querySelector('#connect-button').addEventListener('click', openConnection);
 
-function formShell(content, label = '저장하기') {
-  return `<form>${content}<p class="form-error" role="alert" hidden></p><div class="form-footer"><button type="button" class="button secondary" data-cancel>취소</button><button type="submit" class="button">${label}</button></div></form>`;
+const actionIconPaths = {
+  save: 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2ZM17 21v-8H7v8ZM7 3v5h8',
+  x: 'M18 6 6 18M6 6l12 12',
+  check: 'm20 6-11 11-5-5',
+};
+
+function actionIconMarkup(name) {
+  return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${actionIconPaths[name]}"></path></svg>`;
+}
+
+function setActionButton(button, state, label) {
+  button.dataset.state = state;
+  button.setAttribute('aria-busy', String(state === 'saving'));
+  const icon = button.querySelector('.button-icon');
+  const iconName = state === 'success' ? 'check' : 'save';
+  icon.dataset.state = state;
+  if (icon.dataset.icon !== iconName) {
+    icon.dataset.icon = iconName;
+    icon.innerHTML = actionIconMarkup(iconName);
+  }
+  if (label !== undefined) button.querySelector('.button-label').textContent = label;
+}
+
+function formShell(content, label = '저장') {
+  const busyLabel = label === '저장' ? '저장 중…' : `${label} 중…`;
+  const successLabel = label === '저장' ? '저장 완료' : label.includes('연결') ? '연결 저장 완료' : '확인 완료';
+  return `<form>${content}<p class="form-error" role="alert" hidden></p><div class="form-footer"><button type="button" class="button secondary action-button action-cancel" data-cancel><span class="button-icon" data-icon="x" data-state="idle" aria-hidden="true">${actionIconMarkup('x')}</span><span class="button-label">취소</span></button><button type="submit" class="button action-button action-save" data-state="idle" aria-busy="false" data-busy-label="${busyLabel}" data-success-label="${successLabel}"><span class="button-icon" data-icon="save" data-state="idle" aria-hidden="true">${actionIconMarkup('save')}</span><span class="button-label">${label}</span></button></div></form>`;
 }
 
 function openConnection() {
@@ -201,6 +227,7 @@ function openConnection() {
 function bindForm(onSubmit, successMessage, buildPayload = values => values) {
   const form = dialogContent.querySelector('form');
   const submitButton = form.querySelector('[type="submit"]');
+  const submitLabel = submitButton.querySelector('.button-label');
   const submissionKeys = createSubmissionKeys();
   form.querySelector('[data-cancel]').addEventListener('click', closeDialog);
   form.addEventListener('submit', async event => {
@@ -212,14 +239,16 @@ function bindForm(onSubmit, successMessage, buildPayload = values => values) {
     const payload = buildPayload(values);
     // Connection tokens never enter the form's saved payload fingerprint.
     const submissionKey = Object.hasOwn(payload, 'token') ? undefined : submissionKeys.forPayload(payload);
-    const oldLabel = submitButton.textContent;
+    const oldLabel = submitLabel.textContent;
     const controls = [...form.querySelectorAll('input,textarea,select,button')];
     saving = true;
     document.querySelector('#close-dialog').disabled = true;
     controls.forEach(control => { control.disabled = true; });
-    submitButton.textContent = '확인하고 저장하는 중…';
+    setActionButton(submitButton, 'saving', submitButton.dataset.busyLabel || (oldLabel === '저장' ? '저장 중…' : `${oldLabel} 중…`));
     try {
       await onSubmit(payload, submissionKey);
+      setActionButton(submitButton, 'success', submitButton.dataset.successLabel || (oldLabel === '저장' ? '저장 완료' : `${oldLabel} 완료`));
+      await new Promise(resolve => setTimeout(resolve, FORM_SUCCESS_HOLD_MS));
       saving = false;
       dialog.close();
       updateConnection();
@@ -234,7 +263,9 @@ function bindForm(onSubmit, successMessage, buildPayload = values => values) {
       saving = false;
       document.querySelector('#close-dialog').disabled = false;
       controls.forEach(control => { control.disabled = false; });
-      submitButton.textContent = oldLabel;
+      if (submitButton.dataset.state === 'saving') {
+        setActionButton(submitButton, 'idle', oldLabel);
+      }
     }
   });
 }

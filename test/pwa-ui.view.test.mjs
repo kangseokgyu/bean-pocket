@@ -1525,6 +1525,101 @@ test('available entry forms open as native dialogs and cancel without submitting
   }
 });
 
+test('save and cancel actions use the compact save and close icons across product forms', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+  view.renderRoute('/beans');
+  view.showBeanForm();
+
+  const form = document.root.querySelector('form[data-form="beans"]');
+  const save = form.querySelector('[data-entry-submit]');
+  const cancel = form.querySelector('[data-action="cancel-form"]');
+  const assertAction = (control, label, icon) => {
+    assert.equal(control.textContent, label);
+    assert.ok(control.className.includes(`action-${icon === 'x' ? 'cancel' : 'save'}`));
+    const iconElement = control.querySelector('.button-icon');
+    assert.equal(iconElement.getAttribute('aria-hidden'), 'true');
+    assert.equal(iconElement.dataset.icon, icon);
+    assert.ok(iconElement.querySelector('svg'));
+  };
+
+  assertAction(save, '저장', 'save');
+  assertAction(cancel, '취소', 'x');
+
+  view.showConnection({ connected: false });
+  const connection = document.root.querySelector('form[data-form="connection"]');
+  assertAction(connection.querySelectorAll('button').find(control => control.type === 'submit'), '연결 확인 및 저장', 'save');
+  assertAction(connection.querySelector('[data-action="cancel-connection"]'), '취소', 'x');
+
+  view.showUnresolved([{ kind: 'beans', status: 'unknown', knownPageCount: 0, resolve() {} }]);
+  assertAction(document.root.querySelector('.resolution-form').querySelectorAll('button').find(control => control.type === 'submit'),
+    '확인 결과 저장', 'save');
+});
+
+test('save buttons show loading and success only when their async operation changes state', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.bind({ setDirty() {} });
+  view.renderData(data());
+  view.renderRoute('/beans');
+  view.showBeanForm();
+
+  const dialog = document.root.querySelector('dialog[data-entry-dialog="beans"]');
+  const save = dialog.querySelector('[data-entry-submit]');
+  view.setState({ pending: true });
+  assert.equal(save.textContent, '저장 중…');
+  assert.equal(save.dataset.state, 'saving');
+  assert.equal(save.getAttribute('aria-busy'), 'true');
+  assert.equal(save.querySelector('.button-icon').dataset.state, 'saving');
+
+  view.setState({ pending: false });
+  assert.equal(view.showEntrySuccess('beans'), true);
+  assert.equal(save.textContent, '저장 완료');
+  assert.equal(save.dataset.state, 'success');
+  assert.equal(save.querySelector('.button-icon').dataset.icon, 'check');
+  assert.equal(save.getAttribute('aria-busy'), 'false');
+
+  view.showConnection({ connected: false });
+  const connectionSave = document.querySelector('form[data-form="connection"]')
+    .querySelectorAll('button').find(control => control.type === 'submit');
+  assert.equal(view.beginConnectionSave(), true);
+  assert.equal(connectionSave.dataset.state, 'saving');
+  assert.equal(connectionSave.getAttribute('aria-busy'), 'true');
+  view.finishConnectionSave();
+  assert.equal(connectionSave.dataset.state, 'idle');
+  assert.equal(connectionSave.querySelector('.button-icon').dataset.icon, 'save');
+});
+
+test('confirmation-result save disables duplicate submits and reflects its resolved result', async () => {
+  let finishResolution;
+  let resolutions = 0;
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.showUnresolved([{ kind: 'beans', status: 'unknown', knownPageCount: 0, resolve: async () => {
+    resolutions++;
+    await new Promise(resolve => { finishResolution = resolve; });
+    return true;
+  } }]);
+  const form = document.root.querySelector('.resolution-form');
+  const save = form.querySelectorAll('button').find(control => control.type === 'submit');
+  const submit = () => Promise.all(form.listeners.get('submit').map(listener => listener({
+    target: form,
+    preventDefault() {},
+  })));
+
+  const firstSubmit = submit();
+  await Promise.resolve();
+  assert.equal(save.disabled, true);
+  assert.equal(save.dataset.state, 'saving');
+  await submit();
+  assert.equal(resolutions, 1, 'a pending confirmation cannot be submitted twice');
+  finishResolution();
+  await firstSubmit;
+  assert.equal(save.dataset.state, 'success');
+  assert.equal(save.querySelector('.button-icon').dataset.icon, 'check');
+});
+
 test('pending entry saves lock controls and Escape; success stays visible until the 1000ms close', async () => {
   const scheduled = [];
   const document = new TestDocument();

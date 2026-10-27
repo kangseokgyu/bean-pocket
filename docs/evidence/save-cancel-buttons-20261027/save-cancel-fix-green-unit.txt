@@ -1,0 +1,22 @@
+TAP version 13
+# Subtest: public save updates the spinner icon with pending, success, and restored states
+ok 1 - public save updates the spinner icon with pending, success, and restored states
+  ---
+  duration_ms: 2.327708
+  type: 'test'
+  ...
+# Subtest: public save keeps actual success feedback visible before closing the dialog
+ok 2 - public save keeps actual success feedback visible before closing the dialog
+  ---
+  duration_ms: 0.745375
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 46.462667

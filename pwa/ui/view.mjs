@@ -26,6 +26,53 @@ const button = (document, text, type = 'submit', action) => {
   return node;
 };
 
+const ACTION_ICON_PATHS = Object.freeze({
+  save: 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2ZM17 21v-8H7v8ZM7 3v5h8',
+  x: 'M18 6 6 18M6 6l12 12',
+  check: 'm20 6-11 11-5-5',
+});
+
+function actionIcon(document, name) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('focusable', 'false');
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', ACTION_ICON_PATHS[name]);
+  svg.append(path);
+  return svg;
+}
+
+function actionButton(document, text, type, icon, action) {
+  const node = button(document, '', type, action);
+  node.className = `button action-button action-${icon === 'x' ? 'cancel' : 'save'}`;
+  const iconNode = make(document, 'span', undefined, 'button-icon');
+  iconNode.dataset.icon = icon;
+  iconNode.dataset.state = 'idle';
+  iconNode.setAttribute('aria-hidden', 'true');
+  iconNode.append(actionIcon(document, icon));
+  const labelNode = make(document, 'span', text, 'button-label');
+  labelNode.dataset.actionLabel = '';
+  node.append(iconNode, labelNode);
+  node.dataset.state = 'idle';
+  node.setAttribute('aria-busy', 'false');
+  return node;
+}
+
+function setActionButton(buttonNode, text, state, icon = state === 'success' ? 'check' : 'save') {
+  const labelNode = buttonNode.querySelector('[data-action-label]');
+  if (labelNode) labelNode.textContent = text;
+  buttonNode.dataset.state = state;
+  buttonNode.setAttribute('aria-busy', String(state === 'saving'));
+  const iconNode = buttonNode.querySelector('.button-icon');
+  if (!iconNode) return;
+  iconNode.dataset.state = state;
+  if (iconNode.dataset.icon !== icon) {
+    iconNode.dataset.icon = icon;
+    iconNode.replaceChildren(actionIcon(buttonNode.ownerDocument, icon));
+  }
+}
+
 const iconButton = (document, icon, title, action) => {
   const node = button(document, '', 'button', action);
   node.className = 'button icon-button';
@@ -292,8 +339,8 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       { autocomplete: 'off', spellcheck: false, autocapitalize: 'off' }));
   }
   const connectionActions = make(document, 'div', undefined, 'form-actions');
-  const connectionCancel = button(document, '연결 입력 취소', 'button', 'cancel-connection');
-  const connectionSubmit = button(document, '연결 확인 및 저장');
+  const connectionCancel = actionButton(document, '취소', 'button', 'x', 'cancel-connection');
+  const connectionSubmit = actionButton(document, '연결 확인 및 저장', 'submit', 'save');
   connectionActions.append(connectionCancel, connectionSubmit);
   connectionForm.append(connectionActions);
   connectionDetails.append(make(document, 'p', '연결 정보는 이 기기의 앱 저장소에 보관됩니다.', 'muted-note'));
@@ -317,7 +364,9 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       const blockedForm = control.closest('form') === connectionForm && currentState.unresolved && control.dataset.action !== 'cancel-connection';
       control.disabled = currentState.pending || currentState.frozen || busy || succeeded || blockedForm;
     });
-    connectionSubmit.textContent = succeeded ? '연결 저장 완료' : busy ? '연결 확인·저장 중…' : '연결 확인 및 저장';
+    setActionButton(connectionSubmit,
+      succeeded ? '연결 저장 완료' : busy ? '연결 확인·저장 중…' : '연결 확인 및 저장',
+      succeeded ? 'success' : busy ? 'saving' : 'idle');
   }
 
   const startupRetry = make(document, 'section', undefined, 'startup-retry-panel');
@@ -426,11 +475,13 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       const cancel = dialog.querySelector('[data-action="cancel-form"]');
       if (submit) {
         submit.disabled = currentState.pending || currentState.frozen || currentState.unresolved || phase === 'success';
-        if (phase === 'success') submit.textContent = '저장 완료';
-        else if (saving) submit.textContent = '저장 중…';
-        else submit.textContent = submit.dataset.idleLabel || '저장';
+        setActionButton(submit, phase === 'success' ? '저장 완료' : saving ? '저장 중…' : submit.dataset.idleLabel || '저장',
+          phase === 'success' ? 'success' : saving ? 'saving' : 'idle');
       }
-      if (cancel) cancel.disabled = currentState.pending || currentState.frozen || phase === 'success';
+      if (cancel) {
+        cancel.disabled = currentState.pending || currentState.frozen || phase === 'success';
+        setActionButton(cancel, '취소', 'idle', 'x');
+      }
     }
   }
   function finishContentRender() {
@@ -1654,8 +1705,8 @@ function recordParentNameNote(kind, status, snapshotName) {
 
 function addFormActions(document, form) {
   const actions = make(document, 'div', undefined, 'form-actions');
-  const cancel = button(document, '취소', 'button', 'cancel-form');
-  const submit = button(document, '저장');
+  const cancel = actionButton(document, '취소', 'button', 'x', 'cancel-form');
+  const submit = actionButton(document, '저장', 'submit', 'save');
   submit.dataset.entrySubmit = '';
   submit.dataset.idleLabel = '저장';
   actions.append(cancel, submit);
@@ -1715,18 +1766,32 @@ function buildResolutionForm(document, operation) {
   form.append(decision);
   if (!hasKnownPages) form.append(label(document, '확인한 새 페이지 ID (저장됨이면 쉼표로 구분)', 'pageIds', 'text', false,
     { autocomplete: 'off', autocapitalize: 'off', spellcheck: false }));
-  const submit = button(document, '확인 결과 저장');
+  const submit = actionButton(document, '확인 결과 저장', 'submit', 'save');
+  let resolving = false;
   form.append(submit);
   form.addEventListener('submit', async event => {
     event.preventDefault();
+    if (resolving || submit.disabled) return;
+    resolving = true;
+    submit.disabled = true;
+    setActionButton(submit, '저장 중…', 'saving');
     try {
-      await operation.resolve({
+      const resolved = await operation.resolve({
         originalConfirmed: confirmed.querySelector('input').checked,
         decision: select.value,
         pageIds: form.elements.pageIds?.value,
       });
+      if (resolved === true) setActionButton(submit, '확인 완료', 'success');
+      else {
+        resolving = false;
+        submit.disabled = false;
+        setActionButton(submit, '확인 결과 저장', 'idle');
+      }
     } catch {
       // Controller status is deliberately fixed text and never includes IDs, tokens, or API bodies.
+      resolving = false;
+      submit.disabled = false;
+      setActionButton(submit, '확인 결과 저장', 'idle');
     }
   });
   card.append(form);

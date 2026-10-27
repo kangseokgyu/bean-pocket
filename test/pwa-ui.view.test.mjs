@@ -32,6 +32,15 @@ class TestElement {
       this.children.push(node);
     }
   }
+  insertBefore(node, reference) {
+    if (node === reference) return node;
+    if (node.parentElement) node.parentElement.children = node.parentElement.children.filter(child => child !== node);
+    const index = reference ? this.children.indexOf(reference) : -1;
+    node.parentElement = this;
+    if (index < 0) this.children.push(node);
+    else this.children.splice(index, 0, node);
+    return node;
+  }
   replaceChildren(...nodes) {
     for (const child of this.children) child.parentElement = null;
     this.children = [];
@@ -1682,6 +1691,87 @@ test('reduced motion overrides modal entrance and blocking spinner animations', 
 });
 
 
+test('first route data keeps an open recipe modal node and focus while updating its list', async () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  let resolveRecipes;
+  let markStarted;
+  let markReady;
+  const started = new Promise(resolve => { markStarted = resolve; });
+  const ready = new Promise(resolve => { markReady = resolve; });
+  const context = {
+    async inspect() { return { initialized: false, blocked: false }; },
+    async readJournal() { return { operations: [], connectionGuard: null }; },
+    async beginConnectionChange() {}, async commitConnectionChange() {},
+  };
+  const app = createAppController({ view,
+    state: { withWriteLock: action => action(context) }, file: {},
+    makeClient: () => ({ async verify() {} }),
+    makeRepository: () => ({
+      async listBeans() { return { items: data().beans, complete: true, hasMore: false }; },
+      listRecipeSummaries() {
+        markStarted();
+        return new Promise(resolve => { resolveRecipes = resolve; });
+      },
+    }),
+    makeCommands: () => ({}), uuid: () => 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  });
+  app.bind();
+  await app.connect({ token: 'fake-only', dataSources: { beans: BEAN, recipes: RECIPE, steps: BEAN, records: RECIPE } });
+  const setRouteReadState = view.setRouteReadState;
+  view.setRouteReadState = status => {
+    setRouteReadState(status);
+    if (status === 'ready') markReady();
+  };
+  view.renderRoute('/recipes/new');
+  await started;
+  const panel = document.root.querySelector('.data-panel');
+  const dialog = panel.querySelector('dialog[data-entry-dialog="recipes"]');
+  const form = panel.querySelector('form[data-form="recipes"]');
+  const name = form.elements.name;
+  name.value = 'critic draft';
+  name.focus();
+  resolveRecipes({ items: [{ ...data().recipes[0], name: 'Fresh recipe' }], complete: true, hasMore: false });
+  await ready;
+
+  assert.equal(panel.querySelector('dialog[data-entry-dialog="recipes"]') === dialog, true, 'dialog DOM survives first response');
+  assert.equal(panel.querySelector('form[data-form="recipes"]') === form, true, 'form DOM survives first response');
+  assert.equal(document.activeElement === name, true, 'input keeps focus');
+  assert.equal(name.value, 'critic draft');
+  assert.match(panel.querySelector('.recipe-card').textContent, /Fresh recipe/);
+  assert.equal(panel.querySelector('.recipe-card').hidden, false);
+  view.clearDraft('recipes');
+  assert.match(panel.querySelector('.recipe-card').textContent, /Fresh recipe/);
+});
+
+test('route loading-ready restores only list siblings hidden for the open modal', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.renderData(data());
+  view.renderRoute('/recipes/new');
+
+  const panel = document.root.querySelector('.data-panel');
+  const dialog = panel.querySelector('dialog[data-entry-dialog="recipes"]');
+  const siblings = () => [...panel.querySelector('.list-view').children].filter(child => child !== dialog);
+  assert.equal(dialog.open, true);
+  assert.ok(siblings().every(child => !child.hidden));
+
+  const intentionallyHidden = document.createElement('p');
+  intentionallyHidden.hidden = true;
+  panel.querySelector('.list-view').append(intentionallyHidden);
+  view.setRouteReadState('loading');
+  view.setRouteReadState('loading');
+  assert.ok(siblings().every(child => child.hidden));
+  view.setRouteReadState('ready');
+  assert.equal(dialog.open, true);
+  assert.ok(siblings().filter(child => child !== intentionallyHidden).every(child => !child.hidden));
+  assert.equal(intentionallyHidden.hidden, true, 'pre-existing hidden state survives');
+
+  view.clearDraft('recipes');
+  const paneAfterClose = panel.querySelector('.list-view');
+  assert.ok([...paneAfterClose.children].every(child => !child.hidden), 'closing the modal leaves the list visible');
+});
+
 test('initial card load shows decorative skeletons until real data replaces them', () => {
   const document = new TestDocument();
   const view = createAppView(document);
@@ -1704,6 +1794,63 @@ test('initial card load shows decorative skeletons until real data replaces them
   assert.equal(skeleton.hidden, true, 'refresh retains existing cards');
   assert.ok(document.root.querySelector('.bean-card'));
   view.setState({ pending: false });
+});
+
+test('route transition skeleton hides stale data and exposes an error until a fresh page arrives', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.renderData(data());
+  view.renderRoute('/recipes');
+
+  const panel = document.root.querySelector('.data-panel');
+  const skeleton = document.root.querySelector('.card-skeletons');
+  const recordsTab = document.root.querySelector('.tabs').children.find(item => item.dataset.route === '/records');
+  view.setRouteReadState('loading');
+  assert.equal(skeleton.hidden, false);
+  assert.equal(panel.hidden, true, 'the previous route cannot expose a false empty state');
+  assert.equal(recordsTab.disabled, false, 'route reads do not disable navigation');
+
+  view.setRouteReadState('error');
+  assert.equal(skeleton.hidden, true);
+  assert.equal(panel.hidden, false);
+  assert.match(panel.textContent, /목록을 불러오지 못했습니다/);
+  assert.equal(panel.querySelector('.empty-state'), null);
+  assert.equal(panel.querySelector('.recipe-card'), null);
+
+  view.setRouteReadState('loading');
+  view.renderData(data());
+  view.setRouteReadState('ready');
+  assert.equal(skeleton.hidden, true);
+  assert.equal(panel.hidden, false);
+  assert.ok(panel.querySelector('.recipe-card'));
+});
+
+test('route loading preserves an open modal, draft DOM, and focus', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  view.renderData(data());
+  view.renderRoute('/records/new');
+  view.showRecordForm();
+
+  const panel = document.root.querySelector('.data-panel');
+  const dialog = panel.querySelector('dialog[data-entry-dialog="records"]');
+  const form = panel.querySelector('form[data-form="records"]');
+  const note = form.elements.cupNote;
+  note.value = 'draft stays in place';
+  note.focus();
+
+  view.setRouteReadState('loading');
+  assert.equal(panel.hidden, false, 'an open modal remains visible above the skeleton');
+  assert.equal(dialog.open, true);
+  assert.strictEqual(panel.querySelector('dialog[data-entry-dialog="records"]'), dialog);
+  assert.strictEqual(panel.querySelector('form[data-form="records"]'), form);
+  assert.equal(note.value, 'draft stays in place');
+  assert.strictEqual(document.activeElement, note);
+
+  view.setRouteReadState('cancelled');
+  assert.equal(dialog.open, true);
+  assert.strictEqual(document.activeElement, note);
+  assert.equal(note.value, 'draft stays in place');
 });
 
 for (const type of ['disconnected', 'startup-busy', 'connection-error', 'read-error']) {

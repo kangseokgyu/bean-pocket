@@ -1,0 +1,37 @@
+✔ saved-connection startup verifies and reads only the current beans page (3.373666ms)
+✔ route reads stay scoped, record filters query the server, and name options load on form use (1.033334ms)
+✔ route transition loading is independent from writes and ends after the first page (0.456875ms)
+✔ route read failure and cancellation clear loading without rendering previous-route data (0.433542ms)
+✖ returning to the current route clears a cancelled transition skeleton (1.373292ms)
+✔ late response from a previous route cannot replace the current screen (0.34775ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 5
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 65.566416
+
+✖ failing tests:
+
+test at test/pwa-screen-loading.test.mjs:213:1
+✖ returning to the current route clears a cancelled transition skeleton (1.373292ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+    [
+      'loading',
+  -   'ready'
+    ]
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-screen-loading.test.mjs:255:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'loading' ],
+    expected: [ 'loading', 'ready' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,180 @@
+[
+  {
+    "width": 390,
+    "checks": [
+      {
+        "name": "initial skeleton retained",
+        "pass": true
+      },
+      {
+        "name": "first beans data clears skeleton",
+        "pass": true
+      },
+      {
+        "name": "recipes skeleton hides stale/empty and navigation usable",
+        "pass": true
+      },
+      {
+        "name": "stale rejection cannot clear active skeleton",
+        "pass": true
+      },
+      {
+        "name": "records first data shown",
+        "pass": true
+      },
+      {
+        "name": "active error clears skeleton with no cards or empty",
+        "pass": true
+      },
+      {
+        "name": "cache has no artificial delay",
+        "pass": true
+      },
+      {
+        "name": "new-route first read preserves modal DOM and focus",
+        "pass": false,
+        "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\nfalse !== true\n"
+      },
+      {
+        "name": "new-route draft value preserved",
+        "pass": true
+      },
+      {
+        "name": "hidden-sibling diagnostic",
+        "beforeHidden": [
+          {
+            "tag": "DIV",
+            "cls": "list-header",
+            "hidden": false
+          },
+          {
+            "tag": "DIALOG",
+            "cls": "entry-dialog",
+            "hidden": false
+          },
+          {
+            "tag": "ARTICLE",
+            "cls": "recipe-card recipe-summary-card",
+            "hidden": false
+          }
+        ],
+        "afterHidden": [
+          {
+            "tag": "DIV",
+            "cls": "list-header",
+            "hidden": true
+          },
+          {
+            "tag": "DIALOG",
+            "cls": "entry-dialog",
+            "hidden": false
+          },
+          {
+            "tag": "ARTICLE",
+            "cls": "recipe-card recipe-summary-card",
+            "hidden": true
+          }
+        ]
+      },
+      {
+        "name": "modal loading-ready restores hidden siblings",
+        "pass": false,
+        "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\nfalse !== true\n"
+      }
+    ],
+    "errors": [],
+    "findings": [
+      "new-route first read preserves modal DOM and focus",
+      "modal loading-ready restores hidden siblings"
+    ]
+  },
+  {
+    "width": 1280,
+    "checks": [
+      {
+        "name": "initial skeleton retained",
+        "pass": true
+      },
+      {
+        "name": "first beans data clears skeleton",
+        "pass": true
+      },
+      {
+        "name": "recipes skeleton hides stale/empty and navigation usable",
+        "pass": true
+      },
+      {
+        "name": "stale rejection cannot clear active skeleton",
+        "pass": true
+      },
+      {
+        "name": "records first data shown",
+        "pass": true
+      },
+      {
+        "name": "active error clears skeleton with no cards or empty",
+        "pass": true
+      },
+      {
+        "name": "cache has no artificial delay",
+        "pass": true
+      },
+      {
+        "name": "new-route first read preserves modal DOM and focus",
+        "pass": false,
+        "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\nfalse !== true\n"
+      },
+      {
+        "name": "new-route draft value preserved",
+        "pass": true
+      },
+      {
+        "name": "hidden-sibling diagnostic",
+        "beforeHidden": [
+          {
+            "tag": "DIV",
+            "cls": "list-header",
+            "hidden": false
+          },
+          {
+            "tag": "DIALOG",
+            "cls": "entry-dialog",
+            "hidden": false
+          },
+          {
+            "tag": "ARTICLE",
+            "cls": "recipe-card recipe-summary-card",
+            "hidden": false
+          }
+        ],
+        "afterHidden": [
+          {
+            "tag": "DIV",
+            "cls": "list-header",
+            "hidden": true
+          },
+          {
+            "tag": "DIALOG",
+            "cls": "entry-dialog",
+            "hidden": false
+          },
+          {
+            "tag": "ARTICLE",
+            "cls": "recipe-card recipe-summary-card",
+            "hidden": true
+          }
+        ]
+      },
+      {
+        "name": "modal loading-ready restores hidden siblings",
+        "pass": false,
+        "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\nfalse !== true\n"
+      }
+    ],
+    "errors": [],
+    "findings": [
+      "new-route first read preserves modal DOM and focus",
+      "modal loading-ready restores hidden siblings"
+    ]
+  }
+]

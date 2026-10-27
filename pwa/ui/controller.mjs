@@ -235,6 +235,12 @@ export function createAppController({
       screen: { route, nextCursor: null, hasMore: false, complete: true } };
   }
 
+  function setRouteReadState(generation, status) {
+    if (generation !== routeGeneration) return false;
+    view.setRouteReadState?.(status);
+    return true;
+  }
+
   async function loadRoute(route = currentRoute(), { cursor = null, append = false, force = false, skipVerify = false } = {}) {
     if (frozen) throw Object.freeze({ code: 'lifecycle-frozen' });
     if (!repository || !client) return null;
@@ -244,6 +250,11 @@ export function createAppController({
     const generation = ++routeGeneration;
     const key = routeCacheKey(route, cursor);
     const isFirstPage = cursor == null;
+    const isRouteTransition = isFirstPage && !append && currentRoute() === route && data?.screen?.route !== route;
+    if (isRouteTransition) setRouteReadState(generation, 'loading');
+    else if (isFirstPage && !append && currentRoute() === route && data?.screen?.route === route) {
+      setRouteReadState(generation, 'ready');
+    }
     try {
       if (!skipVerify) {
         const kinds = routeSchemas(route);
@@ -258,11 +269,14 @@ export function createAppController({
       data = mergeScreenData(previous, fetched);
       saveCache(key, data);
       view.renderData?.(data);
+      if (isRouteTransition) setRouteReadState(generation, 'ready');
       view.showStatus?.({ type: 'ready', message: '' });
       startDeferredReads(route, generation, key, controller.signal);
       return data;
     } catch (error) {
-      if (generation !== routeGeneration || controller.signal.aborted || error?.code === 'read-cancelled') return null;
+      if (generation !== routeGeneration || controller.signal.aborted) return null;
+      if (isRouteTransition) setRouteReadState(generation, error?.code === 'read-cancelled' ? 'cancelled' : 'error');
+      if (error?.code === 'read-cancelled') return null;
       showFailure(error, 'read-error');
       throw error;
     }

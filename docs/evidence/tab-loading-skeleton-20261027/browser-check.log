@@ -1,0 +1,5 @@
+page.waitForFunction: Timeout 30000ms exceeded.
+    at main (/private/tmp/tab-loading-skeleton-browser.cjs:58:18) {
+  log: [],
+  name: 'TimeoutError'
+}

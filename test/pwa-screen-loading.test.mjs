@@ -116,12 +116,13 @@ test('route reads stay scoped, record filters query the server, and name options
   assert.deepEqual(rendered.at(-1).beans.map(bean => bean.id), ['bean-1']);
 });
 
-test('late response from a previous route cannot replace the current screen', async () => {
+test('route transition loading is independent from writes and ends after the first page', async () => {
   let currentRoute = '/beans';
   let routeChanged;
-  let resolveRecipes;
-  let markRecipesStarted;
-  const recipesStarted = new Promise(resolve => { markRecipesStarted = resolve; });
+  let resolveRecords;
+  let markRecordsStarted;
+  const recordsStarted = new Promise(resolve => { markRecordsStarted = resolve; });
+  const routeStates = [];
   const rendered = [];
   const connection = { schemaVersion: 1, revision: REVISION, token: 'fake-only', dataSources: SOURCES };
   const context = {
@@ -131,7 +132,151 @@ test('late response from a previous route cannot replace the current screen', as
   };
   const app = createAppController({
     view: { currentRoute: () => currentRoute, onRouteChange(handler) { routeChanged = handler; }, bind() {},
-      setState() {}, showConnection() {}, showStatus() {}, showConnectionSuccess() {}, clearSecret() {},
+      setState() {}, setRouteReadState(status) { routeStates.push(status); },
+      showConnection() {}, showStatus() {}, showConnectionSuccess() {}, clearSecret() {},
+      renderData(data) { rendered.push(data); } },
+    state: { async withWriteLock(action) { return action(context); } },
+    file: { async readConnection() { return connection; } }, uuid: () => REVISION,
+    makeClient: () => ({ async verify() {} }),
+    makeRepository: () => ({
+      async listBeans() { return { items: [], nextCursor: null, hasMore: false, complete: true }; },
+      async listRecords({ cursor }) {
+        if (cursor) return { items: [], beans: [], recipes: [], nextCursor: null, hasMore: false, complete: true };
+        markRecordsStarted();
+        return await new Promise(resolve => { resolveRecords = resolve; });
+      },
+    }),
+    makeCommands: () => ({}),
+  });
+  app.bind();
+  await app.connect({ token: 'fake-only', dataSources: SOURCES });
+  routeStates.length = 0;
+
+  currentRoute = '/records';
+  const firstPage = routeChanged(currentRoute);
+  await recordsStarted;
+  assert.deepEqual(routeStates, ['loading']);
+  assert.equal(app.getState().pending, false, 'a route read must not become a write lock');
+
+  resolveRecords({ items: [], beans: [], recipes: [], nextCursor: 'records-next', hasMore: true, complete: false });
+  await firstPage;
+  assert.deepEqual(routeStates, ['loading', 'ready']);
+  assert.equal(rendered.at(-1).screen.route, '/records');
+
+  await app.loadMore();
+  assert.deepEqual(routeStates, ['loading', 'ready'], 'pagination must not show a route skeleton');
+});
+
+test('route read failure and cancellation clear loading without rendering previous-route data', async () => {
+  let currentRoute = '/beans';
+  let routeChanged;
+  const routeStates = [];
+  const rendered = [];
+  const statuses = [];
+  const connection = { schemaVersion: 1, revision: REVISION, token: 'fake-only', dataSources: SOURCES };
+  const context = {
+    async inspect() { return { initialized: true, blocked: false }; },
+    async readJournal() { return { operations: [], activeConnectionRevision: REVISION, connectionGuard: null }; },
+    async beginConnectionChange() {}, async commitConnectionChange() {},
+  };
+  const app = createAppController({
+    view: { currentRoute: () => currentRoute, onRouteChange(handler) { routeChanged = handler; }, bind() {},
+      setState() {}, setRouteReadState(status) { routeStates.push(status); },
+      showConnection() {}, showStatus(status) { statuses.push(status); }, showConnectionSuccess() {}, clearSecret() {},
+      renderData(data) { rendered.push(data); } },
+    state: { async withWriteLock(action) { return action(context); } },
+    file: { async readConnection() { return connection; } }, uuid: () => REVISION,
+    makeClient: () => ({ async verify() {} }),
+    makeRepository: () => ({
+      async listBeans() { return { items: [{ id: 'bean-1', name: '현재 원두' }], nextCursor: null, hasMore: false, complete: true }; },
+      async listRecipeSummaries() { throw new Error('offline'); },
+      async listRecords() { throw Object.freeze({ code: 'read-cancelled' }); },
+    }),
+    makeCommands: () => ({}),
+  });
+  app.bind();
+  await app.connect({ token: 'fake-only', dataSources: SOURCES });
+
+  currentRoute = '/recipes';
+  await routeChanged(currentRoute);
+  assert.deepEqual(routeStates.slice(-2), ['loading', 'error']);
+  assert.equal(statuses.at(-1).type, 'read-error');
+  assert.equal(rendered.at(-1).screen.route, '/beans', 'a failed route must not render stale beans as recipes');
+
+  currentRoute = '/records';
+  await routeChanged(currentRoute);
+  assert.deepEqual(routeStates.slice(-2), ['loading', 'cancelled']);
+  assert.equal(rendered.at(-1).screen.route, '/beans', 'a cancelled route must not render stale beans as records');
+  assert.equal(app.getState().pending, false);
+});
+
+test('returning to the current route clears a cancelled transition skeleton', async () => {
+  let currentRoute = '/beans';
+  let routeChanged;
+  let rejectRecipes;
+  let markRecipesStarted;
+  const recipesStarted = new Promise(resolve => { markRecipesStarted = resolve; });
+  const routeStates = [];
+  const rendered = [];
+  const connection = { schemaVersion: 1, revision: REVISION, token: 'fake-only', dataSources: SOURCES };
+  const context = {
+    async inspect() { return { initialized: true, blocked: false }; },
+    async readJournal() { return { operations: [], activeConnectionRevision: REVISION, connectionGuard: null }; },
+    async beginConnectionChange() {}, async commitConnectionChange() {},
+  };
+  const app = createAppController({
+    view: { currentRoute: () => currentRoute, onRouteChange(handler) { routeChanged = handler; }, bind() {},
+      setState() {}, setRouteReadState(status) { routeStates.push(status); },
+      showConnection() {}, showStatus() {}, showConnectionSuccess() {}, clearSecret() {},
+      renderData(data) { rendered.push(data); } },
+    state: { async withWriteLock(action) { return action(context); } },
+    file: { async readConnection() { return connection; } }, uuid: () => REVISION,
+    makeClient: () => ({ async verify() {} }),
+    makeRepository: () => ({
+      async listBeans() { return { items: [{ id: 'bean-1', name: '원두' }], nextCursor: null, hasMore: false, complete: true }; },
+      async listRecipeSummaries() {
+        markRecipesStarted();
+        return await new Promise((resolve, reject) => { rejectRecipes = reject; });
+      },
+    }),
+    makeCommands: () => ({}),
+  });
+  app.bind();
+  await app.connect({ token: 'fake-only', dataSources: SOURCES });
+  routeStates.length = 0;
+
+  currentRoute = '/recipes';
+  const staleRead = routeChanged(currentRoute);
+  await recipesStarted;
+  assert.deepEqual(routeStates, ['loading']);
+
+  currentRoute = '/beans';
+  await routeChanged(currentRoute);
+  assert.deepEqual(routeStates, ['loading', 'ready']);
+  rejectRecipes(new Error('cancelled stale route'));
+  await staleRead;
+  assert.deepEqual(routeStates, ['loading', 'ready'], 'the aborted response cannot alter the restored route state');
+  assert.equal(rendered.at(-1).screen.route, '/beans');
+});
+
+test('late response from a previous route cannot replace the current screen', async () => {
+  let currentRoute = '/beans';
+  let routeChanged;
+  let rejectRecipes;
+  let markRecipesStarted;
+  const recipesStarted = new Promise(resolve => { markRecipesStarted = resolve; });
+  const rendered = [];
+  const routeStates = [];
+  const connection = { schemaVersion: 1, revision: REVISION, token: 'fake-only', dataSources: SOURCES };
+  const context = {
+    async inspect() { return { initialized: true, blocked: false }; },
+    async readJournal() { return { operations: [], activeConnectionRevision: REVISION, connectionGuard: null }; },
+    async beginConnectionChange() {}, async commitConnectionChange() {},
+  };
+  const app = createAppController({
+    view: { currentRoute: () => currentRoute, onRouteChange(handler) { routeChanged = handler; }, bind() {},
+      setState() {}, setRouteReadState(status) { routeStates.push(status); },
+      showConnection() {}, showStatus() {}, showConnectionSuccess() {}, clearSecret() {},
       renderData(data) { rendered.push(data); } },
     state: { async withWriteLock(action) { return action(context); } },
     file: { async readConnection() { return connection; } }, uuid: () => REVISION,
@@ -140,7 +285,7 @@ test('late response from a previous route cannot replace the current screen', as
       async listBeans() { return { items: [], nextCursor: null, hasMore: false, complete: true }; },
       async listRecipeSummaries() {
         markRecipesStarted();
-        return await new Promise(resolve => { resolveRecipes = resolve; });
+        return await new Promise((resolve, reject) => { rejectRecipes = reject; });
       },
       async listRecords() { return { items: [], beans: [], recipes: [], nextCursor: null, hasMore: false, complete: true }; },
     }),
@@ -148,15 +293,17 @@ test('late response from a previous route cannot replace the current screen', as
   });
   app.bind();
   await app.connect({ token: 'fake-only', dataSources: SOURCES });
+  routeStates.length = 0;
 
   currentRoute = '/recipes';
   const staleRead = routeChanged(currentRoute);
   await recipesStarted;
   currentRoute = '/records';
   await routeChanged(currentRoute);
-  resolveRecipes({ items: [{ id: 'recipe-1', name: '오래된 화면' }], nextCursor: null, hasMore: false, complete: true });
+  rejectRecipes(new Error('stale route failure'));
   await staleRead;
 
   assert.equal(rendered.at(-1).screen.route, '/records');
   assert.deepEqual(rendered.at(-1).recipes, []);
+  assert.deepEqual(routeStates, ['loading', 'loading', 'ready'], 'the stale error cannot clear the current route state');
 });

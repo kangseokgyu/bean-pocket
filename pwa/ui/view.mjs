@@ -90,6 +90,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   root.replaceChildren(page);
 
   let currentState = { frozen: false, pending: false, unresolved: false };
+  let routeReadStatus = 'idle';
   let statusType = '';
   let statusMessageText = '';
   let startupMessageText = '';
@@ -137,15 +138,17 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   function renderStatus({ promoteToast = false } = {}) {
     const startupChecking = statusType === 'startup-checking';
     const assertiveStatus = ['validation-error', 'connection-error', 'resolution-error'].includes(statusType);
-    skeletons.hidden = !currentState.pending || !!currentData ||
+    const initialSkeletonHidden = !currentState.pending || !!currentData ||
       (!startupChecking && connection.dataset.connected !== 'true');
+    skeletons.hidden = routeReadStatus === 'loading' ? false : routeReadStatus === 'idle' ? initialSkeletonHidden : true;
+    const routeLoading = routeReadStatus === 'loading';
     const active = currentState.pending && !startupChecking;
     status.dataset.pending = String(active);
-    statusMessage.textContent = statusMessageText || (active ? '불러오는 중…' : '');
+    statusMessage.textContent = statusMessageText || (active ? '불러오는 중…' : routeLoading ? '화면을 불러오는 중…' : '');
     status.setAttribute('role', assertiveStatus ? 'alert' : 'status');
     status.setAttribute('aria-live', assertiveStatus ? 'assertive' : 'polite');
-    status.setAttribute('aria-busy', String(currentState.pending));
-    status.hidden = startupChecking || (!active && !statusMessageText);
+    status.setAttribute('aria-busy', String(currentState.pending || routeLoading));
+    status.hidden = startupChecking || (!active && !routeLoading && !statusMessageText);
     syncStatusToast(promoteToast);
 
     loadingSpinner.className = `pull-refresh-spinner ${startupChecking ? 'startup-spinner' : 'operation-spinner'}`;
@@ -179,6 +182,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   let currentData = null;
   let route = globalThis.location?.hash?.slice(1) || '/beans';
   let routeNeedsDataRender = true;
+  const routeHiddenChildren = new Set();
   let routeChangeListener = null;
   const drafts = new Map();
   const optionPages = new Map();
@@ -558,6 +562,41 @@ export function createAppView(document = globalThis.document, { schedule = setTi
         restoreEntryFocus(kind);
       }
     },
+    setRouteReadState(nextStatus) {
+      if (!['loading', 'ready', 'error', 'cancelled'].includes(nextStatus)) return;
+      routeReadStatus = nextStatus;
+      const pane = content.querySelector('.list-view');
+      const activeDialog = Array.from(content.querySelectorAll('dialog[data-entry-dialog]')).find(dialog => dialog.open);
+
+      if (nextStatus === 'loading') {
+        content.setAttribute('aria-busy', 'true');
+        if (activeDialog && pane) {
+          content.hidden = false;
+          for (const child of pane.children) {
+            if (child !== activeDialog && !child.hidden) {
+              routeHiddenChildren.add(child);
+              child.hidden = true;
+            }
+          }
+        } else content.hidden = true;
+      } else {
+        content.hidden = false;
+        content.removeAttribute('aria-busy');
+        for (const child of routeHiddenChildren) child.hidden = false;
+        routeHiddenChildren.clear();
+        if (nextStatus === 'error' || nextStatus === 'cancelled') {
+          const message = make(document, 'p', nextStatus === 'cancelled'
+            ? '목록 조회가 취소되었습니다.' : '목록을 불러오지 못했습니다. 연결과 권한을 확인해 주세요.', 'route-read-error');
+          if (activeDialog && pane) {
+            for (const child of [...pane.children]) {
+              if (child !== activeDialog) child.remove();
+            }
+            pane.append(message);
+          } else content.replaceChildren(message);
+        }
+      }
+      renderStatus();
+    },
     renderData(nextData) {
       saveActiveDraft(content, drafts);
       currentData = nextData;
@@ -565,7 +604,25 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       const routeNeedsRender = routeNeedsDataRender;
       routeNeedsDataRender = false;
       const activeDialog = activeEntryKind ? entryDialogFor(activeEntryKind) : null;
-      if (!routeNeedsRender && activeDialog?.open) return;
+      if (activeDialog?.open) {
+        if (routeNeedsRender) {
+          // Refresh the list around the live top-layer dialog without detaching it.
+          const refreshed = make(document, 'section');
+          renderPane(refreshed, currentData, document, route, new Map(), optionPages,
+            beanFormOpen, recipeFormOpen, recordFormOpen);
+          const pane = activeDialog.parentElement;
+          for (const child of [...pane.children]) {
+            if (child !== activeDialog) child.remove();
+          }
+          for (const child of [...refreshed.querySelector('.list-view').children]) {
+            if (child.dataset.entryDialog === activeEntryKind) continue;
+            pane.insertBefore(child, activeDialog);
+          }
+          finishContentRender();
+          applyViewState();
+        }
+        return;
+      }
       renderCurrentContent();
     },
     currentRoute() { return route; },

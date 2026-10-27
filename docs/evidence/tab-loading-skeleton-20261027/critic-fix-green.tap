@@ -1,0 +1,746 @@
+TAP version 13
+# Subtest: saved-connection startup verifies and reads only the current beans page
+ok 1 - saved-connection startup verifies and reads only the current beans page
+  ---
+  duration_ms: 1.643458
+  type: 'test'
+  ...
+# Subtest: route reads stay scoped, record filters query the server, and name options load on form use
+ok 2 - route reads stay scoped, record filters query the server, and name options load on form use
+  ---
+  duration_ms: 0.981458
+  type: 'test'
+  ...
+# Subtest: route transition loading is independent from writes and ends after the first page
+ok 3 - route transition loading is independent from writes and ends after the first page
+  ---
+  duration_ms: 0.618334
+  type: 'test'
+  ...
+# Subtest: route read failure and cancellation clear loading without rendering previous-route data
+ok 4 - route read failure and cancellation clear loading without rendering previous-route data
+  ---
+  duration_ms: 0.83075
+  type: 'test'
+  ...
+# Subtest: returning to the current route clears a cancelled transition skeleton
+ok 5 - returning to the current route clears a cancelled transition skeleton
+  ---
+  duration_ms: 0.457459
+  type: 'test'
+  ...
+# Subtest: late response from a previous route cannot replace the current screen
+ok 6 - late response from a previous route cannot replace the current screen
+  ---
+  duration_ms: 0.303875
+  type: 'test'
+  ...
+# (node:44960) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: connection settings open only after no saved connection is found
+ok 7 - connection settings open only after no saved connection is found
+  ---
+  duration_ms: 3.354709
+  type: 'test'
+  ...
+# Subtest: startup checking shows one body overlay until retry is needed
+ok 8 - startup checking shows one body overlay until retry is needed
+  ---
+  duration_ms: 3.4825
+  type: 'test'
+  ...
+# Subtest: initialization spinner ends on saved
+ok 9 - initialization spinner ends on saved
+  ---
+  duration_ms: 4.699959
+  type: 'test'
+  ...
+# Subtest: initialization spinner ends on missing
+ok 10 - initialization spinner ends on missing
+  ---
+  duration_ms: 2.145583
+  type: 'test'
+  ...
+# Subtest: initialization spinner ends on error
+ok 11 - initialization spinner ends on error
+  ---
+  duration_ms: 2.45775
+  type: 'test'
+  ...
+# Subtest: initialization spinner ends on recovery
+ok 12 - initialization spinner ends on recovery
+  ---
+  duration_ms: 1.632833
+  type: 'test'
+  ...
+# Subtest: initialization spinner ends on busy
+ok 13 - initialization spinner ends on busy
+  ---
+  duration_ms: 1.210542
+  type: 'test'
+  ...
+# Subtest: initialization spinner ends on read-error
+ok 14 - initialization spinner ends on read-error
+  ---
+  duration_ms: 1.685917
+  type: 'test'
+  ...
+# Subtest: shared loading overlay stays outside transformed page through ready completion
+ok 15 - shared loading overlay stays outside transformed page through ready completion
+  ---
+  duration_ms: 0.904917
+  type: 'test'
+  ...
+# Subtest: saved connection opens settings modally and closing discards unsaved secrets
+ok 16 - saved connection opens settings modally and closing discards unsaved secrets
+  ---
+  duration_ms: 1.351166
+  type: 'test'
+  ...
+# Subtest: successful status messages stay visible for three seconds then hide
+ok 17 - successful status messages stay visible for three seconds then hide
+  ---
+  duration_ms: 0.768959
+  type: 'test'
+  ...
+# Subtest: errors, recovery notices and pending work stay visible after replacing success
+ok 18 - errors, recovery notices and pending work stay visible after replacing success
+  ---
+  duration_ms: 1.001958
+  type: 'test'
+  ...
+# Subtest: status messages share one bottom safe-area toast above native modal dialogs
+ok 19 - status messages share one bottom safe-area toast above native modal dialogs
+  ---
+  duration_ms: 3.062792
+  type: 'test'
+  ...
+# Subtest: native form validation marks its field and reports the error in the shared toast
+ok 20 - native form validation marks its field and reports the error in the shared toast
+  ---
+  duration_ms: 1.619125
+  type: 'test'
+  ...
+# Subtest: operation spinner stays in body overlay outside the touch-transformed page
+ok 21 - operation spinner stays in body overlay outside the touch-transformed page
+  ---
+  duration_ms: 0.757458
+  type: 'test'
+  ...
+# Subtest: operation spinner stays visible through success, ready and timeout, then clears on completion or failure
+ok 22 - operation spinner stays visible through success, ready and timeout, then clears on completion or failure
+  ---
+  duration_ms: 1.631292
+  type: 'test'
+  ...
+# Subtest: a new success gets a full display interval and empty messages hide immediately
+ok 23 - a new success gets a full display interval and empty messages hide immediately
+  ---
+  duration_ms: 0.35075
+  type: 'test'
+  ...
+# Subtest: draft values survive tab navigation and a fresh data render
+ok 24 - draft values survive tab navigation and a fresh data render
+  ---
+  duration_ms: 2.362
+  type: 'test'
+  ...
+# Subtest: bean, recipe, and record detail text is rendered as text and retains brew details
+ok 25 - bean, recipe, and record detail text is rendered as text and retains brew details
+  ---
+  duration_ms: 2.544375
+  type: 'test'
+  ...
+# Subtest: pour tables group cumulative values before interval and current water in three columns
+ok 26 - pour tables group cumulative values before interval and current water in three columns
+  ---
+  duration_ms: 1.934208
+  type: 'test'
+  ...
+# Subtest: damaged historical records are excluded from bagless recipe views
+ok 27 - damaged historical records are excluded from bagless recipe views
+  ---
+  duration_ms: 1.066542
+  type: 'test'
+  ...
+# Subtest: invalid stored date and rating remain visible with field-specific warnings
+ok 28 - invalid stored date and rating remain visible with field-specific warnings
+  ---
+  duration_ms: 2.488
+  type: 'test'
+  ...
+# Subtest: recipes have no bean selector and records require both bean and shared recipe with browse filters
+ok 29 - recipes have no bean selector and records require both bean and shared recipe with browse filters
+  ---
+  duration_ms: 4.790041
+  type: 'test'
+  ...
+# Subtest: resolution controls follow the native journal page-list contract
+ok 30 - resolution controls follow the native journal page-list contract
+  ---
+  duration_ms: 0.753583
+  type: 'test'
+  ...
+# Subtest: recipe step time permits a keyboard with colon while retaining minute-second validation
+ok 31 - recipe step time permits a keyboard with colon while retaining minute-second validation
+  ---
+  duration_ms: 1.842334
+  type: 'test'
+  ...
+# Subtest: the bean origin label uses user-facing wording rather than the storage field name
+ok 32 - the bean origin label uses user-facing wording rather than the storage field name
+  ---
+  duration_ms: 0.901291
+  type: 'test'
+  ...
+# Subtest: the record date default follows the device calendar across the KST UTC boundary
+ok 33 - the record date default follows the device calendar across the KST UTC boundary
+  ---
+  duration_ms: 1.659584
+  type: 'test'
+  ...
+# Subtest: checked connection-recovery checkbox reaches the current-connection verifier
+ok 34 - checked connection-recovery checkbox reaches the current-connection verifier
+  ---
+  duration_ms: 0.554958
+  type: 'test'
+  ...
+# Subtest: startup lock contention hides connection entry and retries the saved connection read
+ok 35 - startup lock contention hides connection entry and retries the saved connection read
+  ---
+  duration_ms: 0.729334
+  type: 'test'
+  ...
+# Subtest: successful connection replacement preserves the active product draft
+ok 36 - successful connection replacement preserves the active product draft
+  ---
+  duration_ms: 3.271083
+  type: 'test'
+  ...
+# Subtest: successful connection replacement preserves hidden drafts and their dirty signal
+ok 37 - successful connection replacement preserves hidden drafts and their dirty signal
+  ---
+  duration_ms: 2.888
+  type: 'test'
+  ...
+# Subtest: recipe input minimums allow every positive sub-cent value accepted by the domain
+ok 38 - recipe input minimums allow every positive sub-cent value accepted by the domain
+  ---
+  duration_ms: 1.318917
+  type: 'test'
+  ...
+# Subtest: recipe history never displays legacy bag relations
+ok 39 - recipe history never displays legacy bag relations
+  ---
+  duration_ms: 9.0345
+  type: 'test'
+  ...
+# Subtest: bean creation starts hidden, opens from the plus button, and closes on cancel
+ok 40 - bean creation starts hidden, opens from the plus button, and closes on cancel
+  ---
+  duration_ms: 2.580625
+  type: 'test'
+  ...
+# Subtest: bag route has no entry, delete or relation selection surface
+ok 41 - bag route has no entry, delete or relation selection surface
+  ---
+  duration_ms: 1.169583
+  type: 'test'
+  ...
+# Subtest: recipe creation opens from plus, preserves drafts, and closes on cancel
+not ok 42 - recipe creation opens from plus, preserves drafts, and closes on cancel
+  ---
+  duration_ms: 4.655916
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:890:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of null (reading 'querySelector')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    addStep (file:///Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/pwa/ui/view.mjs:1654:24)
+    restoreDraft (file:///Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/pwa/ui/view.mjs:1757:7)
+    renderPane (file:///Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/pwa/ui/view.mjs:970:13)
+    renderData (file:///Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/pwa/ui/view.mjs:611:11)
+    view.renderData (file:///Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/pwa/ui/view.mjs:1643:5)
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:919:8)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: recipe detail places the guide below the pour table and copy preserves its text
+ok 43 - recipe detail places the guide below the pour table and copy preserves its text
+  ---
+  duration_ms: 3.495708
+  type: 'test'
+  ...
+# Subtest: record creation opens from plus, preserves drafts, and closes on cancel or save
+ok 44 - record creation opens from plus, preserves drafts, and closes on cancel or save
+  ---
+  duration_ms: 7.861875
+  type: 'test'
+  ...
+# Subtest: background data updates defer pane replacement while an entry dialog is open
+ok 45 - background data updates defer pane replacement while an entry dialog is open
+  ---
+  duration_ms: 3.531375
+  type: 'test'
+  ...
+# Subtest: collection headers omit refresh and retain their add buttons
+ok 46 - collection headers omit refresh and retain their add buttons
+  ---
+  duration_ms: 3.557
+  type: 'test'
+  ...
+# Subtest: pulling from the top reloads the entire page once on release
+ok 47 - pulling from the top reloads the entire page once on release
+  ---
+  duration_ms: 1.079375
+  type: 'test'
+  ...
+# Subtest: pulling progressively reveals a twelve-spoke spinner and moves the page down
+ok 48 - pulling progressively reveals a twelve-spoke spinner and moves the page down
+  ---
+  duration_ms: 0.645541
+  type: 'test'
+  ...
+# Subtest: work starting while the released spinner paints cancels the scheduled reload
+ok 49 - work starting while the released spinner paints cancels the scheduled reload
+  ---
+  duration_ms: 1.4765
+  type: 'test'
+  ...
+# Subtest: short pulls, retracted pulls and cancelled gestures do not reload
+ok 50 - short pulls, retracted pulls and cancelled gestures do not reload
+  ---
+  duration_ms: 1.445875
+  type: 'test'
+  ...
+# Subtest: normal scrolling and horizontal or upward swipes do not trigger reload
+ok 51 - normal scrolling and horizontal or upward swipes do not trigger reload
+  ---
+  duration_ms: 2.3285
+  type: 'test'
+  ...
+# Subtest: multitouch never reloads and a later single finger gesture can refresh
+ok 52 - multitouch never reloads and a later single finger gesture can refresh
+  ---
+  duration_ms: 0.537791
+  type: 'test'
+  ...
+# Subtest: downward pulls from controls and their child elements reload the whole page
+ok 53 - downward pulls from controls and their child elements reload the whole page
+  ---
+  duration_ms: 4.679292
+  type: 'test'
+  ...
+# Subtest: control taps keep their normal action and short drags suppress accidental taps
+ok 54 - control taps keep their normal action and short drags suppress accidental taps
+  ---
+  duration_ms: 0.708291
+  type: 'test'
+  ...
+# Subtest: horizontal gestures and scrollable controls away from their top keep native scrolling
+ok 55 - horizontal gestures and scrollable controls away from their top keep native scrolling
+  ---
+  duration_ms: 2.311875
+  type: 'test'
+  ...
+# Subtest: saving and update freeze prevent a reload even when they begin during a pull
+ok 56 - saving and update freeze prevent a reload even when they begin during a pull
+  ---
+  duration_ms: 2.088417
+  type: 'test'
+  ...
+# Subtest: refresh requires a 240px downward pull and checks the release position
+ok 57 - refresh requires a 240px downward pull and checks the release position
+  ---
+  duration_ms: 3.432458
+  type: 'test'
+  ...
+# Subtest: navigation uses text-only menus with accessible names
+ok 58 - navigation uses text-only menus with accessible names
+  ---
+  duration_ms: 0.188459
+  type: 'test'
+  ...
+# Subtest: bean cards expose a labelled trash button and require confirmation before deleting
+ok 59 - bean cards expose a labelled trash button and require confirmation before deleting
+  ---
+  duration_ms: 1.42775
+  type: 'test'
+  ...
+# Subtest: recipe and record cards expose named trash controls and confirm each item before submission
+ok 60 - recipe and record cards expose named trash controls and confirm each item before submission
+  ---
+  duration_ms: 4.973542
+  type: 'test'
+  ...
+# Subtest: bean cards pair each metadata value with its own visible label
+ok 61 - bean cards pair each metadata value with its own visible label
+  ---
+  duration_ms: 0.710042
+  type: 'test'
+  ...
+# Subtest: bean cards keep missing metadata explicit and render values as text
+ok 62 - bean cards keep missing metadata explicit and render values as text
+  ---
+  duration_ms: 0.603625
+  type: 'test'
+  ...
+# Subtest: header navigation changes routes and remains locked while work is pending
+ok 63 - header navigation changes routes and remains locked while work is pending
+  ---
+  duration_ms: 3.379709
+  type: 'test'
+  ...
+# Subtest: bean entry opens and closes as a native modal without saving on cancel
+ok 64 - bean entry opens and closes as a native modal without saving on cancel
+  ---
+  duration_ms: 1.924208
+  type: 'test'
+  ...
+# Subtest: available entry forms open as native dialogs and cancel without submitting
+ok 65 - available entry forms open as native dialogs and cancel without submitting
+  ---
+  duration_ms: 7.5195
+  type: 'test'
+  ...
+# Subtest: pending entry saves lock controls and Escape; success stays visible until the 1000ms close
+ok 66 - pending entry saves lock controls and Escape; success stays visible until the 1000ms close
+  ---
+  duration_ms: 4.080583
+  type: 'test'
+  ...
+# Subtest: a failed modal save preserves its fields and enables a retry
+ok 67 - a failed modal save preserves its fields and enables a retry
+  ---
+  duration_ms: 11.5385
+  type: 'test'
+  ...
+# Subtest: success delay locks every entry field and recipe step after refresh finishes
+ok 68 - success delay locks every entry field and recipe step after refresh finishes
+  ---
+  duration_ms: 6.941709
+  type: 'test'
+  ...
+# Subtest: success delay ignores late input events and closes without a dirty draft
+ok 69 - success delay ignores late input events and closes without a dirty draft
+  ---
+  duration_ms: 1.377666
+  type: 'test'
+  ...
+# Subtest: reduced motion overrides modal entrance and blocking spinner animations
+ok 70 - reduced motion overrides modal entrance and blocking spinner animations
+  ---
+  duration_ms: 0.305042
+  type: 'test'
+  ...
+# Subtest: first route data keeps an open recipe modal node and focus while updating its list
+not ok 71 - first route data keeps an open recipe modal node and focus while updating its list
+  ---
+  duration_ms: 2980.486458
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1694:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: route loading-ready restores only list siblings hidden for the open modal
+not ok 72 - route loading-ready restores only list siblings hidden for the open modal
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1747:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: initial card load shows decorative skeletons until real data replaces them
+not ok 73 - initial card load shows decorative skeletons until real data replaces them
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1775:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: route transition skeleton hides stale data and exposes an error until a fresh page arrives
+not ok 74 - route transition skeleton hides stale data and exposes an error until a fresh page arrives
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1799:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: route loading preserves an open modal, draft DOM, and focus
+not ok 75 - route loading preserves an open modal, draft DOM, and focus
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1828:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: card skeleton clears after disconnected
+not ok 76 - card skeleton clears after disconnected
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1857:3'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: card skeleton clears after startup-busy
+not ok 77 - card skeleton clears after startup-busy
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1857:3'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: card skeleton clears after connection-error
+not ok 78 - card skeleton clears after connection-error
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1857:3'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: card skeleton clears after read-error
+not ok 79 - card skeleton clears after read-error
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1857:3'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: persistent error toast follows the settings modal opened and closed without a new status
+not ok 80 - persistent error toast follows the settings modal opened and closed without a new status
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1870:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: connection modal opens from settings and Escape clears secrets, draft and restores focus
+not ok 81 - connection modal opens from settings and Escape clears secrets, draft and restores focus
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1897:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: connection modal protects pending and success phases across product rerenders
+not ok 82 - connection modal protects pending and success phases across product rerenders
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1923:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: connection success closes at 1000ms and defers focus until settings is enabled
+not ok 83 - connection success closes at 1000ms and defers focus until settings is enabled
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1958:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: connection modal preserves failed inputs for retry and exposes safe errors inside the dialog
+not ok 84 - connection modal preserves failed inputs for retry and exposes safe errors inside the dialog
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:1988:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: startup retry and recovery remain reachable after dismissing and reopening connection settings
+not ok 85 - startup retry and recovery remain reachable after dismissing and reopening connection settings
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:2040:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: bean cards open their records through a full-card native link without a records button
+not ok 86 - bean cards open their records through a full-card native link without a records button
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:2061:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: bean card deletion never opens records, including clicks on its icon
+not ok 87 - bean card deletion never opens records, including clicks on its icon
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:2081:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: legacy extraction records remain in raw input but are hidden from current lists and details
+not ok 88 - legacy extraction records remain in raw input but are hidden from current lists and details
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:2098:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: PWA removes bag navigation, entry and record selection or display surfaces
+not ok 89 - PWA removes bag navigation, entry and record selection or display surfaces
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:2118:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: recipe list cards link their entire surface to details without a details button
+not ok 90 - recipe list cards link their entire surface to details without a details button
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:2138:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: recipe list card delete icon stays independent of detail navigation
+not ok 91 - recipe list card delete icon stays independent of detail navigation
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:2159:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: view notifies the controller when the current route changes
+not ok 92 - view notifies the controller when the current route changes
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:2180:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: record page shows continuation state instead of claiming the database is empty
+not ok 93 - record page shows continuation state instead of claiming the database is empty
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:2192:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: record cards show snapshot names while current parent names are loading
+not ok 94 - record cards show snapshot names while current parent names are loading
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:2203:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+# Subtest: record name pickers load on focus and preserve filter selection across option pages
+not ok 95 - record name pickers load on focus and preserve filter selection across option pages
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/tab-loading-skeleton/AX-1day/test/pwa-ui.view.test.mjs:2220:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:518:28)
+  ...
+1..95
+# tests 95
+# suites 0
+# pass 69
+# fail 1
+# cancelled 25
+# skipped 0
+# todo 0
+# duration_ms 3200.451792

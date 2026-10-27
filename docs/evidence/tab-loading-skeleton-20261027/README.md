@@ -36,3 +36,14 @@ The parent's earlier inference that initial build/check logs were absent was inc
 Integration and publication results follow after main validation. Live Notion and iPhone hardware remain unverified; local browser evidence uses synthetic data and an isolated profile.
 
 Captured logs have trailing horizontal whitespace removed for `git diff --check`; result lines and test outcomes are unchanged.
+
+## Main integration and public release
+
+- Feature commit `a63b2c48ac3fa3c85e61dd7f41dca474d174362d` fast-forwarded main from `d2ad677`. Only this task's selected files were committed. Original main checkout was clean at integration.
+- Integrated main: `npm test` **544/544, exit 0** (`main-test.log`); `npm run build:pages` **exit 0**, version **a75b0bb2ba16** (`main-build.log`); `npm run check:pages` **exit 0** (`main-check.log`). Local loopback permission was used for HTTP fixtures.
+- Main pushed; `pages.yml --ref main -f probes=false` [run 40430739217](https://github.com/kangseokgyu/bean-pocket/actions/runs/40430739217) completed successfully, including build and deploy jobs. Raw run result: `deployment.json`; watch exit 0: `deployment-watch.log`.
+- Public URL: https://kangseokgyu.github.io/bean-pocket/ . **20/20** output files returned HTTP 200 and matched the local dist bytes (`public-files.json`, verifier exit 0).
+- Fresh isolated Chrome at 390px displayed **a75b0bb2ba16**, contained the skeleton element, cleared skeleton/startup loading after connection checking, had no horizontal overflow and no page errors (`public-browser.json`, `public-390.png`, smoke exit 0).
+- Public smoke uses no saved Notion connection. Real Notion data, physical iPhone/Safari and the full installed-service-worker update lifecycle were not verified. Tab loading behavior was verified locally with synthetic data at 390/1280; publication verification establishes matching assets and clean initial screen.
+- Reproduce public checks: `node docs/evidence/tab-loading-skeleton-20261027/verify-public.mjs "$PWD" "$PWD/docs/evidence/tab-loading-skeleton-20261027/public-files.json"`; browser smoke: `node docs/evidence/tab-loading-skeleton-20261027/public-smoke.cjs a75b0bb2ba16 "$PWD/docs/evidence/tab-loading-skeleton-20261027"`.
+- Rollback: revert the feature commit in a dedicated branch, run the same mandatory checks/review, integrate and dispatch the general Pages workflow again. No data migrations or Notion writes are involved in this change.

@@ -19,6 +19,7 @@ class TestElement {
     this.selected = false;
     this.text = '';
     this.listeners = new Map();
+    this.style = { setProperty(name, value) { this[name] = value; } };
   }
   append(...nodes) {
     for (const node of nodes) {

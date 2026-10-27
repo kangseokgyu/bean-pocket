@@ -123,7 +123,7 @@ const makeSpinner = document => {
 
 const idOf = value => String(value ?? '');
 const FORM_KINDS = new Set(['beans', 'recipes', 'records']);
-const AUTO_HIDE_STATUS_TYPES = new Set(['connected', 'saved', 'resolved', 'cancelled']);
+const IN_PROGRESS_STATUS_TYPES = new Set(['startup-checking', 'checking', 'saving']);
 const STATUS_DISPLAY_MS = 3000;
 const SOURCE_FIELDS = Object.freeze([
   ['beans', '원두'], ['recipes', '레시피'],
@@ -165,6 +165,10 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   function syncStatusToast(promote = false) {
     const visible = !status.hidden;
     const openDialog = [...page.querySelectorAll('dialog')].find(dialog => dialog.open);
+    const actionsRect = openDialog?.querySelector('.form-actions')?.getBoundingClientRect?.();
+    const viewportHeight = document.documentElement?.clientHeight;
+    const bottom = actionsRect && viewportHeight ? Math.max(160, viewportHeight - actionsRect.top + 16) : 160;
+    status.style.setProperty('--toast-bottom', `${bottom}px`);
     if (!visible) {
       if (statusPopoverOpen) status.hidePopover();
       statusPopoverOpen = false;
@@ -238,13 +242,16 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   }
   function scheduleStatusHide() {
     clearTimeout(statusHideTimer);
-    if (currentState.pending || !AUTO_HIDE_STATUS_TYPES.has(statusType) || !statusMessageText) return;
+    if (currentState.pending || IN_PROGRESS_STATUS_TYPES.has(statusType) || !statusMessageText) return;
     statusHideTimer = setTimeout(() => {
       if (currentState.pending) return;
       statusMessageText = '';
       renderStatus();
     }, STATUS_DISPLAY_MS);
   }
+  globalThis.addEventListener?.('resize', () => syncStatusToast());
+  globalThis.visualViewport?.addEventListener('resize', () => syncStatusToast());
+  page.addEventListener('scroll', () => syncStatusToast(), true);
   let currentData = null;
   let route = normalizeRoute(globalThis.location?.hash?.slice(1) || '/home');
   let routeNeedsDataRender = true;

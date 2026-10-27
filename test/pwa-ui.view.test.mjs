@@ -353,21 +353,34 @@ test('successful status messages stay visible for three seconds then hide', t =>
   }
 });
 
-test('errors, recovery notices and pending work stay visible after replacing success', t => {
+test('errors and recovery notices hide three seconds after replacing success', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const document = new TestDocument();
   const view = createBeanView(document);
   const status = document.root.querySelector('.app-status');
   for (const type of ['error', 'read-error', 'connection-error', 'validation-error', 'resolution-error',
     'saved-read-error', 'unknown', 'partial', 'failed', 'resolution-required', 'startup-busy',
-    'disconnected', 'checking', 'saving']) {
+    'disconnected']) {
     view.showStatus({ type: 'connected', message: '완료' });
     t.mock.timers.tick(1000);
     view.showStatus({ type, message: '확인이 필요합니다.' });
-    t.mock.timers.tick(10000);
+    t.mock.timers.tick(2999);
     assert.equal(status.hidden, false, type);
-    assert.equal(status.popoverOpen, true, type);
     assert.equal(status.textContent, '확인이 필요합니다.');
+    t.mock.timers.tick(1);
+    assert.equal(status.hidden, true, type);
+    assert.equal(status.popoverOpen, false, type);
+  }
+});
+
+test('checking and saving feedback stays visible while work is in progress', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  for (const type of ['checking', 'saving']) {
+    view.showStatus({ type, message: '진행 중…' });
+    t.mock.timers.tick(10000);
+    assert.equal(document.root.querySelector('.app-status').hidden, false);
   }
 });
 
@@ -418,6 +431,23 @@ test('status messages share one bottom safe-area toast above native modal dialog
   assert.match(toastRule[1], /safe-area-inset-left/);
   assert.match(toastRule[1], /safe-area-inset-right/);
   assert.match(toastRule[1], /pointer-events:\s*none/);
+  assert.match(toastRule[1], /calc\(var\(--toast-bottom, 160px\) \+ env\(safe-area-inset-bottom/,
+    'toast clears both stacked action buttons on narrow screens');
+  assert.match(toastRule[1], /width:\s*fit-content/);
+  assert.match(toastRule[1], /max-width:\s*min\(480px/);
+  assert.match(toastRule[1], /box-shadow:/);
+});
+
+test('toast clears the actual action row of a centered modal', () => {
+  const document = new TestDocument();
+  document.documentElement = { clientHeight: 900 };
+  const view = createBeanView(document);
+  view.renderData(data());
+  view.showBeanForm();
+  const actions = document.root.querySelector('dialog[data-entry-dialog="beans"]').querySelector('.form-actions');
+  actions.getBoundingClientRect = () => ({ top: 648 });
+  view.showStatus({ type: 'validation-error', message: '확인해 주세요.' });
+  assert.equal(document.root.querySelector('.app-status').style['--toast-bottom'], '268px');
 });
 
 test('native form validation marks its field and reports the error in the shared toast', () => {
@@ -521,6 +551,10 @@ test('operation spinner stays visible through success, ready and timeout, then c
   assert.equal(status.getAttribute('aria-busy'), 'false');
   assert.equal(status.hidden, false);
   assert.equal(status.textContent, '입력 내용을 확인해 주세요.');
+  t.mock.timers.tick(2999);
+  assert.equal(status.hidden, false);
+  t.mock.timers.tick(1);
+  assert.equal(status.hidden, true);
 });
 
 test('a new success gets a full display interval and empty messages hide immediately', t => {

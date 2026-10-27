@@ -1,0 +1,49 @@
+✖ toast clears the actual action row of a centered modal (5.901541ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - '268px'
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:451:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: '268px',
+    operator: 'strictEqual'
+  }
+
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3088.564583
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:441:1
+✖ toast clears the actual action row of a centered modal (5.901541ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - '268px'
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:451:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: '268px',
+    operator: 'strictEqual'
+  }

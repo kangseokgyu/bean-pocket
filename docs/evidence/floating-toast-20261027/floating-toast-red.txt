@@ -1,0 +1,119 @@
+✖ errors and recovery notices hide three seconds after replacing success (5.567917ms)
+  AssertionError [ERR_ASSERTION]: error
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:371:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual'
+  }
+
+✔ checking and saving feedback stays visible while work is in progress (0.618333ms)
+✖ status messages share one bottom safe-area toast above native modal dialogs (5.170333ms)
+  AssertionError [ERR_ASSERTION]: toast clears both stacked action buttons on narrow screens
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:434:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '\n  position: fixed;\n  z-index: 110;\n  inset: auto max(12px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));\n  width: min(760px, calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - 24px));\n  max-width: 760px;\n  max-height: min(40dvh, 12rem);\n  overflow-y: auto;\n  pointer-events: none;\n  margin: 0 auto;\n  padding: 13px 15px;\n  border: 1px solid #d8d1c3;\n  border-radius: 12px;\n  background: #faf8f2;\n  color: #5c5a50;\n  line-height: 1.55;\n',
+    expected: /calc\(160px \+ env\(safe-area-inset-bottom/,
+    operator: 'match'
+  }
+
+✔ operation spinner stays in body overlay outside the touch-transformed page (2.607583ms)
+✖ operation spinner stays visible through success, ready and timeout, then clears on completion or failure (2.330459ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:545:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual'
+  }
+
+ℹ tests 5
+ℹ suites 0
+ℹ pass 2
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 197.48
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:356:1
+✖ errors and recovery notices hide three seconds after replacing success (5.567917ms)
+  AssertionError [ERR_ASSERTION]: error
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:371:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:387:1
+✖ status messages share one bottom safe-area toast above native modal dialogs (5.170333ms)
+  AssertionError [ERR_ASSERTION]: toast clears both stacked action buttons on narrow screens
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:434:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '\n  position: fixed;\n  z-index: 110;\n  inset: auto max(12px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));\n  width: min(760px, calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - 24px));\n  max-width: 760px;\n  max-height: min(40dvh, 12rem);\n  overflow-y: auto;\n  pointer-events: none;\n  margin: 0 auto;\n  padding: 13px 15px;\n  border: 1px solid #d8d1c3;\n  border-radius: 12px;\n  background: #faf8f2;\n  color: #5c5a50;\n  line-height: 1.55;\n',
+    expected: /calc\(160px \+ env\(safe-area-inset-bottom/,
+    operator: 'match'
+  }
+
+test at test/pwa-ui.view.test.mjs:496:1
+✖ operation spinner stays visible through success, ready and timeout, then clears on completion or failure (2.330459ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:545:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual'
+  }

@@ -1,0 +1,46 @@
+[
+  {
+    "engine": "chromium",
+    "width": 390,
+    "outcome": "navigation",
+    "loadingObserved": true,
+    "terminalState": "loaded",
+    "successCheck": true,
+    "autoHidden": true,
+    "hiddenAfterMs": 699,
+    "errors": []
+  },
+  {
+    "engine": "chromium",
+    "width": 390,
+    "outcome": "refresh",
+    "loadingObserved": true,
+    "terminalState": "loaded",
+    "successCheck": true,
+    "autoHidden": true,
+    "hiddenAfterMs": 714,
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 390,
+    "outcome": "navigation",
+    "loadingObserved": true,
+    "terminalState": "loaded",
+    "successCheck": true,
+    "autoHidden": true,
+    "hiddenAfterMs": 707,
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 390,
+    "outcome": "refresh",
+    "loadingObserved": true,
+    "terminalState": "loaded",
+    "successCheck": true,
+    "autoHidden": true,
+    "hiddenAfterMs": 706,
+    "errors": []
+  }
+]

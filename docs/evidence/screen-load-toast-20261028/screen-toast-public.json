@@ -1,0 +1,42 @@
+[
+  {
+    "engine": "chromium",
+    "width": 390,
+    "outcome": "navigation",
+    "loadingObserved": true,
+    "terminalState": "loaded",
+    "successCheck": true,
+    "autoHidden": true,
+    "errors": []
+  },
+  {
+    "engine": "chromium",
+    "width": 390,
+    "outcome": "refresh",
+    "loadingObserved": true,
+    "terminalState": "loaded",
+    "successCheck": true,
+    "autoHidden": true,
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 390,
+    "outcome": "navigation",
+    "loadingObserved": true,
+    "terminalState": "loaded",
+    "successCheck": true,
+    "autoHidden": true,
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 390,
+    "outcome": "refresh",
+    "loadingObserved": true,
+    "terminalState": "loaded",
+    "successCheck": true,
+    "autoHidden": true,
+    "errors": []
+  }
+]

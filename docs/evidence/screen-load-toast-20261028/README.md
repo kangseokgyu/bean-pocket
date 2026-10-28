@@ -7,3 +7,10 @@
 - 브라우저: `node browser.cjs` (로컬 정적 서버 4199). 실제 controller의 탭 버튼·refresh 호출과 지연 mock repository를 사용했다. Chromium·WebKit 각각 390px 화면 이동/새로고침/오류/취소 및 768px 화면 이동, 총 10개 조합 통과. 로딩 회전·성공 체크·오류/취소 시 체크 없음·3초 후 숨김·pageerror 없음 확인 (`screen-toast-browser.json`). 실제 Notion 호출 없음.
 - 자체 리뷰: 조회 세대·AbortController 검사를 유지하여 오래된 응답이 현재 화면의 상태를 변경하지 않음 확인. 기존 저장/연결/복구 상태·모달 배치·safe-area·모션 줄이기 규칙 유지. `git diff --check` 통과.
 - 미검증: 실제 Notion 네트워크·저장, 실기기 iPhone·키보드·스크린 리더 음성.
+
+## 게시 및 공개 확인
+
+- main 통합 후 `npm test` 591/591, build/check exit 0 (`integrated-test-summary.txt`, `screen-toast-integrated-*.txt`). 제품 커밋 `26111384f71a07c50b226e86bc89fa2f0705e195`, 빌드 `59e39812e519`.
+- 일반판(`probes=false`) 게시 성공: https://github.com/kangseokgyu/bean-pocket/actions/runs/40619059567
+- 공개 주소 https://kangseokgyu.github.io/bean-pocket/ 의 파일 20개가 모두 로컬 산출물과 SHA-256 일치 (`screen-toast-public-files.json`).
+- `node browser.cjs --public` exit 0: 공개 UI·controller 파일을 사용하는 mock repository fixture에서 Chromium·WebKit의 실제 탭 클릭 및 refresh 호출 4개 조합을 검증했다. 로딩 회전→"화면을 불러왔습니다." 체크 전환과 3초 자동 숨김, pageerror 없음 확인 (`screen-toast-public.json`, `public-complete.png`). 실제 Notion 호출·실기기 검증은 하지 않았다.

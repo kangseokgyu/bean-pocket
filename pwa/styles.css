@@ -770,15 +770,8 @@ footer {
   width: min(100%, 385px);
   height: auto;
   justify-self: end;
-  overflow: visible;
-  fill: none;
-  stroke: #654b36;
-  stroke-width: 2.1;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  object-fit: contain;
 }
-.home-hero-art [data-hero-fill] { fill: #76543a; stroke: #654b36; stroke-width: 1.4; }
-.home-hero-art [data-hero-highlight] { stroke: #a78b6c; stroke-width: 1.5; }
 .primary-button { min-height: 50px; padding: 12px 22px; border-color: #224b3c; background: #224b3c; color: #fffefa; font-weight: 700; }
 .home-hero .home-start-button { min-height: 64px; padding: 16px 26px; }
 .primary-button:hover:not(:disabled) { background: #173c2f; }

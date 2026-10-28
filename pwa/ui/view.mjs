@@ -60,22 +60,6 @@ function decorativeSvg(document, viewBox, className, pathData) {
   return svg;
 }
 
-const HOME_HERO_ART_PATHS = Object.freeze([
-  'M324 51c23-20 55-20 79-3 11 8 18 18 24 30l25 48c7 13 4 27-7 34-11 7-25 4-34-7l-25-31c-8-9-21-13-33-11l-37 7',
-  'M359 96c-12 27-28 51-47 74m12-69c-9 27-21 49-36 69',
-  'M123 199c0-13 27-23 103-23s103 10 103 23-27 23-103 23-103-10-103-23Z',
-  'M137 201l38 78c7 14 16 21 30 21h42c14 0 23-7 30-21l38-78',
-  'M162 214l38 70m7-72 18 78m22-78-18 78m46-76-38 70',
-  'M225 300v25m-10-12h20m-10 12c0 5-2 9-5 13',
-  'M153 326c5 0 11 4 13 11l8 23h104l8-23c2-7 8-11 13-11h28c14 0 25 12 23 26l-16 91c-3 17-17 29-34 29H151c-17 0-31-12-34-29l-16-91c-2-14 9-26 23-26h29Z',
-  'M170 360h139m-128 23h118m-107 24h96m-112 38c40 13 78 13 118 0',
-  'M102 443c69 17 176 17 245 0l18 21c-82 22-199 22-281 0l18-21Z',
-  'M310 215h18m-16 91h21m-23 39h25m-28 40h30',
-  'M336 306h36m-39 39h42m-46 40h46',
-  { d: 'M149 214c20 8 41 11 77 11s57-3 77-11l-31 64c-7 14-16 21-30 21h-32c-14 0-23-7-30-21l-31-64Zm28 146h104v13H177zm-10 23h124v13H167zm-10 24h144v13H157z', marker: 'hero-fill' },
-  { d: 'M324 69c15-12 34-12 48-3m-31 37c13 4 23 11 31 21M130 334c-10 0-15 6-14 15l14 86c2 12 12 20 24 20m207-121c10 0 15 6 14 15', marker: 'hero-highlight' },
-]);
-
 function actionButton(document, text, type, icon, action) {
   const node = button(document, '', type, action);
   node.className = `button action-button action-${icon === 'x' ? 'cancel' : 'save'}`;
@@ -1282,8 +1266,14 @@ function renderHome(pane, document) {
     decorativeSvg(document, '0 0 24 24', 'home-start-arrow', ['M5 12h13m-6-6 6 6-6 6']),
   );
   content.append(start);
-  const artwork = decorativeSvg(document, '0 0 480 480', 'home-hero-art', HOME_HERO_ART_PATHS);
+  const artwork = make(document, 'img', undefined, 'home-hero-art');
+  artwork.setAttribute('src', './icons/home-brew.png');
+  artwork.setAttribute('alt', '');
+  artwork.setAttribute('width', '1254');
+  artwork.setAttribute('height', '1254');
+  artwork.alt = '';
   artwork.dataset.heroArt = 'true';
+  artwork.setAttribute('aria-hidden', 'true');
   hero.append(content, artwork);
   pane.append(hero);
 }

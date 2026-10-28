@@ -21,11 +21,12 @@ The repository `searchOptions` contract, controller request-generation guards, r
 
 - RED: `node --test test/pwa-ui.view.test.mjs` initially failed on the three new picker expectations; see `view-red.tap`.
 - Critic regressions: the three independently reported issues were reproduced with 3/3 failures, then fixed and passed 3/3; see `critic-red.tap` and `view-critic-green.tap`. The regression checks cover initial-page pagination, draft/route-prefill labels, and selected-filter retention after a search rerender.
+- Recipe detail action regression: the “이 레시피로 추출 기록” action failed to update the visible recipe picker label (`레시피 선택` instead of the selected recipe) before the fix. The focused test failed then passed 1/1; see `critic-new-record-red.tap` and `critic-new-record-green.tap`.
 - Focused GREEN after fixes: `node --test test/pwa-ui.view.test.mjs` passed 136/136; `node --test test/pwa-screen-loading.test.mjs` passed 8/8. See `view-critic-green.tap` and `controller-critic-green.tap`.
-- Full suite after fixes: `npm test` passed 610/610; see `npm-test.tap`.
-- Build after fixes: `npm run build:pages` passed and produced version `9899dc883920`; `npm run check:pages` passed. See `build-pages.txt` and `check-pages.txt`.
-- Browser after fixes: `browser-check.cjs` drove a local fixture with fake initial and searched option pages and no Notion calls or writes. `browser.txt` and `browser.json` record success at 390px and 1440px, including initial-page pagination, search/clear, selected-filter retention after rerender, details, filter reset, nested Escape, and custom required validation. Screenshots are `picker-390.png` and `picker-1440.png`.
-- Browser setup notes: the bundled Playwright default headless shell was unavailable, so the fixture used installed Chrome. Three initial harness issues (fixture selector interpolation and accessible-name locator assumptions) are preserved in the `*-failure.txt` files and were corrected before the passing run.
+- Full suite after final fixes: `npm test` passed 610/610; see `npm-test.tap`.
+- Build after final fixes: `npm run build:pages` passed and produced version `6b691e271650`; `npm run check:pages` passed. See `build-pages.txt` and `check-pages.txt`.
+- Browser after final fixes: `browser-check.cjs` drove a local fixture with fake initial and searched option pages and no Notion calls or writes. `browser.txt` and `browser.json` record success at 390px and 1440px, including initial-page pagination, search/clear, selected-filter retention after rerender, recipe-detail prefill, details, filter reset, nested Escape, and custom required validation. Screenshots are `picker-390.png` and `picker-1440.png`.
+- Browser setup notes: the bundled Playwright default headless shell was unavailable, so the fixture used installed Chrome. Initial harness problems are preserved in `*-failure.txt`; corrected issues included missing headless shell, fixture interpolation and locator assumptions, plus a fixture text assertion typo.
 - `git diff --check` passed after the fixes.
 
 Browser use is limited to a local fixture and does not save to Notion.

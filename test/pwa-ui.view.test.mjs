@@ -1208,6 +1208,7 @@ test('record creation opens from plus, preserves drafts, and closes on cancel or
   form = document.root.querySelector('form[data-form="records"]');
   assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"records\"]').open, true);
   assert.equal(form.elements.recipeId.value, RECIPE);
+  assert.match(form.querySelectorAll('[data-action="open-search-picker"]')[1].textContent, /V60/);
 });
 
 test('background data updates defer pane replacement while an entry dialog is open', () => {

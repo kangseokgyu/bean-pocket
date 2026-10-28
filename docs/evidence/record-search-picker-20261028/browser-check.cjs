@@ -15,7 +15,7 @@ const beans = Array.from({ length: 12 }, (_, index) => ({
 }));
 const recipes = [
   { id: '33333333-3333-4333-8333-333333333331', name: 'V60 브라우저 레시피', beanId: beans[0].id,
-    dripper: 'V60', dose: 15, temperature: 93, totalWater: 250, steps: [] },
+    dripper: 'V60', dose: 15, temperature: 93, totalWater: 250, steps: [], validationStatus: 'ready' },
 ];
 
 const fixture = `<!doctype html>
@@ -54,6 +54,7 @@ const initialRecipes = { items: recipes.map(({ id, name, beanId }) => ({ id, nam
 window.rerenderSelectedBean = beanId => view.renderData({ beans, recipes, records: [],
   options: { filterBeans: initialBeans, filterRecipes: initialRecipes },
   screen: { complete: true, hasMore: false, filters: { beanId, recipeId: '' } } });
+window.openRecipeDetail = () => view.renderRoute('/recipes/' + recipes[0].id);
 view.showConnection({ connected: true });
 view.renderData({ beans, recipes, records: [], options: { filterBeans: initialBeans, filterRecipes: initialRecipes },
   screen: { complete: true, hasMore: false, filters: { beanId: '', recipeId: '' } } });
@@ -159,6 +160,12 @@ async function main() {
       await page.evaluate(beanId => window.rerenderSelectedBean(beanId), beans[0].id);
       assert.match(await beanTrigger.textContent(), /시다마 브라우저 원두/,
         'the selected bean stays visible after a search result and unrelated rerender');
+      await page.evaluate(() => window.openRecipeDetail());
+      await page.locator('[data-action="new-record"]').click();
+      const recipeForm = page.locator('[data-entry-dialog="records"] form[data-form="records"]');
+      assert.equal(await recipeForm.locator('[data-option-select-kind="recipes"]').inputValue(), recipes[0].id);
+      assert.match(await recipeForm.locator('[data-action="open-search-picker"]').nth(1).textContent(), /V60 브라우저 레시피/);
+      await recipeForm.locator('[data-action="cancel-form"]').click();
       await page.getByRole('button', { name: '새 추출 기록 추가' }).click();
       const entryDialog = page.locator('[data-entry-dialog="records"]');
       await entryDialog.waitFor({ state: 'visible' });
@@ -176,7 +183,7 @@ async function main() {
       assert.equal(await page.evaluate(() => window.recordSubmitCount ?? 0), 0, 'invalid record selection never reaches submit');
       assert.deepEqual(errors, []);
       results.push({ width, dialogLayout, filterSearchAndClear: true, pagination: true, selectedDetails: true,
-        filterReset: true, nestedEscape: true, customRequiredValidation: true, pageErrors: errors });
+        filterReset: true, recipeDetailPrefill: true, nestedEscape: true, customRequiredValidation: true, pageErrors: errors });
       await page.close();
     }
     await fs.writeFile(path.join(evidence, 'browser.json'), JSON.stringify(results, null, 2));

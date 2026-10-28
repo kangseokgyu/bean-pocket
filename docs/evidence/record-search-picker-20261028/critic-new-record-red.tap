@@ -1,0 +1,41 @@
+✖ record creation opens from plus, preserves drafts, and closes on cancel or save (36.607375ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /V60/. Input:
+
+  '레시피 선택'
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/record-search-picker/AX-1day/test/pwa-ui.view.test.mjs:1211:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '레시피 선택',
+    expected: /V60/,
+    operator: 'match'
+  }
+
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1114.266084
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:1162:1
+✖ record creation opens from plus, preserves drafts, and closes on cancel or save (36.607375ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /V60/. Input:
+
+  '레시피 선택'
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/record-search-picker/AX-1day/test/pwa-ui.view.test.mjs:1211:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '레시피 선택',
+    expected: /V60/,
+    operator: 'match'
+  }

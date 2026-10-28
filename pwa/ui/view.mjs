@@ -2482,6 +2482,7 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
         option.textContent = recipe?.name ?? '선택한 레시피';
         if (!Array.from(form.elements.recipeId.options).some(item => item.value === recipeId)) form.elements.recipeId.append(option);
         form.elements.recipeId.value = recipeId;
+        syncSearchPickerTrigger(form.elements.recipeId.closest('[data-search-picker]'), windowData);
         actions.setDirty(true, 'records');
       }
       return;

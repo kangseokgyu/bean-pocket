@@ -167,6 +167,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   let statusPopoverUnsupported = false;
   function syncStatusToast(promote = false) {
     const visible = !status.hidden;
+    const statusHost = currentState.pending && statusType === 'startup-checking' ? document.body ?? page : page;
     const openDialog = [...page.querySelectorAll('dialog')].find(dialog => dialog.open);
     const actionRowRect = openDialog?.querySelector('.form-actions')?.getBoundingClientRect?.();
     const actionsRect = actionRowRect?.height > 0 ? actionRowRect
@@ -178,19 +179,19 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     if (!visible) {
       if (statusPopoverOpen) status.hidePopover();
       statusPopoverOpen = false;
-      if (status.parentElement !== page) page.append(status);
+      if (status.parentElement !== statusHost) statusHost.append(status);
       if (!statusPopoverUnsupported && typeof status.showPopover === 'function' && status.getAttribute('popover') !== 'manual') {
         status.setAttribute('popover', 'manual');
       }
       return;
     }
 
-    if (openDialog === deleteDialog) {
+    if (openDialog === deleteDialog && !currentState.pending) {
       if (statusPopoverOpen) status.hidePopover();
       statusPopoverOpen = false;
       status.hidden = true;
       status.removeAttribute('popover');
-      if (status.parentElement !== page) page.append(status);
+      if (status.parentElement !== statusHost) statusHost.append(status);
       return;
     }
 
@@ -202,7 +203,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       return;
     }
 
-    if (status.parentElement !== page) page.append(status);
+    if (status.parentElement !== statusHost) statusHost.append(status);
     if (statusPopoverUnsupported || typeof status.showPopover !== 'function' || typeof status.hidePopover !== 'function') {
       statusPopoverUnsupported = true;
       status.removeAttribute('popover');
@@ -228,8 +229,10 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     skeletons.hidden = routeReadStatus === 'loading' ? false : routeReadStatus === 'idle' ? initialSkeletonHidden : true;
     const routeLoading = routeReadStatus === 'loading';
     const active = currentState.pending && !startupChecking;
+    const hasStatusMessage = !!statusMessageText || (startupChecking && !!startupMessageText);
     status.dataset.pending = String(active);
-    statusMessage.textContent = statusMessageText || (active ? '불러오는 중…' : routeLoading ? '화면을 불러오는 중…' : '');
+    statusMessage.textContent = statusMessageText || (startupChecking ? startupMessageText : '') ||
+      (active ? '불러오는 중…' : routeLoading ? '화면을 불러오는 중…' : '');
     const completed = COMPLETED_STATUS_TYPES.has(statusType) && !!statusMessageText;
     const loadingStatus = IN_PROGRESS_STATUS_TYPES.has(statusType) || ((active || routeLoading) && !statusMessageText);
     statusIcon.hidden = !completed && !loadingStatus;
@@ -237,27 +240,10 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     status.setAttribute('role', assertiveStatus ? 'alert' : 'status');
     status.setAttribute('aria-live', assertiveStatus ? 'assertive' : 'polite');
     status.setAttribute('aria-busy', String(currentState.pending || routeLoading));
-    status.hidden = startupChecking || (!active && !routeLoading && !statusMessageText);
+    status.hidden = !active && !routeLoading && !hasStatusMessage;
     syncStatusToast(promoteToast);
 
-    loadingSpinner.className = `pull-refresh-spinner ${startupChecking ? 'startup-spinner' : 'operation-spinner'}`;
-    loadingSpinner.hidden = !currentState.pending;
-    loading.hidden = !currentState.pending;
     loadingSurface.inert = currentState.pending && startupChecking;
-    if (!currentState.pending) {
-      loading.replaceChildren();
-      loading.removeAttribute('aria-hidden');
-      loading.removeAttribute('aria-busy');
-    } else if (startupChecking) {
-      loading.removeAttribute('aria-hidden');
-      loading.setAttribute('aria-busy', 'true');
-      loadingStartupMessage.textContent = startupMessageText;
-      loading.replaceChildren(loadingSpinner, loadingStartupMessage);
-    } else {
-      loading.setAttribute('aria-hidden', 'true');
-      loading.setAttribute('aria-busy', 'true');
-      loading.replaceChildren(loadingSpinner);
-    }
   }
   function scheduleStatusHide() {
     clearTimeout(statusHideTimer);
@@ -297,21 +283,9 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   status.append(statusMessage, statusIcon);
   page.append(status);
 
-  const loading = make(document, 'div', undefined, 'startup-loading');
-  loading.hidden = true;
-  loading.setAttribute('role', 'status');
-  loading.setAttribute('aria-live', 'polite');
-  const loadingSpinner = makeSpinner(document);
-  loadingSpinner.hidden = true;
-  const loadingStartupMessage = make(document, 'span', undefined, 'visually-hidden');
-  (document.body ?? page).append(loading);
   const loadingSurface = document.querySelector('.page') ?? page;
   function finishStartup() {
     if (currentState.pending) return;
-    loading.hidden = true;
-    loading.replaceChildren();
-    loading.removeAttribute('aria-hidden');
-    loading.removeAttribute('aria-busy');
     loadingSurface.inert = false;
   }
 

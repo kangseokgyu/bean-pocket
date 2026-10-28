@@ -1,0 +1,541 @@
+✔ connection settings open only after no saved connection is found (3.479792ms)
+✖ startup checking shows the status toast outside the locked page until retry is needed (1.686834ms)
+  AssertionError [ERR_ASSERTION]: startup must not add a viewport overlay
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:193:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+✖ initialization toast reaches the saved outcome and releases startup lock (1.468708ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:263:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+✖ initialization toast reaches the missing outcome and releases startup lock (0.963375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:263:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+✖ initialization toast reaches the error outcome and releases startup lock (0.982375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:263:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+✖ initialization toast reaches the recovery outcome and releases startup lock (1.094959ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:263:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+✖ initialization toast reaches the busy outcome and releases startup lock (1.002333ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:263:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+✖ initialization toast reaches the read-error outcome and releases startup lock (0.733833ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:263:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+✖ pending work keeps its toast and startup lock through ready completion (1.340375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:295:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+✔ saved connection opens settings modally and closing discards unsaved secrets (2.93575ms)
+✔ controller screen loading toast reaches the navigation outcome (11.515708ms)
+✔ controller screen loading toast reaches the refresh outcome (6.093583ms)
+✔ controller screen loading toast reaches the error outcome (4.929667ms)
+✔ controller screen loading toast reaches the cancelled outcome (4.631625ms)
+✔ toast trailing icon changes from loading to completion without replacing its message (2.211541ms)
+✔ toast loading fallback resets on errors and neutral messages (1.116625ms)
+✔ successful status messages stay visible for one second then hide (0.559166ms)
+✔ errors and recovery notices hide one second after replacing success (1.609ms)
+✔ checking and saving feedback stays visible while work is in progress (0.354834ms)
+✔ status messages share one bottom safe-area toast above native modal dialogs (2.883584ms)
+✔ toast clears the actual action row of a centered modal (1.594375ms)
+✔ native form validation marks its field and reports the error in the shared toast (1.324083ms)
+✖ pending operations use the existing toast and retain the top pull-to-refresh spinner (0.385709ms)
+  AssertionError [ERR_ASSERTION]: no viewport loading overlay styles remain
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:598:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: `:root {\n  color-scheme: light;\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;\n  color: #203d32;\n  background: #f3efe6;\n  font-synthesis: none;\n  text-rendering: optimizeLegibility;\n  -webkit-text-size-adjust: 100%;\n}\n\n* { box-sizing: border-box; }\n[hidden] { display: none !important; }\nhtml { overscroll-behavior-y: contain; }\n\n.pull-refresh {\n  position: fixed;\n  top: calc(env(safe-area-inset-top, 0px) + 16px);\n  left: 50%;\n  transform: translate(-50%, calc((var(--pull-progress, 0) - 1) * 24px));\n  opacity: var(--pull-progress, 0);\n  z-index: 10;\n  color: #77766e;\n  pointer-events: none;\n}\n\n.pull-refresh-spinner {\n  display: block;\n  position: relative;\n  width: 24px;\n  height: 24px;\n  transform: rotate(var(--pull-angle, 0deg));\n}\n\n.pull-refresh-spoke { position: absolute; inset: 0; }\n.pull-refresh-spoke::before {\n  content: '';\n  position: absolute;\n  top: 0;\n  left: 11px;\n  width: 2px;\n  height: 6px;\n  border-radius: 2px;\n  background: currentColor;\n}\n\n.pull-refresh[data-state="reloading"] .pull-refresh-spinner,\n.startup-loading .startup-spinner,\n.startup-loading .operation-spinner {\n  animation: pull-refresh-spin 0.8s steps(12) infinite;\n}\n.app-status { display: flex; align-items: center; gap: 8px; }\n.app-status .status-message { min-width: 0; }\n@keyframes pull-refresh-spin { to { transform: rotate(calc(var(--pull-angle, 0deg) + 360deg)); } }\n\n.startup-loading {\n  position: fixed;\n  inset: 0;\n  z-index: 100;\n  display: grid;\n  place-items: center;\n  background: rgb(243 239 230 / 35%);\n  color: #77766e;\n  touch-action: none;\n}\n\n.pull-refresh-label,\n.visually-hidden {\n  position: absolute;\n  width: 1px;\n  height: 1px;\n  padding: 0;\n  margin: -1px;\n  overflow: hidden;\n  clip-path: inset(50%);\n  white-space: nowrap;\n}\n\n[data-pull-state] {\n  transform: translateY(var(--pull-offset, 0px));\n  transition: transform 180ms ease-out;\n}\n[data-pull-state="pulling"] { transition: none; }\n\n\n\nbody {\n  min-width: 320px;\n  min-height: 100vh;\n  margin: 0;\n  overflow-x: hidden;\n}\n\nbutton, input, select, textarea { font: inherit; }\n\nbutton { touch-action: manipulation; }\n\n.page {\n  width: min(100% - 32px, 760px);\n  min-height: 100vh;\n  margin: 0 auto;\n  padding: 20px 0 18px;\n  display: flex;\n  flex-direction: column;\n}\n\n.site-header {\n  position: sticky;\n  top: 0;\n  z-index: 5;\n  background: #f3efe6;\n  display: flex;\n  flex-wrap: nowrap;\n  align-items: center;\n  justify-content: flex-start;\n  gap: 12px;\n  padding: calc(env(safe-area-inset-top, 0px) + 8px) 0 12px;\n  border-bottom: 1px solid #d8d1c3;\n}\n\n.brand-logo {\n  display: block;\n  flex: 0 0 auto;\n  width: 60px;\n  height: 36px;\n  object-fit: contain;\n}\n\n.build-version {\n  margin: 0;\n  color: #746f63;\n  font-size: 0.75rem;\n  font-variant-numeric: tabular-nums;\n}\n\nfooter .build-version { margin-top: 8px; letter-spacing: normal; font-weight: 400; }\n\n.header-tools { margin-left: auto; flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }\n#connection-tools { display: flex; }\n.button.connection-toggle {\n  min-width: 44px;\n  min-height: 44px;\n  padding: 6px;\n  background: transparent;\n  border-color: transparent;\n  color: #587464;\n  font-size: 1.25rem;\n}\n.connection-toggle[aria-expanded="true"] { background: #e8eee7; }\n\n.bean-section {\n  flex: 1;\n  min-width: 0;\n  padding: 16px 0;\n}\n\nh1, h2, h3, h4, h5, p { overflow-wrap: anywhere; }\nh1 { margin: 0 0 18px; font-size: clamp(1.8rem, 8vw, 3rem); letter-spacing: -0.045em; }\nh2 { margin: 0 0 16px; font-size: 1.35rem; }\nh3 { margin: 0 0 8px; font-size: 1.1rem; }\nh4, h5 { margin: 16px 0 8px; }\np { line-height: 1.6; }\n\n.connection-note, .app-status {\n  position: fixed;\n  z-index: 110;\n  inset: auto max(12px, env(safe-area-inset-right, 0px)) calc(var(--toast-bottom, 104px) + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));\n  width: fit-content;\n  max-width: min(480px, calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - 32px));\n  max-height: min(30dvh, 8rem);\n  overflow-y: auto;\n  pointer-events: none;\n  margin: 0 auto;\n  padding: 12px 20px;\n  border: 1px solid #d8d1c3;\n  border-radius: 24px;\n  box-shadow: 0 8px 24px rgb(22 37 29 / 20%);\n  background: #faf8f2;\n  color: #5c5a50;\n  line-height: 1.55;\n}\n\n.app-status[data-state="startup-busy"] {\n  border-color: #c6b98b;\n  background: #fffbed;\n  color: #5e5129;\n}\n\n.app-status[data-state="read-error"], .app-status[data-state="connection-error"],\n.app-status[data-state="validation-error"], .app-status[data-state="unknown"],\n.app-status[data-state="partial"], .app-status[data-state="resolution-error"] {\n  border-color: #c98572;\n  background: #fff5f1;\n  color: #7c3527;\n}\n\n.app-status[data-state="saved"], .app-status[data-state="connected"],\n.app-status[data-state="ready"], .app-status[data-state="resolved"],\n.app-status[data-state="loaded"] {\n  border-color: #9db8a5;\n  background: #f3faf4;\n}\n\n.panel, .data-panel, .unresolved-panel, .card-skeletons {\n  min-width: 0;\n  margin-top: 16px;\n  padding: 16px;\n  border: 1px solid #ded7ca;\n  border-radius: 16px;\n  background: #fbf9f4;\n  box-shadow: 0 5px 16px rgb(53 63 46 / 5%);\n}\n\n.entry-dialog {\n  width: min(720px, calc(100% - 32px));\n  max-width: 100%;\n  max-height: min(90dvh, 900px);\n  margin: auto;\n  padding: 22px;\n  overflow: auto;\n  overscroll-behavior: contain;\n  border: 1px solid #d8d1c3;\n  border-radius: 18px;\n  background: #fbf9f4;\n  color: #203d32;\n  box-shadow: 0 22px 70px rgb(22 37 29 / 24%);\n}\n.delete-confirm-dialog { width: min(460px, calc(100% - 32px)); max-width: 460px; padding: 28px; }\n.entry-dialog::backdrop { background: rgb(19 31 25 / 48%); backdrop-filter: blur(2px); }\n.entry-dialog[open] { animation: entry-dialog-in 160ms ease-out; }\n@keyframes entry-dialog-in {\n  from { opacity: 0; transform: translateY(8px) scale(.99); }\n  to { opacity: 1; transform: translateY(0) scale(1); }\n}\n.entry-dialog .form-actions {\n  position: sticky;\n  bottom: -22px;\n  z-index: 1;\n  display: grid;\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n  margin: 0 -22px -22px;\n  padding: 14px 22px max(14px, env(safe-area-inset-bottom, 0px));\n  border-top: 1px solid #d8d1c3;\n  background: #fbf9f4;\n}\n.entry-dialog .form-actions .button { min-height: 48px; }\nbody:has(.entry-dialog[open]) { overflow: hidden; }\n.form-grid { display: grid; gap: 16px; min-width: 0; }\n.form-fieldset {\n  display: grid;\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n  gap: 14px 16px;\n  min-width: 0;\n  margin: 0;\n  padding: 15px;\n  border: 1px solid #d8d1c3;\n  border-radius: 12px;\n}\n\n.form-fieldset legend { padding: 0 6px; font-weight: 700; }\n.form-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }\n.form-field-label { color: #3d5147; font-size: 0.92rem; font-weight: 650; line-height: 1.4; }\n\n.form-field input, .form-field select, .form-field textarea {\n  display: block;\n  width: 100%;\n  min-width: 0;\n  min-height: 46px;\n  padding: 10px 12px;\n  border: 1px solid #aaa99e;\n  border-radius: 9px;\n  background: #fffefa;\n  color: #203d32;\n}\n\n/* Avoid iOS native date controls adding padding outside their declared width. */\n.form-field input[type="date"] {\n  -webkit-appearance: none;\n  appearance: none;\n  box-sizing: border-box;\n  max-width: 100%;\n}\n\n.form-field textarea { min-height: 92px; resize: vertical; }\n.recipe-extraction-guide p, .record-extraction-guide { white-space: pre-wrap; }\n.form-field input:focus, .form-field select:focus, .form-field textarea:focus,\nbutton:focus-visible, .table-scroll:focus-visible {\n  outline: 3px solid #8ab59a;\n  outline-offset: 2px;\n}\n\n.form-field [type="checkbox"] {\n  width: 24px;\n  min-height: 24px;\n  margin: 0 8px 0 0;\n  accent-color: #2d7051;\n}\n\n.form-field:has([type="checkbox"]) { flex-direction: row; align-items: center; gap: 8px; }\n.form-field:has([type="checkbox"]) .form-field-label { flex: 1; }\n\n.form-actions { display: flex; flex-wrap: wrap; gap: 10px; }\n.button {\n  min-height: 46px;\n  max-width: 100%;\n  padding: 10px 15px;\n  border: 1px solid #b9c7bb;\n  border-radius: 10px;\n  background: #e8f0e8;\n  color: #234737;\n  font-weight: 700;\n  line-height: 1.25;\n  overflow-wrap: anywhere;\n  cursor: pointer;\n}\n\n.form-actions .button[type="submit"], .connection-panel .button[type="submit"],\n.resolution-form .button[type="submit"] {\n  border-color: #224b3c;\n  background: #224b3c;\n  color: #fff;\n}\n\n.button.action-button {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  gap: 8px;\n  min-height: 44px;\n  padding: 0 14px;\n  border-radius: 10px;\n  font-size: 14px;\n  font-weight: 600;\n  line-height: 1.2;\n  white-space: nowrap;\n  transition: transform 140ms ease, background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;\n}\n\n.button.action-button.action-save {\n  border-color: #224b3c;\n  background: #224b3c;\n  color: #fff;\n}\n.button.action-button.action-cancel {\n  border-color: #b9c7bb;\n  background: #e8f0e8;\n  color: #234737;\n}\n.button.action-save:hover:not(:disabled) { background: #1c4033; box-shadow: 0 3px 10px rgb(34 75 60 / 14%); }\n.button.action-cancel:hover:not(:disabled) { background: #dfeadf; border-color: #8fa596; }\n.button.action-button:active:not(:disabled) { transform: scale(.98); }\n.entry-dialog .form-actions .button.action-button { min-height: 44px; }\n\n.delete-confirm-heading { display: flex; gap: 12px; align-items: center; }\n.delete-confirm-heading h2 { margin: 0; font-size: 1.25rem; line-height: 1.4; }\n.delete-confirm-symbol { display: inline-flex; flex: 0 0 36px; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: #f7e9e5; color: #a7332c; }\n.delete-confirm-symbol svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }\n.delete-confirm-target { margin: 24px 0 8px; font-weight: 700; overflow-wrap: anywhere; }\n.delete-confirm-description { margin: 0; color: #546056; font-size: 0.875rem; line-height: 1.75; word-break: keep-all; overflow-wrap: anywhere; }\n.delete-con`... 13958 more characters,
+    expected: /\.startup-loading/,
+    operator: 'doesNotMatch'
+  }
+
+✖ pending toast stays visible through success, ready and timeout, then clears after completion or failure (0.788875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at assertPendingToast (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:638:12)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:643:3)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+✔ a new success gets a full display interval and empty messages hide immediately (0.742417ms)
+✔ draft values survive tab navigation and a fresh data render (3.966833ms)
+✔ bean, recipe, and record detail text is rendered as text and retains brew details (2.552416ms)
+✔ pour tables group cumulative values before interval and current water in three columns (2.84925ms)
+✔ damaged historical records are excluded from bagless recipe views (1.36275ms)
+✔ invalid stored date and rating remain visible with field-specific warnings (5.385209ms)
+✔ recipes have no bean selector and records require both bean and shared recipe with browse filters (5.203917ms)
+✔ resolution controls follow the native journal page-list contract (0.804041ms)
+✔ recipe step time permits a keyboard with colon while retaining minute-second validation (1.452292ms)
+✔ the bean origin label uses user-facing wording rather than the storage field name (0.872542ms)
+✔ the record date default follows the device calendar across the KST UTC boundary (2.0765ms)
+✔ checked connection-recovery checkbox reaches the current-connection verifier (0.6725ms)
+✔ startup lock contention hides connection entry and retries the saved connection read (0.802042ms)
+✔ successful connection replacement preserves the active product draft (5.464166ms)
+✔ successful connection replacement preserves hidden drafts and their dirty signal (5.609834ms)
+✔ recipe input minimums allow every positive sub-cent value accepted by the domain (1.875333ms)
+✔ recipe history never displays legacy bag relations (14.877417ms)
+✔ bean creation starts hidden, opens from the plus button, and closes on cancel (3.399209ms)
+✔ bag route has no entry, delete or relation selection surface (1.868875ms)
+✔ recipe creation opens from plus, preserves drafts, and closes on cancel (13.6095ms)
+✔ recipe detail places the guide below the pour table and copy preserves its text (4.175ms)
+✔ record creation opens from plus, preserves drafts, and closes on cancel or save (11.995ms)
+✔ background data updates defer pane replacement while an entry dialog is open (5.816333ms)
+✔ collection headers omit refresh and retain their add buttons (5.841958ms)
+✔ pulling from the top reloads the entire page once on release (1.583917ms)
+✔ pulling progressively reveals a twelve-spoke spinner and moves the page down (0.902084ms)
+✔ work starting while the released spinner paints cancels the scheduled reload (1.685334ms)
+✔ short pulls, retracted pulls and cancelled gestures do not reload (1.90375ms)
+✔ normal scrolling and horizontal or upward swipes do not trigger reload (3.422417ms)
+✔ multitouch never reloads and a later single finger gesture can refresh (1.614125ms)
+✔ downward pulls from controls and their child elements reload the whole page (7.061959ms)
+✔ control taps keep their normal action and short drags suppress accidental taps (1.15225ms)
+✔ horizontal gestures and scrollable controls away from their top keep native scrolling (5.611333ms)
+✔ saving and update freeze prevent a reload even when they begin during a pull (2.507709ms)
+✔ refresh requires a 240px downward pull and checks the release position (4.025ms)
+✔ navigation uses text-only menus with accessible names (0.247792ms)
+✔ bean deletion opens a safe native dialog and restores focus after cancel or Escape (3.274833ms)
+▶ dismissing a deletion result preserves its notice for button and Escape
+  ✔ unknown result dismissed with button (1.567084ms)
+  ✔ unknown result dismissed with Escape (1.455167ms)
+  ✔ partial result dismissed with button (1.906833ms)
+  ✔ partial result dismissed with Escape (1.134375ms)
+  ✔ succeeded result dismissed with button (1.188167ms)
+  ✔ succeeded result dismissed with Escape (1.159333ms)
+✔ dismissing a deletion result preserves its notice for button and Escape (8.912792ms)
+✔ bean, recipe, and record deletes submit only after the custom dialog is confirmed (5.297792ms)
+✖ delete confirm shows pending feedback in its toast, locks duplicates, and renders failures (1.764ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:1641:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+✔ bean cards pair each metadata value with its own visible label (0.713416ms)
+✔ bean cards keep missing metadata explicit and render values as text (0.679042ms)
+✔ header navigation changes routes and remains locked while work is pending (3.33525ms)
+✔ bean entry opens and closes as a native modal without saving on cancel (2.453ms)
+✔ available entry forms open as native dialogs and cancel without submitting (9.548917ms)
+✔ save and cancel actions use the compact save and close icons across product forms (2.104542ms)
+✔ save buttons show loading and success only when their async operation changes state (2.735125ms)
+✔ confirmation-result save disables duplicate submits and reflects its resolved result (0.485666ms)
+✔ pending entry saves lock controls and Escape; success stays visible until the 1000ms close (3.941042ms)
+✔ a failed modal save preserves its fields and enables a retry (20.544125ms)
+✔ success delay locks every entry field and recipe step after refresh finishes (9.843458ms)
+✔ success delay ignores late input events and closes without a dirty draft (2.61125ms)
+✔ reduced motion overrides modal entrance and the pull-to-refresh spinner (0.325459ms)
+✔ first route data keeps an open recipe modal node and focus while updating its list (5.569583ms)
+✔ route loading-ready restores only list siblings hidden for the open modal (3.348292ms)
+✔ initial card load shows decorative skeletons until real data replaces them (1.979208ms)
+✔ route transition skeleton hides stale data and exposes an error until a fresh page arrives (2.452917ms)
+✔ route loading preserves an open modal, draft DOM, and focus (1.81025ms)
+✔ card skeleton clears after disconnected (0.622459ms)
+✔ card skeleton clears after startup-busy (0.518292ms)
+✔ card skeleton clears after connection-error (0.490167ms)
+✔ card skeleton clears after read-error (0.489917ms)
+✔ persistent error toast follows the settings modal opened and closed without a new status (0.525ms)
+✔ connection modal opens from settings and Escape clears secrets, draft and restores focus (0.891209ms)
+✔ connection modal protects pending and success phases across product rerenders (2.165375ms)
+✔ connection success closes at 1000ms and defers focus until settings is enabled (1.790416ms)
+✔ connection modal preserves failed inputs for retry and exposes safe errors inside the dialog (2.708333ms)
+✔ startup retry and recovery remain reachable after dismissing and reopening connection settings (0.786166ms)
+✔ saved connection retry keeps the form closed and exposes editing only when allowed (0.524584ms)
+✔ bean cards open their records through a full-card native link without a records button (1.811583ms)
+✔ bean card deletion never opens records, including clicks on its icon (0.908084ms)
+✔ legacy extraction records remain in raw input but are hidden from current lists and details (2.3075ms)
+✔ PWA removes bag navigation, entry and record selection or display surfaces (3.142833ms)
+✔ recipe list cards link their entire surface to details without a details button (2.414333ms)
+✔ recipe list card delete icon stays independent of detail navigation (2.110083ms)
+✔ view notifies the controller when the current route changes (0.112166ms)
+✔ record page shows continuation state instead of claiming the database is empty (0.807666ms)
+✔ record cards show snapshot names while current parent names are loading (1.366792ms)
+✔ record name pickers load on focus and preserve filter selection across option pages (2.212667ms)
+✔ home is the default and root route, with the requested hero and four menu destinations (0.63975ms)
+✔ brew routes preserve selected parents and show the saved recipe guide without an automatic timer (2.161875ms)
+✔ empty bean selection explains registration and provides routes to register or return (0.840417ms)
+✔ brew search pages render validated options and keep pagination controls (2.543166ms)
+✔ brew completion preselects bean and recipe and defaults the record date to today (1.073833ms)
+✔ brew clicks preserve bean and recipe in browser history and complete into a prefilled record form (3.457584ms)
+✔ critic: shared recipes remain selectable and usable with an explicitly selected bean (2.081166ms)
+✔ critic: visiting the record list does not overwrite later brew prefill with an empty form (2.294084ms)
+✔ record draft conflicts require an explicit resume or new-record choice (5.075792ms)
+✔ same brew record draft survives leaving and returning to its URL (3.122958ms)
+✔ critic: initial and later brew pages append uniquely without leaking into a search (3.643417ms)
+✔ record draft keeps selected IDs while its option pages reload after navigation (4.210916ms)
+✔ integration: first record response hydrates prefills without replacing the live modal (edited=false) (3.953792ms)
+✔ integration: first record response hydrates prefills without replacing the live modal (edited=true) (2.791958ms)
+✔ integration: invalid record prefill closes the initial modal and exposes the validated error (1.464958ms)
+ℹ tests 124
+ℹ suites 0
+ℹ pass 113
+ℹ fail 11
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1377.056417
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:185:1
+✖ startup checking shows the status toast outside the locked page until retry is needed (1.686834ms)
+  AssertionError [ERR_ASSERTION]: startup must not add a viewport overlay
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:193:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:235:3
+✖ initialization toast reaches the saved outcome and releases startup lock (1.468708ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:263:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:235:3
+✖ initialization toast reaches the missing outcome and releases startup lock (0.963375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:263:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:235:3
+✖ initialization toast reaches the error outcome and releases startup lock (0.982375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:263:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:235:3
+✖ initialization toast reaches the recovery outcome and releases startup lock (1.094959ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:263:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:235:3
+✖ initialization toast reaches the busy outcome and releases startup lock (1.002333ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:263:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:235:3
+✖ initialization toast reaches the read-error outcome and releases startup lock (0.733833ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:263:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:290:1
+✖ pending work keeps its toast and startup lock through ready completion (1.340375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:295:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:596:1
+✖ pending operations use the existing toast and retain the top pull-to-refresh spinner (0.385709ms)
+  AssertionError [ERR_ASSERTION]: no viewport loading overlay styles remain
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:598:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: `:root {\n  color-scheme: light;\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;\n  color: #203d32;\n  background: #f3efe6;\n  font-synthesis: none;\n  text-rendering: optimizeLegibility;\n  -webkit-text-size-adjust: 100%;\n}\n\n* { box-sizing: border-box; }\n[hidden] { display: none !important; }\nhtml { overscroll-behavior-y: contain; }\n\n.pull-refresh {\n  position: fixed;\n  top: calc(env(safe-area-inset-top, 0px) + 16px);\n  left: 50%;\n  transform: translate(-50%, calc((var(--pull-progress, 0) - 1) * 24px));\n  opacity: var(--pull-progress, 0);\n  z-index: 10;\n  color: #77766e;\n  pointer-events: none;\n}\n\n.pull-refresh-spinner {\n  display: block;\n  position: relative;\n  width: 24px;\n  height: 24px;\n  transform: rotate(var(--pull-angle, 0deg));\n}\n\n.pull-refresh-spoke { position: absolute; inset: 0; }\n.pull-refresh-spoke::before {\n  content: '';\n  position: absolute;\n  top: 0;\n  left: 11px;\n  width: 2px;\n  height: 6px;\n  border-radius: 2px;\n  background: currentColor;\n}\n\n.pull-refresh[data-state="reloading"] .pull-refresh-spinner,\n.startup-loading .startup-spinner,\n.startup-loading .operation-spinner {\n  animation: pull-refresh-spin 0.8s steps(12) infinite;\n}\n.app-status { display: flex; align-items: center; gap: 8px; }\n.app-status .status-message { min-width: 0; }\n@keyframes pull-refresh-spin { to { transform: rotate(calc(var(--pull-angle, 0deg) + 360deg)); } }\n\n.startup-loading {\n  position: fixed;\n  inset: 0;\n  z-index: 100;\n  display: grid;\n  place-items: center;\n  background: rgb(243 239 230 / 35%);\n  color: #77766e;\n  touch-action: none;\n}\n\n.pull-refresh-label,\n.visually-hidden {\n  position: absolute;\n  width: 1px;\n  height: 1px;\n  padding: 0;\n  margin: -1px;\n  overflow: hidden;\n  clip-path: inset(50%);\n  white-space: nowrap;\n}\n\n[data-pull-state] {\n  transform: translateY(var(--pull-offset, 0px));\n  transition: transform 180ms ease-out;\n}\n[data-pull-state="pulling"] { transition: none; }\n\n\n\nbody {\n  min-width: 320px;\n  min-height: 100vh;\n  margin: 0;\n  overflow-x: hidden;\n}\n\nbutton, input, select, textarea { font: inherit; }\n\nbutton { touch-action: manipulation; }\n\n.page {\n  width: min(100% - 32px, 760px);\n  min-height: 100vh;\n  margin: 0 auto;\n  padding: 20px 0 18px;\n  display: flex;\n  flex-direction: column;\n}\n\n.site-header {\n  position: sticky;\n  top: 0;\n  z-index: 5;\n  background: #f3efe6;\n  display: flex;\n  flex-wrap: nowrap;\n  align-items: center;\n  justify-content: flex-start;\n  gap: 12px;\n  padding: calc(env(safe-area-inset-top, 0px) + 8px) 0 12px;\n  border-bottom: 1px solid #d8d1c3;\n}\n\n.brand-logo {\n  display: block;\n  flex: 0 0 auto;\n  width: 60px;\n  height: 36px;\n  object-fit: contain;\n}\n\n.build-version {\n  margin: 0;\n  color: #746f63;\n  font-size: 0.75rem;\n  font-variant-numeric: tabular-nums;\n}\n\nfooter .build-version { margin-top: 8px; letter-spacing: normal; font-weight: 400; }\n\n.header-tools { margin-left: auto; flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }\n#connection-tools { display: flex; }\n.button.connection-toggle {\n  min-width: 44px;\n  min-height: 44px;\n  padding: 6px;\n  background: transparent;\n  border-color: transparent;\n  color: #587464;\n  font-size: 1.25rem;\n}\n.connection-toggle[aria-expanded="true"] { background: #e8eee7; }\n\n.bean-section {\n  flex: 1;\n  min-width: 0;\n  padding: 16px 0;\n}\n\nh1, h2, h3, h4, h5, p { overflow-wrap: anywhere; }\nh1 { margin: 0 0 18px; font-size: clamp(1.8rem, 8vw, 3rem); letter-spacing: -0.045em; }\nh2 { margin: 0 0 16px; font-size: 1.35rem; }\nh3 { margin: 0 0 8px; font-size: 1.1rem; }\nh4, h5 { margin: 16px 0 8px; }\np { line-height: 1.6; }\n\n.connection-note, .app-status {\n  position: fixed;\n  z-index: 110;\n  inset: auto max(12px, env(safe-area-inset-right, 0px)) calc(var(--toast-bottom, 104px) + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));\n  width: fit-content;\n  max-width: min(480px, calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - 32px));\n  max-height: min(30dvh, 8rem);\n  overflow-y: auto;\n  pointer-events: none;\n  margin: 0 auto;\n  padding: 12px 20px;\n  border: 1px solid #d8d1c3;\n  border-radius: 24px;\n  box-shadow: 0 8px 24px rgb(22 37 29 / 20%);\n  background: #faf8f2;\n  color: #5c5a50;\n  line-height: 1.55;\n}\n\n.app-status[data-state="startup-busy"] {\n  border-color: #c6b98b;\n  background: #fffbed;\n  color: #5e5129;\n}\n\n.app-status[data-state="read-error"], .app-status[data-state="connection-error"],\n.app-status[data-state="validation-error"], .app-status[data-state="unknown"],\n.app-status[data-state="partial"], .app-status[data-state="resolution-error"] {\n  border-color: #c98572;\n  background: #fff5f1;\n  color: #7c3527;\n}\n\n.app-status[data-state="saved"], .app-status[data-state="connected"],\n.app-status[data-state="ready"], .app-status[data-state="resolved"],\n.app-status[data-state="loaded"] {\n  border-color: #9db8a5;\n  background: #f3faf4;\n}\n\n.panel, .data-panel, .unresolved-panel, .card-skeletons {\n  min-width: 0;\n  margin-top: 16px;\n  padding: 16px;\n  border: 1px solid #ded7ca;\n  border-radius: 16px;\n  background: #fbf9f4;\n  box-shadow: 0 5px 16px rgb(53 63 46 / 5%);\n}\n\n.entry-dialog {\n  width: min(720px, calc(100% - 32px));\n  max-width: 100%;\n  max-height: min(90dvh, 900px);\n  margin: auto;\n  padding: 22px;\n  overflow: auto;\n  overscroll-behavior: contain;\n  border: 1px solid #d8d1c3;\n  border-radius: 18px;\n  background: #fbf9f4;\n  color: #203d32;\n  box-shadow: 0 22px 70px rgb(22 37 29 / 24%);\n}\n.delete-confirm-dialog { width: min(460px, calc(100% - 32px)); max-width: 460px; padding: 28px; }\n.entry-dialog::backdrop { background: rgb(19 31 25 / 48%); backdrop-filter: blur(2px); }\n.entry-dialog[open] { animation: entry-dialog-in 160ms ease-out; }\n@keyframes entry-dialog-in {\n  from { opacity: 0; transform: translateY(8px) scale(.99); }\n  to { opacity: 1; transform: translateY(0) scale(1); }\n}\n.entry-dialog .form-actions {\n  position: sticky;\n  bottom: -22px;\n  z-index: 1;\n  display: grid;\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n  margin: 0 -22px -22px;\n  padding: 14px 22px max(14px, env(safe-area-inset-bottom, 0px));\n  border-top: 1px solid #d8d1c3;\n  background: #fbf9f4;\n}\n.entry-dialog .form-actions .button { min-height: 48px; }\nbody:has(.entry-dialog[open]) { overflow: hidden; }\n.form-grid { display: grid; gap: 16px; min-width: 0; }\n.form-fieldset {\n  display: grid;\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n  gap: 14px 16px;\n  min-width: 0;\n  margin: 0;\n  padding: 15px;\n  border: 1px solid #d8d1c3;\n  border-radius: 12px;\n}\n\n.form-fieldset legend { padding: 0 6px; font-weight: 700; }\n.form-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }\n.form-field-label { color: #3d5147; font-size: 0.92rem; font-weight: 650; line-height: 1.4; }\n\n.form-field input, .form-field select, .form-field textarea {\n  display: block;\n  width: 100%;\n  min-width: 0;\n  min-height: 46px;\n  padding: 10px 12px;\n  border: 1px solid #aaa99e;\n  border-radius: 9px;\n  background: #fffefa;\n  color: #203d32;\n}\n\n/* Avoid iOS native date controls adding padding outside their declared width. */\n.form-field input[type="date"] {\n  -webkit-appearance: none;\n  appearance: none;\n  box-sizing: border-box;\n  max-width: 100%;\n}\n\n.form-field textarea { min-height: 92px; resize: vertical; }\n.recipe-extraction-guide p, .record-extraction-guide { white-space: pre-wrap; }\n.form-field input:focus, .form-field select:focus, .form-field textarea:focus,\nbutton:focus-visible, .table-scroll:focus-visible {\n  outline: 3px solid #8ab59a;\n  outline-offset: 2px;\n}\n\n.form-field [type="checkbox"] {\n  width: 24px;\n  min-height: 24px;\n  margin: 0 8px 0 0;\n  accent-color: #2d7051;\n}\n\n.form-field:has([type="checkbox"]) { flex-direction: row; align-items: center; gap: 8px; }\n.form-field:has([type="checkbox"]) .form-field-label { flex: 1; }\n\n.form-actions { display: flex; flex-wrap: wrap; gap: 10px; }\n.button {\n  min-height: 46px;\n  max-width: 100%;\n  padding: 10px 15px;\n  border: 1px solid #b9c7bb;\n  border-radius: 10px;\n  background: #e8f0e8;\n  color: #234737;\n  font-weight: 700;\n  line-height: 1.25;\n  overflow-wrap: anywhere;\n  cursor: pointer;\n}\n\n.form-actions .button[type="submit"], .connection-panel .button[type="submit"],\n.resolution-form .button[type="submit"] {\n  border-color: #224b3c;\n  background: #224b3c;\n  color: #fff;\n}\n\n.button.action-button {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  gap: 8px;\n  min-height: 44px;\n  padding: 0 14px;\n  border-radius: 10px;\n  font-size: 14px;\n  font-weight: 600;\n  line-height: 1.2;\n  white-space: nowrap;\n  transition: transform 140ms ease, background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;\n}\n\n.button.action-button.action-save {\n  border-color: #224b3c;\n  background: #224b3c;\n  color: #fff;\n}\n.button.action-button.action-cancel {\n  border-color: #b9c7bb;\n  background: #e8f0e8;\n  color: #234737;\n}\n.button.action-save:hover:not(:disabled) { background: #1c4033; box-shadow: 0 3px 10px rgb(34 75 60 / 14%); }\n.button.action-cancel:hover:not(:disabled) { background: #dfeadf; border-color: #8fa596; }\n.button.action-button:active:not(:disabled) { transform: scale(.98); }\n.entry-dialog .form-actions .button.action-button { min-height: 44px; }\n\n.delete-confirm-heading { display: flex; gap: 12px; align-items: center; }\n.delete-confirm-heading h2 { margin: 0; font-size: 1.25rem; line-height: 1.4; }\n.delete-confirm-symbol { display: inline-flex; flex: 0 0 36px; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: #f7e9e5; color: #a7332c; }\n.delete-confirm-symbol svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }\n.delete-confirm-target { margin: 24px 0 8px; font-weight: 700; overflow-wrap: anywhere; }\n.delete-confirm-description { margin: 0; color: #546056; font-size: 0.875rem; line-height: 1.75; word-break: keep-all; overflow-wrap: anywhere; }\n.delete-con`... 13958 more characters,
+    expected: /\.startup-loading/,
+    operator: 'doesNotMatch'
+  }
+
+test at test/pwa-ui.view.test.mjs:629:1
+✖ pending toast stays visible through success, ready and timeout, then clears after completion or failure (0.788875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at assertPendingToast (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:638:12)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:643:3)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:1618:1
+✖ delete confirm shows pending feedback in its toast, locks duplicates, and renders failures (1.764ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/toast-only-loading/AX-1day/test/pwa-ui.view.test.mjs:1641:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }

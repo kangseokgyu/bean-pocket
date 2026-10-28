@@ -182,29 +182,22 @@ test('connection settings open only after no saved connection is found', () => {
   assert.equal(panel.open, true);
 });
 
-test('startup checking shows one body overlay until retry is needed', () => {
+test('startup checking shows the status toast outside the locked page until retry is needed', () => {
   const document = new TestDocument();
   const { body, page } = mountInPage(document);
   const view = createBeanView(document);
+  const status = document.root.querySelector('.app-status');
   view.setState({ pending: true, frozen: false, unresolved: false });
   view.showConnection({ connected: false, checkingInitialization: true });
   view.showStatus({ type: 'startup-checking', message: '저장된 연결 확인 중' });
-  const status = document.root.querySelector('.app-status');
-  const loading = body.querySelector('.startup-loading');
-  const spinner = loading?.querySelector('.startup-spinner');
-  assert.ok(spinner);
-  assert.equal(spinner.getAttribute('aria-hidden'), 'true');
-  assert.equal(spinner.children.length, 12);
-  assert.equal(loading.hidden, false);
-  assert.equal(loading.parentElement === body, true);
-  assert.equal(loading.getAttribute('aria-hidden'), null);
-  assert.equal(status.hidden, true);
+  assert.equal(Boolean(body.querySelector('.startup-loading')), false, 'startup must not add a viewport overlay');
+  assert.equal(status.hidden, false);
+  assert.equal(status.textContent, '저장된 연결 확인 중');
+  assert.equal(status.parentElement === body, true, 'the toast stays outside the inert startup surface');
+  assert.equal(status.getAttribute('aria-busy'), 'true');
+  assert.equal(status.getAttribute('role'), 'status');
+  assert.equal(status.querySelector('.status-icon').dataset.state, 'saving');
   assert.equal(page.inert, true);
-  const shades = spinner.children.map(spoke => Number(spoke.getAttribute('style').match(/opacity: ([\d.]+)/)?.[1]));
-  assert.ok(shades.every(shade => shade > 0 && shade <= 1));
-  assert.equal(new Set(shades).size, 12, 'stepped rotation needs fading spokes to remain visible');
-  assert.equal(loading.getAttribute('role'), 'status');
-  assert.equal(loading.querySelector('.visually-hidden').textContent, '저장된 연결 확인 중');
   assert.equal(document.root.querySelector('.connection-panel').hidden, true);
   assert.equal(document.root.querySelector('.connection-details').hidden, true);
   assert.equal(document.root.querySelector('.startup-retry-panel').hidden, true);
@@ -212,32 +205,35 @@ test('startup checking shows one body overlay until retry is needed', () => {
 
   view.showStatus({ type: 'startup-busy', message: '잠시 후 다시 시도해 주세요.' });
   view.showConnection({ connected: false, retryInitialization: true });
-  assert.equal(loading.querySelector('.startup-spinner'), null);
-  assert.ok(loading.querySelector('.operation-spinner'));
-  assert.equal(loading.hidden, false, 'the shared overlay stays until pending cleanup');
+  assert.equal(Boolean(body.querySelector('.startup-loading')), false);
   assert.equal(status.textContent, '잠시 후 다시 시도해 주세요.');
   assert.equal(page.inert, false);
+  assert.equal(status.getAttribute('aria-busy'), 'true', 'startup stays pending until cleanup');
   assert.equal(document.root.querySelector('.startup-retry-panel').hidden, false);
   view.setState({ pending: false, frozen: false, unresolved: false });
-  assert.equal(loading.hidden, true);
+  assert.equal(status.getAttribute('aria-busy'), 'false');
 
   view.setState({ pending: true, frozen: false, unresolved: false });
   view.showConnection({ connected: false, checkingInitialization: true });
   view.showStatus({ type: 'startup-checking', message: '저장된 연결 확인 중' });
-  assert.ok(loading.querySelector('.startup-spinner'));
+  assert.equal(status.parentElement === body, true);
+  assert.equal(status.hidden, false);
+  assert.equal(page.inert, true);
   assert.equal(document.root.querySelector('.startup-retry-panel').hidden, true);
   view.showConnection({ connected: false });
   view.showStatus({ type: 'disconnected', message: 'Notion 연결 정보를 입력해 주세요.' });
   view.setState({ pending: false, frozen: false, unresolved: false });
-  assert.equal(loading.querySelector('.pull-refresh-spinner'), null);
-  assert.equal(loading.hidden, true);
+  assert.equal(Boolean(body.querySelector('.startup-loading')), false);
   assert.equal(page.inert, false);
+  assert.equal(status.parentElement === document.root.firstElementChild ||
+    status.parentElement === document.root.querySelector('.connection-panel'), true);
+  assert.equal(status.textContent, 'Notion 연결 정보를 입력해 주세요.');
   assert.equal(document.root.querySelector('.connection-details').hidden, false);
   assert.equal(document.root.querySelector('.connection-toggle').disabled, false);
 });
 
 for (const outcome of ['saved', 'missing', 'error', 'recovery', 'busy', 'read-error']) {
-  test(`initialization spinner ends on ${outcome}`, async () => {
+  test(`initialization toast reaches the ${outcome} outcome and releases startup lock`, async () => {
     const document = new TestDocument();
     const { body, page } = mountInPage(document);
     const view = createBeanView(document);
@@ -263,18 +259,24 @@ for (const outcome of ['saved', 'missing', 'error', 'recovery', 'busy', 'read-er
       }, async readAll() { return data(); } }),
       makeCommands: () => ({}),
     });
-    const initializing = app.initialize();
     const status = document.root.querySelector('.app-status');
-    const loading = body.querySelector('.startup-loading');
-    assert.ok(loading?.querySelector('.startup-spinner'));
+    const initializing = app.initialize();
+    assert.equal(Boolean(body.querySelector('.startup-loading')), false);
+    assert.equal(status.hidden, false);
+    assert.equal(status.textContent, '저장된 연결 확인 중');
+    assert.equal(status.parentElement === body, true);
+    assert.equal(status.getAttribute('aria-busy'), 'true');
+    assert.equal(page.inert, true);
     assert.equal(document.root.querySelector('.startup-retry-panel').hidden, true);
     assert.equal(document.root.querySelector('.connection-panel').hidden, true);
     finishRead();
     assert.equal(await initializing, ['saved', 'read-error'].includes(outcome) ? true : outcome === 'missing' ? null : false);
-    assert.equal(loading?.querySelector('.startup-spinner'), null);
-    assert.equal(loading.hidden, true);
+    assert.equal(Boolean(body.querySelector('.startup-loading')), false);
     assert.equal(page.inert, false);
     assert.equal(status.hidden, false);
+    assert.equal(status.getAttribute('aria-busy'), 'false');
+    assert.equal(status.parentElement === document.root.firstElementChild ||
+      status.parentElement === document.root.querySelector('.connection-panel'), true);
     if (outcome === 'saved') {
       assert.equal(status.textContent, '화면을 불러왔습니다.');
       assert.equal(status.querySelector('.status-icon').dataset.state, 'success');
@@ -287,28 +289,27 @@ for (const outcome of ['saved', 'missing', 'error', 'recovery', 'busy', 'read-er
   });
 }
 
-test('shared loading overlay stays outside transformed page through ready completion', () => {
+test('pending work keeps its toast and startup lock through ready completion', () => {
   const document = new TestDocument();
   const { body, page } = mountInPage(document);
   const view = createBeanView(document);
-  const loading = body.querySelector('.startup-loading');
-  assert.ok(loading, 'overlay belongs to body, outside pull-to-refresh transforms');
-  assert.equal(loading.parentElement === body, true);
+  const status = document.root.querySelector('.app-status');
+  assert.equal(Boolean(body.querySelector('.startup-loading')), false);
   assert.equal(page.style.transform, 'matrix(1, 0, 0, 1, 0, 0)');
   assert.equal(page.dataset.pullState, 'idle');
-  assert.equal(loading.hidden, true);
   view.setState({ pending: true, frozen: false, unresolved: false });
   view.showStatus({ type: 'startup-checking', message: '저장된 연결 확인 중' });
-  assert.equal(loading.hidden, false);
+  assert.equal(page.inert, true);
+  assert.equal(status.parentElement === body, true);
+  assert.equal(status.textContent, '저장된 연결 확인 중');
   view.showStatus({ type: 'ready', message: '' });
-  assert.equal(loading.hidden, false, 'ready must not end pending work');
-  assert.ok(loading.querySelector('.operation-spinner'));
-  assert.equal(loading.querySelector('.pull-refresh-spinner').parentElement === loading, true);
+  assert.equal(status.hidden, false, 'ready must not end pending work');
+  assert.equal(status.getAttribute('aria-busy'), 'true');
+  assert.equal(status.querySelector('.status-icon').dataset.state, 'saving');
+  assert.equal(status.parentElement === document.root.firstElementChild, true);
   view.setState({ pending: false, frozen: false, unresolved: false });
-  assert.equal(loading.hidden, true);
-  assert.equal(loading.children.length, 0);
+  assert.equal(Boolean(body.querySelector('.startup-loading')), false);
   assert.equal(page.inert, false);
-  const status = document.root.querySelector('.app-status');
   assert.equal(status.hidden, true);
   assert.equal(status.textContent, '');
 });
@@ -594,84 +595,75 @@ test('native form validation marks its field and reports the error in the shared
   assert.equal(status.popoverOpen, true);
 });
 
-test('operation spinner stays in body overlay outside the touch-transformed page', () => {
+test('pending operations use the existing toast and retain the top pull-to-refresh spinner', () => {
   const stylesheet = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
-  const overlayRule = stylesheet.match(/\.startup-loading\s*\{([^}]*)\}/s);
-  assert.ok(overlayRule, 'the shared body overlay must have a viewport rule');
-  assert.match(overlayRule[1], /position:\s*fixed/);
-  assert.match(overlayRule[1], /inset:\s*0/);
-  assert.match(stylesheet, /\.startup-loading \.operation-spinner\s*\{\s*animation:\s*pull-refresh-spin 0\.8s steps\(12\) infinite;/);
-  assert.match(stylesheet, /\.startup-loading \.operation-spinner\s*\{ animation: none; \}/);
+  assert.doesNotMatch(stylesheet, /\.startup-loading/, 'no viewport loading overlay styles remain');
+  assert.match(stylesheet, /\.pull-refresh\[data-state="reloading"\] \.pull-refresh-spinner[\s\S]*?animation:\s*pull-refresh-spin 0\.8s steps\(12\) infinite;/,
+    'the local pull-to-refresh gesture keeps its spinner');
 
   const document = new TestDocument();
   const { body, page } = mountInPage(document);
   const view = createBeanView(document);
   const status = document.root.querySelector('.app-status');
-  const loading = body.querySelector('.startup-loading');
+  const connectionToggle = document.root.querySelector('.connection-toggle');
   view.setState({ pending: true, frozen: false, unresolved: false });
   view.showStatus({ type: 'startup-checking', message: '저장된 연결 확인 중' });
-  const spinner = loading.querySelector('.startup-spinner');
-  assert.ok(spinner);
+  assert.equal(Boolean(body.querySelector('.startup-loading')), false);
+  assert.equal(status.parentElement === body, true);
+  assert.equal(status.textContent, '저장된 연결 확인 중');
+  assert.equal(page.inert, true);
   view.showStatus({ type: 'saving', message: '저장 중입니다.' });
-  const operationSpinner = loading.querySelector('.operation-spinner');
-  assert.equal(operationSpinner === spinner, true, 'startup and operation states reuse one spinner node');
-  assert.equal(loading.hidden, false);
-  assert.equal(loading.parentElement === body, true);
-  assert.equal(loading.querySelectorAll('.pull-refresh-spinner').length, 1);
-  assert.equal(page.querySelector('.operation-spinner'), null);
+  assert.equal(Boolean(body.querySelector('.startup-loading')), false);
+  assert.equal(status.parentElement === document.root.firstElementChild, true);
+  assert.equal(status.querySelector('.pull-refresh-spinner'), null, 'pending status has no standalone spinner node');
   assert.equal(page.dataset.pullState, 'idle');
   assert.equal(page.style.transform, 'matrix(1, 0, 0, 1, 0, 0)');
-  assert.equal(operationSpinner.hidden, false);
-  assert.equal(operationSpinner.getAttribute('aria-hidden'), 'true');
+  assert.equal(status.hidden, false);
+  assert.equal(status.textContent, '저장 중입니다.');
+  assert.equal(status.querySelector('.status-icon').dataset.state, 'saving');
   assert.equal(status.getAttribute('role'), 'status');
   assert.equal(status.getAttribute('aria-live'), 'polite');
   assert.equal(status.getAttribute('aria-busy'), 'true');
-  assert.equal(loading.getAttribute('aria-hidden'), 'true', 'the live status remains the sole operation announcement');
+  assert.equal(page.inert, false, 'the toast is not hidden behind the startup-only inert lock');
+  assert.equal(connectionToggle.disabled, true, 'pending work still disables connection controls');
 });
 
-test('operation spinner stays visible through success, ready and timeout, then clears on completion or failure', t => {
+test('pending toast stays visible through success, ready and timeout, then clears after completion or failure', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const document = new TestDocument();
-  const { body } = mountInPage(document);
+  const { body, page } = mountInPage(document);
   const view = createBeanView(document);
   const status = document.root.querySelector('.app-status');
-  const loading = body.querySelector('.startup-loading');
-  let spinner;
-  const assertPendingSpinner = state => {
-    assert.equal(spinner.hidden, false, `spinner stays visible during ${state}`);
-    assert.equal(spinner.parentElement === loading, true);
-    assert.equal(loading.hidden, false);
+  const assertPendingToast = state => {
+    assert.equal(status.hidden, false, `status stays visible during ${state}`);
     assert.equal(status.getAttribute('aria-busy'), 'true');
-    assert.equal(status.hidden, false);
+    assert.equal(Boolean(body.querySelector('.startup-loading')), false);
   };
 
   view.setState({ pending: true, frozen: false, unresolved: false });
   view.showStatus({ type: 'saving', message: '저장 중입니다.' });
-  spinner = loading.querySelector('.operation-spinner');
-  assert.equal(spinner.getAttribute('aria-hidden'), 'true');
-  assert.equal(spinner.children.length, 12);
-  assertPendingSpinner('saving');
+  assertPendingToast('saving');
   view.showStatus({ type: 'saved', message: '저장했습니다. 최신 목록을 다시 불러옵니다.' });
-  assertPendingSpinner('saved');
+  assertPendingToast('saved');
+  assert.equal(status.querySelector('.status-icon').dataset.state, 'success');
   t.mock.timers.tick(3500);
-  assertPendingSpinner('saved after status timeout');
+  assertPendingToast('saved after status timeout');
   view.showStatus({ type: 'ready', message: '' });
   t.mock.timers.tick(3500);
-  assertPendingSpinner('ready after status timeout');
+  assertPendingToast('ready after status timeout');
   view.setState({ pending: false, frozen: false, unresolved: false });
-  assert.equal(spinner.hidden, true);
-  assert.equal(loading.hidden, true);
+  assert.equal(Boolean(body.querySelector('.startup-loading')), false);
   assert.equal(status.getAttribute('aria-busy'), 'false');
   assert.equal(status.hidden, true);
+  assert.equal(page.inert, false);
 
   view.setState({ pending: true, frozen: false, unresolved: false });
   view.showStatus({ type: 'saving', message: '저장 중입니다.' });
   view.showStatus({ type: 'validation-error', message: '입력 내용을 확인해 주세요.' });
   t.mock.timers.tick(3500);
-  assertPendingSpinner('failed operation before cleanup');
+  assertPendingToast('failed operation before cleanup');
   view.setState({ pending: false, frozen: false, unresolved: false });
-  assert.equal(spinner.hidden, true);
-  assert.equal(loading.hidden, true);
+  assert.equal(Boolean(body.querySelector('.startup-loading')), false);
   assert.equal(status.getAttribute('aria-busy'), 'false');
   assert.equal(status.hidden, false);
   assert.equal(status.textContent, '입력 내용을 확인해 주세요.');
@@ -1625,14 +1617,19 @@ test('bean, recipe, and record deletes submit only after the custom dialog is co
   assert.deepEqual(calls, cases.map(([, action, , id]) => [action, { id }]));
 });
 
-test('delete confirm locks duplicate submissions and renders failure results from the controller', async () => {
+test('delete confirm shows pending feedback in its toast, locks duplicates, and renders failures', async () => {
   const document = new TestDocument(), view = createBeanView(document);
   view.renderData(data());
   let release;
   const pending = new Promise(resolve => { release = resolve; });
   const calls = [];
   view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }),
-    submit: (...args) => { calls.push(args); return pending; } });
+    submit: (...args) => {
+      calls.push(args);
+      view.setState({ pending: true, frozen: false, unresolved: false });
+      view.showStatus({ type: 'saving', message: '삭제 중입니다.' });
+      return pending;
+    } });
   const trash = document.root.querySelector('[data-action="delete-bean"]');
   const dialog = document.root.querySelector('.delete-confirm-dialog');
   await clickViewTarget(document, trash);
@@ -1642,10 +1639,17 @@ test('delete confirm locks duplicate submissions and renders failure results fro
   assert.equal(dialog.querySelector('[data-action="confirm-delete"]').getAttribute('aria-busy'), 'true');
   assert.equal(dialog.querySelector('[data-action="confirm-delete"]').disabled, true);
   assert.equal(dialog.querySelector('[data-action="cancel-delete"]').disabled, true);
+  const status = document.root.querySelector('.app-status');
+  assert.equal(status.hidden, false);
+  assert.equal(status.parentElement === dialog, true, 'the pending toast remains visible above the modal actions');
+  assert.equal(status.textContent, '삭제 중입니다.');
+  assert.equal(status.getAttribute('aria-busy'), 'true');
   await clickViewTarget(document, dialog.querySelector('[data-action="confirm-delete"]'));
   assert.equal(calls.length, 1, 'a second click cannot dispatch another deletion');
 
+  view.showStatus({ type: 'validation-error', message: '이 레시피를 사용하는 기록이 있습니다.' });
   view.showDeleteResult({ status: 'failed', message: '이 레시피를 사용하는 기록이 있습니다.' });
+  view.setState({ pending: false, frozen: false, unresolved: false });
   release({ status: 'failed', code: 'delete-in-use' });
   await confirming;
   assert.equal(dialog.getAttribute('aria-busy'), 'false');
@@ -2021,16 +2025,16 @@ test('success delay ignores late input events and closes without a dirty draft',
   assert.equal(document.root.querySelector('dialog[data-entry-dialog="beans"]').open, false);
 });
 
-test('reduced motion overrides modal entrance and blocking spinner animations', () => {
+test('reduced motion overrides modal entrance and the pull-to-refresh spinner', () => {
   const css = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
   const reduceAt = css.lastIndexOf('@media (prefers-reduced-motion: reduce)');
   for (const rule of [
     '.entry-dialog[open] { animation: entry-dialog-in',
-    '.startup-loading .operation-spinner { animation: pull-refresh-spin',
+    '.pull-refresh[data-state="reloading"] .pull-refresh-spinner { animation: pull-refresh-spin',
   ]) assert.ok(reduceAt > css.indexOf(rule), 'reduced motion must win the cascade for ' + rule);
   const reduced = css.slice(reduceAt);
   assert.match(reduced, /\.entry-dialog\[open\].*animation: none/s);
-  assert.match(reduced, /\.startup-loading \.operation-spinner\s*\{ animation: none;/);
+  assert.match(reduced, /\.pull-refresh\[data-state="reloading"\] \.pull-refresh-spinner[\s\S]*?animation: none;/);
 });
 
 

@@ -1,0 +1,76 @@
+
+<--- Last few GCs --->
+
+[22647:0x757c80c000]     2337 ms: Mark-Compact 4068.7 (4137.5) -> 4068.7 (4137.5) MB, pooled: 0 MB, 97.88 / 0.00 ms  (average mu = 0.180, current mu = 0.095) allocation failure; scavenge might not succeed
+[22647:0x757c80c000]     2437 ms: Mark-Compact 4072.2 (4141.0) -> 4072.2 (4157.0) MB, pooled: 0 MB, 100.38 / 0.00 ms  (average mu = 0.107, current mu = 0.006) allocation failure; scavenge might not succeed
+
+
+<--- JS stacktrace --->
+
+FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory
+----- Native stack trace -----
+
+ 1: 0x102d0c9e8 node::OOMErrorHandler(char const*, v8::OOMDetails const&) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+ 2: 0x102eb5eec v8::Utils::ReportOOMFailure(v8::internal::Isolate*, char const*, v8::OOMDetails const&) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+ 3: 0x102eb5ea0 v8::internal::V8::FatalProcessOutOfMemory(v8::internal::Isolate*, char const*, v8::OOMDetails const&) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+ 4: 0x1030739c0 v8::internal::Heap::CallGCPrologueCallbacks(v8::GCType, v8::GCCallbackFlags, v8::internal::GCTracer::Scope::ScopeId) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+ 5: 0x103072428 v8::internal::Heap::CollectGarbage(v8::internal::AllocationSpace, v8::internal::GarbageCollectionReason, v8::GCCallbackFlags) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+ 6: 0x103069928 v8::internal::HeapAllocator::AllocateRawWithLightRetrySlowPath(int, v8::internal::AllocationType, v8::internal::AllocationOrigin, v8::internal::AllocationAlignment) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+ 7: 0x10306a36c v8::internal::HeapAllocator::AllocateRawWithRetryOrFailSlowPath(int, v8::internal::AllocationType, v8::internal::AllocationOrigin, v8::internal::AllocationAlignment) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+ 8: 0x10304fd84 v8::internal::Factory::NewFillerObject(int, v8::internal::AllocationAlignment, v8::internal::AllocationType, v8::internal::AllocationOrigin) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+ 9: 0x103378698 v8::internal::Runtime_AllocateInYoungGeneration(int, unsigned long*, v8::internal::Isolate*) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+10: 0x102afb9f4 Builtins_CEntry_Return1_ArgvOnStack_NoBuiltinExit [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+11: 0x102a9d49c Builtins_CloneFastJSArray [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+12: 0x102b30a90 Builtins_ArrayPrototypeSlice [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+13: 0x11ce7687c
+14: 0x102a64838 Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+15: 0x102a64838 Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+16: 0x102a653cc Builtins_InterpreterPushArgsThenFastConstructFunction [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+17: 0x102bdecb4 Builtins_ConstructHandler [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+18: 0x102a64838 Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+19: 0x102a64838 Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+20: 0x102a64838 Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+21: 0x102a64838 Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+22: 0x102a64838 Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+23: 0x102a64838 Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+24: 0x102a64838 Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+25: 0x102a64838 Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+26: 0x102aa1e20 Builtins_AsyncFunctionAwaitResolveClosure [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+27: 0x102b6f298 Builtins_PromiseFulfillReactionJob [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+28: 0x102a91214 Builtins_RunMicrotasks [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+29: 0x102a623f0 Builtins_JSRunMicrotasksEntry [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+30: 0x102fd8798 v8::internal::(anonymous namespace)::Invoke(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+31: 0x102fd8e68 v8::internal::(anonymous namespace)::InvokeWithTryCatch(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+32: 0x102ffdf54 v8::internal::MicrotaskQueue::RunMicrotasks(v8::internal::Isolate*) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+33: 0x102ffdce4 v8::internal::MicrotaskQueue::PerformCheckpointInternal(v8::Isolate*) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+34: 0x102c1d5e4 node::InternalCallbackScope::Close() [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+35: 0x102c1d444 node::InternalCallbackScope::~InternalCallbackScope() [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+36: 0x102d13520 node::fs::FileHandle::CloseReq::Resolve() [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+37: 0x102d13f44 node::fs::FileHandle::ClosePromise()::$_0::__invoke(uv_fs_s*) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+38: 0x102d03340 node::MakeLibuvRequestCallback<uv_fs_s, void (*)(uv_fs_s*)>::Wrapper(uv_fs_s*) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+39: 0x10749e660 uv__work_done [/opt/homebrew/Cellar/libuv/1.49.2/lib/libuv.1.dylib]
+40: 0x1074a1cf4 uv__async_io [/opt/homebrew/Cellar/libuv/1.49.2/lib/libuv.1.dylib]
+41: 0x1074b2114 uv__io_poll [/opt/homebrew/Cellar/libuv/1.49.2/lib/libuv.1.dylib]
+42: 0x1074a2184 uv_run [/opt/homebrew/Cellar/libuv/1.49.2/lib/libuv.1.dylib]
+43: 0x102c1e488 node::SpinEventLoopInternal(node::Environment*) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+44: 0x102d5759c node::NodeMainInstance::Run(node::ExitCode*, node::Environment*) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+45: 0x102d572f0 node::NodeMainInstance::Run() [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+46: 0x102ccca68 node::Start(int, char**) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+47: 0x18841cd7c start [/usr/lib/dyld]
+✖ test/pwa-ui.view.test.mjs (2604.276667ms)
+  'test failed'
+
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2610.981875
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:1:1
+✖ test/pwa-ui.view.test.mjs (2604.276667ms)
+  'test failed'

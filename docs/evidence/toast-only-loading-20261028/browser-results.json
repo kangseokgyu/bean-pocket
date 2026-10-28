@@ -1,0 +1,53 @@
+{
+  "cases": 4,
+  "results": [
+    {
+      "engine": "chromium",
+      "width": 390,
+      "checks": [
+        "startup toast remains accessible while connection controls and page are locked",
+        "initial screen read uses the pending toast without an overlay and keeps controls disabled",
+        "startup completion replaces pending toast with success and releases controls",
+        "refresh pending state uses only the toast and prevents duplicate navigation",
+        "refresh completion clears pending lock without creating an overlay"
+      ],
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "width": 768,
+      "checks": [
+        "startup toast remains accessible while connection controls and page are locked",
+        "initial screen read uses the pending toast without an overlay and keeps controls disabled",
+        "startup completion replaces pending toast with success and releases controls",
+        "refresh pending state uses only the toast and prevents duplicate navigation",
+        "refresh completion clears pending lock without creating an overlay"
+      ],
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "width": 390,
+      "checks": [
+        "startup toast remains accessible while connection controls and page are locked",
+        "initial screen read uses the pending toast without an overlay and keeps controls disabled",
+        "startup completion replaces pending toast with success and releases controls",
+        "refresh pending state uses only the toast and prevents duplicate navigation",
+        "refresh completion clears pending lock without creating an overlay"
+      ],
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "width": 768,
+      "checks": [
+        "startup toast remains accessible while connection controls and page are locked",
+        "initial screen read uses the pending toast without an overlay and keeps controls disabled",
+        "startup completion replaces pending toast with success and releases controls",
+        "refresh pending state uses only the toast and prevents duplicate navigation",
+        "refresh completion clears pending lock without creating an overlay"
+      ],
+      "errors": []
+    }
+  ]
+}

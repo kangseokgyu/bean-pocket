@@ -110,7 +110,15 @@ class TestElement {
   }
   get elements() {
     const fields = this.querySelectorAll('input[name],textarea[name],select[name]');
-    return Object.fromEntries(fields.map(field => [field.name, field]));
+    const entries = Object.fromEntries(fields.map(field => [field.name, field]));
+    for (const name of new Set(fields.filter(field => field.type === 'radio').map(field => field.name))) {
+      const radios = fields.filter(field => field.name === name);
+      entries[name] = {
+        get value() { return radios.find(field => field.checked)?.value ?? ''; },
+        set value(value) { for (const field of radios) field.checked = field.value === value; },
+      };
+    }
+    return entries;
   }
   get options() { return this.children.filter(child => child.tagName === 'option'); }
   get form() { return this.closest('form'); }
@@ -848,7 +856,7 @@ test('recipes have no bean selector and records require both bean and shared rec
   assert.ok(recordForm.elements.recipeId);
   assert.equal(recordForm.elements.beanId.required, true);
   assert.equal(recordForm.elements.recipeId.required, true);
-  assert.equal(recordForm.elements.rating.required, true);
+  assert.ok(recordForm.querySelectorAll('input[name="rating"]').every(input => input.required));
 
   view.renderRoute('/records');
   assert.ok(document.root.querySelector('[data-record-filter="beanId"]'));
@@ -3192,4 +3200,27 @@ test('integration: invalid record prefill closes the initial modal and exposes t
   view.renderData({ beans: [], recipes: [], records: [], screen: { route, error: 'bean-required' } });
   assert.ok(!document.root.querySelector('form[data-form="records"]'));
   assert.match(document.root.querySelector('.record-warning').textContent, /원두를 먼저/);
+});
+
+
+test('record rating offers five required native stars and preserves the selected score in drafts', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+  view.renderRoute('/records/new');
+  let form = document.root.querySelector('form[data-form="records"]');
+  const stars = form.querySelectorAll('input[name="rating"]');
+  assert.equal(stars.length, 5);
+  assert.deepEqual(stars.map(star => star.value), ['1', '2', '3', '4', '5']);
+  assert.ok(stars.every(star => star.type === 'radio' && star.required));
+  assert.deepEqual(stars.map(star => star.getAttribute('aria-label')), ['1점', '2점', '3점', '4점', '5점']);
+  assert.equal(form.elements.rating.value, '');
+  assert.equal(form.querySelectorAll('.rating-option').length, 5);
+  assert.equal(form.querySelectorAll('svg').filter(svg => svg.closest('.star-rating')).length, 5);
+  form.elements.rating.value = '3';
+  view.renderRoute('/home');
+  view.renderRoute('/records/new');
+  form = document.root.querySelector('form[data-form="records"]');
+  assert.equal(form.elements.rating.value, '3');
+  assert.deepEqual(form.querySelectorAll('input[name="rating"]').map(star => Boolean(star.checked)), [false, false, true, false, false]);
 });

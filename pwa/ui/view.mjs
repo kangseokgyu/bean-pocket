@@ -1730,6 +1730,32 @@ function hydrateRecordPickers(form, freshForm) {
   form.dataset.initialValues = JSON.stringify(initial);
 }
 
+function starRating(document) {
+  const group = make(document, 'fieldset', undefined, 'star-rating');
+  group.append(make(document, 'legend', '별점 (1~5)', 'form-field-label'));
+  const choices = make(document, 'div', undefined, 'rating-options');
+  for (let score = 1; score <= 5; score += 1) {
+    const option = make(document, 'label', undefined, 'rating-option');
+    const input = make(document, 'input');
+    input.type = 'radio';
+    input.name = 'rating';
+    input.value = String(score);
+    input.required = true;
+    input.setAttribute('aria-label', `${score}점`);
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('focusable', 'false');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'm12 3 2.78 5.63L21 9.54l-4.5 4.39 1.06 6.2L12 17.2l-5.56 2.93 1.06-6.2L3 9.54l6.22-.91Z');
+    svg.append(path);
+    option.append(input, svg);
+    choices.append(option);
+  }
+  group.append(choices);
+  return group;
+}
+
 function buildRecordForm(document, data, optionPages, route) {
   const form = formBase(document, 'records', '추출 후 빠른 기록');
   const fields = make(document, 'fieldset', undefined, 'form-fieldset');
@@ -1745,7 +1771,7 @@ function buildRecordForm(document, data, optionPages, route) {
     if (selectedId && Array.from(select.options).some(option => option.value === selectedId)) select.value = selectedId;
   }
   fields.append(label(document, '날짜', 'date', 'date', true));
-  fields.append(label(document, '별점 (1~5)', 'rating', 'number', true, { min: 1, max: 5, step: 1 }));
+  fields.append(starRating(document));
   fields.append(label(document, '컵노트 (선택)', 'cupNote', 'textarea', false));
   form.append(fields);
   addFormActions(document, form);
@@ -2358,10 +2384,11 @@ function saveActiveDraft(content, drafts) {
   if (!form || form.closest('dialog')?.dataset.saveState === 'success') return;
   const values = {};
   for (const field of form.querySelectorAll('input[name],textarea[name],select[name]')) {
-    if (field.closest('.step-row')) continue;
+    if (field.closest('.step-row') || (field.type === 'radio' && !field.checked)) continue;
     values[field.name] = field.value;
   }
   if (form.dataset.form === 'records') {
+    values.rating = form.elements.rating.value;
     const initial = JSON.parse(form.dataset.initialValues || '{}');
     if (Object.keys(initial).every(name => values[name] === initial[name])) return;
   }
@@ -2375,7 +2402,7 @@ function restoreDraft(form, draft, data) {
   if (!draft) return;
   for (const [name, value] of Object.entries(draft.values)) {
     const field = form.elements[name];
-    if (field?.tagName.toLowerCase() === 'select' && value &&
+    if (field?.tagName?.toLowerCase() === 'select' && value &&
         !Array.from(field.options).some(option => option.value === value)) {
       const kind = name === 'beanId' ? 'beans' : 'recipes';
       const selected = data[kind]?.find(item => item.id === value);

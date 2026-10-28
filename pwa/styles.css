@@ -649,3 +649,15 @@ footer {
   .brew-conditions { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .brew-conditions dd { margin-bottom: 10px; }
 }
+
+
+.star-rating { min-width: 0; margin: 0; padding: 0; border: 0; }
+.star-rating legend { margin-bottom: 7px; padding: 0; }
+.rating-options { display: flex; flex-wrap: nowrap; gap: 2px; }
+.rating-option { position: relative; display: grid; place-items: center; width: 44px; height: 48px; flex-shrink: 0; cursor: pointer; }
+.rating-option input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: inherit; }
+.rating-option svg { width: 34px; height: 34px; fill: none; stroke: #75756f; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.rating-option:has(input:checked) svg,
+.rating-option:has(~ .rating-option input:checked) svg { fill: #f5ad16; stroke: #a56a00; }
+.rating-option:has(input:focus-visible) { outline: 3px solid #8ab59a; outline-offset: 2px; border-radius: 6px; }
+.rating-option:has(input:disabled) { opacity: 0.5; cursor: default; }

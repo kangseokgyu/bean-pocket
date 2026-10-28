@@ -51,3 +51,13 @@
 - 통합 소스 `npm run check:pages` 종료 0: 산출물 검사 통과 (`check-integrated.txt`).
 - 통합 소스 `npm test` 종료 0: **618/618 통과**, 실패·취소·건너뜀 0 (`test-integrated.txt`). 로컬 HTTP 리스닝을 허용한 환경에서 실행했다.
 - main fast-forward·push·게시 및 공개 반영 확인은 Orchestrator가 이어서 수행한다.
+
+## 게시 완료 (2026-10-29 KST)
+
+- 통합 충돌 해결은 Critic이 재검토하고 승인했다. main을 `e4fb4d3`로 fast-forward 후 push했다.
+- 일반판 `probes=false` 배포 성공: https://github.com/kangseokgyu/bean-pocket/actions/runs/40778394276 (`deployment.json`).
+- 공개 데모: https://kangseokgyu.github.io/bean-pocket/records-demo.html
+- 공개 빌드 **`4d7bcb956694`**. 공개 파일 24개 모두 HTTP 200, 로컬 통합 빌드와 바이트 및 SHA256 일치 (`public-verification.json`).
+- 로컬 브라우저 검증과 공개 파일 일치 확인을 완료했다. 실제 Notion 데이터 연동, 실제 iPhone Safari/홈 화면, Firefox는 확인하지 않았다.
+- 실제 에이전트 설정: Worker `gpt-6-luna`/`max` → 사용량 제한 후 허용 대체 Worker `gpt-6.1-sol`/`medium`; Critic `gpt-6.1-sol`/`medium`.
+- GitHub 실행에는 사용한 Pages Actions의 Node 20 지원 종료 및 ubuntu-latest 이미지 변경 안내가 있었으며 배포는 성공했다. 워크플로 변경은 이번 데모 범위에 포함하지 않았다.

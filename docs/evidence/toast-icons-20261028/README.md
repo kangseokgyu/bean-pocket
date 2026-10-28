@@ -7,3 +7,8 @@
 - 격리된 Chromium·WebKit에서 실제 저장 버튼 클릭 후 mock submit을 통해 로딩→완료 확인. 각 320/390/768/1280px 및 390px 동작 줄이기, 총 10개 조합. CSS 회전/체크 전환, SVG, 메시지 뒤 순서, 버튼 겹침 없음, 자동 숨김, 가로 넘침·pageerror 없음 확인 (`toast-icons-browser.json`, 스크린샷). 로컬 서버 4199에서 `node browser.cjs`로 재현할 수 있다. 외부 Notion 저장은 호출하지 않는다.
 - 자체 리뷰: 기존 버튼 아이콘 재사용·완료 상태 한정·오류 시 이전 체크 제거·타이머 및 ARIA 유지·모션 줄이기 확인. `git diff --check` 통과. 새 의존성 없음.
 - 미검증: 실제 Notion 저장, 실기기 iPhone/소프트 키보드 및 스크린 리더 음성.
+
+## 최신 main 반영
+
+- 초기 통합 시 main에 삭제 확인 모달(`9baa67d`)이 추가되어 fast-forward가 불가능했다. 최신 main을 기능 브랜치에 정상 merge했고 충돌은 없었다. 삭제 모달의 토스트 억제·결과 보존 동작 유지 확인.
+- merge 후 전체 테스트 587/587, build/check exit 0, 최종 제품 빌드 `0a50f2e5ab9f`. 두 브라우저의 10개 조합도 재검증 통과 (`merged-test-summary.txt`, `toast-icons-merged-*.txt`, `merged-browser.json`).

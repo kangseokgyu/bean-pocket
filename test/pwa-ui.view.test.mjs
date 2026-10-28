@@ -336,6 +336,54 @@ test('saved connection opens settings modally and closing discards unsaved secre
   assert.equal(panel.querySelector('.repair-panel').hidden, false);
 });
 
+test('toast trailing icon changes from loading to completion without replacing its message', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const status = document.root.querySelector('.app-status');
+  const icon = status.querySelector('.status-icon');
+  assert.ok(icon, 'toast includes a trailing status icon');
+  assert.equal(status.children.at(-1), icon);
+  assert.equal(icon.getAttribute('aria-hidden'), 'true');
+  assert.equal(icon.hidden, true);
+  for (const [loading, completed] of [['saving', 'saved'], ['checking', 'connected'], ['saving', 'resolved']]) {
+    view.setState({ pending: true });
+    view.showStatus({ type: loading, message: '저장 중입니다.' });
+    assert.equal(icon.hidden, false);
+    assert.equal(icon.dataset.state, 'saving');
+    assert.equal(status.querySelector('.status-message').textContent, '저장 중입니다.');
+    view.showStatus({ type: completed, message: '완료했습니다.' });
+    assert.equal(status.querySelector('.status-icon'), icon);
+    assert.equal(icon.dataset.state, 'success', 'completed work shows a check even during list refresh');
+    assert.equal(icon.querySelector('path').getAttribute('d'), 'm20 6-11 11-5-5');
+    assert.equal(status.textContent, '완료했습니다.');
+    view.setState({ pending: false });
+    t.mock.timers.tick(2999);
+    assert.equal(status.hidden, false);
+    t.mock.timers.tick(1);
+    assert.equal(status.hidden, true);
+    assert.equal(icon.hidden, true);
+  }
+});
+
+test('toast loading fallback resets on errors and neutral messages', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const status = document.root.querySelector('.app-status');
+  const icon = status.querySelector('.status-icon');
+  assert.ok(icon);
+  view.setRouteReadState('loading');
+  assert.equal(icon.dataset.state, 'saving');
+  assert.equal(icon.hidden, false);
+  view.setRouteReadState('ready');
+  for (const type of ['validation-error', 'connection-error', 'saved-read-error', 'cancelled', 'disconnected']) {
+    view.showStatus({ type: 'saved', message: '저장했습니다.' });
+    view.showStatus({ type, message: '확인해 주세요.' });
+    assert.equal(icon.hidden, true, type);
+    assert.equal(icon.dataset.state, 'idle', type);
+  }
+});
+
 test('successful status messages stay visible for three seconds then hide', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const document = new TestDocument();

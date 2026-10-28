@@ -124,6 +124,7 @@ const makeSpinner = document => {
 const idOf = value => String(value ?? '');
 const FORM_KINDS = new Set(['beans', 'recipes', 'records']);
 const IN_PROGRESS_STATUS_TYPES = new Set(['startup-checking', 'checking', 'saving']);
+const COMPLETED_STATUS_TYPES = new Set(['saved', 'connected', 'resolved']);
 const STATUS_DISPLAY_MS = 3000;
 const SOURCE_FIELDS = Object.freeze([
   ['beans', '원두'], ['recipes', '레시피'],
@@ -218,6 +219,10 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     const active = currentState.pending && !startupChecking;
     status.dataset.pending = String(active);
     statusMessage.textContent = statusMessageText || (active ? '불러오는 중…' : routeLoading ? '화면을 불러오는 중…' : '');
+    const completed = COMPLETED_STATUS_TYPES.has(statusType) && !!statusMessageText;
+    const loadingStatus = IN_PROGRESS_STATUS_TYPES.has(statusType) || ((active || routeLoading) && !statusMessageText);
+    statusIcon.hidden = !completed && !loadingStatus;
+    statusIcon.dataset.state = completed ? 'success' : loadingStatus ? 'saving' : 'idle';
     status.setAttribute('role', assertiveStatus ? 'alert' : 'status');
     status.setAttribute('aria-live', assertiveStatus ? 'assertive' : 'polite');
     status.setAttribute('aria-busy', String(currentState.pending || routeLoading));
@@ -273,7 +278,12 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   status.setAttribute('aria-live', 'polite');
   status.setAttribute('popover', 'manual');
   const statusMessage = make(document, 'span', '', 'status-message');
-  status.append(statusMessage);
+  const statusIcon = make(document, 'span', undefined, 'button-icon status-icon');
+  statusIcon.hidden = true;
+  statusIcon.dataset.state = 'idle';
+  statusIcon.setAttribute('aria-hidden', 'true');
+  statusIcon.append(actionIcon(document, 'check'));
+  status.append(statusMessage, statusIcon);
   page.append(status);
 
   const loading = make(document, 'div', undefined, 'startup-loading');

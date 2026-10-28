@@ -1,0 +1,23 @@
+const {chromium,webkit}=require('/Users/kangseokgyu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const fs=require('fs'),assert=require('node:assert/strict');const remote=process.argv.includes('--public');
+const base=remote?'https://kangseokgyu.github.io/bean-pocket/':'http://127.0.0.1:4199/';
+const fixture=outcome=>`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="${remote?'/bean-pocket':'/pwa'}/styles.css"><main class="page"><button id="refresh-screen">화면 새로고침</button><div id="app-root"></div></main><script type="module">
+import {createAppView} from '${remote?'/bean-pocket':'/pwa'}/ui/view.mjs';import {createAppController} from '${remote?'/bean-pocket':'/pwa'}/ui/controller.mjs';
+const view=createAppView(document);view.renderRoute('/beans');let armed=false;const result={items:[],complete:true,hasMore:false};
+const read=async()=>{if(armed){await new Promise(r=>setTimeout(r,1000));if('${outcome}'==='error')throw {code:'read-failed'};if('${outcome}'==='cancelled')throw {code:'read-cancelled'};}return result;};
+const context={async inspect(){return {initialized:false,blocked:false}},async readJournal(){return {operations:[],connectionGuard:null}},async beginConnectionChange(){},async commitConnectionChange(){}};
+const app=createAppController({view,state:{withWriteLock:fn=>fn(context)},file:{},makeClient:()=>({async verify(){}}),makeRepository:()=>({listBeans:read,listRecipeSummaries:read}),makeCommands:()=>({}),uuid:()=> 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'});app.bind();await app.connect({token:'fake-only',dataSources:{beans:'11111111-1111-4111-8111-111111111111',recipes:'22222222-2222-4222-8222-222222222222',steps:'33333333-3333-4333-8333-333333333333',records:'44444444-4444-4444-8444-444444444444'}});armed=true;document.querySelector('#refresh-screen').onclick=()=>app.refresh().catch(()=>{});window.ready=true;
+</script>`;
+(async()=>{const results=[];for(const [engine,type]of Object.entries({chromium,webkit})){
+const browser=await type.launch(engine==='chromium'?{executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true}:{headless:true});try{
+for(const [outcome,width]of (remote?[['navigation',390],['refresh',390]]:[['navigation',390],['refresh',390]])){
+const page=await browser.newPage({viewport:{width,height:900},serviceWorkers:'block'}),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.route('**/screen-toast-harness',r=>r.fulfill({contentType:'text/html; charset=utf-8',body:fixture(outcome)}));await page.goto(base+'screen-toast-harness');await page.waitForFunction(()=>window.ready);await page.locator('dialog.connection-panel').waitFor({state:'hidden'});
+if(outcome==='refresh')await page.locator('#refresh-screen').click();else await page.locator('.tabs [data-route="/recipes"]').click();
+await page.locator('.app-status[data-state="loading"]').waitFor({state:'visible'});assert.equal(await page.locator('.status-icon').getAttribute('data-state'),'saving');
+if(outcome==='navigation'&&width===390)await page.screenshot({path:'/tmp/toast-one-second-'+(remote?'public-':'')+engine+'-loading.png'});
+const state=outcome==='error'?'read-error':outcome==='cancelled'?'cancelled':'loaded';await page.locator('.app-status[data-state="'+state+'"]').waitFor({state:'visible'});
+const success=state==='loaded';assert.equal(await page.locator('.status-icon').isVisible(),success);if(success){assert.equal(await page.locator('.status-icon').getAttribute('data-state'),'success');assert.equal(await page.locator('.status-message').textContent(),'화면을 불러왔습니다.');assert.equal(await page.locator('.app-status').getAttribute('aria-busy'),'false');}
+if(outcome==='navigation'&&width===390)await page.screenshot({path:'/tmp/toast-one-second-'+(remote?'public-':'')+engine+'-complete.png'});
+const displayedAt=Date.now();await page.locator('.app-status').waitFor({state:'hidden',timeout:1600});const hiddenAfterMs=Date.now()-displayedAt;assert.ok(hiddenAfterMs>=600&&hiddenAfterMs<=1600, 'one-second timeout: '+hiddenAfterMs);assert.deepEqual(errors,[]);results.push({engine,width,outcome,loadingObserved:true,terminalState:state,successCheck:success,autoHidden:true,hiddenAfterMs,errors});await page.close();
+}}finally{await browser.close();fs.writeFileSync(remote?'/tmp/toast-one-second-public.json':'/tmp/toast-one-second-browser.json',JSON.stringify(results,null,2)+'\n');}}
+console.log(JSON.stringify({cases:results.length,passed:true}));})().catch(e=>{console.error(e);process.exitCode=1;});

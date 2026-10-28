@@ -126,7 +126,7 @@ const idOf = value => String(value ?? '');
 const FORM_KINDS = new Set(['beans', 'recipes', 'records']);
 const IN_PROGRESS_STATUS_TYPES = new Set(['startup-checking', 'checking', 'saving', 'loading']);
 const COMPLETED_STATUS_TYPES = new Set(['saved', 'connected', 'resolved', 'loaded']);
-const STATUS_DISPLAY_MS = 3000;
+const STATUS_DISPLAY_MS = 1000;
 const SOURCE_FIELDS = Object.freeze([
   ['beans', '원두'], ['recipes', '레시피'],
   ['steps', '레시피 단계'], ['records', '추출 기록'],

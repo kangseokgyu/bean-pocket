@@ -1,0 +1,238 @@
+TAP version 13
+# (node:12532) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: controller screen loading toast reaches the navigation outcome
+not ok 1 - controller screen loading toast reaches the navigation outcome
+  ---
+  duration_ms: 14.426125
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:348:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:401:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: controller screen loading toast reaches the refresh outcome
+not ok 2 - controller screen loading toast reaches the refresh outcome
+  ---
+  duration_ms: 6.391541
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:348:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:401:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: controller screen loading toast reaches the error outcome
+not ok 3 - controller screen loading toast reaches the error outcome
+  ---
+  duration_ms: 4.85525
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:348:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:401:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: controller screen loading toast reaches the cancelled outcome
+not ok 4 - controller screen loading toast reaches the cancelled outcome
+  ---
+  duration_ms: 3.728166
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:348:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:401:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: toast trailing icon changes from loading to completion without replacing its message
+not ok 5 - toast trailing icon changes from loading to completion without replacing its message
+  ---
+  duration_ms: 1.295792
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:405:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:430:12)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: successful status messages stay visible for one second then hide
+not ok 6 - successful status messages stay visible for one second then hide
+  ---
+  duration_ms: 0.330125
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:453:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    connected
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:465:12)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    node:internal/test_runner/test:981:31
+    node:internal/process/task_queues:151:7
+    AsyncResource.runInAsyncScope (node:async_hooks:214:14)
+    AsyncResource.runMicrotask (node:internal/process/task_queues:148:8)
+  ...
+# Subtest: errors and recovery notices hide one second after replacing success
+not ok 7 - errors and recovery notices hide one second after replacing success
+  ---
+  duration_ms: 0.263292
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:470:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    error
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:485:12)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: operation spinner stays in body overlay outside the touch-transformed page
+ok 8 - operation spinner stays in body overlay outside the touch-transformed page
+  ---
+  duration_ms: 1.586167
+  type: 'test'
+  ...
+# Subtest: operation spinner stays visible through success, ready and timeout, then clears on completion or failure
+not ok 9 - operation spinner stays visible through success, ready and timeout, then clears on completion or failure
+  ---
+  duration_ms: 1.438708
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:632:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:681:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: a new success gets a full display interval and empty messages hide immediately
+not ok 10 - a new success gets a full display interval and empty messages hide immediately
+  ---
+  duration_ms: 0.594542
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:684:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/floating-toast/AX-1day/test/pwa-ui.view.test.mjs:695:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 1
+# fail 9
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 90.009792

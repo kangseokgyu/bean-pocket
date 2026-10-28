@@ -395,7 +395,7 @@ for (const outcome of ['navigation', 'refresh', 'error', 'cancelled']) {
       assert.equal(icon.dataset.state, 'success');
       assert.equal(status.getAttribute('aria-busy'), 'false');
     }
-    t.mock.timers.tick(2999);
+    t.mock.timers.tick(999);
     assert.equal(status.hidden, false);
     t.mock.timers.tick(1);
     assert.equal(status.hidden, true);
@@ -424,7 +424,7 @@ test('toast trailing icon changes from loading to completion without replacing i
     assert.equal(icon.querySelector('path').getAttribute('d'), 'm20 6-11 11-5-5');
     assert.equal(status.textContent, '완료했습니다.');
     view.setState({ pending: false });
-    t.mock.timers.tick(2999);
+    t.mock.timers.tick(999);
     assert.equal(status.hidden, false);
     t.mock.timers.tick(1);
     assert.equal(status.hidden, true);
@@ -450,7 +450,7 @@ test('toast loading fallback resets on errors and neutral messages', () => {
   }
 });
 
-test('successful status messages stay visible for three seconds then hide', t => {
+test('successful status messages stay visible for one second then hide', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const document = new TestDocument();
   const view = createBeanView(document);
@@ -459,7 +459,7 @@ test('successful status messages stay visible for three seconds then hide', t =>
     view.showStatus({ type, message: '완료했습니다.' });
     assert.equal(status.hidden, false);
     assert.equal(status.textContent, '완료했습니다.');
-    t.mock.timers.tick(2999);
+    t.mock.timers.tick(999);
     assert.equal(status.hidden, false);
     t.mock.timers.tick(1);
     assert.equal(status.hidden, true, type);
@@ -467,7 +467,7 @@ test('successful status messages stay visible for three seconds then hide', t =>
   }
 });
 
-test('errors and recovery notices hide three seconds after replacing success', t => {
+test('errors and recovery notices hide one second after replacing success', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const document = new TestDocument();
   const view = createBeanView(document);
@@ -476,9 +476,9 @@ test('errors and recovery notices hide three seconds after replacing success', t
     'saved-read-error', 'unknown', 'partial', 'failed', 'resolution-required', 'startup-busy',
     'disconnected']) {
     view.showStatus({ type: 'connected', message: '완료' });
-    t.mock.timers.tick(1000);
+    t.mock.timers.tick(500);
     view.showStatus({ type, message: '확인이 필요합니다.' });
-    t.mock.timers.tick(2999);
+    t.mock.timers.tick(999);
     assert.equal(status.hidden, false, type);
     assert.equal(status.textContent, '확인이 필요합니다.');
     t.mock.timers.tick(1);
@@ -675,7 +675,7 @@ test('operation spinner stays visible through success, ready and timeout, then c
   assert.equal(status.getAttribute('aria-busy'), 'false');
   assert.equal(status.hidden, false);
   assert.equal(status.textContent, '입력 내용을 확인해 주세요.');
-  t.mock.timers.tick(2999);
+  t.mock.timers.tick(999);
   assert.equal(status.hidden, false);
   t.mock.timers.tick(1);
   assert.equal(status.hidden, true);
@@ -687,11 +687,11 @@ test('a new success gets a full display interval and empty messages hide immedia
   const view = createBeanView(document);
   const status = document.root.querySelector('.app-status');
   view.showStatus({ type: 'saved', message: '저장했습니다.' });
-  t.mock.timers.tick(2000);
+  t.mock.timers.tick(500);
   view.showStatus({ type: 'connected', message: '연결했습니다.' });
-  t.mock.timers.tick(1000);
+  t.mock.timers.tick(500);
   assert.equal(status.hidden, false);
-  t.mock.timers.tick(2000);
+  t.mock.timers.tick(500);
   assert.equal(status.hidden, true);
   view.showStatus({ type: 'error', message: '오류' });
   assert.equal(status.hidden, false);

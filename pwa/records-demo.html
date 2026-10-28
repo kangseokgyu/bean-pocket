@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3efe6">
+  <meta name="description" content="원두별 샘플 추출 기록과 레시피 조건을 비교하는 데모">
+  <title>추출 기록 비교 데모 · Bean Pocket</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-bp-ivory.png">
+  <link rel="stylesheet" href="./records-demo.css">
+  <script type="module" src="./records-demo.mjs"></script>
+</head>
+<body>
+  <div class="demo-shell">
+    <header class="demo-header">
+      <a class="back-link" href="./index.html">
+        <span class="back-arrow" aria-hidden="true">←</span>
+        <span>기록 화면</span>
+      </a>
+      <a class="demo-brand" href="./records-demo.html" aria-label="추출 기록 샘플 데모">
+        <img src="./icons/bp-logo.png" alt="Bean Pocket" width="60" height="36">
+        <span>추출 기록 데모</span>
+      </a>
+    </header>
+
+    <main class="demo-main">
+      <section class="intro" aria-labelledby="page-title">
+        <div class="intro-copy">
+          <p class="eyebrow">BREW LOG / SAMPLE</p>
+          <h1 id="page-title">추출 기록 비교</h1>
+          <p>원두별로 좋은 한 잔과 당시 조건을 기록에서 찾아봅니다.</p>
+        </div>
+        <aside class="sample-notice" aria-label="데모 안내">
+          <strong>샘플 데모</strong>
+          <p>아래 내용은 화면 확인을 위해 만든 가상 기록입니다. 실제 원두 기록이나 연결 데이터와는 무관합니다.</p>
+        </aside>
+      </section>
+
+      <p id="selection-announcement" class="visually-hidden" aria-live="polite"></p>
+      <div class="demo-layout">
+        <aside class="bean-sidebar" aria-labelledby="bean-list-heading">
+          <div class="section-heading">
+            <h2 id="bean-list-heading">원두 선택</h2>
+            <span id="bean-list-count" class="count-chip">3종</span>
+          </div>
+          <p class="sidebar-help">각 원두의 최고점 기록을 먼저 살펴보세요.</p>
+          <div id="bean-list" class="bean-list"></div>
+          <p class="ranking-note">최고점은 각 원두의 샘플 평가에서 계산합니다. 동점이면 최근 추출을 대표로 보여줍니다.</p>
+        </aside>
+
+        <div class="records-content">
+          <section class="selected-bean" aria-labelledby="selected-bean-name">
+            <div class="selected-bean-copy">
+              <p class="eyebrow">선택한 원두</p>
+              <h2 id="selected-bean-name"></h2>
+              <p id="selected-bean-origin" class="bean-origin"></p>
+              <p id="selected-bean-note" class="bean-note"></p>
+              <p id="selected-bean-roaster" class="bean-roaster"></p>
+            </div>
+            <dl class="bean-stats" aria-label="선택한 원두의 기록 요약">
+              <div><dt>기록 표본</dt><dd id="selected-record-count"></dd></div>
+              <div><dt>평균 평가</dt><dd id="selected-record-average"></dd></div>
+            </dl>
+          </section>
+
+          <section class="best-section" aria-labelledby="best-section-heading">
+            <div class="section-heading section-heading-block">
+              <div>
+                <h2 id="best-section-heading">가장 높게 평가한 추출</h2>
+                <p>해당 원두의 샘플 기록 안에서 계산한 결과예요.</p>
+              </div>
+              <span class="sample-tag">샘플 기준</span>
+            </div>
+            <div id="best-brew" class="best-brew"></div>
+          </section>
+
+          <section class="history-section" aria-labelledby="history-heading">
+            <header class="history-header">
+              <div class="history-title">
+                <h2 id="history-heading">추출 기록</h2>
+                <p>조건과 컵노트를 나란히 비교합니다.</p>
+              </div>
+              <div class="history-controls">
+                <label>
+                  <span>레시피</span>
+                  <select id="recipe-filter" aria-label="레시피 필터">
+                    <option value="all">모든 레시피</option>
+                    <option value="V60">V60</option>
+                    <option value="칼리타">칼리타</option>
+                    <option value="오리가미">오리가미</option>
+                    <option value="에어로프레스">에어로프레스</option>
+                  </select>
+                </label>
+                <label>
+                  <span>정렬</span>
+                  <select id="record-sort" aria-label="기록 정렬">
+                    <option value="date-desc">날짜 최신순</option>
+                    <option value="date-asc">날짜 오래된순</option>
+                    <option value="rating-desc">평가 높은순</option>
+                  </select>
+                </label>
+              </div>
+            </header>
+            <p id="comparison-count" class="comparison-count" aria-live="polite"></p>
+            <p id="record-empty" class="empty-state" role="status" hidden>조건에 맞는 샘플 기록이 없습니다. 레시피 필터를 바꿔보세요.</p>
+            <div id="records-table-region" class="records-table-region">
+              <div class="table-scroll">
+                <table class="records-table">
+                  <caption class="visually-hidden">선택한 원두의 추출 날짜, 로스팅 후 경과일, 레시피, 조건, 평가, 컵노트</caption>
+                  <thead>
+                    <tr><th scope="col">추출일 · 로스팅 후</th><th scope="col">레시피</th><th scope="col">분쇄 · 온도 · 도징 · 물 · 시간</th><th scope="col">평가</th><th scope="col">컵노트</th></tr>
+                  </thead>
+                  <tbody id="records-table-body"></tbody>
+                </table>
+              </div>
+              <ul id="records-cards" class="record-cards" aria-label="추출 기록 카드"></ul>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer class="demo-footer">BEAN POCKET <span>샘플 데이터 · 로컬 상호작용</span></footer>
+  </div>
+</body>
+</html>

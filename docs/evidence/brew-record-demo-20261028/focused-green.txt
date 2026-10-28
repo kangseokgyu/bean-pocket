@@ -1,0 +1,130 @@
+TAP version 13
+# Subtest: Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록을 만든다
+ok 1 - Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록을 만든다
+  ---
+  duration_ms: 38.957583
+  type: 'test'
+  ...
+# Subtest: 검사기는 공개 데모 자산의 외부 URL과 루트 절대 경로를 거부한다
+ok 2 - 검사기는 공개 데모 자산의 외부 URL과 루트 절대 경로를 거부한다
+  ---
+  duration_ms: 41.04575
+  type: 'test'
+  ...
+# Subtest: 검사기는 누락 파일과 허용 목록 밖 산출물을 거부한다
+ok 3 - 검사기는 누락 파일과 허용 목록 밖 산출물을 거부한다
+  ---
+  duration_ms: 34.090708
+  type: 'test'
+  ...
+# Subtest: 검사기는 루트 절대 경로와 허용 파일 안의 비밀값을 거부한다
+ok 4 - 검사기는 루트 절대 경로와 허용 파일 안의 비밀값을 거부한다
+  ---
+  duration_ms: 34.325417
+  type: 'test'
+  ...
+# Subtest: 검사기는 Service Worker가 API 경로를 앱 캐시에 넣는 변경을 거부한다
+ok 5 - 검사기는 Service Worker가 API 경로를 앱 캐시에 넣는 변경을 거부한다
+  ---
+  duration_ms: 15.893
+  type: 'test'
+  ...
+# Subtest: 검사기는 scope별 캐시 namespace가 빠진 Service Worker를 거부한다
+ok 6 - 검사기는 scope별 캐시 namespace가 빠진 Service Worker를 거부한다
+  ---
+  duration_ms: 21.323583
+  type: 'test'
+  ...
+# Subtest: 검사기는 HTTP 캐시를 우회하지 않는 Service Worker precache를 거부한다
+ok 7 - 검사기는 HTTP 캐시를 우회하지 않는 Service Worker precache를 거부한다
+  ---
+  duration_ms: 20.797709
+  type: 'test'
+  ...
+# Subtest: 빌더는 필수 소스 누락과 소스 심볼릭 링크를 거부한다
+ok 8 - 빌더는 필수 소스 누락과 소스 심볼릭 링크를 거부한다
+  ---
+  duration_ms: 28.328625
+  type: 'test'
+  ...
+# Subtest: 빌더는 symlink 부모 경로로 소스를 출력 경로로 지정해도 원본을 보존한다
+ok 9 - 빌더는 symlink 부모 경로로 소스를 출력 경로로 지정해도 원본을 보존한다
+  ---
+  duration_ms: 4.92575
+  type: 'test'
+  ...
+# Subtest: 검사기는 산출물 심볼릭 링크와 잘못된 dist 루트를 거부한다
+ok 10 - 검사기는 산출물 심볼릭 링크와 잘못된 dist 루트를 거부한다
+  ---
+  duration_ms: 17.796
+  type: 'test'
+  ...
+# Subtest: 실제 PWA 소스에는 API 호출이나 외부 요청이 없고 하위 경로 자원만 쓴다
+ok 11 - 실제 PWA 소스에는 API 호출이나 외부 요청이 없고 하위 경로 자원만 쓴다
+  ---
+  duration_ms: 16.888292
+  type: 'test'
+  ...
+# Subtest: Service Worker install·activate·fetch는 scope를 격리하고 앱 파일만 다룬다
+ok 12 - Service Worker install·activate·fetch는 scope를 격리하고 앱 파일만 다룬다
+  ---
+  duration_ms: 17.146917
+  type: 'test'
+  ...
+# Subtest: 빌드 hash는 같은 소스에서 재현되고 소스 변경 시 바뀐다
+ok 13 - 빌드 hash는 같은 소스에서 재현되고 소스 변경 시 바뀐다
+  ---
+  duration_ms: 33.627083
+  type: 'test'
+  ...
+# Subtest: BP logo is supplied byte-for-byte, cached offline, and changes the build version
+ok 14 - BP logo is supplied byte-for-byte, cached offline, and changes the build version
+  ---
+  duration_ms: 23.944167
+  type: 'test'
+  ...
+# Subtest: 데모는 실제 기록과 분리된 원두 3종 이상의 샘플을 제공한다
+ok 15 - 데모는 실제 기록과 분리된 원두 3종 이상의 샘플을 제공한다
+  ---
+  duration_ms: 0.408542
+  type: 'test'
+  ...
+# Subtest: 원두 요약은 최고 평가를 기록에서 계산하고 기록 표본 수와 평균을 함께 제공한다
+ok 16 - 원두 요약은 최고 평가를 기록에서 계산하고 기록 표본 수와 평균을 함께 제공한다
+  ---
+  duration_ms: 6.996
+  type: 'test'
+  ...
+# Subtest: 원두 선택과 레시피 필터를 적용한 뒤 날짜 또는 평가 순으로 정렬한다
+ok 17 - 원두 선택과 레시피 필터를 적용한 뒤 날짜 또는 평가 순으로 정렬한다
+  ---
+  duration_ms: 0.6285
+  type: 'test'
+  ...
+# Subtest: 원두별 기록이 없거나 필터 결과가 없으면 빈 요약과 빈 배열을 돌려준다
+ok 18 - 원두별 기록이 없거나 필터 결과가 없으면 빈 요약과 빈 배열을 돌려준다
+  ---
+  duration_ms: 0.092791
+  type: 'test'
+  ...
+# Subtest: 로스팅 날짜부터 추출 날짜까지 경과일을 계산한다
+ok 19 - 로스팅 날짜부터 추출 날짜까지 경과일을 계산한다
+  ---
+  duration_ms: 0.164167
+  type: 'test'
+  ...
+# Subtest: 평점 표시는 채운 별과 빈 별을 숫자 평가에 맞춰 구분한다
+ok 20 - 평점 표시는 채운 별과 빈 별을 숫자 평가에 맞춰 구분한다
+  ---
+  duration_ms: 4.209334
+  type: 'test'
+  ...
+1..20
+# tests 20
+# suites 0
+# pass 20
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 395.432292

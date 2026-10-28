@@ -1,0 +1,1 @@
+PASS: 3 beans; computed best record; keyboard selection; recipe/date/rating filters; empty state; mobile cards; no overflow/errors/bad responses/external requests. Requests: 5

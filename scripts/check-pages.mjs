@@ -26,6 +26,9 @@ const allowedFiles = new Set([
   'platform/app-lifecycle.mjs',
   'platform/connection-file.mjs',
   'platform/update-coordinator.mjs',
+  'records-demo.css',
+  'records-demo.html',
+  'records-demo.mjs',
   'state/submission-state.mjs',
   'styles.css',
   'sw.js',
@@ -46,6 +49,9 @@ const requiredCacheFiles = [
   './platform/update-coordinator.mjs',
   './state/submission-state.mjs',
   './styles.css',
+  './records-demo.html',
+  './records-demo.mjs',
+  './records-demo.css',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -121,7 +127,7 @@ export async function checkPages(directory = defaultOutputDir, { allowIncomplete
   if (missing.length) return true;
 
   const textFiles = new Map();
-  for (const relativePath of ['app.mjs', 'commands/index.mjs', 'ui/controller.mjs', 'ui/view.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs', 'data/notion-client.mjs', 'data/notion-properties.mjs', 'data/read-repository.mjs', 'domain.mjs', 'index.html', 'manifest.webmanifest', 'platform/connection-file.mjs', 'state/submission-state.mjs', 'styles.css', 'sw.js']) {
+  for (const relativePath of ['app.mjs', 'commands/index.mjs', 'ui/controller.mjs', 'ui/view.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs', 'data/notion-client.mjs', 'data/notion-properties.mjs', 'data/read-repository.mjs', 'domain.mjs', 'index.html', 'records-demo.html', 'records-demo.mjs', 'records-demo.css', 'manifest.webmanifest', 'platform/connection-file.mjs', 'state/submission-state.mjs', 'styles.css', 'sw.js']) {
     textFiles.set(relativePath, (await readFile(path.join(directory, relativePath))).toString('utf8'));
   }
   const checkedText = new Map(textFiles);
@@ -163,8 +169,15 @@ export async function checkPages(directory = defaultOutputDir, { allowIncomplete
   const html = textFiles.get('index.html');
   if (!html.includes('href="./styles.css"') ||
       !html.includes('href="./manifest.webmanifest"') ||
-      !html.includes('src="./app.mjs"')) {
+      !html.includes('src="./app.mjs"') ||
+      !html.includes('href="./records-demo.html"')) {
     throw new Error('HTML 앱 자원은 상대 경로로 연결해야 합니다.');
+  }
+  const demoHtml = textFiles.get('records-demo.html');
+  if (!demoHtml.includes('href="./records-demo.css"') ||
+      !demoHtml.includes('src="./records-demo.mjs"') ||
+      !demoHtml.includes('href="./index.html"')) {
+    throw new Error('추출 기록 데모는 상대 경로 자원과 기존 기록 화면 복귀 링크를 사용해야 합니다.');
   }
   if (!/new URL\('\.\/sw\.js',\s*import\.meta\.url\)/.test(textFiles.get('app.mjs'))) {
     throw new Error('Service Worker는 모듈 위치 기준 상대 경로로 등록해야 합니다.');

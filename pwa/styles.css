@@ -123,6 +123,20 @@ footer .build-version { margin-top: 8px; letter-spacing: normal; font-weight: 40
 
 .header-tools { margin-left: auto; flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
 #connection-tools { display: flex; }
+.demo-entry-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 8px;
+  border: 1px solid #d8d1c3;
+  border-radius: 6px;
+  background: #fbf9f4;
+  color: #587464;
+  font-size: 0.75rem;
+  text-decoration: none;
+}
+.demo-entry-link:hover { background: #e8eee7; text-decoration: underline; text-underline-offset: 2px; }
+.demo-entry-link:focus-visible { outline: 3px solid #8b7657; outline-offset: 2px; }
 .button.connection-toggle {
   min-width: 44px;
   min-height: 44px;

@@ -40,3 +40,14 @@
 - Worker 최초 설정 `gpt-6-luna` / `max`가 사용량 제한으로 중단되어 허용된 대체 Worker `gpt-6.1-sol` / `medium`으로 전체 검증·별 표시 수정·증거 정리·커밋을 마쳤다.
 - 이 증거는 로컬 데모와 빌드 검증이다. 실제 Notion 데이터 통합, Safari/Firefox, 공개 게시 후 반영 확인은 이 단계에서 검증하지 않았다.
 - 독립 Critic 검토, main 통합, push, GitHub Pages 게시 및 공개 버전 확인은 Orchestrator가 이어서 수행한다.
+
+## 최신 main 통합 검증
+
+- Critic 승인: `critic.md`. 기능 커밋 `fb8d1b4`를 독립 검토했다.
+- 최신 main `842499d`의 커피 일러스트 변경을 `7741c36`에서 기능 브랜치에 통합했다.
+- Service Worker와 캐시 목록 테스트의 충돌은 `icons/home-brew.png` 및 데모 세 자산을 모두 유지해 해결했다. 빌더·검사기·기대 산출물 목록에도 네 자산이 모두 포함된다.
+- main의 홈 화면 일러스트와 기존 앱 CSS 변경은 데모 HTML·CSS·모듈에 영향을 주지 않으므로 동일 브라우저 검증을 반복하지 않았다.
+- 통합 소스 `npm run build:pages` 종료 0: 빌드 **`4d7bcb956694`** (`build-integrated.txt`).
+- 통합 소스 `npm run check:pages` 종료 0: 산출물 검사 통과 (`check-integrated.txt`).
+- 통합 소스 `npm test` 종료 0: **618/618 통과**, 실패·취소·건너뜀 0 (`test-integrated.txt`). 로컬 HTTP 리스닝을 허용한 환경에서 실행했다.
+- main fast-forward·push·게시 및 공개 반영 확인은 Orchestrator가 이어서 수행한다.

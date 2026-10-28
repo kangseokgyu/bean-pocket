@@ -17,6 +17,10 @@ function check(name, detail = true) {
   checks.push(name);
 }
 
+async function waitForAnimations(locator) {
+  await locator.evaluate(node => Promise.all(node.getAnimations().map(animation => animation.finished)));
+}
+
 const harness = `<!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="/pwa/styles.css"><title>삭제 모달 브라우저 검증</title></head>
@@ -102,12 +106,12 @@ const server = http.createServer(async (request, response) => {
     await trash.focus();
     await page.keyboard.press('Enter');
     await dialog.waitFor({ state: 'visible' });
+    await waitForAnimations(dialog);
     check('Enter opens the native accessible dialog');
     check('initial focus moves to Cancel', await page.evaluate(() => document.activeElement?.dataset.action === 'cancel-delete'));
     check('untrusted target name is visible as text', await dialog.locator('.delete-confirm-target').textContent() === '원두 <안전>');
     check('bean dependency restriction is explained', await dialog.locator('.delete-confirm-description').textContent().then(text => text.includes('연결된 추출 기록이 있으면 삭제할 수 없습니다')));
 
-    await page.waitForTimeout(180);
     const dimensions = await dialog.evaluate(node => {
       const cancel = node.querySelector('[data-action="cancel-delete"]');
       const remove = node.querySelector('[data-action="confirm-delete"]');
@@ -192,7 +196,7 @@ const server = http.createServer(async (request, response) => {
     for (const width of [390, 320]) {
       await page.setViewportSize({ width, height: 844 });
       await trash.click();
-      await page.waitForTimeout(180);
+      await waitForAnimations(dialog);
       const mobile = await dialog.evaluate(node => ({
         width: node.getBoundingClientRect().width,
         left: node.getBoundingClientRect().left,

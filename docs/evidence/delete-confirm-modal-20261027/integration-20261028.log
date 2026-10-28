@@ -1,0 +1,14 @@
+Delete confirm modal + toast integration verification | 2026-10-28
+Branch: codex/delete-confirm-modal
+HEAD: 030f479c76c485deb3798a1b1fe1b8d3a66f217b (includes main baa1954b8d9a2773871979464114b1a7957a5d90)
+
+npm test, initial restricted run: exit 1; 15 loopback listen EPERM failures.
+npm test, authorized loopback retry: exit 0; 585 passed, 0 failed, 0 skipped.
+npm run build:pages: exit 0; Pages build 4660fe6eb23a.
+npm run check:pages: exit 0; Pages output check passed.
+node docs/evidence/delete-confirm-modal-20261027/browser-check.cjs, first run: exit 1; sampled dialog at 0.99 entry-animation scale.
+browser-check.cjs adjustment: await active dialog animations before desktop/mobile size assertions.
+node docs/evidence/delete-confirm-modal-20261027/browser-check.cjs, final run: exit 0; 29/29 checks passed.
+Browser: Google Chrome 156.0.8078.48; desktop dialog 460px; buttons 44px; gap 10px; transition 0.14s.
+Browser console issues: 0; external requests: 0. Mobile widths: 390px and 320px, no horizontal overflow.
+git diff --check: passed. Notion writes, merge, push, and deployment: not performed.

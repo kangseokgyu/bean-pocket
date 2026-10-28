@@ -186,8 +186,13 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       return;
     }
 
-    const beanDeleteHasInlineProgress = currentState.pending && activeDelete?.action === 'delete-bean' && statusType === 'saving';
-    if (openDialog === deleteDialog && (!currentState.pending || beanDeleteHasInlineProgress)) {
+    const entrySubmit = activeEntryKind ? entryDialogFor(activeEntryKind)?.querySelector('[data-entry-submit]') : null;
+    const deleteIcon = confirmDeleteButton.querySelector('.button-icon');
+    const modalHasInlineProgress = currentState.pending && statusType === 'saving' && (
+      (openDialog === deleteDialog && deleteRequestPending && deleteIcon?.dataset.state === 'saving') ||
+      (openDialog === entryDialogFor(activeEntryKind) && entrySubmit?.dataset.state === 'saving')
+    );
+    if ((openDialog === deleteDialog && !currentState.pending) || modalHasInlineProgress) {
       if (statusPopoverOpen) status.hidePopover();
       statusPopoverOpen = false;
       status.hidden = true;

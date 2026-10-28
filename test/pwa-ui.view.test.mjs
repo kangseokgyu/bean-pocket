@@ -1658,7 +1658,7 @@ test('bean delete button spinner replaces its progress toast, locks duplicates, 
   assert.equal(dialog.querySelector('.delete-confirm-feedback').textContent, '이 레시피를 사용하는 기록이 있습니다.');
 });
 
-test('recipe and record deletes keep their progress toast', async () => {
+test('recipe and record delete spinners replace only their progress toast', async () => {
   for (const [route, action] of [['/recipes', 'delete-recipe'], ['/records', 'delete-record']]) {
     const document = new TestDocument(), view = createBeanView(document);
     view.showConnection({ connected: true });
@@ -1676,9 +1676,13 @@ test('recipe and record deletes keep their progress toast', async () => {
     const dialog = document.root.querySelector('.delete-confirm-dialog');
     const confirming = clickViewTarget(document, dialog.querySelector('[data-action="confirm-delete"]'));
     const status = document.root.querySelector('.app-status');
-    assert.equal(status.hidden, false, `${action} keeps the progress notice`);
-    assert.equal(status.parentElement === dialog, true);
+    assert.equal(status.hidden, true, `${action} button carries the progress feedback`);
     assert.equal(dialog.querySelector('[data-action="confirm-delete"]').querySelector('.button-icon').dataset.state, 'saving');
+    view.showStatus({ type: 'failed', message: '삭제하지 못했습니다.' });
+    view.showDeleteResult({ status: 'failed', message: '삭제하지 못했습니다.' });
+    assert.equal(status.hidden, false, `${action} final failure remains visible`);
+    assert.equal(status.textContent, '삭제하지 못했습니다.');
+    assert.equal(status.parentElement, dialog);
     release({ status: 'failed', message: '삭제하지 못했습니다.' });
     await confirming;
     view.setState({ pending: false, frozen: false, unresolved: false });
@@ -1861,6 +1865,72 @@ test('save buttons show loading and success only when their async operation chan
   view.finishConnectionSave();
   assert.equal(connectionSave.dataset.state, 'idle');
   assert.equal(connectionSave.querySelector('.button-icon').dataset.icon, 'save');
+});
+
+test('entry save spinners replace only saving toasts across beans, recipes, records, and recipe copies', async () => {
+  for (const [kind, open] of [
+    ['beans', 'showBeanForm'], ['recipes', 'showRecipeForm'], ['records', 'showRecordForm'],
+  ]) {
+    const document = new TestDocument();
+    const view = createAppView(document, { schedule: () => 1 });
+    view.bind({ setDirty() {} });
+    view.renderData(data());
+    view.renderRoute('/' + kind);
+    view[open]();
+    const dialog = document.root.querySelector(`dialog[data-entry-dialog="${kind}"]`);
+    const save = dialog.querySelector('[data-entry-submit]');
+
+    view.setState({ pending: true });
+    view.showStatus({ type: 'saving', message: '저장 중입니다.' });
+    const status = document.root.querySelector('.app-status');
+    assert.equal(save.dataset.state, 'saving', `${kind} submit button shows its spinner`);
+    assert.equal(save.getAttribute('aria-busy'), 'true');
+    assert.equal(status.hidden, true, `${kind} spinner replaces the duplicate progress toast`);
+
+    assert.equal(view.showEntrySuccess(kind), true);
+    view.showStatus({ type: 'saved', message: '저장했습니다.' });
+    assert.equal(status.hidden, false, `${kind} success notification replaces the hidden progress toast`);
+    view.setState({ pending: false });
+    assert.equal(status.hidden, false, `${kind} success notification stays visible after pending clears`);
+    assert.equal(status.textContent, '저장했습니다.');
+    for (const [type, message] of [
+      ['failed', '저장하지 못했습니다.'],
+      ['validation-error', '입력값을 확인해 주세요.'],
+      ['unknown', '저장 여부 확인이 필요합니다.'],
+      ['partial', '일부 저장 결과를 확인해야 합니다.'],
+      ['saved-read-error', '저장은 성공했지만 최신 목록을 불러오지 못했습니다.'],
+    ]) {
+      view.showStatus({ type, message });
+      assert.equal(status.hidden, false, `${kind} final ${type} notification remains visible`);
+      assert.equal(status.textContent, message);
+      assert.equal(status.parentElement, dialog);
+    }
+  }
+
+  const document = new TestDocument(), view = createBeanView(document);
+  view.bind({ setDirty() {} });
+  view.renderData(data());
+  view.renderRoute(`/recipes/${RECIPE}`);
+  await clickViewTarget(document, document.root.querySelector('[data-action="copy-recipe"]'));
+  const copyForm = document.root.querySelector('form[data-form="recipes"]');
+  const copyDialog = copyForm.closest('dialog');
+  assert.ok(copyDialog?.open, 'copy opens the recipe form dialog');
+  assert.equal(copyForm.dataset.copyId, RECIPE, 'copy submits through the recipe form');
+  view.setState({ pending: true });
+  view.showStatus({ type: 'saving', message: '저장 중입니다.' });
+  assert.equal(copyDialog.querySelector('[data-entry-submit]').dataset.state, 'saving');
+  assert.equal(document.root.querySelector('.app-status').hidden, true,
+    'recipe copy uses the recipe save spinner and hides the duplicate progress toast');
+});
+
+test('saving progress remains visible when no matching modal spinner is active', () => {
+  const document = new TestDocument(), view = createBeanView(document);
+  view.renderData(data());
+  view.setState({ pending: true });
+  view.showStatus({ type: 'saving', message: '저장 중입니다.' });
+  const status = document.root.querySelector('.app-status');
+  assert.equal(status.hidden, false, 'without an open entry or delete dialog, the toast is the only progress feedback');
+  assert.equal(status.textContent, '저장 중입니다.');
 });
 
 test('confirmation-result save disables duplicate submits and reflects its resolved result', async () => {
@@ -2305,6 +2375,11 @@ test('connection modal protects pending and success phases across product rerend
   assert.ok(dialog);
   assert.equal(view.beginConnectionSave(), true);
   view.setState({ pending: true });
+  view.showStatus({ type: 'checking', message: 'Notion 연결을 확인하고 있습니다.' });
+  const status = document.root.querySelector('.app-status');
+  assert.equal(dialog.querySelectorAll('button').find(button => button.type === 'submit').dataset.state, 'saving');
+  assert.equal(status.hidden, false, 'connection save keeps its checking toast');
+  assert.equal(status.parentElement, dialog);
   assert.equal(view.beginConnectionSave(), false, 'duplicate connection submissions are ignored');
   assert.equal(view.cancelConnection(), false);
   for (const listener of dialog.listeners.get('cancel')) listener({ preventDefault() {} });
@@ -2316,7 +2391,6 @@ test('connection modal protects pending and success phases across product rerend
   view.renderData(data());
   view.setState({ pending: false });
   for (const control of dialog.querySelectorAll('input,button,select,textarea')) assert.equal(control.disabled, true);
-  const status = document.root.querySelector('.app-status');
   assert.equal(dialog.querySelector('[data-connection-status]'), null, 'connection save feedback uses the shared toast');
   assert.equal(status.parentElement, dialog);
   assert.match(status.textContent, /저장/);

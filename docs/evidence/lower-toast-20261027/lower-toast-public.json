@@ -1,0 +1,52 @@
+[
+  {
+    "engine": "chromium",
+    "build": "740da46df31a",
+    "recovery": false,
+    "toast": {
+      "top": 689.203125,
+      "bottom": 740
+    },
+    "bottomOffset": "104px",
+    "buttons": [
+      {
+        "top": 785,
+        "bottom": 829,
+        "overlap": false
+      },
+      {
+        "top": 785,
+        "bottom": 829,
+        "overlap": false
+      }
+    ],
+    "autoHidden": true,
+    "errors": [],
+    "failed": []
+  },
+  {
+    "engine": "webkit",
+    "build": "740da46df31a",
+    "recovery": true,
+    "toast": {
+      "top": 671.7793579101562,
+      "bottom": 746.6171875
+    },
+    "bottomOffset": "104px",
+    "buttons": [
+      {
+        "top": 775.3272094726562,
+        "bottom": 820.8671875,
+        "overlap": false
+      },
+      {
+        "top": 775.3272094726562,
+        "bottom": 820.8671875,
+        "overlap": false
+      }
+    ],
+    "autoHidden": true,
+    "errors": [],
+    "failed": []
+  }
+]

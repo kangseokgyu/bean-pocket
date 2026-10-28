@@ -1,0 +1,117 @@
+✖ critic regression: initial server option page remains visible after loading the next picker page (11.748167ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  1 !== 2
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/record-search-picker/AX-1day/test/pwa-ui.view.test.mjs:3375:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual'
+  }
+
+✖ critic regression: restored draft and route-prefilled IDs update visible picker labels (13.116625ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /first/. Input:
+
+  '원두 선택'
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/record-search-picker/AX-1day/test/pwa-ui.view.test.mjs:3393:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '원두 선택',
+    expected: /first/,
+    operator: 'match'
+  }
+
+✖ critic regression: selected filter options survive a search and unrelated rerender (6.895375ms)
+  AssertionError [ERR_ASSERTION]: matching selected option should remain in native select
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/record-search-picker/AX-1day/test/pwa-ui.view.test.mjs:3408:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }
+
+ℹ tests 3
+ℹ suites 0
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 122.517125
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:3365:1
+✖ critic regression: initial server option page remains visible after loading the next picker page (11.748167ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  1 !== 2
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/record-search-picker/AX-1day/test/pwa-ui.view.test.mjs:3375:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:3378:1
+✖ critic regression: restored draft and route-prefilled IDs update visible picker labels (13.116625ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /first/. Input:
+
+  '원두 선택'
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/record-search-picker/AX-1day/test/pwa-ui.view.test.mjs:3393:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '원두 선택',
+    expected: /first/,
+    operator: 'match'
+  }
+
+test at test/pwa-ui.view.test.mjs:3396:1
+✖ critic regression: selected filter options survive a search and unrelated rerender (6.895375ms)
+  AssertionError [ERR_ASSERTION]: matching selected option should remain in native select
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/record-search-picker/AX-1day/test/pwa-ui.view.test.mjs:3408:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }

@@ -4,7 +4,7 @@
     "dialogLayout": {
       "position": "fixed",
       "width": 390,
-      "top": 351.078125,
+      "top": 366,
       "bottom": 900
     },
     "filterSearchAndClear": true,
@@ -20,8 +20,8 @@
     "dialogLayout": {
       "position": "fixed",
       "width": 520,
-      "top": 173.53125,
-      "bottom": 726.453125
+      "top": 191,
+      "bottom": 709
     },
     "filterSearchAndClear": true,
     "pagination": true,

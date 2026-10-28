@@ -47,8 +47,16 @@ view.bind({
     return Promise.resolve(page);
   },
 });
+const initialBeans = { items: beans.slice(0, 5).map(({ id, name }) => ({ id, name, status: 'ready' })),
+  nextCursor: '5', hasMore: true, complete: false };
+const initialRecipes = { items: recipes.map(({ id, name, beanId }) => ({ id, name, beanId, status: 'ready' })),
+  nextCursor: null, hasMore: false, complete: true };
+window.rerenderSelectedBean = beanId => view.renderData({ beans, recipes, records: [],
+  options: { filterBeans: initialBeans, filterRecipes: initialRecipes },
+  screen: { complete: true, hasMore: false, filters: { beanId, recipeId: '' } } });
 view.showConnection({ connected: true });
-view.renderData({ beans, recipes, records: [], screen: { complete: true, hasMore: false, filters: { beanId: '', recipeId: '' } } });
+view.renderData({ beans, recipes, records: [], options: { filterBeans: initialBeans, filterRecipes: initialRecipes },
+  screen: { complete: true, hasMore: false, filters: { beanId: '', recipeId: '' } } });
 view.renderRoute('/records');
 </script></body></html>`;
 
@@ -114,6 +122,11 @@ async function main() {
         assert.ok(dialogLayout.top > 100 && dialogLayout.top < 400, JSON.stringify(dialogLayout));
       }
 
+      assert.equal(await filterPicker.locator('[data-option-id]').count(), 5, 'the server initial page renders before pagination');
+      await filterPicker.getByRole('button', { name: '이름 더 보기' }).click();
+      await filterPicker.locator('[data-option-id]').nth(9).waitFor();
+      assert.equal(await filterPicker.locator('[data-option-id]').count(), 10,
+        'the first cursor page appends to the server initial page');
       await search.fill('시다마');
       await filterPicker.locator('[data-option-id]').first().waitFor();
       assert.equal(await filterPicker.locator('.search-picker-result').count(), 1);
@@ -135,6 +148,17 @@ async function main() {
       assert.equal(await recipeTrigger.textContent(), '모든 레시피');
 
       await page.screenshot({ path: path.join(evidence, `picker-${width}.png`), fullPage: true });
+      await beanTrigger.click();
+      const selectedPicker = page.locator('#filters-beans-option-picker');
+      await selectedPicker.locator('[data-option-id="' + beans[0].id + '"]').click();
+      await beanTrigger.click();
+      const selectedSearch = selectedPicker.locator('[data-option-search-kind="beans"]');
+      await selectedSearch.fill('브라우저 원두 7');
+      await selectedPicker.locator('[data-option-id]').first().waitFor();
+      await selectedPicker.getByRole('button', { name: '닫기' }).click();
+      await page.evaluate(beanId => window.rerenderSelectedBean(beanId), beans[0].id);
+      assert.match(await beanTrigger.textContent(), /시다마 브라우저 원두/,
+        'the selected bean stays visible after a search result and unrelated rerender');
       await page.getByRole('button', { name: '새 추출 기록 추가' }).click();
       const entryDialog = page.locator('[data-entry-dialog="records"]');
       await entryDialog.waitFor({ state: 'visible' });

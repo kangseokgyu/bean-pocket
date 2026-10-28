@@ -948,8 +948,13 @@ export function createAppView(document = globalThis.document, { schedule = setTi
         if (!previousPage && query === (routeParams(route).get('q') ?? '')) {
           previousPage = { items: currentData?.[kind] ?? [] };
         }
+      } else if (!previousPage && query === '') {
+        const initialPage = target === 'form'
+          ? currentData?.options?.[kind]
+          : currentData?.options?.[kind === 'beans' ? 'filterBeans' : 'filterRecipes'];
+        previousPage = initialPage ?? null;
       }
-      const keepPreviousPage = append && (target === 'brew' || previousPage?.query === query);
+      const keepPreviousPage = append && (target === 'brew' || previousPage && (previousPage.query ?? '') === query);
       const seen = new Set();
       const optionItems = [...(keepPreviousPage ? previousPage?.items ?? [] : []), ...(page.items ?? [])]
         .filter(item => {
@@ -970,7 +975,10 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       const previousOption = Array.from(select.options).find(option => option.value === previousValue);
       const placeholder = select.options[0]?.textContent ?? (kind === 'beans' ? '원두를 선택해 주세요.' : '레시피를 선택해 주세요.');
       const optional = target === 'filters';
-      optionPages.set(optionKey, { ...page, items: optionItems, query, savedAt: Date.now() });
+      const selectedItem = previousValue && previousOption && !optionItems.some(item => idOf(item.id) === previousValue)
+        ? { id: previousValue, name: previousOption.textContent, status: 'ready' }
+        : null;
+      optionPages.set(optionKey, { ...page, items: optionItems, selectedItem, query, savedAt: Date.now() });
       optionStates.set(optionKey, { status: 'ready', query, append: false });
       if (keepPreviousPage) {
         const known = new Set(Array.from(select.options, option => option.value));
@@ -1854,6 +1862,12 @@ function searchPicker(document, title, kind, target, page, placeholder, optional
   select.dataset.optionSelectKind = kind;
   select.dataset.optionTarget = target;
   fillSelect(select, page?.items ?? [], placeholder, optional);
+  const selectedItem = page?.selectedItem;
+  if (selectedItem?.id && !Array.from(select.options).some(option => option.value === idOf(selectedItem.id))) {
+    const selectedOption = make(document, 'option', selectedItem.name ?? '선택 항목');
+    selectedOption.value = idOf(selectedItem.id);
+    select.append(selectedOption);
+  }
   if (page) {
     select.dataset.optionLoaded = 'true';
     select.dataset.nextCursor = page.nextCursor ?? '';
@@ -2718,6 +2732,12 @@ function restoreDraft(form, draft, data) {
       field.append(option);
     }
     if (field) field.value = value;
+  }
+  if (form.dataset.form === 'records') {
+    for (const name of ['beanId', 'recipeId']) {
+      const picker = form.elements[name]?.closest('[data-search-picker]');
+      if (picker) syncSearchPickerTrigger(picker, data);
+    }
   }
   if (form.dataset.form === 'recipes' && draft.steps?.length) {
     const panel = form.closest('.data-panel');

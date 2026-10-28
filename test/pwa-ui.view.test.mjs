@@ -3361,3 +3361,64 @@ test('record rating offers five required native stars and preserves the selected
   assert.equal(form.elements.rating.value, '3');
   assert.deepEqual(form.querySelectorAll('input[name="rating"]').map(star => Boolean(star.checked)), [false, false, true, false, false]);
 });
+
+test('critic regression: initial server option page remains visible after loading the next picker page', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  current.options = { filterBeans: { items: [{ id: BEAN, name: 'first' }], hasMore: true, nextCursor: 'p2', complete: false } };
+  view.renderRoute('/records');
+  view.renderData(current);
+  view.setSearchOptions('filters', 'beans', { items: [{ id: 'second', name: 'second' }], hasMore: false, complete: true }, true, '');
+  const picker = document.root.querySelectorAll('[data-search-picker]')
+    .find(item => item.dataset.optionTarget === 'filters' && item.dataset.optionKind === 'beans');
+  assert.equal(picker.querySelectorAll('[data-option-id]').length, 2);
+});
+
+test('critic regression: restored draft and route-prefilled IDs update visible picker labels', () => {
+  const prefillDocument = new TestDocument();
+  const prefillView = createBeanView(prefillDocument);
+  const route = `/records/new?beanId=${BEAN}&recipeId=${RECIPE}`;
+  prefillView.renderData({ beans: [], recipes: [], records: [], screen: { route: '/home' } });
+  prefillView.renderRoute(route);
+  const response = data();
+  response.screen = { route };
+  response.options = { beans: { items: response.beans }, recipes: { items: response.recipes } };
+  prefillView.renderData(response);
+  const prefilled = prefillDocument.root.querySelector('form[data-form="records"]');
+  assert.equal(prefilled.elements.beanId.value, BEAN);
+  assert.equal(prefilled.elements.recipeId.value, RECIPE);
+  assert.match(prefilled.querySelector('[data-action="open-search-picker"]').textContent, /원두 <안전>/);
+  assert.match(prefilled.querySelectorAll('[data-action="open-search-picker"]')[1].textContent, /V60/);
+
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  current.options = { beans: { items: [{ id: BEAN, name: 'first' }] }, recipes: { items: [{ id: RECIPE, name: 'recipe' }] } };
+  view.renderData(current);
+  view.renderRoute('/records/new');
+  let form = document.root.querySelector('form[data-form="records"]');
+  form.elements.beanId.value = BEAN;
+  form.elements.recipeId.value = RECIPE;
+  form.elements.cupNote.value = 'draft';
+  view.renderRoute('/home');
+  view.renderRoute('/records/new');
+  form = document.root.querySelector('form[data-form="records"]');
+  assert.equal(form.elements.beanId.value, BEAN);
+  assert.match(form.querySelector('[data-action="open-search-picker"]').textContent, /first/);
+});
+
+test('critic regression: selected filter options survive a search and unrelated rerender', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  current.options = { filterBeans: { items: [{ id: BEAN, name: 'first' }], complete: true } };
+  current.screen = { filters: { beanId: BEAN, recipeId: '' }, complete: true };
+  view.renderRoute('/records');
+  view.renderData(current);
+  view.setSearchOptions('filters', 'beans', { items: [{ id: 'second', name: 'second' }], complete: true }, false, 'second');
+  assert.equal(document.root.querySelector('[data-record-filter="beanId"]').value, BEAN);
+  view.renderData(current);
+  const select = document.root.querySelector('[data-record-filter="beanId"]');
+  assert.ok(select.options.some(option => option.value === BEAN), 'matching selected option should remain in native select');
+});

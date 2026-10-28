@@ -1,0 +1,59 @@
+TAP version 13
+# Subtest: bean deletion opens a safe native dialog and restores focus after cancel or Escape
+ok 1 - bean deletion opens a safe native dialog and restores focus after cancel or Escape
+  ---
+  duration_ms: 10.046041
+  type: 'test'
+  ...
+# Subtest: dismissing a deletion result preserves its notice for button and Escape
+    # Subtest: unknown result dismissed with button
+    ok 1 - unknown result dismissed with button
+      ---
+      duration_ms: 3.234417
+      type: 'test'
+      ...
+    # Subtest: unknown result dismissed with Escape
+    ok 2 - unknown result dismissed with Escape
+      ---
+      duration_ms: 2.876208
+      type: 'test'
+      ...
+    # Subtest: partial result dismissed with button
+    ok 3 - partial result dismissed with button
+      ---
+      duration_ms: 2.159125
+      type: 'test'
+      ...
+    # Subtest: partial result dismissed with Escape
+    ok 4 - partial result dismissed with Escape
+      ---
+      duration_ms: 2.444417
+      type: 'test'
+      ...
+    # Subtest: succeeded result dismissed with button
+    ok 5 - succeeded result dismissed with button
+      ---
+      duration_ms: 2.225834
+      type: 'test'
+      ...
+    # Subtest: succeeded result dismissed with Escape
+    ok 6 - succeeded result dismissed with Escape
+      ---
+      duration_ms: 1.539583
+      type: 'test'
+      ...
+    1..6
+ok 2 - dismissing a deletion result preserves its notice for button and Escape
+  ---
+  duration_ms: 15.111209
+  type: 'test'
+  ...
+1..2
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3100.052625

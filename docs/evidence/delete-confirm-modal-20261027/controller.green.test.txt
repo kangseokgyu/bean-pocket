@@ -1,0 +1,13 @@
+✔ successful deletion with failed final refresh reports success separately (1803.638209ms)
+✔ a rejected deletion remains active and does not retry automatically (1425.074208ms)
+✔ an incomplete record relation protects unrelated recipe deletion (4651.802459ms)
+✔ recipe deletion trashes only the parent and removes it from fresh recipe choices (3559.98825ms)
+✔ lost record deletion response recovers from the fresh target without a second PATCH (4255.707083ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13269.306208

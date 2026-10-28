@@ -1,0 +1,71 @@
+✖ bean deletion opens a safe native dialog and restores focus after cancel or Escape (13.032459ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+    assert.ok(dialog)
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/delete-confirm-modal/AX-1day/test/pwa-ui.view.test.mjs:1400:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '=='
+  }
+
+✖ bean, recipe, and record deletes submit only after the custom dialog is confirmed (5.0185ms)
+  TypeError [Error]: Cannot read properties of null (reading 'open')
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/delete-confirm-modal/AX-1day/test/pwa-ui.view.test.mjs:1457:25)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7)
+
+✖ delete confirm locks duplicate submissions and renders failure results from the controller (1.528292ms)
+  TypeError [Error]: Cannot read properties of null (reading 'querySelector')
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/delete-confirm-modal/AX-1day/test/pwa-ui.view.test.mjs:1484:55)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7)
+
+ℹ tests 3
+ℹ suites 0
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 122.687958
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:1387:1
+✖ bean deletion opens a safe native dialog and restores focus after cancel or Escape (13.032459ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+    assert.ok(dialog)
+
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/delete-confirm-modal/AX-1day/test/pwa-ui.view.test.mjs:1400:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '=='
+  }
+
+test at test/pwa-ui.view.test.mjs:1432:1
+✖ bean, recipe, and record deletes submit only after the custom dialog is confirmed (5.0185ms)
+  TypeError [Error]: Cannot read properties of null (reading 'open')
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/delete-confirm-modal/AX-1day/test/pwa-ui.view.test.mjs:1457:25)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7)
+
+test at test/pwa-ui.view.test.mjs:1472:1
+✖ delete confirm locks duplicate submissions and renders failure results from the controller (1.528292ms)
+  TypeError [Error]: Cannot read properties of null (reading 'querySelector')
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/delete-confirm-modal/AX-1day/test/pwa-ui.view.test.mjs:1484:55)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7)

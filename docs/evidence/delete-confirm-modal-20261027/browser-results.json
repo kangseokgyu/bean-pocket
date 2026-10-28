@@ -1,0 +1,48 @@
+{
+  "browser": "Google Chrome via Playwright",
+  "checks": [
+    "Enter opens the native accessible dialog",
+    "initial focus moves to Cancel",
+    "untrusted target name is visible as text",
+    "bean dependency restriction is explained",
+    "desktop dialog and buttons render to spec",
+    "Escape cancels and restores focus",
+    "global status toast stays hidden while the delete dialog is open",
+    "delete request shows red spinner and disables both buttons",
+    "pending state renders spinner instead of trash icon",
+    "reduced-motion preference disables spinner and button transitions",
+    "synthetic duplicate click does not dispatch a second request",
+    "success check appears only after the delete result resolves",
+    "success feedback is announced in the dialog",
+    "successful dialog closes after its completion check",
+    "focus returns to the surviving trigger",
+    "/recipes uses the shared dialog",
+    "/recipes cancel restores focus",
+    "/records uses the shared dialog",
+    "/records cancel restores focus",
+    "known deletion failure stays visible and enables a deliberate retry",
+    "failure dialog cancel restores focus",
+    "uncertain result blocks retry but remains dismissible",
+    "Escape can dismiss a settled uncertain result",
+    "Escape preserves the uncertain-result notice after closing",
+    "390px modal fits without horizontal overflow",
+    "320px modal fits without horizontal overflow",
+    "focus falls back to the app content when a successful delete removes its trigger",
+    "browser has no console errors or warnings",
+    "browser makes no external requests"
+  ],
+  "measurements": {
+    "desktop": {
+      "dialogWidth": 460,
+      "buttonHeights": [
+        44,
+        44
+      ],
+      "gap": "10px",
+      "transition": "0.14s, 0.14s, 0.14s, 0.14s",
+      "red": "rgb(167, 51, 44)"
+    }
+  },
+  "consoleIssues": [],
+  "outsideRequests": []
+}

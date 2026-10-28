@@ -145,10 +145,15 @@ function mountInPage(document) {
   return { body, page };
 }
 
-function createBeanView(document) {
-  const view = createAppView(document);
+function createBeanView(document, options) {
+  const view = createAppView(document, options);
   view.renderRoute('/beans');
   return view;
+}
+
+async function clickViewTarget(document, target) {
+  const page = document.root.firstElementChild;
+  for (const listener of page.listeners.get('click') ?? []) await listener({ target });
 }
 
 const data = () => ({
@@ -1431,7 +1436,7 @@ test('navigation uses text-only menus with accessible names', () => {
   });
 });
 
-test('bean cards expose a labelled trash button and require confirmation before deleting', async () => {
+test('bean deletion opens a safe native dialog and restores focus after cancel or Escape', async () => {
   const document = new TestDocument(), view = createBeanView(document);
   view.showConnection({ connected: true });
   view.renderData(data());
@@ -1443,66 +1448,149 @@ test('bean cards expose a labelled trash button and require confirmation before 
   assert.equal(trash.getAttribute('aria-label'), '원두 <안전> 삭제');
   assert.ok(trash.querySelector('svg'));
   assert.equal(trash.dataset.id, BEAN);
-  const original = globalThis.confirm;
-  try {
-    globalThis.confirm = message => { assert.ok(message.includes('원두 <안전>')); return false; };
-    for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: trash });
-    assert.equal(calls.length, 0);
-    globalThis.confirm = () => true;
-    for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: trash });
-    assert.deepEqual(calls, [['delete-bean', { id: BEAN }]]);
-    for (const state of [{ pending: true }, { frozen: true }, { unresolved: true }]) {
-      view.setState(state);
-      assert.equal(trash.disabled, true);
-    }
-  } finally {
-    if (original === undefined) delete globalThis.confirm; else globalThis.confirm = original;
+  const dialog = document.root.querySelector('.delete-confirm-dialog');
+  assert.ok(dialog);
+
+  await clickViewTarget(document, trash);
+
+  assert.equal(dialog.open, true);
+  assert.equal(dialog.getAttribute('role'), 'dialog');
+  assert.equal(dialog.getAttribute('aria-modal'), 'true');
+  assert.equal(dialog.querySelector('h2').textContent, '원두를 삭제할까요?');
+  assert.equal(dialog.querySelector('.delete-confirm-target').textContent, '원두 <안전>');
+  assert.equal(dialog.querySelector('.delete-confirm-target').children.length, 0, 'the name is rendered as text');
+  assert.match(dialog.querySelector('.delete-confirm-description').textContent, /연결된 추출 기록이 있으면 삭제할 수 없습니다/);
+  assert.equal(document.activeElement, dialog.querySelector('[data-action="cancel-delete"]'));
+  assert.equal(calls.length, 0, 'opening the dialog does not send a delete request');
+
+  await clickViewTarget(document, dialog.querySelector('[data-action="cancel-delete"]'));
+  assert.equal(dialog.open, false);
+  assert.equal(document.activeElement, trash);
+  assert.equal(document.root.querySelector('.app-status').textContent, '삭제를 취소했습니다.');
+
+  await clickViewTarget(document, trash);
+  let prevented = false;
+  for (const listener of dialog.listeners.get('cancel') ?? []) listener({ preventDefault() { prevented = true; } });
+  assert.equal(prevented, true, 'Escape is handled by the dialog cancel event');
+  assert.equal(dialog.open, false);
+  assert.equal(document.activeElement, trash);
+  assert.equal(document.root.querySelector('.app-status').textContent, '삭제를 취소했습니다.');
+  assert.equal(calls.length, 0);
+
+  for (const state of [{ pending: true }, { frozen: true }, { unresolved: true }]) {
+    view.setState(state);
+    assert.equal(trash.disabled, true);
   }
 });
 
-test('recipe and record cards expose named trash controls and confirm each item before submission', async () => {
+test('dismissing a deletion result preserves its notice for button and Escape', async t => {
+  const results = [
+    { status: 'unknown', toastType: 'unknown', message: '삭제 여부 확인이 필요합니다. Notion 원본을 확인해 주세요.' },
+    { status: 'partial', toastType: 'partial', message: '일부 삭제 결과를 확인해야 합니다. Notion 원본을 확인해 주세요.' },
+    { status: 'succeeded', toastType: 'deleted-read-error', message: '삭제는 성공했지만 최신 목록을 불러오지 못했습니다. 목록을 새로고침해 주세요.' },
+  ];
+
+  for (const result of results) {
+    for (const dismissal of ['button', 'Escape']) {
+      await t.test(`${result.status} result dismissed with ${dismissal}`, async () => {
+        const scheduled = [];
+        const document = new TestDocument();
+        const view = createBeanView(document, { schedule: callback => scheduled.push(callback) });
+        view.renderData(data());
+        view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }),
+          submit: async () => {
+            view.showStatus({ type: result.toastType, message: result.message });
+            return { status: result.status, message: result.message };
+          } });
+        const trash = document.root.querySelector('[data-action="delete-bean"]');
+        const dialog = document.root.querySelector('.delete-confirm-dialog');
+        await clickViewTarget(document, trash);
+        await clickViewTarget(document, dialog.querySelector('[data-action="confirm-delete"]'));
+        assert.equal(dialog.open, true);
+        assert.equal(document.root.querySelector('.app-status').textContent, result.message);
+
+        if (dismissal === 'button') {
+          await clickViewTarget(document, dialog.querySelector('[data-action="cancel-delete"]'));
+        } else {
+          for (const listener of dialog.listeners.get('cancel') ?? []) listener({ preventDefault() {} });
+        }
+
+        assert.equal(dialog.open, false);
+        assert.equal(document.root.querySelector('.app-status').textContent, result.message);
+        assert.notEqual(result.message, '삭제를 취소했습니다.');
+        assert.equal(scheduled.length, result.status === 'succeeded' ? 1 : 0);
+      });
+    }
+  }
+});
+
+test('bean, recipe, and record deletes submit only after the custom dialog is confirmed', async () => {
   const document = new TestDocument(), view = createBeanView(document);
   view.showConnection({ connected: true });
   view.renderData(data());
   const calls = [];
-  const confirmations = [];
   view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }),
-    submit: async (...args) => calls.push(args) });
-  const original = globalThis.confirm;
+    submit: async (...args) => { calls.push(args); return { status: 'succeeded' }; } });
   assert.equal(Boolean(document.root.querySelector('[data-action="delete-bag"]')), false);
   const cases = [
-    ['/recipes', 'delete-recipe', 'V60', 'V60'],
-    ['/records', 'delete-record', '2026-06-15 · V60', '2026-06-15 · V60'],
+    ['/beans', 'delete-bean', '원두 <안전>', BEAN, '원두를 삭제할까요?'],
+    ['/recipes', 'delete-recipe', 'V60', RECIPE, '레시피를 삭제할까요?'],
+    ['/records', 'delete-record', '2026-06-15 · V60', '66666666-6666-4666-8666-666666666666', '추출 기록을 삭제할까요?'],
   ];
-  try {
-    globalThis.confirm = message => { confirmations.push(message); return false; };
-    for (const [route, action, name] of cases) {
-      view.renderRoute(route);
-      const trash = document.root.querySelector(`[data-action="${action}"]`);
-      assert.ok(trash, `${action} control exists`);
-      assert.equal(trash.type, 'button');
-      assert.equal(trash.getAttribute('aria-label'), `${name} 삭제`);
-      assert.ok(trash.querySelector('svg'));
-      assert.equal(trash.dataset.name, name);
-      assert.match(trash.parentElement.className, /entity-card-header/);
-      for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: trash });
-      assert.equal(calls.length, 0, 'cancelled confirmation sends no request');
-    }
-    globalThis.confirm = message => { confirmations.push(message); return true; };
-    for (const [route, action, name, promptName] of cases) {
-      view.renderRoute(route);
-      const trash = document.root.querySelector(`[data-action="${action}"]`);
-      for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: trash });
-      assert.match(confirmations.at(-1), new RegExp(promptName));
-      assert.match(confirmations.at(-1), /Notion 휴지통으로 이동/);
-    }
-    assert.deepEqual(calls, [
-      ['delete-recipe', { id: RECIPE }],
-      ['delete-record', { id: '66666666-6666-4666-8666-666666666666' }],
-    ]);
-  } finally {
-    if (original === undefined) delete globalThis.confirm; else globalThis.confirm = original;
+  for (const [route, action, name, id, heading] of cases) {
+    view.renderRoute(route);
+    const trash = document.root.querySelector(`[data-action="${action}"]`);
+    assert.ok(trash, `${action} control exists`);
+    assert.equal(trash.type, 'button');
+    assert.equal(trash.getAttribute('aria-label'), `${name} 삭제`);
+    assert.ok(trash.querySelector('svg'));
+    assert.equal(trash.dataset.name, name);
+    assert.match(trash.parentElement.className, /entity-card-header/);
+
+    const dialog = document.root.querySelector('.delete-confirm-dialog');
+    await clickViewTarget(document, trash.querySelector('svg'));
+    assert.equal(dialog.open, true);
+    assert.equal(dialog.querySelector('h2').textContent, heading);
+    assert.equal(dialog.querySelector('.delete-confirm-target').textContent, name);
+    assert.equal(calls.length, cases.indexOf(cases.find(item => item[0] === route)));
+    await clickViewTarget(document, dialog.querySelector('[data-action="confirm-delete"]'));
+    assert.deepEqual(calls.at(-1), [action, { id }]);
+    assert.equal(dialog.querySelector('[data-action="confirm-delete"]').querySelector('.button-label').textContent, '삭제 완료');
+    assert.equal(dialog.querySelector('[data-action="confirm-delete"]').querySelector('.button-icon').dataset.icon, 'check');
+    assert.match(dialog.querySelector('.delete-confirm-feedback').textContent, /삭제/);
+    await clickViewTarget(document, dialog.querySelector('[data-action="cancel-delete"]'));
+    assert.equal(dialog.open, false);
   }
+  assert.deepEqual(calls, cases.map(([, action, , id]) => [action, { id }]));
+});
+
+test('delete confirm locks duplicate submissions and renders failure results from the controller', async () => {
+  const document = new TestDocument(), view = createBeanView(document);
+  view.renderData(data());
+  let release;
+  const pending = new Promise(resolve => { release = resolve; });
+  const calls = [];
+  view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }),
+    submit: (...args) => { calls.push(args); return pending; } });
+  const trash = document.root.querySelector('[data-action="delete-bean"]');
+  const dialog = document.root.querySelector('.delete-confirm-dialog');
+  await clickViewTarget(document, trash);
+
+  const confirming = clickViewTarget(document, dialog.querySelector('[data-action="confirm-delete"]'));
+  assert.equal(dialog.getAttribute('aria-busy'), 'true');
+  assert.equal(dialog.querySelector('[data-action="confirm-delete"]').getAttribute('aria-busy'), 'true');
+  assert.equal(dialog.querySelector('[data-action="confirm-delete"]').disabled, true);
+  assert.equal(dialog.querySelector('[data-action="cancel-delete"]').disabled, true);
+  await clickViewTarget(document, dialog.querySelector('[data-action="confirm-delete"]'));
+  assert.equal(calls.length, 1, 'a second click cannot dispatch another deletion');
+
+  view.showDeleteResult({ status: 'failed', message: '이 레시피를 사용하는 기록이 있습니다.' });
+  release({ status: 'failed', code: 'delete-in-use' });
+  await confirming;
+  assert.equal(dialog.getAttribute('aria-busy'), 'false');
+  assert.equal(dialog.querySelector('[data-action="confirm-delete"]').disabled, false);
+  assert.equal(dialog.querySelector('[data-action="cancel-delete"]').disabled, false);
+  assert.equal(dialog.querySelector('.delete-confirm-feedback').textContent, '이 레시피를 사용하는 기록이 있습니다.');
 });
 
 
@@ -2299,15 +2387,10 @@ test('bean card deletion never opens records, including clicks on its icon', asy
   view.renderData(data());
   view.bind({});
   const trash = document.root.querySelector('[data-action="delete-bean"]');
-  const original = globalThis.confirm;
-  try {
-    globalThis.confirm = () => false;
-    for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: trash.querySelector('svg') });
-    assert.ok(document.root.querySelector('.bean-card'));
-    assert.equal(document.root.querySelectorAll('h4').some(node => node.textContent === '이 원두의 추출 기록'), false);
-  } finally {
-    if (original === undefined) delete globalThis.confirm; else globalThis.confirm = original;
-  }
+  await clickViewTarget(document, trash.querySelector('svg'));
+  assert.ok(document.root.querySelector('.bean-card'));
+  assert.equal(document.root.querySelectorAll('h4').some(node => node.textContent === '이 원두의 추출 기록'), false);
+  assert.equal(document.root.querySelector('.delete-confirm-dialog').open, true);
 });
 
 test('legacy extraction records remain in raw input but are hidden from current lists and details', () => {
@@ -2377,19 +2460,15 @@ test('recipe list card delete icon stays independent of detail navigation', asyn
   view.renderData(data());
   view.renderRoute('/recipes');
   const calls = [];
-  view.bind({ submit: (...args) => calls.push(args) });
+  view.bind({ submit: async (...args) => { calls.push(args); return { status: 'succeeded' }; } });
   const trash = document.root.querySelector('[data-action="delete-recipe"]');
-  const original = globalThis.confirm;
-  try {
-    for (const confirmed of [false, true]) {
-      globalThis.confirm = () => confirmed;
-      for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: trash.querySelector('svg') });
-      assert.equal(document.root.querySelector('[data-action="copy-recipe"]'), null);
-    }
-    assert.deepEqual(calls, [['delete-recipe', { id: RECIPE }]]);
-  } finally {
-    if (original === undefined) delete globalThis.confirm; else globalThis.confirm = original;
-  }
+  await clickViewTarget(document, trash.querySelector('svg'));
+  assert.equal(document.root.querySelector('[data-action="copy-recipe"]'), null);
+  const dialog = document.root.querySelector('.delete-confirm-dialog');
+  assert.equal(dialog.open, true);
+  await clickViewTarget(document, dialog.querySelector('[data-action="confirm-delete"]'));
+  assert.equal(document.root.querySelector('[data-action="copy-recipe"]'), null);
+  assert.deepEqual(calls, [['delete-recipe', { id: RECIPE }]]);
 });
 
 test('view notifies the controller when the current route changes', () => {

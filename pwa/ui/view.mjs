@@ -30,6 +30,7 @@ const ACTION_ICON_PATHS = Object.freeze({
   save: 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2ZM17 21v-8H7v8ZM7 3v5h8',
   x: 'M18 6 6 18M6 6l12 12',
   check: 'm20 6-11 11-5-5',
+  trash: 'M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7',
 });
 
 function actionIcon(document, name) {
@@ -180,6 +181,15 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       if (!statusPopoverUnsupported && typeof status.showPopover === 'function' && status.getAttribute('popover') !== 'manual') {
         status.setAttribute('popover', 'manual');
       }
+      return;
+    }
+
+    if (openDialog === deleteDialog) {
+      if (statusPopoverOpen) status.hidePopover();
+      statusPopoverOpen = false;
+      status.hidden = true;
+      status.removeAttribute('popover');
+      if (status.parentElement !== page) page.append(status);
       return;
     }
 
@@ -432,6 +442,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     applyState(nav, currentState);
     syncEntryDialogState();
     syncConnectionState();
+    syncDeleteDialogState();
   }
 
   const unresolved = make(document, 'section', undefined, 'unresolved-panel');
@@ -463,6 +474,41 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   let activeEntryKind = null;
   let entryPhase = 'idle';
   let entryTimer = null;
+
+  const deleteDialog = make(document, 'dialog', undefined, 'entry-dialog delete-confirm-dialog');
+  deleteDialog.id = 'delete-confirm-dialog';
+  deleteDialog.setAttribute('role', 'dialog');
+  deleteDialog.setAttribute('aria-modal', 'true');
+  deleteDialog.setAttribute('aria-labelledby', 'delete-confirm-title');
+  deleteDialog.setAttribute('aria-describedby', 'delete-confirm-description');
+  deleteDialog.setAttribute('aria-busy', 'false');
+  const deleteHeading = make(document, 'div', undefined, 'delete-confirm-heading');
+  const deleteSymbol = make(document, 'span', undefined, 'delete-confirm-symbol');
+  deleteSymbol.setAttribute('aria-hidden', 'true');
+  deleteSymbol.append(actionIcon(document, 'trash'));
+  const deleteTitle = make(document, 'h2', '항목을 삭제할까요?');
+  deleteTitle.id = 'delete-confirm-title';
+  deleteHeading.append(deleteSymbol, deleteTitle);
+  const deleteTarget = make(document, 'p', '', 'delete-confirm-target');
+  const deleteDescription = make(document, 'p', '', 'delete-confirm-description');
+  deleteDescription.id = 'delete-confirm-description';
+  const deleteFeedback = make(document, 'p', '', 'delete-confirm-feedback');
+  deleteFeedback.setAttribute('role', 'status');
+  deleteFeedback.setAttribute('aria-live', 'polite');
+  deleteFeedback.hidden = true;
+  const deleteActions = make(document, 'div', undefined, 'form-actions delete-confirm-actions');
+  deleteActions.setAttribute('role', 'group');
+  deleteActions.setAttribute('aria-label', '삭제 확인');
+  const cancelDeleteButton = actionButton(document, '취소', 'button', 'x', 'cancel-delete');
+  const confirmDeleteButton = actionButton(document, '삭제', 'button', 'trash', 'confirm-delete');
+  confirmDeleteButton.className = 'button action-button action-delete';
+  deleteActions.append(cancelDeleteButton, confirmDeleteButton);
+  deleteDialog.append(deleteHeading, deleteTarget, deleteDescription, deleteFeedback, deleteActions);
+  page.append(deleteDialog);
+  page.tabIndex = -1;
+  let activeDelete = null;
+  let deleteRequestPending = false;
+  let deleteCloseTimer = null;
 
   function entryDialogFor(kind) {
     return content.querySelector(`dialog[data-entry-dialog="${kind}"]`);
@@ -526,6 +572,141 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     (content.querySelector(`[data-action="${action}"]`) ?? nav.querySelector('[data-route="/beans"]'))?.focus?.();
   }
 
+  function syncDeleteDialogState() {
+    if (!deleteDialog.open || !activeDelete) return;
+    if (deleteRequestPending) {
+      cancelDeleteButton.disabled = true;
+      confirmDeleteButton.disabled = true;
+      return;
+    }
+    const resultIsFinal = ['succeeded', 'unknown', 'partial'].includes(activeDelete.resultStatus);
+    confirmDeleteButton.disabled = currentState.pending || currentState.frozen || currentState.unresolved || resultIsFinal;
+    cancelDeleteButton.disabled = currentState.pending || currentState.frozen;
+  }
+
+  function closeDeleteDialog() {
+    if (!activeDelete || deleteRequestPending) return false;
+    if (deleteCloseTimer !== null) {
+      cancelSchedule(deleteCloseTimer);
+      deleteCloseTimer = null;
+    }
+    const cancelledBeforeRequest = activeDelete.resultStatus === null;
+    const trigger = activeDelete.trigger;
+    activeDelete = null;
+    if (deleteDialog.open && typeof deleteDialog.close === 'function') deleteDialog.close();
+    else deleteDialog.open = false;
+    deleteDialog.setAttribute('aria-busy', 'false');
+    renderStatus();
+    if (trigger?.parentElement && trigger.isConnected !== false) trigger.focus?.();
+    else (content.querySelector('.entity-delete') ?? page).focus?.();
+    return cancelledBeforeRequest ? 'cancelled' : 'dismissed';
+  }
+
+  function openDeleteDialog(trigger, action) {
+    if (!trigger || deleteDialog.open || currentState.pending || currentState.frozen || currentState.unresolved) return false;
+    const nouns = { 'delete-bean': '원두를', 'delete-recipe': '레시피를', 'delete-record': '추출 기록을' };
+    const descriptions = {
+      'delete-bean': '삭제한 원두는 Notion 휴지통으로 이동합니다. 연결된 추출 기록이 있으면 삭제할 수 없습니다.',
+      'delete-recipe': '삭제한 레시피는 Notion 휴지통으로 이동합니다. 추출 기록에서 사용 중인 레시피는 먼저 해당 추출 기록을 삭제해야 합니다.',
+      'delete-record': '해당 추출 기록만 Notion 휴지통으로 이동합니다.',
+    };
+    const noun = nouns[action];
+    if (!noun) return false;
+    activeDelete = { action, id: trigger.dataset.id, trigger, resultReported: false, resultStatus: null };
+    deleteTitle.textContent = `${noun} 삭제할까요?`;
+    deleteTarget.textContent = trigger.dataset.name ?? '';
+    deleteDescription.textContent = descriptions[action];
+    deleteFeedback.textContent = '';
+    deleteFeedback.hidden = true;
+    deleteFeedback.dataset.state = '';
+    deleteDialog.setAttribute('aria-busy', 'false');
+    cancelDeleteButton.disabled = false;
+    confirmDeleteButton.disabled = false;
+    setActionButton(cancelDeleteButton, '취소', 'idle', 'x');
+    setActionButton(confirmDeleteButton, '삭제', 'idle', 'trash');
+    showNativeDialog(deleteDialog);
+    syncStatusToast();
+    cancelDeleteButton.focus?.();
+    return true;
+  }
+
+  function showDeleteResult(result = {}) {
+    if (!activeDelete || !deleteDialog.open) return false;
+    activeDelete.resultReported = true;
+    activeDelete.resultStatus = result.status ?? 'failed';
+    deleteRequestPending = false;
+    deleteDialog.setAttribute('aria-busy', 'false');
+    deleteFeedback.hidden = false;
+    deleteFeedback.textContent = result.message ?? (result.status === 'succeeded'
+      ? '삭제했습니다.' : '삭제하지 못했습니다. 목록을 새로고침해 주세요.');
+    deleteFeedback.dataset.state = result.status === 'succeeded' ? 'success'
+      : ['unknown', 'partial'].includes(result.status) ? 'uncertain' : 'error';
+
+    if (result.status === 'succeeded') {
+      setActionButton(confirmDeleteButton, '삭제 완료', 'success', 'check');
+      confirmDeleteButton.disabled = true;
+      cancelDeleteButton.disabled = false;
+      setActionButton(cancelDeleteButton, '닫기', 'idle', 'x');
+      const request = activeDelete;
+      deleteCloseTimer = schedule(() => {
+        deleteCloseTimer = null;
+        if (activeDelete === request) closeDeleteDialog();
+      }, 900);
+    } else if (['unknown', 'partial'].includes(result.status)) {
+      setActionButton(confirmDeleteButton, '확인 필요', 'idle', 'trash');
+      confirmDeleteButton.disabled = true;
+      cancelDeleteButton.disabled = false;
+      setActionButton(cancelDeleteButton, '닫기', 'idle', 'x');
+      cancelDeleteButton.focus?.();
+    } else {
+      setActionButton(confirmDeleteButton, '삭제', 'idle', 'trash');
+      confirmDeleteButton.disabled = false;
+      cancelDeleteButton.disabled = false;
+      setActionButton(cancelDeleteButton, '취소', 'idle', 'x');
+      confirmDeleteButton.focus?.();
+    }
+    syncDeleteDialogState();
+    syncStatusToast();
+    return true;
+  }
+
+  async function submitDelete() {
+    if (!activeDelete || deleteRequestPending) return;
+    const state = entryActions?.getState?.() ?? currentState;
+    if (state.pending || state.frozen || state.unresolved) return;
+    const request = activeDelete;
+    request.resultReported = false;
+    request.resultStatus = 'pending';
+    deleteRequestPending = true;
+    deleteDialog.setAttribute('aria-busy', 'true');
+    deleteFeedback.textContent = '';
+    deleteFeedback.hidden = true;
+    confirmDeleteButton.disabled = true;
+    cancelDeleteButton.disabled = true;
+    setActionButton(confirmDeleteButton, '삭제 중…', 'saving', 'trash');
+    try {
+      const result = await entryActions.submit(request.action, { id: request.id });
+      if (!request.resultReported) {
+        const status = result?.status ?? 'failed';
+        const message = result?.message ?? (status === 'succeeded' ? '삭제했습니다.'
+          : status === 'unknown' ? '삭제 여부 확인이 필요합니다. 다시 삭제하지 말고 Notion 원본을 확인해 주세요.'
+            : status === 'partial' ? '일부 항목의 삭제 결과를 확인해야 합니다. Notion 원본을 확인해 주세요.'
+              : '삭제하지 못했습니다. 목록을 새로고침해 주세요.');
+        showDeleteResult({ status, message });
+      }
+    } catch {
+      if (!request.resultReported) {
+        showDeleteResult({ status: 'failed', message: '삭제하지 못했습니다. 연결과 목록을 확인해 주세요.' });
+      }
+    }
+  }
+
+  deleteDialog.addEventListener('cancel', event => {
+    event.preventDefault();
+    if (deleteRequestPending) return;
+    if (closeDeleteDialog() === 'cancelled') view.showStatus({ type: 'cancelled', message: '삭제를 취소했습니다.' });
+  });
+
   function openEntryForm(kind, action, fieldName) {
     const form = content.querySelector('form[data-form="' + kind + '"]');
     const dialog = entryDialogFor(kind);
@@ -559,6 +740,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       renderStatus({ promoteToast: changed });
       scheduleStatusHide();
     },
+    showDeleteResult,
     showConnection(value) {
       const connected = !!value?.connected;
       const retryInitialization = !!value?.retryInitialization;
@@ -859,7 +1041,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     bind(actions) {
       entryActions = actions;
       bindEvents({ page, connectionForm, originalConnectionCheck, repair, nav, content,
-        unresolved, actions, document, view });
+        unresolved, actions, document, view, openDeleteDialog, closeDeleteDialog, submitDelete });
       bindPullToRefresh({ page, document, actions });
     },
   };
@@ -1818,7 +2000,8 @@ function buildResolutionForm(document, operation) {
   return card;
 }
 
-function bindEvents({ page, nav, connectionForm, originalConnectionCheck, content, actions, document, view }) {
+function bindEvents({ page, nav, connectionForm, originalConnectionCheck, content, actions, document, view,
+  openDeleteDialog, closeDeleteDialog, submitDelete }) {
   connectionForm.addEventListener('input', event => {
     if (!event.target.disabled) actions.setDirty(true, 'connection');
   });
@@ -1857,6 +2040,14 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
     const target = event.target.closest('[data-action]');
     const action = target?.dataset.action;
     if (!action || target.disabled) return;
+    if (action === 'cancel-delete') {
+      if (closeDeleteDialog() === 'cancelled') view.showStatus({ type: 'cancelled', message: '삭제를 취소했습니다.' });
+      return;
+    }
+    if (action === 'confirm-delete') {
+      await submitDelete();
+      return;
+    }
     if (action === 'edit-connection') {
       view.editConnection();
       return;
@@ -1908,15 +2099,7 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
     if (['delete-bean', 'delete-recipe', 'delete-record'].includes(action)) {
       const state = actions.getState?.() ?? {};
       if (target.disabled || state.pending || state.frozen || state.unresolved) return;
-      const nouns = { 'delete-bean': '원두를', 'delete-recipe': '레시피를', 'delete-record': '추출 기록을' };
-      const dependencies = {
-        'delete-bean': '연결된 추출 기록이 있으면 삭제할 수 없습니다.',
-        'delete-recipe': '추출 기록에서 사용 중인 레시피는 먼저 해당 추출 기록을 삭제해야 합니다.',
-        'delete-record': '해당 기록만 휴지통으로 이동합니다.',
-      };
-      if (!globalThis.confirm?.(`“${target.dataset.name}” ${nouns[action]} 삭제할까요?\nNotion 휴지통으로 이동합니다. ${dependencies[action]}`)) return;
-      try { await actions.submit(action, { id: target.dataset.id }); }
-      catch { /* Controller supplies a safe message. */ }
+      openDeleteDialog(target, action);
       return;
     }
     if (action === 'show-bean-form') {

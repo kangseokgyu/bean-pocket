@@ -13,7 +13,9 @@ async function setup() {
   const make = () => {
     const state = createSubmissionState(native);
     const app = createAppController({
-      view: { currentRoute() { return '/beans'; }, showStatus: v => events.push(v), renderData: d => events.push({ data: d }), setState() {}, clearSecret() {} },
+      view: { currentRoute() { return '/beans'; }, showStatus: v => events.push(v),
+        showDeleteResult: value => events.push({ deleteResult: value }),
+        renderData: d => events.push({ data: d }), setState() {}, clearSecret() {} },
       state, file: { readConnection: async () => native.files.has('connection.json') ? connection() : null },
       makeClient: c => new NotionClient(c.token, { dataSources: c.dataSources, connectionRevision: c.revision, fetchImpl: fake.fetch }),
       makeRepository: createReadRepository, makeCommands: createCommands,
@@ -260,6 +262,8 @@ test('successful deletion with failed final refresh reports success separately',
   };
   assert.equal((await env.app.submit('delete-bean', { id: env.id })).status, 'succeeded');
   assert.equal(env.events.filter(e => e.type).at(-1).type, 'deleted-read-error');
+  assert.deepEqual(env.events.filter(event => event.deleteResult).at(-1).deleteResult,
+    { status: 'succeeded', message: '삭제는 성공했지만 최신 목록을 불러오지 못했습니다. 목록을 새로고침해 주세요.' });
 });
 
 test('a rejected deletion remains active and does not retry automatically', async () => {
@@ -270,6 +274,8 @@ test('a rejected deletion remains active and does not retry automatically', asyn
   assert.equal(env.app.getState().unresolved, false);
   assert.equal(patches(env).length, 1);
   assert.equal(env.fake.rows[0].in_trash, false);
+  assert.deepEqual(env.events.filter(event => event.deleteResult).at(-1).deleteResult,
+    { status: 'failed', message: '삭제하지 못했습니다. 연결된 추출 기록이나 확인할 수 없는 관계가 있는지 확인하고 목록을 새로고침해 주세요.' });
 });
 
 test('a duplicate delete intent never dispatches twice and unsaved form state survives deletion', async () => {

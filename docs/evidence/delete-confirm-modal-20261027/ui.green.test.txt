@@ -1,0 +1,13 @@
+✔ bean deletion opens a safe native dialog and restores focus after cancel or Escape (10.801416ms)
+✔ bean, recipe, and record deletes submit only after the custom dialog is confirmed (16.12525ms)
+✔ delete confirm locks duplicate submissions and renders failure results from the controller (2.060208ms)
+✔ bean card deletion never opens records, including clicks on its icon (2.096416ms)
+✔ recipe list card delete icon stays independent of detail navigation (4.414833ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3131.746875

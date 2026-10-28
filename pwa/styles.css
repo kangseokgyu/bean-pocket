@@ -223,6 +223,7 @@ p { line-height: 1.6; }
   color: #203d32;
   box-shadow: 0 22px 70px rgb(22 37 29 / 24%);
 }
+.delete-confirm-dialog { width: min(460px, calc(100% - 32px)); max-width: 460px; padding: 28px; }
 .entry-dialog::backdrop { background: rgb(19 31 25 / 48%); backdrop-filter: blur(2px); }
 .entry-dialog[open] { animation: entry-dialog-in 160ms ease-out; }
 @keyframes entry-dialog-in {
@@ -348,6 +349,21 @@ button:focus-visible, .table-scroll:focus-visible {
 .button.action-button:active:not(:disabled) { transform: scale(.98); }
 .entry-dialog .form-actions .button.action-button { min-height: 44px; }
 
+.delete-confirm-heading { display: flex; gap: 12px; align-items: center; }
+.delete-confirm-heading h2 { margin: 0; font-size: 1.25rem; line-height: 1.4; }
+.delete-confirm-symbol { display: inline-flex; flex: 0 0 36px; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: #f7e9e5; color: #a7332c; }
+.delete-confirm-symbol svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.delete-confirm-target { margin: 24px 0 8px; font-weight: 700; overflow-wrap: anywhere; }
+.delete-confirm-description { margin: 0; color: #546056; font-size: 0.875rem; line-height: 1.75; word-break: keep-all; overflow-wrap: anywhere; }
+.delete-confirm-feedback { margin: 12px 0 0; line-height: 1.6; overflow-wrap: anywhere; }
+.delete-confirm-feedback[data-state="success"] { color: #224b3c; }
+.delete-confirm-feedback[data-state="error"], .delete-confirm-feedback[data-state="uncertain"] { color: #8f2c26; }
+.delete-confirm-actions { justify-content: flex-end; gap: 10px; margin-top: 28px; padding: 0; }
+.delete-confirm-actions .button { min-width: 96px; }
+.button.action-button.action-delete { border-color: #a7332c; background: #a7332c; color: #fff; }
+.button.action-delete:hover:not(:disabled) { border-color: #8f2c26; background: #8f2c26; box-shadow: 0 3px 10px rgb(167 51 44 / 18%); }
+.button.action-delete:hover:not(:disabled) .button-icon { transform: translateY(-1px); transition: transform 140ms ease; }
+
 .button-icon {
   position: relative;
   display: inline-flex;
@@ -386,6 +402,7 @@ button:focus-visible, .table-scroll:focus-visible {
 
 @media (prefers-reduced-motion: reduce) {
   .button.action-button { transition: none; }
+  .button.action-delete:hover:not(:disabled) .button-icon { transition: none; transform: none; }
   .button-icon[data-state="saving"]::after { animation: none; }
   .status-icon[data-state="success"] { animation: none; }
 }
@@ -552,6 +569,9 @@ footer {
   .entry-dialog .form-actions { bottom: calc(-1 * max(14px, env(safe-area-inset-bottom, 0px))); margin: 0 -14px calc(-1 * max(14px, env(safe-area-inset-bottom, 0px))); padding: 12px 14px max(14px, env(safe-area-inset-bottom, 0px)); }
   .form-actions .button { width: 100%; padding-inline: 8px; }
   .connection-panel .form-grid > .button { width: 100%; }
+  .delete-confirm-dialog { position: fixed; inset: 0; width: calc(100% - 32px); max-width: 460px; max-height: calc(100dvh - 32px); margin: auto; padding: 20px; border-radius: 16px; }
+  .delete-confirm-actions { display: flex; }
+  .delete-confirm-actions .button { width: auto; }
 }
 
 @media (max-width: 360px) {

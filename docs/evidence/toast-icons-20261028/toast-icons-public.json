@@ -1,0 +1,44 @@
+[
+  {
+    "engine": "chromium",
+    "width": 390,
+    "motion": "no-preference",
+    "loading": {
+      "animation": "action-button-spin",
+      "svgDisplay": "none",
+      "afterMessage": true,
+      "hiddenFromAT": "true"
+    },
+    "completed": {
+      "animation": "toast-icon-complete",
+      "svgDisplay": "block",
+      "path": "m20 6-11 11-5-5",
+      "message": "저장했습니다.",
+      "overlap": false,
+      "overflow": false
+    },
+    "autoHidden": true,
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 390,
+    "motion": "no-preference",
+    "loading": {
+      "animation": "action-button-spin",
+      "svgDisplay": "none",
+      "afterMessage": true,
+      "hiddenFromAT": "true"
+    },
+    "completed": {
+      "animation": "toast-icon-complete",
+      "svgDisplay": "block",
+      "path": "m20 6-11 11-5-5",
+      "message": "저장했습니다.",
+      "overlap": false,
+      "overflow": false
+    },
+    "autoHidden": true,
+    "errors": []
+  }
+]

@@ -12,3 +12,10 @@
 
 - 초기 통합 시 main에 삭제 확인 모달(`9baa67d`)이 추가되어 fast-forward가 불가능했다. 최신 main을 기능 브랜치에 정상 merge했고 충돌은 없었다. 삭제 모달의 토스트 억제·결과 보존 동작 유지 확인.
 - merge 후 전체 테스트 587/587, build/check exit 0, 최종 제품 빌드 `0a50f2e5ab9f`. 두 브라우저의 10개 조합도 재검증 통과 (`merged-test-summary.txt`, `toast-icons-merged-*.txt`, `merged-browser.json`).
+
+## 최종 게시 확인
+
+- main 통합 후 전체 테스트 587/587, build/check exit 0 (`integrated-test-summary.txt`, `toast-icons-integrated-*.txt`). 제품 커밋 `6bc990ea03675326fba6002c833273bb442c8cbe`, 빌드 `0a50f2e5ab9f`.
+- 일반판(`probes=false`) Pages 게시 성공: https://github.com/kangseokgyu/bean-pocket/actions/runs/40613554224
+- 공개 주소 https://kangseokgyu.github.io/bean-pocket/ 의 파일 20개가 로컬 산출물과 모두 SHA-256 일치 (`toast-icons-public-files.json`).
+- `node browser.cjs --public` exit 0: 공개 origin에서 공급된 UI·CSS 파일을 사용하는 격리된 fixture에서 mock 저장 버튼을 클릭했다. Chromium·WebKit 390px 모두 메시지 뒤 회전 아이콘→체크 확대 전환, 버튼 겹침 없음, 3초 자동 숨김, 가로 넘침·pageerror 없음 확인 (`toast-icons-public.json`, `public-complete.png`). 실제 연결 정보나 Notion 쓰기는 사용하지 않았다.

@@ -274,9 +274,12 @@ for (const outcome of ['saved', 'missing', 'error', 'recovery', 'busy', 'read-er
     assert.equal(loading?.querySelector('.startup-spinner'), null);
     assert.equal(loading.hidden, true);
     assert.equal(page.inert, false);
-    assert.equal(status.hidden, outcome === 'saved');
-    if (outcome === 'saved') assert.equal(status.textContent, '');
-    assert.equal(status.dataset.state, { saved: 'ready', missing: 'disconnected', error: 'connection-error',
+    assert.equal(status.hidden, false);
+    if (outcome === 'saved') {
+      assert.equal(status.textContent, '화면을 불러왔습니다.');
+      assert.equal(status.querySelector('.status-icon').dataset.state, 'success');
+    }
+    assert.equal(status.dataset.state, { saved: 'loaded', missing: 'disconnected', error: 'connection-error',
       recovery: 'connection-error', busy: 'startup-busy', 'read-error': 'read-error' }[outcome]);
     assert.equal(document.root.querySelector('.startup-retry-panel').hidden, !['busy', 'error'].includes(outcome));
     assert.equal(document.root.querySelector('.repair-panel').hidden, outcome !== 'recovery');
@@ -340,6 +343,64 @@ test('saved connection opens settings modally and closing discards unsaved secre
   assert.equal(panel.hidden, false);
   assert.equal(panel.querySelector('.repair-panel').hidden, false);
 });
+
+for (const outcome of ['navigation', 'refresh', 'error', 'cancelled']) {
+  test(`controller screen loading toast reaches the ${outcome} outcome`, async t => {
+    t.mock.timers.enable({ apis: ['setTimeout'] });
+    const document = new TestDocument();
+    const view = createBeanView(document);
+    let completeRead;
+    let failRead;
+    let markStarted;
+    let deferRead = false;
+    const started = new Promise(resolve => { markStarted = resolve; });
+    const pageResult = { items: [], complete: true, hasMore: false };
+    const read = () => {
+      if (!deferRead) return Promise.resolve(pageResult);
+      markStarted();
+      return new Promise((resolve, reject) => { completeRead = resolve; failRead = reject; });
+    };
+    const context = {
+      async inspect() { return { initialized: false, blocked: false }; },
+      async readJournal() { return { operations: [], connectionGuard: null }; },
+      async beginConnectionChange() {}, async commitConnectionChange() {},
+    };
+    const app = createAppController({ view,
+      state: { withWriteLock: action => action(context) }, file: {},
+      makeClient: () => ({ async verify() {} }),
+      makeRepository: () => ({ listBeans: read, listRecipeSummaries: read }),
+      makeCommands: () => ({}), uuid: () => 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    });
+    await app.connect({ token: 'fake-only', dataSources: { beans: BEAN, recipes: RECIPE, steps: BEAN, records: RECIPE } });
+    deferRead = true;
+    if (outcome !== 'refresh') view.renderRoute('/recipes');
+    const loading = outcome === 'refresh' ? app.refresh() : app.loadRoute('/recipes', { force: true });
+    const result = loading.catch(error => error);
+    await started;
+    const status = document.root.querySelector('.app-status');
+    const icon = status.querySelector('.status-icon');
+    assert.equal(status.hidden, false);
+    assert.equal(icon.hidden, false);
+    assert.equal(icon.dataset.state, 'saving', 'a fresh screen load replaces a previous completion icon');
+    if (outcome === 'error' || outcome === 'cancelled') failRead({ code: outcome === 'cancelled' ? 'read-cancelled' : 'read-failed' });
+    else completeRead(pageResult);
+    await result;
+    assert.equal(status.hidden, false, 'the outcome remains visible after loading finishes');
+    if (outcome === 'error' || outcome === 'cancelled') {
+      assert.equal(icon.hidden, true);
+      assert.notEqual(icon.dataset.state, 'success');
+    } else {
+      assert.equal(status.textContent, '화면을 불러왔습니다.');
+      assert.equal(icon.hidden, false);
+      assert.equal(icon.dataset.state, 'success');
+      assert.equal(status.getAttribute('aria-busy'), 'false');
+    }
+    t.mock.timers.tick(2999);
+    assert.equal(status.hidden, false);
+    t.mock.timers.tick(1);
+    assert.equal(status.hidden, true);
+  });
+}
 
 test('toast trailing icon changes from loading to completion without replacing its message', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
@@ -430,7 +491,7 @@ test('checking and saving feedback stays visible while work is in progress', t =
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const document = new TestDocument();
   const view = createBeanView(document);
-  for (const type of ['checking', 'saving']) {
+  for (const type of ['checking', 'saving', 'loading']) {
     view.showStatus({ type, message: '진행 중…' });
     t.mock.timers.tick(10000);
     assert.equal(document.root.querySelector('.app-status').hidden, false);

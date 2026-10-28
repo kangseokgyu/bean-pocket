@@ -194,7 +194,8 @@ p { line-height: 1.6; }
 }
 
 .app-status[data-state="saved"], .app-status[data-state="connected"],
-.app-status[data-state="ready"], .app-status[data-state="resolved"] {
+.app-status[data-state="ready"], .app-status[data-state="resolved"],
+.app-status[data-state="loaded"] {
   border-color: #9db8a5;
   background: #f3faf4;
 }

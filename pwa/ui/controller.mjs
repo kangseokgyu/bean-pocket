@@ -336,7 +336,7 @@ export function createAppController({
     return true;
   }
 
-  async function loadRoute(route = currentRoute(), { cursor = null, append = false, force = false, skipVerify = false } = {}) {
+  async function loadRoute(route = currentRoute(), { cursor = null, append = false, force = false, skipVerify = false, notifyCompletion = false } = {}) {
     if (frozen) throw Object.freeze({ code: 'lifecycle-frozen' });
     if (!repository || !client) return null;
     routeReadController?.abort();
@@ -346,10 +346,12 @@ export function createAppController({
     const key = routeCacheKey(route, cursor);
     const isFirstPage = cursor == null;
     const isRouteTransition = isFirstPage && !append && currentRoute() === route && data?.screen?.route !== route;
+    const announceLoad = isRouteTransition || notifyCompletion;
     if (isRouteTransition) setRouteReadState(generation, 'loading');
     else if (isFirstPage && !append && currentRoute() === route && data?.screen?.route === route) {
       setRouteReadState(generation, 'ready');
     }
+    if (announceLoad) view.showStatus?.({ type: 'loading', message: '화면을 불러오는 중…' });
     try {
       if (!skipVerify) {
         const kinds = routeSchemas(route);
@@ -365,13 +367,18 @@ export function createAppController({
       saveCache(key, data);
       view.renderData?.(data);
       if (isRouteTransition) setRouteReadState(generation, 'ready');
-      view.showStatus?.({ type: 'ready', message: '' });
+      view.showStatus?.(announceLoad
+        ? { type: 'loaded', message: '화면을 불러왔습니다.' }
+        : { type: 'ready', message: '' });
       startDeferredReads(route, generation, key, controller.signal);
       return data;
     } catch (error) {
       if (generation !== routeGeneration || controller.signal.aborted) return null;
       if (isRouteTransition) setRouteReadState(generation, error?.code === 'read-cancelled' ? 'cancelled' : 'error');
-      if (error?.code === 'read-cancelled') return null;
+      if (error?.code === 'read-cancelled') {
+        if (announceLoad) view.showStatus?.({ type: 'cancelled', message: '화면 불러오기를 취소했습니다.' });
+        return null;
+      }
       showFailure(error, 'read-error');
       throw error;
     }
@@ -579,8 +586,8 @@ export function createAppController({
     }
   }
 
-  async function readLatest({ skipVerify = false } = {}) {
-    return loadRoute(currentRoute(), { force: true, skipVerify });
+  async function readLatest({ skipVerify = false, notifyCompletion = false } = {}) {
+    return loadRoute(currentRoute(), { force: true, skipVerify, notifyCompletion });
   }
 
   async function refresh() {
@@ -588,7 +595,7 @@ export function createAppController({
     if (pending) throw Object.freeze({ code: 'lock-unavailable' });
     pending = true;
     stateChanged();
-    try { return await readLatest(); }
+    try { return await readLatest({ notifyCompletion: true }); }
     finally { pending = false; stateChanged(); }
   }
 

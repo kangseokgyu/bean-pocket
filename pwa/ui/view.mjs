@@ -124,8 +124,8 @@ const makeSpinner = document => {
 
 const idOf = value => String(value ?? '');
 const FORM_KINDS = new Set(['beans', 'recipes', 'records']);
-const IN_PROGRESS_STATUS_TYPES = new Set(['startup-checking', 'checking', 'saving']);
-const COMPLETED_STATUS_TYPES = new Set(['saved', 'connected', 'resolved']);
+const IN_PROGRESS_STATUS_TYPES = new Set(['startup-checking', 'checking', 'saving', 'loading']);
+const COMPLETED_STATUS_TYPES = new Set(['saved', 'connected', 'resolved', 'loaded']);
 const STATUS_DISPLAY_MS = 3000;
 const SOURCE_FIELDS = Object.freeze([
   ['beans', '원두'], ['recipes', '레시피'],

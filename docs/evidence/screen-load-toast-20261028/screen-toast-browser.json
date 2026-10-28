@@ -1,0 +1,102 @@
+[
+  {
+    "engine": "chromium",
+    "width": 390,
+    "outcome": "navigation",
+    "loadingObserved": true,
+    "terminalState": "loaded",
+    "successCheck": true,
+    "autoHidden": true,
+    "errors": []
+  },
+  {
+    "engine": "chromium",
+    "width": 390,
+    "outcome": "refresh",
+    "loadingObserved": true,
+    "terminalState": "loaded",
+    "successCheck": true,
+    "autoHidden": true,
+    "errors": []
+  },
+  {
+    "engine": "chromium",
+    "width": 390,
+    "outcome": "error",
+    "loadingObserved": true,
+    "terminalState": "read-error",
+    "successCheck": false,
+    "autoHidden": true,
+    "errors": []
+  },
+  {
+    "engine": "chromium",
+    "width": 390,
+    "outcome": "cancelled",
+    "loadingObserved": true,
+    "terminalState": "cancelled",
+    "successCheck": false,
+    "autoHidden": true,
+    "errors": []
+  },
+  {
+    "engine": "chromium",
+    "width": 768,
+    "outcome": "navigation",
+    "loadingObserved": true,
+    "terminalState": "loaded",
+    "successCheck": true,
+    "autoHidden": true,
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 390,
+    "outcome": "navigation",
+    "loadingObserved": true,
+    "terminalState": "loaded",
+    "successCheck": true,
+    "autoHidden": true,
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 390,
+    "outcome": "refresh",
+    "loadingObserved": true,
+    "terminalState": "loaded",
+    "successCheck": true,
+    "autoHidden": true,
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 390,
+    "outcome": "error",
+    "loadingObserved": true,
+    "terminalState": "read-error",
+    "successCheck": false,
+    "autoHidden": true,
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 390,
+    "outcome": "cancelled",
+    "loadingObserved": true,
+    "terminalState": "cancelled",
+    "successCheck": false,
+    "autoHidden": true,
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 768,
+    "outcome": "navigation",
+    "loadingObserved": true,
+    "terminalState": "loaded",
+    "successCheck": true,
+    "autoHidden": true,
+    "errors": []
+  }
+]

@@ -1,0 +1,55 @@
+Isolated copy: /var/folders/5m/5sdskqts1vg88sqkvbq3t0sw0000gn/T/toast-critic-mutation-oys2cswj
+Mutation: remove negation from delete-dialog pending branch
+Exit: 1
+✖ delete confirm shows pending feedback in its toast, locks duplicates, and renders failures (6.806958ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///private/var/folders/5m/5sdskqts1vg88sqkvbq3t0sw0000gn/T/toast-critic-mutation-oys2cswj/test/pwa-ui.view.test.mjs:1643:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 89.621083
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:1620:1
+✖ delete confirm shows pending feedback in its toast, locks duplicates, and renders failures (6.806958ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (file:///private/var/folders/5m/5sdskqts1vg88sqkvbq3t0sw0000gn/T/toast-critic-mutation-oys2cswj/test/pwa-ui.view.test.mjs:1643:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+Restored original source; targeted test exit: 0
+✔ delete confirm shows pending feedback in its toast, locks duplicates, and renders failures (7.6135ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1100.411417

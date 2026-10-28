@@ -1,0 +1,24 @@
+[
+  {
+    "engine": "chromium",
+    "checks": [
+      "native modal pending toast visible",
+      "Escape blocked and request single",
+      "failure hides toast inside dialog",
+      "close restores popover host",
+      "toast hides after 1 second"
+    ],
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "checks": [
+      "native modal pending toast visible",
+      "Escape blocked and request single",
+      "failure hides toast inside dialog",
+      "close restores popover host",
+      "toast hides after 1 second"
+    ],
+    "errors": []
+  }
+]

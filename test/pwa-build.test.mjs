@@ -19,6 +19,7 @@ const expectedFiles = [
   'domain.mjs',
   'icons/bp-logo.png',
   'icons/favicon-bp-ivory.png',
+  'icons/home-brew.png',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'index.html',
@@ -91,6 +92,7 @@ async function writeSourceFixture(sourceDir) {
   for (const [name, contents] of Object.entries(files)) await writeFile(path.join(sourceDir, name), contents);
   await writeFile(path.join(sourceDir, 'icons/bp-logo.png'), pngHeader(256));
   await writeFile(path.join(sourceDir, 'icons/favicon-bp-ivory.png'), pngHeader(32));
+  await writeFile(path.join(sourceDir, 'icons/home-brew.png'), pngHeader(1254));
   await writeFile(path.join(sourceDir, 'icons/icon-192.png'), pngHeader(192));
   await writeFile(path.join(sourceDir, 'icons/icon-512.png'), pngHeader(512));
 }
@@ -382,7 +384,7 @@ test('Service Worker install·activate·fetch는 scope를 격리하고 앱 파�
   assert.ok(!remaining.includes(staleA), '자기 scope의 이전 버전 캐시는 정리해야 한다');
   assert.notEqual(cacheA, cacheB, '같은 출처의 서로 다른 scope는 별도 namespace를 사용해야 한다');
 
-  const appFiles = ['./', './index.html', './app.mjs', './commands/index.mjs', './ui/controller.mjs', './ui/view.mjs', './data/notion-client.mjs', './data/notion-properties.mjs', './data/read-repository.mjs', './domain.mjs', './platform/app-lifecycle.mjs', './platform/connection-file.mjs', './platform/update-coordinator.mjs', './state/submission-state.mjs', './styles.css', './records-demo.html', './records-demo.mjs', './records-demo.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/bp-logo.png', './icons/favicon-bp-ivory.png'];
+  const appFiles = ['./', './index.html', './app.mjs', './commands/index.mjs', './ui/controller.mjs', './ui/view.mjs', './data/notion-client.mjs', './data/notion-properties.mjs', './data/read-repository.mjs', './domain.mjs', './platform/app-lifecycle.mjs', './platform/connection-file.mjs', './platform/update-coordinator.mjs', './state/submission-state.mjs', './styles.css', './records-demo.html', './records-demo.mjs', './records-demo.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/bp-logo.png', './icons/favicon-bp-ivory.png', './icons/home-brew.png'];
   assert.deepEqual(cacheStorage.stores.get(cacheA).files.map(request => [request.url, request.cache]),
     appFiles.map(file => [new URL(file, scopeA).href, 'reload']));
   assert.deepEqual(cacheStorage.stores.get(cacheB).files.map(request => [request.url, request.cache]),
@@ -421,5 +423,15 @@ test('BP logo is supplied byte-for-byte, cached offline, and changes the build v
   const worker = await readFile(path.join(outputDir, 'sw.js'), 'utf8');
   assert.ok(worker.includes('./icons/bp-logo.png'));
   await writeFile(path.join(sourceDir, logoPath), pngHeader(128));
+  assert.notEqual(await buildPages({ sourceDir, outputDir }), version);
+});
+
+test('homepage brew illustration ships byte-for-byte, is cached offline, and changes the build version', async t => {
+  const { sourceDir, outputDir, version } = await buildFixture(t);
+  const imagePath = 'icons/home-brew.png';
+  assert.deepEqual(await readFile(path.join(outputDir, imagePath)), await readFile(path.join(sourceDir, imagePath)));
+  const worker = await readFile(path.join(outputDir, 'sw.js'), 'utf8');
+  assert.ok(worker.includes('./icons/home-brew.png'));
+  await writeFile(path.join(sourceDir, imagePath), pngHeader(512));
   assert.notEqual(await buildPages({ sourceDir, outputDir }), version);
 });

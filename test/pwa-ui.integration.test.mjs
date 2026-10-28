@@ -14,22 +14,28 @@ const validRecipe = beanId => ({ name: 'V60', beanId, dose: 15, totalWater: 250,
 function startupApp({ native = memoryPlatform(), fake = fakePwaNotion(), route = '/home', readConnection } = {}) {
   const connectionStates = [];
   const statuses = [];
+  const entrySuccesses = [];
+  const deleteResults = [];
+  let currentRoute = route;
   const state = createSubmissionState(native);
   const readSavedConnection = readConnection ?? (async () => {
     const source = native.files.get('connection.json');
     return source == null ? null : JSON.parse(source);
   });
   const app = createAppController({ view: {
-    currentRoute() { return route; },
+    currentRoute() { return currentRoute; },
     showConnection(value) { connectionStates.push(value); },
     showStatus(value) { statuses.push(value); },
     renderData() {}, setState() {}, showUnresolved() {},
+    showEntrySuccess(kind) { entrySuccesses.push(kind); return true; },
+    showDeleteResult(result) { deleteResults.push(result); },
   }, state, file: { readConnection: readSavedConnection },
   makeClient: connection => new NotionClient(connection.token, { dataSources: connection.dataSources,
     connectionRevision: connection.revision, fetchImpl: fake.fetch }),
   makeRepository: client => createReadRepository(client),
   makeCommands: options => createCommands(options) });
-  return { app, native, fake, connectionStates, statuses };
+  return { app, native, fake, connectionStates, statuses, entrySuccesses, deleteResults,
+    setRoute(value) { currentRoute = value; } };
 }
 
 test('the shipped page has a real UI mount point', async () => {
@@ -84,6 +90,90 @@ test('controller public flows use real Notion, repository, commands and journal 
   assert.deepEqual(entrySuccesses, ['beans', 'recipes', 'recipes', 'records']);
   assert.deepEqual(clearedForms, [], 'the view keeps each confirmed entry open for its success feedback');
   assert.ok(native.journal().operations.every(operation => operation.status === 'succeeded'));
+});
+
+test('successful entity writes keep inline completion and omit saved or post-write loaded toasts', async () => {
+  const setup = startupApp({ route: '/beans' });
+  const { app, statuses, entrySuccesses, deleteResults, setRoute } = setup;
+  await app.connect(testConnection());
+  assert.ok(statuses.some(status => status.type === 'connected'), 'connection success keeps its own notice');
+  statuses.length = 0;
+  await app.refresh();
+  assert.ok(statuses.some(status => status.type === 'loaded'), 'a user requested refresh still announces completion');
+
+  const completedToastTypes = new Set(['saved', 'loaded']);
+  const completionAnnouncements = [];
+  const submitSuccessfully = async (label, kind, payload) => {
+    statuses.length = 0;
+    const result = await app.submit(kind, payload);
+    assert.equal(result.status, 'succeeded', `${label} succeeds`);
+    completionAnnouncements.push([label, statuses.filter(status => completedToastTypes.has(status.type))]);
+    return result;
+  };
+
+  const bean = await submitSuccessfully('bean creation', 'beans', { name: '토스트 없는 원두' });
+  setRoute('/recipes/new');
+  const recipe = await submitSuccessfully('recipe save after route change', 'recipes', validRecipe(bean.value.id));
+  const copied = await submitSuccessfully('recipe copy', 'copy', {
+    recipeId: recipe.value.id, changes: { name: '토스트 없는 복사 레시피' },
+  });
+  setRoute('/records/new');
+  const record = await submitSuccessfully('record save after route change', 'records', {
+    beanId: bean.value.id, recipeId: copied.value.id, date: '2026-06-15', rating: '5', cupNote: '꿀, 살구',
+  });
+
+  setRoute('/records');
+  await submitSuccessfully('record deletion', 'delete-record', { id: record.value.id });
+  setRoute('/recipes');
+  await submitSuccessfully('copied recipe deletion', 'delete-recipe', { id: copied.value.id });
+  await submitSuccessfully('recipe deletion', 'delete-recipe', { id: recipe.value.id });
+  setRoute('/beans');
+  await submitSuccessfully('bean deletion', 'delete-bean', { id: bean.value.id });
+
+  assert.deepEqual(entrySuccesses, ['beans', 'recipes', 'recipes', 'records'],
+    'inline success feedback remains active for entry saves and recipe copies');
+  assert.deepEqual(deleteResults.map(result => result.status), ['succeeded', 'succeeded', 'succeeded', 'succeeded'],
+    'delete confirmation success feedback remains active for every entity');
+  assert.deepEqual(completionAnnouncements.flatMap(([label, notices]) => notices.map(notice => ({ label, type: notice.type }))), [],
+    'entity operations do not show saved or automatic loaded completion toasts');
+});
+
+test('successful write refetch failures keep save and delete recovery notices', async () => {
+  const setup = startupApp({ route: '/beans' });
+  const { app, fake, statuses } = setup;
+  await app.connect(testConnection());
+  statuses.length = 0;
+
+  let created = false;
+  fake.intercept = ({ pathname, method }) => {
+    if (created && method === 'POST' && pathname.startsWith('/v1/data_sources/')) {
+      return Response.json({}, { status: 503 });
+    }
+    if (pathname === '/v1/pages' && method === 'POST') created = true;
+    return null;
+  };
+  const bean = await app.submit('beans', { name: '저장 후 재조회 실패 원두' });
+  assert.equal(bean.status, 'succeeded', 'the write itself succeeded');
+  assert.ok(statuses.some(status => status.type === 'saved-read-error'),
+    `save refetch failure remains visible: ${statuses.map(status => status.type).join(', ')}`);
+  assert.equal(statuses.some(status => ['saved', 'loaded'].includes(status.type)), false);
+
+  fake.intercept = null;
+  statuses.length = 0;
+  await app.refresh();
+  statuses.length = 0;
+  let archived = false;
+  fake.intercept = ({ pathname, method }) => {
+    if (archived && method === 'POST' && pathname.startsWith('/v1/data_sources/')) {
+      return Response.json({}, { status: 503 });
+    }
+    if (method === 'PATCH') archived = true;
+    return null;
+  };
+  const deletion = await app.submit('delete-bean', { id: bean.value.id });
+  assert.equal(deletion.status, 'succeeded', 'the deletion itself succeeded');
+  assert.ok(statuses.some(status => status.type === 'deleted-read-error'), 'delete refetch failure remains visible');
+  assert.equal(statuses.some(status => ['saved', 'loaded'].includes(status.type)), false);
 });
 
 test('unknown writes preserve the draft state and prevent a second UI submission', async () => {

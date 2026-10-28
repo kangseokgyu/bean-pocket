@@ -673,6 +673,31 @@ test('pending toast stays visible through success, ready and timeout, then clear
   assert.equal(status.hidden, true);
 });
 
+test('clearing successful operation progress does not restore it after pending work or modal close', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const status = document.root.querySelector('.app-status');
+  view.setState({ pending: true });
+  view.showStatus({ type: 'saving', message: '저장 중입니다.' });
+  assert.equal(status.hidden, false);
+
+  view.clearStatus();
+  assert.equal(status.hidden, true, 'successful inline feedback clears the stale saving toast');
+  view.setState({ pending: true });
+  assert.equal(status.hidden, true, 'pending fallback does not restore the completed saving status');
+  view.setRouteReadState('loading');
+  assert.equal(status.hidden, false, 'an active screen read can still announce loading');
+  assert.equal(status.textContent, '화면을 불러오는 중…');
+  view.setRouteReadState('ready');
+  view.clearStatus();
+  view.setState({ pending: false });
+  assert.equal(status.hidden, true, 'after read and pending completion, no status returns');
+
+  view.showStatus({ type: 'saved-read-error', message: '저장은 성공했지만 목록을 불러오지 못했습니다.' });
+  assert.equal(status.hidden, false, 'recovery messages remain visible after clearing progress');
+  assert.equal(status.textContent, '저장은 성공했지만 목록을 불러오지 못했습니다.');
+});
+
 test('a new success gets a full display interval and empty messages hide immediately', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const document = new TestDocument();
@@ -1865,6 +1890,46 @@ test('save buttons show loading and success only when their async operation chan
   view.finishConnectionSave();
   assert.equal(connectionSave.dataset.state, 'idle');
   assert.equal(connectionSave.querySelector('.button-icon').dataset.icon, 'save');
+});
+
+test('inline entry and delete success stay in their dialogs without completion toasts after close', async () => {
+  const scheduled = [];
+  const document = new TestDocument();
+  const view = createAppView(document, {
+    schedule: (callback, delay) => { scheduled.push({ callback, delay }); return scheduled.length; },
+    cancelSchedule() {},
+  });
+  view.renderData(data());
+  view.renderRoute('/beans');
+  view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }),
+    submit: async () => ({ status: 'succeeded', message: '삭제했습니다.' }) });
+  const status = document.root.querySelector('.app-status');
+
+  view.showBeanForm();
+  const entryDialog = document.root.querySelector('dialog[data-entry-dialog="beans"]');
+  assert.equal(view.showEntrySuccess('beans'), true);
+  assert.equal(entryDialog.querySelector('[data-entry-submit]').querySelector('.button-label').textContent, '저장 완료');
+  assert.equal(status.hidden, true, 'entry success uses the button completion state without a toast');
+  scheduled.find(item => item.delay === 1000).callback();
+  assert.equal(entryDialog.open, false, 'the entry success dialog closes after its normal delay');
+  assert.equal(status.hidden, true, 'closing the entry dialog does not restore a completion toast');
+
+  for (const dismissal of ['automatic', 'manual']) {
+    const trash = document.root.querySelector('[data-action="delete-bean"]');
+    await clickViewTarget(document, trash);
+    const dialog = document.root.querySelector('.delete-confirm-dialog');
+    await clickViewTarget(document, dialog.querySelector('[data-action="confirm-delete"]'));
+    assert.equal(dialog.querySelector('[data-action="confirm-delete"]').querySelector('.button-label').textContent, '삭제 완료');
+    assert.equal(dialog.querySelector('.delete-confirm-feedback').textContent, '삭제했습니다.');
+    assert.equal(status.hidden, true, 'delete success stays in the confirmation dialog');
+    if (dismissal === 'automatic') {
+      scheduled.filter(item => item.delay === 900).at(-1).callback();
+    } else {
+      await clickViewTarget(document, dialog.querySelector('[data-action="cancel-delete"]'));
+    }
+    assert.equal(dialog.open, false, `${dismissal} dismissal closes the confirmation dialog`);
+    assert.equal(status.hidden, true, `${dismissal} dismissal does not restore a completion toast`);
+  }
 });
 
 test('entry save spinners replace only saving toasts across beans, recipes, records, and recipe copies', async () => {

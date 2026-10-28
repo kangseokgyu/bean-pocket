@@ -160,6 +160,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
 
   let currentState = { frozen: false, pending: false, unresolved: false };
   let routeReadStatus = 'idle';
+  let suppressPendingStatus = false;
   let statusType = '';
   let statusMessageText = '';
   let startupMessageText = '';
@@ -234,9 +235,10 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       (!startupChecking && connection.dataset.connected !== 'true');
     skeletons.hidden = routeReadStatus === 'loading' ? false : routeReadStatus === 'idle' ? initialSkeletonHidden : true;
     const routeLoading = routeReadStatus === 'loading';
-    const active = currentState.pending && !startupChecking;
+    const pendingStatusActive = currentState.pending && !startupChecking;
+    const active = pendingStatusActive && !suppressPendingStatus;
     const hasStatusMessage = !!statusMessageText || (startupChecking && !!startupMessageText);
-    status.dataset.pending = String(active);
+    status.dataset.pending = String(pendingStatusActive);
     statusMessage.textContent = statusMessageText || (startupChecking ? startupMessageText : '') ||
       (active ? '불러오는 중…' : routeLoading ? '화면을 불러오는 중…' : '');
     const completed = COMPLETED_STATUS_TYPES.has(statusType) && !!statusMessageText;
@@ -710,6 +712,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     finishStartup,
     showStatus(value) {
       const nextStatusType = value?.type ?? '';
+      suppressPendingStatus = false;
       const checking = nextStatusType === 'startup-checking';
       const nextMessage = checking || nextStatusType === 'ready' ? '' : value?.message ?? '';
       const nextStartupMessage = checking ? value?.message ?? '' : '';
@@ -720,6 +723,15 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       status.dataset.state = statusType;
       renderStatus({ promoteToast: changed });
       scheduleStatusHide();
+    },
+    clearStatus() {
+      clearTimeout(statusHideTimer);
+      statusType = '';
+      statusMessageText = '';
+      startupMessageText = '';
+      status.dataset.state = '';
+      suppressPendingStatus = currentState.pending;
+      renderStatus();
     },
     showDeleteResult,
     showConnection(value) {
@@ -794,6 +806,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
         pending: !!value.pending,
         unresolved: !!value.unresolved,
       };
+      if (!currentState.pending) suppressPendingStatus = false;
       if (currentState.pending && activeEntryKind && entryPhase !== 'success') entryPhase = 'saving';
       else if (!currentState.pending && entryPhase === 'saving') entryPhase = 'idle';
       renderStatus();

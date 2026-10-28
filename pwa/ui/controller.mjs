@@ -336,7 +336,8 @@ export function createAppController({
     return true;
   }
 
-  async function loadRoute(route = currentRoute(), { cursor = null, append = false, force = false, skipVerify = false, notifyCompletion = false } = {}) {
+  async function loadRoute(route = currentRoute(), { cursor = null, append = false, force = false, skipVerify = false,
+    notifyCompletion = false, suppressCompletion = false } = {}) {
     if (frozen) throw Object.freeze({ code: 'lifecycle-frozen' });
     if (!repository || !client) return null;
     routeReadController?.abort();
@@ -367,9 +368,14 @@ export function createAppController({
       saveCache(key, data);
       view.renderData?.(data);
       if (isRouteTransition) setRouteReadState(generation, 'ready');
-      view.showStatus?.(announceLoad
-        ? { type: 'loaded', message: '화면을 불러왔습니다.' }
-        : { type: 'ready', message: '' });
+      if (suppressCompletion) {
+        if (typeof view.clearStatus === 'function') view.clearStatus();
+        else view.showStatus?.({ type: 'ready', message: '' });
+      } else {
+        view.showStatus?.(announceLoad
+          ? { type: 'loaded', message: '화면을 불러왔습니다.' }
+          : { type: 'ready', message: '' });
+      }
       startDeferredReads(route, generation, key, controller.signal);
       return data;
     } catch (error) {
@@ -586,8 +592,8 @@ export function createAppController({
     }
   }
 
-  async function readLatest({ skipVerify = false, notifyCompletion = false } = {}) {
-    return loadRoute(currentRoute(), { force: true, skipVerify, notifyCompletion });
+  async function readLatest({ skipVerify = false, notifyCompletion = false, suppressCompletion = false } = {}) {
+    return loadRoute(currentRoute(), { force: true, skipVerify, notifyCompletion, suppressCompletion });
   }
 
   async function refresh() {
@@ -902,11 +908,11 @@ export function createAppController({
             view.clearDraft?.(formKind);
           }
         }
+        view.clearStatus?.();
         stateChanged();
         invalidateScreenCache(kind);
-        view.showStatus?.({ type: 'saved', message: deleting ? '삭제했습니다. 최신 목록을 다시 불러옵니다.' : '저장했습니다. 최신 목록을 다시 불러옵니다.' });
         let deleteMessage = '삭제했습니다.';
-        try { await readLatest({ skipVerify: true }); }
+        try { await readLatest({ skipVerify: true, suppressCompletion: true }); }
         catch {
           deleteMessage = '삭제는 성공했지만 최신 목록을 불러오지 못했습니다. 목록을 새로고침해 주세요.';
           view.showStatus?.({ type: deleting ? 'deleted-read-error' : 'saved-read-error', message: deleting ? deleteMessage : '저장은 성공했지만 최신 목록을 불러오지 못했습니다. 다시 제출하지 마세요.' });

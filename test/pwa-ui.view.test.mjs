@@ -1617,7 +1617,7 @@ test('bean, recipe, and record deletes submit only after the custom dialog is co
   assert.deepEqual(calls, cases.map(([, action, , id]) => [action, { id }]));
 });
 
-test('delete confirm shows pending feedback in its toast, locks duplicates, and renders failures', async () => {
+test('bean delete button spinner replaces its progress toast, locks duplicates, and renders failures', async () => {
   const document = new TestDocument(), view = createBeanView(document);
   view.renderData(data());
   let release;
@@ -1640,15 +1640,15 @@ test('delete confirm shows pending feedback in its toast, locks duplicates, and 
   assert.equal(dialog.querySelector('[data-action="confirm-delete"]').disabled, true);
   assert.equal(dialog.querySelector('[data-action="cancel-delete"]').disabled, true);
   const status = document.root.querySelector('.app-status');
-  assert.equal(status.hidden, false);
-  assert.equal(status.parentElement === dialog, true, 'the pending toast remains visible above the modal actions');
-  assert.equal(status.textContent, '삭제 중입니다.');
-  assert.equal(status.getAttribute('aria-busy'), 'true');
+  assert.equal(status.hidden, true, 'the bean delete button carries the only progress feedback');
+  assert.equal(dialog.querySelector('[data-action="confirm-delete"]').querySelector('.button-icon').dataset.state, 'saving');
   await clickViewTarget(document, dialog.querySelector('[data-action="confirm-delete"]'));
   assert.equal(calls.length, 1, 'a second click cannot dispatch another deletion');
 
   view.showStatus({ type: 'validation-error', message: '이 레시피를 사용하는 기록이 있습니다.' });
   view.showDeleteResult({ status: 'failed', message: '이 레시피를 사용하는 기록이 있습니다.' });
+  assert.equal(status.hidden, false, 'the final error notification stays visible');
+  assert.equal(status.textContent, '이 레시피를 사용하는 기록이 있습니다.');
   view.setState({ pending: false, frozen: false, unresolved: false });
   release({ status: 'failed', code: 'delete-in-use' });
   await confirming;
@@ -1656,6 +1656,33 @@ test('delete confirm shows pending feedback in its toast, locks duplicates, and 
   assert.equal(dialog.querySelector('[data-action="confirm-delete"]').disabled, false);
   assert.equal(dialog.querySelector('[data-action="cancel-delete"]').disabled, false);
   assert.equal(dialog.querySelector('.delete-confirm-feedback').textContent, '이 레시피를 사용하는 기록이 있습니다.');
+});
+
+test('recipe and record deletes keep their progress toast', async () => {
+  for (const [route, action] of [['/recipes', 'delete-recipe'], ['/records', 'delete-record']]) {
+    const document = new TestDocument(), view = createBeanView(document);
+    view.showConnection({ connected: true });
+    view.renderData(data());
+    view.renderRoute(route);
+    let release;
+    const pending = new Promise(resolve => { release = resolve; });
+    view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }),
+      submit: () => {
+        view.setState({ pending: true, frozen: false, unresolved: false });
+        view.showStatus({ type: 'saving', message: '삭제 중입니다.' });
+        return pending;
+      } });
+    await clickViewTarget(document, document.root.querySelector(`[data-action="${action}"]`));
+    const dialog = document.root.querySelector('.delete-confirm-dialog');
+    const confirming = clickViewTarget(document, dialog.querySelector('[data-action="confirm-delete"]'));
+    const status = document.root.querySelector('.app-status');
+    assert.equal(status.hidden, false, `${action} keeps the progress notice`);
+    assert.equal(status.parentElement === dialog, true);
+    assert.equal(dialog.querySelector('[data-action="confirm-delete"]').querySelector('.button-icon').dataset.state, 'saving');
+    release({ status: 'failed', message: '삭제하지 못했습니다.' });
+    await confirming;
+    view.setState({ pending: false, frozen: false, unresolved: false });
+  }
 });
 
 

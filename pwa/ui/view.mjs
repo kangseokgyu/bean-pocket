@@ -186,7 +186,8 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       return;
     }
 
-    if (openDialog === deleteDialog && !currentState.pending) {
+    const beanDeleteHasInlineProgress = currentState.pending && activeDelete?.action === 'delete-bean' && statusType === 'saving';
+    if (openDialog === deleteDialog && (!currentState.pending || beanDeleteHasInlineProgress)) {
       if (statusPopoverOpen) status.hidePopover();
       statusPopoverOpen = false;
       status.hidden = true;

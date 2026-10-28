@@ -1,0 +1,8 @@
+build	Run regression tests	2026-10-28T13:35:42.3317791Z # tests 610
+build	Run regression tests	2026-10-28T13:35:42.3317974Z # pass 610
+build	Run regression tests	2026-10-28T13:35:42.3318064Z # fail 0
+build	Run regression tests	2026-10-28T13:35:42.3318157Z # cancelled 0
+build	Run regression tests	2026-10-28T13:35:42.3318250Z # skipped 0
+build	Build static PWA	2026-10-28T13:35:42.5171652Z Pages 산출물 생성 완료 (6b691e271650)
+build	Check publish artifact	2026-10-28T13:35:42.6911221Z Pages 산출물 검사 통과
+deploy	Complete job	2026-10-28T13:36:25.6228723Z Evaluated environment url: https://kangseokgyu.github.io/bean-pocket/

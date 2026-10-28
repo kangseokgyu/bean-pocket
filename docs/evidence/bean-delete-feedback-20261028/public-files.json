@@ -1,0 +1,147 @@
+{
+  "url": "https://kangseokgyu.github.io/bean-pocket/",
+  "build": "7d1f02fd5075",
+  "checkedAt": "2026-10-28T06:28:43.426649+00:00",
+  "files": [
+    {
+      "path": "app.mjs",
+      "status": 200,
+      "expected": "58395ab633d65cce0adf93649b16d00786c2d6a78bcb0e1a07bdad625e9b417f",
+      "actual": "58395ab633d65cce0adf93649b16d00786c2d6a78bcb0e1a07bdad625e9b417f",
+      "match": true
+    },
+    {
+      "path": "commands/index.mjs",
+      "status": 200,
+      "expected": "84438fbdc033cbaac154851651adb4f72ad2905f58986bff0a25046e6855ff0b",
+      "actual": "84438fbdc033cbaac154851651adb4f72ad2905f58986bff0a25046e6855ff0b",
+      "match": true
+    },
+    {
+      "path": "data/notion-client.mjs",
+      "status": 200,
+      "expected": "1159d41c656c392d1720eea9fb092f1bb1dfdefc492b42f8d5c5d76bf4239aad",
+      "actual": "1159d41c656c392d1720eea9fb092f1bb1dfdefc492b42f8d5c5d76bf4239aad",
+      "match": true
+    },
+    {
+      "path": "data/notion-properties.mjs",
+      "status": 200,
+      "expected": "f8026f56f21c95524e74e3a4a5d8857b9721b4dfa55551af204b75b7218d0f25",
+      "actual": "f8026f56f21c95524e74e3a4a5d8857b9721b4dfa55551af204b75b7218d0f25",
+      "match": true
+    },
+    {
+      "path": "data/read-repository.mjs",
+      "status": 200,
+      "expected": "eee7cc9edd501a7195b9e67473f5af625e3695cc09f66a8034703399d8c7594a",
+      "actual": "eee7cc9edd501a7195b9e67473f5af625e3695cc09f66a8034703399d8c7594a",
+      "match": true
+    },
+    {
+      "path": "domain.mjs",
+      "status": 200,
+      "expected": "8b1dab2c2b984d3f5e9e88e3d3139621a1c999e0b008de5077e0b121c6ab98c0",
+      "actual": "8b1dab2c2b984d3f5e9e88e3d3139621a1c999e0b008de5077e0b121c6ab98c0",
+      "match": true
+    },
+    {
+      "path": "icons/bp-logo.png",
+      "status": 200,
+      "expected": "c96f9250074f8f84d9585267bcc5d41fe663a1b90cffa4765e3acf184baadaf7",
+      "actual": "c96f9250074f8f84d9585267bcc5d41fe663a1b90cffa4765e3acf184baadaf7",
+      "match": true
+    },
+    {
+      "path": "icons/favicon-bp-ivory.png",
+      "status": 200,
+      "expected": "1f0378cc66162d82ca61a427e277f28e2160df29c9963a205cf999be6e6caa1f",
+      "actual": "1f0378cc66162d82ca61a427e277f28e2160df29c9963a205cf999be6e6caa1f",
+      "match": true
+    },
+    {
+      "path": "icons/icon-192.png",
+      "status": 200,
+      "expected": "fed6a73c7549eae8cb25324bab6e5d9f831120b8db329cfa7a66e3bda4296761",
+      "actual": "fed6a73c7549eae8cb25324bab6e5d9f831120b8db329cfa7a66e3bda4296761",
+      "match": true
+    },
+    {
+      "path": "icons/icon-512.png",
+      "status": 200,
+      "expected": "0b0197281031a51957ae1c3a43037dcef08eb8d8d187f4b6df5eb212d0303316",
+      "actual": "0b0197281031a51957ae1c3a43037dcef08eb8d8d187f4b6df5eb212d0303316",
+      "match": true
+    },
+    {
+      "path": "index.html",
+      "status": 200,
+      "expected": "e1c38fae52b58d1a31f6d1c968a66833eff826555aabd876c80aa6f75ac524c3",
+      "actual": "e1c38fae52b58d1a31f6d1c968a66833eff826555aabd876c80aa6f75ac524c3",
+      "match": true
+    },
+    {
+      "path": "manifest.webmanifest",
+      "status": 200,
+      "expected": "83dc529ee8004d5aa06cf728873d97c04ece2143d3026f275780f293dedb1bdb",
+      "actual": "83dc529ee8004d5aa06cf728873d97c04ece2143d3026f275780f293dedb1bdb",
+      "match": true
+    },
+    {
+      "path": "platform/app-lifecycle.mjs",
+      "status": 200,
+      "expected": "ca5b6d7fc53f473000945a14c6951f39a74c8ba829571cdc2c236e463d77c09b",
+      "actual": "ca5b6d7fc53f473000945a14c6951f39a74c8ba829571cdc2c236e463d77c09b",
+      "match": true
+    },
+    {
+      "path": "platform/connection-file.mjs",
+      "status": 200,
+      "expected": "8389b0d1554c0948a6b66a1dcbf82d581f7c9c67889cecb6523afe70034af210",
+      "actual": "8389b0d1554c0948a6b66a1dcbf82d581f7c9c67889cecb6523afe70034af210",
+      "match": true
+    },
+    {
+      "path": "platform/update-coordinator.mjs",
+      "status": 200,
+      "expected": "56015c1ff7738219e963bd29e9b5c77b73d043cf76b6f1698c692b9f4d32bbe7",
+      "actual": "56015c1ff7738219e963bd29e9b5c77b73d043cf76b6f1698c692b9f4d32bbe7",
+      "match": true
+    },
+    {
+      "path": "state/submission-state.mjs",
+      "status": 200,
+      "expected": "b67861cf9b1e356448281187c3ad47950925105733a02a66d5a3808650f68b10",
+      "actual": "b67861cf9b1e356448281187c3ad47950925105733a02a66d5a3808650f68b10",
+      "match": true
+    },
+    {
+      "path": "styles.css",
+      "status": 200,
+      "expected": "a68b6fd5be2919ce570e4521605065a5ab69435ef7f845773c36d0c14acb428f",
+      "actual": "a68b6fd5be2919ce570e4521605065a5ab69435ef7f845773c36d0c14acb428f",
+      "match": true
+    },
+    {
+      "path": "sw.js",
+      "status": 200,
+      "expected": "243ff3b762b427a8153b617364e1f0cb27b229978895dc831931033495318df5",
+      "actual": "243ff3b762b427a8153b617364e1f0cb27b229978895dc831931033495318df5",
+      "match": true
+    },
+    {
+      "path": "ui/controller.mjs",
+      "status": 200,
+      "expected": "012fdada9e3bc692fce21c71d5d60865379a22e4011f27fc5a236497178a9566",
+      "actual": "012fdada9e3bc692fce21c71d5d60865379a22e4011f27fc5a236497178a9566",
+      "match": true
+    },
+    {
+      "path": "ui/view.mjs",
+      "status": 200,
+      "expected": "024a7a72aeae48bf7e6571e809039769a0032c844915c34af3ea1bd67d576b16",
+      "actual": "024a7a72aeae48bf7e6571e809039769a0032c844915c34af3ea1bd67d576b16",
+      "match": true
+    }
+  ]
+}

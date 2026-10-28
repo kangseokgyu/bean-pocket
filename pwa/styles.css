@@ -489,7 +489,7 @@ button:focus-visible, .table-scroll:focus-visible {
 .tabs {
   flex: 0 0 auto;
   display: flex;
-  gap: 4px;
+  gap: 8px;
   margin-top: 0;
 }
 
@@ -504,7 +504,7 @@ button:focus-visible, .table-scroll:focus-visible {
   border-radius: 0;
   background: transparent;
   color: #587464;
-  font-size: 0.9375rem;
+  font-size: 1rem;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -518,9 +518,9 @@ button:focus-visible, .table-scroll:focus-visible {
 }
 
 .data-panel, .card-skeletons { margin-top: 0; padding: 16px; }
-.list-view { display: grid; gap: 16px; min-width: 0; }
+.list-view { display: grid; gap: 8px; min-width: 0; }
 .list-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.list-header h2 { margin: 0; }
+.list-header h2 { margin: 0; font-size: 1.0625rem; line-height: 1.4; }
 .list-actions { display: flex; gap: 8px; flex-shrink: 0; }
 .icon-button { display: inline-flex; align-items: center; justify-content: center; width: 46px; padding: 8px; font-size: 1.5rem; }
 .list-actions .icon-button { flex: 0 0 32px; width: 32px; height: 32px; min-height: 32px; padding: 0; border: 0; background: transparent; color: #737373; }
@@ -531,6 +531,7 @@ button:focus-visible, .table-scroll:focus-visible {
   border-radius: 12px;
   background: #fffefa;
 }
+.bean-card, .recipe-card, .record-card { font-size: 0.875rem; line-height: 1.6; }
 
 .recipe-summary-card, .bean-card { position: relative; }
 .recipe-card-link, .bean-card-link { color: inherit; text-decoration: none; cursor: pointer; }
@@ -549,16 +550,17 @@ button:focus-visible, .table-scroll:focus-visible {
 .bean-metadata {
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);
-  gap: 8px 16px;
-  margin: 4px 0 16px;
+  gap: 5px 14px;
+  margin: 0 0 10px;
   line-height: 1.6;
 }
-.bean-metadata dt { color: #68685e; font-size: 0.875rem; padding-top: 2px; }
+.bean-metadata dt { color: #68685e; font-size: 0.8125rem; padding-top: 1px; }
 .bean-metadata dd { min-width: 0; margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
 
-.entity-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.entity-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
 .entity-card-header h3, .entity-card-header h4 { min-width: 0; overflow-wrap: anywhere; margin: 0 0 12px; }
-.entity-delete { flex: 0 0 46px; width: 46px; height: 46px; margin: -14px -8px 0 0; color: #737373; background: transparent; border-color: transparent; }
+.entity-card-header h3 { margin-bottom: 0; font-size: 0.9375rem; line-height: 1.5; }
+.entity-delete { flex: 0 0 46px; width: 46px; height: 46px; margin: -14px -8px -14px 0; color: #737373; background: transparent; border-color: transparent; }
 .entity-delete svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .entity-delete:hover:not(:disabled) { background: #f0f0ed; border-color: #b7b7af; }
 .bag-card { padding-top: 10px; border-top: 1px solid #e0dbcf; }
@@ -566,6 +568,7 @@ button:focus-visible, .table-scroll:focus-visible {
 .bag-card > :last-child, .bean-card > :last-child, .recipe-card > :last-child, .record-card > :last-child { margin-bottom: 0; }
 .record-summary-header { align-items: center; }
 .record-summary-header p { min-width: 0; margin: 0 0 12px; overflow-wrap: anywhere; }
+:is(.recipe-card, .record-card) .entity-card-header + p { margin-top: 0; }
 .record-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 14px 0; padding: 0; border: 0; }
 .record-filters legend { grid-column: 1 / -1; padding: 0; color: #3d5147; font-weight: 700; }
 .record-filter-reset { grid-column: 1 / -1; justify-self: start; }
@@ -637,8 +640,8 @@ footer {
   .site-header { gap: 4px; }
   .brand-logo { width: 52px; height: 32px; }
   .button.connection-toggle { min-width: 28px; padding-inline: 2px; font-size: 1rem; }
-  .tabs { gap: 2px; }
-  .tabs .button { padding: 3px 2px; font-size: 0.875rem; }
+  .tabs { gap: 4px; }
+  .tabs .button { padding: 3px 2px; font-size: 1rem; }
   .form-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .entry-dialog { position: fixed; inset: auto 0 0; width: 100%; max-width: none; max-height: 92dvh; margin: 0; padding: 18px 14px max(14px, env(safe-area-inset-bottom, 0px)); border-radius: 18px 18px 0 0; }
   .option-picker-dialog { position: fixed; inset: auto 0 0; width: 100%; max-width: none; max-height: min(78dvh, calc(100dvh - env(safe-area-inset-top, 0px))); margin: 0; padding: 18px 14px max(14px, env(safe-area-inset-bottom, 0px)); border-radius: 18px 18px 0 0; }

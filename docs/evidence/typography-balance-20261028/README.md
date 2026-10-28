@@ -22,3 +22,21 @@ Full output: `browser.txt`.
 Full output: `npm-test.txt`, `build-pages.txt`, and `check-pages.txt`.
 
 Full logs are preserved as tracked `.txt` evidence.
+
+## Independent review
+
+Critic (`gpt-6.1-sol`, medium) approved the source change before integration with no required findings. The approved demo and CSS selectors were compared against the actual view structure. An independent Chrome check covered 25 screens and 20 short-title cards: no title/delete overlap or horizontal overflow; delete targets remained 46×46px and `elementFromPoint` hit the delete button at its center. The Worker used `gpt-6-luna`, max. Neither agent spawned additional agents.
+
+After fast-forward integration into main, `npm test` again passed 610/610 (exit 0), `npm run build:pages` produced `0761822778f5` (exit 0), and `npm run check:pages` passed (exit 0). Runtime sources were unchanged by integration. Safari and real-device touch were not tested.
+
+## Deployment
+
+- Change commit: `5f3d80d`; fast-forwarded to main and pushed with the feature branch.
+- Workflow: https://github.com/kangseokgyu/bean-pocket/actions/runs/40708796194 — completed successfully, manually dispatched on main with `probes=false`.
+- Public URL: https://kangseokgyu.github.io/bean-pocket/
+- Public build: `0761822778f5`.
+- `node /tmp/typography-public-check.mjs` exited 0: all 20 deployed files returned HTTP 200 and matched the local build byte-for-byte (`public-files.json`).
+- `node /tmp/typography-public-browser.cjs` exited 0: fresh Chrome contexts at 390/1440px displayed the expected build, loaded menu CSS at 16px and gaps 4px/8px, had no page errors or horizontal overflow (`public-browser.json`). The menu is hidden in the fresh disconnected state; connected menu/card visuals were verified in the local actual-source fixture rather than with a real Notion account.
+- Initial public browser assertion incorrectly required the disconnected menu to be visible and timed out after 30 seconds. The check was corrected to inspect attached menu CSS and the visible public build. No product change was needed.
+- Safari, existing-client service-worker update adoption, real Notion operations, and real-device touch were not tested.
+- Rollback: revert `5f3d80d` on a new feature branch, run the same required checks and review, integrate and dispatch `pages.yml` with `probes=false` under the project deployment policy.

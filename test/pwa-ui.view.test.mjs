@@ -2941,6 +2941,11 @@ test('home is the default and root route, with the requested hero and four menu 
   const hero = document.root.querySelector('.home-hero');
   assert.ok(hero);
   assert.match(hero.textContent, /오늘의 한 잔을 시작해 보세요\./);
+  assert.deepEqual(hero.querySelector('.home-hero-eyebrow').children.map(item => item.textContent), [
+    'GOOD COFFEE', 'BRIGHTER DAYS',
+  ]);
+  assert.match(hero.textContent, /좋아하는 원두로, 나만의 방식으로\. 기록할수록 더 맛있는 커피가 됩니다\./);
+  assert.equal(hero.querySelector('[data-hero-art]').getAttribute('aria-hidden'), 'true');
   assert.equal(hero.querySelector('[data-action="start-brew"]').textContent, '추출 시작');
   assert.deepEqual(document.root.querySelector('nav.tabs').children.map(item => [item.dataset.route, item.textContent]), [
     ['/home', '홈'], ['/beans', '원두'], ['/recipes', '레시피'], ['/records', '추출 기록'],

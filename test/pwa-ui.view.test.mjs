@@ -421,7 +421,7 @@ test('toast trailing icon changes from loading to completion without replacing i
     view.showStatus({ type: completed, message: '완료했습니다.' });
     assert.equal(status.querySelector('.status-icon'), icon);
     assert.equal(icon.dataset.state, 'success', 'completed work shows a check even during list refresh');
-    assert.equal(icon.querySelector('path').getAttribute('d'), 'm20 6-11 11-5-5');
+    assert.equal(icon.querySelector('path').getAttribute('d'), 'M4 12l5 5 11-11');
     assert.equal(status.textContent, '완료했습니다.');
     view.setState({ pending: false });
     t.mock.timers.tick(999);

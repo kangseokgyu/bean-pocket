@@ -29,7 +29,7 @@ const button = (document, text, type = 'submit', action) => {
 const ACTION_ICON_PATHS = Object.freeze({
   save: 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2ZM17 21v-8H7v8ZM7 3v5h8',
   x: 'M18 6 6 18M6 6l12 12',
-  check: 'm20 6-11 11-5-5',
+  check: 'M4 12l5 5 11-11',
   trash: 'M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7',
 });
 
@@ -40,6 +40,7 @@ function actionIcon(document, name) {
   svg.setAttribute('focusable', 'false');
   const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   path.setAttribute('d', ACTION_ICON_PATHS[name]);
+  if (name === 'check') path.setAttribute('pathLength', '1');
   svg.append(path);
   return svg;
 }

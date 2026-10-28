@@ -1,0 +1,142 @@
+✖ PWA check path draws from the short stroke to the long stroke (0.920625ms)
+  AssertionError [ERR_ASSERTION]: PWA check path starts at the short stroke
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/animated-check/AX-1day/test/check-animation.test.mjs:23:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }
+
+✖ server check path draws from the short stroke to the long stroke (0.129709ms)
+  AssertionError [ERR_ASSERTION]: server check path starts at the short stroke
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/animated-check/AX-1day/test/check-animation.test.mjs:28:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }
+
+✖ PWA action and status checks share the approved motion and reduced-motion behavior (0.163209ms)
+  AssertionError [ERR_ASSERTION]: PWA draws for 580ms with the approved easing
+      at assertMotion (file:///Users/kangseokgyu/.codex/worktrees/animated-check/AX-1day/test/check-animation.test.mjs:14:10)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/animated-check/AX-1day/test/check-animation.test.mjs:33:3)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }
+
+✖ server action checks use the approved motion and reduced-motion behavior (0.074333ms)
+  AssertionError [ERR_ASSERTION]: server page draws for 580ms with the approved easing
+      at assertMotion (file:///Users/kangseokgyu/.codex/worktrees/animated-check/AX-1day/test/check-animation.test.mjs:14:10)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/animated-check/AX-1day/test/check-animation.test.mjs:38:3)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }
+
+ℹ tests 4
+ℹ suites 0
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 87.600125
+
+✖ failing tests:
+
+test at test/check-animation.test.mjs:22:1
+✖ PWA check path draws from the short stroke to the long stroke (0.920625ms)
+  AssertionError [ERR_ASSERTION]: PWA check path starts at the short stroke
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/animated-check/AX-1day/test/check-animation.test.mjs:23:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }
+
+test at test/check-animation.test.mjs:27:1
+✖ server check path draws from the short stroke to the long stroke (0.129709ms)
+  AssertionError [ERR_ASSERTION]: server check path starts at the short stroke
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/animated-check/AX-1day/test/check-animation.test.mjs:28:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }
+
+test at test/check-animation.test.mjs:32:1
+✖ PWA action and status checks share the approved motion and reduced-motion behavior (0.163209ms)
+  AssertionError [ERR_ASSERTION]: PWA draws for 580ms with the approved easing
+      at assertMotion (file:///Users/kangseokgyu/.codex/worktrees/animated-check/AX-1day/test/check-animation.test.mjs:14:10)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/animated-check/AX-1day/test/check-animation.test.mjs:33:3)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }
+
+test at test/check-animation.test.mjs:37:1
+✖ server action checks use the approved motion and reduced-motion behavior (0.074333ms)
+  AssertionError [ERR_ASSERTION]: server page draws for 580ms with the approved easing
+      at assertMotion (file:///Users/kangseokgyu/.codex/worktrees/animated-check/AX-1day/test/check-animation.test.mjs:14:10)
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/animated-check/AX-1day/test/check-animation.test.mjs:38:3)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }

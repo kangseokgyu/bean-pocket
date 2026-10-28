@@ -182,11 +182,12 @@ document.querySelector('#connect-button').addEventListener('click', openConnecti
 const actionIconPaths = {
   save: 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2ZM17 21v-8H7v8ZM7 3v5h8',
   x: 'M18 6 6 18M6 6l12 12',
-  check: 'm20 6-11 11-5-5',
+  check: 'M4 12l5 5 11-11',
 };
 
 function actionIconMarkup(name) {
-  return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${actionIconPaths[name]}"></path></svg>`;
+  const pathLength = name === 'check' ? ' pathLength="1"' : '';
+  return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${actionIconPaths[name]}"${pathLength}></path></svg>`;
 }
 
 function setActionButton(button, state, label) {

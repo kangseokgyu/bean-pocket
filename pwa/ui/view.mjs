@@ -272,6 +272,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   let routeChangeListener = null;
   const drafts = new Map();
   const optionPages = new Map();
+  const optionStates = new Map();
   let beanFormOpen = false;
   let recipeFormOpen = routePath(route) === '/recipes/new';
   let recordFormOpen = routePath(route) === '/records/new';
@@ -546,7 +547,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   }
   function renderCurrentContent() {
     renderPane(content, currentData, document, route, drafts, optionPages,
-      beanFormOpen, recipeFormOpen, recordFormOpen);
+      beanFormOpen, recipeFormOpen, recordFormOpen, optionStates);
     finishContentRender();
     applyViewState();
   }
@@ -892,10 +893,10 @@ export function createAppView(document = globalThis.document, { schedule = setTi
           // Refresh the list around the live top-layer dialog without detaching it.
           const refreshed = make(document, 'section');
           renderPane(refreshed, currentData, document, route, new Map(), optionPages,
-            beanFormOpen, recipeFormOpen, recordFormOpen);
+            beanFormOpen, recipeFormOpen, recordFormOpen, optionStates);
           if (activeEntryKind === 'records') {
             hydrateRecordPickers(activeDialog.querySelector('form'),
-              refreshed.querySelector('form[data-form="records"]'));
+              refreshed.querySelector('form[data-form="records"]'), currentData, optionPages, optionStates, document);
           }
           const pane = activeDialog.parentElement;
           for (const child of [...pane.children]) {
@@ -948,8 +949,9 @@ export function createAppView(document = globalThis.document, { schedule = setTi
           previousPage = { items: currentData?.[kind] ?? [] };
         }
       }
+      const keepPreviousPage = append && (target === 'brew' || previousPage?.query === query);
       const seen = new Set();
-      const optionItems = [...(append ? previousPage?.items ?? [] : []), ...(page.items ?? [])]
+      const optionItems = [...(keepPreviousPage ? previousPage?.items ?? [] : []), ...(page.items ?? [])]
         .filter(item => {
           if (seen.has(item.id)) return false;
           seen.add(item.id);
@@ -960,20 +962,17 @@ export function createAppView(document = globalThis.document, { schedule = setTi
         if (currentData) renderCurrentContent();
         return;
       }
-      const select = target === 'filters'
-        ? content.querySelector(`[data-record-filter="${kind === 'beans' ? 'beanId' : 'recipeId'}"]`)
-        : content.querySelector(`form[data-form="records"] [data-option-select-kind="${kind}"]`);
+      const select = Array.from(content.querySelectorAll('[data-option-select-kind]'))
+        .find(item => item.dataset.optionTarget === target && item.dataset.optionSelectKind === kind);
       if (!select) return;
       const filterKey = kind === 'beans' ? 'beanId' : 'recipeId';
       const previousValue = select.value || (target === 'filters' ? currentData?.screen?.filters?.[filterKey] : '');
       const previousOption = Array.from(select.options).find(option => option.value === previousValue);
       const placeholder = select.options[0]?.textContent ?? (kind === 'beans' ? '원두를 선택해 주세요.' : '레시피를 선택해 주세요.');
       const optional = target === 'filters';
-      if (previousValue && !optionItems.some(item => item.id === previousValue)) {
-        optionItems.push({ id: previousValue, name: previousOption?.textContent ?? '선택한 항목', status: 'ready' });
-      }
       optionPages.set(optionKey, { ...page, items: optionItems, query, savedAt: Date.now() });
-      if (append) {
+      optionStates.set(optionKey, { status: 'ready', query, append: false });
+      if (keepPreviousPage) {
         const known = new Set(Array.from(select.options, option => option.value));
         for (const item of page.items ?? []) {
           if (known.has(idOf(item.id))) continue;
@@ -1006,10 +1005,34 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       }
       const more = Array.from(content.querySelectorAll('[data-option-more]'))
         .find(item => item.dataset.optionTarget === target && item.dataset.optionKind === kind);
-      if (more) more.hidden = !page.hasMore;
+      if (more) {
+        more.hidden = !page.hasMore;
+        more.dataset.nextCursor = page.nextCursor ?? '';
+      }
+      const picker = findSearchPicker(content, target, kind);
+      if (picker) {
+        renderSearchPicker(picker, optionPages.get(optionKey), optionStates.get(optionKey), currentData, document);
+        syncSearchPickerTrigger(picker, currentData);
+      }
+    },
+    setSearchOptionsState(target, kind, state) {
+      if (target === 'brew') return;
+      const optionKey = `${target}:${kind}`;
+      const nextState = { status: state?.status ?? 'idle', query: state?.query ?? '', append: !!state?.append };
+      optionStates.set(optionKey, nextState);
+      const search = Array.from(content.querySelectorAll('[data-option-search-kind]'))
+        .find(item => item.dataset.optionSearchKind === kind && item.dataset.optionTarget === target);
+      if (search) {
+        if (!nextState.append) search.value = nextState.query;
+        search.dataset.optionLoaded = ['ready', 'loading'].includes(nextState.status) || nextState.append ? 'true' : 'false';
+        search.dataset.optionQuery = nextState.query;
+      }
+      const picker = findSearchPicker(content, target, kind);
+      if (picker) renderSearchPicker(picker, optionPages.get(optionKey), nextState, currentData, document);
     },
     clearSearchOptions(kind) {
       for (const key of optionPages.keys()) if (!kind || key.endsWith(`:${kind}`)) optionPages.delete(key);
+      for (const key of optionStates.keys()) if (!kind || key.endsWith(`:${kind}`)) optionStates.delete(key);
     },
     showEntrySuccess(kind) {
       if (activeEntryKind !== kind || !entryDialogFor(kind)?.open) return false;
@@ -1376,7 +1399,7 @@ function renderBrewFlow(parent, data, document, route, optionPages) {
 }
 
 function renderPane(parent, data, document, route = '/home', drafts = new Map(), optionPages = new Map(),
-  beanFormOpen = false, recipeFormOpen = false, recordFormOpen = false) {
+  beanFormOpen = false, recipeFormOpen = false, recordFormOpen = false, optionStates = new Map()) {
   const path = routePath(route);
   const parts = path.split('/').filter(Boolean);
   const section = parts[0] ?? 'home';
@@ -1472,7 +1495,7 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
       conflict.append(button(document, '이전 초안을 버리고 새 기록 작성', 'button', 'start-new-record'));
       pane.append(conflict);
     } else {
-      renderRecords(pane, data, document, recordFormOpen, optionPages, route);
+      renderRecords(pane, data, document, recordFormOpen, optionPages, optionStates, route);
     }
   } else {
     pane.append(make(document, 'p', '화면을 찾을 수 없습니다. 메뉴에서 이동해 주세요.'));
@@ -1703,7 +1726,7 @@ function buildRecipeForm(document, data) {
   return form;
 }
 
-function hydrateRecordPickers(form, freshForm) {
+function hydrateRecordPickers(form, freshForm, data, optionPages, optionStates, document) {
   if (!form || !freshForm) return;
   const initial = JSON.parse(form.dataset.initialValues || '{}');
   for (const name of ['beanId', 'recipeId']) {
@@ -1725,6 +1748,11 @@ function hydrateRecordPickers(form, freshForm) {
     if (search.value === freshSearch.value) Object.assign(search.dataset, freshSearch.dataset);
     select.parentElement.querySelector('[data-option-more]').hidden =
       freshSelect.parentElement.querySelector('[data-option-more]').hidden;
+    const picker = select.closest('[data-search-picker]');
+    const target = picker.dataset.optionTarget;
+    const kind = picker.dataset.optionKind;
+    renderSearchPicker(picker, optionPages.get(`${target}:${kind}`), optionStates.get(`${target}:${kind}`), data, document);
+    syncSearchPickerTrigger(picker, data);
     initial[name] = defaultValue;
   }
   form.dataset.initialValues = JSON.stringify(initial);
@@ -1756,19 +1784,20 @@ function starRating(document) {
   return group;
 }
 
-function buildRecordForm(document, data, optionPages, route) {
+function buildRecordForm(document, data, optionPages, route, optionStates) {
   const form = formBase(document, 'records', '추출 후 빠른 기록');
   const fields = make(document, 'fieldset', undefined, 'form-fieldset');
   const params = routeParams(route);
   const beanPicker = searchPicker(document, '원두', 'beans', 'form', preferredOptionPage(data.options?.beans, optionPages.get('form:beans')),
-    '원두를 선택해 주세요.', false);
+    '원두를 선택해 주세요.', false, optionStates.get('form:beans'));
   const recipePicker = searchPicker(document, '레시피', 'recipes', 'form', preferredOptionPage(data.options?.recipes, optionPages.get('form:recipes')),
-    '레시피를 선택해 주세요.', false);
+    '레시피를 선택해 주세요.', false, optionStates.get('form:recipes'));
   fields.append(make(document, 'legend', '기록'), beanPicker, recipePicker);
   for (const [picker, name] of [[beanPicker, 'beanId'], [recipePicker, 'recipeId']]) {
     const selectedId = params.get(name);
     const select = picker.querySelector('select');
     if (selectedId && Array.from(select.options).some(option => option.value === selectedId)) select.value = selectedId;
+    syncSearchPickerTrigger(picker, data);
   }
   fields.append(label(document, '날짜', 'date', 'date', true));
   fields.append(starRating(document));
@@ -1784,22 +1813,43 @@ function buildRecordForm(document, data, optionPages, route) {
   return form;
 }
 
-function searchPicker(document, title, kind, target, page, placeholder, optional) {
-  const wrap = make(document, 'div', undefined, 'form-field');
-  wrap.append(make(document, 'span', title, 'form-field-label'));
-  const search = make(document, 'input');
-  search.type = 'search';
-  search.setAttribute('aria-label', `${title} 검색`);
-  search.setAttribute('autocomplete', 'off');
-  search.dataset.optionSearchKind = kind;
-  search.dataset.optionTarget = target;
-  const query = typeof page?.query === 'string' ? page.query : '';
-  search.value = query;
-  search.dataset.optionQuery = query;
-  wrap.append(search);
+function buildSearchPickerResult(document, item, kind, target, selected, data) {
+  const row = make(document, 'li', undefined, 'search-picker-result');
+  const option = button(document, '', 'button', 'select-search-option');
+  option.dataset.optionId = idOf(item.id);
+  option.dataset.optionTarget = target;
+  option.dataset.optionKind = kind;
+  option.setAttribute('aria-pressed', String(selected));
+  const summary = make(document, 'span', undefined, 'search-picker-result-copy');
+  summary.append(make(document, 'span', item.name, 'search-picker-result-name'));
+  const details = optionDetails(item, kind, data);
+  if (details) summary.append(make(document, 'span', details, 'search-picker-result-details'));
+  if (item.status === 'error') {
+    option.disabled = true;
+    option.setAttribute('aria-label', `${item.name}, 선택할 수 없습니다.`);
+    summary.append(make(document, 'span', '선택할 수 없는 항목', 'search-picker-result-details'));
+  }
+  option.append(summary);
+  option.append(make(document, 'span', selected ? '선택됨' : '선택', 'search-picker-result-action'));
+  row.append(option);
+  return row;
+}
+
+function searchPicker(document, title, kind, target, page, placeholder, optional, state) {
+  const wrap = make(document, 'div', undefined, 'form-field search-picker');
+  wrap.dataset.searchPicker = '';
+  wrap.dataset.optionKind = kind;
+  wrap.dataset.optionTarget = target;
+  const heading = make(document, 'span', title, 'form-field-label');
+  heading.id = `${target}-${kind}-picker-label`;
+  wrap.append(heading);
+
   const select = make(document, 'select');
+  select.className = 'search-picker-select visually-hidden';
   select.name = kind === 'beans' ? 'beanId' : 'recipeId';
-  select.required = !optional;
+  select.required = false;
+  select.setAttribute('aria-hidden', 'true');
+  select.setAttribute('tabindex', '-1');
   select.setAttribute('aria-label', title);
   select.dataset.optionSelectKind = kind;
   select.dataset.optionTarget = target;
@@ -1807,17 +1857,171 @@ function searchPicker(document, title, kind, target, page, placeholder, optional
   if (page) {
     select.dataset.optionLoaded = 'true';
     select.dataset.nextCursor = page.nextCursor ?? '';
-    select.dataset.optionQuery = query;
-    search.dataset.optionLoaded = 'true';
+    select.dataset.optionQuery = page.query ?? '';
   }
   wrap.append(select);
+
+  const emptyLabel = target === 'form' ? `${kind === 'beans' ? '원두' : '레시피'} 선택` : placeholder;
+  wrap.dataset.emptyLabel = emptyLabel;
+  const trigger = button(document, '', 'button', 'open-search-picker');
+  trigger.className = 'button search-picker-trigger';
+  trigger.setAttribute('aria-haspopup', 'dialog');
+  trigger.setAttribute('aria-expanded', 'false');
+  trigger.setAttribute('aria-labelledby', `${heading.id} ${target}-${kind}-picker-value`);
+  if (!optional) trigger.setAttribute('aria-required', 'true');
+  const value = make(document, 'span', emptyLabel, 'search-picker-value');
+  value.id = `${target}-${kind}-picker-value`;
+  const summary = make(document, 'span', '', 'search-picker-selection-details');
+  const chevron = make(document, 'span', '', 'search-picker-chevron');
+  chevron.setAttribute('aria-hidden', 'true');
+  trigger.append(value, summary, chevron);
+  wrap.append(trigger);
+
+  const dialog = make(document, 'dialog', undefined, 'option-picker-dialog');
+  dialog.dataset.optionPicker = '';
+  dialog.dataset.optionTarget = target;
+  dialog.dataset.optionKind = kind;
+  dialog.id = `${target}-${kind}-option-picker`;
+  dialog.setAttribute('aria-modal', 'true');
+  dialog.setAttribute('aria-labelledby', `${dialog.id}-title`);
+  const dialogHeader = make(document, 'div', undefined, 'option-picker-header');
+  const optionTitle = kind === 'beans' ? '원두 선택' : '레시피 선택';
+  const dialogTitle = make(document, 'h2', optionTitle);
+  dialogTitle.id = `${dialog.id}-title`;
+  const close = button(document, '닫기', 'button', 'close-search-picker');
+  close.className = 'button search-picker-close';
+  dialogHeader.append(dialogTitle, close);
+
+  const search = make(document, 'input');
+  search.type = 'search';
+  search.setAttribute('aria-label', `${optionTitle} 이름 검색`);
+  search.setAttribute('autocomplete', 'off');
+  search.setAttribute('placeholder', '이름으로 검색');
+  search.dataset.optionSearchKind = kind;
+  search.dataset.optionTarget = target;
+  search.dataset.optionPickerSearch = '';
+  const query = state?.query ?? (typeof page?.query === 'string' ? page.query : '');
+  search.value = query;
+  search.dataset.optionQuery = query;
+  search.dataset.optionLoaded = page && (page.query ?? '') === query ? 'true' : 'false';
+  const clearSearch = button(document, '검색어 지우기', 'button', 'clear-option-search');
+  clearSearch.className = 'button search-picker-clear';
+  clearSearch.hidden = !query;
+
+  const results = make(document, 'ul', undefined, 'search-picker-results');
+  results.dataset.optionResults = '';
+  results.setAttribute('aria-label', `${optionTitle} 검색 결과`);
+  const status = make(document, 'p', '', 'search-picker-status');
+  status.dataset.optionStatus = '';
+  status.setAttribute('role', 'status');
+  status.setAttribute('aria-live', 'polite');
+  status.hidden = true;
+  const retry = button(document, '다시 시도', 'button', 'retry-search-options');
+  retry.dataset.optionTarget = target;
+  retry.dataset.optionKind = kind;
+  retry.hidden = true;
+  const register = button(document, kind === 'beans' ? '원두 등록하기' : '레시피 등록하기', 'button', 'register-search-option');
+  register.dataset.optionTarget = target;
+  register.dataset.optionKind = kind;
+  register.hidden = true;
   const more = button(document, '이름 더 보기', 'button', 'more-options');
+  more.className = 'button search-picker-more';
   more.dataset.optionMore = '';
   more.dataset.optionTarget = target;
   more.dataset.optionKind = kind;
   more.hidden = !page?.hasMore;
-  wrap.append(more);
+
+  dialog.append(dialogHeader, search, clearSearch, status, retry, results, more, register);
+  dialog.addEventListener('cancel', event => {
+    event.preventDefault();
+    closeSearchPicker(wrap);
+  });
+  wrap.append(dialog);
+  renderSearchPicker(wrap, page, state, null, document);
+  syncSearchPickerTrigger(wrap, null);
   return wrap;
+}
+
+function findSearchPicker(root, target, kind) {
+  return Array.from(root.querySelectorAll('[data-search-picker]'))
+    .find(picker => picker.dataset.optionTarget === target && picker.dataset.optionKind === kind) ?? null;
+}
+
+function closeSearchPicker(picker) {
+  const dialog = picker?.querySelector('[data-option-picker]');
+  if (dialog?.open) dialog.close();
+  const trigger = picker?.querySelector('[data-action="open-search-picker"]');
+  trigger?.setAttribute('aria-expanded', 'false');
+  trigger?.focus?.();
+}
+
+function optionDetails(item, kind, data) {
+  if (kind === 'beans') {
+    const bean = data?.beans?.find(candidate => candidate.id === item.id);
+    return [bean?.origin, bean?.process, bean?.roaster].filter(Boolean).join(' · ');
+  }
+  const recipe = data?.recipes?.find(candidate => candidate.id === item.id);
+  if (recipe) return [recipe.dripper, recipe.dose ? `${recipe.dose}g` : '', recipe.temperature ? `${recipe.temperature}℃` : '']
+    .filter(Boolean).join(' · ');
+  if (item.beanId) return data?.beans?.find(bean => bean.id === item.beanId)?.name ?? '';
+  return '';
+}
+
+function syncSearchPickerTrigger(picker, data) {
+  const trigger = picker?.querySelector('[data-action="open-search-picker"]');
+  const select = picker?.querySelector('select');
+  if (!trigger || !select) return;
+  const selected = Array.from(select.options).find(option => option.value === select.value);
+  const item = Array.from(picker.querySelector('[data-option-results]')?.children ?? [])
+    .map(row => row.querySelector('[data-option-id]'))
+    .find(option => option?.dataset.optionId === select.value);
+  const current = select.value ? selected?.textContent ?? item?.textContent ?? '선택 항목' : picker.dataset.emptyLabel;
+  const value = trigger.querySelector('.search-picker-value');
+  const details = trigger.querySelector('.search-picker-selection-details');
+  const optionData = data?.[picker.dataset.optionKind]?.find(entry => entry.id === select.value);
+  value.textContent = current;
+  details.textContent = select.value ? optionDetails(optionData ?? { id: select.value }, picker.dataset.optionKind, data) : '';
+  trigger.setAttribute('aria-label', select.value ? `${current}${details.textContent ? `, ${details.textContent}` : ''}` : picker.dataset.emptyLabel);
+}
+
+function renderSearchPicker(picker, page, state, data, document) {
+  const target = picker.dataset.optionTarget;
+  const kind = picker.dataset.optionKind;
+  const dialog = picker.querySelector('[data-option-picker]');
+  const search = dialog.querySelector('[data-option-search-kind]');
+  const results = dialog.querySelector('[data-option-results]');
+  const status = dialog.querySelector('[data-option-status]');
+  const retry = dialog.querySelector('[data-action="retry-search-options"]');
+  const register = dialog.querySelector('[data-action="register-search-option"]');
+  const more = dialog.querySelector('[data-option-more]');
+  const select = picker.querySelector('select');
+  const requestState = state ?? { status: page ? 'ready' : 'idle', query: page?.query ?? '', append: false };
+  const query = requestState.query ?? page?.query ?? '';
+  const currentPage = page && (page.query ?? '') === query ? page : null;
+  search.value = query;
+  dialog.querySelector('[data-action="clear-option-search"]').hidden = !query;
+  const loading = requestState.status === 'loading';
+  const error = requestState.status === 'error';
+  const items = (loading && !requestState.append) || (error && !currentPage) ? [] : currentPage?.items ?? [];
+  results.replaceChildren(...items.map(item => buildSearchPickerResult(document, item, kind, target,
+    idOf(select.value) === idOf(item.id), data)));
+  retry.hidden = !error;
+  register.hidden = true;
+  more.hidden = !currentPage?.hasMore;
+  more.disabled = loading && !!requestState.append;
+  more.dataset.nextCursor = currentPage?.nextCursor ?? '';
+  more.textContent = loading && requestState.append ? '더 불러오는 중…' : '이름 더 보기';
+  status.hidden = false;
+  if (loading) status.textContent = requestState.append ? '이름을 더 불러오는 중…' : `${kind === 'beans' ? '원두' : '레시피'} 목록을 불러오는 중…`;
+  else if (error) status.textContent = `${kind === 'beans' ? '원두' : '레시피'}를 불러오지 못했습니다. 다시 시도해 주세요.`;
+  else if (!items.length && query.trim()) status.textContent = currentPage?.hasMore
+    ? '검색 결과가 없습니다. 다음 항목도 확인할 수 있습니다.' : '검색 결과가 없습니다.';
+  else if (!items.length && currentPage?.hasMore) status.textContent = '항목을 더 확인할 수 있습니다.';
+  else if (!items.length && requestState.status === 'ready' && currentPage?.complete !== false) {
+    status.textContent = `등록된 ${kind === 'beans' ? '원두' : '레시피'}가 없습니다.`;
+    register.hidden = false;
+  } else if (!items.length) status.textContent = '이름을 검색하거나 목록을 불러와 주세요.';
+  else status.hidden = true;
 }
 
 function recipeReady(recipe) {
@@ -1829,20 +2033,20 @@ function preferredOptionPage(serverPage, cachedPage) {
   return cachedPage && Date.now() - cachedPage.savedAt < 60000 ? cachedPage : serverPage;
 }
 
-function renderRecords(pane, data, document, formOpen, optionPages, route = '/records/new') {
-  const form = buildRecordForm(document, data, optionPages, route);
+function renderRecords(pane, data, document, formOpen, optionPages, optionStates, route = '/records/new') {
+  const form = buildRecordForm(document, data, optionPages, route, optionStates);
   form.id = 'new-record-form';
   pane.append(makeEntryDialog(document, 'records', form, formOpen));
 
   const filters = make(document, 'fieldset', undefined, 'record-filters');
   filters.append(make(document, 'legend', '기록 필터'));
   const beanPicker = searchPicker(document, '원두별 조회', 'beans', 'filters', preferredOptionPage(data.options?.filterBeans, optionPages.get('filters:beans')),
-    '모든 원두', true);
+    '모든 원두', true, optionStates.get('filters:beans'));
   const beanSearch = beanPicker.querySelector('[data-option-search-kind]');
   beanSearch.dataset.recordFilterSearch = 'beanId';
   beanPicker.querySelector('select').dataset.recordFilter = 'beanId';
   const recipePicker = searchPicker(document, '레시피별 조회', 'recipes', 'filters', preferredOptionPage(data.options?.filterRecipes, optionPages.get('filters:recipes')),
-    '모든 레시피', true);
+    '모든 레시피', true, optionStates.get('filters:recipes'));
   const recipeSearch = recipePicker.querySelector('[data-option-search-kind]');
   recipeSearch.dataset.recordFilterSearch = 'recipeId';
   recipePicker.querySelector('select').dataset.recordFilter = 'recipeId';
@@ -1852,6 +2056,12 @@ function renderRecords(pane, data, document, formOpen, optionPages, route = '/re
   const recipeSelect = recipePicker.querySelector('select');
   if (selectedFilters.beanId) beanSelect.value = selectedFilters.beanId;
   if (selectedFilters.recipeId) recipeSelect.value = selectedFilters.recipeId;
+  syncSearchPickerTrigger(beanPicker, data);
+  syncSearchPickerTrigger(recipePicker, data);
+  const reset = button(document, '필터 초기화', 'button', 'clear-record-filters');
+  reset.className = 'button record-filter-reset';
+  reset.disabled = !selectedFilters.beanId && !selectedFilters.recipeId;
+  filters.append(reset);
   pane.append(filters);
 
   const list = make(document, 'div', undefined, 'record-list');
@@ -2046,6 +2256,29 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
   const loadOptions = (target, kind, query = '', cursor = null, append = false) => {
     void actions.loadSearchOptions?.(kind, query, cursor, target, append);
   };
+  const openSearchPicker = picker => {
+    const state = actions.getState?.() ?? {};
+    if (!picker || state.pending || state.frozen || state.unresolved) return;
+    for (const openPicker of content.querySelectorAll('[data-option-picker]')) {
+      if (!openPicker.open || openPicker === picker.querySelector('[data-option-picker]')) continue;
+      closeSearchPicker(openPicker.closest('[data-search-picker]'));
+    }
+    const dialog = picker.querySelector('[data-option-picker]');
+    const trigger = picker.querySelector('[data-action="open-search-picker"]');
+    const search = picker.querySelector('[data-option-search-kind]');
+    showNativeDialog(dialog);
+    trigger?.setAttribute('aria-expanded', 'true');
+    search?.focus?.();
+  };
+  const updateRecordFilters = () => {
+    if (!windowData) return;
+    const beanId = content.querySelector('[data-record-filter="beanId"]')?.value ?? '';
+    const recipeId = content.querySelector('[data-record-filter="recipeId"]')?.value ?? '';
+    const reset = content.querySelector('[data-action="clear-record-filters"]');
+    if (reset) reset.disabled = !beanId && !recipeId;
+    const update = actions.setRecordFilters?.({ beanId, recipeId });
+    if (update?.catch) void update.catch(() => {});
+  };
   const navigateTo = (next, replaceCurrent = null) => {
     const currentWindow = globalThis.window;
     if (!currentWindow?.location) { view.renderRoute(next); return; }
@@ -2057,9 +2290,75 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
   };
 
   const handleClick = async event => {
+    const openDialog = event.target.closest?.('[data-option-picker]');
+    if (openDialog && event.target === openDialog) {
+      closeSearchPicker(openDialog.closest('[data-search-picker]'));
+      return;
+    }
     const target = event.target.closest('[data-action]');
     const action = target?.dataset.action;
     if (!action || target.disabled) return;
+    if (action === 'open-search-picker') {
+      openSearchPicker(target.closest('[data-search-picker]'));
+      return;
+    }
+    if (action === 'close-search-picker') {
+      closeSearchPicker(target.closest('[data-search-picker]'));
+      return;
+    }
+    if (action === 'select-search-option') {
+      const picker = target.closest('[data-search-picker]');
+      const select = picker?.querySelector('select');
+      const optionId = target.dataset.optionId;
+      if (!select || !optionId || target.disabled) return;
+      if (!Array.from(select.options).some(option => option.value === optionId)) {
+        const selectedOption = document.createElement('option');
+        selectedOption.value = optionId;
+        selectedOption.textContent = target.querySelector('.search-picker-result-name')?.textContent ?? '선택 항목';
+        select.append(selectedOption);
+      }
+      select.value = optionId;
+      syncSearchPickerTrigger(picker, windowData);
+      closeSearchPicker(picker);
+      const form = select.form;
+      if (FORM_KINDS.has(form?.dataset.form)) actions.setDirty(true, form.dataset.form);
+      if (select.matches('[data-record-filter]')) updateRecordFilters();
+      return;
+    }
+    if (action === 'clear-option-search') {
+      const picker = target.closest('[data-search-picker]');
+      const search = picker?.querySelector('[data-option-search-kind]');
+      if (!search) return;
+      search.value = '';
+      view.setSearchOptionsState?.(search.dataset.optionTarget, search.dataset.optionSearchKind,
+        { status: 'loading', query: '' });
+      search.focus?.();
+      loadOptions(search.dataset.optionTarget, search.dataset.optionSearchKind, '');
+      return;
+    }
+    if (action === 'retry-search-options') {
+      const picker = target.closest('[data-search-picker]');
+      const search = picker?.querySelector('[data-option-search-kind]');
+      if (search) loadOptions(search.dataset.optionTarget, search.dataset.optionSearchKind, search.value);
+      return;
+    }
+    if (action === 'register-search-option') {
+      const picker = target.closest('[data-search-picker]');
+      const kind = target.dataset.optionKind;
+      if (!picker || !['beans', 'recipes'].includes(kind)) return;
+      closeSearchPicker(picker);
+      navigateTo(kind === 'beans' ? '/beans' : '/recipes');
+      return;
+    }
+    if (action === 'clear-record-filters') {
+      for (const select of content.querySelectorAll('[data-record-filter]')) {
+        select.value = '';
+        syncSearchPickerTrigger(select.closest('[data-search-picker]'), windowData);
+      }
+      target.disabled = true;
+      updateRecordFilters();
+      return;
+    }
     if (action === 'cancel-delete') {
       if (closeDeleteDialog() === 'cancelled') view.showStatus({ type: 'cancelled', message: '삭제를 취소했습니다.' });
       return;
@@ -2217,6 +2516,8 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
       const { optionSearchKind: kind, optionTarget: targetName } = event.target.dataset;
       const key = `${targetName}:${kind}`;
       const searchRoute = view.currentRoute();
+      event.target.dataset.optionLoaded = 'false';
+      view.setSearchOptionsState?.(targetName, kind, { status: 'loading', query: event.target.value });
       clearTimeout(optionSearchTimers.get(key));
       optionSearchTimers.set(key, setTimeout(() => {
         if (view.currentRoute() === searchRoute) loadOptions(targetName, kind, event.target.value);
@@ -2230,12 +2531,7 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
   });
   content.addEventListener('change', event => {
     if (event.target.disabled) return;
-    if (event.target.matches('[data-record-filter]') && windowData) {
-      const beanId = content.querySelector('[data-record-filter="beanId"]')?.value ?? '';
-      const recipeId = content.querySelector('[data-record-filter="recipeId"]')?.value ?? '';
-      const update = actions.setRecordFilters?.({ beanId, recipeId });
-      if (update?.catch) void update.catch(() => {});
-    }
+    if (event.target.matches('[data-record-filter]')) updateRecordFilters();
     updatePreview(content);
   });
   content.addEventListener('focusin', event => {
@@ -2253,6 +2549,17 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
     event.preventDefault();
     const state = actions.getState?.() ?? {};
     if (state.pending || state.frozen || state.unresolved || form.closest('dialog')?.dataset.saveState === 'success') return;
+    if (kind === 'records') {
+      const missingName = [['beanId', '원두'], ['recipeId', '레시피']]
+        .find(([name]) => !form.elements[name]?.value);
+      if (missingName) {
+        const picker = Array.from(form.querySelectorAll('[data-search-picker]'))
+          .find(item => item.dataset.optionKind === (missingName[0] === 'beanId' ? 'beans' : 'recipes'));
+        view.showStatus({ type: 'validation-error', message: `${missingName[1]}를 선택해 주세요.` });
+        openSearchPicker(picker);
+        return;
+      }
+    }
     clearInvalidFields(form);
     let payload;
     try {

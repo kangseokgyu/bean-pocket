@@ -116,6 +116,64 @@ test('route reads stay scoped, record filters query the server, and name options
   assert.deepEqual(rendered.at(-1).beans.map(bean => bean.id), ['bean-1']);
 });
 
+test('search picker requests expose retryable errors and ignore superseded results and failures', async () => {
+  const connection = { schemaVersion: 1, revision: REVISION, token: 'fake-only', dataSources: SOURCES };
+  const context = {
+    async inspect() { return { initialized: true, blocked: false }; },
+    async readJournal() { return { operations: [], activeConnectionRevision: REVISION, connectionGuard: null }; },
+    async beginConnectionChange() {}, async commitConnectionChange() {},
+  };
+  const states = [];
+  const results = [];
+  const statuses = [];
+  let resolveOld;
+  let rejectOld;
+  const oldRequest = new Promise((resolve, reject) => { resolveOld = resolve; rejectOld = reject; });
+  const newPage = { items: [{ id: 'current', name: '최신 결과' }], nextCursor: null, hasMore: false, complete: true };
+  const repository = {
+    async listRecords() { return { items: [], beans: [], recipes: [], nextCursor: null, hasMore: false, complete: true }; },
+    searchOptions({ query }) {
+      if (query === 'old') return oldRequest;
+      if (query === 'new') return Promise.resolve(newPage);
+      if (query === 'broken') return Promise.reject(Object.assign(new Error('read failed'), { code: 'read-failed' }));
+      return Promise.resolve({ items: [], nextCursor: null, hasMore: false, complete: true });
+    },
+  };
+  const view = {
+    currentRoute() { return '/records'; },
+    setState() {}, showConnection() {}, showStatus(status) { statuses.push(status); },
+    setSearchOptionsState(...args) { states.push(args); },
+    setSearchOptions(...args) { results.push(args); },
+    renderData() {},
+  };
+  const app = createAppController({ view,
+    state: { async withWriteLock(action) { return action(context); } },
+    file: { async readConnection() { return connection; } },
+    makeClient: () => ({ async verify() {} }),
+    makeRepository: () => repository,
+    makeCommands: () => ({}),
+  });
+  app.bind();
+  await app.connect({ token: 'fake-only', dataSources: SOURCES });
+
+  const previous = app.loadSearchOptions('beans', 'old', null, 'filters');
+  const current = app.loadSearchOptions('beans', 'new', null, 'filters');
+  rejectOld(Object.assign(new Error('stale failure'), { code: 'read-failed' }));
+  await previous;
+  await current;
+
+  assert.deepEqual(states.slice(0, 2).map(([, , state]) => [state.status, state.query]), [
+    ['loading', 'old'], ['loading', 'new'],
+  ]);
+  assert.deepEqual(results.map(([, , , , query]) => query), ['new'], 'only the current search response reaches the picker');
+  assert.equal(statuses.some(status => status.type === 'read-error'), false, 'a superseded failure is ignored');
+
+  await app.loadSearchOptions('beans', 'broken', null, 'filters');
+  assert.deepEqual(states.at(-1), ['filters', 'beans', { status: 'error', query: 'broken', append: false }]);
+  assert.equal(statuses.at(-1).type, 'read-error', 'the current failure remains visible and can be retried');
+  resolveOld(newPage);
+});
+
 test('route transition loading is independent from writes and ends after the first page', async () => {
   let currentRoute = '/beans';
   let routeChanged;

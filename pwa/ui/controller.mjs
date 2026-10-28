@@ -530,6 +530,7 @@ export function createAppController({
       view.setSearchOptions?.(target, kind, cached, false, query);
       return cached;
     }
+    view.setSearchOptionsState?.(target, kind, { status: 'loading', query, append });
     try {
       const result = await repository.searchOptions({ kind, query, cursor, limit: SCREEN_PAGE_SIZE,
         signal: routeReadController?.signal });
@@ -539,7 +540,16 @@ export function createAppController({
       view.setSearchOptions?.(target, kind, result, append, query);
       return result;
     } catch (error) {
-      if (error?.code !== 'read-cancelled') showFailure(error, 'read-error');
+      const stillCurrent = routeEpoch === routeGeneration &&
+        optionSearchGeneration.get(optionIdentity) === optionEpoch &&
+        connectionRevision === activeConnection?.revision && !routeReadController?.signal.aborted;
+      if (!stillCurrent) return null;
+      if (error?.code === 'read-cancelled') {
+        view.setSearchOptionsState?.(target, kind, { status: 'idle', query, append });
+        return null;
+      }
+      view.setSearchOptionsState?.(target, kind, { status: 'error', query, append });
+      showFailure(error, 'read-error');
       return null;
     }
   }

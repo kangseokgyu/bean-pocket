@@ -1,0 +1,16 @@
+✔ saved-connection startup verifies and reads only the current beans page (1.77525ms)
+✔ route reads stay scoped, record filters query the server, and name options load on form use (1.136583ms)
+✔ search picker requests expose retryable errors and ignore superseded results and failures (1.299292ms)
+✔ route transition loading is independent from writes and ends after the first page (0.64825ms)
+✔ route read failure and cancellation clear loading without rendering previous-route data (0.680833ms)
+✔ returning to the current route clears a cancelled transition skeleton (0.318917ms)
+✔ late response from a previous route cannot replace the current screen (0.344583ms)
+✔ home startup performs no screen reads and brew routes use scoped repository methods (1.093958ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 81.071084

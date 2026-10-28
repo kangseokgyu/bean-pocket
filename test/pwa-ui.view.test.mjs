@@ -854,8 +854,10 @@ test('recipes have no bean selector and records require both bean and shared rec
   const recordForm = document.root.querySelector('form[data-form="records"]');
   assert.ok(recordForm.elements.beanId);
   assert.ok(recordForm.elements.recipeId);
-  assert.equal(recordForm.elements.beanId.required, true);
-  assert.equal(recordForm.elements.recipeId.required, true);
+  assert.equal(recordForm.elements.beanId.required, false, 'hidden select validation is handled by its visible picker');
+  assert.equal(recordForm.elements.recipeId.required, false, 'hidden select validation is handled by its visible picker');
+  assert.equal(recordForm.querySelector('[data-search-picker]').querySelector('[data-action="open-search-picker"]')
+    .getAttribute('aria-required'), 'true');
   assert.ok(recordForm.querySelectorAll('input[name="rating"]').every(input => input.required));
 
   view.renderRoute('/records');
@@ -2791,6 +2793,141 @@ test('record name pickers load on focus and preserve filter selection across opt
   assert.equal(refreshedFilter.options.length, 3, 'loaded options survive an unrelated page rerender');
   assert.equal(refreshedFilter.value, BEAN);
   assert.equal(refreshedSearch.value, 'Search Ethiopia', 'the active query survives an unrelated page rerender');
+});
+
+test('record form uses accessible searchable picker dialogs and restores focus without closing its parent', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const requested = [];
+  const dirty = [];
+  view.bind({ loadSearchOptions(...args) { requested.push(args); }, setDirty(...args) { dirty.push(args); }, getState() { return {}; } });
+  view.renderData(data());
+  view.renderRoute('/records/new');
+  const entryDialog = document.root.querySelector('[data-entry-dialog="records"]');
+  const form = document.root.querySelector('form[data-form="records"]');
+  const beanPicker = form.querySelector('[data-search-picker]');
+  const beanTrigger = beanPicker.querySelector('[data-action="open-search-picker"]');
+  const beanSelect = beanPicker.querySelector('[data-option-select-kind="beans"]');
+  const pickerDialog = beanPicker.querySelector('[data-option-picker]');
+  const search = pickerDialog.querySelector('[data-option-search-kind="beans"]');
+
+  assert.equal(beanTrigger.textContent, '원두 선택');
+  assert.equal(beanTrigger.getAttribute('aria-required'), 'true');
+  assert.equal(beanSelect.required, false, 'the clipped form control uses submit-time validation');
+  assert.equal(beanSelect.getAttribute('aria-hidden'), 'true');
+  assert.equal(form.elements.recipeId.getAttribute('aria-hidden'), 'true');
+  assert.equal(pickerDialog.getAttribute('aria-modal'), 'true');
+
+  await clickViewTarget(document, beanTrigger);
+  assert.equal(entryDialog.open, true, 'the record entry dialog remains underneath the picker');
+  assert.equal(pickerDialog.open, true);
+  assert.equal(document.activeElement, search);
+  for (const listener of document.root.querySelector('.data-panel').listeners.get('focusin') ?? []) listener({ target: search });
+  assert.deepEqual(requested, [['beans', '', null, 'form', false]]);
+
+  view.setSearchOptions('form', 'beans', { items: [{ id: BEAN, name: '원두 <안전>', status: 'ready' }],
+    nextCursor: null, hasMore: false, complete: true }, false, '');
+  const result = pickerDialog.querySelector(`[data-option-id="${BEAN}"]`);
+  assert.ok(result);
+  assert.match(result.textContent, /원두 <안전>/, 'option text is inserted as text, not interpreted as markup');
+  await clickViewTarget(document, result);
+
+  assert.equal(beanSelect.value, BEAN);
+  assert.equal(beanTrigger.textContent.includes('원두 <안전>'), true);
+  assert.match(beanTrigger.textContent, /시다마/);
+  assert.equal(pickerDialog.open, false);
+  assert.equal(entryDialog.open, true);
+  assert.equal(document.activeElement, beanTrigger);
+  assert.deepEqual(dirty, [[true, 'records']]);
+
+  await clickViewTarget(document, beanTrigger);
+  let prevented = false;
+  for (const listener of pickerDialog.listeners.get('cancel') ?? []) listener({ preventDefault() { prevented = true; } });
+  assert.equal(prevented, true, 'the picker handles Escape before the parent dialog can close');
+  assert.equal(pickerDialog.open, false);
+  assert.equal(entryDialog.open, true);
+  assert.equal(document.activeElement, beanTrigger);
+});
+
+test('record filters share the picker, reset both selections, and expose search loading, errors, empty states, and paging', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const recordData = { ...data(), records: [], options: {
+    filterBeans: { items: [{ id: BEAN, name: '원두 <안전>', status: 'ready' }], nextCursor: null, hasMore: false, complete: true },
+    filterRecipes: { items: [{ id: RECIPE, name: 'V60', beanId: BEAN, status: 'ready' }], nextCursor: null, hasMore: false, complete: true },
+  }, screen: { complete: true, hasMore: false, filters: { beanId: BEAN, recipeId: RECIPE } } };
+  const calls = [];
+  const filterUpdates = [];
+  view.bind({ loadSearchOptions(...args) { calls.push(args); }, setRecordFilters(value) { filterUpdates.push(value); }, getState() { return {}; } });
+  view.renderRoute('/records');
+  view.renderData(recordData);
+  const content = document.root.querySelector('.data-panel');
+  const beanPicker = content.querySelectorAll('[data-search-picker]').find(item => item.dataset.optionTarget === 'filters' && item.dataset.optionKind === 'beans');
+  const beanTrigger = beanPicker.querySelector('[data-action="open-search-picker"]');
+  const beanSelect = beanPicker.querySelector('[data-record-filter="beanId"]');
+  const dialog = beanPicker.querySelector('[data-option-picker]');
+  assert.match(beanTrigger.textContent, /원두 <안전>/);
+  await clickViewTarget(document, beanTrigger);
+  const search = dialog.querySelector('[data-option-search-kind="beans"]');
+  assert.equal(search.type, 'search');
+  assert.match(dialog.querySelector('h2').textContent, /원두 선택/);
+
+  view.setSearchOptionsState('filters', 'beans', { status: 'loading', query: '' });
+  assert.match(dialog.querySelector('[data-option-status]').textContent, /불러오는 중/);
+  view.setSearchOptionsState('filters', 'beans', { status: 'error', query: '' });
+  assert.match(dialog.querySelector('[data-option-status]').textContent, /불러오지 못했습니다/);
+  await clickViewTarget(document, dialog.querySelector('[data-action="retry-search-options"]'));
+  assert.deepEqual(calls.at(-1), ['beans', '', null, 'filters', false]);
+
+  search.value = '에티오피아';
+  view.setSearchOptionsState('filters', 'beans', { status: 'error', query: '에티오피아' });
+  const clearSearch = dialog.querySelector('[data-action="clear-option-search"]');
+  assert.equal(clearSearch.hidden, false);
+  await clickViewTarget(document, clearSearch);
+  assert.equal(search.value, '');
+  assert.deepEqual(calls.at(-1), ['beans', '', null, 'filters', false]);
+
+  view.setSearchOptions('filters', 'beans', { items: [], nextCursor: 'next-page', hasMore: true, complete: false }, false, '검색');
+  assert.match(dialog.querySelector('[data-option-status]').textContent, /검색 결과가 없습니다/);
+  const more = dialog.querySelector('[data-option-more]');
+  assert.equal(more.hidden, false);
+  await clickViewTarget(document, more);
+  assert.deepEqual(calls.at(-1), ['beans', '검색', 'next-page', 'filters', true]);
+
+  view.setSearchOptions('filters', 'beans', { items: [], nextCursor: null, hasMore: false, complete: true }, false, '');
+  assert.match(dialog.querySelector('[data-option-status]').textContent, /등록된 원두가 없습니다/);
+  assert.ok(dialog.querySelector('[data-action="register-search-option"]'));
+
+  const reset = content.querySelector('[data-action="clear-record-filters"]');
+  assert.ok(reset);
+  assert.equal(reset.disabled, false);
+  await clickViewTarget(document, reset);
+  assert.equal(beanSelect.value, '');
+  assert.deepEqual(filterUpdates.at(-1), { beanId: '', recipeId: '' });
+  assert.equal(beanTrigger.textContent, '모든 원두');
+  assert.equal(content.querySelector('[data-record-filter="recipeId"]').value, '');
+});
+
+test('record picker validation focuses the first required selector without native hidden-select errors', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderRoute('/records/new');
+  view.renderData(data());
+  const content = document.root.querySelector('.data-panel');
+  const form = content.querySelector('form[data-form="records"]');
+  const picker = form.querySelector('[data-search-picker]');
+  const dialog = picker.querySelector('[data-option-picker]');
+  let submitted = false;
+  view.bind({ submit() { submitted = true; }, getState() { return {}; }, setDirty() {} });
+  let prevented = false;
+  for (const listener of content.listeners.get('submit') ?? []) {
+    await listener({ target: form, preventDefault() { prevented = true; } });
+  }
+  assert.equal(prevented, true);
+  assert.equal(submitted, false);
+  assert.equal(dialog.open, true);
+  assert.equal(document.activeElement, dialog.querySelector('[data-option-search-kind]'));
+  assert.match(document.root.querySelector('.app-status').textContent, /원두를 선택/);
 });
 
 

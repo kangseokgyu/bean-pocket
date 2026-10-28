@@ -1,0 +1,194 @@
+[
+  {
+    "screen": "browser",
+    "engine": "chromium",
+    "width": 320,
+    "toastBottom": 796,
+    "buttonTop": 841,
+    "autoHidden": true
+  },
+  {
+    "screen": "browser",
+    "engine": "chromium",
+    "width": 390,
+    "toastBottom": 796,
+    "buttonTop": 841,
+    "autoHidden": true
+  },
+  {
+    "screen": "browser",
+    "engine": "chromium",
+    "width": 768,
+    "toastBottom": 625.390625,
+    "buttonTop": 648.390625,
+    "autoHidden": true
+  },
+  {
+    "screen": "browser",
+    "engine": "chromium",
+    "width": 1280,
+    "toastBottom": 625.390625,
+    "buttonTop": 648.390625,
+    "autoHidden": true
+  },
+  {
+    "screen": "browser",
+    "engine": "webkit",
+    "width": 320,
+    "toastBottom": 796,
+    "buttonTop": 841,
+    "autoHidden": true
+  },
+  {
+    "screen": "browser",
+    "engine": "webkit",
+    "width": 390,
+    "toastBottom": 796,
+    "buttonTop": 841,
+    "autoHidden": true
+  },
+  {
+    "screen": "browser",
+    "engine": "webkit",
+    "width": 768,
+    "toastBottom": 625.390625,
+    "buttonTop": 648.390625,
+    "autoHidden": true
+  },
+  {
+    "screen": "browser",
+    "engine": "webkit",
+    "width": 1280,
+    "toastBottom": 625.390625,
+    "buttonTop": 648.390625,
+    "autoHidden": true
+  },
+  {
+    "screen": "settings",
+    "engine": "chromium",
+    "width": 320,
+    "toastBottom": 796,
+    "buttonTop": 841,
+    "autoHidden": true
+  },
+  {
+    "screen": "settings",
+    "engine": "chromium",
+    "width": 390,
+    "toastBottom": 796,
+    "buttonTop": 841,
+    "autoHidden": true
+  },
+  {
+    "screen": "settings",
+    "engine": "chromium",
+    "width": 768,
+    "toastBottom": 558.16015625,
+    "buttonTop": 710.7284545898438,
+    "autoHidden": true
+  },
+  {
+    "screen": "settings",
+    "engine": "chromium",
+    "width": 1280,
+    "toastBottom": 682.28125,
+    "buttonTop": 705.28125,
+    "autoHidden": true
+  },
+  {
+    "screen": "settings",
+    "engine": "webkit",
+    "width": 320,
+    "toastBottom": 796,
+    "buttonTop": 841,
+    "autoHidden": true
+  },
+  {
+    "screen": "settings",
+    "engine": "webkit",
+    "width": 390,
+    "toastBottom": 796,
+    "buttonTop": 841,
+    "autoHidden": true
+  },
+  {
+    "screen": "settings",
+    "engine": "webkit",
+    "width": 768,
+    "toastBottom": 682.28125,
+    "buttonTop": 705.28125,
+    "autoHidden": true
+  },
+  {
+    "screen": "settings",
+    "engine": "webkit",
+    "width": 1280,
+    "toastBottom": 682.28125,
+    "buttonTop": 705.28125,
+    "autoHidden": true
+  },
+  {
+    "screen": "recovery",
+    "engine": "chromium",
+    "width": 320,
+    "toastBottom": 798.0106201171875,
+    "buttonTop": 826.8919677734375,
+    "autoHidden": true
+  },
+  {
+    "screen": "recovery",
+    "engine": "chromium",
+    "width": 390,
+    "toastBottom": 800.1736450195312,
+    "buttonTop": 828.9766845703125,
+    "autoHidden": true
+  },
+  {
+    "screen": "recovery",
+    "engine": "chromium",
+    "width": 768,
+    "toastBottom": 194.89013671875,
+    "buttonTop": 507.67218017578125,
+    "autoHidden": true
+  },
+  {
+    "screen": "recovery",
+    "engine": "chromium",
+    "width": 1280,
+    "toastBottom": 194.89022827148438,
+    "buttonTop": 507.6722412109375,
+    "autoHidden": true
+  },
+  {
+    "screen": "recovery",
+    "engine": "webkit",
+    "width": 320,
+    "toastBottom": 799.1419067382812,
+    "buttonTop": 827.9786376953125,
+    "autoHidden": true
+  },
+  {
+    "screen": "recovery",
+    "engine": "webkit",
+    "width": 390,
+    "toastBottom": 800.4044189453125,
+    "buttonTop": 829.1986694335938,
+    "autoHidden": true
+  },
+  {
+    "screen": "recovery",
+    "engine": "webkit",
+    "width": 768,
+    "toastBottom": 195.20843505859375,
+    "buttonTop": 507.89593505859375,
+    "autoHidden": true
+  },
+  {
+    "screen": "recovery",
+    "engine": "webkit",
+    "width": 1280,
+    "toastBottom": 195.11331176757812,
+    "buttonTop": 507.8290100097656,
+    "autoHidden": true
+  }
+]

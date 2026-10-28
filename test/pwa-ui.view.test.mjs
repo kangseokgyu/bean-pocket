@@ -436,7 +436,7 @@ test('status messages share one bottom safe-area toast above native modal dialog
   assert.match(toastRule[1], /safe-area-inset-left/);
   assert.match(toastRule[1], /safe-area-inset-right/);
   assert.match(toastRule[1], /pointer-events:\s*none/);
-  assert.match(toastRule[1], /calc\(var\(--toast-bottom, 160px\) \+ env\(safe-area-inset-bottom/,
+  assert.match(toastRule[1], /calc\(var\(--toast-bottom, 104px\) \+ env\(safe-area-inset-bottom/,
     'toast clears both stacked action buttons on narrow screens');
   assert.match(toastRule[1], /width:\s*fit-content/);
   assert.match(toastRule[1], /max-width:\s*min\(480px/);
@@ -452,12 +452,16 @@ test('toast clears the actual action row of a centered modal', () => {
   const actions = document.root.querySelector('dialog[data-entry-dialog="beans"]').querySelector('.form-actions');
   actions.getBoundingClientRect = () => ({ top: 648, height: 76 });
   view.showStatus({ type: 'validation-error', message: '확인해 주세요.' });
-  assert.equal(document.root.querySelector('.app-status').style['--toast-bottom'], '268px');
+  assert.equal(document.root.querySelector('.app-status').style['--toast-bottom'], '260px');
+  actions.getBoundingClientRect = () => ({ top: 827, height: 72 });
+  view.showStatus({ type: 'validation-error', message: '확인해 주세요.' });
+  assert.equal(document.root.querySelector('.app-status').style['--toast-bottom'], '104px',
+    'bottom-sheet toast sits lower while remaining above the actions');
   actions.getBoundingClientRect = () => ({ top: 0, height: 0 });
   const retry = document.root.querySelector('dialog[data-entry-dialog="beans"]').querySelector('button');
   retry.getBoundingClientRect = () => ({ top: 600, height: 44 });
   view.showStatus({ type: 'read-error', message: '다시 시도해 주세요.' });
-  assert.equal(document.root.querySelector('.app-status').style['--toast-bottom'], '316px',
+  assert.equal(document.root.querySelector('.app-status').style['--toast-bottom'], '308px',
     'a hidden form row falls back to the visible recovery buttons');
 });
 

@@ -1,0 +1,27 @@
+{
+  "build": "0cd44a903339",
+  "status": 200,
+  "cssMatchesBuild": true,
+  "results": [
+    {
+      "width": 390,
+      "step": "beans",
+      "border": "0px"
+    },
+    {
+      "width": 390,
+      "step": "recipes",
+      "border": "0px"
+    },
+    {
+      "width": 1440,
+      "step": "beans",
+      "border": "0px"
+    },
+    {
+      "width": 1440,
+      "step": "recipes",
+      "border": "0px"
+    }
+  ]
+}

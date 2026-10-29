@@ -27,3 +27,9 @@
 - Actions: https://github.com/kangseokgyu/bean-pocket/actions/runs/40858085382 — build/deploy 성공.
 - 공개 데모: https://kangseokgyu.github.io/bean-pocket/brew-picker-demo.html
 - 공개 빌드: `9eb523bf70d8`. 2026-10-29 19:32 KST 공개 HTML/CSS/MJS/기록 데모/SW/메인 HTML 6개 HTTP 200 및 로컬 산출물 SHA-256 일치. 공개 Chrome에서도 원두 카드 여백 → 레시피 조건 영역 → 준비 완료 흐름 확인 (`public-result.json`).
+
+## 후속 변경: 카드 가운데 구분선 제거
+
+사용자 요청에 따라 `.card-detail`의 `border-top`만 삭제했다. 최신 main(기록 비교 데모 삭제 작업 포함)을 반영하여 `npm test` 631개 통과, 실패·건너뜀 0, 종료 0. `npm run build:pages`, `npm run check:pages`, `git diff --check` 통과. 자체 diff 리뷰로 카드 레이아웃과 클릭 동작은 그대로 유지됨을 확인했다.
+
+기능 커밋 `b0c51754a3cb2a6cfc423bd758ccdf46be982e46`, 일반판 빌드 `0cd44a903339`. [Pages 실행 40864217519](https://github.com/kangseokgyu/bean-pocket/actions/runs/40864217519)의 통합 테스트·빌드·배포 성공. 공개 CSS HTTP 200 및 로컬 빌드와 일치. 공개 Chrome 390/1440px에서 원두·레시피 카드 모두 `borderTopWidth: 0px` 확인 (`no-divider-public.json`). iPhone 실기기는 미확인.

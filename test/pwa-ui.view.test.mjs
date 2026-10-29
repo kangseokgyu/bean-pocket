@@ -3358,6 +3358,122 @@ test('brew routes preserve selected parents and show the saved recipe guide with
   assert.equal(complete.dataset.recipeId, RECIPE);
 });
 
+test('brew bean and recipe option cards are full-area buttons and preserve selection and readiness', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  const incompleteRecipeId = '77777777-7777-4777-8777-777777777777';
+  current.recipes.push({ ...current.recipes[0], id: incompleteRecipeId, name: '확인 중 레시피', status: 'pending', steps: [] });
+  view.renderData(current);
+
+  view.renderRoute(`/brew/bean?selectedBeanId=${BEAN}`);
+  const beanCards = document.root.querySelector('.brew-option-list').children;
+  assert.equal(beanCards.length, 1);
+  const beanCard = beanCards[0];
+  assert.equal(beanCard.tagName, 'button', 'the full bean card is the native button');
+  assert.equal(beanCard.type, 'button');
+  assert.equal(beanCard.className.includes('brew-option-card'), true);
+  assert.equal(beanCard.dataset.action, 'select-brew-bean');
+  assert.equal(beanCard.dataset.beanId, BEAN);
+  assert.equal(beanCard.getAttribute('aria-pressed'), 'true');
+  assert.equal(beanCard.querySelector('.brew-selected-label')?.textContent, '선택한 원두');
+  assert.match(beanCard.textContent, /시다마 · 테스트 농장 · 로스터리/);
+  assert.match(beanCard.querySelector('.brew-option-action')?.textContent ?? '', /→$/);
+
+  view.renderRoute(`/brew/recipe?beanId=${BEAN}&selectedRecipeId=${RECIPE}`);
+  const recipeCards = document.root.querySelector('.brew-option-list').children;
+  assert.equal(recipeCards.length, 2);
+  const recipeCard = recipeCards[0];
+  assert.equal(recipeCard.tagName, 'button', 'the full ready recipe card is the native button');
+  assert.equal(recipeCard.type, 'button');
+  assert.equal(recipeCard.className.includes('brew-option-card'), true);
+  assert.equal(recipeCard.dataset.action, 'select-brew-recipe');
+  assert.equal(recipeCard.dataset.beanId, BEAN);
+  assert.equal(recipeCard.dataset.recipeId, RECIPE);
+  assert.equal(recipeCard.disabled, false);
+  assert.equal(recipeCard.getAttribute('aria-pressed'), 'true');
+  assert.equal(recipeCard.querySelector('.brew-selected-label')?.textContent, '선택한 레시피');
+  assert.match(recipeCard.textContent, /15g · 93℃ · 물 250g · 2단계/);
+  assert.match(recipeCard.querySelector('.brew-option-action')?.textContent ?? '', /→$/);
+
+  const incompleteCard = recipeCards[1];
+  assert.equal(incompleteCard.tagName, 'button');
+  assert.equal(incompleteCard.disabled, true, `incomplete recipe ${incompleteCard.dataset.recipeId} remains unselectable: ${incompleteCard.textContent}`);
+  assert.match(incompleteCard.textContent, /레시피 단계를 확인 중입니다\./);
+  for (const card of [beanCard, recipeCard, incompleteCard]) {
+    const assertPhrasingContent = node => {
+      for (const child of node.children) {
+        assert.ok(['span', 'strong'].includes(child.tagName), `${child.tagName} is not valid button content`);
+        assertPhrasingContent(child);
+      }
+    };
+    assert.equal(card.querySelectorAll('button').length, 0, 'cards must not nest controls');
+    assertPhrasingContent(card);
+  }
+});
+
+test('brew overview marks the active step and aligns selection, conditions, and pour amounts', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+
+  view.renderRoute(`/brew/recipe?beanId=${BEAN}`);
+  const recipeProgress = document.root.querySelector('.brew-step-indicator');
+  assert.ok(recipeProgress, 'brew routes show the three-step path');
+  assert.deepEqual(recipeProgress.children.map(step => step.querySelector('.brew-step-name')?.textContent), [
+    '원두', '레시피', '추출',
+  ]);
+  assert.equal(recipeProgress.children[1].getAttribute('aria-current'), 'step');
+  const selectedBean = document.root.querySelector('.brew-selection-summary[data-selection="bean"]');
+  assert.match(selectedBean.textContent, /원두 <안전>/);
+  assert.equal(selectedBean.querySelector('[data-action="back-to-beans"]').dataset.route,
+    `/brew/bean?selectedBeanId=${BEAN}`);
+
+  view.renderRoute(`/brew/run?beanId=${BEAN}&recipeId=${RECIPE}`);
+  const pane = document.root.querySelector('.brew-run-pane');
+  const runProgress = pane.querySelector('.brew-step-indicator');
+  assert.equal(runProgress.children[2].getAttribute('aria-current'), 'step');
+  const runBean = pane.querySelector('.brew-selection-summary[data-selection="bean"]');
+  const runRecipe = pane.querySelector('.brew-selection-summary[data-selection="recipe"]');
+  assert.match(runBean.textContent, /원두 <안전>/);
+  assert.equal(runBean.querySelector('[data-action="back-to-beans"]').dataset.route,
+    `/brew/bean?selectedBeanId=${BEAN}`);
+  assert.match(runRecipe.textContent, /V60/);
+  assert.equal(runRecipe.querySelector('[data-action="back-to-recipes"]').dataset.route,
+    `/brew/recipe?beanId=${BEAN}&selectedRecipeId=${RECIPE}`);
+
+  const groups = pane.querySelectorAll('.brew-condition-group');
+  assert.deepEqual(groups.map(group => group.querySelector('h3')?.textContent), ['추출', '분쇄']);
+  assert.match(groups[0].textContent, /V60.*15g.*93℃.*250g/);
+  assert.match(groups[1].textContent, /중간보다 가늘게.*Comandante.*24클릭/);
+
+  const tableRegion = pane.querySelector('.brew-pour-table-scroll');
+  assert.equal(tableRegion.getAttribute('role'), 'region');
+  assert.equal(tableRegion.getAttribute('aria-label'), '물 붓기 단계 표');
+  assert.equal(tableRegion.getAttribute('tabindex'), '0', 'the horizontally scrollable table region is keyboard focusable');
+  const table = pane.querySelector('.brew-pour-table');
+  assert.deepEqual(table.querySelector('thead').querySelector('tr').children.map(cell => cell.textContent), [
+    '단계', '경과 시간', '이번 물 양', '누적 물 양',
+  ]);
+  const secondPour = table.querySelector('tbody').children[1].children;
+  assert.equal(secondPour[0].textContent, '붓기');
+  assert.equal(secondPour[1].querySelector('.brew-pour-time').textContent, '1:10');
+  assert.equal(secondPour[1].querySelector('.brew-pour-interval').textContent, '간격 40초');
+  assert.equal(secondPour[2].textContent, '200g');
+  assert.equal(secondPour[3].textContent, '250g');
+  assert.equal(pane.querySelector('.brew-extraction-guide').textContent,
+    '교반 없음\n목표 추출 완료 시간: 2분 30초');
+  assert.equal(pane.querySelector('[data-action="complete-brew"]').dataset.beanId, BEAN);
+  assert.equal(pane.querySelector('[data-action="complete-brew"]').dataset.recipeId, RECIPE);
+
+  const sparse = data();
+  sparse.recipes[0] = { ...sparse.recipes[0], grind: '', grinder: '', grinderSetting: '', microns: null };
+  view.renderData(sparse);
+  view.renderRoute(`/brew/run?beanId=${BEAN}&recipeId=${RECIPE}`);
+  assert.deepEqual(document.root.querySelectorAll('.brew-condition-group').map(group => group.querySelector('h3')?.textContent), ['추출'],
+    'the optional grind group is absent when the recipe has no grind fields');
+});
+
 test('empty bean selection explains registration and provides routes to register or return', () => {
   const document = new TestDocument();
   const view = createBeanView(document);

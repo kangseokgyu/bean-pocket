@@ -1,0 +1,16 @@
+TAP version 13
+# Subtest: brew overview marks the active step and aligns selection, conditions, and pour amounts
+ok 1 - brew overview marks the active step and aligns selection, conditions, and pour amounts
+  ---
+  duration_ms: 8.898541
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 64.310709

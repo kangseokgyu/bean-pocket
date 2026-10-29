@@ -1,0 +1,45 @@
+✖ brew bean and recipe option cards are full-area buttons and preserve selection and readiness (8.01175ms)
+  AssertionError [ERR_ASSERTION]: incomplete recipe 77777777-7777-4777-8777-777777777777 remains unselectable: 확인 중 레시피15g · 93℃ · 물 250g · 0단계레시피 단계를 확인 중입니다.레시피 단계 확인 후 선택 가능
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/brew-card-selection-resume/AX-1day/test/pwa-ui.view.test.mjs:3401:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual'
+  }
+
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 106.168
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:3361:1
+✖ brew bean and recipe option cards are full-area buttons and preserve selection and readiness (8.01175ms)
+  AssertionError [ERR_ASSERTION]: incomplete recipe 77777777-7777-4777-8777-777777777777 remains unselectable: 확인 중 레시피15g · 93℃ · 물 250g · 0단계레시피 단계를 확인 중입니다.레시피 단계 확인 후 선택 가능
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/brew-card-selection-resume/AX-1day/test/pwa-ui.view.test.mjs:3401:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual'
+  }

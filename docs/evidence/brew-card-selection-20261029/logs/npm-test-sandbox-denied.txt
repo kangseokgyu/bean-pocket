@@ -1,0 +1,4 @@
+Command: npm test
+Default sandbox attempt: exit 1; 618/633 tests passed, 15 HTTP integration tests could not bind their ephemeral 127.0.0.1 listener (`listen EPERM: operation not permitted 127.0.0.1`).
+Cause: sandbox network restrictions prevented the local HTTP test fixture from listening. No product test assertion failed.
+Rerun: the same command with require_escalated local-test networking permission passed 633/633. Full successful output is in npm-test.txt.

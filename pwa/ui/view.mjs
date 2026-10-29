@@ -1216,7 +1216,7 @@ function bindPullToRefresh({ page, document, actions }) {
 function applyState(page, state) {
   const globallyDisabled = state.frozen || state.pending;
   page.querySelectorAll('input,button,select,textarea').forEach(control => {
-    control.disabled = globallyDisabled;
+    control.disabled = globallyDisabled || control.dataset.optionReady === 'false';
   });
   if (globallyDisabled || !state.unresolved) return;
   page.querySelectorAll('[data-action="delete-bean"], [data-action="delete-recipe"], [data-action="delete-record"]').forEach(control => { control.disabled = true; });
@@ -1334,10 +1334,10 @@ function renderBrewOptions(pane, data, document, route, optionPages, kind, selec
   const routeQuery = params.get('q') ?? '';
   const page = brewOptionPage(data, optionPages, kind, routeQuery, route);
   const title = isBeans ? '원두 선택' : '레시피 선택';
-  pane.append(routeButton(document, isBeans ? '홈으로' : '원두 선택으로', isBeans ? '/home'
-    : `/brew/bean?selectedBeanId=${encodeURIComponent(selectedBean.id)}`, isBeans ? 'navigate' : 'back-to-beans'));
+  if (isBeans) pane.append(routeButton(document, '홈으로', '/home'));
   pane.append(make(document, 'h1', title));
-  if (selectedBean) pane.append(make(document, 'p', `선택한 원두: ${selectedBean.name}`, 'brew-selected-bean'));
+  if (selectedBean) pane.append(brewSelectionSummary(document, 'bean', '선택한 원두', selectedBean.name,
+    '원두 변경', `/brew/bean?selectedBeanId=${encodeURIComponent(selectedBean.id)}`, 'back-to-beans'));
   const search = make(document, 'input');
   search.type = 'search';
   search.setAttribute('aria-label', isBeans ? '원두 검색' : '레시피 검색');
@@ -1366,24 +1366,27 @@ function renderBrewOptions(pane, data, document, route, optionPages, kind, selec
 
   const list = make(document, 'div', undefined, 'brew-option-list');
   for (const item of items) {
-    const card = make(document, 'article', undefined, 'brew-option-card');
-    const control = button(document, item.name, 'button', isBeans ? 'select-brew-bean' : 'select-brew-recipe');
-    control.dataset[isBeans ? 'beanId' : 'recipeId'] = item.id;
-    if (!isBeans) control.dataset.beanId = selectedBean.id;
-    control.setAttribute('aria-pressed', String(item.id === selectedId));
+    const card = button(document, undefined, 'button', isBeans ? 'select-brew-bean' : 'select-brew-recipe');
+    card.className = 'button brew-option-card';
+    card.dataset[isBeans ? 'beanId' : 'recipeId'] = item.id;
+    if (!isBeans) card.dataset.beanId = selectedBean.id;
+    card.setAttribute('aria-pressed', String(item.id === selectedId));
     const ready = isBeans || item.status === 'ready' || item.validationStatus === 'ready' ||
       (item.status === undefined && item.validationStatus === undefined && Array.isArray(item.steps) && item.steps.length > 0);
-    control.disabled = !ready;
-    card.append(control);
+    card.disabled = !ready;
+    if (!isBeans) card.dataset.optionReady = String(ready);
+    card.append(make(document, 'strong', item.name, 'brew-option-name'));
     if (isBeans) {
       const details = [item.origin, item.roaster].filter(Boolean).join(' · ');
-      if (details) card.append(make(document, 'p', details, 'muted-note'));
-      if (item.id === selectedId) card.append(make(document, 'p', '선택한 원두', 'brew-selected-label'));
+      if (details) card.append(make(document, 'span', details, 'muted-note brew-option-details'));
+      if (item.id === selectedId) card.append(make(document, 'span', '선택한 원두', 'brew-selected-label'));
+      card.append(make(document, 'span', '이 원두로 내리기 →', 'brew-option-action'));
     } else {
-      card.append(make(document, 'p', `${item.dose}g · ${item.temperature}℃ · 물 ${item.totalWater}g · ${item.steps?.length ?? 0}단계`));
-      if (!ready) card.append(make(document, 'p', item.status === 'error' || item.validationStatus === 'error'
-        ? '레시피를 확인할 수 없어 선택할 수 없습니다.' : '레시피 단계를 확인 중입니다.', 'muted-note'));
-      if (item.id === selectedId) card.append(make(document, 'p', '선택한 레시피', 'brew-selected-label'));
+      card.append(make(document, 'span', `${item.dose}g · ${item.temperature}℃ · 물 ${item.totalWater}g · ${item.steps?.length ?? 0}단계`, 'brew-option-details'));
+      if (!ready) card.append(make(document, 'span', item.status === 'error' || item.validationStatus === 'error'
+        ? '레시피를 확인할 수 없어 선택할 수 없습니다.' : '레시피 단계를 확인 중입니다.', 'muted-note brew-option-status'));
+      if (item.id === selectedId) card.append(make(document, 'span', '선택한 레시피', 'brew-selected-label'));
+      card.append(make(document, 'span', ready ? '이 레시피로 준비하기 →' : '레시피 단계 확인 후 선택 가능', 'brew-option-action'));
     }
     list.append(card);
   }
@@ -1400,6 +1403,74 @@ function renderBrewOptions(pane, data, document, route, optionPages, kind, selec
   }
 }
 
+function brewStepIndicator(pane, document, path) {
+  const steps = [
+    ['/brew/bean', '01', '원두'], ['/brew/recipe', '02', '레시피'], ['/brew/run', '03', '추출'],
+  ];
+  const list = make(document, 'ol', undefined, 'brew-step-indicator');
+  list.setAttribute('aria-label', '추출 시작 단계');
+  for (const [route, number, title] of steps) {
+    const step = make(document, 'li');
+    if (path === route) step.setAttribute('aria-current', 'step');
+    step.append(make(document, 'span', number, 'brew-step-number'), make(document, 'span', title, 'brew-step-name'));
+    list.append(step);
+  }
+  pane.append(list);
+}
+
+function brewSelectionSummary(document, selection, labelText, value, changeText, route, action) {
+  const summary = make(document, 'div', undefined, 'brew-selection-summary');
+  summary.dataset.selection = selection;
+  const copy = make(document, 'span', undefined, 'brew-selection-copy');
+  copy.append(make(document, 'span', labelText, 'brew-selection-label'), make(document, 'strong', value, 'brew-selection-name'));
+  summary.append(copy, routeButton(document, changeText, route, action));
+  return summary;
+}
+
+function brewConditionGroup(document, title, entries) {
+  const available = entries.filter(([, value]) => value !== undefined && value !== null && value !== '');
+  if (!available.length) return null;
+  const group = make(document, 'section', undefined, 'brew-condition-group');
+  group.append(make(document, 'h3', title));
+  const conditions = make(document, 'dl', undefined, 'brew-condition-list');
+  for (const [labelText, value] of available) {
+    conditions.append(make(document, 'dt', labelText), make(document, 'dd', value));
+  }
+  group.append(conditions);
+  return group;
+}
+
+function makeBrewPourTable(document, steps) {
+  const wrap = make(document, 'div', undefined, 'table-scroll brew-pour-table-scroll');
+  wrap.setAttribute('role', 'region');
+  wrap.setAttribute('aria-label', '물 붓기 단계 표');
+  wrap.setAttribute('tabindex', '0');
+  const table = make(document, 'table', undefined, 'steps-table brew-pour-table');
+  const head = make(document, 'thead');
+  const header = make(document, 'tr');
+  for (const title of ['단계', '경과 시간', '이번 물 양', '누적 물 양']) {
+    const cell = make(document, 'th', title);
+    cell.setAttribute('scope', 'col');
+    header.append(cell);
+  }
+  head.append(header);
+  table.append(head);
+  const body = make(document, 'tbody');
+  for (const [index, step] of steps.entries()) {
+    const interval = step.interval ?? (index === 0 ? 0 : step.seconds - steps[index - 1].seconds);
+    const row = make(document, 'tr');
+    row.append(make(document, 'td', step.name));
+    const elapsed = make(document, 'td');
+    elapsed.append(make(document, 'span', formatTime(step.seconds), 'brew-pour-time'),
+      make(document, 'span', index === 0 ? '시작' : `간격 ${interval}초`, 'brew-pour-interval'));
+    row.append(elapsed, make(document, 'td', `${step.water}g`), make(document, 'td', `${step.cumulativeWater}g`));
+    body.append(row);
+  }
+  table.append(body);
+  wrap.append(table);
+  return wrap;
+}
+
 function renderBrewRun(pane, data, document, route, params) {
   const beanId = params.get('beanId');
   const recipeId = params.get('recipeId');
@@ -1409,22 +1480,40 @@ function renderBrewRun(pane, data, document, route, params) {
     renderUnavailableRoute(pane, document, route, 'recipe-unavailable');
     return;
   }
-  pane.append(routeButton(document, '레시피 선택으로',
-    `/brew/recipe?beanId=${encodeURIComponent(bean.id)}&selectedRecipeId=${encodeURIComponent(recipe.id)}`,
-    'back-to-recipes'));
   pane.append(make(document, 'h1', '추출 안내'));
-  pane.append(make(document, 'p', `원두: ${bean.name} · 레시피: ${recipe.name}`, 'brew-selected-bean'));
-  const conditions = make(document, 'dl', undefined, 'brew-conditions');
-  for (const [title, value] of [
-    ['드리퍼', recipe.dripper], ['원두량', `${recipe.dose}g`], ['분쇄도', recipe.grind],
-    ['그라인더', recipe.grinder], ['그라인더 설정', recipe.grinderSetting],
-    ['물 온도', `${recipe.temperature}℃`], ['총 물 양', `${recipe.totalWater}g`],
-  ]) {
-    if (value !== undefined && value !== null && value !== '') conditions.append(make(document, 'dt', title), make(document, 'dd', value));
+  pane.append(
+    brewSelectionSummary(document, 'bean', '원두', bean.name, '원두 변경',
+      `/brew/bean?selectedBeanId=${encodeURIComponent(bean.id)}`, 'back-to-beans'),
+    brewSelectionSummary(document, 'recipe', '레시피', recipe.name, '레시피 변경',
+      `/brew/recipe?beanId=${encodeURIComponent(bean.id)}&selectedRecipeId=${encodeURIComponent(recipe.id)}`, 'back-to-recipes'),
+  );
+
+  const conditionGroups = [
+    brewConditionGroup(document, '추출', [
+      ['드리퍼', recipe.dripper], ['원두량', recipe.dose === undefined || recipe.dose === null || recipe.dose === '' ? '' : `${recipe.dose}g`],
+      ['물 온도', recipe.temperature === undefined || recipe.temperature === null || recipe.temperature === '' ? '' : `${recipe.temperature}℃`],
+      ['총 물 양', recipe.totalWater === undefined || recipe.totalWater === null || recipe.totalWater === '' ? '' : `${recipe.totalWater}g`],
+    ]),
+    brewConditionGroup(document, '분쇄', [
+      ['분쇄도', recipe.grind], ['그라인더', recipe.grinder], ['그라인더 설정', recipe.grinderSetting],
+    ]),
+  ].filter(Boolean);
+  if (conditionGroups.length) {
+    const section = make(document, 'section', undefined, 'brew-condition-section');
+    section.append(make(document, 'h2', '추출 조건'));
+    const groups = make(document, 'div', undefined, 'brew-condition-groups');
+    groups.append(...conditionGroups);
+    section.append(groups);
+    pane.append(section);
   }
-  pane.append(conditions, make(document, 'h2', '붓기 단계'), makeStepTable(document, recipe.steps));
+
+  const pours = make(document, 'section', undefined, 'brew-pour-section');
+  pours.append(make(document, 'h2', '물 붓기'), makeBrewPourTable(document, recipe.steps));
+  pane.append(pours);
   if (typeof recipe.extractionGuide === 'string' && recipe.extractionGuide.trim()) {
-    pane.append(make(document, 'h2', '추출 가이드'), make(document, 'p', recipe.extractionGuide, 'brew-extraction-guide'));
+    const guide = make(document, 'section', undefined, 'brew-guide-section');
+    guide.append(make(document, 'h2', '추출 가이드'), make(document, 'p', recipe.extractionGuide, 'brew-extraction-guide'));
+    pane.append(guide);
   }
   const complete = button(document, '추출 완료', 'button', 'complete-brew');
   complete.className = 'button primary-button';
@@ -1438,6 +1527,7 @@ function renderBrewFlow(parent, data, document, route, optionPages) {
   const params = routeParams(route);
   const pane = make(document, 'section', undefined, 'brew-flow-pane');
   if (path === '/brew/run') pane.className += ' brew-run-pane';
+  brewStepIndicator(pane, document, path);
   if (data.screen?.error) {
     renderUnavailableRoute(pane, document, route, data.screen.error);
   } else if (path === '/brew/bean') {

@@ -7,6 +7,9 @@ import { checkPages, probeFiles } from './check-pages.mjs';
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const sourceFiles = [
   'app.mjs',
+  'brew-picker-demo.html',
+  'brew-picker-demo.css',
+  'brew-picker-demo.mjs',
   'commands/index.mjs',
   'ui/controller.mjs',
   'ui/records-insights.mjs',

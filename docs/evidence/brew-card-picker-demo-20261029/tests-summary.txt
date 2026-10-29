@@ -1,0 +1,10 @@
+✔ critic: a current-generation record with damaged rating metadata stays visible with a warning (1.40875ms)
+✔ critic: records render from validated snapshots before bounded parent-name hydration (10.813458ms)
+ℹ tests 638
+ℹ suites 0
+ℹ pass 638
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 43018.567416

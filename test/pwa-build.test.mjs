@@ -12,6 +12,9 @@ const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const sourceRoot = path.join(projectRoot, 'pwa');
 const expectedFiles = [
   'app.mjs',
+  'brew-picker-demo.css',
+  'brew-picker-demo.html',
+  'brew-picker-demo.mjs',
   'commands/index.mjs',
   'data/notion-client.mjs',
   'data/notion-properties.mjs',
@@ -65,6 +68,9 @@ async function writeSourceFixture(sourceDir) {
   await mkdir(path.join(sourceDir, 'commands'), { recursive: true });
   await mkdir(path.join(sourceDir, 'ui'), { recursive: true });
   const files = {
+    'brew-picker-demo.html': '<html lang="ko"><head><link rel="stylesheet" href="./brew-picker-demo.css"><script type="module" src="./brew-picker-demo.mjs"></script></head><body>카드 선택 데모</body></html>',
+    'brew-picker-demo.css': 'body { color: #203d32; }',
+    'brew-picker-demo.mjs': 'export const demo = true;',
     'commands/index.mjs': 'export const commands = {};',
     'ui/controller.mjs': 'export const controller = {};',
     'ui/records-insights.mjs': 'export const insights = {};',
@@ -388,7 +394,7 @@ test('Service Worker install·activate·fetch는 scope를 격리하고 앱 파�
   assert.ok(!remaining.includes(staleA), '자기 scope의 이전 버전 캐시는 정리해야 한다');
   assert.notEqual(cacheA, cacheB, '같은 출처의 서로 다른 scope는 별도 namespace를 사용해야 한다');
 
-  const appFiles = ['./', './index.html', './app.mjs', './commands/index.mjs', './ui/controller.mjs', './ui/records-insights.mjs', './ui/records-insights-view.mjs', './ui/view.mjs', './data/notion-client.mjs', './data/notion-properties.mjs', './data/read-repository.mjs', './domain.mjs', './platform/app-lifecycle.mjs', './platform/connection-file.mjs', './platform/update-coordinator.mjs', './state/submission-state.mjs', './styles.css', './records-demo.html', './records-demo.mjs', './records-demo.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/bp-logo.png', './icons/favicon-bp-ivory.png', './icons/home-brew.png'];
+  const appFiles = ['./', './index.html', './app.mjs', './brew-picker-demo.html', './brew-picker-demo.css', './brew-picker-demo.mjs', './commands/index.mjs', './ui/controller.mjs', './ui/records-insights.mjs', './ui/records-insights-view.mjs', './ui/view.mjs', './data/notion-client.mjs', './data/notion-properties.mjs', './data/read-repository.mjs', './domain.mjs', './platform/app-lifecycle.mjs', './platform/connection-file.mjs', './platform/update-coordinator.mjs', './state/submission-state.mjs', './styles.css', './records-demo.html', './records-demo.mjs', './records-demo.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/bp-logo.png', './icons/favicon-bp-ivory.png', './icons/home-brew.png'];
   assert.deepEqual(cacheStorage.stores.get(cacheA).files.map(request => [request.url, request.cache]),
     appFiles.map(file => [new URL(file, scopeA).href, 'reload']));
   assert.deepEqual(cacheStorage.stores.get(cacheB).files.map(request => [request.url, request.cache]),

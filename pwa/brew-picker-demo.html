@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3efe6">
+  <title>추출 시작 카드 선택 데모 · Bean Pocket</title>
+  <link rel="icon" href="./icons/favicon-bp-ivory.png">
+  <link rel="stylesheet" href="./brew-picker-demo.css">
+  <script type="module" src="./brew-picker-demo.mjs"></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="header">
+      <a href="./index.html"><img src="./icons/bp-logo.png" width="72" height="44" alt="Bean Pocket"></a>
+      <a href="./records-demo.html">추출 기록 데모 ↗</a>
+    </header>
+    <main>
+      <aside class="demo-notice"><strong>화면 미리보기</strong><span>샘플 원두와 레시피로 선택 흐름을 체험해 보세요. 실제 기록은 저장되지 않습니다.</span></aside>
+      <div class="intro"><p class="eyebrow">BREW / 추출 기록 시작</p><h1>오늘의 한 잔을 시작해요.</h1><p>원두와 레시피를 고르면, 추출을 시작할 준비가 끝나요.</p></div>
+      <ol class="steps" aria-label="추출 시작 단계"><li aria-current="step">01 <span>원두 선택</span></li><li>02 <span>레시피 선택</span></li><li>03 <span>추출 준비</span></li></ol>
+      <div class="section-heading"><div><p id="step-label" class="eyebrow">STEP 01</p><h2 id="picker-title" tabindex="-1">어떤 원두로 내릴까요?</h2><p id="picker-help">카드의 어느 곳을 눌러도 레시피 선택으로 이동해요.</p></div><button id="back" class="back" hidden>← 원두 다시 선택</button></div>
+      <p id="selected-bean" class="selected-bean" hidden></p>
+      <div id="search-area" class="search-area"><label for="search" id="search-label">원두 검색</label><input id="search" type="search" autocomplete="off" placeholder="원두 이름, 산지, 로스터리로 검색"><p id="result-count" role="status"></p></div>
+      <div id="cards" class="cards" aria-labelledby="picker-title"></div>
+      <p id="empty" class="empty" role="status" hidden>검색 결과가 없습니다. 다른 검색어로 찾아보세요.</p>
+      <section id="ready" class="ready" aria-labelledby="ready-title" hidden><p class="eyebrow">READY TO BREW</p><h3 id="ready-title">이 조합으로 준비됐어요.</h3><dl id="summary"></dl><p>실제 서비스에서는 이 다음에 추출 안내가 시작됩니다.</p><button id="restart" class="primary">처음부터 다시 체험</button></section>
+      <footer>Bean Pocket <span>한 잔의 취향을 쌓는 기록</span></footer>
+    </main>
+  </div>
+</body>
+</html>

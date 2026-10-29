@@ -10,6 +10,9 @@ export const probeFiles = [
 ];
 const allowedFiles = new Set([
   'app.mjs',
+  'brew-picker-demo.html',
+  'brew-picker-demo.css',
+  'brew-picker-demo.mjs',
   'commands/index.mjs',
   'ui/controller.mjs',
   'ui/records-insights.mjs',
@@ -40,6 +43,9 @@ const requiredCacheFiles = [
   './',
   './index.html',
   './app.mjs',
+  './brew-picker-demo.html',
+  './brew-picker-demo.css',
+  './brew-picker-demo.mjs',
   './commands/index.mjs',
   './ui/controller.mjs',
   './ui/records-insights.mjs',
@@ -133,7 +139,7 @@ export async function checkPages(directory = defaultOutputDir, { allowIncomplete
   if (missing.length) return true;
 
   const textFiles = new Map();
-  for (const relativePath of ['app.mjs', 'commands/index.mjs', 'ui/controller.mjs', 'ui/records-insights.mjs', 'ui/records-insights-view.mjs', 'ui/view.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs', 'data/notion-client.mjs', 'data/notion-properties.mjs', 'data/read-repository.mjs', 'domain.mjs', 'index.html', 'records-demo.html', 'records-demo.mjs', 'records-demo.css', 'manifest.webmanifest', 'platform/connection-file.mjs', 'state/submission-state.mjs', 'styles.css', 'sw.js']) {
+  for (const relativePath of ['brew-picker-demo.html', 'brew-picker-demo.css', 'brew-picker-demo.mjs', 'app.mjs', 'commands/index.mjs', 'ui/controller.mjs', 'ui/records-insights.mjs', 'ui/records-insights-view.mjs', 'ui/view.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs', 'data/notion-client.mjs', 'data/notion-properties.mjs', 'data/read-repository.mjs', 'domain.mjs', 'index.html', 'records-demo.html', 'records-demo.mjs', 'records-demo.css', 'manifest.webmanifest', 'platform/connection-file.mjs', 'state/submission-state.mjs', 'styles.css', 'sw.js']) {
     textFiles.set(relativePath, (await readFile(path.join(directory, relativePath))).toString('utf8'));
   }
   const checkedText = new Map(textFiles);

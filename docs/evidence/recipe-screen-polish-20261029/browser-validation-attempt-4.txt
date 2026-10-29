@@ -1,0 +1,18 @@
+MISSING ACTION STATE {"hash":"#/recipes/33333333-3333-4333-8333-333333333334","status":"error","steps":0,"disabled":false,"disabledAttribute":null,"text":"이 레시피 복사"}
+node:internal/modules/run_main:104
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+false !== true
+
+    at file:///Users/kangseokgyu/.codex/worktrees/recipe-screen-polish/AX-1day/docs/evidence/recipe-screen-polish-20261029/browser-validation.mjs:159:10 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: 'strictEqual'
+}
+
+Node.js v23.4.0

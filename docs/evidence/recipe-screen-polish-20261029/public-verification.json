@@ -1,0 +1,39 @@
+{
+  "checkedAtUTC": "2026-10-29T15:15:15.713513+00:00",
+  "url": "https://kangseokgyu.github.io/bean-pocket/#/recipes",
+  "version": "b58df205f3d1",
+  "run": "https://github.com/kangseokgyu/bean-pocket/actions/runs/40899420287",
+  "commit": "b4eafa38c8f4599288aafe90d5111a21ffb04ed8",
+  "files": [
+    {
+      "file": "index.html",
+      "status": 200,
+      "sha256": "60c13b63a2e90e347a6fdfc3fb34bd7ba2d129584feb5cc8a4c2881c3033f9ee",
+      "matchesLocalBuild": true
+    },
+    {
+      "file": "ui/view.mjs",
+      "status": 200,
+      "sha256": "94fc72f3c2d7dfe483492396414632750fd9af528e3b9fca51e6ce2c625f27e2",
+      "matchesLocalBuild": true
+    },
+    {
+      "file": "styles.css",
+      "status": 200,
+      "sha256": "3399a652ba3c33c80c00ff4e7d329c9a2a5a9f23a18e33e5dd68e16a9d5310a1",
+      "matchesLocalBuild": true
+    },
+    {
+      "file": "sw.js",
+      "status": 200,
+      "sha256": "de0c7152d963bc83577a91231cc8eb1865e3dc985f4fb85e9a0ee8a0ccb9e7d7",
+      "matchesLocalBuild": true
+    },
+    {
+      "file": "manifest.webmanifest",
+      "status": 200,
+      "sha256": "83dc529ee8004d5aa06cf728873d97c04ece2143d3026f275780f293dedb1bdb",
+      "matchesLocalBuild": true
+    }
+  ]
+}

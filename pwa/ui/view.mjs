@@ -1627,10 +1627,16 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
       link.dataset.route = `/recipes/${recipe.id}`;
       title.append(link);
       recipeHeader.append(title, trashButton(document, 'recipes', recipe.id, recipe.name));
-      card.append(recipeHeader);
-      card.append(make(document, 'p', `${recipe.dose}g · ${recipe.temperature}℃ · 물 ${recipe.totalWater}g`));
-      if (recipe.validationStatus === 'checking') card.append(make(document, 'p', '레시피 단계를 확인 중입니다.', 'muted-note'));
-      if (recipe.validationStatus === 'error') card.append(make(document, 'p', '레시피 단계 확인에 실패했습니다.', 'record-warning'));
+      card.append(recipeHeader, recipeOverview(document, recipe));
+
+      const summary = make(document, 'div', undefined, 'recipe-summary-meta');
+      summary.append(make(document, 'span', recipeStepCount(recipe), 'recipe-step-count'));
+      if (typeof recipe.extractionGuide === 'string' && recipe.extractionGuide.trim()) {
+        summary.append(make(document, 'p', recipe.extractionGuide, 'recipe-guide-preview'));
+      }
+      card.append(summary);
+      const validation = recipeValidationMessage(recipe);
+      if (validation) card.append(make(document, 'p', validation.text, validation.className));
       pane.append(card);
     }
   } else if (section === 'records') {
@@ -1756,31 +1762,59 @@ function recipeCard(document, recipe, data, detailed = false) {
   const article = make(document, 'article', undefined, 'recipe-card');
   const header = make(document, 'div', undefined, 'entity-card-header');
   header.append(make(document, 'h3', recipe.name), trashButton(document, 'recipes', recipe.id, recipe.name));
-  article.append(header);
-  article.append(make(document, 'p', `${recipe.dripper || '드리퍼 미기록'} · ${recipe.dose}g · ${recipe.temperature}℃ · 물 ${recipe.totalWater}g`));
-  const details = [
-    ['분쇄도', recipe.grind], ['그라인더', recipe.grinder],
-    ['그라인더 설정', recipe.grinderSetting], ['분쇄 입자', recipe.microns === null || recipe.microns === '' ? '' : `${recipe.microns}μm`],
-  ].filter(([, value]) => value !== undefined && value !== null && value !== '');
-  for (const [title, value] of details) article.append(make(document, 'p', `${title}: ${value}`));
+  article.append(header, recipeOverview(document, recipe));
+
+  const validation = recipeValidationMessage(recipe);
+  if (validation) article.append(make(document, 'p', validation.text, validation.className));
+
+  const conditionDetails = [
+    ['분쇄도', recipe.grind, ''], ['그라인더', recipe.grinder, ''],
+    ['그라인더 설정', recipe.grinderSetting, ''], ['분쇄 입자', recipe.microns, 'μm'],
+  ].filter(([, value]) => hasRecipeValue(value));
+  if (conditionDetails.length) {
+    const conditions = make(document, 'section', undefined, 'recipe-detail-section recipe-conditions');
+    conditions.append(recipeSectionHeading(document, '추출 조건'));
+    const list = make(document, 'dl', undefined, 'recipe-condition-list');
+    for (const [label, value, unit] of conditionDetails) {
+      const item = make(document, 'div', undefined, 'recipe-condition');
+      item.append(make(document, 'dt', label), make(document, 'dd', `${value}${unit}`));
+      list.append(item);
+    }
+    conditions.append(list);
+    article.append(conditions);
+  }
 
   const stats = recipe.stats ?? { count: 0, average: null };
   article.append(make(document, 'p', stats.status === 'loading' ? '평가 통계를 확인 중입니다.'
     : stats.status === 'error' ? '평가 통계를 확인하지 못했습니다.'
-      : stats.count ? `평가 ${stats.count}회 · 평균 ${Number(stats.average).toFixed(1)}점` : '평가 없음 · 0회'));
-  article.append(makeStepTable(document, recipe.steps));
+      : stats.count ? `평가 ${stats.count}회 · 평균 ${Number(stats.average).toFixed(1)}점` : '평가 없음 · 0회', 'recipe-rating'));
+
+  const steps = Array.isArray(recipe.steps) ? recipe.steps : [];
+  const stepsSection = make(document, 'section', undefined, 'recipe-detail-section recipe-steps-section');
+  const stepLabel = Array.isArray(recipe.steps) ? `${steps.length}단계`
+    : recipe.validationStatus === 'checking' ? '확인 중'
+      : recipe.validationStatus === 'error' ? '확인 실패' : '단계 미기록';
+  stepsSection.append(recipeSectionHeading(document, '붓기 단계', stepLabel));
+  if (steps.length) stepsSection.append(makeStepTable(document, steps));
+  else stepsSection.append(make(document, 'p', recipe.validationStatus === 'checking' ? '레시피 단계를 확인 중입니다.'
+    : recipe.validationStatus === 'error' ? '레시피 단계 확인에 실패했습니다.' : '등록된 붓기 단계가 없습니다.', 'muted-note'));
+  article.append(stepsSection);
+
   if (typeof recipe.extractionGuide === 'string' && recipe.extractionGuide.trim()) {
-    const guide = make(document, 'section', undefined, 'recipe-extraction-guide');
-    guide.append(make(document, 'h4', '추출 가이드'), make(document, 'p', recipe.extractionGuide));
+    const guide = make(document, 'section', undefined, 'recipe-detail-section recipe-extraction-guide');
+    guide.append(recipeSectionHeading(document, '추출 가이드'), make(document, 'p', recipe.extractionGuide));
     article.append(guide);
   }
 
-  const records = currentRecords(data).filter(record => record.recipeId === recipe.id).sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
-  article.append(make(document, 'h4', '추출 기록'));
-  if (!records.length) article.append(make(document, 'p', data.screen?.hasMore
-    ? '기록을 더 확인 중입니다. 더 보기로 계속 확인해 주세요.'
+  const records = currentRecords(data).filter(record => record.recipeId === recipe.id)
+    .sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
+  const recordsSection = make(document, 'section', undefined, 'recipe-detail-section recipe-records');
+  recordsSection.append(recipeSectionHeading(document, '추출 기록'));
+  if (!records.length) recordsSection.append(make(document, 'p', data.screen?.hasMore
+    ? '기록을 더 확인 중입니다.'
     : data.screen?.complete === false ? '전체 기록을 확인하지 못했습니다.' : '기록 없음'));
   for (const record of records) {
+    const recordItem = make(document, 'div', undefined, 'recipe-record-item');
     const bean = data.beans.find(item => item.id === record.beanId);
     const validRating = Number.isInteger(record.rating) && record.rating >= 1 && record.rating <= 5;
     const validSnapshot = record.snapshotStatus === 'valid' ? record.snapshot : null;
@@ -1788,34 +1822,113 @@ function recipeCard(document, recipe, data, detailed = false) {
     const recordHeader = make(document, 'div', undefined, 'entity-card-header record-summary-header');
     recordHeader.append(make(document, 'p', `${record.date || '날짜 확인 필요'} · 원두: ${bean?.name || '원두 확인 필요'} · ${record.rating ?? '별점 확인 필요'}/5 ${validRating ? '★'.repeat(record.rating) : ''}`),
       trashButton(document, 'records', record.id, recordName(record, data.recipes.find(item => item.id === record.recipeId), snapshot)));
-    article.append(recordHeader);
+    recordItem.append(recordHeader);
     const invalidLabels = [
       ...(record.invalidFields?.includes('date') ? ['날짜'] : []),
       ...(record.invalidFields?.includes('rating') ? ['별점(정수 1~5)'] : []),
     ];
-    if (invalidLabels.length) article.append(make(document, 'p', `기록 오류: ${invalidLabels.join(', ')}`, 'record-warning'));
-    if (record.snapshotStatus === 'damaged') article.append(make(document, 'p', '스냅샷이 손상되어 당시 조건을 표시할 수 없습니다.', 'record-warning'));
-    if (record.cupNote) article.append(make(document, 'p', `컵노트: ${record.cupNote}`));
+    if (invalidLabels.length) recordItem.append(make(document, 'p', `기록 오류: ${invalidLabels.join(', ')}`, 'record-warning'));
+    if (record.snapshotStatus === 'damaged') recordItem.append(make(document, 'p', '스냅샷이 손상되어 당시 조건을 표시할 수 없습니다.', 'record-warning'));
+    if (record.cupNote) recordItem.append(make(document, 'p', `컵노트: ${record.cupNote}`));
     if (Array.isArray(snapshot?.steps)) {
-      article.append(make(document, 'p', `기록 당시 조건: ${snapshot.dripper || '드리퍼 미기록'} · ${snapshot.dose}g · ${snapshot.temperature}℃ · 물 ${snapshot.totalWater}g`));
-      article.append(make(document, 'h5', '당시 단계'));
-      article.append(makeStepTable(document, snapshot.steps));
+      const dripper = hasRecipeValue(snapshot.dripper) ? snapshot.dripper : '드리퍼 미기록';
+      const conditions = `기록 당시 조건: ${dripper} · ${recipeMeasure(snapshot.dose, 'g')} · ${recipeMeasure(snapshot.temperature, '℃')} · 물 ${recipeMeasure(snapshot.totalWater, 'g')}`;
+      recordItem.append(make(document, 'p', conditions, 'record-snapshot-conditions'));
+      recordItem.append(make(document, 'h5', '당시 단계'));
+      recordItem.append(makeStepTable(document, snapshot.steps));
       if (typeof snapshot.extractionGuide === 'string' && snapshot.extractionGuide.trim()) {
-        article.append(make(document, 'p', `기록 당시 추출 가이드: ${snapshot.extractionGuide}`, 'record-extraction-guide'));
+        recordItem.append(make(document, 'p', `기록 당시 추출 가이드: ${snapshot.extractionGuide}`, 'record-extraction-guide'));
       }
     }
+    recordsSection.append(recordItem);
   }
+  article.append(recordsSection);
+
+  const actions = make(document, 'div', undefined, 'recipe-card-actions');
   if (detailed) {
     const record = button(document, '이 레시피로 추출 기록', 'button', 'new-record');
     record.dataset.id = recipe.id;
     record.disabled = !recipeReady(recipe);
-    article.append(record);
+    actions.append(record);
   }
   const copy = button(document, '이 레시피 복사', 'button', 'copy-recipe');
   copy.dataset.id = recipe.id;
   copy.disabled = !recipeReady(recipe);
-  article.append(copy);
+  actions.append(copy);
+  article.append(actions);
   return article;
+}
+
+function recipeOverview(document, recipe) {
+  const overview = make(document, 'section', undefined, 'recipe-overview');
+  overview.setAttribute('aria-label', '주요 추출 조건');
+  const dripper = make(document, 'p', undefined, 'recipe-dripper');
+  dripper.append(make(document, 'span', '드리퍼'),
+    make(document, 'strong', hasRecipeValue(recipe.dripper) ? recipe.dripper : '미기록'));
+  overview.append(dripper);
+
+  const metrics = make(document, 'dl', undefined, 'recipe-primary-metrics');
+  metrics.append(recipeMetric(document, 'dose', '원두량', recipe.dose, 'g'));
+  metrics.append(recipeMetric(document, 'water', '물 양', recipe.totalWater, 'g'));
+  metrics.append(recipeMetric(document, 'temperature', '물 온도', recipe.temperature, '℃'));
+  const ratio = recipeRatio(recipe.dose, recipe.totalWater);
+  if (ratio !== null) metrics.append(recipeMetric(document, 'ratio', '추출 비율', `1 : ${ratio}`, ''));
+  overview.append(metrics);
+  return overview;
+}
+
+function recipeMetric(document, key, label, value, unit) {
+  const metric = make(document, 'div', undefined, 'recipe-metric');
+  metric.dataset.metric = key;
+  const display = make(document, 'dd');
+  if (hasRecipeValue(value)) {
+    display.append(make(document, 'span', String(value)));
+    if (unit) display.append(make(document, 'small', unit));
+  } else {
+    display.append(make(document, 'span', '—'));
+  }
+  metric.append(make(document, 'dt', label), display);
+  return metric;
+}
+
+function recipeRatio(dose, water) {
+  const doseValue = positiveRecipeNumber(dose);
+  const waterValue = positiveRecipeNumber(water);
+  if (doseValue === null || waterValue === null) return null;
+  const ratio = waterValue / doseValue;
+  if (!Number.isFinite(ratio)) return null;
+  return Number(ratio.toFixed(1)).toString();
+}
+
+function positiveRecipeNumber(value) {
+  if (!hasRecipeValue(value) || typeof value === 'boolean') return null;
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : null;
+}
+
+function hasRecipeValue(value) {
+  return value !== undefined && value !== null && !(typeof value === 'string' && value.trim() === '');
+}
+
+function recipeMeasure(value, unit) {
+  return hasRecipeValue(value) ? `${value}${unit}` : '—';
+}
+
+function recipeStepCount(recipe) {
+  return Array.isArray(recipe.steps) ? `${recipe.steps.length}단계` : '단계 미기록';
+}
+
+function recipeValidationMessage(recipe) {
+  if (recipe.validationStatus === 'checking') return { text: '레시피 단계를 확인 중입니다.', className: 'muted-note' };
+  if (recipe.validationStatus === 'error') return { text: '레시피 단계 확인에 실패했습니다.', className: 'record-warning' };
+  return null;
+}
+
+function recipeSectionHeading(document, title, detail = '') {
+  const heading = make(document, 'div', undefined, 'recipe-section-heading');
+  heading.append(make(document, 'h4', title));
+  if (detail) heading.append(make(document, 'span', detail));
+  return heading;
 }
 
 function makeStepTable(document, steps) {

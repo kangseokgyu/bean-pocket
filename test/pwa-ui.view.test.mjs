@@ -1134,6 +1134,85 @@ test('recipe creation opens from plus, preserves drafts, and closes on cancel', 
   assert.equal(document.root.querySelector('[data-action="show-recipe-form"]'), null);
 });
 
+test('recipe validation state remains visible in list and detail views', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  for (const [status, selector, message] of [
+    ['checking', '.muted-note', '레시피 단계를 확인 중입니다.'],
+    ['error', '.record-warning', '레시피 단계 확인에 실패했습니다.'],
+  ]) {
+    current.recipes[0].validationStatus = status;
+    view.renderData(current);
+    view.renderRoute('/recipes');
+    assert.equal(document.root.querySelector('.recipe-summary-card').querySelector(selector).textContent, message);
+    view.renderRoute(`/recipes/${RECIPE}`);
+    assert.equal(document.root.querySelector('.recipe-card').querySelector(selector).textContent, message);
+  }
+});
+
+test('recipe summaries separate the primary values, ratio, step count, and guide preview', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  current.recipes[0].extractionGuide = '<img src=x> 천천히 붓기';
+  view.renderData(current);
+  view.renderRoute('/recipes');
+
+  const card = document.root.querySelector('.recipe-summary-card');
+  assert.deepEqual(card.querySelectorAll('.recipe-metric').map(metric => [
+    metric.dataset.metric, metric.querySelector('dt').textContent, metric.querySelector('dd').textContent,
+  ]), [
+    ['dose', '원두량', '15g'], ['water', '물 양', '250g'],
+    ['temperature', '물 온도', '93℃'], ['ratio', '추출 비율', '1 : 16.7'],
+  ]);
+  assert.equal(card.querySelector('.recipe-dripper').textContent, '드리퍼V60');
+  assert.equal(card.querySelector('.recipe-step-count').textContent, '2단계');
+  assert.equal(card.querySelector('.recipe-guide-preview').textContent, '<img src=x> 천천히 붓기');
+  assert.equal(card.querySelector('img'), null, 'guide preview remains text, not markup');
+});
+
+test('recipe screens show zero and missing values distinctly and omit an invalid ratio', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  Object.assign(current.recipes[0], { dripper: '', dose: 0, totalWater: null, temperature: 0,
+    grind: '', grinder: '', grinderSetting: '', microns: '', steps: [], extractionGuide: '' });
+  view.renderData(current);
+  view.renderRoute('/recipes');
+  const summary = document.root.querySelector('.recipe-summary-card');
+  const summaryMetrics = Object.fromEntries(summary.querySelectorAll('.recipe-metric').map(metric => [
+    metric.dataset.metric, metric.querySelector('dd').textContent,
+  ]));
+  assert.deepEqual(summaryMetrics, { dose: '0g', water: '—', temperature: '0℃' });
+  assert.equal(summary.querySelector('.recipe-dripper').textContent, '드리퍼미기록');
+  assert.equal(summary.querySelector('.recipe-step-count').textContent, '0단계');
+  assert.equal(summary.querySelector('.recipe-guide-preview'), null);
+
+  view.renderRoute(`/recipes/${RECIPE}`);
+  const detail = document.root.querySelector('.recipe-card');
+  const detailMetrics = Object.fromEntries(detail.querySelectorAll('.recipe-metric').map(metric => [
+    metric.dataset.metric, metric.querySelector('dd').textContent,
+  ]));
+  assert.deepEqual(detailMetrics, summaryMetrics);
+  assert.equal(detail.querySelector('.recipe-conditions'), null, 'empty optional conditions are omitted');
+});
+
+test('recipe detail groups conditions, pour steps, guide, and records in reading order', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+  view.renderRoute(`/recipes/${RECIPE}`);
+
+  const detail = document.root.querySelector('.recipe-card');
+  const sections = detail.querySelectorAll('.recipe-detail-section');
+  assert.deepEqual(sections.map(section => section.querySelector('h4')?.textContent),
+    ['추출 조건', '붓기 단계', '추출 가이드', '추출 기록']);
+  assert.ok(detail.querySelector('.recipe-steps-section').querySelector('.steps-table'));
+  assert.ok(detail.querySelector('.recipe-records').querySelector('.record-summary-header'));
+  assert.equal(detail.querySelector('.recipe-card-actions').querySelectorAll('button').length, 2);
+});
+
 test('recipe detail places the guide below the pour table and copy preserves its text', async () => {
   const document = new TestDocument();
   const view = createBeanView(document);
@@ -1146,11 +1225,11 @@ test('recipe detail places the guide below the pour table and copy preserves its
   assert.ok(guide);
   assert.match(guide.textContent, /교반 없음/);
   assert.match(guide.textContent, /목표 추출 완료 시간: 2분 30초/);
-  const tableIndex = detail.children.findIndex(child => child.className === 'table-scroll');
-  const guideIndex = detail.children.indexOf(guide);
-  const recordsIndex = detail.children.findIndex(child => child.tagName === 'h4' && child.textContent === '추출 기록');
-  assert.ok(tableIndex < guideIndex);
-  assert.ok(guideIndex < recordsIndex);
+  const steps = detail.querySelector('.recipe-steps-section');
+  const records = detail.querySelector('.recipe-records');
+  assert.ok(steps.querySelector('.steps-table'));
+  assert.ok(detail.children.indexOf(steps) < detail.children.indexOf(guide));
+  assert.ok(detail.children.indexOf(guide) < detail.children.indexOf(records));
 
   const click = async target => {
     for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target });
@@ -2689,7 +2768,9 @@ test('recipe list cards link their entire surface to details without a details b
   assert.equal(link.getAttribute('aria-label'), 'V60 상세 보기');
   assert.equal(card.querySelectorAll('button').length, 1, 'only delete remains');
   assert.equal(card.querySelector('button').dataset.action, 'delete-recipe');
-  assert.ok(card.textContent.includes('15g · 93℃ · 물 250g'));
+  assert.deepEqual(Object.fromEntries(card.querySelectorAll('.recipe-metric').map(metric => [
+    metric.dataset.metric, metric.querySelector('dd').textContent,
+  ])), { dose: '15g', water: '250g', temperature: '93℃', ratio: '1 : 16.7' });
   for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target: link });
   assert.ok(document.root.querySelector('[data-action="copy-recipe"]'));
   assert.ok(document.root.textContent.includes('교반 없음'));

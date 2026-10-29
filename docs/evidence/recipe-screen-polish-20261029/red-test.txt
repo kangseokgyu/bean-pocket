@@ -1,0 +1,216 @@
+✖ recipe summaries separate the primary values, ratio, step count, and guide preview (8.268041ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + []
+  - [
+  -   [
+  -     'dose',
+  -     '원두량',
+  -     '15g'
+  -   ],
+  -   [
+  -     'water',
+  -     '물 양',
+  -     '250g'
+  -   ],
+  -   [
+  -     'temperature',
+  -     '물 온도',
+  -     '93℃'
+  -   ],
+  -   [
+  -     'ratio',
+  -     '추출 비율',
+  -     '1 : 16.7'
+  -   ]
+  - ]
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/recipe-screen-polish/AX-1day/test/pwa-ui.view.test.mjs:1146:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ [ 'dose', '원두량', '15g' ], [ 'water', '물 양', '250g' ], [ 'temperature', '물 온도', '93℃' ], [ 'ratio', '추출 비율', '1 : 16.7' ] ],
+    operator: 'deepStrictEqual'
+  }
+
+✖ recipe screens show zero and missing values distinctly and omit an invalid ratio (2.490042ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + {}
+  - {
+  -   dose: '0g',
+  -   temperature: '0℃',
+  -   water: '—'
+  - }
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/recipe-screen-polish/AX-1day/test/pwa-ui.view.test.mjs:1170:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: {},
+    expected: { dose: '0g', water: '—', temperature: '0℃' },
+    operator: 'deepStrictEqual'
+  }
+
+✖ recipe detail groups conditions, pour steps, guide, and records in reading order (2.412584ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + []
+  - [
+  -   '추출 조건',
+  -   '붓기 단계',
+  -   '추출 가이드',
+  -   '추출 기록'
+  - ]
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/recipe-screen-polish/AX-1day/test/pwa-ui.view.test.mjs:1192:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ '추출 조건', '붓기 단계', '추출 가이드', '추출 기록' ],
+    operator: 'deepStrictEqual'
+  }
+
+✖ recipe detail places the guide below the pour table and copy preserves its text (3.003ms)
+  TypeError [Error]: Cannot read properties of null (reading 'querySelector')
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/recipe-screen-polish/AX-1day/test/pwa-ui.view.test.mjs:1213:19)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7)
+
+ℹ tests 4
+ℹ suites 0
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 102.387625
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:1137:1
+✖ recipe summaries separate the primary values, ratio, step count, and guide preview (8.268041ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + []
+  - [
+  -   [
+  -     'dose',
+  -     '원두량',
+  -     '15g'
+  -   ],
+  -   [
+  -     'water',
+  -     '물 양',
+  -     '250g'
+  -   ],
+  -   [
+  -     'temperature',
+  -     '물 온도',
+  -     '93℃'
+  -   ],
+  -   [
+  -     'ratio',
+  -     '추출 비율',
+  -     '1 : 16.7'
+  -   ]
+  - ]
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/recipe-screen-polish/AX-1day/test/pwa-ui.view.test.mjs:1146:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ [ 'dose', '원두량', '15g' ], [ 'water', '물 양', '250g' ], [ 'temperature', '물 온도', '93℃' ], [ 'ratio', '추출 비율', '1 : 16.7' ] ],
+    operator: 'deepStrictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:1158:1
+✖ recipe screens show zero and missing values distinctly and omit an invalid ratio (2.490042ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + {}
+  - {
+  -   dose: '0g',
+  -   temperature: '0℃',
+  -   water: '—'
+  - }
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/recipe-screen-polish/AX-1day/test/pwa-ui.view.test.mjs:1170:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: {},
+    expected: { dose: '0g', water: '—', temperature: '0℃' },
+    operator: 'deepStrictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:1184:1
+✖ recipe detail groups conditions, pour steps, guide, and records in reading order (2.412584ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + []
+  - [
+  -   '추출 조건',
+  -   '붓기 단계',
+  -   '추출 가이드',
+  -   '추출 기록'
+  - ]
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/recipe-screen-polish/AX-1day/test/pwa-ui.view.test.mjs:1192:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ '추출 조건', '붓기 단계', '추출 가이드', '추출 기록' ],
+    operator: 'deepStrictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:1199:1
+✖ recipe detail places the guide below the pour table and copy preserves its text (3.003ms)
+  TypeError [Error]: Cannot read properties of null (reading 'querySelector')
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/recipe-screen-polish/AX-1day/test/pwa-ui.view.test.mjs:1213:19)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7)

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레시피 화면 시안</title>
+  <style>
+    :root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #203d32; background: #f3efe6; font-synthesis: none; text-rendering: optimizeLegibility; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; }
+    .page { width: min(100% - 32px, 1120px); margin: 0 auto; padding: 28px 0 48px; }
+    h1 { margin: 0 0 6px; font-size: 1.25rem; }
+    .intro { margin: 0 0 24px; color: #69756a; font-size: .875rem; }
+    .views { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; align-items: start; }
+    .view { min-width: 0; }
+    .view > h2 { margin: 0 0 10px; font-size: .9rem; color: #69756a; font-weight: 650; }
+    .recipe-card { min-width: 0; padding: 16px; border: 1px solid #e0dbcf; border-radius: 14px; background: #fffefa; box-shadow: 0 2px 8px #203d3208; }
+    .recipe-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 13px; }
+    h3 { min-width: 0; margin: 0; font-size: 1.05rem; line-height: 1.4; overflow-wrap: anywhere; }
+    .delete { flex: 0 0 36px; width: 36px; height: 36px; margin: -6px -4px 0 0; border: 0; border-radius: 9px; background: transparent; color: #77776f; font-size: 1.25rem; }
+    .dripper { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 14px; padding: 5px 9px; border-radius: 999px; background: #f2f4ed; color: #496751; font-size: .78rem; }
+    .dripper strong { font-weight: 700; }
+    .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; }
+    .metric { min-width: 0; padding: 10px 9px; border-radius: 10px; background: #f8f6f0; }
+    .metric dt { margin: 0 0 3px; color: #69756a; font-size: .74rem; }
+    .metric dd { margin: 0; font-size: clamp(.96rem, 3.6vw, 1.18rem); font-weight: 750; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .metric small { font-size: .72em; font-weight: 600; color: #617466; }
+    .ratio { margin: 10px 0 0; color: #4f6854; font-size: .8rem; font-weight: 650; }
+    .recipe-meta { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 10px; margin: 14px 0 0; padding-top: 12px; border-top: 1px solid #eee9de; }
+    .step-count { flex: 0 0 auto; color: #50684f; font-size: .78rem; font-weight: 700; }
+    .preview { min-width: 0; flex: 1 1 170px; display: -webkit-box; overflow: hidden; margin: 0; color: #676b61; font-size: .8rem; line-height: 1.5; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+    .section { margin-top: 20px; }
+    .section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 9px; padding-bottom: 8px; border-bottom: 1px solid #e9e4d9; }
+    .section-heading h4 { margin: 0; font-size: .94rem; }
+    .section-heading span { color: #6f796e; font-size: .77rem; }
+    .conditions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin: 0; }
+    .condition dt { color: #73756b; font-size: .74rem; }
+    .condition dd { margin: 2px 0 0; font-size: .86rem; overflow-wrap: anywhere; }
+    .steps { width: 100%; border-collapse: collapse; font-size: .79rem; text-align: left; }
+    .steps th { padding: 8px 5px; color: #68746a; font-size: .7rem; font-weight: 600; border-bottom: 1px solid #e8e3d8; }
+    .steps td { padding: 9px 5px; border-bottom: 1px solid #f0ede5; font-variant-numeric: tabular-nums; }
+    .steps th:not(:first-child), .steps td:not(:first-child) { text-align: right; }
+    .guide { padding: 11px 12px; border-radius: 10px; background: #f5f5ee; }
+    .guide p { white-space: pre-wrap; margin: 0; color: #4e5c50; font-size: .83rem; line-height: 1.65; }
+    .rating { margin: 11px 0 0; color: #626d62; font-size: .8rem; }
+    .record { padding: 11px 12px; border-radius: 10px; background: #f8f6f0; }
+    .record + .record { margin-top: 8px; }
+    .record strong { display: block; margin-bottom: 3px; font-size: .82rem; }
+    .record p { margin: 0; color: #646d63; font-size: .78rem; line-height: 1.5; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .actions button { min-height: 42px; padding: 9px 12px; border: 1px solid #b9c7bb; border-radius: 9px; background: #fffefa; color: #284a3b; font: inherit; font-size: .8rem; }
+    .actions .primary { background: #285c45; color: white; border-color: #285c45; }
+    @media (max-width: 660px) { .page { width: min(100% - 24px, 520px); padding-top: 20px; } .views { grid-template-columns: minmax(0, 1fr); gap: 25px; } .recipe-card { padding: 14px; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <h1>레시피 화면 시안</h1>
+    <p class="intro">목록 미리보기와 상세의 정보 계층을 먼저 비교합니다.</p>
+    <div class="views">
+      <section class="view" aria-labelledby="list-title">
+        <h2 id="list-title">목록 카드</h2>
+        <article class="recipe-card">
+          <header class="recipe-title"><h3>아침의 구지 · V60</h3><button class="delete" aria-label="레시피 삭제">⌫</button></header>
+          <p class="dripper">드리퍼 <strong>Hario V60</strong></p>
+          <dl class="metrics">
+            <div class="metric"><dt>원두량</dt><dd>15 <small>g</small></dd></div>
+            <div class="metric"><dt>물 양</dt><dd>250 <small>g</small></dd></div>
+            <div class="metric"><dt>물 온도</dt><dd>93 <small>℃</small></dd></div>
+          </dl>
+          <p class="ratio">추출 비율 <strong>1 : 16.7</strong></p>
+          <div class="recipe-meta"><span class="step-count">3단계</span><p class="preview">뜸 40초 · 물줄기 끊김 없이 천천히 붓고, 마지막은 가볍게 흔들어 정돈합니다.</p></div>
+        </article>
+      </section>
+      <section class="view" aria-labelledby="detail-title">
+        <h2 id="detail-title">상세 보기</h2>
+        <article class="recipe-card">
+          <header class="recipe-title"><h3>아침의 구지 · V60</h3><button class="delete" aria-label="레시피 삭제">⌫</button></header>
+          <p class="dripper">드리퍼 <strong>Hario V60</strong></p>
+          <dl class="metrics">
+            <div class="metric"><dt>원두량</dt><dd>15 <small>g</small></dd></div>
+            <div class="metric"><dt>물 양</dt><dd>250 <small>g</small></dd></div>
+            <div class="metric"><dt>물 온도</dt><dd>93 <small>℃</small></dd></div>
+          </dl>
+          <p class="ratio">추출 비율 <strong>1 : 16.7</strong></p>
+          <p class="rating">평가 4회 · 평균 4.5점</p>
+          <section class="section"><div class="section-heading"><h4>추출 조건</h4></div><dl class="conditions">
+            <div class="condition"><dt>분쇄도</dt><dd>중간보다 가늘게</dd></div><div class="condition"><dt>그라인더</dt><dd>Comandante</dd></div>
+            <div class="condition"><dt>그라인더 설정</dt><dd>24클릭</dd></div><div class="condition"><dt>분쇄 입자</dt><dd>450μm</dd></div>
+          </dl></section>
+          <section class="section"><div class="section-heading"><h4>붓기 단계</h4><span>3단계</span></div><table class="steps"><thead><tr><th>단계</th><th>누적 시간</th><th>누적 물</th></tr></thead><tbody>
+            <tr><td>뜸</td><td>0:40</td><td>45g</td></tr><tr><td>1차</td><td>1:10</td><td>150g</td></tr><tr><td>2차</td><td>2:00</td><td>250g</td></tr>
+          </tbody></table></section>
+          <section class="section"><div class="section-heading"><h4>추출 가이드</h4></div><div class="guide"><p>교반 없이, 중앙에서 바깥으로 천천히 붓습니다.
+목표 추출 완료 시간: 2분 30초</p></div></section>
+          <section class="section"><div class="section-heading"><h4>추출 기록</h4><span>최근 기록</span></div><article class="record"><strong>2026-10-28 · 원두: 구지 · 평가 5/5 ★★★★★</strong><p>컵노트: 살구, 홍차</p></article><article class="record"><strong>2026-10-25 · 원두: 구지 · 평가 4/5 ★★★★</strong><p>컵노트: 꿀, 복숭아</p></article></section>
+          <div class="actions"><button class="primary">이 레시피로 추출 기록</button><button>이 레시피 복사</button></div>
+        </article>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,44 @@
+[
+  {
+    "width": 320,
+    "listNoOverflow": true,
+    "twoLinePreview": true,
+    "detailNavigation": true,
+    "detailNoOverflow": true
+  },
+  {
+    "width": 390,
+    "listNoOverflow": true,
+    "twoLinePreview": true,
+    "detailNavigation": true,
+    "detailNoOverflow": true
+  },
+  {
+    "width": 768,
+    "listNoOverflow": true,
+    "twoLinePreview": true,
+    "detailNavigation": true,
+    "detailNoOverflow": true
+  },
+  {
+    "width": 1440,
+    "listNoOverflow": true,
+    "twoLinePreview": true,
+    "detailNavigation": true,
+    "detailNoOverflow": true
+  },
+  {
+    "missingStepsAndGuide": true,
+    "zeroAndMissingValues": true,
+    "errorStatusVisible": true
+  },
+  {
+    "deleteDialogCancel": true,
+    "copyPreservesGuide": true,
+    "recordPrefillsRecipe": true,
+    "fakeMutations": 0,
+    "pageErrors": 0,
+    "consoleErrors": 0,
+    "externalRequests": 0
+  }
+]

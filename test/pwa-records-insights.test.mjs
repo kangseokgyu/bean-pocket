@@ -31,12 +31,12 @@ test('three distinct beans are ordered by newest valid record with a stable tie 
     ['bean-a', '2026-10-12'], ['bean-d', '2026-10-12'], ['bean-c', '2026-10-11'],
   ]);
   assert.deepEqual(model.beans[0], {
-    id: 'bean-a', name: '시다마', latestDate: '2026-10-12', latestRecipeName: '보관된 레시피',
-    latestRating: 5, latestRatingLabel: '5/5',
+    id: 'bean-a', name: '시다마', origin: '', roaster: '', variety: '', process: '', tastingNotes: '',
+    latestDate: '2026-10-12', latestRecipeName: '보관된 레시피', latestRating: 5, latestRatingLabel: '5/5', recordCount: 2,
   });
   assert.deepEqual(model.beans[1], {
-    id: 'bean-d', name: 'bean-d', latestDate: '2026-10-12', latestRecipeName: '보관된 레시피',
-    latestRating: 3, latestRatingLabel: '3/5',
+    id: 'bean-d', name: 'bean-d', origin: '', roaster: '', variety: '', process: '', tastingNotes: '',
+    latestDate: '2026-10-12', latestRecipeName: '보관된 레시피', latestRating: 3, latestRatingLabel: '3/5', recordCount: 1,
   });
   assert.equal(model.selectedBeanId, 'bean-a');
   assert.equal(model.loadedCount, records.length);
@@ -65,7 +65,7 @@ test('selection, best record, and comparison values use only valid current snaps
   assert.deepEqual(model.trend.map(point => [point.date, point.rating]), [['2026-10-01', 5], ['2026-10-05', 5]]);
   assert.equal(model.bestRecord.id, 'newer', 'equal ratings choose the newer valid date');
   assert.equal(model.bestRecord.snapshot.recipe.name, '새 당시 레시피');
-  assert.equal(model.comparisonRecords.length, 2);
+  assert.deepEqual(model.comparisonRecords.map(record => record.id), ['unrated', 'newer', 'older']);
   assert.equal(model.eligibleCount, 4, 'unrated or invalidly rated records still establish valid bean/date membership');
   assert.equal(model.excludedCount, 4, 'invalid dates, ambiguous beans, stale generations and damaged snapshots are excluded');
 });
@@ -92,6 +92,44 @@ test('bean summaries prefer recipe snapshots and only use live recipe names as a
     record({ id: 'invalid-rating', beanId: 'bean-d', date: '2026-10-11', rating: 6 }),
   ]);
   assert.equal(invalidRating.beans[0].latestRatingLabel, '별점 확인 필요');
+});
+
+test('selected bean statistics and comparison choices describe only loaded snapshot records', () => {
+  const makeSnapshotRecord = ({ id, date, rating, recipeId, recipeName, version = 2 }) => {
+    const item = record({ id, beanId: 'bean-a', beanName: '당시 구지', date, rating, recipeName, recipeId });
+    item.snapshot.bean.origin = '당시 구지 농장';
+    item.snapshot.bean.roaster = '당시 로스터리';
+    item.snapshot.recipe.id = recipeId;
+    if (version === 1) {
+      item.snapshot = { version: 1, recordGeneration: generation, id: recipeId, name: recipeName,
+        dripper: 'V60', grind: '중간', dose: 15, totalWater: 240, temperature: 92 };
+    }
+    return item;
+  };
+  const records = [
+    makeSnapshotRecord({ id: 'older', date: '2026-10-01', rating: 4, recipeId: 'recipe-v60', recipeName: '기록 V60' }),
+    makeSnapshotRecord({ id: 'unrated', date: '2026-10-03', rating: null, recipeId: 'recipe-origami', recipeName: '' }),
+    makeSnapshotRecord({ id: 'invalid', date: '2026-10-04', rating: 6, recipeId: 'recipe-invalid', recipeName: '잘못된 별점 레시피' }),
+    makeSnapshotRecord({ id: 'latest', date: '2026-10-05', rating: 5, recipeId: 'recipe-v60', recipeName: '기록 V60' }),
+  ];
+  const before = structuredClone(records);
+  const model = buildRecordsInsights(records,
+    [{ id: 'bean-a', name: '현재 이름', origin: '현재 원산지', roaster: '현재 로스터리' }], 'bean-a', [
+      { id: 'recipe-origami', name: '현재 오리가미' }, { id: 'recipe-v60', name: '현재 V60' },
+    ]);
+
+  assert.deepEqual(records, before, 'aggregation must not mutate bounded repository records');
+  assert.equal(model.selectedBean.name, '당시 구지');
+  assert.equal(model.selectedBean.origin, '당시 구지 농장');
+  assert.equal(model.selectedBean.roaster, '당시 로스터리');
+  assert.equal(model.selectedBean.recordCount, 4);
+  assert.equal(model.selectedRecordCount, 4);
+  assert.equal(model.ratedRecordCount, 2);
+  assert.equal(model.averageRating, 4.5);
+  assert.deepEqual(model.comparisonRecords.map(item => item.id), ['latest', 'unrated', 'older']);
+  assert.deepEqual(model.recipeOptions.map(({ id, name }) => [id, name]), [
+    ['recipe-v60', '기록 V60'], ['recipe-origami', '현재 오리가미'],
+  ]);
 });
 
 test('chart coordinates use real date spacing and a fixed one-to-five rating scale', () => {

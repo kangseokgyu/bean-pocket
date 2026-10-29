@@ -1,0 +1,110 @@
+TAP version 13
+# Subtest: three distinct beans are ordered by newest valid record with a stable tie break
+not ok 1 - three distinct beans are ordered by newest valid record with a stable tie break
+  ---
+  duration_ms: 35.357667
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/brew-record-demo/AX-1day/test/pwa-records-insights.test.mjs:20:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      {
+        id: 'bean-a',
+        latestDate: '2026-10-12',
+        latestRating: 5,
+        latestRatingLabel: '5/5',
+        latestRecipeName: '보관된 레시피',
+        name: '시다마',
+    +   origin: '',
+    +   process: '',
+    +   recordCount: 2,
+    +   roaster: '',
+    +   tastingNotes: '',
+    +   variety: ''
+      }
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    id: 'bean-a'
+    name: '시다마'
+    latestDate: '2026-10-12'
+    latestRecipeName: '보관된 레시피'
+    latestRating: 5
+    latestRatingLabel: '5/5'
+  actual:
+    id: 'bean-a'
+    name: '시다마'
+    origin: ''
+    roaster: ''
+    variety: ''
+    process: ''
+    tastingNotes: ''
+    latestDate: '2026-10-12'
+    latestRecipeName: '보관된 레시피'
+    latestRating: 5
+    latestRatingLabel: '5/5'
+    recordCount: 2
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/brew-record-demo/AX-1day/test/pwa-records-insights.test.mjs:33:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: selection, best record, and comparison values use only valid current snapshots without mutating inputs
+not ok 2 - selection, best record, and comparison values use only valid current snapshots without mutating inputs
+  ---
+  duration_ms: 4.528167
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/brew-record-demo/AX-1day/test/pwa-records-insights.test.mjs:45:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    3 !== 2
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 2
+  actual: 3
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/brew-record-demo/AX-1day/test/pwa-records-insights.test.mjs:68:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: bean summaries prefer recipe snapshots and only use live recipe names as a fallback
+ok 3 - bean summaries prefer recipe snapshots and only use live recipe names as a fallback
+  ---
+  duration_ms: 0.926458
+  type: 'test'
+  ...
+# Subtest: selected bean statistics and comparison choices describe only loaded snapshot records
+ok 4 - selected bean statistics and comparison choices describe only loaded snapshot records
+  ---
+  duration_ms: 0.805083
+  type: 'test'
+  ...
+# Subtest: chart coordinates use real date spacing and a fixed one-to-five rating scale
+ok 5 - chart coordinates use real date spacing and a fixed one-to-five rating scale
+  ---
+  duration_ms: 0.787334
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 3
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 110.22925

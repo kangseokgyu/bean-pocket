@@ -15,100 +15,248 @@ const button = (document, text, type = 'submit', action) => {
 };
 const formatTime = seconds => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 
-export function renderRecordsInsights(pane, data, document, ratingFilter, comparisonSort) {
+export function renderRecordsInsights(pane, data, document, recipeFilter, ratingFilter, comparisonSort, management) {
   const state = data.recordInsights;
-  if (!state) return;
-  const section = make(document, 'section', undefined, 'record-insights');
-  section.setAttribute('aria-labelledby', 'record-insights-title');
-  section.append(make(document, 'h3', '원두별 평가 인사이트', undefined));
-  section.lastElementChild.id = 'record-insights-title';
-
-  const scope = state.status === 'ready'
-    ? `불러온 기록 ${state.loadedCount}건 기준 · 아래 필터는 기록 표에만 적용됩니다.`
-    : state.status === 'error' && !state.loadedCount ? state.error || '원두 인사이트 기록을 불러오지 못했습니다.'
-      : '원두 인사이트 기록을 불러오는 중입니다.';
-  const scopeNote = make(document, 'p', scope, 'record-insight-scope');
-  scopeNote.dataset.insightScope = '';
-  scopeNote.setAttribute('role', state.status === 'error' ? 'status' : 'note');
-  section.append(scopeNote);
-
-  if (state.status === 'loading' && !state.loadedCount) {
-    section.append(make(document, 'p', '원두 인사이트를 불러오는 중입니다.', 'record-insight-loading'));
-    pane.append(section);
+  if (!state) {
+    if (management) pane.append(management);
     return;
   }
+  const layout = make(document, 'div', undefined, 'records-demo-layout');
+  const sidebar = make(document, 'aside', undefined, 'record-insight-sidebar');
+  sidebar.setAttribute('aria-labelledby', 'record-insight-bean-heading');
+  const sidebarHeading = make(document, 'div', undefined, 'record-insight-section-heading');
+  sidebarHeading.append(make(document, 'h3', '최근 추출 원두'));
+  sidebarHeading.lastElementChild.id = 'record-insight-bean-heading';
+  sidebarHeading.append(make(document, 'span', `${state.beans?.length ?? 0}종`, 'record-insight-count-chip'));
+  sidebar.append(sidebarHeading, make(document, 'p', '마지막 추출이 최근인 원두부터 표시합니다.', 'record-insight-sidebar-help'));
+  if (state.error) sidebar.append(make(document, 'p', state.error, 'record-warning'));
+  if (state.status === 'loading' && !state.loadedCount) sidebar.append(make(document, 'p',
+    '원두 인사이트를 불러오는 중입니다.', 'record-insight-loading'));
   if (state.status === 'error' && !state.loadedCount) {
     const retry = button(document, '다시 시도', 'button', 'load-more-insights');
     retry.disabled = !!state.loading;
-    section.append(retry);
-    pane.append(section);
-    return;
+    sidebar.append(retry);
   }
-  if (state.error) section.append(make(document, 'p', state.error, 'record-warning'));
-  if (!state.beans?.length) {
-    section.append(make(document, state.loadedCount ? 'p' : 'p', '현재 인사이트에 사용할 기록이 없습니다.', 'empty-state'));
-    renderInsightsMoreButton(section, document, state);
-    pane.append(section);
-    return;
+  if (!state.beans?.length && state.status !== 'loading' && state.status !== 'error') {
+    sidebar.append(make(document, 'p', '최근 추출 기록이 있는 원두가 없습니다.', 'record-insight-empty'));
   }
-
-  section.append(make(document, 'h4', '최근 추출 원두'));
   const beanList = make(document, 'ul', undefined, 'record-insight-bean-list');
-  for (const bean of state.beans) {
+  for (const bean of state.beans ?? []) {
     const item = make(document, 'li');
     const card = button(document, undefined, 'button', 'select-insight-bean');
     card.className = `button record-insight-bean-card${bean.id === state.selectedBeanId ? ' is-selected' : ''}`;
     card.dataset.beanId = bean.id;
     card.setAttribute('aria-pressed', String(bean.id === state.selectedBeanId));
-    card.append(make(document, 'span', bean.name, 'record-insight-bean-name'));
-    card.append(make(document, 'span', `최근 추출 ${bean.latestDate}`, 'record-insight-bean-date'));
-    card.append(make(document, 'span', `레시피 ${bean.latestRecipeName}`, 'record-insight-bean-recipe'));
-    card.append(make(document, 'span', `평가 ${bean.latestRatingLabel}`,
-      'record-insight-bean-rating'));
+    const origin = bean.origin || bean.roaster || '원산지 정보 없음';
+    card.setAttribute('aria-label', `${bean.name} · ${origin} · 기록 ${bean.recordCount}건 · 최근 ${bean.latestDate} · ${bean.latestRatingLabel} · ${bean.latestRecipeName}`);
+    const cardTop = make(document, 'span', undefined, 'record-insight-bean-top');
+    cardTop.append(make(document, 'span', bean.name, 'record-insight-bean-name'));
+    cardTop.append(make(document, 'span', `기록 ${bean.recordCount}건`, 'record-insight-bean-count'));
+    card.append(cardTop, make(document, 'span', origin, 'record-insight-bean-origin'));
+    const latest = make(document, 'span', undefined, 'record-insight-bean-latest');
+    latest.append(make(document, 'span', `최근 ${bean.latestDate}`), renderRating(document, bean.latestRating));
+    card.append(latest, make(document, 'span', `레시피 ${bean.latestRecipeName}`, 'record-insight-bean-recipe'));
     item.append(card);
     beanList.append(item);
   }
-  section.append(beanList);
+  sidebar.append(beanList);
+  renderInsightsMoreButton(sidebar, document, state);
+  sidebar.append(make(document, 'p', '요약은 현재 불러온 기록 범위 기준입니다.', 'record-insight-sidebar-note'));
 
-  const trendHeading = make(document, 'h4', '날짜별 별점 추이');
-  section.append(trendHeading);
-  section.append(make(document, 'p', `${state.selectedBean?.name ?? '선택한 원두'} · 유효한 별점 ${state.ratedRecordCount}건`,
-    'record-insight-trend-summary'));
-  if (state.trend?.length) section.append(renderRatingTrend(document, state.trend));
-  else section.append(make(document, 'p', '유효한 별점 기록이 없습니다.', 'record-insight-chart-empty'));
+  const content = make(document, 'div', undefined, 'record-insights-content');
+  const selected = state.selectedBean;
+  const summary = make(document, 'section', undefined, 'record-insight-selected-bean');
+  summary.setAttribute('aria-labelledby', 'record-insight-selected-name');
+  const summaryCopy = make(document, 'div', undefined, 'record-insight-selected-copy');
+  summaryCopy.append(make(document, 'p', '선택한 원두', 'record-insight-eyebrow'));
+  summaryCopy.append(make(document, 'h3', selected?.name ?? '기록이 있는 원두 없음'));
+  summaryCopy.lastElementChild.id = 'record-insight-selected-name';
+  if (selected?.origin) summaryCopy.append(make(document, 'p', selected.origin, 'record-insight-origin'));
+  const metadata = [selected?.variety, selected?.process].filter(Boolean).join(' · ');
+  if (metadata) summaryCopy.append(make(document, 'p', metadata, 'record-insight-metadata'));
+  if (selected?.tastingNotes) summaryCopy.append(make(document, 'p', selected.tastingNotes, 'record-insight-tasting-notes'));
+  if (selected?.roaster) summaryCopy.append(make(document, 'p', selected.roaster, 'record-insight-roaster'));
+  const stats = make(document, 'dl', undefined, 'record-insight-bean-stats');
+  appendStatistic(stats, '기록 표본', `${state.selectedRecordCount ?? 0}건`);
+  appendStatistic(stats, '평균 평가', state.averageRating === null || state.averageRating === undefined
+    ? '평가 없음' : `${state.averageRating.toFixed(1)}점`,
+  state.averageRating === null || state.averageRating === undefined ? '' : `유효 별점 ${state.ratedRecordCount}건 기준`);
+  summary.append(summaryCopy, stats);
+  const scopeNote = make(document, 'p',
+    `불러온 기록 ${state.loadedCount}건 중 선택 원두 ${state.selectedRecordCount ?? 0}건 · 평균과 차트는 유효 별점 ${state.ratedRecordCount ?? 0}건 기준입니다.`,
+    'record-insight-scope');
+  scopeNote.dataset.insightScope = '';
+  scopeNote.setAttribute('role', state.status === 'error' ? 'status' : 'note');
+  summary.append(scopeNote);
+  content.append(summary);
 
-  const best = make(document, 'section', undefined, 'record-insight-best');
-  best.setAttribute('aria-labelledby', 'record-insight-best-title');
-  best.append(make(document, 'h4', '최고 평가 기록'));
-  best.lastElementChild.id = 'record-insight-best-title';
-  if (state.bestRecord) best.append(renderInsightRecord(document, state.bestRecord, data, true));
-  else best.append(make(document, 'p', '최고 평가 기록이 없습니다.', 'empty-state'));
-  section.append(best);
+  const trend = make(document, 'section', undefined, 'record-insight-trend-section');
+  trend.append(sectionHeader(document, '별점 추이', '선택한 원두의 불러온 추출 기록을 날짜순으로 표시합니다.',
+    '전체 기록', 'record-insight-trend-title'));
+  trend.append(make(document, 'p', '아래 레시피 필터와 정렬은 비교 표에만 적용됩니다.', 'record-insight-filter-note'));
+  if (state.trend?.length) trend.append(renderRatingTrend(document, state.trend));
+  else trend.append(make(document, 'p', '이 원두에는 아직 유효한 별점 기록이 없습니다.', 'record-insight-chart-empty'));
+  content.append(trend);
+
+  const best = make(document, 'section', undefined, 'record-insight-best-section record-insight-best');
+  best.append(sectionHeader(document, '가장 높게 평가한 추출', '선택한 원두의 불러온 유효 별점 기록 안에서 계산합니다.',
+    '', 'record-insight-best-title'));
+  if (state.bestRecord) best.append(renderBestRecord(document, state.bestRecord));
+  else best.append(make(document, 'p', '이 원두에는 아직 최고 평가 기록이 없습니다.', 'record-insight-empty'));
 
   const comparisons = make(document, 'section', undefined, 'record-insight-comparisons');
-  comparisons.setAttribute('aria-labelledby', 'record-insight-comparisons-title');
-  comparisons.append(make(document, 'h4', '비교 기록'));
-  comparisons.lastElementChild.id = 'record-insight-comparisons-title';
+  comparisons.append(sectionHeader(document, '추출 기록 비교', '기록 당시 조건과 컵노트를 나란히 비교합니다.',
+    `${state.selectedRecordCount ?? 0}건 표본`, 'record-insight-comparisons-title'));
   const controls = make(document, 'div', undefined, 'record-insight-controls');
-  const ratingSelect = makeInsightSelect(document, '별점 필터', 'data-insight-rating-filter', ratingFilter,
-    [['', '모든 별점'], ['5', '5점'], ['4', '4점'], ['3', '3점'], ['2', '2점'], ['1', '1점']]);
-  const sortSelect = makeInsightSelect(document, '정렬', 'data-insight-comparison-sort', comparisonSort,
-    [['date-desc', '최신 날짜순'], ['rating-desc', '별점 높은 순']]);
-  controls.append(ratingSelect, sortSelect);
+  const recipeOptions = [['', '모든 레시피'], ...(state.recipeOptions ?? []).map(recipe => [recipe.id, recipe.name])];
+  controls.append(makeInsightSelect(document, '레시피', 'data-insight-recipe-filter', recipeFilter, recipeOptions));
+  controls.append(makeInsightSelect(document, '정렬', 'data-insight-comparison-sort', comparisonSort,
+    [['date-desc', '날짜 최신순'], ['date-asc', '날짜 오래된순'], ['rating-desc', '평가 높은순']]));
+  controls.append(makeInsightSelect(document, '별점', 'data-insight-rating-filter', ratingFilter,
+    [['', '모든 별점'], ['5', '5점'], ['4', '4점'], ['3', '3점'], ['2', '2점'], ['1', '1점']]));
   comparisons.append(controls);
   let comparisonRecords = [...(state.comparisonRecords ?? [])];
+  if (recipeFilter) comparisonRecords = comparisonRecords.filter(record => record.recipeId === recipeFilter ||
+    recipeForRecord(record)?.id === recipeFilter);
   if (ratingFilter) comparisonRecords = comparisonRecords.filter(record => String(record.rating) === ratingFilter);
-  comparisonRecords.sort(comparisonSort === 'rating-desc'
-    ? (left, right) => right.rating - left.rating || String(right.date).localeCompare(String(left.date)) || String(left.id).localeCompare(String(right.id))
-    : (left, right) => String(right.date).localeCompare(String(left.date)) || String(left.id).localeCompare(String(right.id)));
-  if (comparisonRecords.length) {
-    const list = make(document, 'div', undefined, 'record-insight-comparison-list');
-    for (const record of comparisonRecords) list.append(renderInsightRecord(document, record, data, false));
-    comparisons.append(list);
-  } else comparisons.append(make(document, 'p', '조건에 맞는 비교 기록이 없습니다.', 'empty-state'));
-  section.append(comparisons);
-  renderInsightsMoreButton(section, document, state);
-  pane.append(section);
+  comparisonRecords.sort(comparisonComparator(comparisonSort));
+  const count = make(document, 'p', `${comparisonRecords.length}건`, 'record-insight-comparison-count');
+  count.setAttribute('aria-live', 'polite');
+  comparisons.append(count);
+  if (comparisonRecords.length) comparisons.append(renderComparisonRecords(document, comparisonRecords));
+  else comparisons.append(make(document, 'p', '조건에 맞는 비교 기록이 없습니다.', 'record-insight-empty'));
+  content.append(best, comparisons);
+  if (management) content.append(management);
+  layout.append(sidebar, content);
+  pane.append(layout);
+}
+
+function sectionHeader(document, title, description, tag, headingId) {
+  const heading = make(document, 'div', undefined, 'record-insight-section-heading record-insight-section-heading-block');
+  const copy = make(document, 'div');
+  const titleNode = make(document, 'h3', title);
+  titleNode.id = headingId;
+  copy.append(titleNode, make(document, 'p', description));
+  heading.append(copy);
+  if (tag) heading.append(make(document, 'span', tag, 'record-insight-sample-tag'));
+  return heading;
+}
+
+function appendStatistic(list, name, value, note = '') {
+  const item = make(list.ownerDocument, 'div');
+  item.append(make(list.ownerDocument, 'dt', name), make(list.ownerDocument, 'dd', value));
+  if (note) item.append(make(list.ownerDocument, 'small', note));
+  list.append(item);
+}
+
+function renderRating(document, rating) {
+  const group = make(document, 'span', undefined, 'record-insight-rating');
+  const valid = Number.isInteger(rating) && rating >= 1 && rating <= 5;
+  if (!valid) {
+    group.textContent = rating == null ? '별점 없음' : '별점 확인 필요';
+    group.setAttribute('aria-label', group.textContent);
+    return group;
+  }
+  group.setAttribute('role', 'img');
+  group.setAttribute('aria-label', `별점 ${rating}/5`);
+  group.append(make(document, 'span', `${'★'.repeat(rating)}${'☆'.repeat(5 - rating)}`, 'record-insight-rating-stars'));
+  group.append(make(document, 'span', `${rating}/5`, 'record-insight-rating-number'));
+  return group;
+}
+
+function comparisonComparator(sort) {
+  if (sort === 'date-asc') return (left, right) => String(left.date).localeCompare(String(right.date)) || String(left.id).localeCompare(String(right.id));
+  if (sort === 'rating-desc') return (left, right) => (Number.isInteger(right.rating) ? right.rating : 0) -
+    (Number.isInteger(left.rating) ? left.rating : 0) || String(right.date).localeCompare(String(left.date)) || String(left.id).localeCompare(String(right.id));
+  return (left, right) => String(right.date).localeCompare(String(left.date)) || String(left.id).localeCompare(String(right.id));
+}
+
+function recipeForRecord(record) {
+  const snapshot = record.snapshotStatus === 'valid' ? record.snapshot : null;
+  return snapshot?.version === 2 ? snapshot.recipe : snapshot?.version === 1 ? snapshot : null;
+}
+
+function renderComparisonRecords(document, records) {
+  const region = make(document, 'div', undefined, 'record-insight-comparison-region');
+  const tableScroll = make(document, 'div', undefined, 'table-scroll record-insight-comparison-table-region');
+  const table = make(document, 'table', undefined, 'record-insight-comparison-table');
+  table.append(make(document, 'caption', '선택한 원두의 추출일, 레시피, 기록 당시 조건, 평가와 컵노트', 'visually-hidden'));
+  const head = make(document, 'thead');
+  const headings = make(document, 'tr');
+  for (const title of ['추출일', '레시피', '기록 당시 조건 · 분쇄 · 온도 · 도징 · 물', '평가', '컵노트']) {
+    const cell = make(document, 'th', title);
+    cell.setAttribute('scope', 'col');
+    headings.append(cell);
+  }
+  head.append(headings);
+  const body = make(document, 'tbody');
+  const cards = make(document, 'ul', undefined, 'record-insight-comparison-cards');
+  cards.setAttribute('aria-label', '선택한 원두의 비교 기록 카드');
+  for (const record of records) {
+    const recipe = recipeForRecord(record);
+    const name = recipe?.name || '레시피 이름 확인 필요';
+    const row = make(document, 'tr', undefined, 'record-insight-comparison-row');
+    row.dataset.insightRecordId = record.id;
+    row.append(make(document, 'td', record.date || '날짜 확인 필요', 'record-insight-date-cell'));
+    row.append(make(document, 'td', name, 'record-insight-recipe-cell'));
+    const conditions = make(document, 'td', undefined, 'record-insight-conditions-cell');
+    conditions.append(renderComparisonConditions(document, recipe));
+    row.append(conditions);
+    const rating = make(document, 'td', undefined, 'record-insight-rating-cell');
+    rating.append(renderRating(document, record.rating));
+    row.append(rating, make(document, 'td', record.cupNote || '컵노트 없음', 'record-insight-note-cell'));
+    body.append(row);
+
+    const card = make(document, 'li', undefined, 'record-insight-comparison-card');
+    card.dataset.insightRecordId = record.id;
+    const cardHeader = make(document, 'div', undefined, 'record-insight-comparison-card-heading');
+    cardHeader.append(make(document, 'strong', record.date || '날짜 확인 필요'), renderRating(document, record.rating));
+    card.append(cardHeader, make(document, 'p', name, 'record-insight-comparison-card-recipe'));
+    card.append(renderComparisonConditions(document, recipe));
+    card.append(make(document, 'p', record.cupNote || '컵노트 없음', 'record-insight-comparison-card-note'));
+    cards.append(card);
+  }
+  table.append(head, body);
+  tableScroll.append(table);
+  region.append(tableScroll, cards);
+  return region;
+}
+
+function renderComparisonConditions(document, recipe) {
+  const list = make(document, 'dl', undefined, 'record-insight-comparison-conditions');
+  if (!recipe) {
+    list.append(make(document, 'dt', '당시 조건'), make(document, 'dd', '스냅샷에서 확인할 수 없습니다.'));
+    return list;
+  }
+  const values = [
+    ['분쇄', recipe.grind], ['온도', Number.isFinite(recipe.temperature) ? `${recipe.temperature}℃` : ''],
+    ['도징', Number.isFinite(recipe.dose) ? `${recipe.dose}g` : ''],
+    ['물', Number.isFinite(recipe.totalWater) ? `${recipe.totalWater}g` : ''], ['드리퍼', recipe.dripper],
+  ].filter(([, value]) => value !== undefined && value !== null && value !== '');
+  for (const [label, value] of values) {
+    const pair = make(document, 'div');
+    pair.append(make(document, 'dt', label), make(document, 'dd', value));
+    list.append(pair);
+  }
+  if (!values.length) list.append(make(document, 'dt', '당시 조건'), make(document, 'dd', '기록되지 않았습니다.'));
+  return list;
+}
+
+function renderBestRecord(document, record) {
+  const article = make(document, 'article', undefined, 'record-insight-best-record');
+  article.dataset.insightRecordId = record.id;
+  const recipe = recipeForRecord(record);
+  const heading = make(document, 'div', undefined, 'record-insight-best-heading');
+  const copy = make(document, 'div');
+  copy.append(make(document, 'p', '최고 평가 기록', 'record-insight-eyebrow'));
+  copy.append(make(document, 'h4', recipe?.name || '레시피 이름 확인 필요'));
+  heading.append(copy, renderRating(document, record.rating));
+  article.append(heading, make(document, 'p',
+    `불러온 유효 별점 ${record.rating}/5 기록 중 가장 높게 평가된 추출입니다.`, 'record-insight-best-reason'));
+  article.append(make(document, 'p', record.date || '날짜 확인 필요', 'record-insight-best-date'));
+  article.append(renderRecipeConditions(document, recipe));
+  article.append(make(document, 'p', record.cupNote || '컵노트 없음', 'record-insight-best-note'));
+  return article;
 }
 
 function makeInsightSelect(document, title, dataAttribute, value, options) {
@@ -198,6 +346,29 @@ function renderRatingTrend(document, points) {
     circle.append(pointTitle);
     svg.append(circle);
   }
+  const distinctLabelPoints = [];
+  const labeledPointKeys = new Set();
+  for (const point of layout.points) {
+    const key = `${point.date}|${point.rating}`;
+    if (labeledPointKeys.has(key)) continue;
+    labeledPointKeys.add(key);
+    distinctLabelPoints.push(point);
+  }
+  const labelLimit = 12;
+  const labelPoints = distinctLabelPoints.length <= labelLimit ? distinctLabelPoints
+    : Array.from({ length: labelLimit }, (_, index) => distinctLabelPoints[
+      Math.round(index * (distinctLabelPoints.length - 1) / (labelLimit - 1))]);
+  for (const point of labelPoints) {
+    const label = svgElement(document, 'text');
+    label.setAttribute('x', String(point.x));
+    label.setAttribute('y', String(point.y + (point.rating === 5 ? 15 : -9)));
+    label.setAttribute('text-anchor', 'middle');
+    label.setAttribute('class', 'rating-chart-point-label');
+    label.setAttribute('aria-hidden', 'true');
+    label.setAttribute('data-date', point.date);
+    label.textContent = `${point.rating}점`;
+    svg.append(label);
+  }
 
   const uniqueDates = [...new Set(layout.points.map(point => point.date))];
   const visibleTickCount = Math.min(uniqueDates.length, 5);
@@ -236,30 +407,12 @@ function appendChartValues(list, points) {
   for (const point of points) list.append(make(list.ownerDocument, 'li', `${point.date} · 별점 ${point.rating}/5`));
 }
 
-function renderInsightRecord(document, record, data, best) {
-  const article = make(document, 'article', undefined, best ? 'record-insight-best-record' : 'record-insight-comparison');
-  article.dataset.insightRecordId = record.id;
-  const snapshot = record.snapshotStatus === 'valid' ? record.snapshot : null;
-  const recipe = snapshot?.version === 2 ? snapshot.recipe : snapshot?.version === 1 ? snapshot : null;
-  const liveRecipe = data.recipes?.find(item => item.id === record.recipeId);
-  const recipeName = recipe?.name || liveRecipe?.name || '기록 당시 레시피 이름을 확인할 수 없습니다.';
-  article.append(make(document, 'h5', `${record.date} · ${record.rating}/5 ★`));
-  article.append(make(document, 'p', `레시피: ${recipeName}`));
-  article.append(make(document, 'p', record.cupNote ? `컵노트: ${record.cupNote}` : '컵노트 없음'));
-  if (best) article.append(renderRecipeConditions(document, recipe));
-  else {
-    const details = document.createElement('details');
-    details.className = 'record-insight-condition-details';
-    details.append(make(document, 'summary', '기록 당시 레시피 조건 보기'), renderRecipeConditions(document, recipe));
-    article.append(details);
-  }
-  return article;
-}
-
 function renderRecipeConditions(document, recipe) {
   const conditions = make(document, 'dl', undefined, 'record-insight-recipe-conditions');
   if (!recipe) {
-    conditions.append(make(document, 'dt', '기록 당시 조건'), make(document, 'dd', '스냅샷에서 확인할 수 없습니다.'));
+    const pair = make(document, 'div');
+    pair.append(make(document, 'dt', '기록 당시 조건'), make(document, 'dd', '스냅샷에서 확인할 수 없습니다.'));
+    conditions.append(pair);
     return conditions;
   }
   const values = [
@@ -270,9 +423,12 @@ function renderRecipeConditions(document, recipe) {
     ['분쇄 입자', Number.isFinite(recipe.microns) ? `${recipe.microns}μm` : ''],
   ].filter(([, value]) => value !== undefined && value !== null && value !== '');
   for (const [name, value] of values) {
-    conditions.append(make(document, 'dt', name), make(document, 'dd', value));
+    const pair = make(document, 'div');
+    pair.append(make(document, 'dt', name), make(document, 'dd', value));
+    conditions.append(pair);
   }
   if (Array.isArray(recipe.steps) && recipe.steps.length) {
+    const pair = make(document, 'div');
     const heading = make(document, 'dt', '단계별 누적 시간과 물');
     const list = make(document, 'dd');
     const steps = make(document, 'ol', undefined, 'record-insight-steps');
@@ -282,7 +438,8 @@ function renderRecipeConditions(document, recipe) {
       steps.append(make(document, 'li', `${step.name || '단계'} · 누적 ${time} · 이번 물 ${water}`));
     }
     list.append(steps);
-    conditions.append(heading, list);
+    pair.append(heading, list);
+    conditions.append(pair);
   }
   return conditions;
 }

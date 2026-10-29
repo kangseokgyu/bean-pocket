@@ -1,0 +1,52 @@
+TAP version 13
+# Subtest: records page follows the demo hierarchy and keeps full record management collapsed below comparisons
+not ok 1 - records page follows the demo hierarchy and keeps full record management collapsed below comparisons
+  ---
+  duration_ms: 35.246209
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/brew-record-demo/AX-1day/test/pwa-ui.view.test.mjs:2787:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      [
+        'record-insight-selected-bean',
+        'record-insight-trend-section',
+    +   'record-insight-best-section record-insight-best',
+    -   'record-insight-best-section',
+        'record-insight-comparisons',
+        'record-management'
+      ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: 'record-insight-selected-bean'
+    1: 'record-insight-trend-section'
+    2: 'record-insight-best-section'
+    3: 'record-insight-comparisons'
+    4: 'record-management'
+  actual:
+    0: 'record-insight-selected-bean'
+    1: 'record-insight-trend-section'
+    2: 'record-insight-best-section record-insight-best'
+    3: 'record-insight-comparisons'
+    4: 'record-management'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/brew-record-demo/AX-1day/test/pwa-ui.view.test.mjs:2803:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 112.018291

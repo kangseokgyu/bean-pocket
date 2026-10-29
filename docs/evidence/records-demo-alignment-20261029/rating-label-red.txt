@@ -1,0 +1,30 @@
+TAP version 13
+# Subtest: records view keeps unfiltered bean insights separate from the filtered table and uses snapshot conditions
+not ok 1 - records view keeps unfiltered bean insights separate from the filtered table and uses snapshot conditions
+  ---
+  duration_ms: 25.978459
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/brew-record-demo/AX-1day/test/pwa-ui.view.test.mjs:2740:1'
+  failureType: 'testCodeFailure'
+  error: 'top-axis rating labels stay inside the chart viewBox'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/brew-record-demo/AX-1day/test/pwa-ui.view.test.mjs:2790:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 81.786666

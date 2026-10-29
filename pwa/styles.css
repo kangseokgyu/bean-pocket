@@ -587,58 +587,143 @@ button:focus-visible, .table-scroll:focus-visible {
 .record-filters legend { grid-column: 1 / -1; padding: 0; color: #3d5147; font-weight: 700; }
 .record-filter-reset { grid-column: 1 / -1; justify-self: start; }
 .page-load-more { width: 100%; margin-top: 12px; }
-.record-insights {
+.records-demo-layout {
   display: grid;
-  gap: 12px;
+  grid-template-columns: minmax(238px, 272px) minmax(0, 1fr);
+  align-items: start;
+  gap: 20px;
   min-width: 0;
-  max-width: 100%;
-  margin: 4px 0 8px;
-  padding: 14px;
-  border: 1px solid #d9e2d7;
-  border-radius: 14px;
-  background: #f8faf5;
+  color: #203d32;
 }
-.record-insights > :first-child, .record-insights h4, .record-insights h5 { margin-top: 0; }
-.record-insights > :last-child { margin-bottom: 0; }
-.record-insight-scope, .record-insight-trend-summary { margin: 0; color: #596a5d; font-size: 0.875rem; }
-.record-insight-control { display: grid; gap: 5px; min-width: 0; font-size: 0.875rem; font-weight: 650; }
-.record-insight-control select { width: 100%; min-width: 0; }
-.record-insight-bean-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.record-insight-sidebar, .record-insight-selected-bean, .record-insight-trend-section,
+.record-insight-best-record, .record-insight-comparisons, .record-management {
+  min-width: 0;
+  border: 1px solid #ded7ca;
+  background: #fbf9f4;
+}
+.record-insight-sidebar, .record-insight-trend-section, .record-insight-comparisons, .record-management {
+  padding: 16px;
+  border-radius: 8px;
+}
+.record-insight-sidebar { display: grid; gap: 10px; }
+.record-insight-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; }
+.record-insight-section-heading-block { margin-bottom: 8px; }
+.record-insight-section-heading h3 { margin: 0; font-size: 1.1rem; letter-spacing: -0.02em; }
+.record-insight-section-heading p { margin: 4px 0 0; color: #68685e; font-size: 0.78rem; }
+.record-insight-count-chip, .record-insight-sample-tag {
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  border: 1px solid #d8cfbe;
+  border-radius: 999px;
+  color: #76543a;
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1.3;
+}
+.record-insight-sidebar-help, .record-insight-sidebar-note { margin: 0; color: #68685e; font-size: 0.79rem; line-height: 1.45; }
+.record-insight-bean-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .record-insight-bean-list li { min-width: 0; }
-.record-insight-bean-card { display: grid; width: 100%; gap: 3px; min-width: 0; text-align: start; white-space: normal; }
-.record-insight-bean-card.is-selected { border-color: #39755b; outline: 2px solid #39755b; outline-offset: 1px; }
-.record-insight-bean-card span { overflow-wrap: anywhere; }
-.record-insight-bean-name { font-weight: 750; }
-.record-insight-bean-date, .record-insight-bean-recipe, .record-insight-bean-rating { font-size: 0.8125rem; font-weight: 500; }
-.record-insight-chart { min-width: 0; max-width: 100%; margin: 0; overflow: hidden; }
-.rating-trend-chart { display: block; width: 100%; max-width: 640px; height: auto; margin: 0 auto; overflow: visible; }
-.rating-chart-grid { stroke: #d9dfd5; stroke-width: 1; }
-.rating-chart-line { fill: none; stroke: #39755b; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
-.rating-chart-point { fill: #276345; stroke: #fffefa; stroke-width: 1.5; }
-.rating-chart-axis-label { fill: #58695e; font: 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-.record-insight-chart-values { margin-top: 6px; font-size: 0.8125rem; }
-.record-insight-chart-values summary, .record-insight-condition-details summary { min-height: 36px; padding: 7px 0; color: #315b46; cursor: pointer; font-weight: 650; }
-.record-insight-chart-data { display: grid; gap: 3px; max-height: 220px; margin: 4px 0 0; padding-inline-start: 22px; overflow: auto; }
-.record-insight-best { display: grid; gap: 8px; min-width: 0; padding-top: 10px; border-top: 1px solid #d9e2d7; }
-.record-insight-best-record, .record-insight-comparison {
+.record-insight-bean-card {
+  display: grid;
+  width: 100%;
+  gap: 5px;
   min-width: 0;
-  padding: 12px;
-  border: 1px solid #e0dbcf;
-  border-radius: 10px;
-  background: #fffefa;
-  overflow-wrap: anywhere;
+  padding: 11px 10px;
+  border: 1px solid #ded7ca;
+  border-radius: 8px;
+  background: #fffdf9;
+  color: #203d32;
+  text-align: left;
+  white-space: normal;
 }
-.record-insight-best-record h5, .record-insight-comparison h5 { margin-bottom: 6px; }
-.record-insight-comparisons { display: grid; gap: 9px; min-width: 0; padding-top: 10px; border-top: 1px solid #d9e2d7; }
-.record-insight-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.record-insight-comparison-list { display: grid; gap: 8px; min-width: 0; }
-.record-insight-recipe-conditions { display: grid; grid-template-columns: minmax(7em, max-content) minmax(0, 1fr); gap: 3px 10px; margin: 10px 0 0; font-size: 0.8125rem; }
-.record-insight-recipe-conditions dt { color: #596a5d; }
-.record-insight-recipe-conditions dd { min-width: 0; margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
-.record-insight-steps { display: grid; gap: 3px; margin: 0; padding-inline-start: 20px; }
+.record-insight-bean-card:hover { border-color: #cfc5b4; background: #f7f1e7; }
+.record-insight-bean-card.is-selected { border-color: #7d6040; background: #f0e7d6; box-shadow: inset 3px 0 #7d6040; }
+.record-insight-bean-card:focus-visible, .record-insight-comparisons select:focus-visible,
+.record-management summary:focus-visible { outline: 3px solid #8b7657; outline-offset: 3px; }
+.record-insight-bean-card span { overflow-wrap: anywhere; }
+.record-insight-bean-top, .record-insight-bean-latest { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.record-insight-bean-name { min-width: 0; font-size: 0.88rem; font-weight: 700; }
+.record-insight-bean-origin, .record-insight-bean-count, .record-insight-bean-latest, .record-insight-bean-recipe { font-size: 0.73rem; line-height: 1.35; }
+.record-insight-bean-origin, .record-insight-bean-count, .record-insight-bean-latest { color: #68685e; }
+.record-insight-bean-recipe { color: #76543a; }
 .record-insights-more { width: 100%; }
-.record-insights-table-note { margin: 0; color: #596a5d; font-size: 0.8125rem; }
+.record-insight-selected-bean { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; padding: 16px 18px; border-radius: 8px; }
+.record-insight-selected-copy { min-width: 0; }
+.record-insight-selected-copy h3 { margin: 0; font-size: 1.35rem; letter-spacing: -0.04em; overflow-wrap: anywhere; }
+.record-insight-eyebrow { margin: 0 0 5px; color: #76543a; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; }
+.record-insight-origin, .record-insight-tasting-notes, .record-insight-metadata, .record-insight-roaster { margin: 5px 0 0; font-size: 0.82rem; overflow-wrap: anywhere; }
+.record-insight-origin, .record-insight-roaster { color: #68685e; }
+.record-insight-bean-stats { display: flex; flex: 0 0 auto; gap: 18px; margin: 0; }
+.record-insight-bean-stats > div { min-width: 78px; padding-left: 14px; border-left: 1px solid #ded7ca; }
+.record-insight-bean-stats dt { color: #68685e; font-size: 0.7rem; }
+.record-insight-bean-stats dd { margin: 4px 0 0; color: #203d32; font-size: 0.95rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.record-insight-bean-stats small { display: block; margin-top: 3px; color: #68685e; font-size: 0.67rem; }
+.record-insight-scope { margin: 0; padding: 8px 10px; color: #68685e; background: #f3efe6; font-size: 0.74rem; line-height: 1.45; }
+.record-insights-content { display: grid; gap: 16px; min-width: 0; }
+.record-insight-trend-section { min-width: 0; }
+.record-insight-filter-note { margin: 8px 0 0; color: #68685e; font-size: 0.75rem; line-height: 1.45; }
+.record-insight-chart { min-width: 0; max-width: 100%; margin: 10px 0 0; overflow: hidden; }
+.rating-trend-chart { display: block; width: 100%; max-width: 720px; height: auto; margin: 0 auto; overflow: visible; }
+.rating-chart-grid { stroke: #ded7ca; stroke-width: 1; }
+.rating-chart-line { fill: none; stroke: #76543a; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.rating-chart-point { fill: #76543a; stroke: #fbf9f4; stroke-width: 1.5; }
+.rating-chart-axis-label { fill: #68685e; font: 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.record-insight-chart-empty, .record-insight-empty { margin: 12px 0 0; color: #68685e; font-size: 0.84rem; }
+.record-insight-chart-values { margin-top: 8px; color: #203d32; font-size: 0.76rem; }
+.record-insight-chart-values summary { width: fit-content; min-height: 32px; padding: 7px 0; color: #76543a; font-weight: 650; cursor: pointer; }
+.record-insight-chart-data { display: grid; grid-template-columns: repeat(auto-fit, minmax(122px, 1fr)); gap: 6px 14px; margin: 2px 0 0; padding-inline-start: 24px; }
+.record-insight-chart-data li { padding-left: 2px; }
+.record-insight-best-section { min-width: 0; }
+.record-insight-best-record { padding: 16px; border-radius: 8px; overflow-wrap: anywhere; }
+.record-insight-best-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.record-insight-best-heading h4 { margin: 0; font-size: 1.1rem; }
+.record-insight-best-reason { margin: 10px 0 14px; color: #68685e; font-size: 0.78rem; line-height: 1.45; }
+.record-insight-best-date, .record-insight-best-note { margin: 8px 0 0; color: #68685e; font-size: 0.78rem; }
+.record-insight-rating { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.record-insight-rating-stars { color: #8b6b28; font-size: 0.86rem; letter-spacing: 0.035em; }
+.record-insight-rating-number { color: #203d32; font-size: 0.78rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.record-insight-best-heading > .record-insight-rating .record-insight-rating-stars { font-size: 1.02rem; }
+.record-insight-recipe-conditions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 12px; margin: 14px 0 0; padding-top: 13px; border-top: 1px solid #ded7ca; }
+.record-insight-recipe-conditions dt, .record-insight-comparison-conditions dt { margin-bottom: 3px; color: #68685e; font-size: 0.7rem; }
+.record-insight-recipe-conditions dd, .record-insight-comparison-conditions dd { min-width: 0; margin: 0; color: #203d32; font-size: 0.8rem; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; white-space: pre-wrap; }
+.record-insight-recipe-conditions > div:last-child { grid-column: span 2; }
+.record-insight-steps { display: grid; gap: 3px; margin: 0; padding-inline-start: 20px; }
+.record-insight-comparisons { min-width: 0; }
+.record-insight-controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.record-insight-control { display: grid; gap: 4px; min-width: 0; color: #68685e; font-size: 0.7rem; }
+.record-insight-control select { width: 100%; min-width: 0; min-height: 40px; padding: 7px 28px 7px 9px; border: 1px solid #cfc5b4; border-radius: 6px; background: #fffdf9; color: #203d32; font-size: 0.78rem; }
+.record-insight-comparison-count { margin: 12px 0 7px; color: #68685e; font-size: 0.72rem; font-variant-numeric: tabular-nums; }
+.record-insight-comparison-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 0.76rem; }
+.record-insight-comparison-table th, .record-insight-comparison-table td { padding: 9px 7px; border-top: 1px solid #ded7ca; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+.record-insight-comparison-table th { color: #68685e; font-size: 0.68rem; font-weight: 600; line-height: 1.35; }
+.record-insight-comparison-table th:nth-child(1) { width: 14%; }
+.record-insight-comparison-table th:nth-child(2) { width: 16%; }
+.record-insight-comparison-table th:nth-child(3) { width: 33%; }
+.record-insight-comparison-table th:nth-child(4) { width: 15%; }
+.record-insight-comparison-table th:nth-child(5) { width: 22%; }
+.record-insight-recipe-cell { color: #76543a; font-weight: 650; }
+.record-insight-comparison-conditions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 10px; margin: 0; }
+.record-insight-comparison-conditions > div { min-width: 0; }
+.record-insight-comparison-conditions dt { margin: 0; font-size: 0.65rem; }
+.record-insight-comparison-conditions dd { font-size: 0.72rem; }
+.record-insight-note-cell { color: #4c5449; }
+.record-insight-comparison-cards { display: none; margin: 0; padding: 0; list-style: none; }
+.record-insight-comparison-card { min-width: 0; padding: 11px; border: 1px solid #ded7ca; border-radius: 7px; background: #fffdf9; }
+.record-insight-comparison-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.record-insight-comparison-card-heading > strong { font-size: 0.79rem; font-variant-numeric: tabular-nums; }
+.record-insight-comparison-card-recipe { margin: 6px 0 8px; color: #76543a; font-size: 0.82rem; font-weight: 700; }
+.record-insight-comparison-card .record-insight-comparison-conditions { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px; }
+.record-insight-comparison-card-note { margin: 9px 0 0; color: #4c5449; font-size: 0.78rem; }
+.record-insight-management-note { margin: 0; color: #68685e; font-size: 0.8125rem; }
+.record-management { color: #203d32; }
+.record-management > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; color: #76543a; cursor: pointer; }
+.record-management > summary strong { font-size: 0.95rem; }
+.record-management > summary span { color: #68685e; font-size: 0.72rem; text-align: right; }
+.record-management-body { display: grid; gap: 8px; margin-top: 12px; }
+.record-management-page-more { min-width: 0; }
+.record-insights-table-note { margin: 0; color: #68685e; font-size: 0.8125rem; }
 .record-table-heading { margin: 8px 0 0; font-size: 0.95rem; }
+.record-insights-more { width: 100%; }
 .muted-note, .empty-state { color: #68685e; }
 .repair-panel { margin-top: 14px; padding-top: 14px; border-top: 1px solid #ded7ca; }
 .startup-retry-panel { margin-top: 14px; padding: 14px; border: 1px solid #c6b98b; border-radius: 12px; background: #fffbed; }
@@ -897,3 +982,71 @@ footer {
 .rating-option:has(~ .rating-option input:checked) svg { fill: #f5ad16; stroke: #a56a00; }
 .rating-option:has(input:focus-visible) { outline: 3px solid #8ab59a; outline-offset: 2px; border-radius: 6px; }
 .rating-option:has(input:disabled) { opacity: 0.5; cursor: default; }
+
+/* Match the approved records demo while keeping the application chrome shared. */
+.page:has(.records-demo-layout) { width: min(100% - 40px, 1280px); }
+.data-panel:has(.records-demo-layout) {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.record-insight-section-heading h3 { font-size: 1.1rem; }
+.record-insight-sidebar-help { margin: 0 0 4px; }
+.record-insight-sidebar-note { margin-top: 4px; padding-top: 12px; border-top: 1px solid #ded7ca; }
+.record-insight-selected-bean .record-insight-scope { flex: 1 0 100%; background: transparent; padding: 0; }
+.record-insight-comparison-table-region { border-radius: 0; border-color: transparent; background: transparent; }
+.record-insight-comparison-table th, .record-insight-comparison-table td { padding: 9px 7px; }
+.record-insight-comparison-table th { background: transparent; }
+.record-insight-comparison-conditions > div:last-child { grid-column: 1 / -1; }
+.record-insight-comparison-card-note { line-height: 1.45; }
+.record-insight-rating-stars { color: #8b6b28; }
+.record-insight-rating-cell .record-insight-rating-stars { font-size: 0.68rem; letter-spacing: 0; }
+.record-insight-rating-cell .record-insight-rating-number { font-size: 0.68rem; }
+.rating-chart-point-label { fill: #203d32; font: 700 10px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.record-insight-selected-bean, .record-insight-trend-section, .record-insight-best-record,
+.record-insight-comparisons, .record-management { border-radius: 8px; }
+
+@media (max-width: 920px) {
+  .records-demo-layout { grid-template-columns: minmax(0, 1fr); }
+  .record-insight-sidebar { padding: 14px; }
+  .record-insight-bean-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .record-insight-bean-card { min-height: 116px; }
+  .record-insight-sidebar-note { margin-top: 10px; }
+}
+
+@media (max-width: 720px) {
+  .page:has(.records-demo-layout) { width: min(100% - 28px, 620px); }
+  .records-demo-layout { gap: 14px; }
+  .record-insight-bean-list { grid-template-columns: minmax(0, 1fr); }
+  .record-insight-bean-card { min-height: 0; padding: 10px 11px; }
+  .record-insight-comparison-table-region { display: none; }
+  .record-insight-comparison-cards { display: grid; gap: 8px; }
+  .record-insight-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .record-insight-selected-bean { align-items: flex-start; }
+}
+
+@media (max-width: 480px) {
+  .page:has(.records-demo-layout) { width: min(100% - 24px, 420px); }
+  .record-insights-content { gap: 12px; }
+  .record-insight-selected-bean { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 13px; }
+  .record-insight-bean-stats { justify-content: flex-start; }
+  .record-insight-bean-stats > div:first-child { padding-left: 0; border-left: 0; }
+  .record-insight-trend-section, .record-insight-comparisons, .record-management { padding: 13px; }
+  .record-insight-recipe-conditions { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .record-insight-recipe-conditions > div:last-child { grid-column: span 2; }
+  .record-insight-best-heading { align-items: flex-start; }
+  .record-management > summary { align-items: flex-start; flex-direction: column; justify-content: center; }
+  .record-management > summary span { text-align: left; }
+}
+
+@media (max-width: 360px) {
+  .page:has(.records-demo-layout) { width: calc(100% - 20px); }
+  .record-insight-sidebar, .record-insight-selected-bean,
+  .record-insight-trend-section, .record-insight-best-record,
+  .record-insight-comparisons, .record-management { padding: 11px; }
+  .record-insight-selected-bean { display: grid; }
+  .record-insight-controls { grid-template-columns: minmax(0, 1fr); }
+  .record-insight-comparison-card .record-insight-comparison-conditions { grid-template-columns: minmax(0, 1fr); }
+}

@@ -35,29 +35,47 @@ export function buildRecordsInsights(records, beans = [], selectedBeanId = '', r
     .map(recipe => [recipe.id, recipe]));
   const eligible = rows.filter(record => isCurrentRecord(record) && record.beanResolution !== 'needs-confirmation' &&
     typeof record.beanId === 'string' && record.beanId && validDate(record.date));
-  const byBean = new Map();
+  const recordsByBean = new Map();
   for (const record of eligible) {
-    const current = byBean.get(record.beanId);
-    if (!current || record.date > current.date || (record.date === current.date && byId(record, current) < 0)) {
-      byBean.set(record.beanId, record);
-    }
+    const beanRecords = recordsByBean.get(record.beanId) ?? [];
+    beanRecords.push(record);
+    recordsByBean.set(record.beanId, beanRecords);
   }
-  const beanOptions = [...byBean.entries()].map(([id, latestRecord]) => ({
-    id,
-    name: recordBeanName(latestRecord, liveBeans),
-    latestDate: latestRecord.date,
-    latestRecipeName: snapshotRecipe(latestRecord)?.name || liveRecipes.get(latestRecord.recipeId)?.name ||
-      '기록 당시 레시피 확인 필요',
-    latestRating: validRating(latestRecord.rating) ? latestRecord.rating : null,
-    latestRatingLabel: validRating(latestRecord.rating) ? `${latestRecord.rating}/5`
-      : latestRecord.rating == null ? '별점 없음' : '별점 확인 필요',
-  })).sort((left, right) => right.latestDate.localeCompare(left.latestDate) || byId(left, right)).slice(0, 3);
+  const beanOptions = [...recordsByBean.entries()].map(([id, beanRecords]) => {
+    const latestRecord = [...beanRecords].sort(byDateDescending)[0];
+    const historicalBean = snapshotBean(latestRecord);
+    const liveBean = liveBeans.get(id);
+    const recordRecipe = snapshotRecipe(latestRecord);
+    return {
+      id,
+      name: recordBeanName(latestRecord, liveBeans),
+      origin: historicalBean?.origin || liveBean?.origin || '',
+      roaster: historicalBean?.roaster || liveBean?.roaster || '',
+      variety: historicalBean?.variety || liveBean?.variety || '',
+      process: historicalBean?.process || liveBean?.process || '',
+      tastingNotes: historicalBean?.tastingNotes || liveBean?.tastingNotes || '',
+      latestDate: latestRecord.date,
+      latestRecipeName: recordRecipe?.name || liveRecipes.get(latestRecord.recipeId)?.name ||
+        '기록 당시 레시피 확인 필요',
+      latestRating: validRating(latestRecord.rating) ? latestRecord.rating : null,
+      latestRatingLabel: validRating(latestRecord.rating) ? `${latestRecord.rating}/5`
+        : latestRecord.rating == null ? '별점 없음' : '별점 확인 필요',
+      recordCount: beanRecords.length,
+    };
+  }).sort((left, right) => right.latestDate.localeCompare(left.latestDate) || byId(left, right)).slice(0, 3);
   const selectedBean = beanOptions.find(bean => bean.id === selectedBeanId) ?? beanOptions[0] ?? null;
-  const selectedRows = selectedBean ? eligible.filter(record => record.beanId === selectedBean.id) : [];
+  const selectedRows = selectedBean ? recordsByBean.get(selectedBean.id) ?? [] : [];
   const ratedRows = selectedRows.filter(ratingRecord);
   const trend = ratedRows.map(record => ({ id: record.id, date: record.date, rating: record.rating, record }))
     .sort(byDateAscending);
-  const comparisonRecords = [...ratedRows].sort(byDateDescending);
+  const comparisonRecords = selectedRows.filter(record => record.rating == null || validRating(record.rating)).sort(byDateDescending);
+  const recipeOptions = new Map();
+  for (const record of comparisonRecords) {
+    const recipeId = record.recipeId || snapshotRecipe(record)?.id;
+    if (!recipeId || recipeOptions.has(recipeId)) continue;
+    recipeOptions.set(recipeId, { id: recipeId,
+      name: snapshotRecipe(record)?.name || liveRecipes.get(recipeId)?.name || '레시피 이름 확인 필요' });
+  }
   const bestRecord = [...ratedRows].sort((left, right) => right.rating - left.rating ||
     right.date.localeCompare(left.date) || byId(left, right))[0] ?? null;
 
@@ -70,9 +88,12 @@ export function buildRecordsInsights(records, beans = [], selectedBeanId = '', r
     selectedBean,
     selectedRecordCount: selectedRows.length,
     ratedRecordCount: ratedRows.length,
+    averageRating: ratedRows.length ? ratedRows.reduce((sum, record) => sum + record.rating, 0) / ratedRows.length : null,
     trend,
     bestRecord,
     comparisonRecords,
+    recipeOptions: [...recipeOptions.values()].sort((left, right) =>
+      left.name.localeCompare(right.name) || left.id.localeCompare(right.id)),
   };
 }
 

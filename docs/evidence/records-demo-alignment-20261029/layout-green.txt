@@ -1,0 +1,34 @@
+TAP version 13
+# Subtest: records view keeps unfiltered bean insights separate from the filtered table and uses snapshot conditions
+ok 1 - records view keeps unfiltered bean insights separate from the filtered table and uses snapshot conditions
+  ---
+  duration_ms: 25.909958
+  type: 'test'
+  ...
+# Subtest: records page follows the demo hierarchy and keeps full record management collapsed below comparisons
+ok 2 - records page follows the demo hierarchy and keeps full record management collapsed below comparisons
+  ---
+  duration_ms: 6.378083
+  type: 'test'
+  ...
+# Subtest: insight bean cards expose visible summaries and selected state; empty or unrated trends have explicit text
+ok 3 - insight bean cards expose visible summaries and selected state; empty or unrated trends have explicit text
+  ---
+  duration_ms: 11.114625
+  type: 'test'
+  ...
+# Subtest: insight bean cards, comparison filter, and sort controls update the production view through delegated events
+ok 4 - insight bean cards, comparison filter, and sort controls update the production view through delegated events
+  ---
+  duration_ms: 25.176292
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 128.09525

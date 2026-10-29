@@ -289,8 +289,10 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   const drafts = new Map();
   const optionPages = new Map();
   const optionStates = new Map();
+  let insightRecipeFilter = '';
   let insightRatingFilter = '';
   let insightComparisonSort = 'date-desc';
+  let recordManagementOpen = false;
   let beanFormOpen = false;
   let recipeFormOpen = routePath(route) === '/recipes/new';
   let recordFormOpen = routePath(route) === '/records/new';
@@ -565,7 +567,8 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   }
   function renderCurrentContent() {
     renderPane(content, currentData, document, route, drafts, optionPages,
-      beanFormOpen, recipeFormOpen, recordFormOpen, optionStates, insightRatingFilter, insightComparisonSort);
+      beanFormOpen, recipeFormOpen, recordFormOpen, optionStates, insightRecipeFilter, insightRatingFilter,
+      insightComparisonSort, recordManagementOpen, open => { recordManagementOpen = open; });
     finishContentRender();
     applyViewState();
   }
@@ -911,7 +914,8 @@ export function createAppView(document = globalThis.document, { schedule = setTi
           // Refresh the list around the live top-layer dialog without detaching it.
           const refreshed = make(document, 'section');
           renderPane(refreshed, currentData, document, route, new Map(), optionPages,
-            beanFormOpen, recipeFormOpen, recordFormOpen, optionStates, insightRatingFilter, insightComparisonSort);
+            beanFormOpen, recipeFormOpen, recordFormOpen, optionStates, insightRecipeFilter, insightRatingFilter,
+            insightComparisonSort, recordManagementOpen, open => { recordManagementOpen = open; });
           if (activeEntryKind === 'records') {
             hydrateRecordPickers(activeDialog.querySelector('form'),
               refreshed.querySelector('form[data-form="records"]'), currentData, optionPages, optionStates, document);
@@ -1085,6 +1089,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       entryActions = actions;
       bindEvents({ page, connectionForm, originalConnectionCheck, repair, nav, content,
         unresolved, actions, document, view, openDeleteDialog, closeDeleteDialog, submitDelete,
+        setInsightRecipeFilter(value) { insightRecipeFilter = value; if (currentData) view.renderData(currentData); },
         setInsightRatingFilter(value) { insightRatingFilter = value; if (currentData) view.renderData(currentData); },
         setInsightComparisonSort(value) { insightComparisonSort = value; if (currentData) view.renderData(currentData); } });
       bindPullToRefresh({ page, document, actions });
@@ -1449,7 +1454,8 @@ function renderBrewFlow(parent, data, document, route, optionPages) {
 
 function renderPane(parent, data, document, route = '/home', drafts = new Map(), optionPages = new Map(),
   beanFormOpen = false, recipeFormOpen = false, recordFormOpen = false, optionStates = new Map(),
-  insightRatingFilter = '', insightComparisonSort = 'date-desc') {
+  insightRecipeFilter = '', insightRatingFilter = '', insightComparisonSort = 'date-desc',
+  recordManagementOpen = false, setRecordManagementOpen = () => {}) {
   const path = routePath(route);
   const parts = path.split('/').filter(Boolean);
   const section = parts[0] ?? 'home';
@@ -1546,7 +1552,7 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
       pane.append(conflict);
     } else {
       renderRecords(pane, data, document, recordFormOpen, optionPages, optionStates, route,
-        insightRatingFilter, insightComparisonSort);
+        insightRecipeFilter, insightRatingFilter, insightComparisonSort, recordManagementOpen, setRecordManagementOpen);
     }
   } else {
     pane.append(make(document, 'p', '화면을 찾을 수 없습니다. 메뉴에서 이동해 주세요.'));
@@ -1555,9 +1561,12 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
   if (data.screen?.hasMore) {
     const more = button(document, '더 불러오기', 'button', 'load-more');
     more.className = 'button page-load-more';
-    pane.append(more);
+    const target = section === 'records' ? pane.querySelector('[data-record-page-more]') : null;
+    (target ?? pane).append(more);
   } else if (data.screen?.complete === false) {
-    pane.append(make(document, 'p', '전체 목록을 확인하지 못했습니다. 새로고침해 주세요.', 'record-warning'));
+    const warning = make(document, 'p', '전체 목록을 확인하지 못했습니다. 새로고침해 주세요.', 'record-warning');
+    const target = section === 'records' ? pane.querySelector('[data-record-page-more]') : null;
+    (target ?? pane).append(warning);
   }
 
   parent.dataset.section = section;
@@ -2091,11 +2100,19 @@ function preferredOptionPage(serverPage, cachedPage) {
 }
 
 function renderRecords(pane, data, document, formOpen, optionPages, optionStates, route = '/records/new',
-  insightRatingFilter = '', insightComparisonSort = 'date-desc') {
+  insightRecipeFilter = '', insightRatingFilter = '', insightComparisonSort = 'date-desc', managementOpen = false,
+  setManagementOpen = () => {}) {
   const form = buildRecordForm(document, data, optionPages, route, optionStates);
   form.id = 'new-record-form';
   pane.append(makeEntryDialog(document, 'records', form, formOpen));
-  renderRecordsInsights(pane, data, document, insightRatingFilter, insightComparisonSort);
+  const management = make(document, 'details', undefined, 'record-management');
+  management.open = managementOpen;
+  management.addEventListener('toggle', () => setManagementOpen(management.open));
+  const managementHeading = make(document, 'summary', undefined, 'record-management-summary');
+  managementHeading.append(make(document, 'strong', '전체 기록 조회·관리'));
+  managementHeading.append(make(document, 'span', `${data.records?.length ?? 0}건 표시 · 검색, 필터와 삭제`));
+  management.append(managementHeading);
+  const managementBody = make(document, 'div', undefined, 'record-management-body');
 
   const filters = make(document, 'fieldset', undefined, 'record-filters');
   filters.append(make(document, 'legend', '기록 필터'));
@@ -2121,14 +2138,19 @@ function renderRecords(pane, data, document, formOpen, optionPages, optionStates
   reset.className = 'button record-filter-reset';
   reset.disabled = !selectedFilters.beanId && !selectedFilters.recipeId;
   filters.append(reset);
-  pane.append(filters);
-  pane.append(make(document, 'p', '아래 필터는 추출 기록 표에만 적용됩니다. 원두 인사이트는 위에 불러온 기록 범위를 사용합니다.',
+  managementBody.append(filters);
+  managementBody.append(make(document, 'p', '아래 서버 필터와 페이지는 이 관리 목록에만 적용됩니다. 그래프와 비교 요약은 불러온 인사이트 범위를 사용합니다.',
     'record-insights-table-note'));
-  pane.append(make(document, 'h3', '기록 표', 'record-table-heading'));
+  managementBody.append(make(document, 'h3', '전체 기록 목록', 'record-table-heading'));
 
   const list = make(document, 'div', undefined, 'record-list');
   list.dataset.recordList = '';
-  pane.append(list);
+  managementBody.append(list);
+  const pageMore = make(document, 'div', undefined, 'record-management-page-more');
+  pageMore.dataset.recordPageMore = '';
+  managementBody.append(pageMore);
+  management.append(managementBody);
+  renderRecordsInsights(pane, data, document, insightRecipeFilter, insightRatingFilter, insightComparisonSort, management);
   renderRecordRows(list, data, selectedFilters.beanId ?? '', selectedFilters.recipeId ?? '');
 }
 
@@ -2293,7 +2315,8 @@ function buildResolutionForm(document, operation) {
 }
 
 function bindEvents({ page, nav, connectionForm, originalConnectionCheck, content, actions, document, view,
-  openDeleteDialog, closeDeleteDialog, submitDelete, setInsightRatingFilter, setInsightComparisonSort }) {
+  openDeleteDialog, closeDeleteDialog, submitDelete, setInsightRecipeFilter, setInsightRatingFilter,
+  setInsightComparisonSort }) {
   connectionForm.addEventListener('input', event => {
     if (!event.target.disabled) actions.setDirty(true, 'connection');
   });
@@ -2360,6 +2383,15 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
     const target = event.target.closest('[data-action]');
     const action = target?.dataset.action;
     if (!action || target.disabled) return;
+    if (action === 'select-insight-bean') {
+      const beanId = target.dataset.beanId;
+      const update = actions.setRecordInsightsBean?.(beanId);
+      if (update?.catch) void update.catch(() => {});
+      const selected = Array.from(content.querySelectorAll('[data-action="select-insight-bean"]'))
+        .find(card => card.dataset.beanId === beanId);
+      selected?.focus?.();
+      return;
+    }
     if (action === 'select-insight-bean') {
       const update = actions.setRecordInsightsBean?.(target.dataset.beanId);
       if (update?.catch) void update.catch(() => {});
@@ -2604,6 +2636,7 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
   content.addEventListener('change', event => {
     if (event.target.disabled) return;
     if (event.target.matches('[data-record-filter]')) updateRecordFilters();
+    if (event.target.matches('[data-insight-recipe-filter]')) setInsightRecipeFilter(event.target.value);
     if (event.target.matches('[data-insight-rating-filter]')) {
       setInsightRatingFilter(event.target.value);
     }

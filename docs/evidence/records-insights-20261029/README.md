@@ -1,5 +1,15 @@
 # Records insights verification
 
+## 통합·게시 완료 (2026-10-29 KST)
+
+- 기능 `4f864fc`, 리뷰 수정 `186c5b8`, 재리뷰 승인 `8d5e35e`를 main에 fast-forward 후 push했다. 검증된 소스와 같아 동일 로컬 전체 검증을 반복하지 않았다.
+- 일반판 `probes=false` 게시 성공: https://github.com/kangseokgyu/bean-pocket/actions/runs/40819788478 (`deployment.json`). main CI에서도 전체 테스트·일반 빌드·산출물 검사를 통과했다.
+- 실제 추출 기록 화면: https://kangseokgyu.github.io/bean-pocket/#/records
+- 공개 빌드 **`a5df255ed2d7`**. 공개 정적 파일 26개 모두 HTTP 200, 로컬 최종 빌드와 바이트·SHA256 일치 (`public-verification.json`).
+- 실제 계정의 Notion 조회·저장·삭제, 실제 iPhone Safari/홈 화면, Firefox는 확인하지 않았다. 브라우저 검증은 운영 모듈과 테스트 연결·가로챈 Notion 응답을 사용했다.
+- 실제 에이전트 설정: Worker `gpt-6-luna`/`max`, Critic `gpt-6.1-sol`/`medium` 재사용. Orchestrator는 구현·테스트를 중복하지 않고 통합·게시 및 공개 파일 확인을 수행했다.
+- GitHub 실행의 Node 20 지원 종료·ubuntu-latest 변경 안내가 있었으나 테스트·배포는 성공했다. 워크플로 변경은 이번 범위 밖이다.
+
 ## Critic fix verification (latest)
 
 - `npm test`: 633 passed, 0 failed. Output: `review-fix-npm-test.txt`.

@@ -36,9 +36,7 @@ function renderCards() {
     card.dataset.id = item.id;
     card.disabled = item.ready === false;
     const top = span('card-top', '');
-    const arrow = span('arrow', '↗');
-    arrow.setAttribute('aria-hidden', 'true');
-    top.append(span('card-kind', item.kind), arrow);
+    top.append(span('card-kind', item.kind));
     card.append(top, span('card-name', item.name), span('card-subtitle', item.subtitle),
       span('card-detail', item.detail), span('card-note', item.note),
       span('card-action', card.disabled ? '추출 단계 등록 후 선택 가능' : step === 0 ? '이 원두로 내리기 →' : '이 레시피로 준비하기 →'));

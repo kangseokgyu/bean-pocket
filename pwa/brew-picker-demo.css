@@ -34,7 +34,6 @@ input::placeholder { color: #6c7468; font-size: .85rem; }
 .picker-card { position: relative; display: flex; flex-direction: column; align-items: stretch; width: 100%; min-width: 0; text-align: left; padding: 24px; color: #203d32; background: #fffef8; border: 1px solid #d1d5c6; border-radius: 12px; line-height: 1.6; }
 .card-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 24px; }
 .card-kind { font-size: .68rem; letter-spacing: .06em; font-weight: 600; color: #56694d; border: 1px solid #d1d9c8; border-radius: 4px; padding: 2px 8px; }
-.arrow { font-size: 1.1rem; }
 .card-name { font-size: .98rem; font-weight: 700; line-height: 1.5; margin-bottom: 6px; overflow-wrap: anywhere; }
 .card-subtitle { font-size: .78rem; color: #64705f; margin-bottom: 4px; }
 .card-detail { font-size: .8rem; color: #475b44; }

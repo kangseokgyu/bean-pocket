@@ -1,6 +1,6 @@
 # Brew card selection and overview evidence
 
-Worktree: `codex/brew-card-selection-resume` (resumed 2026-10-30 KST). No commit, merge, push, or deployment was performed; this is ready for sequential Critic review.
+Worktree: `codex/brew-card-selection-resume`. Feature commit `80818d3`; integration merge commit `dbeef33` brought in main commits `b4eafa3` and `cd28f43`. This validation turn made no code changes or commit/deployment.
 
 ## Changes
 
@@ -8,6 +8,10 @@ Worktree: `codex/brew-card-selection-resume` (resumed 2026-10-30 KST). No commit
 - Brew routes show the active 원두 → 레시피 → 추출 step. Selected bean and recipe summaries keep their change actions and routes.
 - Extraction conditions are grouped using the fields already shown. Pour rows have explicit elapsed-time, this-pour, and cumulative-water columns. The existing extraction guide and completion action remain.
 - The horizontal pour-table region is keyboard focusable (`tabindex="0"`), named as a region, and uses the existing visible `.table-scroll:focus-visible` outline.
+
+## Review status
+
+The initial Critic review passed 19/19 relevant tests and reported one P2: the horizontally scrollable pour table was not keyboard focusable. The fix adds `tabindex="0"`; a focused test showed RED before the change and GREEN after it. The post-merge overlap review is pending.
 
 Recipe step meanings were checked in `lib/domain.mjs`: `seconds` is the elapsed timestamp, `interval` is the time since the previous step, `water` is the current step's pour amount, and `cumulativeWater` is the running total. The overview labels the columns accordingly and displays the interval as secondary text under elapsed time.
 
@@ -19,9 +23,9 @@ Recipe step meanings were checked in `lib/domain.mjs`: `seconds` is the elapsed 
 - `logs/step2-red.txt`: expected failure because the brew flow had no step indicator.
 - `logs/step2-green.txt`: overview behavior passed.
 - `logs/pwa-ui.view.test.txt`: 146/146 passed.
-- `logs/npm-test.txt`: final escalated run passed 633/633.
-- `logs/build-pages.txt`: passed; final build version `08d241e310f6`.
-- `logs/check-pages.txt`: passed.
+- `logs/npm-test.txt`: integrated run passed 637/637 using loopback test networking.
+- `logs/build-pages.txt`: integrated build passed; version `f9acf1f6d151`.
+- `logs/check-pages.txt`: integrated artifact check passed for `f9acf1f6d151`.
 - `logs/critic-scroll-red.txt`: expected failure because the labeled region lacked `tabindex`.
 - `logs/critic-scroll-green.txt`: focused accessibility regression passed.
 - `logs/npm-test-sandbox-denied.txt`: initial default-sandbox run hit `listen EPERM` in HTTP tests; rerun with loopback test networking allowed passed.
@@ -29,3 +33,7 @@ Recipe step meanings were checked in `lib/domain.mjs`: `seconds` is the elapsed 
 - `logs/browser-check.txt`: local fake-data preview rendered; clicking bean-card detail text navigated to the recipe route with the selected bean ID. The temporary fixture and server were removed.
 
 No real Notion writes were made.
+
+## Final independent review
+
+Worker was explicitly configured as `gpt-6-luna` with `max` effort. Critic used `gpt-6.1-sol` with `medium` effort. Critic approved the keyboard focus fix, then approved integrated commit `dbeef33` after verifying that the recipe-screen changes from main remained intact. The overlap review ran 16 related tests successfully and found no remaining issues. Integrated verification passed 637 tests, the Pages build and artifact check. Final build: `f9acf1f6d151`. Actual mobile devices, browser keyboard scrolling, and real Notion storage remain unverified.

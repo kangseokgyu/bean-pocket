@@ -33,3 +33,14 @@
 사용자 요청에 따라 `.card-detail`의 `border-top`만 삭제했다. 최신 main(기록 비교 데모 삭제 작업 포함)을 반영하여 `npm test` 631개 통과, 실패·건너뜀 0, 종료 0. `npm run build:pages`, `npm run check:pages`, `git diff --check` 통과. 자체 diff 리뷰로 카드 레이아웃과 클릭 동작은 그대로 유지됨을 확인했다.
 
 기능 커밋 `b0c51754a3cb2a6cfc423bd758ccdf46be982e46`, 일반판 빌드 `0cd44a903339`. [Pages 실행 40864217519](https://github.com/kangseokgyu/bean-pocket/actions/runs/40864217519)의 통합 테스트·빌드·배포 성공. 공개 CSS HTTP 200 및 로컬 빌드와 일치. 공개 Chrome 390/1440px에서 원두·레시피 카드 모두 `borderTopWidth: 0px` 확인 (`no-divider-public.json`). iPhone 실기기는 미확인.
+
+## 후속 변경: 원산지·로스터리·노트 간격 축소
+
+사용자 요청에 따라 원산지 아래 여백 20px와 상세 정보 상하 padding 12px, 노트의 자동 상단 여백 및 padding 12px를 정리했다. 메타데이터 각 줄 사이를 4px로 통일하고 카드 하단 동작 문구에 자동 여백을 두어 정보가 한 묶음으로 보이도록 했다. 원두·레시피 카드의 공통 정보 스타일에 적용했다.
+
+- 커밋 `c4994b999767b8284adb654f28a1de66880fe23f`를 main에 fast-forward 통합.
+- `npm test` 종료 0: 631개 통과, 실패·건너뜀 0. `npm run build:pages`, `npm run check:pages`, `git diff --check` 종료 0.
+- 자체 리뷰: CSS 네 규칙의 여백만 수정했으며 텍스트·선택 동작 변경 없음.
+- 일반판 빌드 `f4f989abae57`, [Pages 실행 40865416477](https://github.com/kangseokgyu/bean-pocket/actions/runs/40865416477) 통합 테스트·빌드·배포 성공.
+- 공개 https://kangseokgyu.github.io/bean-pocket/brew-picker-demo.html 에서 Chrome 320/390/768/1024/1440px의 원두·레시피 메타데이터 간격 각각 4px, 가로 넘침 없음, 카드 선택 및 준비 완료 흐름과 page 오류 없음 확인. 공개 CSS HTTP 200 및 로컬 빌드와 바이트 일치.
+- 근거: `spacing-public.json`, `spacing-beans-390.png`. iPhone 실기기 미확인.

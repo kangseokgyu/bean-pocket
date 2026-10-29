@@ -1,0 +1,72 @@
+[
+  {
+    "width": 320,
+    "step": "beans",
+    "originToRoaster": 4,
+    "roasterToNote": 4,
+    "overflow": false
+  },
+  {
+    "width": 320,
+    "step": "recipes",
+    "originToRoaster": 4,
+    "roasterToNote": 4,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "step": "beans",
+    "originToRoaster": 4,
+    "roasterToNote": 4,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "step": "recipes",
+    "originToRoaster": 4,
+    "roasterToNote": 4,
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "step": "beans",
+    "originToRoaster": 4,
+    "roasterToNote": 4,
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "step": "recipes",
+    "originToRoaster": 4,
+    "roasterToNote": 4,
+    "overflow": false
+  },
+  {
+    "width": 1024,
+    "step": "beans",
+    "originToRoaster": 4,
+    "roasterToNote": 4,
+    "overflow": false
+  },
+  {
+    "width": 1024,
+    "step": "recipes",
+    "originToRoaster": 4,
+    "roasterToNote": 4,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "step": "beans",
+    "originToRoaster": 4,
+    "roasterToNote": 4,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "step": "recipes",
+    "originToRoaster": 4,
+    "roasterToNote": 4,
+    "overflow": false
+  }
+]

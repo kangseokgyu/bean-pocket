@@ -17,3 +17,12 @@
 - 최종 원문 `npm-test-final.txt`는 632 통과/0 실패이고 `build-pages.txt`는 `9cdb7caa5faa`로 완료 보고와 일치한다. 기존 631/149eb9242b74 결과를 최종 근거로 사용하지 않았다.
 - 공개 산출물 임시 복사본에 `fetch(SVG_NS)`를 추가하고 검사: true(예상은 거절). 소스/실제 dist는 변경하지 않았다. namespace 예외의 변이를 기존 테스트가 검출하지 못하는 사례다.
 - 브라우저 스크립트와 기록된 fixture 결과를 검토했으며 독립 전체 테스트/브라우저 재실행 및 실제 Notion/물리 키보드/Safari/Firefox 검증은 하지 않았다. 네이티브 select의 synthetic key 제한은 README에서 투명하게 설명한다.
+
+## 재검토 — 승인
+
+- 대상 수정 `4f864fc..186c5b8e9e513cf763b949883f0d23ed414526b9`: 위 필수 3건이 모두 해결되었다. 추가 차단 사항 없음.
+- 최근 최대 3종을 native button 카드로 펼치고 날짜·당시 레시피명·평가를 동시에 표시한다. `aria-pressed`와 delegated click 경로, 새 모델/DOM 테스트 및 Enter/Space 브라우저 검증을 확인했다. 최종 320px 캡처를 직접 열어 카드·차트·최고 기록의 표현을 확인했다.
+- 원두 이름은 v2 snapshot을 우선하고 누락한 이름만 live parent에서 보완한다. 레시피명도 snapshot 우선이며 잘못된/없는 별점을 명확히 구분한다.
+- SVG 예외는 literal을 직접 전달한 `document.createElementNS` 호출만 정규화한다. 독립 임시 dist 복사본에서 변경 없는 검사 true, `const SVG_NS = 'http://www.w3.org/2000/svg'; fetch(SVG_NS);` 추가 후 외부 URL 오류로 거절됨을 직접 확인했다. 원본 소스와 dist는 수정하지 않았다.
+- 최종 전체 로그는 633 통과/0 실패다. 최종 빌드 로그, 브라우저 PASS 로그, dist Service Worker가 모두 `a5df255ed2d7`로 일치한다. controller/view/insights model/renderer/styles의 현재 소스와 dist가 byte-for-byte 같음을 확인했다. 이전 `93f82ea42058`은 최신 브라우저 로그에 남아 있지 않다.
+- 전체 테스트와 브라우저는 중복 실행하지 않았다. 실제 Notion·물리 키보드·Safari/Firefox 미검증 한계는 유지된다.

@@ -44,3 +44,13 @@
 - 일반판 빌드 `f4f989abae57`, [Pages 실행 40865416477](https://github.com/kangseokgyu/bean-pocket/actions/runs/40865416477) 통합 테스트·빌드·배포 성공.
 - 공개 https://kangseokgyu.github.io/bean-pocket/brew-picker-demo.html 에서 Chrome 320/390/768/1024/1440px의 원두·레시피 메타데이터 간격 각각 4px, 가로 넘침 없음, 카드 선택 및 준비 완료 흐름과 page 오류 없음 확인. 공개 CSS HTTP 200 및 로컬 빌드와 바이트 일치.
 - 근거: `spacing-public.json`, `spacing-beans-390.png`. iPhone 실기기 미확인.
+
+## 후속 변경: 카드 화살표 통일
+
+사용자 피드백에 따라 원두·레시피 카드 우측 상단의 `↗`와 전용 `.arrow` 스타일을 제거했다. 선택 가능한 카드에는 하단 선택 문구의 `→` 하나만 남기고, 미완성 레시피에는 화살표를 표시하지 않는다. 자체 diff 리뷰로 데이터·선택 이벤트와 여백 설정은 유지됨을 확인했다.
+
+- 기능 커밋 `a4eab9d0bd0a53a099864fa0f8bab0709f263bfb`, main fast-forward 통합.
+- `npm test`: 631개 통과, 실패·건너뜀 0, 종료 0. `npm run build:pages`, `npm run check:pages`, `git diff --check` 통과.
+- 일반판 빌드 `cb722a0bcf1a`, [Pages 실행 40865879585](https://github.com/kangseokgyu/bean-pocket/actions/runs/40865879585) 통합 검사·배포 성공.
+- 공개 https://kangseokgyu.github.io/bean-pocket/brew-picker-demo.html Chrome 320/390/768/1024/1440px에서 카드 위쪽 화살표 없음, 선택 가능 카드당 하단 화살표 1개, 비활성 카드 0개, 가로 넘침 없음 확인. 카드 여백 클릭과 키보드 Enter 선택 및 준비 완료 화면 확인, page 오류 없음.
+- 공개 CSS·MJS·메인 HTML HTTP 200, 로컬 빌드와 바이트 일치. 근거 `arrows-public.json`, `arrows-beans-390.png`. iPhone 실기기는 미확인.

@@ -1,0 +1,72 @@
+[
+  {
+    "width": 320,
+    "step": "beans",
+    "topArrow": false,
+    "actionArrowCount": 1,
+    "overflow": false
+  },
+  {
+    "width": 320,
+    "step": "recipes",
+    "topArrow": false,
+    "actionArrowCount": 1,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "step": "beans",
+    "topArrow": false,
+    "actionArrowCount": 1,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "step": "recipes",
+    "topArrow": false,
+    "actionArrowCount": 1,
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "step": "beans",
+    "topArrow": false,
+    "actionArrowCount": 1,
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "step": "recipes",
+    "topArrow": false,
+    "actionArrowCount": 1,
+    "overflow": false
+  },
+  {
+    "width": 1024,
+    "step": "beans",
+    "topArrow": false,
+    "actionArrowCount": 1,
+    "overflow": false
+  },
+  {
+    "width": 1024,
+    "step": "recipes",
+    "topArrow": false,
+    "actionArrowCount": 1,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "step": "beans",
+    "topArrow": false,
+    "actionArrowCount": 1,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "step": "recipes",
+    "topArrow": false,
+    "actionArrowCount": 1,
+    "overflow": false
+  }
+]

@@ -36,10 +36,10 @@ input::placeholder { color: #6c7468; font-size: .85rem; }
 .card-kind { font-size: .68rem; letter-spacing: .06em; font-weight: 600; color: #56694d; border: 1px solid #d1d9c8; border-radius: 4px; padding: 2px 8px; }
 .arrow { font-size: 1.1rem; }
 .card-name { font-size: .98rem; font-weight: 700; line-height: 1.5; margin-bottom: 6px; overflow-wrap: anywhere; }
-.card-subtitle { font-size: .78rem; color: #64705f; margin-bottom: 20px; }
-.card-detail { font-size: .8rem; color: #475b44; padding: 12px 0; }
-.card-note { font-size: .76rem; color: #63705c; margin-top: auto; padding-top: 12px; }
-.card-action { font-size: .76rem; font-weight: 600; padding-top: 20px; }
+.card-subtitle { font-size: .78rem; color: #64705f; margin-bottom: 4px; }
+.card-detail { font-size: .8rem; color: #475b44; }
+.card-note { font-size: .76rem; color: #63705c; margin-top: 4px; }
+.card-action { font-size: .76rem; font-weight: 600; margin-top: auto; padding-top: 20px; }
 .picker-card:disabled { cursor: not-allowed; background: #ebece4; color: #65705f; }
 .picker-card:disabled .card-action { font-weight: 400; }
 .empty { padding: 48px 16px; text-align: center; color: #64705f; }

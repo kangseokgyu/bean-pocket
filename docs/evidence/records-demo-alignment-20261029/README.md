@@ -1,5 +1,16 @@
 # Records demo alignment evidence
 
+## 통합·게시 완료 (2026-10-29 KST)
+
+- 데모 동등성 구현 `1cc3826`, 리뷰 수정 `f559bd9`, 검증 정리 `b7fa694`, 독립 재리뷰 승인 `cc1d545`를 main에 fast-forward 후 push했다. 검증한 소스와 동일하여 동일 로컬 전체 검증을 반복하지 않았다.
+- 일반판 `probes=false` 배포 성공: https://github.com/kangseokgyu/bean-pocket/actions/runs/40850164705 (`deployment.json`). main CI에서도 전체 테스트·일반 빌드·산출물 검사를 통과했다.
+- 공개 추출 기록 화면: https://kangseokgyu.github.io/bean-pocket/#/records
+- 공개 빌드 **`cfa4de79469e`**. 정적 파일 26개 모두 HTTP 200이며 최종 로컬 빌드와 바이트·SHA256 일치 (`public-verification.json`).
+- 독립 재리뷰에서 필터 전환 결과 2건 일치, 데모·운영 그래프 높이 250/250px, 5개 화면 폭의 배치·가독성 및 관측 대상 정리(반복 선택 후 1개/화면 이탈 후 0개)를 확인했다 (`critic.md`).
+- 실제 에이전트 설정: Worker `gpt-6-luna`/`max`가 사용량 제한으로 중단되어 정책상 허용 대체 Worker `gpt-6.1-sol`/`medium`이 마무리했다. Critic은 `gpt-6.1-sol`/`medium`을 재사용했다.
+- 실제 Notion 계정 조회·저장·삭제, 실제 iPhone Safari/홈 화면, Firefox, 실물 키보드 조작은 확인하지 않았다. 운영 화면 브라우저 검증은 테스트 연결과 가로챈 Notion 응답을 사용했다.
+- GitHub 실행에 Node 20 지원 종료와 ubuntu-latest 변경 안내가 있었으나 배포는 성공했다. 워크플로는 이번 범위에서 변경하지 않았다.
+
 ## Result
 
 Production `#/records` now follows the approved demo's hierarchy: a recent-bean sidebar beside the selected-bean summary, rating trend, best-rated record, and comparison table. At mobile widths the same sections stack in order and comparison rows become cards. Existing search, filters, paging, drafts, save, and delete remain under the collapsed **전체 기록 조회·관리** section.

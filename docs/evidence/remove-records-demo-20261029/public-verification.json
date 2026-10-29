@@ -1,0 +1,203 @@
+{
+  "url": "https://kangseokgyu.github.io/bean-pocket/#/records",
+  "build": "85e18f605e6d",
+  "files": [
+    {
+      "file": "app.mjs",
+      "status": 200,
+      "matches": true,
+      "sha256": "58395ab633d65cce0adf93649b16d00786c2d6a78bcb0e1a07bdad625e9b417f",
+      "bytes": 1526
+    },
+    {
+      "file": "brew-picker-demo.css",
+      "status": 200,
+      "matches": true,
+      "sha256": "e919aaa3fbe74343e8f23e094b70b3cd944ea46d8226768785a8aefcb1417737",
+      "bytes": 5366
+    },
+    {
+      "file": "brew-picker-demo.html",
+      "status": 200,
+      "matches": true,
+      "sha256": "53ea01b115a81169b7ae9e985c17d29c0caf16305b33065f47938bdc2bce0b6a",
+      "bytes": 2629
+    },
+    {
+      "file": "brew-picker-demo.mjs",
+      "status": 200,
+      "matches": true,
+      "sha256": "6ce15b03a9a422899541d3b00f65e4026e0ed833d1c69b5a8aaff3bd3ef0e167",
+      "bytes": 5361
+    },
+    {
+      "file": "commands/index.mjs",
+      "status": 200,
+      "matches": true,
+      "sha256": "84438fbdc033cbaac154851651adb4f72ad2905f58986bff0a25046e6855ff0b",
+      "bytes": 16625
+    },
+    {
+      "file": "data/notion-client.mjs",
+      "status": 200,
+      "matches": true,
+      "sha256": "1159d41c656c392d1720eea9fb092f1bb1dfdefc492b42f8d5c5d76bf4239aad",
+      "bytes": 19114
+    },
+    {
+      "file": "data/notion-properties.mjs",
+      "status": 200,
+      "matches": true,
+      "sha256": "f8026f56f21c95524e74e3a4a5d8857b9721b4dfa55551af204b75b7218d0f25",
+      "bytes": 4233
+    },
+    {
+      "file": "data/read-repository.mjs",
+      "status": 200,
+      "matches": true,
+      "sha256": "eee7cc9edd501a7195b9e67473f5af625e3695cc09f66a8034703399d8c7594a",
+      "bytes": 41028
+    },
+    {
+      "file": "domain.mjs",
+      "status": 200,
+      "matches": true,
+      "sha256": "8b1dab2c2b984d3f5e9e88e3d3139621a1c999e0b008de5077e0b121c6ab98c0",
+      "bytes": 7912
+    },
+    {
+      "file": "icons/bp-logo.png",
+      "status": 200,
+      "matches": true,
+      "sha256": "c96f9250074f8f84d9585267bcc5d41fe663a1b90cffa4765e3acf184baadaf7",
+      "bytes": 37954
+    },
+    {
+      "file": "icons/favicon-bp-ivory.png",
+      "status": 200,
+      "matches": true,
+      "sha256": "1f0378cc66162d82ca61a427e277f28e2160df29c9963a205cf999be6e6caa1f",
+      "bytes": 1886
+    },
+    {
+      "file": "icons/home-brew.png",
+      "status": 200,
+      "matches": true,
+      "sha256": "5ca4eba24ca3a37de5d8363f08bb982f4ea2adea2e95daccd395a05a5ff4d8b2",
+      "bytes": 896607
+    },
+    {
+      "file": "icons/icon-192.png",
+      "status": 200,
+      "matches": true,
+      "sha256": "fed6a73c7549eae8cb25324bab6e5d9f831120b8db329cfa7a66e3bda4296761",
+      "bytes": 1942
+    },
+    {
+      "file": "icons/icon-512.png",
+      "status": 200,
+      "matches": true,
+      "sha256": "0b0197281031a51957ae1c3a43037dcef08eb8d8d187f4b6df5eb212d0303316",
+      "bytes": 6181
+    },
+    {
+      "file": "index.html",
+      "status": 200,
+      "matches": true,
+      "sha256": "cb656b4102c4811b55499449f1af77912d3c6afbfbe182e69959df4b5adae589",
+      "bytes": 1227
+    },
+    {
+      "file": "manifest.webmanifest",
+      "status": 200,
+      "matches": true,
+      "sha256": "83dc529ee8004d5aa06cf728873d97c04ece2143d3026f275780f293dedb1bdb",
+      "bytes": 402
+    },
+    {
+      "file": "platform/app-lifecycle.mjs",
+      "status": 200,
+      "matches": true,
+      "sha256": "ca5b6d7fc53f473000945a14c6951f39a74c8ba829571cdc2c236e463d77c09b",
+      "bytes": 7354
+    },
+    {
+      "file": "platform/connection-file.mjs",
+      "status": 200,
+      "matches": true,
+      "sha256": "8389b0d1554c0948a6b66a1dcbf82d581f7c9c67889cecb6523afe70034af210",
+      "bytes": 6732
+    },
+    {
+      "file": "platform/update-coordinator.mjs",
+      "status": 200,
+      "matches": true,
+      "sha256": "56015c1ff7738219e963bd29e9b5c77b73d043cf76b6f1698c692b9f4d32bbe7",
+      "bytes": 9346
+    },
+    {
+      "file": "state/submission-state.mjs",
+      "status": 200,
+      "matches": true,
+      "sha256": "b67861cf9b1e356448281187c3ad47950925105733a02a66d5a3808650f68b10",
+      "bytes": 30710
+    },
+    {
+      "file": "styles.css",
+      "status": 200,
+      "matches": true,
+      "sha256": "73085c86bed1d369a46c48c641bcaff60c8dd9a4873119f57f04f800aa29b6f6",
+      "bytes": 44852
+    },
+    {
+      "file": "sw.js",
+      "status": 200,
+      "matches": true,
+      "sha256": "8b5943268662e87b3d320027eaa20ed18262881e893da41649639c051f6e8d47",
+      "bytes": 8359
+    },
+    {
+      "file": "ui/controller.mjs",
+      "status": 200,
+      "matches": true,
+      "sha256": "4cab641432f0b64d3aa0ee6db44d2370af5f3b1cae77b9a2cca652b2555c6c65",
+      "bytes": 58645
+    },
+    {
+      "file": "ui/records-insights-view.mjs",
+      "status": 200,
+      "matches": true,
+      "sha256": "dbdbf695f7f9860f54d0ca5b0d3ad3e685b3185119288db79f21cee10d0ea448",
+      "bytes": 28925
+    },
+    {
+      "file": "ui/records-insights.mjs",
+      "status": 200,
+      "matches": true,
+      "sha256": "4ce1730fb2b79062c14e9e30a7f0b6bb648896a3638b3476eedbd99da9f2e0be",
+      "bytes": 6120
+    },
+    {
+      "file": "ui/view.mjs",
+      "status": 200,
+      "matches": true,
+      "sha256": "2b1585af0f5b51d035dd0f5280c053647aea160cafbde4f795cf950c1af69374",
+      "bytes": 142298
+    }
+  ],
+  "all_match": true,
+  "removed_files": [
+    {
+      "file": "records-demo.html",
+      "status": 404
+    },
+    {
+      "file": "records-demo.css",
+      "status": 404
+    },
+    {
+      "file": "records-demo.mjs",
+      "status": 404
+    }
+  ]
+}

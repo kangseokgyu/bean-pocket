@@ -20,3 +20,12 @@
 | 소스 공백 검사 | `git diff --check` 종료 0 | 직접 확인 |
 
 브라우저는 실제 Notion 연결 없이 실행했다. 처음 연결 설정창을 닫고 헤더를 캡처했다. 실제 Notion 조회·저장·삭제, 기존 실제 기기의 캐시 갱신과 iPhone Safari는 이번 검증에 포함하지 않았다. 공개 게시와 세 삭제 주소의 404 확인은 배포 후 기록한다.
+
+## 게시 완료
+
+- 기능 커밋 `e187ce1`을 main에 fast-forward 후 push했다. 동일 소스의 통합 상태는 CI에서 전체 테스트·빌드·산출물 검사를 다시 통과했다.
+- 일반판 `probes=false` 게시 성공: https://github.com/kangseokgyu/bean-pocket/actions/runs/40860051020 (`deployment.json`).
+- 실제 앱: https://kangseokgyu.github.io/bean-pocket/#/records , 공개 빌드 **`85e18f605e6d`**.
+- 공개 앱 파일 26개 모두 HTTP 200이며 최종 로컬 빌드와 바이트·SHA256 일치. `records-demo.html`, `records-demo.css`, `records-demo.mjs`는 각각 HTTP 404 (`public-verification.json`).
+- 실제 기기의 기존 SW 캐시 갱신, iPhone Safari/홈 화면과 실제 Notion 동작은 확인하지 않았다.
+- GitHub 실행의 Node 20 지원 종료·ubuntu-latest 변경 안내는 있었으며 배포는 성공했다. 워크플로는 변경하지 않았다.

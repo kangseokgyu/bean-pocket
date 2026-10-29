@@ -533,6 +533,121 @@ button:focus-visible, .table-scroll:focus-visible {
 }
 .bean-card, .recipe-card, .record-card { font-size: 0.875rem; line-height: 1.6; }
 
+.recipe-overview { display: grid; gap: 10px; min-width: 0; }
+.recipe-dripper {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  max-width: 100%;
+  margin: 0;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #f2f4ed;
+  color: #496751;
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+.recipe-dripper strong { min-width: 0; font-weight: 700; }
+.recipe-primary-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+}
+.recipe-metric { min-width: 0; padding: 9px 10px; border-radius: 10px; background: #f8f6f0; }
+.recipe-metric dt { margin: 0 0 3px; color: #69756a; font-size: 0.74rem; }
+.recipe-metric dd {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  font-size: clamp(0.9rem, 3vw, 1.08rem);
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.recipe-metric dd small { color: #617466; font-size: 0.75em; font-weight: 600; }
+.recipe-metric[data-metric="ratio"] {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0;
+  background: transparent;
+}
+.recipe-metric[data-metric="ratio"] dt { margin: 0; }
+.recipe-metric[data-metric="ratio"] dd { color: #4f6854; font-size: 0.84rem; }
+.recipe-summary-meta {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  min-width: 0;
+  margin-top: 13px;
+  padding-top: 11px;
+  border-top: 1px solid #eee9de;
+}
+.recipe-step-count { flex: 0 0 auto; color: #50684f; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
+.recipe-guide-preview {
+  display: -webkit-box;
+  flex: 1 1 170px;
+  min-width: 0;
+  overflow: hidden;
+  margin: 0;
+  color: #676b61;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.recipe-summary-card > .muted-note, .recipe-summary-card > .record-warning { margin: 9px 0 0; }
+.recipe-detail-section { min-width: 0; margin-top: 20px; }
+.recipe-section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e9e4d9;
+}
+.recipe-section-heading h4 { min-width: 0; margin: 0; font-size: 0.94rem; }
+.recipe-section-heading > span { flex: 0 0 auto; color: #6f796e; font-size: 0.77rem; }
+.recipe-conditions .recipe-section-heading { margin-bottom: 10px; }
+.recipe-condition-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+  margin: 0;
+}
+.recipe-condition { min-width: 0; }
+.recipe-condition dt { color: #73756b; font-size: 0.74rem; }
+.recipe-condition dd { margin: 2px 0 0; overflow-wrap: anywhere; }
+.recipe-rating { margin: 11px 0 0; color: #626d62; font-size: 0.8rem; }
+.recipe-steps-section > .table-scroll { margin-top: 0; }
+.recipe-extraction-guide > p {
+  margin: 0;
+  padding: 11px 12px;
+  border-radius: 10px;
+  background: #f5f5ee;
+  color: #4e5c50;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.recipe-record-item { min-width: 0; padding: 11px 12px; border-radius: 10px; background: #f8f6f0; }
+.recipe-record-item + .recipe-record-item { margin-top: 9px; }
+.recipe-record-item .record-summary-header { align-items: center; margin-bottom: 0; }
+.recipe-record-item .record-summary-header p { margin: 0; font-size: 0.82rem; line-height: 1.5; }
+.recipe-record-item .entity-delete { margin: -8px -6px -8px 0; }
+.recipe-record-item > p { margin: 8px 0 0; overflow-wrap: anywhere; }
+.recipe-record-item > h5 { margin: 10px 0 6px; font-size: 0.8rem; }
+.recipe-card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 17px; }
+.recipe-card-actions .button { flex: 0 1 auto; }
+
 .recipe-summary-card, .bean-card { position: relative; }
 .recipe-card-link, .bean-card-link { color: inherit; text-decoration: none; cursor: pointer; }
 .recipe-card-link::after, .bean-card-link::after { content: ''; position: absolute; inset: 0; border-radius: 12px; }

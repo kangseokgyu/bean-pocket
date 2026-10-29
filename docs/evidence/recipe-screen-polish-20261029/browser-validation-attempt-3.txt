@@ -1,0 +1,17 @@
+node:internal/modules/run_main:104
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+false !== true
+
+    at file:///Users/kangseokgyu/.codex/worktrees/recipe-screen-polish/AX-1day/docs/evidence/recipe-screen-polish-20261029/browser-validation.mjs:151:10 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: 'strictEqual'
+}
+
+Node.js v23.4.0

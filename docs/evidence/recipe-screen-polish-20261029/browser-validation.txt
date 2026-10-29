@@ -1,0 +1,1 @@
+PASS: isolated fake Notion-shaped fixture; 320/390/768/1440px list and detail; 2-line guide preview; long title/guide at 320px; missing steps/guide and 0/missing values; full-card detail navigation; delete modal cancel; copy keeps guide; record form preselects recipe; zero fake writes; no external requests or browser errors.

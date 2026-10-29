@@ -1,0 +1,66 @@
+✔ bean, recipe, and record detail text is rendered as text and retains brew details (7.090708ms)
+✔ damaged historical records are excluded from bagless recipe views (2.212125ms)
+✔ recipes have no bean selector and records require both bean and shared recipe with browse filters (17.201042ms)
+✔ recipe step time permits a keyboard with colon while retaining minute-second validation (2.535208ms)
+✔ recipe input minimums allow every positive sub-cent value accepted by the domain (3.146959ms)
+✔ recipe history never displays legacy bag relations (18.443583ms)
+✔ recipe creation opens from plus, preserves drafts, and closes on cancel (19.098625ms)
+✔ recipe summaries separate the primary values, ratio, step count, and guide preview (1.820583ms)
+✔ recipe screens show zero and missing values distinctly and omit an invalid ratio (2.649417ms)
+✔ recipe detail groups conditions, pour steps, guide, and records in reading order (1.968667ms)
+✔ recipe detail places the guide below the pour table and copy preserves its text (5.414875ms)
+✔ bean, recipe, and record deletes submit only after the custom dialog is confirmed (7.4165ms)
+✔ recipe and record delete spinners replace only their progress toast (8.040041ms)
+✔ entry save spinners replace only saving toasts across beans, recipes, records, and recipe copies (19.99225ms)
+✔ success delay locks every entry field and recipe step after refresh finishes (14.287458ms)
+✔ first route data keeps an open recipe modal node and focus while updating its list (7.329625ms)
+✖ recipe list cards link their entire surface to details without a details button (10.03475ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(card.textContent.includes('15g · 93℃ · 물 250g'))
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/recipe-screen-polish/AX-1day/test/pwa-ui.view.test.mjs:2754:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }
+
+✔ recipe list card delete icon stays independent of detail navigation (2.331125ms)
+✔ changing the selected bean clears a recipe filter that does not belong to the new bean (19.153583ms)
+✔ removing the last record for the filtered recipe resets comparison controls and rows together (11.317166ms)
+✔ brew routes preserve selected parents and show the saved recipe guide without an automatic timer (3.948708ms)
+✔ brew completion preselects bean and recipe and defaults the record date to today (4.293583ms)
+✔ brew clicks preserve bean and recipe in browser history and complete into a prefilled record form (5.488792ms)
+✔ critic: shared recipes remain selectable and usable with an explicitly selected bean (1.590583ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 23
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1222.933542
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:2741:1
+✖ recipe list cards link their entire surface to details without a details button (10.03475ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(card.textContent.includes('15g · 93℃ · 물 250g'))
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/recipe-screen-polish/AX-1day/test/pwa-ui.view.test.mjs:2754:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }

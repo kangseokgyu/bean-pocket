@@ -1,0 +1,26 @@
+[
+  {
+    "path": "index.html",
+    "status": 200,
+    "sha256": "af6281a255cd51d564cb6c3e013576ccd0dbc14f6bac34dfbfd2fc3e762a776f",
+    "matches_local": true
+  },
+  {
+    "path": "ui/view.mjs",
+    "status": 200,
+    "sha256": "abdf5c6bf6b9fe304ffbac3b05ba1a721b274ded05740b9b39bb30f68d190ff5",
+    "matches_local": true
+  },
+  {
+    "path": "styles.css",
+    "status": 200,
+    "sha256": "586d19c948a9a9045531135cd33498a63d15bb168e0954b48b501049d192a936",
+    "matches_local": true
+  },
+  {
+    "path": "sw.js",
+    "status": 200,
+    "sha256": "b4e424a98b38b5d94970ece058e115fcf87ba229ced25495fb7266d233143117",
+    "matches_local": true
+  }
+]

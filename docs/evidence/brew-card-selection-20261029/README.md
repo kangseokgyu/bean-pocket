@@ -37,3 +37,11 @@ No real Notion writes were made.
 ## Final independent review
 
 Worker was explicitly configured as `gpt-6-luna` with `max` effort. Critic used `gpt-6.1-sol` with `medium` effort. Critic approved the keyboard focus fix, then approved integrated commit `dbeef33` after verifying that the recipe-screen changes from main remained intact. The overlap review ran 16 related tests successfully and found no remaining issues. Integrated verification passed 637 tests, the Pages build and artifact check. Final build: `f9acf1f6d151`. Actual mobile devices, browser keyboard scrolling, and real Notion storage remain unverified.
+
+## Main integration and deployment
+
+- Main integration commit: `a6a4d104643ba1a1c33aa510ceeac45af7648c6c`.
+- Main verification: `npm test` 637/637 passed, `npm run build:pages` and `npm run check:pages` exited 0. Logs: `logs/main-tests.txt`, `logs/main-build.txt`, `logs/main-check.txt`.
+- General Pages deployment (`probes=false`): [Actions run 40900827366](https://github.com/kangseokgyu/bean-pocket/actions/runs/40900827366), build and deploy succeeded on 2026-10-30 00:23 KST.
+- Public app: https://kangseokgyu.github.io/bean-pocket/ . Build `f9acf1f6d151` is present in public HTML. HTML, view module, CSS, service worker, and app module matched local output. Four-file HTTP and SHA-256 evidence: `logs/public-verification.json`; repeat with `python3 verify-public.py /absolute/path/to/dist`.
+- The existing in-app browser retained cached build `85e18f605e6d` after reload. This does not establish that an already installed client applied the update. Mobile devices, installed-client update adoption, real Notion storage, and browser keyboard scrolling remain unverified.

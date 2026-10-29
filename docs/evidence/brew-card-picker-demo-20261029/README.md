@@ -18,3 +18,12 @@
 브라우저 데모 상호작용을 확인했다. 실제 Notion 저장, iPhone Safari 및 홈 화면 설치 상태, 스크린 리더 실제 낭독은 확인하지 않았다.
 
 - 최종 `npm test` 종료 0. 전체 결과는 `tests-summary.txt`에 기록했다.
+
+## 통합 및 게시 완료
+
+- 기능 커밋: `256ef598aa63a588d22570e485768df81f73a64b`, main fast-forward 통합.
+- 통합 후 `npm test`: 종료 0, 638개 통과, 실패/건너뜀 0. 통합 빌드·산출물 검사도 종료 0.
+- 일반판 게시: `gh workflow run pages.yml --ref main -f probes=false`.
+- Actions: https://github.com/kangseokgyu/bean-pocket/actions/runs/40858085382 — build/deploy 성공.
+- 공개 데모: https://kangseokgyu.github.io/bean-pocket/brew-picker-demo.html
+- 공개 빌드: `9eb523bf70d8`. 2026-10-29 19:32 KST 공개 HTML/CSS/MJS/기록 데모/SW/메인 HTML 6개 HTTP 200 및 로컬 산출물 SHA-256 일치. 공개 Chrome에서도 원두 카드 여백 → 레시피 조건 영역 → 준비 완료 흐름 확인 (`public-result.json`).

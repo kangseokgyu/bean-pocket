@@ -1,0 +1,38 @@
+{
+  "url": "https://kangseokgyu.github.io/bean-pocket/brew-picker-demo.html",
+  "build": "9eb523bf70d8",
+  "verifiedAt": "2026-10-29T10:32:28.593Z",
+  "assets": [
+    {
+      "file": "index.html",
+      "status": 200,
+      "sha256": "3423b2ba2427025be9e87c2a9019aabc02055282f0dcf8b9ad621868b6fda365"
+    },
+    {
+      "file": "brew-picker-demo.html",
+      "status": 200,
+      "sha256": "d2f3513bc2f7f676f594fbd4debe09a6654369b72f2af1e818fc6c23757f6b6a"
+    },
+    {
+      "file": "brew-picker-demo.css",
+      "status": 200,
+      "sha256": "e919aaa3fbe74343e8f23e094b70b3cd944ea46d8226768785a8aefcb1417737"
+    },
+    {
+      "file": "brew-picker-demo.mjs",
+      "status": 200,
+      "sha256": "6ce15b03a9a422899541d3b00f65e4026e0ed833d1c69b5a8aaff3bd3ef0e167"
+    },
+    {
+      "file": "records-demo.html",
+      "status": 200,
+      "sha256": "db1008d599157b251058d755135e0257b3427d981de7280e1eb9c781519cd467"
+    },
+    {
+      "file": "sw.js",
+      "status": 200,
+      "sha256": "ecfd8b3d3dc29bcf166f96dc86c226ce1ac19a7f40751219ad60b7f23233dca8"
+    }
+  ],
+  "publicCardFlow": true
+}

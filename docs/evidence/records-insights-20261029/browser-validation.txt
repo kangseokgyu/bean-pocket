@@ -1,0 +1,1 @@
+PASS: production build 9cdb7caa5faa; widths 320/550/768/1024/1440; focusable labelled bean selector with synchronized chart; fixed 1–5 chart with true date spacing and text alternative; recipe filter isolation; create/delete dialogs; no overflow, console/page errors, failed requests, or unmocked external requests (75 requests, all Notion calls intercepted).

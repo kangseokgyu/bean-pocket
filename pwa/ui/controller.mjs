@@ -1,3 +1,5 @@
+import { buildRecordsInsights } from './records-insights.mjs';
+
 const SOURCE_KEYS = Object.freeze(['beans', 'recipes', 'steps', 'records']);
 const SOURCE_BY_OPERATION = Object.freeze({
   'delete-bean': ['beans'], 'delete-recipe': ['recipes'], 'delete-record': ['records'],
@@ -57,6 +59,8 @@ export function createAppController({
   let routeGeneration = 0;
   let routeReadController = null;
   let recordFilters = { beanId: '', recipeId: '' };
+  let recordInsights = emptyRecordInsights();
+  let insightReadGeneration = 0;
   const screenCache = new Map();
   const optionCache = new Map();
   const optionSearchGeneration = new Map();
@@ -106,15 +110,72 @@ export function createAppController({
   }
 
   function install(connection, nextClient, nextRepository, nextCommands) {
+    routeReadController?.abort();
+    routeGeneration += 1;
     screenCache.clear();
     optionCache.clear();
     optionSearchGeneration.clear();
+    resetRecordInsights(connection.revision, false);
+    recordFilters = { beanId: '', recipeId: '' };
     activeConnection = connection;
     client = nextClient;
     repository = nextRepository;
     commands = nextCommands;
     view.clearSearchOptions?.();
     view.showConnection?.({ connected: true });
+  }
+
+  function dropConnectionData() {
+    routeReadController?.abort();
+    routeReadController = null;
+    routeGeneration += 1;
+    screenCache.clear();
+    optionCache.clear();
+    optionSearchGeneration.clear();
+    resetRecordInsights(null, false);
+    recordFilters = { beanId: '', recipeId: '' };
+    data = null;
+    view.clearSearchOptions?.();
+    view.renderData?.({ beans: [], recipes: [], records: [], excluded: {},
+      screen: { route: currentRoute(), nextCursor: null, hasMore: false, complete: true } });
+  }
+
+  function emptyRecordInsights(revision = null, selectedBeanId = '') {
+    return { revision, records: [], beanParents: [], nextCursor: null, hasMore: false, complete: false,
+      status: 'idle', loading: false, error: '', selectedBeanId };
+  }
+
+  function resetRecordInsights(revision = activeConnection?.revision ?? null, preserveSelection = true) {
+    const selectedBeanId = preserveSelection ? recordInsights.selectedBeanId : '';
+    recordInsights = emptyRecordInsights(revision, selectedBeanId);
+    insightReadGeneration += 1;
+  }
+
+  function mergeInsightRecords(previous, additions) {
+    const merged = new Map((previous ?? []).filter(record => record?.id).map(record => [record.id, record]));
+    for (const record of additions ?? []) if (record?.id) merged.set(record.id, record);
+    return [...merged.values()];
+  }
+
+  function saveRecordInsightsPage(page, append = false) {
+    recordInsights = {
+      ...recordInsights,
+      records: append ? mergeInsightRecords(recordInsights.records, page.items) : [...(page.items ?? [])],
+      beanParents: append ? mergeInsightRecords(recordInsights.beanParents, page.beans) : [...(page.beans ?? [])],
+      nextCursor: page.nextCursor ?? null,
+      hasMore: page.hasMore === true,
+      complete: page.complete === true,
+      status: 'ready',
+      loading: false,
+      error: '',
+    };
+  }
+
+  function withRecordInsights(screenData) {
+    const liveBeans = mergeInsightRecords(recordInsights.beanParents, screenData?.beans);
+    const model = buildRecordsInsights(recordInsights.records, liveBeans, recordInsights.selectedBeanId);
+    recordInsights.selectedBeanId = model.selectedBeanId;
+    return { ...screenData, recordInsights: { ...recordInsights, ...model } };
   }
 
   function routeLocation(route) {
@@ -341,6 +402,11 @@ export function createAppController({
     if (frozen) throw Object.freeze({ code: 'lifecycle-frozen' });
     if (!repository || !client) return null;
     routeReadController?.abort();
+    insightReadGeneration += 1;
+    if (recordInsights.loading) {
+      recordInsights = { ...recordInsights, loading: false,
+        status: recordInsights.status === 'loading' ? 'idle' : recordInsights.status };
+    }
     const controller = new AbortController();
     routeReadController = controller;
     const generation = ++routeGeneration;
@@ -361,8 +427,21 @@ export function createAppController({
       if (generation !== routeGeneration || controller.signal.aborted) return null;
       const cached = !force && isFirstPage ? currentCache(key) : null;
       const previous = append ? data : null;
-      const fetched = cached ?? await fetchScreen(route, cursor, controller.signal);
+      let fetched = cached ?? await fetchScreen(route, cursor, controller.signal);
       if (generation !== routeGeneration || controller.signal.aborted) return null;
+      if (routeLocation(route).path === '/records') {
+        if (recordInsights.revision !== activeConnection?.revision) resetRecordInsights(activeConnection?.revision);
+        if (recordInsights.status === 'idle') {
+          const selectedFilters = fetched.screen?.filters ?? recordFilters;
+          if (cursor == null && !selectedFilters.beanId && !selectedFilters.recipeId) {
+            saveRecordInsightsPage({ items: fetched.records, nextCursor: fetched.screen?.nextCursor,
+              hasMore: fetched.screen?.hasMore, complete: fetched.screen?.complete });
+          } else {
+            recordInsights = { ...recordInsights, status: 'loading', loading: false, error: '' };
+          }
+        }
+        fetched = withRecordInsights(fetched);
+      }
       fetched.screen = { ...fetched.screen, append };
       data = mergeScreenData(previous, fetched);
       saveCache(key, data);
@@ -399,6 +478,9 @@ export function createAppController({
     };
     const batches = (items, size) => Array.from({ length: Math.ceil(items.length / size) }, (_, index) =>
       items.slice(index * size, (index + 1) * size));
+    if (routeLocation(route).path === '/records' && recordInsights.status === 'loading' && !recordInsights.loading) {
+      void loadInitialRecordInsights(route, generation, key, signal);
+    }
     if (data?.records?.some(record => record.beanNameStatus === 'loading' || record.recipeNameStatus === 'loading') &&
         typeof repository.hydrateRecordParents === 'function') {
       void (async () => {
@@ -512,9 +594,78 @@ export function createAppController({
     }
   }
 
+  async function loadInitialRecordInsights(route, generation, key, signal) {
+    if (recordInsights.status !== 'loading' || recordInsights.loading) return;
+    const request = ++insightReadGeneration;
+    const revision = activeConnection?.revision;
+    recordInsights = { ...recordInsights, loading: true };
+    publishRecordInsights(key);
+    try {
+      const page = await repository.listRecords({ cursor: null, limit: SCREEN_PAGE_SIZE, signal });
+      if (request !== insightReadGeneration || generation !== routeGeneration || signal.aborted ||
+          revision !== activeConnection?.revision || currentRoute() !== route) return;
+      saveRecordInsightsPage(page);
+      publishRecordInsights(key);
+    } catch {
+      if (request !== insightReadGeneration || generation !== routeGeneration || signal.aborted ||
+          revision !== activeConnection?.revision || currentRoute() !== route) return;
+      recordInsights = { ...recordInsights, status: 'error', loading: false,
+        error: '원두 인사이트 기록을 불러오지 못했습니다. 다시 시도해 주세요.' };
+      publishRecordInsights(key);
+    }
+  }
+
+  function publishRecordInsights(key = routeCacheKey(currentRoute())) {
+    if (!data || routeLocation(data.screen?.route).path !== '/records') return;
+    data = withRecordInsights(data);
+    saveCache(key, data);
+    view.renderData?.(data);
+  }
+
   async function loadMore() {
     if (!data?.screen?.hasMore || !data.screen.nextCursor) return null;
     return loadRoute(currentRoute(), { cursor: data.screen.nextCursor, append: true });
+  }
+
+  async function loadMoreInsights() {
+    if (!repository || routeLocation(currentRoute()).path !== '/records' || recordInsights.loading) return null;
+    const retryFirstPage = recordInsights.status === 'error' && recordInsights.records.length === 0;
+    if (!retryFirstPage && recordInsights.status !== 'ready') return null;
+    if (!retryFirstPage && !recordInsights.hasMore && !recordInsights.error) return null;
+    const cursor = retryFirstPage ? null : recordInsights.nextCursor;
+    const route = currentRoute();
+    const generation = routeGeneration;
+    const revision = activeConnection?.revision;
+    const signal = routeReadController?.signal;
+    const key = routeCacheKey(route);
+    const request = ++insightReadGeneration;
+    const append = !retryFirstPage && recordInsights.records.length > 0;
+    recordInsights = { ...recordInsights, loading: true, status: append ? 'ready' : 'loading', error: '' };
+    publishRecordInsights(key);
+    try {
+      const page = await repository.listRecords({ cursor, limit: SCREEN_PAGE_SIZE, signal });
+      if (request !== insightReadGeneration || generation !== routeGeneration || signal?.aborted ||
+          revision !== activeConnection?.revision || routeLocation(currentRoute()).path !== '/records') return null;
+      saveRecordInsightsPage(page, append);
+      publishRecordInsights(key);
+      return data;
+    } catch {
+      if (request !== insightReadGeneration || generation !== routeGeneration || signal?.aborted ||
+          revision !== activeConnection?.revision || routeLocation(currentRoute()).path !== '/records') return null;
+      recordInsights = { ...recordInsights, status: append ? 'ready' : 'error', loading: false,
+        error: '인사이트 기록을 불러오지 못했습니다. 다시 시도해 주세요.' };
+      publishRecordInsights(key);
+      return null;
+    }
+  }
+
+  function setRecordInsightsBean(beanId) {
+    if (!data || routeLocation(currentRoute()).path !== '/records') return null;
+    const model = buildRecordsInsights(recordInsights.records, data.beans ?? [], recordInsights.selectedBeanId);
+    if (!model.beans.some(bean => bean.id === beanId)) return null;
+    recordInsights = { ...recordInsights, selectedBeanId: beanId };
+    publishRecordInsights();
+    return data;
   }
 
   async function loadSearchOptions(kind, query = '', cursor = null, target = 'form', append = false) {
@@ -594,6 +745,7 @@ export function createAppController({
       for (const key of screenCache.keys()) if (key.includes('|/recipes') || key.includes('|/records')) screenCache.delete(key);
       for (const key of optionCache.keys()) if (key.includes('|recipes|')) optionCache.delete(key);
     } else if (kind === 'records' || kind === 'delete-record') {
+      resetRecordInsights(activeConnection?.revision);
       for (const key of screenCache.keys()) if (key.includes('|/records') || key.includes('|/beans') || key.includes('|/recipes/')) screenCache.delete(key);
     } else if (kind === 'delete-bean') {
       view.clearSearchOptions?.('beans');
@@ -611,6 +763,7 @@ export function createAppController({
     if (pending) throw Object.freeze({ code: 'lock-unavailable' });
     pending = true;
     stateChanged();
+    if (routeLocation(currentRoute()).path === '/records') resetRecordInsights(activeConnection?.revision);
     try { return await readLatest({ notifyCompletion: true }); }
     finally { pending = false; stateChanged(); }
   }
@@ -671,6 +824,9 @@ export function createAppController({
       });
       if (loaded?.error) throw loaded.error;
       if (!loaded) {
+        activeConnection = null;
+        client = repository = commands = null;
+        dropConnectionData();
         view.showConnection?.({ connected: false });
         view.showStatus?.({ type: 'disconnected', message: 'Notion 연결 정보를 입력해 주세요.' });
         return null;
@@ -691,6 +847,7 @@ export function createAppController({
       if (needsRecovery || error?.code === 'state-blocked') {
         activeConnection = null;
         client = repository = commands = null;
+        dropConnectionData();
       }
       view.showStatus?.({ type: 'connection-error', message: needsRecovery || error?.code === 'state-blocked'
         ? messageFor(error)
@@ -756,6 +913,7 @@ export function createAppController({
       if (uncertain) {
         activeConnection = null;
         client = repository = commands = null;
+        dropConnectionData();
       }
       view.showConnection?.({
         connected: !!activeConnection,
@@ -969,12 +1127,12 @@ export function createAppController({
   function bind() {
     view.onRouteChange?.(route => client && repository ? loadRoute(route).catch(() => {}) : null);
     view.bind?.({ initialize, connect, refresh, submit, confirmCurrent, resolveOperation, setDirty, setFrozen, getState,
-      loadMore, loadSearchOptions, setRecordFilters });
+      loadMore, loadMoreInsights, loadSearchOptions, setRecordFilters, setRecordInsightsBean });
   }
 
   return Object.freeze({
     initialize, connect, confirmCurrent, resolveOperation, refresh, submit, setDirty, setFrozen, getState, bind,
-    loadRoute, loadMore, loadSearchOptions, setRecordFilters,
+    loadRoute, loadMore, loadMoreInsights, loadSearchOptions, setRecordFilters, setRecordInsightsBean,
   });
 }
 

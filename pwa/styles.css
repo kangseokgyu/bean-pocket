@@ -587,6 +587,51 @@ button:focus-visible, .table-scroll:focus-visible {
 .record-filters legend { grid-column: 1 / -1; padding: 0; color: #3d5147; font-weight: 700; }
 .record-filter-reset { grid-column: 1 / -1; justify-self: start; }
 .page-load-more { width: 100%; margin-top: 12px; }
+.record-insights {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  max-width: 100%;
+  margin: 4px 0 8px;
+  padding: 14px;
+  border: 1px solid #d9e2d7;
+  border-radius: 14px;
+  background: #f8faf5;
+}
+.record-insights > :first-child, .record-insights h4, .record-insights h5 { margin-top: 0; }
+.record-insights > :last-child { margin-bottom: 0; }
+.record-insight-scope, .record-insight-trend-summary { margin: 0; color: #596a5d; font-size: 0.875rem; }
+.record-insight-bean-field, .record-insight-control { display: grid; gap: 5px; min-width: 0; font-size: 0.875rem; font-weight: 650; }
+.record-insight-bean-field select, .record-insight-control select { width: 100%; min-width: 0; }
+.record-insight-chart { min-width: 0; max-width: 100%; margin: 0; overflow: hidden; }
+.rating-trend-chart { display: block; width: 100%; max-width: 640px; height: auto; margin: 0 auto; overflow: visible; }
+.rating-chart-grid { stroke: #d9dfd5; stroke-width: 1; }
+.rating-chart-line { fill: none; stroke: #39755b; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.rating-chart-point { fill: #276345; stroke: #fffefa; stroke-width: 1.5; }
+.rating-chart-axis-label { fill: #58695e; font: 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.record-insight-chart-values { margin-top: 6px; font-size: 0.8125rem; }
+.record-insight-chart-values summary, .record-insight-condition-details summary { min-height: 36px; padding: 7px 0; color: #315b46; cursor: pointer; font-weight: 650; }
+.record-insight-chart-data { display: grid; gap: 3px; max-height: 220px; margin: 4px 0 0; padding-inline-start: 22px; overflow: auto; }
+.record-insight-best { display: grid; gap: 8px; min-width: 0; padding-top: 10px; border-top: 1px solid #d9e2d7; }
+.record-insight-best-record, .record-insight-comparison {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #e0dbcf;
+  border-radius: 10px;
+  background: #fffefa;
+  overflow-wrap: anywhere;
+}
+.record-insight-best-record h5, .record-insight-comparison h5 { margin-bottom: 6px; }
+.record-insight-comparisons { display: grid; gap: 9px; min-width: 0; padding-top: 10px; border-top: 1px solid #d9e2d7; }
+.record-insight-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.record-insight-comparison-list { display: grid; gap: 8px; min-width: 0; }
+.record-insight-recipe-conditions { display: grid; grid-template-columns: minmax(7em, max-content) minmax(0, 1fr); gap: 3px 10px; margin: 10px 0 0; font-size: 0.8125rem; }
+.record-insight-recipe-conditions dt { color: #596a5d; }
+.record-insight-recipe-conditions dd { min-width: 0; margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.record-insight-steps { display: grid; gap: 3px; margin: 0; padding-inline-start: 20px; }
+.record-insights-more { width: 100%; }
+.record-insights-table-note { margin: 0; color: #596a5d; font-size: 0.8125rem; }
+.record-table-heading { margin: 8px 0 0; font-size: 0.95rem; }
 .muted-note, .empty-state { color: #68685e; }
 .repair-panel { margin-top: 14px; padding-top: 14px; border-top: 1px solid #ded7ca; }
 .startup-retry-panel { margin-top: 14px; padding: 14px; border: 1px solid #c6b98b; border-radius: 12px; background: #fffbed; }
@@ -651,6 +696,10 @@ footer {
   .form-fieldset { grid-template-columns: minmax(0, 1fr); gap: 13px; padding: 13px; }
   .record-filters { grid-template-columns: minmax(0, 1fr); gap: 10px; }
   .record-filters legend { grid-column: auto; }
+  .record-insights { padding: 12px; }
+  .record-insight-controls { grid-template-columns: minmax(0, 1fr); }
+  .record-insight-recipe-conditions { grid-template-columns: minmax(0, 1fr); gap: 1px; }
+  .record-insight-recipe-conditions dd { margin-bottom: 5px; }
   .site-header { gap: 4px; }
   .brand-logo { width: 52px; height: 32px; }
   .button.connection-toggle { min-width: 28px; padding-inline: 2px; font-size: 1rem; }
@@ -672,6 +721,8 @@ footer {
 @media (max-width: 360px) {
   .page { width: calc(100% - 20px); }
   .panel, .data-panel, .unresolved-panel, .card-skeletons { padding: 11px; }
+  .site-header { flex-wrap: wrap; }
+  .site-header .tabs { order: 1; flex: 1 0 100%; justify-content: space-between; }
   .form-actions { grid-template-columns: minmax(0, 1fr); }
 }
 

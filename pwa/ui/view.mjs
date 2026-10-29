@@ -1,4 +1,5 @@
 import { isCurrentRecord } from '../domain.mjs';
+import { renderRecordsInsights } from './records-insights-view.mjs';
 
 const make = (document, tag, text, className) => {
   const node = document.createElement(tag);
@@ -288,6 +289,8 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   const drafts = new Map();
   const optionPages = new Map();
   const optionStates = new Map();
+  let insightRatingFilter = '';
+  let insightComparisonSort = 'date-desc';
   let beanFormOpen = false;
   let recipeFormOpen = routePath(route) === '/recipes/new';
   let recordFormOpen = routePath(route) === '/records/new';
@@ -562,7 +565,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   }
   function renderCurrentContent() {
     renderPane(content, currentData, document, route, drafts, optionPages,
-      beanFormOpen, recipeFormOpen, recordFormOpen, optionStates);
+      beanFormOpen, recipeFormOpen, recordFormOpen, optionStates, insightRatingFilter, insightComparisonSort);
     finishContentRender();
     applyViewState();
   }
@@ -908,7 +911,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
           // Refresh the list around the live top-layer dialog without detaching it.
           const refreshed = make(document, 'section');
           renderPane(refreshed, currentData, document, route, new Map(), optionPages,
-            beanFormOpen, recipeFormOpen, recordFormOpen, optionStates);
+            beanFormOpen, recipeFormOpen, recordFormOpen, optionStates, insightRatingFilter, insightComparisonSort);
           if (activeEntryKind === 'records') {
             hydrateRecordPickers(activeDialog.querySelector('form'),
               refreshed.querySelector('form[data-form="records"]'), currentData, optionPages, optionStates, document);
@@ -1081,7 +1084,9 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     bind(actions) {
       entryActions = actions;
       bindEvents({ page, connectionForm, originalConnectionCheck, repair, nav, content,
-        unresolved, actions, document, view, openDeleteDialog, closeDeleteDialog, submitDelete });
+        unresolved, actions, document, view, openDeleteDialog, closeDeleteDialog, submitDelete,
+        setInsightRatingFilter(value) { insightRatingFilter = value; if (currentData) view.renderData(currentData); },
+        setInsightComparisonSort(value) { insightComparisonSort = value; if (currentData) view.renderData(currentData); } });
       bindPullToRefresh({ page, document, actions });
     },
   };
@@ -1443,7 +1448,8 @@ function renderBrewFlow(parent, data, document, route, optionPages) {
 }
 
 function renderPane(parent, data, document, route = '/home', drafts = new Map(), optionPages = new Map(),
-  beanFormOpen = false, recipeFormOpen = false, recordFormOpen = false, optionStates = new Map()) {
+  beanFormOpen = false, recipeFormOpen = false, recordFormOpen = false, optionStates = new Map(),
+  insightRatingFilter = '', insightComparisonSort = 'date-desc') {
   const path = routePath(route);
   const parts = path.split('/').filter(Boolean);
   const section = parts[0] ?? 'home';
@@ -1539,7 +1545,8 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
       conflict.append(button(document, '이전 초안을 버리고 새 기록 작성', 'button', 'start-new-record'));
       pane.append(conflict);
     } else {
-      renderRecords(pane, data, document, recordFormOpen, optionPages, optionStates, route);
+      renderRecords(pane, data, document, recordFormOpen, optionPages, optionStates, route,
+        insightRatingFilter, insightComparisonSort);
     }
   } else {
     pane.append(make(document, 'p', '화면을 찾을 수 없습니다. 메뉴에서 이동해 주세요.'));
@@ -2083,10 +2090,12 @@ function preferredOptionPage(serverPage, cachedPage) {
   return cachedPage && Date.now() - cachedPage.savedAt < 60000 ? cachedPage : serverPage;
 }
 
-function renderRecords(pane, data, document, formOpen, optionPages, optionStates, route = '/records/new') {
+function renderRecords(pane, data, document, formOpen, optionPages, optionStates, route = '/records/new',
+  insightRatingFilter = '', insightComparisonSort = 'date-desc') {
   const form = buildRecordForm(document, data, optionPages, route, optionStates);
   form.id = 'new-record-form';
   pane.append(makeEntryDialog(document, 'records', form, formOpen));
+  renderRecordsInsights(pane, data, document, insightRatingFilter, insightComparisonSort);
 
   const filters = make(document, 'fieldset', undefined, 'record-filters');
   filters.append(make(document, 'legend', '기록 필터'));
@@ -2113,6 +2122,9 @@ function renderRecords(pane, data, document, formOpen, optionPages, optionStates
   reset.disabled = !selectedFilters.beanId && !selectedFilters.recipeId;
   filters.append(reset);
   pane.append(filters);
+  pane.append(make(document, 'p', '아래 필터는 추출 기록 표에만 적용됩니다. 원두 인사이트는 위에 불러온 기록 범위를 사용합니다.',
+    'record-insights-table-note'));
+  pane.append(make(document, 'h3', '기록 표', 'record-table-heading'));
 
   const list = make(document, 'div', undefined, 'record-list');
   list.dataset.recordList = '';
@@ -2281,7 +2293,7 @@ function buildResolutionForm(document, operation) {
 }
 
 function bindEvents({ page, nav, connectionForm, originalConnectionCheck, content, actions, document, view,
-  openDeleteDialog, closeDeleteDialog, submitDelete }) {
+  openDeleteDialog, closeDeleteDialog, submitDelete, setInsightRatingFilter, setInsightComparisonSort }) {
   connectionForm.addEventListener('input', event => {
     if (!event.target.disabled) actions.setDirty(true, 'connection');
   });
@@ -2489,6 +2501,10 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
       try { await actions.loadMore?.(); } catch { /* Controller supplies a safe status. */ }
       return;
     }
+    if (action === 'load-more-insights') {
+      try { await actions.loadMoreInsights?.(); } catch { /* The insight section supplies its own retry state. */ }
+      return;
+    }
     if (action === 'more-options') {
       const { optionTarget: targetName, optionKind: kind } = target.dataset;
       const picker = target.closest('.form-field') ?? target.closest('.brew-flow-pane');
@@ -2583,6 +2599,16 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
   content.addEventListener('change', event => {
     if (event.target.disabled) return;
     if (event.target.matches('[data-record-filter]')) updateRecordFilters();
+    if (event.target.matches('[data-insight-bean]')) {
+      const update = actions.setRecordInsightsBean?.(event.target.value);
+      if (update?.catch) void update.catch(() => {});
+    }
+    if (event.target.matches('[data-insight-rating-filter]')) {
+      setInsightRatingFilter(event.target.value);
+    }
+    if (event.target.matches('[data-insight-comparison-sort]')) {
+      setInsightComparisonSort(event.target.value);
+    }
     updatePreview(content);
   });
   content.addEventListener('focusin', event => {

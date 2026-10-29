@@ -12,6 +12,8 @@ const allowedFiles = new Set([
   'app.mjs',
   'commands/index.mjs',
   'ui/controller.mjs',
+  'ui/records-insights.mjs',
+  'ui/records-insights-view.mjs',
   'ui/view.mjs',
   'data/notion-client.mjs',
   'data/notion-properties.mjs',
@@ -40,6 +42,8 @@ const requiredCacheFiles = [
   './app.mjs',
   './commands/index.mjs',
   './ui/controller.mjs',
+  './ui/records-insights.mjs',
+  './ui/records-insights-view.mjs',
   './ui/view.mjs',
   './data/notion-client.mjs',
   './data/notion-properties.mjs',
@@ -129,7 +133,7 @@ export async function checkPages(directory = defaultOutputDir, { allowIncomplete
   if (missing.length) return true;
 
   const textFiles = new Map();
-  for (const relativePath of ['app.mjs', 'commands/index.mjs', 'ui/controller.mjs', 'ui/view.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs', 'data/notion-client.mjs', 'data/notion-properties.mjs', 'data/read-repository.mjs', 'domain.mjs', 'index.html', 'records-demo.html', 'records-demo.mjs', 'records-demo.css', 'manifest.webmanifest', 'platform/connection-file.mjs', 'state/submission-state.mjs', 'styles.css', 'sw.js']) {
+  for (const relativePath of ['app.mjs', 'commands/index.mjs', 'ui/controller.mjs', 'ui/records-insights.mjs', 'ui/records-insights-view.mjs', 'ui/view.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs', 'data/notion-client.mjs', 'data/notion-properties.mjs', 'data/read-repository.mjs', 'domain.mjs', 'index.html', 'records-demo.html', 'records-demo.mjs', 'records-demo.css', 'manifest.webmanifest', 'platform/connection-file.mjs', 'state/submission-state.mjs', 'styles.css', 'sw.js']) {
     textFiles.set(relativePath, (await readFile(path.join(directory, relativePath))).toString('utf8'));
   }
   const checkedText = new Map(textFiles);
@@ -141,6 +145,9 @@ export async function checkPages(directory = defaultOutputDir, { allowIncomplete
   checkedText.set('ui/view.mjs', textFiles.get('ui/view.mjs')
     .replaceAll("document.createElementNS('http://www.w3.org/2000/svg', 'svg')", 'SVG_ELEMENT')
     .replaceAll("document.createElementNS('http://www.w3.org/2000/svg', 'path')", 'SVG_PATH'));
+  // The insights renderer uses the official SVG namespace for local SVG nodes only.
+  checkedText.set('ui/records-insights-view.mjs', textFiles.get('ui/records-insights-view.mjs')
+    .replaceAll("const SVG_NS = 'http://www.w3.org/2000/svg';", 'SVG_NAMESPACE'));
   rejectUnsafeContents(checkedText);
 
   if (includeProbes) {

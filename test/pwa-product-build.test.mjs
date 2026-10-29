@@ -6,7 +6,8 @@ import path from 'node:path';
 import { buildPages } from '../scripts/build-pages.mjs';
 import { checkPages } from '../scripts/check-pages.mjs';
 
-const modules = ['commands/index.mjs', 'ui/controller.mjs', 'ui/view.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs'];
+const modules = ['commands/index.mjs', 'ui/controller.mjs', 'ui/records-insights.mjs', 'ui/records-insights-view.mjs',
+  'ui/view.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs'];
 
 test('server-page demo records mark their generated v2 snapshot valid', async () => {
   const app = await readFile(new URL('../public/app.js', import.meta.url), 'utf8');
@@ -69,6 +70,14 @@ test('product commands, UI and lifecycle ship byte-for-byte and all affect the r
   }
 });
 
+test('production records insights resolve domain logic inside the Pages bundle', async t => {
+  const f = await fixture(t);
+  await buildPages(f);
+  const insights = await readFile(path.join(f.outputDir, 'ui/records-insights.mjs'), 'utf8');
+  assert.match(insights, /from ['"]\.\.\/domain\.mjs['"]/);
+  assert.doesNotMatch(insights, /from ['"]\.\.\/\.\.\/lib\//);
+});
+
 test('commands/UI directory symlinks cannot bypass the source boundary', async t => {
   for (const directory of ['commands', 'ui']) {
     const f = await fixture(t);
@@ -123,6 +132,22 @@ test('SVG namespace is allowed only in UI element creation, never as a request U
   }
   await writeFile(target, original);
   const otherModule = path.join(f.outputDir, 'ui/controller.mjs');
-  await writeFile(otherModule, (await readFile(otherModule, 'utf8')) + "\ndocument.createElementNS('http://www.w3.org/2000/svg', 'svg');");
+  const originalOtherModule = await readFile(otherModule, 'utf8');
+  await writeFile(otherModule, originalOtherModule + "\ndocument.createElementNS('http://www.w3.org/2000/svg', 'svg');");
   await assert.rejects(checkPages(f.outputDir), /외부 URL/);
+
+  await writeFile(otherModule, originalOtherModule);
+  const insightsView = path.join(f.outputDir, 'ui/records-insights-view.mjs');
+  const originalInsightsView = await readFile(insightsView, 'utf8');
+  assert.match(originalInsightsView, /const SVG_NS = 'http:\/\/www\.w3\.org\/2000\/svg';/);
+  for (const extra of [
+    "fetch('http://www.w3.org/2000/svg');",
+    "document.createElementNS('https://example.invalid', 'svg');",
+    "const SVG_NS = 'https://example.invalid';",
+  ]) {
+    await writeFile(insightsView, originalInsightsView + '\n' + extra);
+    await assert.rejects(checkPages(f.outputDir), /외부 URL/);
+  }
+  await writeFile(insightsView, originalInsightsView);
+  assert.equal(await checkPages(f.outputDir), true);
 });

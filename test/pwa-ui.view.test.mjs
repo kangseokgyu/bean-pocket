@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { createAppView } from '../pwa/ui/view.mjs';
 import { createAppController } from '../pwa/ui/controller.mjs';
 import { validateRecipe } from '../lib/domain.mjs';
+import { buildRecordsInsights } from '../pwa/ui/records-insights.mjs';
 
 const BEAN = '11111111-1111-4111-8111-111111111111';
 const RECIPE = '33333333-3333-4333-8333-333333333333';
@@ -2734,6 +2735,209 @@ test('record page shows continuation state instead of claiming the database is e
   assert.match(document.root.textContent, /더 확인/);
   assert.doesNotMatch(document.root.textContent, /새 버전에서 작성한 추출 기록이 없습니다/);
   assert.ok(document.root.querySelector('[data-action="load-more"]'));
+});
+
+test('records view keeps unfiltered bean insights separate from the filtered table and uses snapshot conditions', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  const makeInsightRecord = ({ id, date, rating, beanId = BEAN, beanName = '당시 시다마' }) => ({
+    id, beanId, beanResolution: 'relation', recipeId: RECIPE, date, rating, cupNote: `컵노트 ${id}`,
+    snapshotStatus: 'valid', snapshot: { version: 2, recordGeneration: 'bagless-v1',
+      bean: { id: beanId, name: beanName },
+      recipe: { id: RECIPE, name: '기록 당시 V60', dose: 15, totalWater: 240, temperature: 92,
+        dripper: 'V60', grinder: '당시 그라인더', grinderSetting: '20클릭', grind: '중간',
+        steps: [{ name: '뜸', seconds: 40, interval: 40, water: 40, cumulativeWater: 40 }] } },
+  });
+  const older = makeInsightRecord({ id: 'insight-older', date: '2026-10-01', rating: 3 });
+  const sameDay = makeInsightRecord({ id: 'insight-same-day', date: '2026-10-01', rating: 4 });
+  const later = makeInsightRecord({ id: 'insight-later', date: '2026-10-09', rating: 5 });
+  const otherBean = makeInsightRecord({ id: 'insight-other', date: '2026-10-10', rating: 2,
+    beanId: '22222222-2222-4222-8222-222222222222', beanName: '다른 원두' });
+  const allInsightRecords = [older, sameDay, later, otherBean];
+  const insights = { ...buildRecordsInsights(allInsightRecords, current.beans, BEAN), status: 'ready', loading: false,
+    hasMore: true, nextCursor: 'insight-next' };
+  current.recipes[0] = { ...current.recipes[0], name: '현재 레시피', dose: 18, temperature: 99,
+    totalWater: 300, grinder: '현재 그라인더', grinderSetting: '40클릭',
+    steps: [{ name: '현재 단계', seconds: 70, interval: 70, water: 250, cumulativeWater: 250 }] };
+  view.renderData({ ...current, beans: [...current.beans, { id: otherBean.beanId, name: '다른 원두' }],
+    records: [otherBean], recordInsights: insights,
+    screen: { route: '/records', filters: { recipeId: RECIPE }, complete: true, hasMore: false } });
+  view.renderRoute('/records');
+
+  const insightSection = document.root.querySelector('.record-insights');
+  assert.ok(insightSection);
+  assert.match(insightSection.querySelector('[data-insight-scope]').textContent, /불러온 기록 4건 기준/);
+  const points = insightSection.querySelectorAll('circle');
+  assert.equal(points.length, 3);
+  assert.equal(points[0].getAttribute('cx'), points[1].getAttribute('cx'),
+    'same-day ratings occupy the actual same x coordinate');
+  assert.match(insightSection.querySelector('.record-insight-best').textContent, /기록 당시 V60/);
+  assert.match(insightSection.querySelector('.record-insight-best').textContent, /15g/);
+  assert.match(insightSection.querySelector('.record-insight-best').textContent, /92℃/);
+  assert.match(insightSection.querySelector('.record-insight-best').textContent, /240g/);
+  assert.doesNotMatch(insightSection.querySelector('.record-insight-best').textContent, /현재 레시피|99℃|300g|40클릭/);
+  assert.ok(insightSection.querySelector('svg[role="img"]'));
+  assert.ok(insightSection.querySelector('#record-rating-chart-values'));
+  assert.match(insightSection.textContent, /날짜별 별점 추이/);
+  assert.deepEqual(document.root.querySelectorAll('.record-card').map(card => card.textContent.includes('다른 원두')),
+    [true], 'only the table respects the active recipe filter');
+});
+
+test('insight bean selector is a native keyboard control, and empty or unrated trends have explicit text', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const row = { ...data().records[0], id: 'unrated-record', rating: null };
+  const model = buildRecordsInsights([row]);
+  view.renderData({ ...data(), records: [row], recordInsights: { ...model, status: 'ready', loading: false },
+    screen: { route: '/records', complete: true, hasMore: false } });
+  view.renderRoute('/records');
+  const selector = document.root.querySelector('[data-insight-bean]');
+  assert.equal(selector.tagName, 'select');
+  assert.match(selector.getAttribute('aria-label'), /인사이트 원두/);
+  assert.match(document.root.querySelector('.record-insight-chart-empty').textContent, /유효한 별점 기록이 없습니다/);
+  assert.match(document.root.querySelector('.record-insight-best').textContent, /최고 평가 기록이 없습니다/);
+
+  const singleDocument = new TestDocument();
+  const singleView = createBeanView(singleDocument);
+  const singleModel = buildRecordsInsights([data().records[0]]);
+  singleView.renderData({ ...data(), recordInsights: { ...singleModel, status: 'ready', loading: false },
+    screen: { route: '/records', complete: true, hasMore: false } });
+  singleView.renderRoute('/records');
+  const singleChart = singleDocument.root.querySelectorAll('svg').find(svg => svg.getAttribute('role') === 'img');
+  assert.equal(singleChart.querySelectorAll('circle').length, 1);
+  assert.equal(singleChart.querySelector('path'), null,
+    'a one-point trend displays a point without inventing a line');
+
+  const emptyDocument = new TestDocument();
+  const emptyView = createBeanView(emptyDocument);
+  emptyView.renderData({ ...data(), records: [], recordInsights: { ...buildRecordsInsights([]), status: 'ready',
+    loading: false }, screen: { route: '/records', complete: true, hasMore: false } });
+  emptyView.renderRoute('/records');
+  assert.match(emptyDocument.root.querySelector('.record-insights').textContent, /현재 인사이트에 사용할 기록이 없습니다/);
+});
+
+test('insight bean, comparison filter, and sort controls update the production view through delegated events', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const rows = [
+    { ...data().records[0], id: 'comparison-old', date: '2026-10-01', rating: 3 },
+    { ...data().records[0], id: 'comparison-high', date: '2026-10-05', rating: 5 },
+    { ...data().records[0], id: 'comparison-mid', date: '2026-10-09', rating: 4 },
+  ];
+  const beanId = rows[0].beanId;
+  const insights = { ...buildRecordsInsights(rows, [], beanId), status: 'ready', loading: false, hasMore: true };
+  view.renderData({ ...data(), records: rows, recordInsights: insights,
+    screen: { route: '/records', complete: true, hasMore: false } });
+  view.renderRoute('/records');
+  const selected = [];
+  let loadMoreCalls = 0;
+  view.bind({ setRecordInsightsBean(id) { selected.push(id); }, loadMoreInsights() { loadMoreCalls += 1; } });
+  const content = document.root.querySelector('.data-panel');
+  const change = target => { for (const listener of content.listeners.get('change') ?? []) listener({ target }); };
+
+  const beanSelect = content.querySelector('[data-insight-bean]');
+  beanSelect.value = beanId;
+  change(beanSelect);
+  assert.deepEqual(selected, [beanId], 'native selector change reaches the controller selection action');
+
+  const sort = content.querySelector('[data-insight-comparison-sort]');
+  sort.value = 'rating-desc';
+  change(sort);
+  assert.deepEqual(content.querySelectorAll('.record-insight-comparison').map(card => card.dataset.insightRecordId),
+    ['comparison-high', 'comparison-mid', 'comparison-old']);
+
+  const rating = content.querySelector('[data-insight-rating-filter]');
+  rating.value = '4';
+  change(rating);
+  assert.deepEqual(content.querySelectorAll('.record-insight-comparison').map(card => card.dataset.insightRecordId),
+    ['comparison-mid']);
+
+  await clickViewTarget(document, content.querySelector('[data-action="load-more-insights"]'));
+  assert.equal(loadMoreCalls, 1, 'the separate insight cursor is reachable from the page control');
+});
+
+test('production records insight DOM refreshes after a real controller save and confirmed delete', async () => {
+  const originalFormData = globalThis.FormData;
+  globalThis.FormData = class {
+    constructor(form) {
+      this.fields = form.querySelectorAll('input[name],textarea[name],select[name]')
+        .filter(field => field.type !== 'radio' || field.checked)
+        .map(field => [field.name, field.value]);
+    }
+    [Symbol.iterator]() { return this.fields[Symbol.iterator](); }
+  };
+  try {
+    const scheduled = [];
+    const document = new TestDocument();
+    const view = createAppView(document, { schedule: callback => { scheduled.push(callback); return scheduled.length; } });
+    view.renderRoute('/records');
+    const stateContext = {
+      async inspect() { return { initialized: false, blocked: false }; },
+      async readJournal() { return { connectionGuard: null, operations: [] }; },
+      async beginConnectionChange() {}, async commitConnectionChange() {},
+    };
+    let records = [...data().records];
+    const repository = {
+      async listRecords(options = {}) {
+        const items = records.filter(record => (!options.beanId || record.beanId === options.beanId) &&
+          (!options.recipeId || record.recipeId === options.recipeId));
+        return { items, beans: data().beans, recipes: data().recipes, nextCursor: null, hasMore: false, complete: true };
+      },
+    };
+    const controller = createAppController({
+      view,
+      state: { async withWriteLock(action) { return action(stateContext); } },
+      file: { async readConnection() { return null; } },
+      makeClient: () => ({ async verify() {} }),
+      makeRepository: () => repository,
+      makeCommands: () => ({
+        async prepareRecord(payload) { return { kind: 'records', payload }; },
+        async prepareDeleteRecord(payload) { return { kind: 'delete-record', payload }; },
+        async execute(draft) {
+          if (draft.kind === 'records') {
+            const created = { ...data().records[0], id: 'view-created-record', beanId: draft.payload.beanId,
+              recipeId: draft.payload.recipeId, date: draft.payload.date, rating: Number(draft.payload.rating),
+              cupNote: draft.payload.cupNote, snapshot: { ...data().records[0].snapshot, recordGeneration: 'bagless-v1' } };
+            records = [created, ...records];
+            return { status: 'succeeded', value: created };
+          }
+          records = records.filter(record => record.id !== draft.payload.id);
+          return { status: 'succeeded' };
+        },
+      }),
+    });
+    controller.bind();
+    await controller.connect({ token: 'test-only', dataSources: {} });
+
+    const content = document.root.querySelector('.data-panel');
+    assert.match(content.querySelector('.record-insight-scope').textContent, /불러온 기록 1건 기준/);
+    await clickViewTarget(document, content.querySelector('[data-action="show-record-form"]'));
+    const form = content.querySelector('form[data-form="records"]');
+    form.elements.beanId.value = BEAN;
+    form.elements.recipeId.value = RECIPE;
+    form.elements.date.value = '2026-10-15';
+    form.elements.rating.value = '5';
+    form.elements.cupNote.value = '브라우저 통합 컵노트';
+    const submit = { target: form, preventDefault() {} };
+    await Promise.all(content.listeners.get('submit').map(listener => listener(submit)));
+    assert.equal(scheduled.length, 2, 'connection and save confirmations stay in their respective dialogs');
+    scheduled.at(-1)();
+    assert.match(content.querySelector('.record-insight-scope').textContent, /불러온 기록 2건 기준/);
+    assert.ok(content.querySelector('[data-insight-record-id="view-created-record"]'));
+
+    const card = content.querySelector('.record-card');
+    await clickViewTarget(document, card.querySelector('[data-action="delete-record"]'));
+    const confirmation = document.root.querySelector('.delete-confirm-dialog');
+    await clickViewTarget(document, confirmation.querySelector('[data-action="confirm-delete"]'));
+    assert.equal(records.some(record => record.id === 'view-created-record'), false);
+    await clickViewTarget(document, confirmation.querySelector('[data-action="cancel-delete"]'));
+    assert.match(content.querySelector('.record-insight-scope').textContent, /불러온 기록 1건 기준/);
+    assert.equal(content.querySelector('[data-insight-record-id="view-created-record"]'), null);
+  } finally {
+    if (originalFormData === undefined) delete globalThis.FormData;
+    else globalThis.FormData = originalFormData;
+  }
 });
 
 test('record cards show snapshot names while current parent names are loading', () => {

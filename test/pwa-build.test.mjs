@@ -34,6 +34,8 @@ const expectedFiles = [
   'styles.css',
   'sw.js',
   'ui/controller.mjs',
+  'ui/records-insights-view.mjs',
+  'ui/records-insights.mjs',
   'ui/view.mjs',
 ];
 
@@ -65,6 +67,8 @@ async function writeSourceFixture(sourceDir) {
   const files = {
     'commands/index.mjs': 'export const commands = {};',
     'ui/controller.mjs': 'export const controller = {};',
+    'ui/records-insights.mjs': 'export const insights = {};',
+    'ui/records-insights-view.mjs': 'export const renderInsights = () => {};',
     'ui/view.mjs': 'export const view = {};',
     'platform/app-lifecycle.mjs': 'export const lifecycle = {};',
     'platform/update-coordinator.mjs': 'export const coordinator = {};',
@@ -384,7 +388,7 @@ test('Service Worker install·activate·fetch는 scope를 격리하고 앱 파�
   assert.ok(!remaining.includes(staleA), '자기 scope의 이전 버전 캐시는 정리해야 한다');
   assert.notEqual(cacheA, cacheB, '같은 출처의 서로 다른 scope는 별도 namespace를 사용해야 한다');
 
-  const appFiles = ['./', './index.html', './app.mjs', './commands/index.mjs', './ui/controller.mjs', './ui/view.mjs', './data/notion-client.mjs', './data/notion-properties.mjs', './data/read-repository.mjs', './domain.mjs', './platform/app-lifecycle.mjs', './platform/connection-file.mjs', './platform/update-coordinator.mjs', './state/submission-state.mjs', './styles.css', './records-demo.html', './records-demo.mjs', './records-demo.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/bp-logo.png', './icons/favicon-bp-ivory.png', './icons/home-brew.png'];
+  const appFiles = ['./', './index.html', './app.mjs', './commands/index.mjs', './ui/controller.mjs', './ui/records-insights.mjs', './ui/records-insights-view.mjs', './ui/view.mjs', './data/notion-client.mjs', './data/notion-properties.mjs', './data/read-repository.mjs', './domain.mjs', './platform/app-lifecycle.mjs', './platform/connection-file.mjs', './platform/update-coordinator.mjs', './state/submission-state.mjs', './styles.css', './records-demo.html', './records-demo.mjs', './records-demo.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/bp-logo.png', './icons/favicon-bp-ivory.png', './icons/home-brew.png'];
   assert.deepEqual(cacheStorage.stores.get(cacheA).files.map(request => [request.url, request.cache]),
     appFiles.map(file => [new URL(file, scopeA).href, 'reload']));
   assert.deepEqual(cacheStorage.stores.get(cacheB).files.map(request => [request.url, request.cache]),

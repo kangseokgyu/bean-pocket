@@ -15,17 +15,24 @@ function snapshotBean(record) {
   return record.snapshot?.version === 2 ? record.snapshot.bean : null;
 }
 
+function snapshotRecipe(record) {
+  if (record.snapshot?.version === 2) return record.snapshot.recipe;
+  return record.snapshot?.version === 1 ? record.snapshot : null;
+}
+
 function recordBeanName(record, liveBeans) {
-  return liveBeans.get(record.beanId)?.name || snapshotBean(record)?.name || '원두 이름 확인 필요';
+  return snapshotBean(record)?.name || liveBeans.get(record.beanId)?.name || '원두 이름 확인 필요';
 }
 
 function ratingRecord(record) {
   return validDate(record.date) && validRating(record.rating);
 }
 
-export function buildRecordsInsights(records, beans = [], selectedBeanId = '') {
+export function buildRecordsInsights(records, beans = [], selectedBeanId = '', recipes = []) {
   const rows = Array.isArray(records) ? records : [];
   const liveBeans = new Map((Array.isArray(beans) ? beans : []).filter(bean => bean?.id).map(bean => [bean.id, bean]));
+  const liveRecipes = new Map((Array.isArray(recipes) ? recipes : []).filter(recipe => recipe?.id)
+    .map(recipe => [recipe.id, recipe]));
   const eligible = rows.filter(record => isCurrentRecord(record) && record.beanResolution !== 'needs-confirmation' &&
     typeof record.beanId === 'string' && record.beanId && validDate(record.date));
   const byBean = new Map();
@@ -39,6 +46,11 @@ export function buildRecordsInsights(records, beans = [], selectedBeanId = '') {
     id,
     name: recordBeanName(latestRecord, liveBeans),
     latestDate: latestRecord.date,
+    latestRecipeName: snapshotRecipe(latestRecord)?.name || liveRecipes.get(latestRecord.recipeId)?.name ||
+      '기록 당시 레시피 확인 필요',
+    latestRating: validRating(latestRecord.rating) ? latestRecord.rating : null,
+    latestRatingLabel: validRating(latestRecord.rating) ? `${latestRecord.rating}/5`
+      : latestRecord.rating == null ? '별점 없음' : '별점 확인 필요',
   })).sort((left, right) => right.latestDate.localeCompare(left.latestDate) || byId(left, right)).slice(0, 3);
   const selectedBean = beanOptions.find(bean => bean.id === selectedBeanId) ?? beanOptions[0] ?? null;
   const selectedRows = selectedBean ? eligible.filter(record => record.beanId === selectedBean.id) : [];

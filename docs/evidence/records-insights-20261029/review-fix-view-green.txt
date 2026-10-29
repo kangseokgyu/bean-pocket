@@ -1,0 +1,22 @@
+TAP version 13
+# Subtest: insight bean cards expose visible summaries and selected state; empty or unrated trends have explicit text
+ok 1 - insight bean cards expose visible summaries and selected state; empty or unrated trends have explicit text
+  ---
+  duration_ms: 20.5205
+  type: 'test'
+  ...
+# Subtest: insight bean cards, comparison filter, and sort controls update the production view through delegated events
+ok 2 - insight bean cards, comparison filter, and sort controls update the production view through delegated events
+  ---
+  duration_ms: 21.136416
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 96.26025

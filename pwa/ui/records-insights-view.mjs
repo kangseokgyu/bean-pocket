@@ -1,7 +1,6 @@
 import { layoutRatingTrend } from './records-insights.mjs';
 
-const SVG_NS = 'http://www.w3.org/2000/svg';
-const svgElement = (document, name) => document.createElementNS(SVG_NS, name);
+const svgElement = (document, name) => document.createElementNS('http://www.w3.org/2000/svg', name);
 const make = (document, tag, text, className) => {
   const node = document.createElement(tag);
   if (text !== undefined) node.textContent = String(text);
@@ -53,20 +52,23 @@ export function renderRecordsInsights(pane, data, document, ratingFilter, compar
     return;
   }
 
-  const beanField = make(document, 'label', undefined, 'record-insight-bean-field');
-  beanField.append(make(document, 'span', '인사이트 원두'));
-  const beanSelect = document.createElement('select');
-  beanSelect.setAttribute('aria-label', '인사이트 원두 선택');
-  beanSelect.dataset.insightBean = '';
+  section.append(make(document, 'h4', '최근 추출 원두'));
+  const beanList = make(document, 'ul', undefined, 'record-insight-bean-list');
   for (const bean of state.beans) {
-    const option = document.createElement('option');
-    option.value = bean.id;
-    option.textContent = `${bean.name} · 최근 ${bean.latestDate}`;
-    option.selected = bean.id === state.selectedBeanId;
-    beanSelect.append(option);
+    const item = make(document, 'li');
+    const card = button(document, undefined, 'button', 'select-insight-bean');
+    card.className = `button record-insight-bean-card${bean.id === state.selectedBeanId ? ' is-selected' : ''}`;
+    card.dataset.beanId = bean.id;
+    card.setAttribute('aria-pressed', String(bean.id === state.selectedBeanId));
+    card.append(make(document, 'span', bean.name, 'record-insight-bean-name'));
+    card.append(make(document, 'span', `최근 추출 ${bean.latestDate}`, 'record-insight-bean-date'));
+    card.append(make(document, 'span', `레시피 ${bean.latestRecipeName}`, 'record-insight-bean-recipe'));
+    card.append(make(document, 'span', `평가 ${bean.latestRatingLabel}`,
+      'record-insight-bean-rating'));
+    item.append(card);
+    beanList.append(item);
   }
-  beanField.append(beanSelect);
-  section.append(beanField);
+  section.append(beanList);
 
   const trendHeading = make(document, 'h4', '날짜별 별점 추이');
   section.append(trendHeading);

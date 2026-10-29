@@ -34,7 +34,7 @@ const ids = {
 };
 const beanValues = ids.beans.map((id, index) => ({
   id,
-  name: ['에티오피아 구지', '콜롬비아 우일라', '과테말라 안티구아'][index],
+  name: ['현재 원두 부모 A', '콜롬비아 우일라', '과테말라 안티구아'][index],
   roaster: '검증 로스터리', origin: ['구지', '우일라', '안티구아'][index],
   variety: '아라비카', process: '워시드', tastingNotes: '복숭아, 꿀',
 }));
@@ -60,9 +60,11 @@ const records = [
 ];
 
 function record(id, beanIndex, date, rating, cupNote) {
+  const snapshot = makeSnapshot(beanIndex);
+  if (beanIndex === 0) snapshot.bean.name = '에티오피아 구지 당시 이름';
   return page('records', { id, name: `${date} · ${recipes[beanIndex].name}`,
     beanId: ids.beans[beanIndex], recipeId: ids.recipes[beanIndex], date, rating, cupNote,
-    snapshot: makeSnapshot(beanIndex) });
+    snapshot });
 }
 
 function property(type, value, kind, field) {
@@ -247,7 +249,16 @@ try {
   await pageUnderTest.locator('.record-insight-chart').waitFor();
   await pageUnderTest.locator('.record-card').first().waitFor();
   assert.match(await pageUnderTest.locator('[data-insight-scope]').innerText(), /불러온 기록 6건 기준/);
-  assert.equal(await pageUnderTest.locator('[data-insight-bean] option').count(), 3);
+  const beanCards = pageUnderTest.locator('.record-insight-bean-card');
+  assert.equal(await beanCards.count(), 3);
+  const beanCard = index => pageUnderTest.locator(`.record-insight-bean-card[data-bean-id="${ids.beans[index]}"]`);
+  assert.match(await beanCard(0).innerText(), /에티오피아 구지 당시 이름/);
+  assert.doesNotMatch(await beanCard(0).innerText(), /현재 원두 부모 A/);
+  assert.match(await beanCard(0).innerText(), /최근 추출 2026-10-10[\s\S]*레시피 V60 · 구지[\s\S]*평가 5\/5/);
+  assert.match(await beanCard(1).innerText(), /최근 추출 2026-10-07[\s\S]*레시피 오리가미 · 우일라[\s\S]*평가 5\/5/);
+  assert.match(await beanCard(2).innerText(), /최근 추출 2026-10-05[\s\S]*레시피 칼리타 · 안티구아[\s\S]*평가 4\/5/);
+  assert.equal(await beanCard(0).getAttribute('aria-pressed'), 'true');
+  assert.equal(await pageUnderTest.locator('.record-insight-bean-card[aria-pressed="true"]').count(), 1);
   assert.equal(await pageUnderTest.locator('.rating-chart-axis-label').filter({ hasText: /^[1-5]$/ }).count(), 5);
   assert.equal(await pageUnderTest.locator('.rating-chart-point').count(), 3);
   assert.match(await pageUnderTest.locator('.record-insight-best').innerText(), /살구, 홍차/);
@@ -268,24 +279,30 @@ try {
   assert.equal(svgA11y.role, 'img');
   assert.match(svgA11y.labelledby, /날짜별 별점 추이/);
   assert.match(svgA11y.describedby, /2026-10-01/);
-  const beanChoice = pageUnderTest.locator('[data-insight-bean]');
+  const beanChoice = beanCard(1);
   await beanChoice.focus();
   keyboardDebug = await beanChoice.evaluate(element => ({ active: document.activeElement === element,
-    disabled: element.disabled, tabIndex: element.tabIndex, ariaLabel: element.getAttribute('aria-label') }));
-  assert.equal(keyboardDebug.active, true, 'native bean select can receive keyboard focus');
+    disabled: element.disabled, tabIndex: element.tabIndex, role: element.tagName, pressed: element.getAttribute('aria-pressed') }));
+  assert.equal(keyboardDebug.active, true, 'bean cards can receive keyboard focus');
   assert.equal(keyboardDebug.disabled, false);
   assert.ok(keyboardDebug.tabIndex >= 0);
-  assert.equal(keyboardDebug.ariaLabel, '인사이트 원두 선택');
-  await beanChoice.selectOption(ids.beans[1]);
-  assert.equal(await beanChoice.inputValue(), ids.beans[1], 'selecting another bean updates the accessible native control');
+  assert.equal(keyboardDebug.role, 'BUTTON');
+  await beanChoice.press('Enter');
+  assert.equal(await beanChoice.getAttribute('aria-pressed'), 'true', 'Enter selects the focused bean card');
   await pageUnderTest.waitForFunction(() => document.querySelector('.rating-chart-point')?.dataset.date === '2026-10-04');
-  await pageUnderTest.locator('[data-insight-bean]').selectOption(ids.beans[0]);
+  await beanCard(2).focus();
+  await beanCard(2).press('Space');
+  assert.equal(await beanCard(2).getAttribute('aria-pressed'), 'true', 'Space selects the focused bean card');
+  await pageUnderTest.waitForFunction(() => document.querySelector('.rating-chart-point')?.dataset.date === '2026-10-05');
+  await beanCard(0).focus();
+  await beanCard(0).press('Enter');
+  await pageUnderTest.waitForFunction(() => document.querySelector('.rating-chart-point')?.dataset.date === '2026-10-01');
 
   const filterPicker = pageUnderTest.locator('[data-search-picker][data-option-target="filters"][data-option-kind="recipes"]');
   await filterPicker.locator('[data-action="open-search-picker"]').click();
   await filterPicker.locator(`[data-action="select-search-option"][data-option-id="${ids.recipes[1]}"]`).click();
   await pageUnderTest.waitForFunction(() => document.querySelectorAll('.record-card').length === 2);
-  assert.equal(await pageUnderTest.locator('[data-insight-bean]').inputValue(), ids.beans[0]);
+  assert.equal(await beanCard(0).getAttribute('aria-pressed'), 'true');
   assert.deepEqual(await pageUnderTest.locator('.rating-chart-point').evaluateAll(points => points.map(point => point.dataset.date)),
     ['2026-10-01', '2026-10-03', '2026-10-10']);
   assert.match(await pageUnderTest.locator('.record-insight-best').innerText(), /살구, 홍차/);
@@ -301,10 +318,13 @@ try {
       body: document.body.scrollWidth,
       chart: document.querySelector('.rating-trend-chart')?.getBoundingClientRect().width,
       insight: document.querySelector('.record-insights')?.getBoundingClientRect().width,
+      beanCards: document.querySelectorAll('.record-insight-bean-card').length,
     }));
     assert.ok(metrics.document <= width && metrics.body <= width, `${width}px overflow: ${JSON.stringify(metrics)}`);
     assert.ok(metrics.chart <= metrics.insight + 1, `${width}px chart escapes insights: ${JSON.stringify(metrics)}`);
-    await pageUnderTest.screenshot({ path: path.join(evidence, `records-${width}.png`) });
+    assert.equal(metrics.beanCards, 3, `${width}px should show all three recent bean cards`);
+    await pageUnderTest.locator('.record-insight-bean-list').scrollIntoViewIfNeeded();
+    await pageUnderTest.screenshot({ path: path.join(evidence, `review-fix-records-${width}.png`) });
   }
 
   await pageUnderTest.locator('[data-action="show-record-form"]').click();
@@ -337,12 +357,12 @@ try {
   const origins = [...new Set(requests.map(url => new URL(url).origin))];
   assert.ok(origins.every(origin => origin === new URL(baseUrl).origin || origin === 'https://api.notion.com'), origins.join(', '));
   assert.ok(requests.some(url => url.startsWith('https://api.notion.com/v1/')));
-  console.log(`PASS: production build ${await pageUnderTest.locator('#build-version').innerText()}; widths 320/550/768/1024/1440; focusable labelled bean selector with synchronized chart; fixed 1–5 chart with true date spacing and text alternative; recipe filter isolation; create/delete dialogs; no overflow, console/page errors, failed requests, or unmocked external requests (${requests.length} requests, all Notion calls intercepted).`);
+  console.log(`PASS: production build ${await pageUnderTest.locator('#build-version').innerText()}; widths 320/550/768/1024/1440 show all three bean summary cards without overflow; Enter and Space selection synchronize the chart; snapshot bean name and latest date/recipe/rating summaries; fixed 1–5 chart with true date spacing and text alternative; recipe filter isolation; create/delete dialogs; no console/page errors, failed responses, or unmocked external requests (${requests.length} requests, all Notion calls intercepted).`);
 } catch (error) {
-  await pageUnderTest.screenshot({ path: path.join(evidence, 'browser-failure.png') }).catch(() => {});
+  await pageUnderTest.screenshot({ path: path.join(evidence, 'review-fix-browser-failure.png') }).catch(() => {});
   console.error(JSON.stringify({
     failure: error.message,
-    selectedBean: await pageUnderTest.locator('[data-insight-bean]').inputValue().catch(() => ''),
+    selectedBean: await pageUnderTest.locator('.record-insight-bean-card[aria-pressed="true"]').innerText().catch(() => ''),
     chartDates: await pageUnderTest.locator('.rating-chart-point').evaluateAll(points => points.map(point => point.dataset.date)).catch(() => []),
     overflow: await pageUnderTest.evaluate(() => [...document.querySelectorAll('body *')].map(element => {
       const box = element.getBoundingClientRect();

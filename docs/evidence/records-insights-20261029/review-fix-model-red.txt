@@ -1,0 +1,131 @@
+TAP version 13
+# Subtest: three distinct beans are ordered by newest valid record with a stable tie break
+not ok 1 - three distinct beans are ordered by newest valid record with a stable tie break
+  ---
+  duration_ms: 25.235
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/brew-record-demo/AX-1day/test/pwa-records-insights.test.mjs:20:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      {
+        id: 'bean-a',
+        latestDate: '2026-10-12',
+    -   latestRating: 5,
+    -   latestRecipeName: '보관된 레시피',
+        name: '시다마'
+      }
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    id: 'bean-a'
+    name: '시다마'
+    latestDate: '2026-10-12'
+    latestRecipeName: '보관된 레시피'
+    latestRating: 5
+  actual:
+    id: 'bean-a'
+    name: '시다마'
+    latestDate: '2026-10-12'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/brew-record-demo/AX-1day/test/pwa-records-insights.test.mjs:33:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: selection, best record, and comparison values use only valid current snapshots without mutating inputs
+not ok 2 - selection, best record, and comparison values use only valid current snapshots without mutating inputs
+  ---
+  duration_ms: 1.077375
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/brew-record-demo/AX-1day/test/pwa-records-insights.test.mjs:43:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    a valid bean snapshot keeps the historical name
+    
+    '현재 이름' !== '과거 이름'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '과거 이름'
+  actual: '현재 이름'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/brew-record-demo/AX-1day/test/pwa-records-insights.test.mjs:62:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: bean summaries prefer recipe snapshots and only use live recipe names as a fallback
+not ok 3 - bean summaries prefer recipe snapshots and only use live recipe names as a fallback
+  ---
+  duration_ms: 1.359083
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/brew-record-demo/AX-1day/test/pwa-records-insights.test.mjs:71:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      [
+        [
+    +     '현재 원두 A',
+    +     undefined
+    -     '당시 원두',
+    -     '당시 레시피'
+        ],
+        [
+    +     '현재 원두 B',
+    +     undefined
+    -     '다른 원두',
+    -     '현재 레시피 B'
+        ]
+      ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0:
+      0: '당시 원두'
+      1: '당시 레시피'
+    1:
+      0: '다른 원두'
+      1: '현재 레시피 B'
+  actual:
+    0:
+      0: '현재 원두 A'
+    1:
+      0: '현재 원두 B'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/brew-record-demo/AX-1day/test/pwa-records-insights.test.mjs:83:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: chart coordinates use real date spacing and a fixed one-to-five rating scale
+ok 4 - chart coordinates use real date spacing and a fixed one-to-five rating scale
+  ---
+  duration_ms: 0.646875
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 1
+# fail 3
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 96.40325

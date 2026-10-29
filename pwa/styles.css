@@ -601,8 +601,15 @@ button:focus-visible, .table-scroll:focus-visible {
 .record-insights > :first-child, .record-insights h4, .record-insights h5 { margin-top: 0; }
 .record-insights > :last-child { margin-bottom: 0; }
 .record-insight-scope, .record-insight-trend-summary { margin: 0; color: #596a5d; font-size: 0.875rem; }
-.record-insight-bean-field, .record-insight-control { display: grid; gap: 5px; min-width: 0; font-size: 0.875rem; font-weight: 650; }
-.record-insight-bean-field select, .record-insight-control select { width: 100%; min-width: 0; }
+.record-insight-control { display: grid; gap: 5px; min-width: 0; font-size: 0.875rem; font-weight: 650; }
+.record-insight-control select { width: 100%; min-width: 0; }
+.record-insight-bean-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.record-insight-bean-list li { min-width: 0; }
+.record-insight-bean-card { display: grid; width: 100%; gap: 3px; min-width: 0; text-align: start; white-space: normal; }
+.record-insight-bean-card.is-selected { border-color: #39755b; outline: 2px solid #39755b; outline-offset: 1px; }
+.record-insight-bean-card span { overflow-wrap: anywhere; }
+.record-insight-bean-name { font-weight: 750; }
+.record-insight-bean-date, .record-insight-bean-recipe, .record-insight-bean-rating { font-size: 0.8125rem; font-weight: 500; }
 .record-insight-chart { min-width: 0; max-width: 100%; margin: 0; overflow: hidden; }
 .rating-trend-chart { display: block; width: 100%; max-width: 640px; height: auto; margin: 0 auto; overflow: visible; }
 .rating-chart-grid { stroke: #d9dfd5; stroke-width: 1; }

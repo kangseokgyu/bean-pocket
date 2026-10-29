@@ -2784,7 +2784,7 @@ test('records view keeps unfiltered bean insights separate from the filtered tab
     [true], 'only the table respects the active recipe filter');
 });
 
-test('insight bean selector is a native keyboard control, and empty or unrated trends have explicit text', () => {
+test('insight bean cards expose visible summaries and selected state; empty or unrated trends have explicit text', () => {
   const document = new TestDocument();
   const view = createBeanView(document);
   const row = { ...data().records[0], id: 'unrated-record', rating: null };
@@ -2792,9 +2792,14 @@ test('insight bean selector is a native keyboard control, and empty or unrated t
   view.renderData({ ...data(), records: [row], recordInsights: { ...model, status: 'ready', loading: false },
     screen: { route: '/records', complete: true, hasMore: false } });
   view.renderRoute('/records');
-  const selector = document.root.querySelector('[data-insight-bean]');
-  assert.equal(selector.tagName, 'select');
-  assert.match(selector.getAttribute('aria-label'), /인사이트 원두/);
+  const selectedCard = document.root.querySelector('[data-action="select-insight-bean"]');
+  assert.equal(selectedCard.tagName, 'button');
+  assert.equal(selectedCard.type, 'button');
+  assert.equal(selectedCard.getAttribute('aria-pressed'), 'true');
+  assert.equal(selectedCard.dataset.beanId, row.beanId);
+  assert.match(selectedCard.textContent, /2026-06-15/);
+  assert.match(selectedCard.textContent, /V60/);
+  assert.match(selectedCard.textContent, /별점 없음/);
   assert.match(document.root.querySelector('.record-insight-chart-empty').textContent, /유효한 별점 기록이 없습니다/);
   assert.match(document.root.querySelector('.record-insight-best').textContent, /최고 평가 기록이 없습니다/);
 
@@ -2817,13 +2822,15 @@ test('insight bean selector is a native keyboard control, and empty or unrated t
   assert.match(emptyDocument.root.querySelector('.record-insights').textContent, /현재 인사이트에 사용할 기록이 없습니다/);
 });
 
-test('insight bean, comparison filter, and sort controls update the production view through delegated events', async () => {
+test('insight bean cards, comparison filter, and sort controls update the production view through delegated events', async () => {
   const document = new TestDocument();
   const view = createBeanView(document);
   const rows = [
     { ...data().records[0], id: 'comparison-old', date: '2026-10-01', rating: 3 },
     { ...data().records[0], id: 'comparison-high', date: '2026-10-05', rating: 5 },
     { ...data().records[0], id: 'comparison-mid', date: '2026-10-09', rating: 4 },
+    { ...data().records[0], id: 'comparison-other', beanId: 'other-bean', date: '2026-10-10', rating: 2,
+      snapshot: { ...data().records[0].snapshot, beanId: 'other-bean', name: '다른 당시 원두' } },
   ];
   const beanId = rows[0].beanId;
   const insights = { ...buildRecordsInsights(rows, [], beanId), status: 'ready', loading: false, hasMore: true };
@@ -2836,10 +2843,12 @@ test('insight bean, comparison filter, and sort controls update the production v
   const content = document.root.querySelector('.data-panel');
   const change = target => { for (const listener of content.listeners.get('change') ?? []) listener({ target }); };
 
-  const beanSelect = content.querySelector('[data-insight-bean]');
-  beanSelect.value = beanId;
-  change(beanSelect);
-  assert.deepEqual(selected, [beanId], 'native selector change reaches the controller selection action');
+  const beanCard = content.querySelectorAll('[data-action="select-insight-bean"]')
+    .find(card => card.dataset.beanId === beanId);
+  assert.ok(beanCard, 'a recent bean must be visible as an individually selectable summary card');
+  await clickViewTarget(document, beanCard);
+  assert.deepEqual(selected, [beanId], 'button activation reaches the controller selection action');
+  assert.equal(beanCard.getAttribute('aria-pressed'), 'true');
 
   const sort = content.querySelector('[data-insight-comparison-sort]');
   sort.value = 'rating-desc';

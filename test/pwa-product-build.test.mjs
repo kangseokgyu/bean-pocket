@@ -139,11 +139,14 @@ test('SVG namespace is allowed only in UI element creation, never as a request U
   await writeFile(otherModule, originalOtherModule);
   const insightsView = path.join(f.outputDir, 'ui/records-insights-view.mjs');
   const originalInsightsView = await readFile(insightsView, 'utf8');
-  assert.match(originalInsightsView, /const SVG_NS = 'http:\/\/www\.w3\.org\/2000\/svg';/);
+  assert.match(originalInsightsView,
+    /document\.createElementNS\('http:\/\/www\.w3\.org\/2000\/svg', name\)/);
   for (const extra of [
     "fetch('http://www.w3.org/2000/svg');",
     "document.createElementNS('https://example.invalid', 'svg');",
     "const SVG_NS = 'https://example.invalid';",
+    "const SVG_NS = 'http://www.w3.org/2000/svg';\nfetch(SVG_NS);",
+    "fetch('https://example.invalid/external.svg');",
   ]) {
     await writeFile(insightsView, originalInsightsView + '\n' + extra);
     await assert.rejects(checkPages(f.outputDir), /외부 URL/);

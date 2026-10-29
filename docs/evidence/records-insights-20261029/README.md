@@ -1,6 +1,22 @@
 # Records insights verification
 
-## Final results
+## Critic fix verification (latest)
+
+- `npm test`: 633 passed, 0 failed. Output: `review-fix-npm-test.txt`.
+- `npm run build:pages`: passed with build version `a5df255ed2d7`. Output: `review-fix-build-pages.txt`.
+- `npm run check:pages`: passed. Output: `review-fix-check-pages.txt`.
+- `node docs/evidence/records-insights-20261029/browser-validation.mjs`: passed against that production build. Output: `review-fix-browser.txt`.
+- `git diff --check`: passed.
+
+The review fixes show up to three recent bean summaries at once as native buttons. Each card shows the latest extraction date, its recipe name, and the rating on that latest record. A missing rating is labelled “별점 없음”; an invalid rating is labelled “별점 확인 필요”. Snapshot bean and recipe names take precedence over live parent names; missing snapshot recipe names can use a live recipe name when available. Pressing Enter or Space selects a focused card, updates `aria-pressed`, and synchronizes the selected bean's chart and best record.
+
+The Pages checker now normalizes only the SVG namespace literal passed directly to `document.createElementNS`. The generated-output mutation test first reproduced a missing rejection for `fetch(SVG_NS)`; after the fix, alias requests and unrelated external URLs are rejected while the local SVG constructor passes. The red/green test outputs are `review-fix-checker-red.txt` and `review-fix-checker-green.txt`.
+
+The latest browser run checked five widths (320, 550, 768, 1024, and 1440px), visible cards, Enter and Space selection, chart synchronization, snapshot bean-name priority, recipe-filter isolation, and record create/delete. Screenshots are `review-fix-records-320.png`, `review-fix-records-550.png`, `review-fix-records-768.png`, `review-fix-records-1024.png`, and `review-fix-records-1440.png`. It reported no horizontal overflow, console/page errors, failed responses, or unmocked external requests. All 75 Notion API requests were intercepted and answered from the local fixture.
+
+TDD regression results are retained separately: `review-fix-model-red.txt` / `review-fix-model-green.txt` and `review-fix-view-red.txt` / `review-fix-view-green.txt`. The browser used a local fixture, not a real Notion connection. Physical-keyboard, Safari, and Firefox behavior were not independently checked.
+
+## Initial implementation verification (before critic fixes)
 
 - `npm test`: 632 tests passed, 0 failed. Full output: `npm-test-final.txt`.
 - `npm run build:pages`: passed, build version `9cdb7caa5faa`. Output: `build-pages.txt`.

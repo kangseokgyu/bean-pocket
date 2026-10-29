@@ -145,9 +145,9 @@ export async function checkPages(directory = defaultOutputDir, { allowIncomplete
   checkedText.set('ui/view.mjs', textFiles.get('ui/view.mjs')
     .replaceAll("document.createElementNS('http://www.w3.org/2000/svg', 'svg')", 'SVG_ELEMENT')
     .replaceAll("document.createElementNS('http://www.w3.org/2000/svg', 'path')", 'SVG_PATH'));
-  // The insights renderer uses the official SVG namespace for local SVG nodes only.
+  // Normalize only the literal passed directly to the local SVG element constructor.
   checkedText.set('ui/records-insights-view.mjs', textFiles.get('ui/records-insights-view.mjs')
-    .replaceAll("const SVG_NS = 'http://www.w3.org/2000/svg';", 'SVG_NAMESPACE'));
+    .replaceAll("document.createElementNS('http://www.w3.org/2000/svg', name)", 'SVG_ELEMENT'));
   rejectUnsafeContents(checkedText);
 
   if (includeProbes) {

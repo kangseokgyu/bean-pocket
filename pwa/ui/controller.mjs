@@ -173,7 +173,8 @@ export function createAppController({
 
   function withRecordInsights(screenData) {
     const liveBeans = mergeInsightRecords(recordInsights.beanParents, screenData?.beans);
-    const model = buildRecordsInsights(recordInsights.records, liveBeans, recordInsights.selectedBeanId);
+    const model = buildRecordsInsights(recordInsights.records, liveBeans, recordInsights.selectedBeanId,
+      screenData?.recipes ?? []);
     recordInsights.selectedBeanId = model.selectedBeanId;
     return { ...screenData, recordInsights: { ...recordInsights, ...model } };
   }
@@ -661,7 +662,8 @@ export function createAppController({
 
   function setRecordInsightsBean(beanId) {
     if (!data || routeLocation(currentRoute()).path !== '/records') return null;
-    const model = buildRecordsInsights(recordInsights.records, data.beans ?? [], recordInsights.selectedBeanId);
+    const model = buildRecordsInsights(recordInsights.records, data.beans ?? [], recordInsights.selectedBeanId,
+      data.recipes ?? []);
     if (!model.beans.some(bean => bean.id === beanId)) return null;
     recordInsights = { ...recordInsights, selectedBeanId: beanId };
     publishRecordInsights();

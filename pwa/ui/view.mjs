@@ -2360,6 +2360,11 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
     const target = event.target.closest('[data-action]');
     const action = target?.dataset.action;
     if (!action || target.disabled) return;
+    if (action === 'select-insight-bean') {
+      const update = actions.setRecordInsightsBean?.(target.dataset.beanId);
+      if (update?.catch) void update.catch(() => {});
+      return;
+    }
     if (action === 'open-search-picker') {
       openSearchPicker(target.closest('[data-search-picker]'));
       return;
@@ -2599,10 +2604,6 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
   content.addEventListener('change', event => {
     if (event.target.disabled) return;
     if (event.target.matches('[data-record-filter]')) updateRecordFilters();
-    if (event.target.matches('[data-insight-bean]')) {
-      const update = actions.setRecordInsightsBean?.(event.target.value);
-      if (update?.catch) void update.catch(() => {});
-    }
     if (event.target.matches('[data-insight-rating-filter]')) {
       setInsightRatingFilter(event.target.value);
     }

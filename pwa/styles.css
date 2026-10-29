@@ -663,11 +663,11 @@ button:focus-visible, .table-scroll:focus-visible {
 .record-insight-trend-section { min-width: 0; }
 .record-insight-filter-note { margin: 8px 0 0; color: #68685e; font-size: 0.75rem; line-height: 1.45; }
 .record-insight-chart { min-width: 0; max-width: 100%; margin: 10px 0 0; overflow: hidden; }
-.rating-trend-chart { display: block; width: 100%; max-width: 720px; height: auto; margin: 0 auto; overflow: visible; }
+.rating-trend-chart { display: block; width: 100%; max-width: 720px; height: 250px; margin: 0 auto; overflow: visible; }
 .rating-chart-grid { stroke: #ded7ca; stroke-width: 1; }
 .rating-chart-line { fill: none; stroke: #76543a; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
-.rating-chart-point { fill: #76543a; stroke: #fbf9f4; stroke-width: 1.5; }
-.rating-chart-axis-label { fill: #68685e; font: 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.rating-chart-point { fill: #76543a; stroke: #fbf9f4; stroke-width: 3; }
+.rating-chart-axis-label { fill: #68685e; font: 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 .record-insight-chart-empty, .record-insight-empty { margin: 12px 0 0; color: #68685e; font-size: 0.84rem; }
 .record-insight-chart-values { margin-top: 8px; color: #203d32; font-size: 0.76rem; }
 .record-insight-chart-values summary { width: fit-content; min-height: 32px; padding: 7px 0; color: #76543a; font-weight: 650; cursor: pointer; }

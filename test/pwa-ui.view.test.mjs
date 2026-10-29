@@ -2940,6 +2940,83 @@ test('insight bean cards, comparison filter, and sort controls update the produc
   assert.equal(loadMoreCalls, 1, 'the separate insight cursor is reachable from the page control');
 });
 
+test('changing the selected bean clears a recipe filter that does not belong to the new bean', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const otherBeanId = '77777777-7777-4777-8777-777777777777';
+  const otherRecipeId = '88888888-8888-4888-8888-888888888888';
+  const original = data();
+  const otherRecord = { ...original.records[0], id: 'other-bean-record', beanId: otherBeanId,
+    recipeId: otherRecipeId, date: '2026-06-20', rating: 3, cupNote: '코코아',
+    snapshot: { ...original.records[0].snapshot, beanId: otherBeanId, id: otherRecipeId, name: 'Kalita' } };
+  const rows = [...original.records, otherRecord];
+  const beans = [...original.beans, { id: otherBeanId, name: '콜롬비아' }];
+  const recipes = [...original.recipes, { id: otherRecipeId, name: 'Kalita', beanId: otherBeanId, dripper: 'Kalita',
+    dose: 16, grind: '중간', grinder: '테스트', grinderSetting: '20', temperature: 92, totalWater: 240, steps: [] }];
+  let currentData = { ...original, beans, recipes, records: rows,
+    recordInsights: { ...buildRecordsInsights(rows, beans, BEAN, recipes), status: 'ready', loading: false },
+    screen: { route: '/records', complete: true, hasMore: false } };
+  view.renderData(currentData);
+  view.renderRoute('/records');
+  const selected = [];
+  view.bind({ setRecordInsightsBean(beanId) {
+    selected.push(beanId);
+    currentData = { ...currentData, recordInsights: { ...buildRecordsInsights(rows, beans, beanId, recipes),
+      status: 'ready', loading: false } };
+    view.renderData(currentData);
+  } });
+
+  let content = document.root.querySelector('.data-panel');
+  const comparisonIds = () => {
+    const table = content.querySelector('.record-insight-comparison-table');
+    return table ? table.querySelector('tbody').querySelectorAll('tr').map(row => row.dataset.insightRecordId) : [];
+  };
+  const filter = content.querySelector('[data-insight-recipe-filter]');
+  filter.value = RECIPE;
+  for (const listener of content.listeners.get('change') ?? []) listener({ target: filter });
+  assert.deepEqual(comparisonIds(), [original.records[0].id]);
+  assert.equal(content.querySelectorAll('circle').length, 1);
+
+  await clickViewTarget(document, content.querySelector(`[data-action="select-insight-bean"][data-bean-id="${otherBeanId}"]`));
+  content = document.root.querySelector('.data-panel');
+  assert.deepEqual(selected, [otherBeanId]);
+  assert.equal(content.querySelector('[data-insight-recipe-filter]').value, '',
+    'the comparison filter control resets when its recipe is unavailable for the selected bean');
+  assert.deepEqual(comparisonIds(), [otherRecord.id],
+  'the new bean comparison shows its records instead of a stale empty result');
+  const selectedSummary = content.querySelector('.record-insight-selected-bean');
+  assert.equal(selectedSummary.querySelector('h3').textContent, '콜롬비아');
+  const summaryStats = selectedSummary.querySelector('.record-insight-bean-stats').querySelectorAll('dd');
+  assert.equal(summaryStats[0].textContent, '1건');
+  assert.equal(summaryStats[1].textContent, '3.0점');
+  assert.equal(content.querySelectorAll('circle').length, 1);
+  assert.equal(content.querySelector('.record-insight-best-record').dataset.insightRecordId, otherRecord.id);
+});
+
+test('removing the last record for the filtered recipe resets comparison controls and rows together', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const original = data();
+  const alternateRecipeId = '88888888-8888-4888-8888-888888888888';
+  const remaining = { ...original.records[0], id: 'remaining-recipe-record', recipeId: alternateRecipeId,
+    snapshot: { ...original.records[0].snapshot, id: alternateRecipeId, name: 'Kalita' } };
+  const renderRecords = records => view.renderData({ ...original, records,
+    recordInsights: { ...buildRecordsInsights(records, original.beans, BEAN, original.recipes),
+      status: 'ready', loading: false }, screen: { route: '/records', complete: true, hasMore: false } });
+  renderRecords([...original.records, remaining]);
+  view.renderRoute('/records');
+  view.bind({});
+  const content = document.root.querySelector('.data-panel');
+  const filter = content.querySelector('[data-insight-recipe-filter]');
+  filter.value = RECIPE;
+  for (const listener of content.listeners.get('change') ?? []) listener({ target: filter });
+  renderRecords([remaining]);
+  assert.equal(content.querySelector('[data-insight-recipe-filter]').value, '');
+  const table = content.querySelector('.record-insight-comparison-table');
+  assert.deepEqual(table?.querySelector('tbody').querySelectorAll('tr').map(row => row.dataset.insightRecordId),
+    [remaining.id], 'removing a recipe option must not leave an invisible comparison filter');
+});
+
 test('production records insight DOM refreshes after a real controller save and confirmed delete', async () => {
   const originalFormData = globalThis.FormData;
   globalThis.FormData = class {

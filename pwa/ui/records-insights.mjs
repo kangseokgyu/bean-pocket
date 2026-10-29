@@ -98,7 +98,7 @@ export function buildRecordsInsights(records, beans = [], selectedBeanId = '', r
 }
 
 export function layoutRatingTrend(points, { width = 640, height = 260 } = {}) {
-  const margin = { left: 38, right: 12, top: 12, bottom: 32 };
+  const margin = { left: 46, right: 24, top: 30, bottom: 48 };
   const plotWidth = Math.max(1, width - margin.left - margin.right);
   const plotHeight = Math.max(1, height - margin.top - margin.bottom);
   const dates = (Array.isArray(points) ? points : []).filter(point => validDate(point.date));

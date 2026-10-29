@@ -899,6 +899,9 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     renderData(nextData) {
       saveActiveDraft(content, drafts);
       currentData = nextData;
+      const insightRecipeOptions = currentData.recordInsights?.recipeOptions;
+      if (insightRecipeFilter && Array.isArray(insightRecipeOptions) &&
+          !insightRecipeOptions.some(recipe => recipe.id === insightRecipeFilter)) insightRecipeFilter = '';
       skeletons.hidden = true;
       const routeNeedsRender = routeNeedsDataRender;
       routeNeedsDataRender = false;
@@ -2385,16 +2388,14 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
     if (!action || target.disabled) return;
     if (action === 'select-insight-bean') {
       const beanId = target.dataset.beanId;
+      const currentBean = Array.from(content.querySelectorAll('[data-action="select-insight-bean"]'))
+        .find(card => card.getAttribute('aria-pressed') === 'true');
+      if (currentBean?.dataset.beanId !== beanId) setInsightRecipeFilter('');
       const update = actions.setRecordInsightsBean?.(beanId);
       if (update?.catch) void update.catch(() => {});
       const selected = Array.from(content.querySelectorAll('[data-action="select-insight-bean"]'))
         .find(card => card.dataset.beanId === beanId);
       selected?.focus?.();
-      return;
-    }
-    if (action === 'select-insight-bean') {
-      const update = actions.setRecordInsightsBean?.(target.dataset.beanId);
-      if (update?.catch) void update.catch(() => {});
       return;
     }
     if (action === 'open-search-picker') {

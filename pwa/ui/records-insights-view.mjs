@@ -1,6 +1,29 @@
 import { layoutRatingTrend } from './records-insights.mjs';
 
 const svgElement = (document, name) => document.createElementNS('http://www.w3.org/2000/svg', name);
+const trendResizeRenderers = new WeakMap();
+let trendResizeObserver;
+
+function observeTrendSize(svg, render) {
+  const Observer = globalThis.ResizeObserver;
+  if (typeof Observer !== 'function') return;
+  if (!trendResizeObserver) {
+    trendResizeObserver = new Observer(entries => {
+      for (const entry of entries) {
+        if (!entry.target.isConnected) {
+          trendResizeObserver.unobserve(entry.target);
+          trendResizeRenderers.delete(entry.target);
+          continue;
+        }
+        const update = trendResizeRenderers.get(entry.target);
+        if (update && entry.contentRect.width > 0) update(entry.contentRect.width);
+      }
+    });
+  }
+  trendResizeRenderers.set(svg, render);
+  trendResizeObserver.observe(svg);
+}
+
 const make = (document, tag, text, className) => {
   const node = document.createElement(tag);
   if (text !== undefined) node.textContent = String(text);
@@ -286,8 +309,56 @@ function renderInsightsMoreButton(parent, document, state) {
   parent.append(more);
 }
 
+function updateTrendGeometry(svg, points, width, height) {
+  const layout = layoutRatingTrend(points, { width: Math.max(280, Math.floor(width)), height });
+  svg.setAttribute('viewBox', `0 0 ${layout.width} ${layout.height}`);
+  for (const [index, rating] of layout.yTicks.entries()) {
+    const y = layout.plotBottom - (rating - 1) / 4 * layout.plotHeight;
+    const line = svg.querySelectorAll('.rating-chart-grid')[index];
+    line?.setAttribute('x1', String(layout.plotLeft));
+    line?.setAttribute('x2', String(layout.plotRight));
+    line?.setAttribute('y1', String(y));
+    line?.setAttribute('y2', String(y));
+    const label = svg.querySelectorAll('[data-rating-axis]')[index];
+    label?.setAttribute('x', String(layout.plotLeft - 12));
+    label?.setAttribute('y', String(y + 4));
+  }
+  const pointById = new Map(layout.points.map(point => [point.id, point]));
+  const line = svg.querySelector('.rating-chart-line');
+  if (line) line.setAttribute('d', layout.points.map((point, index) => `${index ? 'L' : 'M'}${point.x},${point.y}`).join(' '));
+  for (const circle of svg.querySelectorAll('.rating-chart-point')) {
+    const point = pointById.get(circle.getAttribute('data-record-id'));
+    if (!point) continue;
+    circle.setAttribute('cx', String(point.x));
+    circle.setAttribute('cy', String(point.y));
+  }
+  for (const label of svg.querySelectorAll('.rating-chart-point-label')) {
+    const point = layout.points.find(item => item.date === label.getAttribute('data-date') &&
+      item.rating === Number(label.getAttribute('data-rating')));
+    if (!point) continue;
+    label.setAttribute('x', String(point.x));
+    label.setAttribute('y', String(point.y + (point.rating === 5 ? 15 : -9)));
+  }
+  const dateLabels = [...svg.querySelectorAll('[data-date-axis]')];
+  for (const label of dateLabels) {
+    const point = layout.points.find(item => item.date === label.getAttribute('data-date-axis'));
+    if (point) label.setAttribute('x', String(point.x));
+    label.style.display = '';
+  }
+  const lastDateBounds = dateLabels.at(-1)?.getBBox();
+  let previousRight = -Infinity;
+  for (const [index, label] of dateLabels.entries()) {
+    const bounds = label.getBBox();
+    const isLast = index === dateLabels.length - 1;
+    const crowded = !isLast && (bounds.x < previousRight + 8 ||
+      (index > 0 && bounds.x + bounds.width > lastDateBounds.x - 8));
+    label.style.display = crowded ? 'none' : '';
+    if (!crowded) previousRight = bounds.x + bounds.width;
+  }
+}
+
 function renderRatingTrend(document, points) {
-  const layout = layoutRatingTrend(points, { width: 360, height: 230 });
+  const layout = layoutRatingTrend(points, { width: 640, height: 250 });
   const figure = make(document, 'figure', undefined, 'record-insight-chart');
   const svg = svgElement(document, 'svg');
   svg.setAttribute('viewBox', `0 0 ${layout.width} ${layout.height}`);
@@ -317,6 +388,7 @@ function renderRatingTrend(document, points) {
     label.setAttribute('y', String(y + 4));
     label.setAttribute('text-anchor', 'end');
     label.setAttribute('class', 'rating-chart-axis-label');
+    label.setAttribute('data-rating-axis', String(rating));
     label.textContent = String(rating);
     svg.append(label);
   }
@@ -340,6 +412,8 @@ function renderRatingTrend(document, points) {
     circle.setAttribute('class', 'rating-chart-point');
     circle.setAttribute('data-trend-point', '');
     circle.setAttribute('data-date', point.date);
+    circle.setAttribute('data-record-id', point.id);
+    circle.setAttribute('data-rating', String(point.rating));
     const overlap = overlapCounts.get(`${point.date}|${point.rating}`);
     const pointTitle = svgElement(document, 'title');
     pointTitle.textContent = `${point.date} · ${point.rating}/5${overlap > 1 ? ` · 같은 날짜와 별점 ${overlap}건` : ''}`;
@@ -366,6 +440,7 @@ function renderRatingTrend(document, points) {
     label.setAttribute('class', 'rating-chart-point-label');
     label.setAttribute('aria-hidden', 'true');
     label.setAttribute('data-date', point.date);
+    label.setAttribute('data-rating', String(point.rating));
     label.textContent = `${point.rating}점`;
     svg.append(label);
   }
@@ -382,6 +457,7 @@ function renderRatingTrend(document, points) {
     label.setAttribute('y', String(layout.height - 8));
     label.setAttribute('text-anchor', index === 0 ? 'start' : index === uniqueDates.length - 1 ? 'end' : 'middle');
     label.setAttribute('class', 'rating-chart-axis-label');
+    label.setAttribute('data-date-axis', date);
     label.textContent = date.slice(5).replace('-', '/');
     const tickTitle = svgElement(document, 'title');
     tickTitle.textContent = date;
@@ -389,6 +465,7 @@ function renderRatingTrend(document, points) {
     svg.append(label);
   }
   figure.append(svg);
+  observeTrendSize(svg, width => updateTrendGeometry(svg, points, width, 250));
   const accessibleValues = make(document, 'ol', undefined, 'visually-hidden');
   accessibleValues.id = 'record-rating-chart-values';
   appendChartValues(accessibleValues, layout.points);

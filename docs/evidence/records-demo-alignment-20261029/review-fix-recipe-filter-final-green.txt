@@ -1,0 +1,22 @@
+TAP version 13
+# Subtest: changing the selected bean clears a recipe filter that does not belong to the new bean
+ok 1 - changing the selected bean clears a recipe filter that does not belong to the new bean
+  ---
+  duration_ms: 38.924917
+  type: 'test'
+  ...
+# Subtest: removing the last record for the filtered recipe resets comparison controls and rows together
+ok 2 - removing the last record for the filtered recipe resets comparison controls and rows together
+  ---
+  duration_ms: 12.268917
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 107.200625

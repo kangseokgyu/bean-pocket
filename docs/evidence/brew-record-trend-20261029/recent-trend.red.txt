@@ -1,0 +1,11 @@
+TAP version 13
+# file:///Users/kangseokgyu/.codex/worktrees/brew-record-demo/AX-1day/test/pwa-records-demo.test.mjs:9
+#   getRatingTrend,
+#   ^^^^^^^^^^^^^^
+# SyntaxError: The requested module '../pwa/records-demo.mjs' does not provide an export named 'getRatingTrend'
+# Subtest: test/pwa-records-demo.test.mjs
+not ok 1 - test/pwa-records-demo.test.mjs
+# tests 0
+# pass 0
+# fail 1
+# exitCode: 1

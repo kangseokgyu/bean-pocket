@@ -1,0 +1,5 @@
+
+> build:pages
+> node scripts/build-pages.mjs
+
+Pages 산출물 생성 실패: 외부 URL 참조가 산출물에 있습니다.

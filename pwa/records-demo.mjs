@@ -111,6 +111,61 @@ export function summarizeBean(beanId, beans = demoBeans, records = demoRecords) 
   return { bean, records: beanRecords, recordCount: beanRecords.length, averageRating, bestRecord };
 }
 
+export function getRecentlyBrewedBeans(beans = demoBeans, records = demoRecords, limit = 3) {
+  const beansById = new Map();
+  for (const bean of beans) {
+    if (!beansById.has(bean.id)) beansById.set(bean.id, bean);
+  }
+
+  const latestByBean = new Map();
+  for (const record of records) {
+    if (!beansById.has(record.beanId)) continue;
+    const current = latestByBean.get(record.beanId);
+    if (!current || record.brewedOn > current.brewedOn || (record.brewedOn === current.brewedOn && record.id < current.id)) {
+      latestByBean.set(record.beanId, record);
+    }
+  }
+
+  const maximumBeans = Number.isFinite(limit) ? Math.max(0, Math.floor(limit)) : 3;
+  return [...latestByBean.entries()]
+    .sort(([, left], [, right]) => right.brewedOn.localeCompare(left.brewedOn) || left.beanId.localeCompare(right.beanId))
+    .slice(0, maximumBeans)
+    .map(([beanId, latestRecord]) => ({
+      bean: beansById.get(beanId),
+      latestRecord,
+      recordCount: records.filter(record => record.beanId === beanId).length,
+    }));
+}
+
+export function getRatingTrend(records, beanId) {
+  return records
+    .filter(record => record.beanId === beanId)
+    .sort((left, right) => left.brewedOn.localeCompare(right.brewedOn) || left.id.localeCompare(right.id));
+}
+
+export function getRatingTrendCoordinates(records, { width = 640, height = 250, padding = {} } = {}) {
+  const plot = {
+    left: padding.left ?? 46,
+    right: width - (padding.right ?? 24),
+    top: padding.top ?? 28,
+    bottom: height - (padding.bottom ?? 48),
+  };
+  const plotWidth = Math.max(0, plot.right - plot.left);
+  const plotHeight = Math.max(0, plot.bottom - plot.top);
+  const timestamps = records.map(record => Date.parse(`${record.brewedOn}T00:00:00Z`));
+  const firstDate = Math.min(...timestamps);
+  const lastDate = Math.max(...timestamps);
+
+  return records.map((record, index) => {
+    const timestamp = timestamps[index];
+    const x = firstDate === lastDate
+      ? plot.left + plotWidth / 2
+      : plot.left + ((timestamp - firstDate) / (lastDate - firstDate)) * plotWidth;
+    const y = plot.top + ((5 - record.rating) / 4) * plotHeight;
+    return { ...record, x, y };
+  });
+}
+
 export function filterAndSortRecords(records, { beanId, recipeFamily = 'all', sort = 'date-desc' } = {}) {
   return records
     .filter(record => record.beanId === beanId && (recipeFamily === 'all' || record.recipe.family === recipeFamily))
@@ -154,24 +209,111 @@ function createRating(rating, className = '') {
   return group;
 }
 
-function createBeanOption(bean, summary) {
+function createBeanOption({ bean, latestRecord, recordCount }) {
   const button = element('button', 'bean-option');
   button.type = 'button';
   button.dataset.beanId = bean.id;
   button.setAttribute('aria-pressed', 'false');
 
   const topLine = element('span', 'bean-option-top');
-  topLine.append(element('span', 'bean-option-name', bean.name), element('span', 'bean-option-count', `${summary.recordCount}회`));
+  topLine.append(element('span', 'bean-option-name', bean.name), element('span', 'bean-option-count', `${recordCount}회`));
   button.append(topLine, element('span', 'bean-option-origin', bean.origin));
-
-  if (summary.bestRecord) {
-    const best = summary.bestRecord;
-    button.append(element('span', 'bean-option-best', `최고 ${best.rating}.0점 · ${formatDate(best.brewedOn)}`));
-    button.append(element('span', 'bean-option-recipe', best.recipe.name));
-  } else {
-    button.append(element('span', 'bean-option-best', '아직 기록이 없어요'));
-  }
+  button.append(
+    element('span', 'bean-option-best', `최근 ${formatDate(latestRecord.brewedOn)} · ${latestRecord.rating}.0점`),
+    element('span', 'bean-option-recipe', latestRecord.recipe.name),
+  );
   return button;
+}
+
+function formatTrendDate(value) {
+  const [, month, day] = value.split('-');
+  return `${month}/${day}`;
+}
+
+function renderRatingTrend(summary, { chart, caption, empty, details, list }) {
+  const records = getRatingTrend(summary.records, summary.bean.id);
+  const detailsSummary = details.querySelector('summary');
+  const axis = chart.querySelector('#trend-axis');
+  const series = chart.querySelector('#trend-series');
+  axis.replaceChildren();
+  series.replaceChildren();
+  list.replaceChildren(...records.map(record => {
+    const item = element('li', 'trend-list-item');
+    const date = element('time', '', formatDate(record.brewedOn));
+    date.setAttribute('datetime', record.brewedOn);
+    item.append(date, element('span', '', `${record.rating}.0점`));
+    return item;
+  }));
+
+  const titleText = `${summary.bean.name} 별점 추이`;
+  chart.querySelector('#rating-trend-title').textContent = titleText;
+  chart.hidden = records.length === 0;
+  empty.hidden = records.length > 0;
+  details.hidden = records.length === 0;
+
+  if (records.length === 0) {
+    const emptyDescription = `${summary.bean.name}에는 아직 별점이 기록된 추출이 없습니다.`;
+    chart.querySelector('#rating-trend-description').textContent = emptyDescription;
+    caption.textContent = emptyDescription;
+    detailsSummary.textContent = '그래프를 텍스트로 보기';
+    return;
+  }
+
+  const width = Math.max(280, Math.floor(chart.getBoundingClientRect().width || chart.clientWidth || 640));
+  const height = Math.floor(chart.getBoundingClientRect().height || chart.clientHeight || 250);
+  const padding = { top: 30, right: 24, bottom: 48, left: 46 };
+  const points = getRatingTrendCoordinates(records, { width, height, padding });
+  const plotRight = width - padding.right;
+  const plotBottom = height - padding.bottom;
+  const plotHeight = plotBottom - padding.top;
+  chart.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+  const dateAndRatingText = records.map(record => `${record.brewedOn} ${record.rating}점`).join(', ');
+  const accessibleDescription = `${records.length}건의 전체 추출 기록입니다. 가로축은 실제 날짜 간격, 세로축은 1점부터 5점까지입니다. 날짜별 평가: ${dateAndRatingText}.`;
+  chart.querySelector('#rating-trend-description').textContent = accessibleDescription;
+  caption.textContent = `${summary.bean.name} · 전체 ${records.length}회 · 날짜 오름차순 · y축 1~5점`;
+  detailsSummary.textContent = `그래프를 텍스트로 보기 (${records.length}건)`;
+
+  for (const rating of [5, 4, 3, 2, 1]) {
+    const y = padding.top + ((5 - rating) / 4) * plotHeight;
+    const tick = chart.querySelector('#trend-grid-template').cloneNode(true);
+    tick.removeAttribute('id');
+    tick.querySelector('line').setAttribute('x1', padding.left);
+    tick.querySelector('line').setAttribute('x2', plotRight);
+    tick.querySelector('line').setAttribute('y1', y);
+    tick.querySelector('line').setAttribute('y2', y);
+    tick.querySelector('text').setAttribute('x', padding.left - 12);
+    tick.querySelector('text').setAttribute('y', y + 4);
+    tick.querySelector('text').textContent = String(rating);
+    axis.append(tick);
+  }
+
+  if (points.length > 1) {
+    const path = points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
+    const line = chart.querySelector('#trend-line-template').cloneNode();
+    line.removeAttribute('id');
+    line.setAttribute('d', path);
+    series.append(line);
+  }
+
+  points.forEach((point, index) => {
+    const anchor = index === 0 ? 'start' : index === points.length - 1 ? 'end' : 'middle';
+    const group = chart.querySelector('#trend-point-template').cloneNode(true);
+    group.removeAttribute('id');
+    group.setAttribute('class', 'trend-point');
+    group.setAttribute('data-trend-date', point.brewedOn);
+    group.setAttribute('data-rating', point.rating);
+    group.querySelector('circle').setAttribute('cx', point.x);
+    group.querySelector('circle').setAttribute('cy', point.y);
+    group.querySelector('.trend-point-rating').setAttribute('x', point.x);
+    group.querySelector('.trend-point-rating').setAttribute('y', point.y - 10);
+    group.querySelector('.trend-point-rating').textContent = `${point.rating}점`;
+    group.querySelector('.trend-axis-date').setAttribute('x', point.x);
+    group.querySelector('.trend-axis-date').setAttribute('y', height - 12);
+    group.querySelector('.trend-axis-date').setAttribute('text-anchor', anchor);
+    group.querySelector('.trend-axis-date').textContent = formatTrendDate(point.brewedOn);
+    series.append(group);
+  });
 }
 
 function createComparisonRow(record) {
@@ -261,18 +403,45 @@ function initRecordsDemo() {
   const currentSelection = document.querySelector('#selection-announcement');
   const recipeFilter = document.querySelector('#recipe-filter');
   const recordSort = document.querySelector('#record-sort');
+  const beanListCount = document.querySelector('#bean-list-count');
+  const beanListEmpty = document.querySelector('#bean-list-empty');
+  const trendTargets = {
+    chart: document.querySelector('#rating-trend'),
+    caption: document.querySelector('#rating-trend-summary'),
+    empty: document.querySelector('#rating-trend-empty'),
+    details: document.querySelector('#rating-trend-text'),
+    list: document.querySelector('#rating-trend-list'),
+  };
 
   if (!beanList || !beanHeading || !recipeFilter || !recordSort) return;
 
-  let selectedBeanId = demoBeans[0]?.id;
-  for (const bean of demoBeans) {
-    const summary = summarizeBean(bean.id);
-    beanList.append(createBeanOption(bean, summary));
+  const recentBeans = getRecentlyBrewedBeans(demoBeans, demoRecords, 3);
+  let selectedBeanId = recentBeans[0]?.bean.id ?? null;
+  beanListCount.textContent = `${recentBeans.length}종`;
+  beanListEmpty.hidden = recentBeans.length > 0;
+  for (const recentBean of recentBeans) {
+    beanList.append(createBeanOption(recentBean));
   }
 
   function render() {
     const summary = summarizeBean(selectedBeanId);
-    if (!summary) return;
+    if (!summary) {
+      beanHeading.textContent = '기록이 있는 원두 없음';
+      beanOrigin.textContent = '';
+      beanRoaster.textContent = '';
+      beanNote.textContent = '';
+      countValue.textContent = '0회';
+      averageValue.textContent = '기록 없음';
+      currentSelection.textContent = '최근 추출 기록이 있는 원두가 없습니다.';
+      bestTarget.replaceChildren(element('p', 'best-empty', '최근 추출 기록이 없습니다.'));
+      renderRatingTrend({ bean: { id: '', name: '선택한 원두' }, records: [] }, trendTargets);
+      recordCount.textContent = '0건';
+      tableBody.replaceChildren();
+      cardList.replaceChildren();
+      emptyState.hidden = false;
+      document.querySelector('#records-table-region').hidden = true;
+      return;
+    }
 
     for (const button of beanList.querySelectorAll('[data-bean-id]')) {
       const selected = button.dataset.beanId === selectedBeanId;
@@ -288,6 +457,7 @@ function initRecordsDemo() {
     averageValue.textContent = summary.averageRating === null ? '기록 없음' : `${summary.averageRating.toFixed(1)}점`;
     currentSelection.textContent = `${summary.bean.name} 선택 · 기록 ${summary.recordCount}회`;
     renderBestRecord(summary, bestTarget);
+    renderRatingTrend(summary, trendTargets);
 
     const visibleRecords = filterAndSortRecords(demoRecords, {
       beanId: selectedBeanId,
@@ -309,6 +479,10 @@ function initRecordsDemo() {
   });
   recipeFilter.addEventListener('change', render);
   recordSort.addEventListener('change', render);
+  window.addEventListener('resize', () => {
+    const summary = summarizeBean(selectedBeanId);
+    if (summary) renderRatingTrend(summary, trendTargets);
+  });
   render();
 }
 

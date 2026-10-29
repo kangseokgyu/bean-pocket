@@ -1,0 +1,4 @@
+Command: npm test
+Exit: 1 (initial sandbox run)
+Result: 620 tests discovered; 605 passed, 15 failed.
+Cause: every failure was an existing HTTP test unable to create a 127.0.0.1 listener (`listen EPERM: operation not permitted`). No assertion failure was reported. Per project instructions, the unchanged full suite was rerun with elevated permission; see npm-test.txt for the passing 620/620 result.

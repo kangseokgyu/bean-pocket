@@ -1,0 +1,1 @@
+PASS: 3 distinct recent beans; default most-recent selection; best-record details; date-scaled SVG and fixed 1–5 axis; keyboard selection; graph text alternative; recipe filter limited to table/cards; responsive widths 320/550/768/1024/1440; no overflow, console errors/warnings, failed/bad or external requests. Requests: 5

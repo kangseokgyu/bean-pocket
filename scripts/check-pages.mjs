@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const defaultOutputDir = path.join(projectRoot, 'dist');
+// Only the builder's existing-output safety check may accept retired files for removal.
+const retiredFiles = ['records-demo.html', 'records-demo.css', 'records-demo.mjs'];
 export const probeFiles = [
   'probes/notion/index.html', 'probes/notion/probe.mjs',
   'probes/storage/index.html', 'probes/storage/probe.mjs',
@@ -32,9 +34,6 @@ const allowedFiles = new Set([
   'platform/app-lifecycle.mjs',
   'platform/connection-file.mjs',
   'platform/update-coordinator.mjs',
-  'records-demo.css',
-  'records-demo.html',
-  'records-demo.mjs',
   'state/submission-state.mjs',
   'styles.css',
   'sw.js',
@@ -60,9 +59,6 @@ const requiredCacheFiles = [
   './platform/update-coordinator.mjs',
   './state/submission-state.mjs',
   './styles.css',
-  './records-demo.html',
-  './records-demo.mjs',
-  './records-demo.css',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -72,7 +68,8 @@ const requiredCacheFiles = [
 ];
 
 async function collectFiles(directory, allowIncomplete, includeProbes) {
-  const permittedFiles = new Set([...allowedFiles, ...(includeProbes ? probeFiles : [])]);
+  const permittedFiles = new Set([...allowedFiles, ...(includeProbes ? probeFiles : []),
+    ...(allowIncomplete ? retiredFiles : [])]);
   const permittedDirectories = new Set(['icons', 'data', 'platform', 'state', 'commands', 'ui', ...(includeProbes ? ['probes', 'probes/notion', 'probes/storage'] : [])]);
   const rootInfo = await lstat(directory).catch(error => {
     if (error.code === 'ENOENT') throw new Error(`산출물 디렉터리가 없습니다: ${directory}`);
@@ -139,7 +136,7 @@ export async function checkPages(directory = defaultOutputDir, { allowIncomplete
   if (missing.length) return true;
 
   const textFiles = new Map();
-  for (const relativePath of ['brew-picker-demo.html', 'brew-picker-demo.css', 'brew-picker-demo.mjs', 'app.mjs', 'commands/index.mjs', 'ui/controller.mjs', 'ui/records-insights.mjs', 'ui/records-insights-view.mjs', 'ui/view.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs', 'data/notion-client.mjs', 'data/notion-properties.mjs', 'data/read-repository.mjs', 'domain.mjs', 'index.html', 'records-demo.html', 'records-demo.mjs', 'records-demo.css', 'manifest.webmanifest', 'platform/connection-file.mjs', 'state/submission-state.mjs', 'styles.css', 'sw.js']) {
+  for (const relativePath of ['brew-picker-demo.html', 'brew-picker-demo.css', 'brew-picker-demo.mjs', 'app.mjs', 'commands/index.mjs', 'ui/controller.mjs', 'ui/records-insights.mjs', 'ui/records-insights-view.mjs', 'ui/view.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs', 'data/notion-client.mjs', 'data/notion-properties.mjs', 'data/read-repository.mjs', 'domain.mjs', 'index.html', 'manifest.webmanifest', 'platform/connection-file.mjs', 'state/submission-state.mjs', 'styles.css', 'sw.js']) {
     textFiles.set(relativePath, (await readFile(path.join(directory, relativePath))).toString('utf8'));
   }
   const checkedText = new Map(textFiles);
@@ -184,15 +181,8 @@ export async function checkPages(directory = defaultOutputDir, { allowIncomplete
   const html = textFiles.get('index.html');
   if (!html.includes('href="./styles.css"') ||
       !html.includes('href="./manifest.webmanifest"') ||
-      !html.includes('src="./app.mjs"') ||
-      !html.includes('href="./records-demo.html"')) {
+      !html.includes('src="./app.mjs"')) {
     throw new Error('HTML 앱 자원은 상대 경로로 연결해야 합니다.');
-  }
-  const demoHtml = textFiles.get('records-demo.html');
-  if (!demoHtml.includes('href="./records-demo.css"') ||
-      !demoHtml.includes('src="./records-demo.mjs"') ||
-      !demoHtml.includes('href="./index.html"')) {
-    throw new Error('추출 기록 데모는 상대 경로 자원과 기존 기록 화면 복귀 링크를 사용해야 합니다.');
   }
   if (!/new URL\('\.\/sw\.js',\s*import\.meta\.url\)/.test(textFiles.get('app.mjs'))) {
     throw new Error('Service Worker는 모듈 위치 기준 상대 경로로 등록해야 합니다.');

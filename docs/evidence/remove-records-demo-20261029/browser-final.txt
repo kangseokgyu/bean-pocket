@@ -1,0 +1,1 @@
+PASS: records demo HTML/CSS/module return 404; app boots at #/records; no retired entry link; connection control remains; 320/550/1440px no overflow; no console/page/network failures; other picker links to production records. Isolated Chrome without real Notion data.

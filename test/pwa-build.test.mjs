@@ -30,9 +30,6 @@ const expectedFiles = [
   'platform/app-lifecycle.mjs',
   'platform/connection-file.mjs',
   'platform/update-coordinator.mjs',
-  'records-demo.css',
-  'records-demo.html',
-  'records-demo.mjs',
   'state/submission-state.mjs',
   'styles.css',
   'sw.js',
@@ -83,10 +80,7 @@ async function writeSourceFixture(sourceDir) {
     'platform/connection-file.mjs': 'export const storage = {};',
     'data/notion-client.mjs': 'export class NotionClient {}',
     'data/notion-properties.mjs': 'export const schemas = {};',
-    'index.html': '<!doctype html><html lang="ko"><head><link rel="stylesheet" href="./styles.css"><link rel="manifest" href="./manifest.webmanifest"><script type="module" src="./app.mjs"></script></head><body><h1>원두 목록</h1><p>Notion 연결 전입니다</p><ul id="bean-list"></ul><a href="./records-demo.html">추출 기록 데모</a><p>빌드 <span id="build-version">__BUILD_VERSION__</span></p></body></html>',
-    'records-demo.html': '<!doctype html><html lang="ko"><head><link rel="stylesheet" href="./records-demo.css"><script type="module" src="./records-demo.mjs"></script></head><body><h1>추출 기록 데모</h1><p>샘플 기록입니다.</p><a href="./index.html">기록 화면</a></body></html>',
-    'records-demo.css': 'body { color: #203d32; }',
-    'records-demo.mjs': 'export const demoRecords = [];',
+    'index.html': '<!doctype html><html lang="ko"><head><link rel="stylesheet" href="./styles.css"><link rel="manifest" href="./manifest.webmanifest"><script type="module" src="./app.mjs"></script></head><body><h1>원두 목록</h1><p>Notion 연결 전입니다</p><ul id="bean-list"></ul><p>빌드 <span id="build-version">__BUILD_VERSION__</span></p></body></html>',
     'app.mjs': "const registrationPromise = navigator.serviceWorker.register(new URL('./sw.js', import.meta.url)).catch(() => undefined); void registrationPromise.then(registration => lifecycle.start(registration));",
     'styles.css': 'body { color: #224b3c; }',
     'manifest.webmanifest': JSON.stringify({
@@ -201,6 +195,34 @@ async function listFiles(directory, prefix = '') {
   return files.sort();
 }
 
+test('Pages 빌드는 삭제된 추출 기록 데모와 링크·캐시를 다시 공급하지 않는다', async t => {
+  const { outputDir } = await buildProductionFixture(t);
+  const retiredFiles = ['records-demo.html', 'records-demo.css', 'records-demo.mjs'];
+  for (const file of retiredFiles) await writeFile(path.join(outputDir, file), 'retired demo');
+  await buildPages({ sourceDir: sourceRoot, outputDir });
+  const files = await listFiles(outputDir);
+  for (const file of retiredFiles) assert.ok(!files.includes(file), `${file}은 게시 대상이 아니다`);
+  assert.ok(files.includes('ui/records-insights-view.mjs'), '실제 추출 기록 화면은 계속 공급한다');
+  const html = await readFile(path.join(outputDir, 'index.html'), 'utf8');
+  const worker = await readFile(path.join(outputDir, 'sw.js'), 'utf8');
+  for (const file of files.filter(file => file.endsWith('.html'))) {
+    assert.doesNotMatch(await readFile(path.join(outputDir, file), 'utf8'), /records-demo\.(?:html|css|mjs)/,
+      `${file}에 삭제된 데모 링크가 없어야 한다`);
+  }
+  assert.doesNotMatch(html, /records-demo\.(?:html|css|mjs)|추출 기록 데모/);
+  assert.doesNotMatch(worker, /records-demo\.(?:html|css|mjs)/);
+  const listeners = await loadWorker(worker, 'https://example.test/bean-pocket/', makeCacheStorage(), []);
+  for (const file of retiredFiles) {
+    assert.deepEqual(await dispatchFetch(listeners, `https://example.test/bean-pocket/${file}`), { intercepted: false });
+  }
+  await writeFile(path.join(outputDir, retiredFiles[0]), 'unexpected retired demo');
+  await assert.rejects(checkPages(outputDir), /허용하지 않은|예상하지 않은/);
+  await rm(path.join(outputDir, retiredFiles[0]));
+  await symlink(path.join(outputDir, 'index.html'), path.join(outputDir, retiredFiles[0]));
+  await assert.rejects(buildPages({ sourceDir: sourceRoot, outputDir }), /심볼릭 링크/);
+  assert.equal(await readFile(path.join(outputDir, 'index.html'), 'utf8'), html);
+});
+
 test('Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록을 만든다', async t => {
   const { outputDir, version } = await buildFixture(t);
   assert.equal(await checkPages(outputDir), true);
@@ -216,7 +238,7 @@ test('Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록
   assert.match(html, new RegExp(version));
   assert.match(html, /href="\.\/styles\.css"/);
   assert.match(html, /src="\.\/app\.mjs"/);
-  assert.match(html, /href="\.\/records-demo\.html"/, '실제 기록 화면에 작은 데모 진입점이 있어야 한다');
+  assert.doesNotMatch(html, /records-demo\.(?:html|css|mjs)/);
   assert.doesNotMatch(html, /<li\b[^>]*>\s*[^<]/i, '예시 원두가 없어야 한다');
   assert.match(app, /new URL\('\.\/sw\.js', import\.meta\.url\)/);
   assert.match(app, /\.then\(registration => lifecycle\.start\(registration\)\)/);
@@ -228,26 +250,20 @@ test('Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록
   assert.match(worker, new RegExp(version));
   assert.doesNotMatch(worker, /location\.reload|clients\.claim/i);
   assert.equal(worker, (await readFile(path.join(sourceRoot, 'sw.js'), 'utf8')).replaceAll('__BUILD_VERSION__', version));
-  const demoHtml = await readFile(path.join(outputDir, 'records-demo.html'), 'utf8');
-  assert.match(demoHtml, /href="\.\/records-demo\.css"/);
-  assert.match(demoHtml, /src="\.\/records-demo\.mjs"/);
-  assert.match(worker, /\.\/records-demo\.html/);
-  assert.match(worker, /\.\/records-demo\.css/);
-  assert.match(worker, /\.\/records-demo\.mjs/);
   assert.doesNotMatch(`${html}\n${app}\n${worker}`, /https?:\/\//i);
 });
 
 test('검사기는 공개 데모 자산의 외부 URL과 루트 절대 경로를 거부한다', async t => {
   const external = await buildFixture(t);
-  const scriptPath = path.join(external.outputDir, 'records-demo.mjs');
+  const scriptPath = path.join(external.outputDir, 'brew-picker-demo.mjs');
   const script = await readFile(scriptPath, 'utf8');
   await writeFile(scriptPath, `${script}\nfetch('https://example.test/data');\n`);
   await assert.rejects(checkPages(external.outputDir), /외부 URL/);
 
   const absolute = await buildFixture(t);
-  const demoHtmlPath = path.join(absolute.outputDir, 'records-demo.html');
+  const demoHtmlPath = path.join(absolute.outputDir, 'brew-picker-demo.html');
   const demoHtml = await readFile(demoHtmlPath, 'utf8');
-  await writeFile(demoHtmlPath, demoHtml.replace('./records-demo.css', '/records-demo.css'));
+  await writeFile(demoHtmlPath, demoHtml.replace('./brew-picker-demo.css', '/brew-picker-demo.css'));
   await assert.rejects(checkPages(absolute.outputDir), /절대 경로/);
 });
 
@@ -394,7 +410,7 @@ test('Service Worker install·activate·fetch는 scope를 격리하고 앱 파�
   assert.ok(!remaining.includes(staleA), '자기 scope의 이전 버전 캐시는 정리해야 한다');
   assert.notEqual(cacheA, cacheB, '같은 출처의 서로 다른 scope는 별도 namespace를 사용해야 한다');
 
-  const appFiles = ['./', './index.html', './app.mjs', './brew-picker-demo.html', './brew-picker-demo.css', './brew-picker-demo.mjs', './commands/index.mjs', './ui/controller.mjs', './ui/records-insights.mjs', './ui/records-insights-view.mjs', './ui/view.mjs', './data/notion-client.mjs', './data/notion-properties.mjs', './data/read-repository.mjs', './domain.mjs', './platform/app-lifecycle.mjs', './platform/connection-file.mjs', './platform/update-coordinator.mjs', './state/submission-state.mjs', './styles.css', './records-demo.html', './records-demo.mjs', './records-demo.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/bp-logo.png', './icons/favicon-bp-ivory.png', './icons/home-brew.png'];
+  const appFiles = ['./', './index.html', './app.mjs', './brew-picker-demo.html', './brew-picker-demo.css', './brew-picker-demo.mjs', './commands/index.mjs', './ui/controller.mjs', './ui/records-insights.mjs', './ui/records-insights-view.mjs', './ui/view.mjs', './data/notion-client.mjs', './data/notion-properties.mjs', './data/read-repository.mjs', './domain.mjs', './platform/app-lifecycle.mjs', './platform/connection-file.mjs', './platform/update-coordinator.mjs', './state/submission-state.mjs', './styles.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/bp-logo.png', './icons/favicon-bp-ivory.png', './icons/home-brew.png'];
   assert.deepEqual(cacheStorage.stores.get(cacheA).files.map(request => [request.url, request.cache]),
     appFiles.map(file => [new URL(file, scopeA).href, 'reload']));
   assert.deepEqual(cacheStorage.stores.get(cacheB).files.map(request => [request.url, request.cache]),

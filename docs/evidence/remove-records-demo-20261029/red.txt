@@ -1,0 +1,28 @@
+TAP version 13
+# Subtest: Pages 빌드는 삭제된 추출 기록 데모와 링크·캐시를 다시 공급하지 않는다
+not ok 1 - Pages 빌드는 삭제된 추출 기록 데모와 링크·캐시를 다시 공급하지 않는다
+  ---
+  duration_ms: 77.045458
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/brew-record-demo/AX-1day/test/pwa-build.test.mjs:204:1'
+  failureType: 'testCodeFailure'
+  error: 'records-demo.html은 게시 대상이 아니다'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/brew-record-demo/AX-1day/test/pwa-build.test.mjs:210:43)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 140.368917

@@ -20,3 +20,13 @@
 - 모델/renderer/view/CSS 변경을 검토했다. snapshot 우선, 불러온 범위 표기, invalid 평점 처리, 고정 1~5/실제 날짜 좌표/텍스트 대안, recipe/date/rating 비교 정렬, 관리 fallback 및 관리 영역 paging 위치를 확인했다. controller/query/연결 격리/허용 파일·SVG 보안 예외는 이번 diff에서 변경하지 않았다. 로스팅 경과일·총 추출 시간을 새로 지어내지 않는다.
 - 최종 README와 로그는 636 통과/0 실패, focused 147 통과, 빌드·브라우저 `c7ff26136829`로 일치한다. 최초 원문은 607/635이며 15 EPERM과 13 UI 실패/수정 경과가 기록되어 있다.
 - 추가 실행은 `/tmp/critic-align-browser.mjs`의 좁은 fixture Chrome 실험뿐이다. 소스와 증거 이미지를 수정하지 않았다. 전체 suite와 전체 브라우저 검증은 중복하지 않았으며 실제 Notion·Safari/Firefox·물리 키보드는 미검증이다.
+
+## 재검토 — 승인
+
+- 대상 `1cc3826..b7fa694`(source 수정 `f559bd9`). 필수 두 건과 선택 개선의 중복 handler가 모두 해결됐다. 추가 차단 사항 없음.
+- 원두 전환 시 레시피 필터를 초기화하고, data 갱신 시 선택 옵션이 사라지면 필터 상태도 정규화한다. 원두 전환 및 마지막 해당 레시피 기록 삭제에 대한 회귀 테스트를 직접 읽었다.
+- 독립 Chrome fixture에서 이전 재현을 다시 실행했다. A 레시피 필터 후 B 선택 결과 `filter:"", option:"모든 레시피", rows:2, empty:[]`로 정상 표시됐다.
+- 같은 독립 실행에서 1440px production/demo SVG 높이는 각각 250/250px였다. 최종 production 320/550/768/1024/1440 캡처와 demo 캡처를 직접 확인해 차트가 더 이상 확대되지 않고 sidebar→summary→trend→best grid→comparison 우선순위와 모바일 카드 표현을 유지함을 확인했다. 좁은 화면의 생략한 날짜도 텍스트 목록에서 확인할 수 있다.
+- ResizeObserver 소스의 disconnected target 해제 경로를 읽고, 브라우저에서 observe/unobserve를 계측했다. 원두 선택 8회 후 active 1/detached 0, records를 떠난 뒤 active 0/detached 0이었다. 반복 렌더 및 경로 이탈에서 관측 대상이 누적되지 않았다.
+- 최종 release 로그는 focused 149/149, 전체 638/638이며 빌드·브라우저·dist SW 버전 모두 `cfa4de79469e`다. controller/view/insights model/renderer/styles의 현재 소스와 dist가 byte-for-byte 일치한다.
+- 독립 검증은 좁은 재현/관측 대상 정리 점검이며 전체 suite/전체 브라우저 검증은 중복 실행하지 않았다. 실제 Notion·Safari/Firefox·물리 장치/키보드 미검증 한계는 유지한다.

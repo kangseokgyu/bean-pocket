@@ -15,31 +15,26 @@
 - 테스트·빌드·배포 실패는 원인을 확인하고 해결한다. 게시 완료 후 실행 결과, 공개 빌드 버전과 파일 반영을 확인하고 검증 근거를 기록한다.
 - 최종 보고에는 게시 주소·빌드 버전·테스트 결과와 실제로 확인하지 못한 범위를 포함한다.
 
-## Addy Osmani Agent Skills (프로젝트 로컬)
+## pstack Agent Skills (프로젝트 로컬)
 
-- `.agents/skills/<skill-name>/SKILL.md`를 Codex 기본 탐색으로 사용한다. 요청과 스킬의 `description`·트리거를 대조해 관련 스킬만 자동 선택하고, 상세 내용과 참조는 필요한 시점에 읽는다. 여러 스킬은 작업 단계에 따라 순차 적용한다.
-- 별도 라우터·시작 훅을 만들거나 `SKILL.md` 전체를 이 문서에 복사하지 않는다. `using-agent-skills`는 설치 상태로 유지하되 상시 로드하지 않는다.
-- 우선순위: 현재 작업의 사용자 명시 요구사항 → 기존 프로젝트 필수 정책 및 AGENTS.md → 기술적 제약·코딩 컨벤션 → 스킬 워크플로. 충돌 시 차이와 영향을 설명하고, 상위 규칙으로 해결되지 않는 판단만 사용자에게 요청한다.
-- 기존 아키텍처, 테스트 프레임워크(`node --test`), 기능별 워크트리·`codex/` 브랜치 전략, 커밋·merge·CI·게시 정책을 유지한다. 스킬의 도구·테스트 비율·커밋 빈도·배포 권장사항으로 이를 대체하지 않는다. 에이전트 구성·모델·추론 수준도 기존 사용자 지침을 따른다.
+- Codex는 `.agents/skills/<skill-name>/SKILL.md`에서 프로젝트 스킬을 탐색한다. 요청과 스킬의 description·trigger를 대조해 관련 스킬만 고르고, 필요한 시점에 해당 스킬의 `references/`, `playbooks/`, `scripts/` 및 `.agents/docs/` 지원 문서를 읽는다. 설치한 원본 `SKILL.md`와 스킬 내부 파일은 프로젝트 정책을 반영한다는 이유로 수정하지 않는다.
+- 비사소한 엔지니어링 작업은 필요하면 `poteto-mode`를 기본 라우터로 쓰고, 작업에 직접 필요한 스킬만 적용한다. upstream의 라우팅·모델·도구 권고는 아래 프로젝트 정책을 따른다.
 
-| 작업 | 기본 적용 스킬 |
+| 작업 | 관련 pstack 스킬 |
 | --- | --- |
-| 요구사항 분석 | `interview-me`, `spec-driven-development` |
-| 개발 계획 | `planning-and-task-breakdown` |
-| 기능 구현 | `incremental-implementation` |
-| 테스트 | `test-driven-development` |
-| 버그 수정 | `debugging-and-error-recovery` |
-| 코드 리뷰 | `code-review-and-quality` |
-| 리팩터링 | `code-simplification` |
-| 보안 검토 | `security-and-hardening` |
-| 성능 최적화 | `performance-optimization` |
-| Git 작업 | `git-workflow-and-versioning` |
-| 문서화 | `documentation-and-adrs` |
-| 배포 | `shipping-and-launch` |
+| 요구사항·복잡한 조사 | `figure-it-out`, `poteto-mode`, `how`, `why` |
+| 설계·모듈 경계 | `architect`, `principle-model-the-domain`, `principle-boundary-discipline` |
+| 기능 구현·버그 수정 | `poteto-mode`의 해당 playbook, `tdd`, `principle-fix-root-causes`, `principle-sequence-verifiable-units` |
+| 검증·리뷰 | `principle-prove-it-works`, `blast-radius`, `interrogate` (허용된 Critic 역할 범위에서만) |
+| TypeScript·형식 검증 | `typescript-best-practices`, `create-formal-verification-skill`, `statechart` |
+| 문서·문구 | `technical-writing`, `unslop` |
 
-- 위 매핑은 기본 가이드다. 실제 트리거와 작업 범위에 따라 선택하며 불명확한 요구사항만 질문한다. 작은 작업에 불필요한 전체 워크플로를 강제하지 않는다.
-- 복잡한 기능은 요구사항·완료 조건을 먼저 정하고 작고 검증 가능한 단위로 구현한다. 동작 변경은 기존 환경에서 테스트를 먼저 작성하고 의도한 실패를 확인한 뒤 구현한다. 버그는 재현 → 원인 분석 → 수정 → 회귀 테스트 순서로 처리한다.
-- 변경에 맞는 테스트·빌드·정적 분석과 프로젝트 필수 검증을 실제 실행한다. 미실행·실패·미검증 범위는 명시하고 성공으로 보고하지 않는다. 문서·설정만 바꾸는 작업은 그에 맞는 검증을 적용한다.
-- 기존 코드베이스 도입은 `context-engineering`으로 구조·관례 파악 → `code-review-and-quality`로 변경 검토 → 필요한 버그에 `debugging-and-error-recovery` → 변경할 영역부터 점진적 TDD 순서로 진행한다. 도입만을 위한 전체 리팩터링, 무관한 문서·추상화·테스트 인프라 추가는 하지 않는다.
-- 새 기능부터 Spec → Plan → Build → Verify → Review 흐름을 작업 규모에 맞게 적용한다. 기존 동작·컨벤션을 우선 존중하고 요청 밖 리팩터링을 하지 않는다.
-- 공통 참조는 `.agents/references/`에 보관한다. `../../references/`는 각 스킬 디렉터리 기준으로 해석한다. 설치 출처·보완 경로는 `.agents/README.md`를 참고한다. 전역 스킬·전역 AGENTS.md·홈 Codex 설정이나 다른 프로젝트로 전파하지 않는다.
+- 우선순위는 현재 사용자 명시 요청과 기존 승인 → 이 `AGENTS.md`의 필수 프로젝트 정책 → 실제 도구·기술 제약 → pstack의 일반 워크플로 순이다. 충돌 시 상위 규칙을 따르고, 실제 제약과 영향은 보고한다.
+- 에이전트 역할은 Orchestrator, Worker, Critic으로 제한한다. Orchestrator는 메인 에이전트가 `gpt-6.1-sol` / `high`, Worker는 `gpt-6-luna` / `max`, Critic은 `gpt-6.1-sol` / `medium`을 쓴다. Worker가 429 등 요청 한도 오류로 중단되면 무한 재시도하지 않고 `gpt-6.1-sol` / `medium`으로 대체한다. 모델과 reasoning effort는 생성 도구에서 명시한다. 지정할 수 없거나 해당 모델을 사용할 수 없으면 제한을 알리고, 대체 설정은 사용자 지시나 프로젝트 정책을 따른다. 허용된 대체 설정이 없으면 사용자에게 모델 선택을 확인하고, 그동안 해당 에이전트에 의존하지 않는 작업을 진행한다. 실제 사용 설정을 보고하며 요청문에 모델명을 적는 것만으로 지정했다고 보고하지 않는다. Worker의 429 fallback만 위에 정한 허용 예외다.
+- Orchestrator는 요구사항·작업 분해·완료 조건을 정하고 Worker의 구현과 Critic의 검증을 중복하지 않는다. Worker와 Critic은 순차 진행한다. Critic은 독립 검토만 하고 코드를 수정하지 않으며, 지적사항은 Worker가 수정한 뒤 Critic이 재검토한다. 에이전트는 중첩 생성하지 않는다. 역할과 맥락이 맞는 기존 에이전트를 우선 재사용한다. 에이전트 생성 도구에 이름 지정 인자가 없으면 역할명은 업무상 호칭으로만 쓰고, UI 표시 이름을 지정했다고 말하지 않는다.
+- pstack의 기본 모델·reasoning budget·다중 모델 panel, 병렬 위임, 매번 새 에이전트를 만들라는 지침은 프로젝트 정책을 바꾸지 않는다. `arena`, `swarm`, `interrogate`, `reflect`, `architect` 등에서 추가·병렬 subagent를 요구하는 절차는 허용된 역할·순서·모델 범위 안에서만 수행하고, 범위를 벗어나면 해당 단계를 생략하거나 순차적인 허용 절차로 처리하며 제한을 보고한다.
+- 동작을 추가·변경할 때는 기존 `node --test` 환경에서 테스트를 먼저 작성하고 의도한 실패를 확인한 뒤 구현한다. 문서·설정 설치는 동작 테스트를 억지로 만들지 말고 파일·참조·출처 일치 검증을 적용한다. 게시 전 필수 명령은 위의 테스트 완료 후 게시 절차를 따른다.
+- 기능별 워크트리와 `codex/` 브랜치 전략, 사용자의 기존 변경 보호, 커밋·merge·CI·게시 정책은 이 문서의 앞 절을 따른다. pstack의 PR 생성·merge·게시 요구사항은 별도 권한이 아니다. 프로젝트의 상시 merge·게시 승인은 정해진 검증 조건을 충족할 때 적용되며, 현재 사용자 요청이 더 제한적이면 그 요청이 우선한다.
+- upstream `setup-pstack`은 Cursor용 `~/.cursor/rules/pstack-models.mdc`를 쓰는 설정 스킬이다. 이 프로젝트에서는 실행하지 않고 홈 설정이나 프로젝트 밖 설정 파일을 변경하지 않는다. 에이전트 모델·추론 수준은 위 프로젝트 정책을 따른다.
+- pstack 스킬은 Cursor의 `Task`, `AskQuestion`, custom mode, Bugbot, Automations, PR 도구, `poteto-agent`·`comment-sicko` 및 Cursor 모델 문자열을 전제할 수 있다. Claude Code 어댑터 문서는 `.agents/docs/harness/claude-code.md`에 보관되어 있으나 Codex용 어댑터가 아니다. 현재 Codex 도구에서 실제 지원되는 항목만 사용하고, 지원되지 않는 호출·인자·통합은 실행한 것처럼 표현하지 말고 필요한 경우 생략 사유를 보고한다. `.agents/agents/`의 upstream 에이전트 문서는 참고 자료이며 Codex subagent를 등록하지 않는다.
+- 원본·설치 방법·파일별 SHA-256 manifest와 Codex 사용상 한계는 `.agents/README.md`에 기록한다. 별도 전역 라우터·시작 훅을 만들거나 pstack의 upstream 스크립트를 설치 검증 과정에서 실행하지 않는다.

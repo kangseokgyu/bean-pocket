@@ -329,7 +329,7 @@ html:has(dialog[open]), body:has(dialog[open]) { overflow: hidden; overscroll-be
   border-radius: 9px;
   background: #fffefa;
   color: #203d32;
-  font-size: 0.875rem;
+  font-size: 16px;
   line-height: 1.35;
 }
 .token-input-control { position: relative; min-width: 0; }
@@ -829,7 +829,7 @@ button:focus-visible, .table-scroll:focus-visible {
 .record-insight-comparisons { min-width: 0; }
 .record-insight-controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .record-insight-control { display: grid; gap: 4px; min-width: 0; color: #68685e; font-size: 0.7rem; }
-.record-insight-control select { width: 100%; min-width: 0; min-height: 40px; padding: 7px 28px 7px 9px; border: 1px solid #cfc5b4; border-radius: 6px; background: #fffdf9; color: #203d32; font-size: 0.78rem; }
+.record-insight-control select { width: 100%; min-width: 0; min-height: 40px; padding: 7px 28px 7px 9px; border: 1px solid #cfc5b4; border-radius: 6px; background: #fffdf9; color: #203d32; font-size: 16px; }
 .record-insight-comparison-count { margin: 12px 0 7px; color: #68685e; font-size: 0.72rem; font-variant-numeric: tabular-nums; }
 .record-insight-comparison-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 0.76rem; }
 .record-insight-comparison-table th, .record-insight-comparison-table td { padding: 9px 7px; border-top: 1px solid #ded7ca; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
@@ -1079,7 +1079,7 @@ footer {
 .brew-option-search-control { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; gap: 8px; width: 100%; min-height: 38px; padding: 0 8px; border: 1px solid #aaa394; border-radius: 8px; background: #fffefa; color: #203d32; }
 .brew-option-search-control:focus-within { border-color: #587464; box-shadow: 0 0 0 2px rgb(88 116 100 / 18%); }
 .brew-option-search-icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
-.brew-option-search-control > input[type="search"] { width: 100%; min-width: 0; min-height: 36px; padding: 6px 0; border: 0; outline: 0; background: transparent; color: inherit; font: inherit; font-size: 0.875rem; line-height: 1.35; }
+.brew-option-search-control > input[type="search"] { width: 100%; min-width: 0; min-height: 36px; padding: 6px 0; border: 0; outline: 0; background: transparent; color: inherit; font: inherit; font-size: 16px; line-height: 1.35; }
 .brew-option-search-control > input[type="search"]:focus-visible { outline: none; }
 .brew-option-search-clear { min-height: 34px; padding: 5px 8px; font-size: 0.75rem; white-space: nowrap; }
 .brew-step-indicator { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; min-width: 0; margin: 0; padding: 0 0 8px; border-bottom: 1px solid #e0dbcf; list-style: none; }

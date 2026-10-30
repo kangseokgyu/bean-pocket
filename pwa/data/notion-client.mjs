@@ -4,6 +4,7 @@ import { schemas, relationTargets, optionalProperties, encodeProperties } from '
 const KINDS = Object.freeze(['beans', 'recipes', 'steps', 'records']);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const REJECTED = new Set([400, 401, 403, 404, 409, 413, 415, 422, 429]);
+const NOTION_VERSION = '2025-09-03';
 const ownErrors = new WeakSet();
 
 function failure(code, writeState, details = {}) {
@@ -91,6 +92,59 @@ function validReadSignal(signal) {
     typeof signal.addEventListener === 'function' && typeof signal.removeEventListener === 'function');
 }
 
+export async function validateNotionToken(token, options = {}) {
+  if (!record(options)) return 'unavailable';
+  const { fetchImpl = globalThis.fetch, timeoutMs = 15000, signal } = options;
+  const normalized = typeof token === 'string' ? token.trim() : '';
+  if (!normalized || /[\u0000-\u001f\u007f-\u009f]/.test(normalized) ||
+      typeof fetchImpl !== 'function' || typeof timeoutMs !== 'number' ||
+      !Number.isFinite(timeoutMs) || timeoutMs <= 0 || !validReadSignal(signal)) {
+    return 'unavailable';
+  }
+  if (signal?.aborted) return null;
+
+  const controller = new AbortController();
+  const init = Object.freeze({
+    method: 'GET',
+    headers: Object.freeze({
+      Authorization: 'Bearer ' + normalized,
+      'Notion-Version': NOTION_VERSION,
+    }),
+    redirect: 'error',
+    cache: 'no-store',
+    credentials: 'omit',
+    signal: controller.signal,
+  });
+  let timer;
+  let cancel;
+  const request = Promise.resolve().then(() => fetchImpl.call(globalThis,
+    'https://api.notion.com/v1/users/me', init)).then(response => {
+    if (!record(response) || !Number.isInteger(response.status) || response.status < 100 ||
+        response.status > 599 || typeof response.ok !== 'boolean' ||
+        response.ok !== (response.status >= 200 && response.status < 300)) return 'unavailable';
+    if (response.status === 401) return 'invalid';
+    return response.ok ? 'valid' : 'unavailable';
+  }).catch(() => 'unavailable');
+  const timeout = new Promise(resolve => {
+    timer = setTimeout(() => {
+      controller.abort();
+      resolve('unavailable');
+    }, timeoutMs);
+  });
+  const cancelled = new Promise(resolve => {
+    cancel = () => {
+      resolve(null);
+      controller.abort();
+    };
+    signal?.addEventListener?.('abort', cancel, { once: true });
+  });
+  try { return await Promise.race([request, timeout, cancelled]); }
+  finally {
+    clearTimeout(timer);
+    signal?.removeEventListener?.('abort', cancel);
+  }
+}
+
 function waitForRead(ms, signal) {
   if (signal?.aborted) return Promise.reject(failure('read-cancelled', 'not-sent'));
   if (ms <= 0) return Promise.resolve();
@@ -172,7 +226,7 @@ export class NotionClient {
     signal?.addEventListener?.('abort', cancelRequest, { once: true });
     const headers = Object.freeze({
       Authorization: 'Bearer ' + this.#token,
-      'Notion-Version': '2025-09-03',
+      'Notion-Version': NOTION_VERSION,
       'Content-Type': 'application/json',
     });
     const init = Object.freeze({

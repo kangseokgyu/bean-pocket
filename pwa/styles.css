@@ -332,6 +332,40 @@ html:has(dialog[open]), body:has(dialog[open]) { overflow: hidden; overscroll-be
   font-size: 0.875rem;
   line-height: 1.35;
 }
+.token-input-control { position: relative; min-width: 0; }
+.token-input-control input { padding-right: 44px; }
+.token-validation-icon {
+  position: absolute;
+  top: 50%;
+  right: 13px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+}
+.token-validation-icon[data-state="checking"], .token-validation-icon[data-state="valid"],
+.token-validation-icon[data-state="invalid"], .token-validation-icon[data-state="unavailable"] { display: inline-flex; }
+.token-validation-icon[data-state="valid"] { color: #2d7051; }
+.token-validation-icon[data-state="invalid"] { color: #a7332c; }
+.token-validation-icon[data-state="unavailable"] { color: #8a6518; }
+.token-validation-icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.token-validation-icon[data-state="checking"] svg { display: none; }
+.token-validation-icon[data-state="checking"]::after {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  content: "";
+  animation: token-validation-spin 700ms linear infinite;
+}
+.token-validation-message { margin: -2px 0 0; color: #546056; font-size: 0.82rem; line-height: 1.5; }
+.token-validation-message[data-state="valid"] { color: #2d7051; }
+.token-validation-message[data-state="invalid"] { color: #8f2c26; }
+.token-validation-message[data-state="unavailable"] { color: #765713; }
+@keyframes token-validation-spin { to { transform: rotate(360deg); } }
 
 /* Avoid iOS native date controls adding padding outside their declared width. */
 .form-field input[type="date"] {
@@ -479,6 +513,7 @@ button:focus-visible, .table-scroll:focus-visible {
   .button.action-button { transition: none; }
   .button.action-delete:hover:not(:disabled) .button-icon { transition: none; transform: none; }
   .button-icon[data-state="saving"]::after { animation: none; }
+  .token-validation-icon[data-state="checking"]::after { animation: none; }
   .button-icon[data-icon="check"][data-state="success"],
   .button-icon[data-icon="check"][data-state="success"] svg path,
   .status-icon[data-state="success"],

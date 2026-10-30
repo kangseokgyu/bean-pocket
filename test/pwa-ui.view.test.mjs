@@ -2720,6 +2720,141 @@ test('connection modal protects pending and success phases across product rerend
   assert.equal(status.hidden, true, 'the shared success toast keeps its existing auto-hide policy');
 });
 
+test('token field waits one second, trims pasted tokens, and announces results without exposing the token', async () => {
+  const document = new TestDocument();
+  const token = 'ntn_example-complete-token';
+  let finishValidation;
+  const calls = [];
+  const scheduled = [];
+  const view = createAppView(document, {
+    schedule(callback, delay) { const timer = { callback, delay, cancelled: false }; scheduled.push(timer); return timer; },
+    cancelSchedule(timer) { timer.cancelled = true; },
+    validateToken(value, { signal }) {
+      calls.push({ value, signal });
+      return new Promise(resolve => { finishValidation = resolve; });
+    },
+  });
+  view.bind({ setDirty() {} });
+  view.showConnection({ connected: false });
+  const form = document.root.querySelector('form[data-form="connection"]');
+  const tokenInput = form.elements.token;
+  const status = form.querySelector('[data-token-status]');
+  assert.ok(status, 'the token status is exposed beside the input');
+  assert.equal(status.getAttribute('role'), 'status');
+  assert.equal(status.getAttribute('aria-live'), 'polite');
+
+  tokenInput.value = 'partial';
+  for (const listener of form.listeners.get('input') ?? []) listener({ target: tokenInput, inputType: 'insertText' });
+  assert.equal(calls.length, 0);
+  assert.equal(status.dataset.state, 'idle');
+  assert.equal(scheduled[0].delay, 1000);
+
+  tokenInput.value = ` ${token} `;
+  for (const listener of form.listeners.get('input') ?? []) listener({ target: tokenInput, inputType: 'insertFromPaste' });
+  assert.equal(tokenInput.value, token, 'pasted whitespace is trimmed before checking');
+  assert.equal(scheduled[0].cancelled, true, 'new input cancels the previous wait');
+  assert.equal(scheduled[1].delay, 1000);
+  assert.equal(calls.length, 0, 'validation waits until input has been quiet for one second');
+  scheduled[1].callback();
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].value, token);
+  assert.equal(status.dataset.state, 'checking');
+  assert.equal(form.querySelector('[data-token-status-icon]').dataset.state, 'checking');
+
+  finishValidation('valid');
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(status.dataset.state, 'valid');
+  assert.equal(status.textContent, 'Notion 토큰을 확인했습니다.');
+  assert.equal(status.textContent.includes(token), false);
+});
+
+test('each token edit restarts the one-second wait without checking a guessed token length', () => {
+  const document = new TestDocument();
+  const scheduled = [];
+  let calls = 0;
+  const view = createAppView(document, {
+    schedule(callback, delay) { const timer = { callback, delay, cancelled: false }; scheduled.push(timer); return timer; },
+    cancelSchedule(timer) { timer.cancelled = true; },
+    validateToken() { calls += 1; return 'valid'; },
+  });
+  view.bind({ setDirty() {} });
+  view.showConnection({ connected: false });
+  const form = document.root.querySelector('form[data-form="connection"]');
+  const tokenInput = form.elements.token;
+  const status = form.querySelector('[data-token-status]');
+  tokenInput.value = 'x';
+  for (const listener of form.listeners.get('input') ?? []) listener({ target: tokenInput, inputType: 'insertText' });
+  assert.equal(scheduled[0].delay, 1000);
+  assert.equal(calls, 0);
+  tokenInput.value = 'xy';
+  for (const listener of form.listeners.get('input') ?? []) listener({ target: tokenInput, inputType: 'insertText' });
+  assert.equal(scheduled[0].cancelled, true);
+  assert.equal(scheduled[1].delay, 1000);
+  assert.equal(calls, 0);
+  scheduled[1].callback();
+  assert.equal(calls, 1);
+  assert.equal(status.dataset.state, 'checking');
+});
+
+test('token validation ignores stale responses and resets on edit, save, and modal close', async () => {
+  const document = new TestDocument();
+  const token = 'ntn_example-complete-token';
+  const scheduled = [];
+  let finishValidation;
+  let requestSignal;
+  const view = createAppView(document, {
+    schedule(callback, delay) { const timer = { callback, delay, cancelled: false }; scheduled.push(timer); return timer; },
+    cancelSchedule(timer) { timer.cancelled = true; },
+    validateToken(_value, { signal }) {
+      requestSignal = signal;
+      return new Promise(resolve => { finishValidation = resolve; });
+    },
+  });
+  view.bind({ setDirty() {} });
+  view.showConnection({ connected: false });
+  const dialog = document.root.querySelector('dialog.connection-panel');
+  const form = dialog.querySelector('form[data-form="connection"]');
+  const tokenInput = form.elements.token;
+  const status = form.querySelector('[data-token-status]');
+  const input = (value, inputType = 'insertText') => {
+    tokenInput.value = value;
+    for (const listener of form.listeners.get('input') ?? []) listener({ target: tokenInput, inputType });
+  };
+
+  input(token);
+  const staleTimer = scheduled.at(-1);
+  input('shorter');
+  assert.equal(staleTimer.cancelled, true);
+  staleTimer.callback();
+  assert.equal(status.dataset.state, 'idle');
+  assert.equal(requestSignal, undefined);
+  scheduled.at(-1).callback();
+  assert.equal(status.dataset.state, 'checking');
+  const staleSignal = requestSignal;
+  input('');
+  assert.equal(staleSignal.aborted, true);
+  assert.equal(status.dataset.state, 'idle');
+  finishValidation('valid');
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(status.dataset.state, 'idle');
+
+  input(token);
+  scheduled.at(-1).callback();
+  assert.equal(view.beginConnectionSave(), true);
+  assert.equal(requestSignal.aborted, true);
+  assert.equal(status.dataset.state, 'idle');
+  view.finishConnectionSave();
+  input(token);
+  scheduled.at(-1).callback();
+  const closingSignal = requestSignal;
+  assert.equal(view.cancelConnection(), true);
+  assert.equal(closingSignal.aborted, true);
+  assert.equal(tokenInput.value, '');
+  assert.equal(status.dataset.state, 'idle');
+});
+
 test('connection success closes at 1000ms and defers focus until settings is enabled', () => {
   const document = new TestDocument();
   const scheduled = [];

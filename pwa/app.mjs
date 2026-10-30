@@ -1,4 +1,4 @@
-import { NotionClient } from './data/notion-client.mjs';
+import { NotionClient, validateNotionToken } from './data/notion-client.mjs';
 import { createReadRepository } from './data/read-repository.mjs';
 import { createConnectionFile } from './platform/connection-file.mjs';
 import { createSubmissionState } from './state/submission-state.mjs';
@@ -10,7 +10,7 @@ import { createAppView } from './ui/view.mjs';
 const registrationPromise = 'serviceWorker' in navigator
   ? navigator.serviceWorker.register(new URL('./sw.js', import.meta.url)).catch(() => undefined)
   : undefined;
-const view = createAppView(document);
+const view = createAppView(document, { validateToken: validateNotionToken });
 const state = createSubmissionState();
 const file = createConnectionFile();
 let lifecycle;

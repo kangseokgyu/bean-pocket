@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { NotionClient, validateCreatePayload } from '../pwa/data/notion-client.mjs';
+import { NotionClient, validateCreatePayload, validateNotionToken } from '../pwa/data/notion-client.mjs';
 import { schemas, encodeProperties, decodePage } from '../pwa/data/notion-properties.mjs';
 import { encodeProperties as serverEncode, decodePage as serverDecode } from '../lib/notion.mjs';
 
@@ -57,6 +57,53 @@ function safe(error, state, code) {
   return true;
 }
 const rejected = (promise, state, code) => assert.rejects(promise, error => safe(error, state, code));
+
+test('validateNotionToken checks only the token bot endpoint and returns safe outcomes', async () => {
+  const calls = [];
+  const token = 'private-notion-token';
+  const validation = await validateNotionToken(` ${token} `, {
+    fetchImpl: async (url, init) => { calls.push({ url, init }); return response(200, {}); },
+  });
+  assert.equal(validation, 'valid');
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, 'https://api.notion.com/v1/users/me');
+  assert.equal(calls[0].init.method, 'GET');
+  assert.equal(calls[0].init.headers.Authorization, 'Bearer ' + token);
+  assert.equal(calls[0].init.headers['Notion-Version'], '2025-09-03');
+  assert.equal(calls[0].init.cache, 'no-store');
+  assert.equal(calls[0].init.credentials, 'omit');
+  assert.equal(calls[0].init.body, undefined);
+  assert.equal(JSON.stringify(validation).includes(token), false);
+});
+
+test('validateNotionToken marks only 401 as invalid and treats permission, rate, and server errors as unavailable', async () => {
+  for (const [status, expected] of [[401, 'invalid'], [400, 'unavailable'], [403, 'unavailable'],
+    [429, 'unavailable'], [503, 'unavailable']]) {
+    const result = await validateNotionToken(TOKEN, {
+      fetchImpl: async () => response(status, { message: TOKEN, token: TOKEN }),
+    });
+    assert.equal(result, expected, `HTTP ${status}`);
+  }
+  assert.equal(await validateNotionToken(TOKEN, { fetchImpl: async () => { throw new Error(TOKEN); } }), 'unavailable');
+});
+
+test('validateNotionToken times out and caller cancellation never becomes an invalid token result', async () => {
+  const timedOut = await validateNotionToken(TOKEN, {
+    fetchImpl: () => new Promise(() => {}), timeoutMs: 5,
+  });
+  assert.equal(timedOut, 'unavailable');
+
+  const controller = new AbortController();
+  let requestSignal;
+  const checking = validateNotionToken(TOKEN, {
+    fetchImpl: (_url, init) => { requestSignal = init.signal; return new Promise(() => {}); },
+    timeoutMs: 1000, signal: controller.signal,
+  });
+  await Promise.resolve();
+  controller.abort();
+  assert.equal(await checking, null);
+  assert.equal(requestSignal.aborted, true);
+});
 
 test('validateCreatePayload reuses the create transport limits without issuing a request', () => {
   assert.equal(validateCreatePayload('beans', { name: '원두' }, SOURCES), true);

@@ -31,6 +31,7 @@ const ACTION_ICON_PATHS = Object.freeze({
   save: 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2ZM17 21v-8H7v8ZM7 3v5h8',
   x: 'M18 6 6 18M6 6l12 12',
   check: 'M4 12l5 5 11-11',
+  warning: 'M12 3 22 20H2L12 3Zm0 6v5m0 3h.01',
   trash: 'M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7',
 });
 
@@ -144,6 +145,14 @@ const FORM_KINDS = new Set(['beans', 'recipes', 'records']);
 const IN_PROGRESS_STATUS_TYPES = new Set(['startup-checking', 'checking', 'saving', 'loading']);
 const COMPLETED_STATUS_TYPES = new Set(['saved', 'connected', 'resolved', 'loaded']);
 const STATUS_DISPLAY_MS = 1000;
+const TOKEN_VALIDATION_STATUSES = new Set(['idle', 'checking', 'valid', 'invalid', 'unavailable']);
+const TOKEN_VALIDATION_MESSAGES = Object.freeze({
+  idle: '입력을 마치면 1초 뒤 자동으로 확인합니다.',
+  checking: 'Notion 토큰 확인 중…',
+  valid: 'Notion 토큰을 확인했습니다.',
+  invalid: '토큰이 유효하지 않습니다. 값을 다시 확인해 주세요.',
+  unavailable: '확인할 수 없습니다. 네트워크나 Notion 권한을 확인한 뒤 다시 시도해 주세요.',
+});
 const SOURCE_FIELDS = Object.freeze([
   ['beans', '원두'], ['recipes', '레시피'],
   ['steps', '레시피 단계'], ['records', '추출 기록'],
@@ -168,7 +177,11 @@ function normalizeRoute(route) {
   return query ? `${normalizedPath}?${query}` : normalizedPath;
 }
 
-export function createAppView(document = globalThis.document, { schedule = setTimeout, cancelSchedule = clearTimeout } = {}) {
+export function createAppView(document = globalThis.document, {
+  schedule = setTimeout,
+  cancelSchedule = clearTimeout,
+  validateToken,
+} = {}) {
   const root = document.querySelector('#app-root');
   if (!root) throw new Error('앱 화면을 만들 수 없습니다.');
   const page = make(document, 'div', undefined, 'app-content');
@@ -340,6 +353,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     connection.hidden = !visible;
     connectionToggle.setAttribute('aria-expanded', String(visible));
     if (!visible) {
+      resetTokenValidation();
       if (connection.open) {
         if (typeof connection.close === 'function') connection.close();
         else connection.open = false;
@@ -367,7 +381,29 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   const connectionDetails = make(document, 'section', undefined, 'connection-details');
   const connectionForm = make(document, 'form', undefined, 'form-grid');
   connectionForm.dataset.form = 'connection';
-  connectionForm.append(label(document, '통합 토큰', 'token', 'password', true, { autocomplete: 'off' }));
+  const tokenField = label(document, '통합 토큰', 'token', 'password', true, { autocomplete: 'off' });
+  const tokenInput = tokenField.querySelector('input');
+  const tokenLabel = tokenField.querySelector('.form-field-label');
+  const tokenControl = make(document, 'div', undefined, 'token-input-control');
+  const tokenValidationIcon = make(document, 'span', undefined, 'token-validation-icon');
+  tokenValidationIcon.dataset.tokenStatusIcon = '';
+  tokenValidationIcon.dataset.state = 'idle';
+  tokenValidationIcon.dataset.icon = 'check';
+  tokenValidationIcon.setAttribute('aria-hidden', 'true');
+  tokenValidationIcon.append(actionIcon(document, 'check'));
+  tokenInput.id = 'connection-token';
+  const tokenValidationText = make(document, 'span', TOKEN_VALIDATION_MESSAGES.idle, 'token-validation-message');
+  tokenValidationText.dataset.tokenStatus = '';
+  tokenValidationText.dataset.tokenStatusText = '';
+  tokenValidationText.dataset.state = 'idle';
+  tokenValidationText.id = 'connection-token-status';
+  tokenValidationText.setAttribute('role', 'status');
+  tokenValidationText.setAttribute('aria-live', 'polite');
+  tokenInput.setAttribute('aria-describedby', tokenValidationText.id);
+  tokenControl.dataset.state = 'idle';
+  tokenControl.append(tokenInput, tokenValidationIcon);
+  tokenField.replaceChildren(tokenLabel, tokenControl, tokenValidationText);
+  connectionForm.append(tokenField);
   for (const [key, title] of SOURCE_FIELDS) {
     connectionForm.append(label(document, title + ' 데이터 소스 ID', key, 'text', true,
       { autocomplete: 'off', spellcheck: false, autocapitalize: 'off' }));
@@ -380,7 +416,62 @@ export function createAppView(document = globalThis.document, { schedule = setTi
   connectionDetails.append(make(document, 'p', '연결 정보는 이 기기의 앱 저장소에 보관됩니다.', 'muted-note'));
   connectionDetails.append(connectionForm);
 
+  let tokenValidation = { status: 'idle' };
+  function renderTokenValidation() {
+    const { status } = tokenValidation;
+    tokenControl.dataset.state = status;
+    tokenValidationText.dataset.state = status;
+    tokenValidationText.textContent = TOKEN_VALIDATION_MESSAGES[status];
+    tokenValidationIcon.dataset.state = status;
+    const icon = status === 'valid' ? 'check' : ['invalid', 'unavailable'].includes(status) ? 'warning' : 'check';
+    if (tokenValidationIcon.dataset.icon !== icon) {
+      tokenValidationIcon.dataset.icon = icon;
+      tokenValidationIcon.replaceChildren(actionIcon(document, icon));
+    }
+  }
+
+  function resetTokenValidation() {
+    if (tokenValidation.timer !== undefined && tokenValidation.timer !== null) cancelSchedule(tokenValidation.timer);
+    tokenValidation.controller?.abort();
+    tokenValidation = { status: 'idle' };
+    renderTokenValidation();
+  }
+
+  function runTokenValidation(token, waitingState) {
+    if (tokenValidation !== waitingState || tokenInput.value.trim() !== token) return;
+    if (typeof validateToken !== 'function') return;
+    const controller = new AbortController();
+    tokenValidation = { status: 'checking', controller };
+    renderTokenValidation();
+    let result;
+    try { result = validateToken(token, { signal: controller.signal }); }
+    catch { result = 'unavailable'; }
+    Promise.resolve(result).then(status => {
+      if (tokenValidation.status !== 'checking' || tokenValidation.controller !== controller ||
+          tokenInput.value.trim() !== token) return;
+      tokenValidation = { status: TOKEN_VALIDATION_STATUSES.has(status) && status !== 'checking' ? status : 'unavailable' };
+      renderTokenValidation();
+    }).catch(() => {
+      if (tokenValidation.status !== 'checking' || tokenValidation.controller !== controller ||
+          tokenInput.value.trim() !== token) return;
+      tokenValidation = { status: 'unavailable' };
+      renderTokenValidation();
+    });
+  }
+
+  function scheduleTokenValidation(token) {
+    if (!token) return;
+    const waitingState = { status: 'idle', timer: null };
+    tokenValidation = waitingState;
+    waitingState.timer = schedule(() => {
+      if (tokenValidation !== waitingState || tokenInput.value.trim() !== token) return;
+      waitingState.timer = null;
+      runTokenValidation(token, waitingState);
+    }, 1000);
+  }
+
   function resetConnectionForm() {
+    resetTokenValidation();
     connectionForm.querySelectorAll('input,select,textarea').forEach(field => { field.value = ''; });
   }
 
@@ -774,9 +865,13 @@ export function createAppView(document = globalThis.document, { schedule = setTi
       syncConnectionState();
       renderStatus();
     },
-    clearSecret() { connectionForm.elements.token.value = ''; },
+    clearSecret() {
+      connectionForm.elements.token.value = '';
+      resetTokenValidation();
+    },
     beginConnectionSave() {
       if (currentState.pending || currentState.frozen || currentState.unresolved || connectionPhase !== 'idle') return false;
+      resetTokenValidation();
       connectionPhase = 'checking';
       syncConnectionState();
       return true;
@@ -806,6 +901,7 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     showConnectionSuccess() {
       if (!connection.open) return false;
       connectionForm.elements.token.value = '';
+      resetTokenValidation();
       connectionPhase = 'success';
       syncConnectionState();
       if (connectionTimer !== null) cancelSchedule(connectionTimer);
@@ -1093,7 +1189,8 @@ export function createAppView(document = globalThis.document, { schedule = setTi
     },
     bind(actions) {
       entryActions = actions;
-      bindEvents({ page, connectionForm, originalConnectionCheck, repair, nav, content,
+      bindEvents({ page, connectionForm, tokenInput, scheduleTokenValidation, resetTokenValidation,
+        originalConnectionCheck, repair, nav, content,
         unresolved, actions, document, view, openDeleteDialog, closeDeleteDialog, submitDelete,
         setInsightRecipeFilter(value) { insightRecipeFilter = value; if (currentData) view.renderData(currentData); },
         setInsightRatingFilter(value) { insightRatingFilter = value; if (currentData) view.renderData(currentData); },
@@ -2643,10 +2740,19 @@ function buildResolutionForm(document, operation) {
   return card;
 }
 
-function bindEvents({ page, nav, connectionForm, originalConnectionCheck, content, actions, document, view,
+function bindEvents({ page, nav, connectionForm, tokenInput, scheduleTokenValidation,
+  resetTokenValidation, originalConnectionCheck, content, actions, document, view,
   openDeleteDialog, closeDeleteDialog, submitDelete, setInsightRecipeFilter, setInsightRatingFilter,
   setInsightComparisonSort }) {
   connectionForm.addEventListener('input', event => {
+    if (event.target === tokenInput && !event.target.disabled) {
+      const rawToken = String(tokenInput.value ?? '');
+      const token = rawToken.trim();
+      const pasted = event.inputType === 'insertFromPaste';
+      if (pasted && rawToken !== token) tokenInput.value = token;
+      resetTokenValidation();
+      scheduleTokenValidation(token);
+    }
     if (!event.target.disabled) actions.setDirty(true, 'connection');
   });
   connectionForm.addEventListener('submit', async event => {

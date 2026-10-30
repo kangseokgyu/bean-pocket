@@ -1,5 +1,5 @@
 import { isValidRating } from '../domain.mjs';
-import { layoutRatingTrend } from './records-insights.mjs';
+import { layoutRatingTrends } from './records-insights.mjs';
 
 const svgElement = (document, name) => document.createElementNS('http://www.w3.org/2000/svg', name);
 const trendResizeRenderers = new WeakMap();
@@ -48,6 +48,20 @@ export function renderRecordsInsights(pane, data, document, recipeFilter, rating
     return;
   }
   const layout = make(document, 'div', undefined, 'records-demo-layout');
+  const trendSeries = state.trendSeries ?? [];
+  const trend = make(document, 'section', undefined, 'record-insight-trend-section');
+  trend.append(sectionHeader(document, '별점 추이', '최근 추출 기록 기준 상위 3종의 별점을 원두별 선으로 표시합니다.',
+    '최근 추출 원두 Top 3', 'record-insight-trend-title'));
+  trend.append(make(document, 'p', '원두 선택은 요약에 적용되며, 아래 필터와 정렬은 비교 표에만 적용됩니다.',
+    'record-insight-filter-note'));
+  if (trendSeries.some(series => series.points.length)) trend.append(renderRatingTrend(document, trendSeries));
+  else {
+    if (trendSeries.length) trend.append(renderTrendLegend(document, trendSeries));
+    trend.append(make(document, 'p', trendSeries.length
+      ? '최근 추출 원두에는 아직 유효한 별점 기록이 없습니다.'
+      : '별점을 볼 추출 기록이 없습니다.', 'record-insight-chart-empty'));
+  }
+
   const sidebar = make(document, 'aside', undefined, 'record-insight-sidebar');
   sidebar.setAttribute('aria-labelledby', 'record-insight-bean-heading');
   const sidebarHeading = make(document, 'div', undefined, 'record-insight-section-heading');
@@ -109,20 +123,12 @@ export function renderRecordsInsights(pane, data, document, recipeFilter, rating
   state.averageRating === null || state.averageRating === undefined ? '' : `유효 별점 ${state.ratedRecordCount}건 기준`);
   summary.append(summaryCopy, stats);
   const scopeNote = make(document, 'p',
-    `불러온 기록 ${state.loadedCount}건 중 선택 원두 ${state.selectedRecordCount ?? 0}건 · 평균과 차트는 유효 별점 ${state.ratedRecordCount ?? 0}건 기준입니다.`,
+    `불러온 기록 ${state.loadedCount}건 중 선택 원두 ${state.selectedRecordCount ?? 0}건 · 평균은 선택 원두 유효 별점 ${state.ratedRecordCount ?? 0}건 기준 · 차트는 최근 추출 원두 ${trendSeries.length}종입니다.`,
     'record-insight-scope');
   scopeNote.dataset.insightScope = '';
   scopeNote.setAttribute('role', state.status === 'error' ? 'status' : 'note');
   summary.append(scopeNote);
   content.append(summary);
-
-  const trend = make(document, 'section', undefined, 'record-insight-trend-section');
-  trend.append(sectionHeader(document, '별점 추이', '선택한 원두의 불러온 추출 기록을 날짜순으로 표시합니다.',
-    '전체 기록', 'record-insight-trend-title'));
-  trend.append(make(document, 'p', '아래 레시피 필터와 정렬은 비교 표에만 적용됩니다.', 'record-insight-filter-note'));
-  if (state.trend?.length) trend.append(renderRatingTrend(document, state.trend));
-  else trend.append(make(document, 'p', '이 원두에는 아직 유효한 별점 기록이 없습니다.', 'record-insight-chart-empty'));
-  content.append(trend);
 
   const best = make(document, 'section', undefined, 'record-insight-best-section record-insight-best');
   best.append(sectionHeader(document, '가장 높게 평가한 추출', '선택한 원두의 불러온 유효 별점 기록 안에서 계산합니다.',
@@ -153,7 +159,7 @@ export function renderRecordsInsights(pane, data, document, recipeFilter, rating
   else comparisons.append(make(document, 'p', '조건에 맞는 비교 기록이 없습니다.', 'record-insight-empty'));
   content.append(best, comparisons);
   if (management) content.append(management);
-  layout.append(sidebar, content);
+  layout.append(trend, sidebar, content);
   pane.append(layout);
 }
 
@@ -342,8 +348,8 @@ function renderInsightsMoreButton(parent, document, state) {
   parent.append(more);
 }
 
-function updateTrendGeometry(svg, points, width, height) {
-  const layout = layoutRatingTrend(points, { width: Math.max(280, Math.floor(width)), height });
+function updateTrendGeometry(svg, series, width, height) {
+  const layout = layoutRatingTrends(series, { width: Math.max(280, Math.floor(width)), height });
   svg.setAttribute('viewBox', `0 0 ${layout.width} ${layout.height}`);
   for (const [index, rating] of layout.yTicks.entries()) {
     const y = layout.plotBottom - rating / 5 * layout.plotHeight;
@@ -356,11 +362,16 @@ function updateTrendGeometry(svg, points, width, height) {
     label?.setAttribute('x', String(layout.plotLeft - 12));
     label?.setAttribute('y', String(y + 4));
   }
-  const pointById = new Map(layout.points.map(point => [point.id, point]));
-  const line = svg.querySelector('.rating-chart-line');
-  if (line) line.setAttribute('d', layout.points.map((point, index) => `${index ? 'L' : 'M'}${point.x},${point.y}`).join(' '));
-  for (const circle of svg.querySelectorAll('.rating-chart-point')) {
-    const point = pointById.get(circle.getAttribute('data-record-id'));
+  for (const path of svg.querySelectorAll('[data-trend-series]')) {
+    const entry = layout.series[Number(path.getAttribute('data-trend-series'))];
+    if (entry) path.setAttribute('d', entry.points.map((point, index) => `${index ? 'L' : 'M'}${point.x},${point.y}`).join(' '));
+  }
+  const pointById = new Map(layout.series.flatMap((entry, index) => entry.points.map(point => [
+    `${index}|${point.id}`, point,
+  ])));
+  for (const circle of svg.querySelectorAll('[data-trend-point]')) {
+    const key = `${circle.getAttribute('data-series-index')}|${circle.getAttribute('data-record-id')}`;
+    const point = pointById.get(key);
     if (!point) continue;
     circle.setAttribute('cx', String(point.x));
     circle.setAttribute('cy', String(point.y));
@@ -390,8 +401,23 @@ function updateTrendGeometry(svg, points, width, height) {
   }
 }
 
-function renderRatingTrend(document, points) {
-  const layout = layoutRatingTrend(points, { width: 640, height: 250 });
+function renderTrendLegend(document, series) {
+  const legend = make(document, 'ul', undefined, 'record-insight-chart-legend');
+  legend.setAttribute('aria-label', '원두별 별점 그래프 범례');
+  for (const [index, entry] of series.entries()) {
+    const item = make(document, 'li');
+    const swatch = make(document, 'span', undefined,
+      `record-insight-chart-legend-swatch rating-chart-series-${index}`);
+    swatch.setAttribute('aria-hidden', 'true');
+    item.append(swatch, make(document, 'span', entry.beanName, 'record-insight-chart-legend-name'));
+    if (!entry.points.length) item.append(make(document, 'span', '유효 별점 기록 없음', 'record-insight-chart-legend-empty'));
+    legend.append(item);
+  }
+  return legend;
+}
+
+function renderRatingTrend(document, series) {
+  const layout = layoutRatingTrends(series, { width: 640, height: 250 });
   const figure = make(document, 'figure', undefined, 'record-insight-chart');
   const svg = svgElement(document, 'svg');
   svg.setAttribute('viewBox', `0 0 ${layout.width} ${layout.height}`);
@@ -401,10 +427,10 @@ function renderRatingTrend(document, points) {
   svg.setAttribute('class', 'rating-trend-chart');
   const title = svgElement(document, 'title');
   title.id = 'record-rating-chart-title';
-  title.textContent = '선택한 원두의 날짜별 별점 추이';
+  title.textContent = '최근 추출 원두 Top 3의 날짜별 별점 추이';
   const description = svgElement(document, 'desc');
   description.id = 'record-rating-chart-description';
-  description.textContent = `별점 축은 0점부터 5점까지 고정이며 날짜 간격은 실제 달력 날짜 간격입니다. 아래 텍스트 목록에 ${points.length}개 날짜와 별점이 있습니다.`;
+  description.textContent = `각 원두는 독립된 선으로 표시합니다. 별점 축은 0점부터 5점까지 고정이며 날짜 간격은 원두 전체의 실제 달력 날짜 범위입니다. 아래 텍스트 목록에 ${layout.points.length}개 원두별 날짜와 별점이 있습니다.`;
   svg.append(title, description);
 
   for (const rating of layout.yTicks) {
@@ -426,32 +452,41 @@ function renderRatingTrend(document, points) {
     svg.append(label);
   }
 
-  if (layout.points.length > 1) {
+  for (const [index, entry] of layout.series.entries()) {
+    if (entry.points.length < 2) continue;
     const path = svgElement(document, 'path');
-    path.setAttribute('d', layout.points.map((point, index) => `${index ? 'L' : 'M'}${point.x},${point.y}`).join(' '));
-    path.setAttribute('class', 'rating-chart-line');
+    path.setAttribute('d', entry.points.map((point, pointIndex) => `${pointIndex ? 'L' : 'M'}${point.x},${point.y}`).join(' '));
+    path.setAttribute('class', `rating-chart-line rating-chart-series-${index}`);
+    path.setAttribute('data-trend-series', String(index));
+    path.setAttribute('data-bean-id', entry.beanId);
     svg.append(path);
   }
   const overlapCounts = new Map();
-  for (const point of layout.points) {
-    const key = `${point.date}|${point.rating}`;
-    overlapCounts.set(key, (overlapCounts.get(key) ?? 0) + 1);
+  for (const [index, entry] of layout.series.entries()) {
+    for (const point of entry.points) {
+      const key = `${index}|${point.date}|${point.rating}`;
+      overlapCounts.set(key, (overlapCounts.get(key) ?? 0) + 1);
+    }
   }
-  for (const point of layout.points) {
-    const circle = svgElement(document, 'circle');
-    circle.setAttribute('cx', String(point.x));
-    circle.setAttribute('cy', String(point.y));
-    circle.setAttribute('r', '4');
-    circle.setAttribute('class', 'rating-chart-point');
-    circle.setAttribute('data-trend-point', '');
-    circle.setAttribute('data-date', point.date);
-    circle.setAttribute('data-record-id', point.id);
-    circle.setAttribute('data-rating', String(point.rating));
-    const overlap = overlapCounts.get(`${point.date}|${point.rating}`);
-    const pointTitle = svgElement(document, 'title');
-    pointTitle.textContent = `${point.date} · ${point.rating}/5${overlap > 1 ? ` · 같은 날짜와 별점 ${overlap}건` : ''}`;
-    circle.append(pointTitle);
-    svg.append(circle);
+  for (const [index, entry] of layout.series.entries()) {
+    for (const point of entry.points) {
+      const circle = svgElement(document, 'circle');
+      circle.setAttribute('cx', String(point.x));
+      circle.setAttribute('cy', String(point.y));
+      circle.setAttribute('r', String(4 + index * 1.5));
+      circle.setAttribute('class', `rating-chart-point rating-chart-series-${index}`);
+      circle.setAttribute('data-trend-point', '');
+      circle.setAttribute('data-series-index', String(index));
+      circle.setAttribute('data-bean-id', entry.beanId);
+      circle.setAttribute('data-date', point.date);
+      circle.setAttribute('data-record-id', point.id);
+      circle.setAttribute('data-rating', String(point.rating));
+      const overlap = overlapCounts.get(`${index}|${point.date}|${point.rating}`);
+      const pointTitle = svgElement(document, 'title');
+      pointTitle.textContent = `${entry.beanName} · ${point.date} · ${point.rating}/5${overlap > 1 ? ` · 같은 날짜와 별점 ${overlap}건` : ''}`;
+      circle.append(pointTitle);
+      svg.append(circle);
+    }
   }
   const distinctLabelPoints = [];
   const labeledPointKeys = new Set();
@@ -478,7 +513,7 @@ function renderRatingTrend(document, points) {
     svg.append(label);
   }
 
-  const uniqueDates = [...new Set(layout.points.map(point => point.date))];
+  const uniqueDates = [...new Set(layout.points.map(point => point.date))].sort();
   const visibleTickCount = Math.min(uniqueDates.length, 5);
   const tickIndices = new Set(Array.from({ length: visibleTickCount }, (_, index) =>
     visibleTickCount === 1 ? 0 : Math.round(index * (uniqueDates.length - 1) / (visibleTickCount - 1))));
@@ -497,24 +532,28 @@ function renderRatingTrend(document, points) {
     label.append(tickTitle);
     svg.append(label);
   }
-  figure.append(svg);
-  observeTrendSize(svg, width => updateTrendGeometry(svg, points, width, 250));
+  figure.append(renderTrendLegend(document, series), svg);
+  observeTrendSize(svg, width => updateTrendGeometry(svg, series, width, 250));
   const accessibleValues = make(document, 'ol', undefined, 'visually-hidden');
   accessibleValues.id = 'record-rating-chart-values';
-  appendChartValues(accessibleValues, layout.points);
+  appendChartValues(accessibleValues, layout.series);
   svg.setAttribute('aria-describedby', 'record-rating-chart-description record-rating-chart-values');
   figure.append(svg, accessibleValues);
   const details = document.createElement('details');
   details.className = 'record-insight-chart-values';
   const dataList = make(document, 'ol', undefined, 'record-insight-chart-data');
-  appendChartValues(dataList, layout.points);
-  details.append(make(document, 'summary', '날짜와 별점 기록 모두 보기'), dataList);
+  appendChartValues(dataList, layout.series);
+  details.append(make(document, 'summary', '원두·날짜·별점 기록 모두 보기'), dataList);
   figure.append(details);
   return figure;
 }
 
-function appendChartValues(list, points) {
-  for (const point of points) list.append(make(list.ownerDocument, 'li', `${point.date} · 별점 ${point.rating}/5`));
+function appendChartValues(list, series) {
+  for (const entry of series) {
+    for (const point of entry.points) {
+      list.append(make(list.ownerDocument, 'li', `${entry.beanName} · ${point.date} · 별점 ${point.rating}/5`));
+    }
+  }
 }
 
 function renderRecipeConditions(document, recipe) {

@@ -94,6 +94,8 @@ test('records insights keep their own bounded cursor and selection outside recip
   assert.equal(setup.latestData.records.length, 2);
   assert.equal(setup.latestData.recordInsights.loadedCount, 2);
   assert.equal(setup.latestData.recordInsights.selectedBeanId, 'bean-b');
+  const initialTrendSeries = setup.latestData.recordInsights.trendSeries;
+  assert.deepEqual(initialTrendSeries.map(series => series.beanId), ['bean-b', 'bean-a']);
   assert.equal(setup.latestData.recordInsights.hasMore, true);
   assert.equal(setup.reads.length, 1, 'the unfiltered first table page is reused for insights');
   assert.equal(setup.reads[0].limit, 20);
@@ -102,7 +104,8 @@ test('records insights keep their own bounded cursor and selection outside recip
   await setup.controller.setRecordFilters({ recipeId: 'recipe-b' });
   assert.ok(setup.latestData.records.every(record => record.recipeId === 'recipe-b'), 'the table follows its recipe filter');
   assert.equal(setup.latestData.recordInsights.selectedBeanId, 'bean-a');
-  assert.deepEqual(setup.latestData.recordInsights.trend.map(point => point.record.beanId), ['bean-a']);
+  assert.deepEqual(setup.latestData.recordInsights.trendSeries, initialTrendSeries,
+    'selection and table filters leave the top-three trend series unchanged');
 
   await setup.controller.loadMore();
   assert.ok(setup.latestData.records.every(record => record.recipeId === 'recipe-b'));
@@ -111,6 +114,8 @@ test('records insights keep their own bounded cursor and selection outside recip
   await setup.controller.loadMoreInsights();
   assert.equal(setup.latestData.recordInsights.loadedCount, 4);
   assert.equal(setup.latestData.recordInsights.selectedBeanId, 'bean-a');
+  assert.deepEqual(setup.latestData.recordInsights.trendSeries.map(series => series.beanId), ['bean-b', 'bean-a']);
+  assert.ok(setup.latestData.recordInsights.trendSeries.every(series => series.points.length === 2));
   assert.equal(setup.reads.at(-1).cursor, 'next');
   assert.equal(setup.reads.at(-1).beanId, undefined);
   assert.equal(setup.reads.at(-1).recipeId, undefined, 'the insight cursor never inherits table filters');

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildRecordsInsights, layoutRatingTrend } from '../pwa/ui/records-insights.mjs';
+import { buildRecordsInsights, layoutRatingTrend, layoutRatingTrends } from '../pwa/ui/records-insights.mjs';
 
 const generation = 'bagless-v1';
 
@@ -42,6 +42,29 @@ test('three distinct beans are ordered by newest valid record with a stable tie 
   assert.equal(model.loadedCount, records.length);
 });
 
+test('trend series always cover the three most recently recorded beans independently of selection', () => {
+  const records = [
+    record({ id: 'a-old', beanId: 'bean-a', date: '2026-10-01', rating: 2 }),
+    record({ id: 'a-new', beanId: 'bean-a', date: '2026-10-05', rating: 4 }),
+    record({ id: 'b-unrated', beanId: 'bean-b', date: '2026-10-04', rating: null }),
+    record({ id: 'c-fourth', beanId: 'bean-c', date: '2026-10-03', rating: 3 }),
+    record({ id: 'd-one-point', beanId: 'bean-d', date: '2026-10-05', rating: 5 }),
+  ];
+  const selectedA = buildRecordsInsights(records, [], 'bean-a');
+  const selectedB = buildRecordsInsights(records, [], 'bean-b');
+
+  assert.deepEqual(selectedB.trendSeries.map(series => [series.beanId, series.beanName]), [
+    ['bean-a', 'bean-a'], ['bean-d', 'bean-d'], ['bean-b', 'bean-b'],
+  ]);
+  assert.deepEqual(selectedB.trendSeries.map(series => series.points.map(point => point.id)), [
+    ['a-old', 'a-new'], ['d-one-point'], [],
+  ], 'unrated top-three beans retain an empty series, and the fourth bean is excluded');
+  assert.ok(selectedB.trendSeries.every(series => series.points.every(point => point.record.beanId === series.beanId)),
+    'each trend contains only that bean’s own records');
+  assert.deepEqual(selectedA.trendSeries, selectedB.trendSeries,
+    'changing the selected summary bean does not change chart scope');
+});
+
 test('selection, best record, and comparison values use only valid current snapshots without mutating inputs', () => {
   const records = [
     record({ id: 'older', beanId: 'bean-a', beanName: '과거 이름', date: '2026-10-01', rating: 5,
@@ -62,7 +85,8 @@ test('selection, best record, and comparison values use only valid current snaps
 
   assert.deepEqual(records, before, 'model construction must not mutate repository rows');
   assert.equal(model.selectedBean.name, '과거 이름', 'a valid bean snapshot keeps the historical name');
-  assert.deepEqual(model.trend.map(point => [point.date, point.rating]), [['2026-10-01', 5], ['2026-10-05', 5]]);
+  assert.deepEqual(model.trendSeries.find(series => series.beanId === 'bean-a').points
+    .map(point => [point.date, point.rating]), [['2026-10-01', 5], ['2026-10-05', 5]]);
   assert.equal(model.bestRecord.id, 'newer', 'equal ratings choose the newer valid date');
   assert.equal(model.bestRecord.snapshot.recipe.name, '새 당시 레시피');
   assert.deepEqual(model.comparisonRecords.map(record => record.id), ['unrated', 'newer', 'older']);
@@ -155,6 +179,28 @@ test('chart coordinates use real date spacing and a zero-to-five rating scale', 
   assert.equal(single.points[0].x, single.plotLeft + single.plotWidth / 2, 'a one-date chart is centered on its date');
 });
 
+test('multiple bean trends use one shared date range even when bean series are not date ordered', () => {
+  const layout = layoutRatingTrends([
+    { beanId: 'recent-bean', beanName: '최근 원두', points: [
+      { id: 'latest', date: '2026-10-09', rating: 5 },
+    ] },
+    { beanId: 'older-bean', beanName: '이전 원두', points: [
+      { id: 'first', date: '2026-10-01', rating: 1 },
+      { id: 'middle', date: '2026-10-05', rating: 3 },
+    ] },
+  ], { width: 500, height: 240 });
+  const recent = layout.series[0].points[0];
+  const [first, middle] = layout.series[1].points;
+
+  assert.equal(first.x, layout.plotLeft);
+  assert.equal(recent.x, layout.plotRight);
+  assert.equal(middle.x - first.x, layout.plotWidth / 2);
+  assert.equal(layout.series[0].points.length, 1, 'a single-point bean remains its own series');
+  assert.equal(layout.series[1].points.length, 2, 'another bean keeps its own two dated points');
+  assert.equal(layout.yTicks[0], 0);
+  assert.equal(layout.yTicks.at(-1), 5);
+});
+
 test('decimal ratings remain available to insight averages, filters, and ranking', () => {
   const records = [
     record({ id: 'low-rating', beanId: 'bean-a', date: '2026-10-01', rating: 0.1 }),
@@ -165,7 +211,8 @@ test('decimal ratings remain available to insight averages, filters, and ranking
   const model = buildRecordsInsights(records, [], 'bean-a');
   assert.equal(model.ratedRecordCount, 3);
   assert.equal(model.averageRating, (0.1 + 1.1 + 4.9) / 3);
-  assert.deepEqual(model.trend.map(point => point.rating), [0.1, 1.1, 4.9]);
+  assert.deepEqual(model.trendSeries.find(series => series.beanId === 'bean-a').points.map(point => point.rating),
+    [0.1, 1.1, 4.9]);
   assert.equal(model.bestRecord.id, 'high-rating');
   assert.deepEqual(model.ratingOptions, [4.9, 1.1, 0.1]);
   assert.equal(model.comparisonRecords.length, 3);

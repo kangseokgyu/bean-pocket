@@ -1,0 +1,174 @@
+[
+  {
+    "width": 390,
+    "order": [
+      "record-insight-trend-section",
+      "record-insight-sidebar",
+      "record-insights-content"
+    ],
+    "trendWidth": 366,
+    "layoutWidth": 366,
+    "trendTop": 142,
+    "sidebarTop": 669.09375,
+    "contentTop": 1213.109375,
+    "trendLeft": 12,
+    "trendRight": 378,
+    "sidebarLeft": 12,
+    "contentRight": 378,
+    "legend": [
+      "원두 C 무평가유효 별점 기록 없음",
+      "원두 A",
+      "콜롬비아 엘 디비소 라스 플로레스 카투라 워시드 마이크로랏 콜롬비아 엘 디비소 라스 플로레스 카투라 워시드 마이크로랏 콜롬비아 엘 디비소 라스 플로레스 카투라 워시드 마이크로랏"
+    ],
+    "longLegend": [
+      {
+        "left": 26,
+        "right": 224.375,
+        "bottom": 292.5625
+      },
+      {
+        "left": 242.375,
+        "right": 307.828125,
+        "bottom": 292.5625
+      },
+      {
+        "left": 26,
+        "right": 364,
+        "bottom": 351.09375
+      }
+    ],
+    "lineBeans": [
+      "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
+    ],
+    "pointBeans": [
+      "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+      "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
+    ],
+    "xPoints": [
+      {
+        "bean": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "date": "2026-06-15",
+        "x": "46",
+        "y": "98.8"
+      },
+      {
+        "bean": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "date": "2026-06-20",
+        "x": "180",
+        "y": "64.4"
+      },
+      {
+        "bean": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "date": "2026-06-25",
+        "x": "314",
+        "y": "30"
+      },
+      {
+        "bean": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+        "date": "2026-06-20",
+        "x": "180",
+        "y": "64.4"
+      },
+      {
+        "bean": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+        "date": "2026-06-23",
+        "x": "260.4",
+        "y": "81.6"
+      }
+    ],
+    "summary": "불러온 기록 7건 중 선택 원두 2건 · 평균은 선택 원두 유효 별점 2건 기준 · 차트는 최근 추출 원두 3종입니다.",
+    "scrollWidth": 390,
+    "viewportWidth": 390,
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "order": [
+      "record-insight-trend-section",
+      "record-insight-sidebar",
+      "record-insights-content"
+    ],
+    "trendWidth": 1280,
+    "layoutWidth": 1280,
+    "trendTop": 148,
+    "sidebarTop": 632.890625,
+    "contentTop": 632.890625,
+    "trendLeft": 80,
+    "trendRight": 1360,
+    "sidebarLeft": 80,
+    "contentRight": 1360,
+    "legend": [
+      "원두 C 무평가유효 별점 기록 없음",
+      "원두 A",
+      "콜롬비아 엘 디비소 라스 플로레스 카투라 워시드 마이크로랏 콜롬비아 엘 디비소 라스 플로레스 카투라 워시드 마이크로랏 콜롬비아 엘 디비소 라스 플로레스 카투라 워시드 마이크로랏"
+    ],
+    "longLegend": [
+      {
+        "left": 360,
+        "right": 558.375,
+        "bottom": 264.203125
+      },
+      {
+        "left": 576.375,
+        "right": 641.828125,
+        "bottom": 264.203125
+      },
+      {
+        "left": 360,
+        "right": 1080,
+        "bottom": 305.890625
+      }
+    ],
+    "lineBeans": [
+      "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
+    ],
+    "pointBeans": [
+      "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+      "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
+    ],
+    "xPoints": [
+      {
+        "bean": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "date": "2026-06-15",
+        "x": "46",
+        "y": "98.8"
+      },
+      {
+        "bean": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "date": "2026-06-20",
+        "x": "371",
+        "y": "64.4"
+      },
+      {
+        "bean": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "date": "2026-06-25",
+        "x": "696",
+        "y": "30"
+      },
+      {
+        "bean": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+        "date": "2026-06-20",
+        "x": "371",
+        "y": "64.4"
+      },
+      {
+        "bean": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+        "date": "2026-06-23",
+        "x": "566",
+        "y": "81.6"
+      }
+    ],
+    "summary": "불러온 기록 7건 중 선택 원두 2건 · 평균은 선택 원두 유효 별점 2건 기준 · 차트는 최근 추출 원두 3종입니다.",
+    "scrollWidth": 1440,
+    "viewportWidth": 1440,
+    "errors": []
+  }
+]

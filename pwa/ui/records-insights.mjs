@@ -66,8 +66,13 @@ export function buildRecordsInsights(records, beans = [], selectedBeanId = '', r
   const selectedBean = beanOptions.find(bean => bean.id === selectedBeanId) ?? beanOptions[0] ?? null;
   const selectedRows = selectedBean ? recordsByBean.get(selectedBean.id) ?? [] : [];
   const ratedRows = selectedRows.filter(ratingRecord);
-  const trend = ratedRows.map(record => ({ id: record.id, date: record.date, rating: record.rating, record }))
-    .sort(byDateAscending);
+  const trendSeries = beanOptions.map(bean => ({
+    beanId: bean.id,
+    beanName: bean.name,
+    points: (recordsByBean.get(bean.id) ?? []).filter(ratingRecord)
+      .map(record => ({ id: record.id, date: record.date, rating: record.rating, record }))
+      .sort(byDateAscending),
+  }));
   const comparisonRecords = selectedRows.filter(record => record.rating == null || validRating(record.rating)).sort(byDateDescending);
   const ratingOptions = [...new Set(comparisonRecords.filter(record => validRating(record.rating)).map(record => record.rating))]
     .sort((left, right) => right - left);
@@ -91,7 +96,7 @@ export function buildRecordsInsights(records, beans = [], selectedBeanId = '', r
     selectedRecordCount: selectedRows.length,
     ratedRecordCount: ratedRows.length,
     averageRating: ratedRows.length ? ratedRows.reduce((sum, record) => sum + record.rating, 0) / ratedRows.length : null,
-    trend,
+    trendSeries,
     bestRecord,
     comparisonRecords,
     ratingOptions,
@@ -101,13 +106,28 @@ export function buildRecordsInsights(records, beans = [], selectedBeanId = '', r
 }
 
 export function layoutRatingTrend(points, { width = 640, height = 260 } = {}) {
+  const layout = layoutRatingTrends([{ points }], { width, height });
+  return { ...layout, points: layout.series[0]?.points ?? [] };
+}
+
+export function layoutRatingTrends(series, { width = 640, height = 260 } = {}) {
   const margin = { left: 46, right: 24, top: 30, bottom: 48 };
   const plotWidth = Math.max(1, width - margin.left - margin.right);
   const plotHeight = Math.max(1, height - margin.top - margin.bottom);
-  const dates = (Array.isArray(points) ? points : []).filter(point => validDate(point.date));
-  const firstTime = dates.length ? Date.parse(`${dates[0].date}T00:00:00Z`) : 0;
-  const lastTime = dates.length ? Math.max(...dates.map(point => Date.parse(`${point.date}T00:00:00Z`))) : firstTime;
+  const normalizedSeries = (Array.isArray(series) ? series : []).map(entry => ({
+    ...entry,
+    points: (Array.isArray(entry.points) ? entry.points : []).filter(point => validDate(point.date)),
+  }));
+  const dates = normalizedSeries.flatMap(entry => entry.points);
+  const times = dates.map(point => Date.parse(`${point.date}T00:00:00Z`));
+  const firstTime = times.length ? Math.min(...times) : 0;
+  const lastTime = times.length ? Math.max(...times) : firstTime;
   const span = lastTime - firstTime;
+  const place = point => ({ ...point,
+    x: margin.left + (span ? (Date.parse(`${point.date}T00:00:00Z`) - firstTime) / span * plotWidth : plotWidth / 2),
+    y: margin.top + (5 - point.rating) / 5 * plotHeight,
+  });
+  const laidOutSeries = normalizedSeries.map(entry => ({ ...entry, points: entry.points.map(place) }));
   return {
     width,
     height,
@@ -118,10 +138,8 @@ export function layoutRatingTrend(points, { width = 640, height = 260 } = {}) {
     plotRight: margin.left + plotWidth,
     plotTop: margin.top,
     plotBottom: margin.top + plotHeight,
-    points: dates.map(point => ({ ...point,
-      x: margin.left + (span ? (Date.parse(`${point.date}T00:00:00Z`) - firstTime) / span * plotWidth : plotWidth / 2),
-      y: margin.top + (5 - point.rating) / 5 * plotHeight,
-    })),
+    series: laidOutSeries,
+    points: laidOutSeries.flatMap(entry => entry.points),
     yTicks: [0, 1, 2, 3, 4, 5],
   };
 }

@@ -3210,10 +3210,12 @@ test('records view keeps unfiltered bean insights separate from the filtered tab
   assert.ok(insightSection);
   assert.match(insightSection.querySelector('[data-insight-scope]').textContent, /불러온 기록 5건/);
   const points = insightSection.querySelectorAll('circle');
-  assert.equal(points.length, 4);
-  assert.equal(points[1].getAttribute('cx'), points[2].getAttribute('cx'),
+  assert.equal(points.length, 5);
+  const duplicateDay = ['insight-same-day', 'insight-same-point'].map(id =>
+    points.find(point => point.getAttribute('data-record-id') === id));
+  assert.equal(duplicateDay[0].getAttribute('cx'), duplicateDay[1].getAttribute('cx'),
     'same-day ratings occupy the actual same x coordinate');
-  assert.equal(points[1].getAttribute('cy'), points[2].getAttribute('cy'),
+  assert.equal(duplicateDay[0].getAttribute('cy'), duplicateDay[1].getAttribute('cy'),
     'duplicate same-day ratings share one chart coordinate');
   assert.match(insightSection.querySelector('.record-insight-best-record').textContent, /기록 당시 V60/);
   assert.match(insightSection.querySelector('.record-insight-best').textContent, /15g/);
@@ -3225,7 +3227,7 @@ test('records view keeps unfiltered bean insights separate from the filtered tab
   assert.ok(insightSection.querySelector('#record-rating-chart-values'));
   assert.deepEqual(ratingChart.querySelectorAll('text')
     .map(label => label.textContent).filter(label => label.endsWith('점')),
-    ['3점', '4점', '5점'], 'each distinct date/rating point has a visible score label');
+    ['2점', '3점', '4점', '5점'], 'each distinct date/rating point has a visible score label');
   const ratingFiveLabel = ratingChart.querySelectorAll('text')
     .find(label => label.textContent === '5점');
   assert.ok(Number(ratingFiveLabel.getAttribute('y')) > 10, 'top-axis rating labels stay inside the chart viewBox');
@@ -3247,11 +3249,11 @@ test('records page follows the demo hierarchy and keeps full record management c
 
   const layout = document.root.querySelector('.records-demo-layout');
   assert.ok(layout);
-  assert.equal(layout.children[0].tagName, 'aside');
-  assert.equal(layout.children[0].className, 'record-insight-sidebar');
-  assert.equal(layout.children[1].className, 'record-insights-content');
-  assert.deepEqual(layout.children[1].children.map(child => child.className), [
-    'record-insight-selected-bean', 'record-insight-trend-section', 'record-insight-best-section record-insight-best',
+  assert.equal(layout.children[0].className, 'record-insight-trend-section');
+  assert.equal(layout.children[1].className, 'record-insight-sidebar');
+  assert.equal(layout.children[2].className, 'record-insights-content');
+  assert.deepEqual(layout.children[2].children.map(child => child.className), [
+    'record-insight-selected-bean', 'record-insight-best-section record-insight-best',
     'record-insight-comparisons', 'record-management',
   ]);
   const table = layout.querySelector('.record-insight-comparison-table');
@@ -3264,6 +3266,51 @@ test('records page follows the demo hierarchy and keeps full record management c
   assert.equal(management.open, false);
   assert.ok(management.querySelector('[data-record-filter="recipeId"]'));
   assert.ok(management.querySelector('[data-action="delete-record"]'));
+});
+
+test('top-three trend spans the records page before the sidebar and keeps each bean in its own series', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const source = data().records[0];
+  const row = ({ id, beanId, beanName, date, rating }) => ({
+    ...source, id, beanId, date, rating, beanResolution: 'relation', snapshotStatus: 'valid',
+    snapshot: { version: 2, recordGeneration: 'bagless-v1',
+      bean: { id: beanId, name: beanName }, recipe: source.snapshot.recipe },
+  });
+  const records = [
+    row({ id: 'bean-a-first', beanId: 'bean-a', beanName: '원두 A', date: '2026-06-15', rating: 3 }),
+    row({ id: 'bean-a-latest', beanId: 'bean-a', beanName: '원두 A', date: '2026-06-21', rating: 4 }),
+    row({ id: 'bean-b-only', beanId: 'bean-b', beanName: '원두 B', date: '2026-06-21', rating: 4 }),
+    row({ id: 'bean-c-unrated', beanId: 'bean-c', beanName: '원두 C', date: '2026-06-20', rating: null }),
+  ];
+  const insights = { ...buildRecordsInsights(records, [], 'bean-b'), status: 'ready', loading: false };
+  view.renderData({ ...data(), records, recordInsights: insights,
+    screen: { route: '/records', complete: true, hasMore: false } });
+  view.renderRoute('/records');
+
+  const layout = document.root.querySelector('.records-demo-layout');
+  assert.equal(layout.children[0].className, 'record-insight-trend-section',
+    'the graph is the first DOM section across the sidebar and content columns');
+  assert.equal(layout.children[1].className, 'record-insight-sidebar');
+  const chart = layout.querySelector('.rating-trend-chart');
+  assert.match(chart.querySelector('title').textContent, /Top 3/);
+  const points = chart.querySelectorAll('circle');
+  assert.equal(points.length, 3, 'the graph includes the two rated beans and preserves same-date points');
+  assert.deepEqual(points.map(point => point.getAttribute('data-bean-id')), ['bean-a', 'bean-a', 'bean-b']);
+  assert.equal(points[1].getAttribute('cx'), points[2].getAttribute('cx'),
+    'different beans on one date use the same shared date coordinate');
+  assert.equal(points[1].getAttribute('cy'), points[2].getAttribute('cy'),
+    'equal ratings across beans stay at the same shared rating coordinate');
+  assert.equal(chart.querySelectorAll('.rating-chart-line').length, 1,
+    'the two-point bean has one line while the one-point bean has no fabricated segment');
+  assert.deepEqual(layout.querySelectorAll('.record-insight-chart-legend-name').map(item => item.textContent), [
+    '원두 A', '원두 B', '원두 C',
+  ]);
+  assert.match(layout.querySelector('.record-insight-chart-legend').children[2].children.map(child => child.textContent).join(' '),
+    /유효 별점 기록 없음/);
+  assert.equal(insights.selectedBean.name, '원두 B', 'the summary selection can differ from the graph scope');
+  assert.match(layout.querySelector('[data-insight-scope]').textContent, /평균은 선택 원두/);
+  assert.match(layout.querySelector('[data-insight-scope]').textContent, /차트는 최근 추출 원두 3종/);
 });
 
 test('legacy record management remains available when bounded insights have not loaded', () => {
@@ -3394,8 +3441,8 @@ test('insight bean cards, comparison filter, and sort controls update the produc
   recipe.value = alternateRecipe;
   change(recipe);
   assert.deepEqual(comparisonIds(), ['comparison-mid'], 'recipe filtering changes only selected-bean comparison rows');
-  assert.equal(document.root.querySelectorAll('circle').length, 3,
-    'the trend remains on the full loaded selected-bean scope');
+  assert.equal(document.root.querySelectorAll('circle').length, 4,
+    'comparison filters leave every loaded top-three bean in the trend');
   assert.equal(document.root.querySelector('.record-insight-best-record').dataset.insightRecordId, 'comparison-high',
     'the best record remains on the full loaded selected-bean scope');
   recipe.value = '';
@@ -3455,7 +3502,7 @@ test('changing the selected bean clears a recipe filter that does not belong to 
   filter.value = RECIPE;
   for (const listener of content.listeners.get('change') ?? []) listener({ target: filter });
   assert.deepEqual(comparisonIds(), [original.records[0].id]);
-  assert.equal(content.querySelectorAll('circle').length, 1);
+  assert.equal(content.querySelectorAll('circle').length, 2);
 
   await clickViewTarget(document, content.querySelector(`[data-action="select-insight-bean"][data-bean-id="${otherBeanId}"]`));
   content = document.root.querySelector('.data-panel');
@@ -3469,7 +3516,7 @@ test('changing the selected bean clears a recipe filter that does not belong to 
   const summaryStats = selectedSummary.querySelector('.record-insight-bean-stats').querySelectorAll('dd');
   assert.equal(summaryStats[0].textContent, '1건');
   assert.equal(summaryStats[1].textContent, '3.0점');
-  assert.equal(content.querySelectorAll('circle').length, 1);
+  assert.equal(content.querySelectorAll('circle').length, 2);
   assert.equal(content.querySelector('.record-insight-best-record').dataset.insightRecordId, otherRecord.id);
 });
 

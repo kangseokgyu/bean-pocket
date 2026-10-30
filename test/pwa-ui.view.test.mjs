@@ -3850,6 +3850,19 @@ test('brew overview marks the active step and aligns selection, conditions, and 
     'the optional grind group is absent when the recipe has no grind fields');
 });
 
+test('bean selection omits the home button with populated and empty lists', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  for (const beans of [data().beans, []]) {
+    view.renderData({ ...data(), beans, screen: { complete: true, hasMore: false } });
+    view.renderRoute('/brew/bean');
+
+    const pane = document.root.querySelector('.brew-flow-pane');
+    assert.equal(pane.querySelectorAll('[data-route="/home"]').some(item => item.textContent === '홈으로'), false);
+    assert.equal(pane.querySelector('h1').textContent, '원두 선택');
+  }
+});
+
 test('empty bean selection explains registration and provides routes to register or return', () => {
   const document = new TestDocument();
   const view = createBeanView(document);

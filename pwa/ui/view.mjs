@@ -1511,7 +1511,6 @@ function renderBrewOptions(pane, data, document, route, optionPages, kind, selec
   const routeQuery = params.get('q') ?? '';
   const page = brewOptionPage(data, optionPages, kind, routeQuery, route);
   const title = isBeans ? '원두 선택' : '레시피 선택';
-  if (isBeans) pane.append(routeButton(document, '홈으로', '/home'));
   pane.append(make(document, 'h1', title));
   if (selectedBean) pane.append(brewSelectionSummary(document, 'bean', '선택한 원두', selectedBean.name,
     '원두 변경', `/brew/bean?selectedBeanId=${encodeURIComponent(selectedBean.id)}`, 'back-to-beans'));

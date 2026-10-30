@@ -1911,25 +1911,50 @@ function renderBeans(pane, data, document, formOpen) {
     title.append(link);
     header.append(title, trashButton(document, 'beans', bean.id, bean.name));
     card.append(header);
-    const metadata = make(document, 'dl', undefined, 'bean-metadata');
-    for (const [label, value] of [
-      ['로스터리', bean.roaster],
-      ['산지·농장', bean.origin],
-      ['품종', bean.variety],
-      ['프로세싱', bean.process],
-      ['향미 노트', bean.tastingNotes],
-    ]) {
-      metadata.append(make(document, 'dt', label), make(document, 'dd', value || '기록 없음'));
-    }
-    card.append(metadata);
+    card.append(beanOverview(document, bean));
     const records = currentRecords(data).filter(record => record.beanId === bean.id);
     const count = bean.recordCount;
     const countLabel = count?.status === 'ready' ? `${count.count}개`
       : count?.status === 'error' ? '확인하지 못함'
         : count?.status === 'loading' ? '확인 중' : `${records.length}개`;
-    card.append(make(document, 'p', `추출 기록 ${countLabel}`));
+    card.append(make(document, 'p', `추출 기록 ${countLabel}`, 'bean-summary-meta'));
     pane.append(card);
   }
+}
+
+function beanOverview(document, bean) {
+  const overview = make(document, 'div', undefined, 'bean-overview');
+  const primary = make(document, 'dl', undefined, 'bean-primary-metadata');
+  for (const [label, value] of [
+    ['산지·농장', bean.origin],
+    ['로스터리', bean.roaster],
+  ]) {
+    const field = make(document, 'div', undefined, 'bean-primary-field');
+    field.append(make(document, 'dt', label), make(document, 'dd', value || '기록 없음'));
+    primary.append(field);
+  }
+  const secondary = make(document, 'section', undefined, 'bean-secondary-info');
+  const heading = make(document, 'div', undefined, 'bean-section-heading');
+  heading.append(make(document, 'h4', '원두 특징'));
+  const metadata = make(document, 'dl', undefined, 'bean-metadata');
+  for (const [label, value] of [
+    ['품종', bean.variety],
+    ['프로세싱', bean.process],
+    ['향미 노트', bean.tastingNotes],
+  ]) {
+    metadata.append(make(document, 'dt', label), make(document, 'dd', value || '기록 없음'));
+  }
+  secondary.append(heading, metadata);
+  overview.append(primary, secondary);
+  return overview;
+}
+
+function beanDetailSection(document, title, className = '') {
+  const section = make(document, 'section', undefined, `bean-detail-section ${className}`.trim());
+  const heading = make(document, 'div', undefined, 'bean-section-heading');
+  heading.append(make(document, 'h4', title));
+  section.append(heading);
+  return section;
 }
 
 function renderBeanDetail(pane, data, document, beanId) {
@@ -1941,15 +1966,22 @@ function renderBeanDetail(pane, data, document, beanId) {
     pane.append(make(document, 'p', '원두를 찾을 수 없습니다. 최신 목록을 새로고침해 주세요.'));
     return;
   }
-  pane.append(make(document, 'h3', bean.name));
-  if (bean.origin) pane.append(make(document, 'p', `원산지·농장: ${bean.origin}`));
+  const detail = make(document, 'article', undefined, 'bean-detail-card');
+  const header = make(document, 'div', undefined, 'entity-card-header');
+  header.append(make(document, 'h3', bean.name));
+  detail.append(header);
+  const information = beanDetailSection(document, '원두 정보');
+  information.append(beanOverview(document, bean));
+  detail.append(information);
   const records = currentRecords(data).filter(record => record.beanId === bean.id).sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
-  pane.append(make(document, 'h4', '이 원두의 추출 기록'));
-  if (!records.length) pane.append(make(document, 'p', data.screen?.hasMore
+  const history = beanDetailSection(document, '이 원두의 추출 기록', 'bean-records');
+  if (!records.length) history.append(make(document, 'p', data.screen?.hasMore
     ? '기록을 더 확인 중입니다. 더 보기로 계속 확인해 주세요.'
     : data.screen?.complete === false ? '전체 기록을 확인하지 못했습니다. 새로고침해 주세요.'
       : '등록된 추출 기록이 없습니다.'));
-  for (const record of records) pane.append(recordCard(document, record, data));
+  for (const record of records) history.append(recordCard(document, record, data));
+  detail.append(history);
+  pane.append(detail);
 }
 
 function renderRecipeDetail(pane, data, document, recipeId) {

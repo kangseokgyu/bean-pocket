@@ -392,7 +392,7 @@ export function createAppView(document = globalThis.document, {
   tokenValidationIcon.setAttribute('aria-hidden', 'true');
   tokenValidationIcon.append(actionIcon(document, 'check'));
   tokenInput.id = 'connection-token';
-  const tokenValidationText = make(document, 'span', TOKEN_VALIDATION_MESSAGES.idle, 'token-validation-message');
+  const tokenValidationText = make(document, 'span', TOKEN_VALIDATION_MESSAGES.idle, 'visually-hidden');
   tokenValidationText.dataset.tokenStatus = '';
   tokenValidationText.dataset.tokenStatusText = '';
   tokenValidationText.dataset.state = 'idle';

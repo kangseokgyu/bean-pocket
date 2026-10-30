@@ -361,10 +361,6 @@ html:has(dialog[open]), body:has(dialog[open]) { overflow: hidden; overscroll-be
   content: "";
   animation: token-validation-spin 700ms linear infinite;
 }
-.token-validation-message { margin: -2px 0 0; color: #546056; font-size: 0.82rem; line-height: 1.5; }
-.token-validation-message[data-state="valid"] { color: #2d7051; }
-.token-validation-message[data-state="invalid"] { color: #8f2c26; }
-.token-validation-message[data-state="unavailable"] { color: #765713; }
 @keyframes token-validation-spin { to { transform: rotate(360deg); } }
 
 /* Avoid iOS native date controls adding padding outside their declared width. */

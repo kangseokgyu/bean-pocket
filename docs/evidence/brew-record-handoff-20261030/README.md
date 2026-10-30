@@ -12,4 +12,15 @@
 - `git diff --check` 통과.
 - Worker는 `gpt-6-luna` / `max`, Critic은 `gpt-6.1-sol` / `medium`으로 순차 실행했다. [독립 검토](critic-review.md)와 [DOM 하네스 결과](critic-results.json). 7개 검사가 통과했고 차단 이슈는 없었다.
 
-실제 브라우저 렌더링, 실제 Notion 저장, iPhone Safari와 홈 화면 실행은 검증하지 않았다. 게시 결과는 완료 후 아래에 기록한다.
+실제 브라우저 렌더링, 실제 Notion 저장, iPhone Safari와 홈 화면 실행은 검증하지 않았다. 공개 파일 확인은 아래 결과를 따른다.
+
+## 게시 결과
+
+- 소스 커밋 `afb2aca72a8fa833eb0ddd192f08de96c6d0b765`를 main에 fast-forward로 통합했다.
+- `gh workflow run pages.yml --ref main -f probes=false`로 일반판을 게시했다. [실행 40977781629](https://github.com/kangseokgyu/bean-pocket/actions/runs/40977781629)의 build와 deploy가 성공했다. `gh run watch 40977781629 --exit-status --interval 10` 종료 0.
+- 통합 후 CI도 테스트 641개 통과, 0개 실패와 빌드·검사를 통과했다. [CI 요약](ci-summary.txt). 전체 로그는 로컬 `/private/tmp/brew-record-handoff-ci.log`에 있다.
+- 공개 주소는 https://kangseokgyu.github.io/bean-pocket/ 이다. 루트 HTTP 200, 표시 빌드 `bf6e2045f3fe`를 확인했다.
+- `node docs/evidence/brew-record-handoff-20261030/verify-public.mjs dist https://kangseokgyu.github.io/bean-pocket/` 종료 0. [공개 파일 결과](public-files.json)의 26개 파일이 모두 HTTP 200이며 승인 dist와 바이트가 일치한다. [재실행 스크립트](verify-public.mjs).
+- 브라우저로 공개 화면 확인을 시도했지만 CUA가 `The browser access host is unavailable`을 반환했다. 실제 브라우저 렌더링과 iPhone 설치 실행은 미검증이다. 실제 Notion 저장은 실행하지 않았다.
+
+이 게시 결과 문서와 확인 스크립트의 후속 커밋은 앱 소스를 변경하지 않는다. 게시 커밋과 문서 커밋을 구분한다.

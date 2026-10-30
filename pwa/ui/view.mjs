@@ -21,10 +21,11 @@ const label = (document, title, name, type = 'text', required = false, attrs = {
   return wrap;
 };
 
-const button = (document, text, type = 'submit', action) => {
-  const node = make(document, 'button', text, 'button');
+const button = (document, text, type = 'submit', action, variant = 'secondary') => {
+  const node = make(document, 'button', text, `button button--${variant}`);
   node.type = type;
   if (action) node.dataset.action = action;
+  if (variant === 'back' && text !== undefined) node.setAttribute('aria-label', String(text));
   return node;
 };
 
@@ -512,7 +513,7 @@ export function createAppView(document = globalThis.document, {
   repair.append(make(document, 'p', '원본 연결 파일을 직접 확인한 뒤에만 복구할 수 있습니다. 확인이 끝나면 아래 항목을 선택해 주세요.'));
   const originalConnectionCheck = label(document, '원본 연결 파일의 현재 내용을 직접 확인했습니다.', 'originalConfirmed', 'checkbox', true);
   repair.append(originalConnectionCheck);
-  repair.append(button(document, '현재 연결을 다시 검증', 'button', 'confirm-connection'));
+  repair.append(button(document, '현재 연결을 다시 검증', 'button', 'confirm-connection', 'primary'));
   connection.append(repair, connectionDetails);
   page.append(connection);
 
@@ -1446,8 +1447,8 @@ function renderHome(pane, document) {
   title.id = 'home-hero-title';
   content.append(eyebrow, title,
     make(document, 'p', '좋아하는 원두로, 나만의 방식으로. 기록할수록 더 맛있는 커피가 됩니다.', 'home-hero-copy'));
-  const start = button(document, '추출 시작', 'button', 'start-brew');
-  start.className = 'button primary-button home-start-button';
+  const start = button(document, '추출 시작', 'button', 'start-brew', 'primary');
+  start.className = 'button button--primary primary-button home-start-button';
   start.textContent = '';
   start.append(
     decorativeSvg(document, '0 0 24 24', 'home-start-cup', [
@@ -1469,8 +1470,8 @@ function renderHome(pane, document) {
   pane.append(hero);
 }
 
-function routeButton(document, title, route, action = 'navigate') {
-  const control = button(document, title, 'button', action);
+function routeButton(document, title, route, action = 'navigate', variant = 'secondary') {
+  const control = button(document, title, 'button', action, variant);
   control.dataset.route = route;
   return control;
 }
@@ -1497,11 +1498,11 @@ function renderUnavailableRoute(pane, document, route, error) {
       : '선택한 원두가 없거나 주소가 올바르지 않습니다. 원두 목록을 새로 확인해 주세요.', 'record-warning'));
   const beanId = params.get('beanId');
   if (path === '/brew/run' && beanId) {
-    pane.append(routeButton(document, '레시피 다시 선택', `/brew/recipe?beanId=${encodeURIComponent(beanId)}`));
+    pane.append(routeButton(document, '레시피 다시 선택', `/brew/recipe?beanId=${encodeURIComponent(beanId)}`, 'navigate', 'back'));
   } else if (path === '/records/new' && beanId) {
-    pane.append(routeButton(document, '추출 다시 선택', `/brew/recipe?beanId=${encodeURIComponent(beanId)}`));
+    pane.append(routeButton(document, '추출 다시 선택', `/brew/recipe?beanId=${encodeURIComponent(beanId)}`, 'navigate', 'back'));
   } else {
-    pane.append(routeButton(document, '원두 선택으로', '/brew/bean'));
+    pane.append(routeButton(document, '원두 선택으로', '/brew/bean', 'navigate', 'back'));
   }
   pane.append(routeButton(document, '홈으로', '/home'));
 }
@@ -1532,8 +1533,8 @@ function renderBrewOptions(pane, data, document, route, optionPages, kind, selec
   search.dataset.optionTarget = 'brew';
   search.dataset.optionLoaded = 'true';
   search.value = page.query ?? routeQuery;
-  const clearSearch = button(document, '검색어 지우기', 'button', 'clear-brew-search');
-  clearSearch.className = 'button brew-option-search-clear';
+  const clearSearch = button(document, '검색어 지우기', 'button', 'clear-brew-search', 'utility');
+  clearSearch.className = 'button button--utility brew-option-search-clear';
   clearSearch.hidden = !search.value;
   searchControl.append(search, clearSearch);
   searchField.append(searchControl);
@@ -1547,7 +1548,7 @@ function renderBrewOptions(pane, data, document, route, optionPages, kind, selec
       const message = `“${search.value}” 검색 결과가 없습니다.${stillLoading
         ? ' 다른 항목도 계속 확인할 수 있습니다.' : ' 입력어를 확인하거나 전체 목록에서 다시 찾아보세요.'}`;
       pane.append(make(document, 'p', message, 'empty-state'));
-      const browseAll = button(document, `전체 ${noun} 보기`, 'button', 'browse-all-brew-options');
+      const browseAll = button(document, `전체 ${noun} 보기`, 'button', 'browse-all-brew-options', 'utility');
       browseAll.dataset.optionTarget = 'brew';
       browseAll.dataset.optionKind = kind;
       pane.append(browseAll);
@@ -1561,7 +1562,7 @@ function renderBrewOptions(pane, data, document, route, optionPages, kind, selec
         pane.append(routeButton(document, '홈으로 돌아가기', '/home'));
       } else {
         pane.append(routeButton(document, '레시피 메뉴에서 등록하기', '/recipes'));
-        pane.append(routeButton(document, '원두 다시 선택', `/brew/bean?selectedBeanId=${encodeURIComponent(selectedBean.id)}`, 'back-to-beans'));
+        pane.append(routeButton(document, '원두 다시 선택', `/brew/bean?selectedBeanId=${encodeURIComponent(selectedBean.id)}`, 'back-to-beans', 'back'));
       }
     }
   }
@@ -1594,8 +1595,8 @@ function renderBrewOptions(pane, data, document, route, optionPages, kind, selec
   }
   if (items.length) pane.append(list);
   if (page.hasMore) {
-    const more = routeButton(document, '더 불러오기', '', 'more-options');
-    more.className = 'button page-load-more';
+    const more = routeButton(document, '더 불러오기', '', 'more-options', 'pagination');
+    more.className = 'button button--pagination page-load-more';
     more.dataset.optionTarget = 'brew';
     more.dataset.optionKind = kind;
     more.dataset.nextCursor = page.nextCursor ?? '';
@@ -1625,7 +1626,7 @@ function brewSelectionSummary(document, selection, labelText, value, changeText,
   summary.dataset.selection = selection;
   const copy = make(document, 'span', undefined, 'brew-selection-copy');
   copy.append(make(document, 'span', labelText, 'brew-selection-label'), make(document, 'strong', value, 'brew-selection-name'));
-  summary.append(copy, routeButton(document, changeText, route, action));
+  summary.append(copy, routeButton(document, changeText, route, action, 'utility'));
   return summary;
 }
 
@@ -1717,8 +1718,8 @@ function renderBrewRun(pane, data, document, route, params) {
     guide.append(make(document, 'h2', '추출 가이드'), make(document, 'p', recipe.extractionGuide, 'brew-extraction-guide'));
     pane.append(guide);
   }
-  const complete = button(document, '추출 완료', 'button', 'complete-brew');
-  complete.className = 'button primary-button';
+  const complete = button(document, '추출 완료', 'button', 'complete-brew', 'primary');
+  complete.className = 'button button--primary primary-button';
   complete.dataset.beanId = bean.id;
   complete.dataset.recipeId = recipe.id;
   pane.append(complete);
@@ -1848,7 +1849,7 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
       conflict.setAttribute('role', 'status');
       conflict.append(make(document, 'h3', '저장하지 않은 추출 기록이 있습니다.'));
       conflict.append(make(document, 'p', `${draft.values.date} · 별점 ${draft.values.rating || '미입력'} · ${draft.values.cupNote || '컵노트 없음'}`));
-      conflict.append(button(document, '이전 기록 이어쓰기', 'button', 'resume-record-draft'));
+      conflict.append(button(document, '이전 기록 이어쓰기', 'button', 'resume-record-draft', 'primary'));
       conflict.append(button(document, '이전 초안을 버리고 새 기록 작성', 'button', 'start-new-record'));
       pane.append(conflict);
     } else if (parts[1] === 'new') {
@@ -1865,8 +1866,8 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
   }
 
   if (data.screen?.hasMore) {
-    const more = button(document, '더 불러오기', 'button', 'load-more');
-    more.className = 'button page-load-more';
+    const more = button(document, '더 불러오기', 'button', 'load-more', 'pagination');
+    more.className = 'button button--pagination page-load-more';
     const target = section === 'records' ? pane.querySelector('[data-record-page-more]') : null;
     (target ?? pane).append(more);
   } else if (data.screen?.complete === false) {
@@ -1960,7 +1961,7 @@ function beanDetailSection(document, title, className = '') {
 
 function renderBeanDetail(pane, data, document, beanId) {
   const bean = data.beans.find(row => row.id === beanId);
-  const back = button(document, '원두 목록으로', 'button', 'navigate');
+  const back = button(document, '원두 목록으로', 'button', 'navigate', 'back');
   back.dataset.route = '/beans';
   pane.append(back);
   if (!bean) {
@@ -1987,7 +1988,7 @@ function renderBeanDetail(pane, data, document, beanId) {
 
 function renderRecipeDetail(pane, data, document, recipeId) {
   const recipe = data.recipes.find(row => row.id === recipeId);
-  const back = button(document, '레시피 목록으로 돌아가기', 'button', 'navigate');
+  const back = button(document, '레시피 목록으로 돌아가기', 'button', 'navigate', 'back');
   back.dataset.route = '/recipes';
   pane.append(back);
   if (!recipe) {
@@ -2085,7 +2086,7 @@ function recipeCard(document, recipe, data, detailed = false) {
 
   const actions = make(document, 'div', undefined, 'recipe-card-actions');
   if (detailed) {
-    const record = button(document, '이 레시피로 추출 기록', 'button', 'new-record');
+    const record = button(document, '이 레시피로 추출 기록', 'button', 'new-record', 'primary');
     record.dataset.id = recipe.id;
     record.disabled = !recipeReady(recipe);
     actions.append(record);
@@ -2222,7 +2223,7 @@ function buildRecipeForm(document, data) {
   const steps = make(document, 'div', undefined, 'recipe-steps');
   steps.dataset.steps = '';
   form.append(steps);
-  form.append(button(document, '단계 추가', 'button', 'add-step'));
+  form.append(button(document, '단계 추가', 'button', 'add-step', 'utility'));
   const preview = make(document, 'div', undefined, 'recipe-preview');
   preview.setAttribute('aria-live', 'polite');
   preview.setAttribute('aria-label', '단계 입력 미리보기');
@@ -2308,6 +2309,7 @@ function buildRecordForm(document, data, optionPages, route, optionStates, conne
 function buildSearchPickerResult(document, item, kind, target, selected, data) {
   const row = make(document, 'li', undefined, 'search-picker-result');
   const option = button(document, '', 'button', 'select-search-option');
+  option.className = 'button';
   option.dataset.optionId = idOf(item.id);
   option.dataset.optionTarget = target;
   option.dataset.optionKind = kind;
@@ -2386,7 +2388,7 @@ function searchPicker(document, title, kind, target, page, placeholder, optional
   const optionTitle = kind === 'beans' ? '원두 선택' : '레시피 선택';
   const dialogTitle = make(document, 'h2', optionTitle);
   dialogTitle.id = `${dialog.id}-title`;
-  const close = button(document, '닫기', 'button', 'close-search-picker');
+  const close = button(document, '닫기', 'button', 'close-search-picker', 'utility');
   close.className = 'button search-picker-close';
   dialogHeader.append(dialogTitle, close);
 
@@ -2402,8 +2404,8 @@ function searchPicker(document, title, kind, target, page, placeholder, optional
   search.value = query;
   search.dataset.optionQuery = query;
   search.dataset.optionLoaded = page && (page.query ?? '') === query ? 'true' : 'false';
-  const clearSearch = button(document, '검색어 지우기', 'button', 'clear-option-search');
-  clearSearch.className = 'button search-picker-clear';
+  const clearSearch = button(document, '검색어 지우기', 'button', 'clear-option-search', 'utility');
+  clearSearch.className = 'button button--utility search-picker-clear';
   clearSearch.hidden = !query;
 
   const results = make(document, 'ul', undefined, 'search-picker-results');
@@ -2418,12 +2420,12 @@ function searchPicker(document, title, kind, target, page, placeholder, optional
   retry.dataset.optionTarget = target;
   retry.dataset.optionKind = kind;
   retry.hidden = true;
-  const register = button(document, kind === 'beans' ? '원두 등록하기' : '레시피 등록하기', 'button', 'register-search-option');
+  const register = button(document, kind === 'beans' ? '원두 등록하기' : '레시피 등록하기', 'button', 'register-search-option', 'primary');
   register.dataset.optionTarget = target;
   register.dataset.optionKind = kind;
   register.hidden = true;
-  const more = button(document, '이름 더 보기', 'button', 'more-options');
-  more.className = 'button search-picker-more';
+  const more = button(document, '이름 더 보기', 'button', 'more-options', 'pagination');
+  more.className = 'button button--pagination search-picker-more';
   more.dataset.optionMore = '';
   more.dataset.optionTarget = target;
   more.dataset.optionKind = kind;
@@ -2566,8 +2568,8 @@ function renderRecords(pane, data, document, formOpen, optionPages, optionStates
   if (selectedFilters.recipeId) recipeSelect.value = selectedFilters.recipeId;
   syncSearchPickerTrigger(beanPicker, data);
   syncSearchPickerTrigger(recipePicker, data);
-  const reset = button(document, '필터 초기화', 'button', 'clear-record-filters');
-  reset.className = 'button record-filter-reset';
+  const reset = button(document, '필터 초기화', 'button', 'clear-record-filters', 'utility');
+  reset.className = 'button button--utility record-filter-reset';
   reset.disabled = !selectedFilters.beanId && !selectedFilters.recipeId;
   filters.append(reset);
   managementBody.append(filters);
@@ -3188,7 +3190,7 @@ function addStep(content, document) {
   row.append(label(document, '누적 시간 (분:초)', 'time', 'text', true,
     { placeholder: index === 1 ? '0:00' : '0:30', inputMode: 'text', pattern: '\\d+:[0-5]\\d' }));
   row.append(label(document, '이번 물 양 (g)', 'water', 'number', true, { min: 0, step: 'any' }));
-  row.append(button(document, '단계 제거', 'button', 'remove-step'));
+  row.append(button(document, '단계 제거', 'button', 'remove-step', 'utility'));
   wrap.append(row);
 }
 

@@ -1,0 +1,20 @@
+npm test
+exit: 0
+tests: 665 passed, 0 failed, 0 skipped
+duration: 42960.318583 ms
+
+npm run build:pages
+exit: 0
+build version: 046426a7f8d0
+
+npm run check:pages
+exit: 0
+result: Pages artifact check passed
+
+git diff --check
+exit: 0
+
+browser-check.cjs
+exit: 0
+scenarios: 6 passed
+page errors: 0

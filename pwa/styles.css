@@ -407,6 +407,71 @@ button:focus-visible, .table-scroll:focus-visible {
   cursor: pointer;
 }
 
+.button.button--secondary {
+  border-color: #d4c9b8;
+  background: #fffdf8;
+  color: #224b3c;
+}
+.button.button--secondary:hover:not(:disabled) {
+  border-color: #bbae98;
+  background: #f7f1e7;
+}
+
+.button.button--back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-self: start;
+  width: fit-content;
+  min-height: 46px;
+  padding: 8px 14px;
+  border-color: #d4c9b8;
+  border-radius: 999px;
+  background: transparent;
+  color: #52695b;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: none;
+}
+.button.button--back::before {
+  content: "←";
+  flex: 0 0 auto;
+  font-size: 1.05rem;
+  line-height: 1;
+}
+.button.button--back:hover:not(:disabled) { border-color: #bbae98; background: #f7f1e7; }
+
+.button.button--pagination {
+  width: 100%;
+  min-height: 48px;
+  border-color: #ded2bd;
+  border-radius: 12px;
+  background: #f3eddf;
+  color: #425b4b;
+  font-weight: 650;
+  box-shadow: none;
+}
+.button.button--pagination:hover:not(:disabled) {
+  border-color: #c6b89e;
+  background: #eee6d7;
+}
+
+.button.button--utility {
+  min-height: 46px;
+  padding: 7px 11px;
+  border-color: transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: #52695b;
+  font-size: 0.82rem;
+  font-weight: 600;
+  box-shadow: none;
+}
+.button.button--utility:hover:not(:disabled) {
+  border-color: #e1d8c9;
+  background: #f2ede3;
+}
+
 .form-actions .button[type="submit"], .connection-panel .button[type="submit"],
 .resolution-form .button[type="submit"] {
   border-color: #224b3c;
@@ -545,7 +610,7 @@ button:focus-visible, .table-scroll:focus-visible {
   font-weight: 500;
   white-space: nowrap;
 }
-.tabs .button:hover { color: #224b3c; }
+.tabs .button:hover { color: #224b3c; background: transparent; }
 .tabs [aria-current="page"] {
   color: #224b3c;
   font-weight: 800;
@@ -1092,9 +1157,17 @@ footer {
   justify-self: end;
   object-fit: contain;
 }
-.primary-button { min-height: 50px; padding: 12px 22px; border-color: #224b3c; background: #224b3c; color: #fffefa; font-weight: 700; }
+.button.button--primary, .primary-button {
+  min-height: 50px;
+  padding: 12px 22px;
+  border-color: #224b3c;
+  background: #224b3c;
+  color: #fffefa;
+  font-weight: 700;
+  box-shadow: none;
+}
+.button.button--primary:hover:not(:disabled), .primary-button:hover:not(:disabled) { background: #173c2f; }
 .home-hero .home-start-button { min-height: 64px; padding: 16px 26px; }
-.primary-button:hover:not(:disabled) { background: #173c2f; }
 .brew-flow-pane { display: grid; gap: 16px; min-width: 0; }
 .brew-flow-pane h1 { margin: 0; font-size: clamp(1.6rem, 7vw, 2.25rem); }
 .brew-flow-pane h2 { margin: 8px 0 0; }
@@ -1115,7 +1188,7 @@ footer {
 .brew-selection-copy { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
 .brew-selection-label { color: #68685e; font-size: 0.75rem; line-height: 1.35; }
 .brew-selection-name { color: #203d32; font-size: 0.95rem; }
-.brew-selection-summary > .button { flex: 0 0 auto; min-height: 38px; padding: 8px 12px; font-size: 0.8rem; }
+.brew-selection-summary > .button { flex: 0 0 auto; min-height: 44px; padding: 8px 12px; font-size: 0.8rem; }
 .brew-option-list { display: grid; gap: 12px; min-width: 0; }
 .brew-option-card { display: flex; flex-direction: column; align-items: stretch; gap: 4px; width: 100%; min-width: 0; min-height: 128px; padding: 16px; border-color: #d8d1c3; border-radius: 12px; background: #fffefa; color: #203d32; text-align: left; font-size: 0.875rem; line-height: 1.5; }
 .brew-option-card:hover:not(:disabled) { border-color: #8ab59a; background: #f6f8f0; }

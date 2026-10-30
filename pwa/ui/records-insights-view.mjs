@@ -33,10 +33,11 @@ const make = (document, tag, text, className) => {
   if (className) node.className = className;
   return node;
 };
-const button = (document, text, type = 'submit', action) => {
-  const node = make(document, 'button', text, 'button');
+const button = (document, text, type = 'submit', action, variant = 'secondary') => {
+  const node = make(document, 'button', text, `button button--${variant}`);
   node.type = type;
   if (action) node.dataset.action = action;
+  if (variant === 'back' && text !== undefined) node.setAttribute('aria-label', String(text));
   return node;
 };
 const formatTime = seconds => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
@@ -342,8 +343,8 @@ function makeInsightSelect(document, title, dataAttribute, value, options) {
 function renderInsightsMoreButton(parent, document, state) {
   if (!state.hasMore && !state.error) return;
   const more = button(document, state.loading ? '불러오는 중…' : state.error ? '다시 시도' : '인사이트 더 불러오기',
-    'button', 'load-more-insights');
-  more.className = 'button record-insights-more';
+    'button', 'load-more-insights', 'pagination');
+  more.className = 'button button--pagination record-insights-more';
   more.disabled = !!state.loading;
   parent.append(more);
 }

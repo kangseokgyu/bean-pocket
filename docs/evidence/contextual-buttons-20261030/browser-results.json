@@ -1,0 +1,41 @@
+[
+  {
+    "scenario": "bean-detail-desktop",
+    "backLabel": "원두 목록으로",
+    "hitTargetMin": 44,
+    "records": 2,
+    "overflow": false
+  },
+  {
+    "scenario": "bean-detail-mobile",
+    "backLabel": "원두 목록으로",
+    "hitTargetMin": 44,
+    "records": 2,
+    "overflow": false
+  },
+  {
+    "scenario": "direction-comparison",
+    "primaryColor": "rgb(34, 75, 60)",
+    "warmSecondaryColor": "rgb(255, 253, 248)",
+    "sageSecondaryColor": "rgb(232, 238, 231)",
+    "overflow": false,
+    "pageErrors": 0
+  },
+  {
+    "scenario": "keyboard-focus",
+    "target": "레시피 목록으로 돌아가기",
+    "focusVisible": true
+  },
+  {
+    "scenario": "brew-search-pagination-mobile",
+    "clearHitTargetMin": 44,
+    "paginationHitTargetMin": 44,
+    "overflow": false
+  },
+  {
+    "scenario": "records-insights-disabled-pagination",
+    "disabled": true,
+    "paginationWidthMin": 300,
+    "overflow": false
+  }
+]

@@ -561,14 +561,14 @@ button:focus-visible, .table-scroll:focus-visible {
 .list-actions { display: flex; gap: 8px; flex-shrink: 0; }
 .icon-button { display: inline-flex; align-items: center; justify-content: center; width: 46px; padding: 8px; font-size: 1.5rem; }
 .list-actions .icon-button { flex: 0 0 32px; width: 32px; height: 32px; min-height: 32px; padding: 0; border: 0; background: transparent; color: #737373; }
-.bean-card, .bag-group, .recipe-card, .record-card, .resolution-card, .skeleton-card {
+.bean-card, .bean-detail-card, .bag-group, .recipe-card, .record-card, .resolution-card, .skeleton-card {
   min-width: 0;
   padding: 15px;
   border: 1px solid #e0dbcf;
   border-radius: 12px;
   background: #fffefa;
 }
-.bean-card, .recipe-card, .record-card { font-size: 0.875rem; line-height: 1.6; }
+.bean-card, .bean-detail-card, .recipe-card, .record-card { font-size: 0.875rem; line-height: 1.6; }
 
 .recipe-overview { display: grid; gap: 10px; min-width: 0; }
 .recipe-dripper {
@@ -642,8 +642,8 @@ button:focus-visible, .table-scroll:focus-visible {
   -webkit-line-clamp: 2;
 }
 .recipe-summary-card > .muted-note, .recipe-summary-card > .record-warning { margin: 9px 0 0; }
-.recipe-detail-section { min-width: 0; margin-top: 20px; }
-.recipe-section-heading {
+.recipe-detail-section, .bean-detail-section { min-width: 0; margin-top: 20px; }
+.recipe-section-heading, .bean-section-heading {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -652,8 +652,8 @@ button:focus-visible, .table-scroll:focus-visible {
   padding-bottom: 8px;
   border-bottom: 1px solid #e9e4d9;
 }
-.recipe-section-heading h4 { min-width: 0; margin: 0; font-size: 0.94rem; }
-.recipe-section-heading > span { flex: 0 0 auto; color: #6f796e; font-size: 0.77rem; }
+.recipe-section-heading h4, .bean-section-heading h4 { min-width: 0; margin: 0; font-size: 0.94rem; }
+.recipe-section-heading > span, .bean-section-heading > span { flex: 0 0 auto; color: #6f796e; font-size: 0.77rem; }
 .recipe-conditions .recipe-section-heading { margin-bottom: 10px; }
 .recipe-condition-list {
   display: grid;
@@ -703,11 +703,22 @@ button:focus-visible, .table-scroll:focus-visible {
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);
   gap: 5px 14px;
-  margin: 0 0 10px;
+  margin: 0;
   line-height: 1.6;
 }
 .bean-metadata dt { color: #68685e; font-size: 0.8125rem; padding-top: 1px; }
 .bean-metadata dd { min-width: 0; margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.bean-overview { display: grid; gap: 12px; min-width: 0; }
+.bean-primary-metadata { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; min-width: 0; margin: 0; }
+.bean-primary-field { min-width: 0; padding: 9px 10px; border-radius: 10px; background: #f8f6f0; }
+.bean-primary-field dt { margin: 0 0 3px; color: #69756a; font-size: 0.74rem; }
+.bean-primary-field dd { min-width: 0; margin: 0; font-weight: 700; overflow-wrap: anywhere; white-space: pre-wrap; }
+.bean-secondary-info { min-width: 0; margin: 0; padding-top: 11px; border-top: 1px solid #eee9de; }
+.bean-secondary-info .bean-section-heading { margin-bottom: 8px; padding-bottom: 0; border-bottom: 0; }
+.bean-secondary-info .bean-section-heading h4 { color: #626d62; font-size: 0.8rem; }
+.bean-summary-meta { min-width: 0; margin: 13px 0 0; padding-top: 11px; border-top: 1px solid #eee9de; color: #626d62; font-size: 0.8rem; }
+.bean-records > .record-card { background: #f8f6f0; }
+.bean-records > .record-card + .record-card { margin-top: 8px; }
 
 .entity-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
 .entity-card-header h3, .entity-card-header h4 { min-width: 0; overflow-wrap: anywhere; margin: 0 0 12px; }
@@ -717,7 +728,8 @@ button:focus-visible, .table-scroll:focus-visible {
 .entity-delete:hover:not(:disabled) { background: #f0f0ed; border-color: #b7b7af; }
 .bag-card { padding-top: 10px; border-top: 1px solid #e0dbcf; }
 .bag-card + .bag-card { margin-top: 10px; }
-.bag-card > :last-child, .bean-card > :last-child, .recipe-card > :last-child, .record-card > :last-child { margin-bottom: 0; }
+.bag-card > :last-child, .bean-card > :last-child, .bean-detail-card > :last-child,
+.recipe-card > :last-child, .record-card > :last-child { margin-bottom: 0; }
 .record-summary-header { align-items: center; }
 .record-summary-header p { min-width: 0; margin: 0 0 12px; overflow-wrap: anywhere; }
 :is(.recipe-card, .record-card) .entity-card-header + p { margin-top: 0; }

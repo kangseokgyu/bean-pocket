@@ -1990,15 +1990,55 @@ test('recipe and record delete spinners replace only their progress toast', asyn
 });
 
 
-test('bean cards pair each metadata value with its own visible label', () => {
+test('bean cards lead with origin and roastery, then retain every labeled metadata value', () => {
   const document = new TestDocument();
   const view = createBeanView(document);
   view.renderData(data());
   const card = document.root.querySelector('.bean-card');
+  assert.deepEqual(card.querySelector('.bean-primary-metadata').querySelectorAll('dt').map(node => node.textContent),
+    ['산지·농장', '로스터리']);
   assert.deepEqual(card.querySelectorAll('dt').map(node => node.textContent),
-    ['로스터리', '산지·농장', '품종', '프로세싱', '향미 노트']);
+    ['산지·농장', '로스터리', '품종', '프로세싱', '향미 노트']);
   assert.deepEqual(card.querySelectorAll('dd').map(node => node.textContent),
-    ['로스터리', '시다마 · 테스트 농장', '74110', '워시드', '복숭아']);
+    ['시다마 · 테스트 농장', '로스터리', '74110', '워시드', '복숭아']);
+  assert.equal(card.querySelector('.bean-summary-meta').textContent, '추출 기록 1개');
+});
+
+test('bean details group all bean metadata and records inside the recipe card hierarchy', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  current.records.push({ ...structuredClone(current.records[0]), id: 'later-record', date: '2026-06-20', cupNote: '자두' });
+  view.renderData(current);
+  view.renderRoute(`/beans/${BEAN}`);
+
+  const detail = document.root.querySelector('.bean-detail-card');
+  assert.ok(detail);
+  assert.equal(detail.querySelector('h3').textContent, '원두 <안전>');
+  assert.deepEqual(detail.querySelectorAll('.bean-detail-section')
+    .map(section => section.querySelector('h4').textContent), ['원두 정보', '이 원두의 추출 기록']);
+  assert.deepEqual(detail.querySelector('.bean-primary-metadata').querySelectorAll('dt').map(node => node.textContent),
+    ['산지·농장', '로스터리']);
+  assert.deepEqual(detail.querySelector('.bean-metadata').querySelectorAll('dt').map(node => node.textContent),
+    ['품종', '프로세싱', '향미 노트']);
+  assert.deepEqual(detail.querySelectorAll('.record-card').map(card => card.querySelector('h3').textContent),
+    ['2026-06-20 · 원두 <안전>', '2026-06-15 · 원두 <안전>']);
+  assert.equal(detail.querySelector('[data-action="delete-bean"]'), null);
+  assert.equal(detail.querySelector('[data-action="copy-recipe"]'), null);
+});
+
+test('bean details keep empty, loading, and incomplete record states distinct', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  for (const [screen, message] of [
+    [{ hasMore: true, complete: false }, '기록을 더 확인 중입니다. 더 보기로 계속 확인해 주세요.'],
+    [{ hasMore: false, complete: false }, '전체 기록을 확인하지 못했습니다. 새로고침해 주세요.'],
+    [{ hasMore: false, complete: true }, '등록된 추출 기록이 없습니다.'],
+  ]) {
+    view.renderData({ ...data(), records: [], screen });
+    view.renderRoute(`/beans/${BEAN}`);
+    assert.equal(document.root.querySelector('.bean-records').querySelector('p').textContent, message);
+  }
 });
 
 test('bean cards keep missing metadata explicit and render values as text', () => {
@@ -2009,7 +2049,7 @@ test('bean cards keep missing metadata explicit and render values as text', () =
   view.renderData(rows);
   const card = document.root.querySelector('.bean-card');
   assert.deepEqual(card.querySelectorAll('dd').map(node => node.textContent),
-    ['<img src=x onerror=alert(1)>', '기록 없음', '기록 없음', '기록 없음', '기록 없음']);
+    ['기록 없음', '<img src=x onerror=alert(1)>', '기록 없음', '기록 없음', '기록 없음']);
   assert.equal(card.querySelector('img'), null);
 });
 

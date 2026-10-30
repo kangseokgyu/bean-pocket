@@ -1,0 +1,28 @@
+{
+  "index.html": {
+    "status": 200,
+    "sha256": "bbd41553d919ee2b7cb6002857e94cd7cd476056dc19a7980c8aa46a04671032",
+    "matches_local_build": true,
+    "version": "577065263af1"
+  },
+  "styles.css": {
+    "status": 200,
+    "sha256": "eb70211522ca37c4447b8aac9a51093c6a1d5b8718a3b9b724e19609ca4a4946",
+    "matches_local_build": true
+  },
+  "ui/view.mjs": {
+    "status": 200,
+    "sha256": "287b2b679f3dfb830bc1ab6c7d0bd89da85005c558ea35a3feedefd0d5debb06",
+    "matches_local_build": true
+  },
+  "sw.js": {
+    "status": 200,
+    "sha256": "19480f06cee601385e7b636eb7dcae68795c79170201fe044072b7e9666a54ac",
+    "matches_local_build": true
+  },
+  "manifest.webmanifest": {
+    "status": 200,
+    "sha256": "83dc529ee8004d5aa06cf728873d97c04ece2143d3026f275780f293dedb1bdb",
+    "matches_local_build": true
+  }
+}

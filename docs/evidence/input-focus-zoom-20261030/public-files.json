@@ -1,0 +1,28 @@
+{
+  "index.html": {
+    "status": 200,
+    "sha256": "0b4ac38c79628b6d2414a2c5370e572164ad5c5de2954fb94f921ded065c1586",
+    "matches_local_build": true,
+    "version": "2879c12bec0a"
+  },
+  "styles.css": {
+    "status": 200,
+    "sha256": "400f7d9e4122fc2b24802ddac5106f8f7a8291b137766fe0eeaec3020735574f",
+    "matches_local_build": true
+  },
+  "brew-picker-demo.css": {
+    "status": 200,
+    "sha256": "d8f9a43038d7ba81a5ff397b3c3d8b896e7283972835c76aae65fa4002558608",
+    "matches_local_build": true
+  },
+  "sw.js": {
+    "status": 200,
+    "sha256": "d582202c11dbc1d236ba89ad817edc9d52d406179edd12e36efb029aa9a9ed7a",
+    "matches_local_build": true
+  },
+  "manifest.webmanifest": {
+    "status": 200,
+    "sha256": "83dc529ee8004d5aa06cf728873d97c04ece2143d3026f275780f293dedb1bdb",
+    "matches_local_build": true
+  }
+}

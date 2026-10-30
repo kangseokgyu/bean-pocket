@@ -1,0 +1,29 @@
+{
+  "build": "b3c4af8b368d",
+  "files": [
+    {
+      "path": "index.html",
+      "httpStatus": 200,
+      "matches": true,
+      "sha256": "9206312a6c4430321fdb39ff6efee4d1a04c2a0acb00db8f6404cbfddda82ade"
+    },
+    {
+      "path": "ui/view.mjs",
+      "httpStatus": 200,
+      "matches": true,
+      "sha256": "db7a367dd6d7b96d6e7fe0b0a56b2515ff1eb7a46ed8f284b48c057ad51a67a5"
+    },
+    {
+      "path": "styles.css",
+      "httpStatus": 200,
+      "matches": true,
+      "sha256": "65f82dcb57a662394aa4e41126b33a3b0165094860ff0ac4cf71818e68a4609a"
+    },
+    {
+      "path": "sw.js",
+      "httpStatus": 200,
+      "matches": true,
+      "sha256": "94c7d03b078362f75a1f409e3cf2d3a634b44de54209ca1cdd037f11c273f18a"
+    }
+  ]
+}

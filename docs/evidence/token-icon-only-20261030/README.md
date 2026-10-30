@@ -8,3 +8,7 @@
 - Chrome에서 상태 문구는 absolute 위치와 `clip-path: inset(50%)`, 약 1px 크기이며 아이콘은 약 18px 폭이었다.
 - 최초 화면 확인은 빌드 완료 전 자원 404로 실패했다. 산출물이 준비된 뒤 재확인했다.
 - 단순 표시 변경이라 추가 에이전트 없이 직접 수행했다. 실제 Notion 인증과 iPhone, 스크린리더 실기는 확인하지 않았다.
+
+## 게시
+
+`bbf1370`을 main에 통합하고 [Pages 실행 40998824631](https://github.com/kangseokgyu/bean-pocket/actions/runs/40998824631)을 `probes=false`로 완료했다. CI의 통합 테스트, 빌드, 산출물 검사와 게시가 통과했다. [공개 앱](https://kangseokgyu.github.io/bean-pocket/)의 빌드는 `b3c4af8b368d`다. 공개 HTML, view, CSS, 서비스 워커는 HTTP 200이고 로컬 검증 산출물과 바이트 단위로 일치했다. 근거는 `public-files.json`에 기록했다.

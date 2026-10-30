@@ -2718,6 +2718,7 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
         return;
       }
       loadOptions(targetName, kind, '');
+      search.dataset.optionLoaded = 'true';
       search.focus?.();
       return;
     }

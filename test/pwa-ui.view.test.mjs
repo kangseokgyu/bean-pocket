@@ -66,7 +66,12 @@ class TestElement {
   hidePopover() {
     this.popoverOpen = false;
   }
-  focus() { this.ownerDocument.activeElement = this; }
+  focus() {
+    this.ownerDocument.activeElement = this;
+    for (let node = this; node; node = node.parentElement) {
+      for (const listener of node.listeners.get('focusin') ?? []) listener({ target: this });
+    }
+  }
   reset() { for (const field of this.querySelectorAll('input[name],textarea[name],select[name]')) field.value = ''; }
   remove() { if (this.parentElement) this.parentElement.children = this.parentElement.children.filter(child => child !== this); this.parentElement = null; }
   addEventListener(type, listener) {
@@ -3270,7 +3275,6 @@ test('record form uses accessible searchable picker dialogs and restores focus w
   assert.equal(entryDialog.open, true, 'the record entry dialog remains underneath the picker');
   assert.equal(pickerDialog.open, true);
   assert.equal(document.activeElement, search);
-  for (const listener of document.root.querySelector('.data-panel').listeners.get('focusin') ?? []) listener({ target: search });
   assert.deepEqual(requested, [['beans', '', null, 'form', false]]);
 
   view.setSearchOptions('form', 'beans', { items: [{ id: BEAN, name: '원두 <안전>', status: 'ready' }],
@@ -3619,6 +3623,7 @@ test('brew name search is visibly labeled and a no-result query can return to th
   assert.equal(noBeans.querySelector('[data-action="clear-brew-search"]').hidden, false);
   const clearSearch = noBeans.querySelector('[data-action="clear-brew-search"]');
   await clickViewTarget(document, clearSearch);
+  assert.equal(calls.length, 1, 'clear-search click should make one request');
   assert.deepEqual(calls.at(-1), ['beans', '', null, 'brew', false]);
   assert.equal(document.root.querySelector('[data-option-search-kind="beans"]').value, '');
 
@@ -3627,6 +3632,7 @@ test('brew name search is visibly labeled and a no-result query can return to th
   const showBeans = noBeansAgain.querySelector('[data-action="browse-all-brew-options"]');
   assert.equal(showBeans.textContent, '전체 원두 보기');
   await clickViewTarget(document, showBeans);
+  assert.equal(calls.length, 2, 'browse-all click should make one request');
   assert.deepEqual(calls.at(-1), ['beans', '', null, 'brew', false]);
   assert.equal(document.root.querySelector('[data-option-search-kind="beans"]').value, '', 'browse all clears the query');
 
@@ -3640,6 +3646,7 @@ test('brew name search is visibly labeled and a no-result query can return to th
   const showRecipes = noRecipes.querySelector('[data-action="browse-all-brew-options"]');
   assert.equal(showRecipes.textContent, '전체 레시피 보기');
   await clickViewTarget(document, showRecipes);
+  assert.equal(calls.length, 3, 'recipe browse-all click should make one request');
   assert.deepEqual(calls.at(-1), ['recipes', '', null, 'brew', false]);
   assert.equal(document.root.querySelector('[data-option-search-kind="recipes"]').value, '');
 });

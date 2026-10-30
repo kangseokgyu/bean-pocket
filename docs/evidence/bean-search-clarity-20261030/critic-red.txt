@@ -1,0 +1,4 @@
+Command: node --test --test-name-pattern='brew name search is visibly labeled' test/pwa-ui.view.test.mjs
+Before fix: failed because one reset click invoked loadSearchOptions twice.
+Assertion: clear-search click should make one request; actual 2, expected 1.
+Cause: focus() raised a bubbling focusin while optionLoaded was still false, so the focus handler repeated the explicit request.

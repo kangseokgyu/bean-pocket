@@ -22,3 +22,11 @@ Cursor 전용 deslop, control-ui, comment-sicko는 제공되지 않아 실행하
 - [Notion 토큰 형식 변경 이력](https://developers.notion.com/page/changelog)은 토큰을 불투명한 문자열로 취급하고 인증 요청으로 확인하도록 안내한다.
 - [토큰 사용자 조회](https://developers.notion.com/reference/get-self)는 `/users/me`를 제공한다.
 - [오류 코드](https://developers.notion.com/reference/errors)에 따라 401만 토큰 무효로 분류하고 다른 오류는 확인 불가로 표시한다.
+
+## 게시 결과
+
+- 기능과 검증 기록을 main에 fast-forward 통합하고 `bb96bd6`를 push했다.
+- [Pages 실행 40991010310](https://github.com/kangseokgyu/bean-pocket/actions/runs/40991010310)은 `probes=false`로 테스트, 일반판 빌드, 산출물 검사와 게시를 모두 통과했다.
+- [공개 앱](https://kangseokgyu.github.io/bean-pocket/)의 빌드는 `4a79fe3d8b6e`다.
+- 공개 `index.html`, `app.mjs`, `ui/view.mjs`, `data/notion-client.mjs`, `styles.css`, `sw.js`가 모두 HTTP 200이고 검증한 dist와 바이트 단위로 일치했다. 각 SHA-256은 `public-files.json`에 기록했다.
+- 배포 후 실제 토큰 인증과 iPhone의 설치 앱 갱신은 확인하지 않았다.

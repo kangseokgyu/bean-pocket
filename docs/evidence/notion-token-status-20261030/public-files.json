@@ -1,0 +1,42 @@
+{
+  "url": "https://kangseokgyu.github.io/bean-pocket/",
+  "build": "4a79fe3d8b6e",
+  "files": [
+    {
+      "path": "index.html",
+      "status": 200,
+      "matches": true,
+      "sha256": "bdd6cc4e7580981be2783854045eaf58f4cbffd42763d11dfb94437d499a3066"
+    },
+    {
+      "path": "app.mjs",
+      "status": 200,
+      "matches": true,
+      "sha256": "b4358f655166c169a5a8d3d98637593ad3ce1b5da5a65662d1919397db8c34ef"
+    },
+    {
+      "path": "ui/view.mjs",
+      "status": 200,
+      "matches": true,
+      "sha256": "1ff8a59bdb533b5a4c4d68edf6fc5fb1b2a83d60312fabeeefd9e638c2f6068e"
+    },
+    {
+      "path": "data/notion-client.mjs",
+      "status": 200,
+      "matches": true,
+      "sha256": "ffba8fb238cb4c3c7a0973f8defd800d2f82bd66d514f0bc2e84740dd953716c"
+    },
+    {
+      "path": "styles.css",
+      "status": 200,
+      "matches": true,
+      "sha256": "94548278eccd28b5c3b005b793856a66af80abc3adf7082f066069297a92f1ed"
+    },
+    {
+      "path": "sw.js",
+      "status": 200,
+      "matches": true,
+      "sha256": "9c84134d39f8c3d9c16fcb18ecae2631580d21191748af2661fcf3d23ba4b917"
+    }
+  ]
+}

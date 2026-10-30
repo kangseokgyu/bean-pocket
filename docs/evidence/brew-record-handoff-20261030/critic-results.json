@@ -1,0 +1,53 @@
+[
+  {
+    "case": "real controller + view: click complete while every Notion call hangs",
+    "pass": true,
+    "notionCalls": [],
+    "bean": "11111111-1111-4111-8111-111111111111",
+    "recipe": "22222222-2222-4222-8222-222222222222",
+    "note": "typed immediately"
+  },
+  {
+    "case": "different URL selection rejects handoff and starts fresh verification",
+    "pass": true,
+    "calls": [
+      "verify:[\"beans\",\"recipes\",\"steps\"]"
+    ]
+  },
+  {
+    "case": "direct URL resolves selected items and options without record-list fetch",
+    "pass": true,
+    "calls": [
+      "verify:[\"beans\",\"recipes\",\"steps\"]",
+      "getBean:11111111-1111-4111-8111-111111111111",
+      "getRecipeDetail:22222222-2222-4222-8222-222222222222",
+      "searchOptions:beans",
+      "searchOptions:recipes"
+    ]
+  },
+  {
+    "case": "connection removed during initialization clears old selection",
+    "pass": true
+  },
+  {
+    "case": "new connection revision with same IDs never reuses old names while fresh reads hang",
+    "pass": true,
+    "calls": [
+      "verify:[\"beans\",\"recipes\",\"steps\"]",
+      "getBean:11111111-1111-4111-8111-111111111111",
+      "getRecipeDetail:22222222-2222-4222-8222-222222222222"
+    ]
+  },
+  {
+    "case": "back to brew and complete again reuses the current run without Notion reads",
+    "pass": true,
+    "calls": []
+  },
+  {
+    "case": "opening and focusing a picker lazily loads options while preserving selections",
+    "pass": true,
+    "calls": [
+      "searchOptions:beans"
+    ]
+  }
+]

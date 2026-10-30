@@ -1,0 +1,115 @@
+✖ brew completion hands the selected bean and recipe to a new record without waiting for Notion (2.828375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '/brew/run?beanId=11111111-1111-4111-8111-111111111111&recipeId=22222222-2222-4222-8222-222222222222'
+  - '/records/new?beanId=11111111-1111-4111-8111-111111111111&recipeId=22222222-2222-4222-8222-222222222222&date=2026-10-30'
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/.worktrees/brew-record-handoff/test/pwa-screen-loading.test.mjs:527:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '/brew/run?beanId=11111111-1111-4111-8111-111111111111&recipeId=22222222-2222-4222-8222-222222222222',
+    expected: '/records/new?beanId=11111111-1111-4111-8111-111111111111&recipeId=22222222-2222-4222-8222-222222222222&date=2026-10-30',
+    operator: 'strictEqual'
+  }
+
+✖ direct new-record routes keep selected-item fallback reads and skip the record list (1.719375ms)
+  AssertionError [ERR_ASSERTION]: direct form entry does not read existing records
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/.worktrees/brew-record-handoff/test/pwa-screen-loading.test.mjs:579:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+✖ brew completion immediately shows selected names and defaults without loaded record options (11.256166ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + ''
+  - '11111111-1111-4111-8111-111111111111'
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/.worktrees/brew-record-handoff/test/pwa-ui.view.test.mjs:3632:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: '11111111-1111-4111-8111-111111111111',
+    operator: 'strictEqual'
+  }
+
+ℹ tests 3
+ℹ suites 0
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 108.658041
+
+✖ failing tests:
+
+test at test/pwa-screen-loading.test.mjs:463:1
+✖ brew completion hands the selected bean and recipe to a new record without waiting for Notion (2.828375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '/brew/run?beanId=11111111-1111-4111-8111-111111111111&recipeId=22222222-2222-4222-8222-222222222222'
+  - '/records/new?beanId=11111111-1111-4111-8111-111111111111&recipeId=22222222-2222-4222-8222-222222222222&date=2026-10-30'
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/.worktrees/brew-record-handoff/test/pwa-screen-loading.test.mjs:527:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '/brew/run?beanId=11111111-1111-4111-8111-111111111111&recipeId=22222222-2222-4222-8222-222222222222',
+    expected: '/records/new?beanId=11111111-1111-4111-8111-111111111111&recipeId=22222222-2222-4222-8222-222222222222&date=2026-10-30',
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-screen-loading.test.mjs:535:1
+✖ direct new-record routes keep selected-item fallback reads and skip the record list (1.719375ms)
+  AssertionError [ERR_ASSERTION]: direct form entry does not read existing records
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/.worktrees/brew-record-handoff/test/pwa-screen-loading.test.mjs:579:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:3620:1
+✖ brew completion immediately shows selected names and defaults without loaded record options (11.256166ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + ''
+  - '11111111-1111-4111-8111-111111111111'
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/workspace/AX-1day/.worktrees/brew-record-handoff/test/pwa-ui.view.test.mjs:3632:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: '11111111-1111-4111-8111-111111111111',
+    operator: 'strictEqual'
+  }

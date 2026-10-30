@@ -56,6 +56,7 @@ export function createAppController({
   let repository = null;
   let commands = null;
   let data = null;
+  let dataRevision = null;
   let routeGeneration = 0;
   let routeReadController = null;
   let recordFilters = { beanId: '', recipeId: '' };
@@ -72,7 +73,8 @@ export function createAppController({
   function isDirty() { return dirtyKinds.size > 0; }
 
   function stateChanged() {
-    view.setState?.({ dirty: isDirty(), pending, frozen, unresolved: unresolvedOperations.length > 0 });
+    view.setState?.({ dirty: isDirty(), pending, frozen, unresolved: unresolvedOperations.length > 0,
+      connectionRevision: activeConnection?.revision ?? null });
     try { onStateChange(); } catch { /* Lifecycle notification must not change app behavior. */ }
   }
 
@@ -117,12 +119,14 @@ export function createAppController({
     optionSearchGeneration.clear();
     resetRecordInsights(connection.revision, false);
     recordFilters = { beanId: '', recipeId: '' };
+    dataRevision = null;
     activeConnection = connection;
     client = nextClient;
     repository = nextRepository;
     commands = nextCommands;
     view.clearSearchOptions?.();
     view.showConnection?.({ connected: true });
+    stateChanged();
   }
 
   function dropConnectionData() {
@@ -135,6 +139,8 @@ export function createAppController({
     resetRecordInsights(null, false);
     recordFilters = { beanId: '', recipeId: '' };
     data = null;
+    dataRevision = null;
+    stateChanged();
     view.clearSearchOptions?.();
     view.renderData?.({ beans: [], recipes: [], records: [], excluded: {},
       screen: { route: currentRoute(), nextCursor: null, hasMore: false, complete: true } });
@@ -201,13 +207,29 @@ export function createAppController({
     if (section === 'beans') return id ? ['beans', 'records', 'recipes'] : ['beans'];
     if (section === 'recipes') return id && id !== 'new' ? ['beans', 'recipes', 'steps', 'records'] : ['recipes', 'steps'];
     if (section === 'records') return id === 'new'
-      ? ['beans', 'recipes', 'steps', 'records'] : ['beans', 'recipes', 'records'];
+      ? ['beans', 'recipes', 'steps'] : ['beans', 'recipes', 'records'];
     return [];
   }
 
   function routeCacheKey(route, cursor = null) {
     const query = route.startsWith('/records') ? recordFilters : {};
     return [activeConnection?.revision ?? 'disconnected', route, JSON.stringify(query), cursor ?? 'first'].join('|');
+  }
+
+  function reusableBrewSelection(route) {
+    const { path, params } = routeLocation(route);
+    const beanId = params.get('beanId');
+    const recipeId = params.get('recipeId');
+    if (path !== '/records/new' || !beanId || !recipeId || dataRevision !== activeConnection?.revision || data?.screen?.error) {
+      return null;
+    }
+    const previous = routeLocation(data?.screen?.route);
+    if (previous.path !== '/brew/run' || previous.params.get('beanId') !== beanId ||
+        previous.params.get('recipeId') !== recipeId) return null;
+    const bean = data.beans?.find(item => item.id === beanId);
+    const recipe = data.recipes?.find(item => item.id === recipeId);
+    if (!bean || !recipe || !Array.isArray(recipe.steps) || !recipe.steps.length) return null;
+    return { bean, recipe };
   }
 
   function currentCache(key) {
@@ -262,7 +284,7 @@ export function createAppController({
       ...(kind === 'recipes' ? { beanId: item.beanId } : {}), status: 'ready' }, ...page.items] };
   }
 
-  async function fetchScreen(route, cursor, signal) {
+  async function fetchScreen(route, cursor, signal, reusedBrewSelection = null) {
     const { path, params } = routeLocation(route);
     const [section, id] = path.split('/').filter(Boolean);
     const query = params.get('q')?.trim() ?? '';
@@ -341,13 +363,13 @@ export function createAppController({
         records: page.items, excluded: {},
         screen: { route, nextCursor: page.nextCursor, hasMore: page.hasMore, complete: page.complete } };
     }
-    if (section === 'records') {
-      let selectedBean = null;
-      let selectedRecipe = null;
-      if (id === 'new' && cursor == null) {
-        const beanId = params.get('beanId');
-        const recipeId = params.get('recipeId');
-        if (recipeId && !beanId) return unavailableScreen(route, { code: 'bean-required' });
+    if (section === 'records' && id === 'new') {
+      const beanId = params.get('beanId');
+      const recipeId = params.get('recipeId');
+      if (recipeId && !beanId) return unavailableScreen(route, { code: 'bean-required' });
+      let selectedBean = reusedBrewSelection?.bean ?? null;
+      let selectedRecipe = reusedBrewSelection?.recipe ?? null;
+      if (!reusedBrewSelection) {
         try {
           [selectedBean, selectedRecipe] = await Promise.all([
             beanId ? repository.getBean(beanId, { signal }) : null,
@@ -362,25 +384,26 @@ export function createAppController({
           throw error;
         }
       }
+      if (reusedBrewSelection) {
+        return { beans: [selectedBean], recipes: [selectedRecipe], records: [], excluded: {},
+          screen: { route, nextCursor: null, hasMore: false, complete: true } };
+      }
+      const beanOptions = await readOptionPage('form', 'beans', '', null, signal);
+      const recipeOptions = await readOptionPage('form', 'recipes', '', null, signal);
+      const selectedBeans = optionWithSelectedItem(beanOptions, selectedBean, 'beans');
+      const selectedRecipes = optionWithSelectedItem(recipeOptions, selectedRecipe, 'recipes');
+      return { beans: selectedBeans.items, recipes: selectedRecipes.items, records: [], excluded: {},
+        options: { beans: selectedBeans, recipes: selectedRecipes },
+        screen: { route, nextCursor: null, hasMore: false, complete: true } };
+    }
+    if (section === 'records') {
       const page = await repository.listRecords({ ...recordFilters, ...pageOptions });
       const result = { beans: page.beans, recipes: page.recipes, records: page.items, excluded: {},
         screen: { route, filters: { ...recordFilters }, nextCursor: page.nextCursor,
           hasMore: page.hasMore, complete: page.complete } };
-      if (id === 'new' && cursor == null) {
-        const beanOptions = await readOptionPage('form', 'beans', '', null, signal);
-        const recipeOptions = await readOptionPage('form', 'recipes', '', null, signal);
-        const selectedBeans = optionWithSelectedItem(beanOptions, selectedBean, 'beans');
-        const selectedRecipes = optionWithSelectedItem(recipeOptions, selectedRecipe, 'recipes');
-        result.options = { beans: selectedBeans, recipes: selectedRecipes,
-          filterBeans: cachedFilterOptions('beans', page.beans, recordFilters.beanId),
-          filterRecipes: cachedFilterOptions('recipes', page.recipes, recordFilters.recipeId) };
-        result.beans = selectedBeans.items;
-        result.recipes = selectedRecipes.items;
-      } else {
-        const filterBeans = cachedFilterOptions('beans', page.beans, recordFilters.beanId);
-        const filterRecipes = cachedFilterOptions('recipes', page.recipes, recordFilters.recipeId);
-        if (filterBeans || filterRecipes) result.options = { filterBeans, filterRecipes };
-      }
+      const filterBeans = cachedFilterOptions('beans', page.beans, recordFilters.beanId);
+      const filterRecipes = cachedFilterOptions('recipes', page.recipes, recordFilters.recipeId);
+      if (filterBeans || filterRecipes) result.options = { filterBeans, filterRecipes };
       return result;
     }
     if (section === 'recipes' && id === 'new') {
@@ -413,6 +436,7 @@ export function createAppController({
     const generation = ++routeGeneration;
     const key = routeCacheKey(route, cursor);
     const isFirstPage = cursor == null;
+    const reusedBrewSelection = isFirstPage ? reusableBrewSelection(route) : null;
     const isRouteTransition = isFirstPage && !append && currentRoute() === route && data?.screen?.route !== route;
     const announceLoad = isRouteTransition || notifyCompletion;
     if (isRouteTransition) setRouteReadState(generation, 'loading');
@@ -423,12 +447,12 @@ export function createAppController({
     try {
       if (!skipVerify) {
         const kinds = routeSchemas(route);
-        if (kinds.length) await client.verify(kinds, { signal: controller.signal });
+        if (kinds.length && !reusedBrewSelection) await client.verify(kinds, { signal: controller.signal });
       }
       if (generation !== routeGeneration || controller.signal.aborted) return null;
-      const cached = !force && isFirstPage ? currentCache(key) : null;
+      const cached = !force && isFirstPage && !reusedBrewSelection ? currentCache(key) : null;
       const previous = append ? data : null;
-      let fetched = cached ?? await fetchScreen(route, cursor, controller.signal);
+      let fetched = cached ?? await fetchScreen(route, cursor, controller.signal, reusedBrewSelection);
       if (generation !== routeGeneration || controller.signal.aborted) return null;
       if (routeLocation(route).path === '/records') {
         if (recordInsights.revision !== activeConnection?.revision) resetRecordInsights(activeConnection?.revision);
@@ -443,8 +467,9 @@ export function createAppController({
         }
         fetched = withRecordInsights(fetched);
       }
-      fetched.screen = { ...fetched.screen, append };
+      fetched.screen = { ...fetched.screen, append, connectionRevision: activeConnection?.revision ?? null };
       data = mergeScreenData(previous, fetched);
+      dataRevision = activeConnection?.revision ?? null;
       saveCache(key, data);
       view.renderData?.(data);
       if (isRouteTransition) setRouteReadState(generation, 'ready');

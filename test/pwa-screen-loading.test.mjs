@@ -459,3 +459,122 @@ test('home startup performs no screen reads and brew routes use scoped repositor
   await app.loadRoute(currentRoute, { force: true });
   assert.equal(rendered.at(-1).screen.error, 'bean-unavailable', 'a missing selected parent gets an actionable route error');
 });
+
+test('brew completion hands the selected bean and recipe to a new record without waiting for Notion', async () => {
+  const calls = [];
+  const rendered = [];
+  let currentRoute = '/home';
+  let routeChanged;
+  let unavailable = false;
+  const connection = { schemaVersion: 1, revision: REVISION, token: 'fake-only', dataSources: SOURCES };
+  const context = {
+    async inspect() { return { initialized: true, blocked: false }; },
+    async readJournal() { return { operations: [], activeConnectionRevision: REVISION, connectionGuard: null }; },
+  };
+  const bean = { id: '11111111-1111-4111-8111-111111111111', name: '이미 읽은 원두' };
+  const recipe = { id: '22222222-2222-4222-8222-222222222222', name: '이미 읽은 레시피',
+    steps: [{ name: '뜸', seconds: 0, water: 50, cumulativeWater: 50 }] };
+  const repository = {
+    async listBeans(options) { calls.push(['listBeans', options]); return { items: [bean], complete: true }; },
+    async listRecipeSummaries(options) { calls.push(['listRecipeSummaries', options]); return { items: [recipe], complete: true }; },
+    async getBean(id) {
+      calls.push(['getBean', id]);
+      if (unavailable) throw Object.freeze({ code: 'read-failed' });
+      return bean;
+    },
+    async getRecipeDetail(id) {
+      calls.push(['getRecipeDetail', id]);
+      if (unavailable) throw Object.freeze({ code: 'read-failed' });
+      return recipe;
+    },
+    async listRecords(options) {
+      calls.push(['listRecords', options]);
+      if (unavailable) throw Object.freeze({ code: 'read-failed' });
+      return { items: [], beans: [], recipes: [], complete: true };
+    },
+    async searchOptions(options) {
+      calls.push(['searchOptions', options]);
+      if (unavailable) throw Object.freeze({ code: 'read-failed' });
+      return { items: [], complete: true };
+    },
+  };
+  const app = createAppController({
+    view: { currentRoute: () => currentRoute, onRouteChange(handler) { routeChanged = handler; }, bind() {},
+      setState() {}, showConnection() {}, showStatus() {}, showConnectionSuccess() {}, clearSecret() {},
+      renderData(value) { rendered.push(value); } },
+    state: { async withWriteLock(action) { return action(context); } },
+    file: { async readConnection() { return connection; } }, uuid: () => REVISION,
+    makeClient: () => ({ async verify(kinds) {
+      calls.push(['verify', kinds]);
+      if (unavailable) throw Object.freeze({ code: 'rate-limited' });
+    } }),
+    makeRepository: () => repository, makeCommands: () => ({}),
+  });
+  app.bind();
+  assert.equal(await app.initialize(), true);
+
+  currentRoute = `/brew/run?beanId=${bean.id}&recipeId=${recipe.id}`;
+  await routeChanged(currentRoute);
+  assert.equal(rendered.at(-1).beans[0].name, bean.name);
+  assert.equal(rendered.at(-1).recipes[0].name, recipe.name);
+
+  calls.length = 0;
+  unavailable = true;
+  currentRoute = `/records/new?beanId=${bean.id}&recipeId=${recipe.id}&date=2026-10-30`;
+  await routeChanged(currentRoute);
+
+  const formData = rendered.at(-1);
+  assert.equal(formData.screen.route, currentRoute);
+  assert.equal(formData.beans[0].name, bean.name);
+  assert.equal(formData.recipes[0].name, recipe.name);
+  assert.equal(formData.options, undefined, 'handoff does not wait for searchable options');
+  assert.deepEqual(formData.records, [], 'a new record form does not load the existing record list');
+  assert.deepEqual(calls, [], 'selected names and defaults are available while every Notion read is failing');
+});
+
+test('direct new-record routes keep selected-item fallback reads and skip the record list', async () => {
+  const calls = [];
+  const rendered = [];
+  let currentRoute = '/home';
+  let routeChanged;
+  const connection = { schemaVersion: 1, revision: REVISION, token: 'fake-only', dataSources: SOURCES };
+  const context = {
+    async inspect() { return { initialized: true, blocked: false }; },
+    async readJournal() { return { operations: [], activeConnectionRevision: REVISION, connectionGuard: null }; },
+  };
+  const bean = { id: '11111111-1111-4111-8111-111111111111', name: 'URL 원두' };
+  const recipe = { id: '22222222-2222-4222-8222-222222222222', name: 'URL 레시피',
+    steps: [{ name: '뜸', seconds: 0, water: 50, cumulativeWater: 50 }] };
+  const repository = {
+    async getBean(id) { calls.push(['getBean', id]); return bean; },
+    async getRecipeDetail(id) { calls.push(['getRecipeDetail', id]); return recipe; },
+    async listRecords(options) { calls.push(['listRecords', options]); return { items: [], beans: [], recipes: [], complete: true }; },
+    async searchOptions(options) {
+      calls.push(['searchOptions', options]);
+      return { items: [{ id: options.kind === 'beans' ? bean.id : recipe.id,
+        name: options.kind === 'beans' ? bean.name : recipe.name }], complete: true };
+    },
+  };
+  const app = createAppController({
+    view: { currentRoute: () => currentRoute, onRouteChange(handler) { routeChanged = handler; }, bind() {},
+      setState() {}, showConnection() {}, showStatus() {}, showConnectionSuccess() {}, clearSecret() {},
+      renderData(value) { rendered.push(value); } },
+    state: { async withWriteLock(action) { return action(context); } },
+    file: { async readConnection() { return connection; } }, uuid: () => REVISION,
+    makeClient: () => ({ async verify(kinds) { calls.push(['verify', kinds]); } }),
+    makeRepository: () => repository, makeCommands: () => ({}),
+  });
+  app.bind();
+  assert.equal(await app.initialize(), true);
+  calls.length = 0;
+
+  currentRoute = `/records/new?beanId=${bean.id}&recipeId=${recipe.id}`;
+  await routeChanged(currentRoute);
+
+  assert.deepEqual(rendered.at(-1).beans.map(item => item.id), [bean.id]);
+  assert.deepEqual(rendered.at(-1).recipes.map(item => item.id), [recipe.id]);
+  assert.ok(calls.some(([name]) => name === 'getBean'));
+  assert.ok(calls.some(([name]) => name === 'getRecipeDetail'));
+  assert.deepEqual(calls.filter(([name]) => name === 'searchOptions').map(([, options]) => options.kind), ['beans', 'recipes']);
+  assert.equal(calls.some(([name]) => name === 'listRecords'), false, 'direct form entry does not read existing records');
+});

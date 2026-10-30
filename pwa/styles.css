@@ -231,21 +231,21 @@ p { line-height: 1.6; }
 }
 .entry-dialog .form-actions .button { min-height: 48px; }
 body:has(.entry-dialog[open]) { overflow: hidden; }
-.form-grid { display: grid; gap: 16px; min-width: 0; }
+.form-grid { display: grid; gap: 10px; min-width: 0; }
 .form-fieldset {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px 16px;
+  gap: 10px 12px;
   min-width: 0;
   margin: 0;
-  padding: 15px;
+  padding: 12px;
   border: 1px solid #d8d1c3;
   border-radius: 12px;
 }
 
-.form-fieldset legend { padding: 0 6px; font-weight: 700; }
-.form-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
-.form-field-label { color: #3d5147; font-size: 0.92rem; font-weight: 650; line-height: 1.4; }
+.form-fieldset legend { padding: 0 6px; font-size: 0.8rem; font-weight: 700; line-height: 1.3; }
+.form-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.form-field-label { color: #3d5147; font-size: 0.8rem; font-weight: 650; line-height: 1.3; }
 
 .search-picker { position: relative; }
 .search-picker .search-picker-select {
@@ -322,12 +322,14 @@ body:has(.option-picker-dialog[open]) { overflow: hidden; }
   display: block;
   width: 100%;
   min-width: 0;
-  min-height: 46px;
-  padding: 10px 12px;
+  min-height: 38px;
+  padding: 7px 10px;
   border: 1px solid #aaa99e;
   border-radius: 9px;
   background: #fffefa;
   color: #203d32;
+  font-size: 0.875rem;
+  line-height: 1.35;
 }
 
 /* Avoid iOS native date controls adding padding outside their declared width. */
@@ -338,7 +340,10 @@ body:has(.option-picker-dialog[open]) { overflow: hidden; }
   max-width: 100%;
 }
 
-.form-field textarea { min-height: 92px; resize: vertical; }
+.form-field textarea { height: 78px; min-height: 78px; resize: vertical; }
+.recipe-steps { display: grid; gap: 8px; min-width: 0; }
+.step-row { display: grid; gap: 8px; min-width: 0; margin: 0; padding: 10px; border: 1px solid #d8d1c3; border-radius: 10px; }
+.step-row legend { padding: 0 4px; font-size: 0.8rem; font-weight: 700; line-height: 1.3; }
 .recipe-extraction-guide p, .record-extraction-guide { white-space: pre-wrap; }
 .form-field input:focus, .form-field select:focus, .form-field textarea:focus,
 button:focus-visible, .table-scroll:focus-visible {
@@ -886,7 +891,7 @@ footer {
   .page { width: min(100% - 24px, 760px); padding-top: 14px; }
   .bean-section { padding: 12px 0; }
   .panel, .data-panel, .unresolved-panel, .card-skeletons { padding: 13px; border-radius: 13px; }
-  .form-fieldset { grid-template-columns: minmax(0, 1fr); gap: 13px; padding: 13px; }
+  .form-fieldset { grid-template-columns: minmax(0, 1fr); gap: 8px; padding: 10px; }
   .record-filters { grid-template-columns: minmax(0, 1fr); gap: 10px; }
   .record-filters legend { grid-column: auto; }
   .record-insights { padding: 12px; }
@@ -1037,12 +1042,12 @@ footer {
 .brew-flow-pane h1 { margin: 0; font-size: clamp(1.6rem, 7vw, 2.25rem); }
 .brew-flow-pane h2 { margin: 8px 0 0; }
 .brew-flow-pane > .button { justify-self: start; }
-.brew-option-search { display: grid; gap: 6px; min-width: 0; }
-.brew-option-search-label { color: #3d5147; font-size: 0.875rem; font-weight: 700; }
-.brew-option-search-control { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; gap: 8px; width: 100%; min-height: 48px; padding: 0 10px; border: 1px solid #aaa394; border-radius: 8px; background: #fffefa; color: #203d32; }
+.brew-option-search { display: grid; gap: 4px; min-width: 0; }
+.brew-option-search-label { color: #3d5147; font-size: 0.8rem; font-weight: 700; }
+.brew-option-search-control { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; gap: 8px; width: 100%; min-height: 38px; padding: 0 8px; border: 1px solid #aaa394; border-radius: 8px; background: #fffefa; color: #203d32; }
 .brew-option-search-control:focus-within { border-color: #587464; box-shadow: 0 0 0 2px rgb(88 116 100 / 18%); }
 .brew-option-search-icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
-.brew-option-search-control > input[type="search"] { width: 100%; min-width: 0; min-height: 46px; padding: 10px 0; border: 0; outline: 0; background: transparent; color: inherit; font: inherit; }
+.brew-option-search-control > input[type="search"] { width: 100%; min-width: 0; min-height: 36px; padding: 6px 0; border: 0; outline: 0; background: transparent; color: inherit; font: inherit; font-size: 0.875rem; line-height: 1.35; }
 .brew-option-search-control > input[type="search"]:focus-visible { outline: none; }
 .brew-option-search-clear { min-height: 34px; padding: 5px 8px; font-size: 0.75rem; white-space: nowrap; }
 .brew-step-indicator { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; min-width: 0; margin: 0; padding: 0 0 8px; border-bottom: 1px solid #e0dbcf; list-style: none; }

@@ -230,7 +230,7 @@ p { line-height: 1.6; }
   background: #fbf9f4;
 }
 .entry-dialog .form-actions .button { min-height: 48px; }
-body:has(.entry-dialog[open]) { overflow: hidden; }
+html:has(dialog[open]), body:has(dialog[open]) { overflow: hidden; overscroll-behavior: none; }
 .form-grid { display: grid; gap: 16px; min-width: 0; }
 .form-fieldset {
   display: grid;
@@ -281,6 +281,8 @@ body:has(.entry-dialog[open]) { overflow: hidden; }
   max-height: min(80dvh, 700px);
   margin: auto;
   padding: 18px;
+  overflow: auto;
+  overscroll-behavior: contain;
   border: 1px solid #d8d1c3;
   border-radius: 16px;
   background: #fffcf5;
@@ -316,7 +318,6 @@ body:has(.entry-dialog[open]) { overflow: hidden; }
 .option-picker-dialog [data-option-more], .option-picker-dialog [data-action="register-search-option"],
 .option-picker-dialog [data-action="retry-search-options"] { width: 100%; margin-top: 12px; }
 .search-picker-more[hidden], .search-picker-clear[hidden], [data-action="retry-search-options"][hidden], [data-action="register-search-option"][hidden] { display: none; }
-body:has(.option-picker-dialog[open]) { overflow: hidden; }
 
 .form-field input, .form-field select, .form-field textarea {
   display: block;
@@ -899,8 +900,8 @@ footer {
   .tabs { gap: 4px; }
   .tabs .button { padding: 3px 2px; font-size: 1rem; }
   .form-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .entry-dialog { position: fixed; inset: env(safe-area-inset-top, 0px) 0 0; width: 100%; max-width: none; max-height: calc(100dvh - env(safe-area-inset-top, 0px)); margin: 0; padding: 18px 14px max(14px, env(safe-area-inset-bottom, 0px)); border-radius: 18px 18px 0 0; }
-  .option-picker-dialog { position: fixed; inset: env(safe-area-inset-top, 0px) 0 0; width: 100%; max-width: none; max-height: calc(100dvh - env(safe-area-inset-top, 0px)); margin: 0; padding: 18px 14px max(14px, env(safe-area-inset-bottom, 0px)); border-radius: 18px 18px 0 0; }
+  .entry-dialog { position: fixed; inset: calc(env(safe-area-inset-top, 0px) + 20px) 0 0; width: 100%; max-width: none; max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 20px); margin: 0; padding: 18px 14px max(14px, env(safe-area-inset-bottom, 0px)); border-radius: 18px 18px 0 0; }
+  .option-picker-dialog { position: fixed; inset: calc(env(safe-area-inset-top, 0px) + 20px) 0 0; width: 100%; max-width: none; max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 20px); margin: 0; padding: 18px 14px max(14px, env(safe-area-inset-bottom, 0px)); border-radius: 18px 18px 0 0; }
   .search-picker-results { max-height: min(44dvh, 420px); }
   .search-picker-result > button { min-height: 58px; }
   .entry-dialog .form-actions { bottom: calc(-1 * max(14px, env(safe-area-inset-bottom, 0px))); margin: 0 -14px calc(-1 * max(14px, env(safe-area-inset-bottom, 0px))); padding: 12px 14px max(14px, env(safe-area-inset-bottom, 0px)); }

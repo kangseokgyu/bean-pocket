@@ -49,14 +49,19 @@ class TestElement {
   }
   set textContent(value) { this.text = String(value); this.replaceChildren(); }
   get textContent() { return this.text + this.children.map(child => child.textContent).join(''); }
-  setAttribute(name, value) { this.attributes.set(name, String(value)); }
+  setAttribute(name, value) {
+    this.attributes.set(name, String(value));
+    this.ownerDocument.notifyAttributeMutation(this, name);
+  }
   showModal() {
     this.open = true;
+    this.setAttribute('open', '');
     this.ownerDocument.topLayerOrder += 1;
     this.topLayerOrder = this.ownerDocument.topLayerOrder;
   }
   close() {
     this.open = false;
+    this.removeAttribute('open');
   }
   showPopover() {
     this.popoverOpen = true;
@@ -80,7 +85,10 @@ class TestElement {
     this.listeners.set(type, listeners);
   }
   getAttribute(name) { return this.attributes.get(name) ?? null; }
-  removeAttribute(name) { this.attributes.delete(name); }
+  removeAttribute(name) {
+    this.attributes.delete(name);
+    this.ownerDocument.notifyAttributeMutation(this, name);
+  }
   querySelector(selector) { return this.querySelectorAll(selector)[0] ?? null; }
   querySelectorAll(selector) {
     const selectors = selector.split(',').map(value => value.trim());
@@ -133,8 +141,31 @@ class TestElement {
   get childrenLength() { return this.children.length; }
 }
 
+class TestMutationObserver {
+  constructor(callback) { this.callback = callback; }
+  observe(target, options) {
+    this.target = target;
+    this.options = options;
+    target.ownerDocument.mutationObservers.add(this);
+  }
+  disconnect() { this.target.ownerDocument.mutationObservers.delete(this); }
+}
+
 class TestDocument {
-  constructor() { this.root = new TestElement('main', this); this.root.id = 'app-root'; this.topLayerOrder = 0; }
+  constructor() {
+    this.root = new TestElement('main', this);
+    this.root.id = 'app-root';
+    this.topLayerOrder = 0;
+    this.mutationObservers = new Set();
+  }
+  notifyAttributeMutation(target, name) {
+    for (const observer of this.mutationObservers) {
+      if (!observer.options.attributes || !observer.options.attributeFilter?.includes(name)) continue;
+      if (observer.target === target || observer.options.subtree) {
+        observer.callback([{ type: 'attributes', attributeName: name, target }], observer);
+      }
+    }
+  }
   createElement(tagName) { return new TestElement(tagName, this); }
   createElementNS(namespace, tagName) {
     const node = new TestElement(tagName, this);
@@ -1376,7 +1407,8 @@ function pullHarness() {
   const state = { pending: false, frozen: false, dirty: false };
   document.defaultView = { location: { reload() { reloads++; } },
     requestAnimationFrame(callback) { frames.push(callback); },
-    setTimeout(callback, delay) { timers.push({ callback, delay }); } };
+    setTimeout(callback, delay) { timers.push({ callback, delay }); },
+    MutationObserver: TestMutationObserver };
   const view = createBeanView(document);
   view.renderData(data());
   view.bind({ getState: () => state, refresh: async () => { reads++; } });
@@ -1395,6 +1427,127 @@ function pullHarness() {
     paint, finishReload, timers,
     indicator: () => document.root.querySelector('.pull-refresh') };
 }
+
+test('an open dialog blocks pull-to-refresh from its backdrop and refresh resumes after dismissal', () => {
+  const env = pullHarness();
+  const dialog = env.document.createElement('dialog');
+  env.document.root.append(dialog);
+  dialog.showModal();
+
+  env.fire('touchstart', 20, 100, { target: dialog });
+  const move = env.fire('touchmove', 20, 350, { target: dialog });
+  env.fire('touchend', 20, 350, { target: dialog });
+  env.finishReload();
+
+  assert.equal(move.defaultPrevented, true, 'a pull at a non-scrollable dialog edge must not chain to the page');
+  assert.equal(env.reloads, 0);
+  assert.equal(env.indicator().hidden, true);
+
+  dialog.close();
+  env.pull();
+  assert.equal(env.reloads, 1);
+});
+
+test('modal scroll boundaries block page refresh while available modal scrolling stays native', () => {
+  const env = pullHarness();
+  const dialog = env.document.createElement('dialog');
+  dialog.scrollHeight = 500;
+  dialog.clientHeight = 400;
+  dialog.getBoundingClientRect = () => ({ left: 0, right: 390, top: 20, bottom: 844 });
+  env.document.root.append(dialog);
+  dialog.showModal();
+
+  dialog.scrollTop = 50;
+  env.fire('touchstart', 20, 10, { target: dialog });
+  const backdrop = env.fire('touchmove', 20, 350, { target: dialog });
+  assert.equal(backdrop.defaultPrevented, true, 'a drag that starts on the backdrop must stay outside the page');
+  env.fire('touchcancel', 20, 350, { target: dialog });
+
+  dialog.scrollTop = 0;
+  env.fire('touchstart', 20, 100, { target: dialog });
+  const topBoundary = env.fire('touchmove', 20, 350, { target: dialog });
+  assert.equal(topBoundary.defaultPrevented, true, 'a downward drag at the dialog top must not chain to the page');
+  env.fire('touchcancel', 20, 350, { target: dialog });
+
+  dialog.scrollTop = 50;
+  env.fire('touchstart', 20, 350, { target: dialog });
+  const availableScroll = env.fire('touchmove', 20, 200, { target: dialog });
+  assert.equal(availableScroll.defaultPrevented, false, 'scrolling within the dialog must remain native');
+  env.fire('touchcancel', 20, 200, { target: dialog });
+
+  dialog.scrollTop = 100;
+  env.fire('touchstart', 20, 350, { target: dialog });
+  const bottomBoundary = env.fire('touchmove', 20, 200, { target: dialog });
+  assert.equal(bottomBoundary.defaultPrevented, true, 'an upward drag at the dialog bottom must not chain to the page');
+  env.fire('touchcancel', 20, 200, { target: dialog });
+
+  env.fire('touchstart', 20, 100, { target: dialog });
+  const horizontal = env.fire('touchmove', 200, 110, { target: dialog });
+  assert.equal(horizontal.defaultPrevented, false, 'horizontal gestures must stay native');
+  env.fire('touchcancel', 200, 110, { target: dialog });
+
+  env.fire('touchstart', 20, 100, { target: dialog, touches: [{ identifier: 1 }, { identifier: 2 }] });
+  const multiTouch = env.fire('touchmove', 20, 350, { target: dialog, touches: [{ identifier: 1 }, { identifier: 2 }] });
+  assert.equal(multiTouch.defaultPrevented, false, 'multi-touch gestures must not be intercepted');
+  env.fire('touchcancel', 20, 350, { target: dialog, touches: [] });
+  assert.equal(env.reloads, 0);
+});
+
+test('modal scroll direction reversal uses the latest touch movement', () => {
+  const env = pullHarness();
+  const dialog = env.document.createElement('dialog');
+  dialog.scrollHeight = 500;
+  dialog.clientHeight = 400;
+  dialog.scrollTop = 100;
+  env.document.root.append(dialog);
+  dialog.showModal();
+
+  env.fire('touchstart', 20, 350, { target: dialog });
+  const atBottom = env.fire('touchmove', 20, 200, { target: dialog });
+  const reversed = env.fire('touchmove', 20, 250, { target: dialog });
+
+  assert.equal(atBottom.defaultPrevented, true, 'upward movement at the bottom must not chain to the page');
+  assert.equal(reversed.defaultPrevented, false, 'downward reversal at the bottom must scroll back toward the top');
+});
+
+test('opening and dismissing a dialog during a pull cancels that gesture', () => {
+  const env = pullHarness();
+  const dialog = env.document.createElement('dialog');
+  env.document.root.append(dialog);
+  env.fire('touchstart');
+  env.fire('touchmove', 20, 350);
+  assert.equal(env.indicator().hidden, false);
+
+  dialog.showModal();
+  dialog.close();
+  env.fire('touchend', 20, 350);
+  env.finishReload();
+
+  assert.equal(env.reloads, 0);
+  assert.equal(env.indicator().hidden, true);
+  assert.equal(env.document.root.firstElementChild.style['--pull-offset'], '0px');
+  env.pull();
+  assert.equal(env.reloads, 1);
+});
+
+test('opening a dialog before the refresh timer fires cancels the queued reload', () => {
+  const env = pullHarness();
+  const dialog = env.document.createElement('dialog');
+  env.document.root.append(dialog);
+  env.fire('touchstart');
+  env.fire('touchmove', 20, 350);
+  env.fire('touchend', 20, 350);
+
+  dialog.showModal();
+  dialog.close();
+  env.finishReload();
+
+  assert.equal(env.reloads, 0);
+  assert.equal(env.indicator().hidden, true);
+  assert.equal(env.document.root.firstElementChild.style['--pull-offset'], '0px');
+  env.pull();
+  assert.equal(env.reloads, 1);
+});
 
 test('pulling from the top reloads the entire page once on release', () => {
   const env = pullHarness();
@@ -1526,14 +1679,15 @@ test('control taps keep their normal action and short drags suppress accidental 
   assert.equal(env.fire('touchstart', 20, 100, { target }).defaultPrevented, false);
   assert.equal(env.fire('touchmove', 20, 105, { target }).defaultPrevented, false);
   assert.equal(env.fire('touchend', 20, 105, { target }).defaultPrevented, false);
-  for (const listener of env.document.root.firstElementChild.listeners.get('click')) await listener({ target });
-  assert.equal(env.document.root.querySelector('form[data-form="beans"]').hidden, false);
-  assert.equal(env.reads, 0);
-  assert.equal(env.reloads, 0);
   env.fire('touchstart', 20, 100, { target });
   env.fire('touchmove', 20, 140, { target });
   assert.equal(env.fire('touchend', 20, 140, { target }).defaultPrevented, true);
   env.finishReload();
+  assert.equal(env.reloads, 0);
+
+  for (const listener of env.document.root.firstElementChild.listeners.get('click')) await listener({ target });
+  assert.equal(env.document.root.querySelector('form[data-form="beans"]').hidden, false);
+  assert.equal(env.reads, 0);
   assert.equal(env.reloads, 0);
 });
 

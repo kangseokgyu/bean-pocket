@@ -1,0 +1,12 @@
+✔ critic: a cached first-page cursor must remain usable after its continuation was read (16.233959ms)
+✔ critic: filtered fallback records retain global descending date order across pages (15.460334ms)
+✔ critic: a current-generation record with damaged rating metadata stays visible with a warning (1.15325ms)
+✔ critic: records render from validated snapshots before bounded parent-name hydration (9.623542ms)
+ℹ tests 641
+ℹ suites 0
+ℹ pass 641
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42973.480375

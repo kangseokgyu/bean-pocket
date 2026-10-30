@@ -1336,8 +1336,10 @@ test('background data updates defer pane replacement while an entry dialog is op
     const routeUpdate = structuredClone(stageUpdate);
     routeUpdate.records[0].cupNote = 'updated route data';
     view.renderData(routeUpdate);
-    assert.match(document.root.querySelector('.record-card').textContent, /updated route data/,
-      'the first data result after a route transition is rendered');
+    assert.equal(document.root.querySelector('dialog[data-entry-dialog="records"]').open, true,
+      'the record form remains open after its route data arrives');
+    assert.equal(document.root.querySelector('.record-management'), null,
+      'the new-record route does not render the existing record list');
   } finally {
     view.clearDraft('records');
   }
@@ -3662,6 +3664,45 @@ test('brew completion preselects bean and recipe and defaults the record date to
   const expectedToday = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'),
     String(now.getDate()).padStart(2, '0')].join('-');
   assert.equal(form.elements.date.value, expectedToday);
+});
+
+test('brew completion immediately shows selected names and defaults without loaded record options', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  const current = data();
+  delete current.options;
+  view.renderData(current);
+  view.renderRoute(`/brew/run?beanId=${BEAN}&recipeId=${RECIPE}`);
+  view.renderRoute(`/records/new?beanId=${BEAN}&recipeId=${RECIPE}&date=2026-10-30`);
+
+  const dialog = document.root.querySelector('dialog[data-entry-dialog="records"]');
+  const form = dialog.querySelector('form[data-form="records"]');
+  assert.equal(dialog.open, true);
+  assert.equal(form.elements.beanId.value, BEAN);
+  assert.equal(form.elements.recipeId.value, RECIPE);
+  assert.match(form.querySelector('[data-action="open-search-picker"]').textContent, /원두 <안전>/);
+  assert.match(form.querySelectorAll('[data-action="open-search-picker"]')[1].textContent, /V60/);
+  assert.equal(form.elements.date.value, '2026-10-30');
+  assert.equal(document.root.querySelector('.record-management'), null,
+    'entering a new-record route does not show an empty existing-record list');
+});
+
+test('a new connection does not prefill the record form from the previous connection selection', () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  const current = data();
+  current.screen = { route: `/brew/run?beanId=${BEAN}&recipeId=${RECIPE}`, connectionRevision: 'old-revision' };
+  view.renderData(current);
+  view.setState({ connectionRevision: 'old-revision' });
+  view.renderRoute(current.screen.route);
+  view.setState({ connectionRevision: 'new-revision' });
+  view.renderRoute(`/records/new?beanId=${BEAN}&recipeId=${RECIPE}&date=2026-10-30`);
+
+  const form = document.root.querySelector('form[data-form="records"]');
+  assert.equal(form.elements.beanId.value, '');
+  assert.equal(form.elements.recipeId.value, '');
+  assert.doesNotMatch(form.querySelector('[data-action="open-search-picker"]').textContent, /원두 <안전>/);
+  assert.equal(form.elements.date.value, '2026-10-30');
 });
 
 

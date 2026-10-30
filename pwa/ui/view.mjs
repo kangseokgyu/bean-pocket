@@ -1341,29 +1341,54 @@ function renderBrewOptions(pane, data, document, route, optionPages, kind, selec
   pane.append(make(document, 'h1', title));
   if (selectedBean) pane.append(brewSelectionSummary(document, 'bean', '선택한 원두', selectedBean.name,
     '원두 변경', `/brew/bean?selectedBeanId=${encodeURIComponent(selectedBean.id)}`, 'back-to-beans'));
+  const searchField = make(document, 'div', undefined, 'brew-option-search');
+  const searchId = isBeans ? 'brew-bean-name-search' : 'brew-recipe-name-search';
+  const searchLabel = make(document, 'label', `${isBeans ? '원두' : '레시피'} 이름 검색`, 'brew-option-search-label');
+  searchLabel.setAttribute('for', searchId);
+  searchField.append(searchLabel);
+  const searchControl = make(document, 'div', undefined, 'brew-option-search-control');
+  searchControl.append(decorativeSvg(document, '0 0 24 24', 'brew-option-search-icon',
+    ['M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16ZM17 17l4 4']));
   const search = make(document, 'input');
+  search.id = searchId;
   search.type = 'search';
-  search.setAttribute('aria-label', isBeans ? '원두 검색' : '레시피 검색');
   search.setAttribute('autocomplete', 'off');
+  search.setAttribute('placeholder', isBeans ? '예: 에티오피아 시다마' : '예: V60');
   search.dataset.optionSearchKind = kind;
   search.dataset.optionTarget = 'brew';
   search.dataset.optionLoaded = 'true';
   search.value = page.query ?? routeQuery;
-  pane.append(search);
+  const clearSearch = button(document, '검색어 지우기', 'button', 'clear-brew-search');
+  clearSearch.className = 'button brew-option-search-clear';
+  clearSearch.hidden = !search.value;
+  searchControl.append(search, clearSearch);
+  searchField.append(searchControl);
+  pane.append(searchField);
 
   const items = page.items ?? [];
   if (!items.length) {
     const stillLoading = page.hasMore || page.complete === false;
-    const message = isBeans
-      ? search.value ? '검색한 원두가 없습니다.' : '원두가 아직 등록되지 않았습니다. 원두를 먼저 등록한 뒤 추출을 시작해 주세요.'
-      : search.value ? '검색한 레시피가 없습니다.' : '등록된 레시피가 없습니다. 레시피를 등록한 뒤 다시 선택해 주세요.';
-    pane.append(make(document, 'p', stillLoading ? `${message} 다른 항목도 계속 확인할 수 있습니다.` : message, 'empty-state'));
-    if (isBeans) {
-      pane.append(routeButton(document, '원두 등록하기', '/beans'));
-      pane.append(routeButton(document, '홈으로 돌아가기', '/home'));
+    const noun = isBeans ? '원두' : '레시피';
+    if (search.value) {
+      const message = `“${search.value}” 검색 결과가 없습니다.${stillLoading
+        ? ' 다른 항목도 계속 확인할 수 있습니다.' : ' 입력어를 확인하거나 전체 목록에서 다시 찾아보세요.'}`;
+      pane.append(make(document, 'p', message, 'empty-state'));
+      const browseAll = button(document, `전체 ${noun} 보기`, 'button', 'browse-all-brew-options');
+      browseAll.dataset.optionTarget = 'brew';
+      browseAll.dataset.optionKind = kind;
+      pane.append(browseAll);
     } else {
-      pane.append(routeButton(document, '레시피 메뉴에서 등록하기', '/recipes'));
-      pane.append(routeButton(document, '원두 다시 선택', `/brew/bean?selectedBeanId=${encodeURIComponent(selectedBean.id)}`, 'back-to-beans'));
+      const message = isBeans
+        ? '원두가 아직 등록되지 않았습니다. 원두를 먼저 등록한 뒤 추출을 시작해 주세요.'
+        : '등록된 레시피가 없습니다. 레시피를 등록한 뒤 다시 선택해 주세요.';
+      pane.append(make(document, 'p', stillLoading ? `${message} 다른 항목도 계속 확인할 수 있습니다.` : message, 'empty-state'));
+      if (isBeans) {
+        pane.append(routeButton(document, '원두 등록하기', '/beans'));
+        pane.append(routeButton(document, '홈으로 돌아가기', '/home'));
+      } else {
+        pane.append(routeButton(document, '레시피 메뉴에서 등록하기', '/recipes'));
+        pane.append(routeButton(document, '원두 다시 선택', `/brew/bean?selectedBeanId=${encodeURIComponent(selectedBean.id)}`, 'back-to-beans'));
+      }
     }
   }
 
@@ -2674,6 +2699,29 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
       navigateTo(kind === 'beans' ? '/beans' : '/recipes');
       return;
     }
+    if (action === 'clear-brew-search' || action === 'browse-all-brew-options') {
+      const pane = target.closest('.brew-flow-pane');
+      const search = pane?.querySelector('[data-option-search-kind]');
+      if (!search) return;
+      const { optionSearchKind: kind, optionTarget: targetName } = search.dataset;
+      clearTimeout(optionSearchTimers.get(`${targetName}:${kind}`));
+      search.value = '';
+      search.dataset.optionLoaded = 'false';
+      const clearSearch = pane.querySelector('[data-action="clear-brew-search"]');
+      if (clearSearch) clearSearch.hidden = true;
+      const currentRoute = view.currentRoute?.() ?? '';
+      const params = routeParams(currentRoute);
+      if (params.has('q')) {
+        params.delete('q');
+        const nextQuery = params.toString();
+        navigateTo(`${routePath(currentRoute)}${nextQuery ? `?${nextQuery}` : ''}`);
+        return;
+      }
+      loadOptions(targetName, kind, '');
+      search.dataset.optionLoaded = 'true';
+      search.focus?.();
+      return;
+    }
     if (action === 'clear-record-filters') {
       for (const select of content.querySelectorAll('[data-record-filter]')) {
         select.value = '';
@@ -2843,6 +2891,10 @@ function bindEvents({ page, nav, connectionForm, originalConnectionCheck, conten
     if (event.target.disabled) return;
     if (event.target.matches('[data-option-search-kind]')) {
       const { optionSearchKind: kind, optionTarget: targetName } = event.target.dataset;
+      if (targetName === 'brew') {
+        const clearSearch = event.target.parentElement?.querySelector('[data-action="clear-brew-search"]');
+        if (clearSearch) clearSearch.hidden = !event.target.value;
+      }
       const key = `${targetName}:${kind}`;
       const searchRoute = view.currentRoute();
       event.target.dataset.optionLoaded = 'false';

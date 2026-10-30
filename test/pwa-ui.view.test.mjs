@@ -66,7 +66,12 @@ class TestElement {
   hidePopover() {
     this.popoverOpen = false;
   }
-  focus() { this.ownerDocument.activeElement = this; }
+  focus() {
+    this.ownerDocument.activeElement = this;
+    for (let node = this; node; node = node.parentElement) {
+      for (const listener of node.listeners.get('focusin') ?? []) listener({ target: this });
+    }
+  }
   reset() { for (const field of this.querySelectorAll('input[name],textarea[name],select[name]')) field.value = ''; }
   remove() { if (this.parentElement) this.parentElement.children = this.parentElement.children.filter(child => child !== this); this.parentElement = null; }
   addEventListener(type, listener) {
@@ -3270,7 +3275,6 @@ test('record form uses accessible searchable picker dialogs and restores focus w
   assert.equal(entryDialog.open, true, 'the record entry dialog remains underneath the picker');
   assert.equal(pickerDialog.open, true);
   assert.equal(document.activeElement, search);
-  for (const listener of document.root.querySelector('.data-panel').listeners.get('focusin') ?? []) listener({ target: search });
   assert.deepEqual(requested, [['beans', '', null, 'form', false]]);
 
   view.setSearchOptions('form', 'beans', { items: [{ id: BEAN, name: '원두 <안전>', status: 'ready' }],
@@ -3595,6 +3599,56 @@ test('brew search pages render validated options and keep pagination controls', 
   }, false, 'V60');
   assert.equal(document.root.querySelector('[data-action="select-brew-recipe"]').dataset.recipeId, RECIPE);
   assert.equal(document.root.querySelector('.brew-flow-pane').querySelector('[data-option-search-kind="recipes"]').value, 'V60');
+});
+
+test('brew name search is visibly labeled and a no-result query can return to the full list', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const calls = [];
+  view.bind({ loadSearchOptions(...args) { calls.push(args); } });
+  view.renderData(data());
+  view.renderRoute('/brew/bean');
+
+  const beanPane = document.root.querySelector('.brew-flow-pane');
+  const beanSearch = beanPane.querySelector('[data-option-search-kind="beans"]');
+  assert.equal(beanPane.querySelector(`label[for="${beanSearch.id}"]`)?.textContent, '원두 이름 검색');
+  assert.equal(beanSearch.getAttribute('placeholder'), '예: 에티오피아 시다마');
+  assert.equal(beanSearch.parentElement.querySelector('svg')?.getAttribute('aria-hidden'), 'true');
+  assert.equal(beanPane.querySelector('[data-action="clear-brew-search"]').hidden, true);
+  assert.equal(beanPane.querySelector('.brew-option-search-help'), null, 'there is no extra note below the input');
+
+  view.setSearchOptions('brew', 'beans', { items: [], hasMore: false, complete: true }, false, '시다마 원두');
+  const noBeans = document.root.querySelector('.brew-flow-pane');
+  assert.match(noBeans.textContent, /시다마 원두.*검색 결과가 없습니다/);
+  assert.equal(noBeans.querySelector('[data-action="clear-brew-search"]').hidden, false);
+  const clearSearch = noBeans.querySelector('[data-action="clear-brew-search"]');
+  await clickViewTarget(document, clearSearch);
+  assert.equal(calls.length, 1, 'clear-search click should make one request');
+  assert.deepEqual(calls.at(-1), ['beans', '', null, 'brew', false]);
+  assert.equal(document.root.querySelector('[data-option-search-kind="beans"]').value, '');
+
+  view.setSearchOptions('brew', 'beans', { items: [], hasMore: false, complete: true }, false, '시다마 원두');
+  const noBeansAgain = document.root.querySelector('.brew-flow-pane');
+  const showBeans = noBeansAgain.querySelector('[data-action="browse-all-brew-options"]');
+  assert.equal(showBeans.textContent, '전체 원두 보기');
+  await clickViewTarget(document, showBeans);
+  assert.equal(calls.length, 2, 'browse-all click should make one request');
+  assert.deepEqual(calls.at(-1), ['beans', '', null, 'brew', false]);
+  assert.equal(document.root.querySelector('[data-option-search-kind="beans"]').value, '', 'browse all clears the query');
+
+  view.renderRoute(`/brew/recipe?beanId=${BEAN}`);
+  view.setSearchOptions('brew', 'recipes', { items: [], hasMore: false, complete: true }, false, '아이스 V60');
+  const noRecipes = document.root.querySelector('.brew-flow-pane');
+  const recipeSearch = noRecipes.querySelector('[data-option-search-kind="recipes"]');
+  assert.equal(noRecipes.querySelector(`label[for="${recipeSearch.id}"]`)?.textContent, '레시피 이름 검색');
+  assert.equal(recipeSearch.getAttribute('placeholder'), '예: V60');
+  assert.match(noRecipes.textContent, /아이스 V60.*검색 결과가 없습니다/);
+  const showRecipes = noRecipes.querySelector('[data-action="browse-all-brew-options"]');
+  assert.equal(showRecipes.textContent, '전체 레시피 보기');
+  await clickViewTarget(document, showRecipes);
+  assert.equal(calls.length, 3, 'recipe browse-all click should make one request');
+  assert.deepEqual(calls.at(-1), ['recipes', '', null, 'brew', false]);
+  assert.equal(document.root.querySelector('[data-option-search-kind="recipes"]').value, '');
 });
 
 test('brew completion preselects bean and recipe and defaults the record date to today', () => {

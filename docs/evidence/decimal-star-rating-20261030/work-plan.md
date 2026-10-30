@@ -10,7 +10,7 @@
   - **Shared mutable state.** Default to splitting the target (the **separate-before-serializing-shared-state** principle skill). Serialize only for real invariants.
   - **Smallest safe decomposition.** If one worker is best, name why.
 - [x] Verify on the matching surface in Chrome using the public flow and PWA `createAppView` form.
-- [ ] Rebase into small, ordered commits. Stack follow-ups. `feature commit then merge current main into this branch, per orchestrator; main merge/publish remains orchestrator-owned.`
+- [ ] Rebase into small, ordered commits. Stack follow-ups. `the requested sequence was feature commit 0897e70 followed by merging current main; main merge/publish remains orchestrator-owned.`
 - [ ] If the design is contested, `interrogate` before shipping. `skip: two candidates resolve locally; no unresolved design question.`
 - [ ] Run **Opening a PR**. `skip: orchestrator owns merge and publishing; worker was told not to commit.`
 
@@ -53,15 +53,22 @@ Choose the decimal number input over SVG stars. The value shape is `''` before s
 - [x] Write behavior tests first and capture the intended failing output in `red-before-fix.txt`.
 - [x] Implement the input and consumer changes.
 - [x] Run targeted tests.
-- [ ] Run required package checks after merging current main.
+- [x] Run required package checks after merging current main.
 - [x] Verify touch and mouse interaction in the source browser.
-- [ ] Verify built PWA browser flow after merging current main.
+- [x] Verify built PWA browser flow after merging current main.
 - [x] Record rerunnable evidence and inspect the final diff.
 
 ## Critic correction
 
 The star path occupies x=3..21 in its 24×24 SVG viewBox. The old clip used x=0 and width `24 × fraction`, so 0.1 painted no gold pixels and 0.9 and 1.0 painted the same number. Both the input and insight renderer now use x=3 and width `18 × fraction`.
 
-The regression tests first failed on those old coordinates. `red-rating-visual.txt` records the old pixel counts; `rating-visual.txt` records the corrected 0.1, 0.5, 0.9, and 1.0 raster counts. `verify-rating-visual.mjs` resolves project files relative to its own evidence location for reruns.
+The regression tests first failed on those old coordinates. `red-rating-visual.txt` records the old pixel counts; `rating-visual-dist.txt` records the built module's corrected 0.1, 0.5, 0.9, and 1.0 raster counts. `verify-rating-visual.mjs` resolves project files relative to its own evidence location and accepts `--dist` for reruns.
 
-Final merge, full-suite, build/check, built-PWA browser, and visual verification will be recorded after `main` is merged into the feature branch.
+## Integrated verification
+
+- Feature commit: `0897e70`; merged current `main` (`58377af`) with merge commit `b477740`. New main bean-detail UI, styling, tests, and evidence are preserved in the merge.
+- `npm test`: 662 passed, 0 failed. Full output: `npm-test.txt`.
+- `npm run build:pages`: passed, build version `ba0b50b0e574`; `npm run check:pages`: passed.
+- `node docs/evidence/decimal-star-rating-20261030/verify-rating-browser.mjs --dist`: Chrome 156 on 390×844 touch. Public mouse drag showed 4.3 and saved/read back 4.3; public touch drag showed 3.1. PWA touch selected 2.2 and restored it through draft; clear returned it to empty. Partial fifth-star clip width at 4.3 is 5.4. No JS errors or failed requests. The strict production CSP logged 12 existing inline-style violations from unrelated PWA dynamic styles.
+- `node docs/evidence/decimal-star-rating-20261030/verify-rating-visual.mjs --dist`: 0.1/0.5/0.9/1.0 rendered 163/6474/12788/12952 gold pixels; each score differs and increases. Regression tests also assert the same x=3 and width 18 geometry in insight display.
+- Browser logs and screenshot are in this directory. `git diff --check` passes.

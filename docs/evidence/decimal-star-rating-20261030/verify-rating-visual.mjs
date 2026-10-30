@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url';
 
 const evidenceDir = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(evidenceDir, '../../..');
+const moduleVariant = process.argv.includes('--dist') ? 'dist' : 'pwa';
+const ratingModule = moduleVariant === 'dist' ? 'dist/ui/star-rating.mjs' : 'pwa/ui/star-rating.mjs';
 const require = createRequire(import.meta.url);
 const playwrightModule = process.env.DECIMAL_RATING_PLAYWRIGHT_MODULE ??
   '/Users/kangseokgyu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright';
@@ -13,7 +15,7 @@ const chromeExecutable = process.env.DECIMAL_RATING_CHROME_PATH ??
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const { chromium } = require(playwrightModule);
 const domain = await readFile(path.join(projectRoot, 'lib/domain.mjs'), 'utf8');
-const source = (await readFile(path.join(projectRoot, 'pwa/ui/star-rating.mjs'), 'utf8'))
+const source = (await readFile(path.join(projectRoot, ratingModule), 'utf8'))
   .replace("'../domain.mjs'", JSON.stringify(`data:text/javascript;base64,${Buffer.from(domain).toString('base64')}`));
 const moduleURL = `data:text/javascript;base64,${Buffer.from(source).toString('base64')}`;
 const browser = await chromium.launch({ headless: true, executablePath: chromeExecutable });
@@ -62,7 +64,7 @@ try {
   assert.ok(results[0].yellowPixels < results[1].yellowPixels, '0.1 and the middle value must differ');
   assert.ok(results[1].yellowPixels < results[2].yellowPixels, 'the middle value and 0.9 must differ');
   assert.ok(results[2].yellowPixels < results[3].yellowPixels, '0.9 and 1.0 must differ');
-  console.log(JSON.stringify(results));
+  console.log(JSON.stringify({ moduleVariant, results }));
 } finally {
   await browser.close();
 }

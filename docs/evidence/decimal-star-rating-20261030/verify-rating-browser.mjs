@@ -134,7 +134,7 @@ try {
   assert.equal(mouseDrag.output, '4.3점');
   assert.equal(mouseDrag.sameNode, true, 'dirty-state updates preserve the captured input node');
   assert.ok(mouseDrag.events.some(event => event.type === 'pointermove' && event.captured && event.connected), 'mouse drag keeps pointer capture on the live input');
-  assert.equal(mouseDrag.partialFill, '7.2', 'the fifth star is partly filled while dragging');
+  assert.equal(mouseDrag.partialFill, '5.4', 'the fifth star is partly filled while dragging');
   await page.screenshot({ path: path.join(path.dirname(fileURLToPath(import.meta.url)), 'browser-rating.png') });
   await page.mouse.move(bounds.x + bounds.width + 40, y, { steps: 3 });
   assert.equal(await input.inputValue(), '5.0', 'dragging beyond the right edge clamps to five');

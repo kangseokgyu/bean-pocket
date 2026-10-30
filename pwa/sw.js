@@ -2,7 +2,7 @@ const BUILD_VERSION = '__BUILD_VERSION__';
 const SCOPE_KEY = encodeURIComponent(new URL(self.registration.scope).pathname);
 const CACHE_PREFIX = `bean-pocket-shell-${SCOPE_KEY}-`;
 const CACHE_NAME = `${CACHE_PREFIX}${BUILD_VERSION}`;
-const APP_FILES = ["./", "./index.html", "./app.mjs", "./brew-picker-demo.html", "./brew-picker-demo.css", "./brew-picker-demo.mjs", "./commands/index.mjs", "./ui/controller.mjs", "./ui/records-insights.mjs", "./ui/records-insights-view.mjs", "./ui/view.mjs", "./data/notion-client.mjs", "./data/notion-properties.mjs", "./data/read-repository.mjs", "./domain.mjs", "./platform/app-lifecycle.mjs", "./platform/connection-file.mjs", "./platform/update-coordinator.mjs", "./state/submission-state.mjs", "./styles.css", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/bp-logo.png", "./icons/favicon-bp-ivory.png", "./icons/home-brew.png"];
+const APP_FILES = ["./", "./index.html", "./app.mjs", "./brew-picker-demo.html", "./brew-picker-demo.css", "./brew-picker-demo.mjs", "./commands/index.mjs", "./ui/controller.mjs", "./ui/records-insights.mjs", "./ui/records-insights-view.mjs", "./ui/star-rating.mjs", "./ui/view.mjs", "./data/notion-client.mjs", "./data/notion-properties.mjs", "./data/read-repository.mjs", "./domain.mjs", "./platform/app-lifecycle.mjs", "./platform/connection-file.mjs", "./platform/update-coordinator.mjs", "./state/submission-state.mjs", "./styles.css", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/bp-logo.png", "./icons/favicon-bp-ivory.png", "./icons/home-brew.png"];
 
 const UPDATE_PROTOCOL = 'bean-pocket-update-v1';
 const UPDATE_TIMEOUT_MS = 5000;

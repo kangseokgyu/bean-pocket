@@ -132,7 +132,7 @@ test('selected bean statistics and comparison choices describe only loaded snaps
   ]);
 });
 
-test('chart coordinates use real date spacing and a fixed one-to-five rating scale', () => {
+test('chart coordinates use real date spacing and a zero-to-five rating scale', () => {
   const layout = layoutRatingTrend([
     { id: 'first', date: '2026-10-01', rating: 1 },
     { id: 'same-day', date: '2026-10-01', rating: 3 },
@@ -144,10 +144,29 @@ test('chart coordinates use real date spacing and a fixed one-to-five rating sca
   assert.equal(first.x, sameDay.x, 'records on the same date share the true date coordinate');
   assert.equal(later.x - first.x, layout.plotWidth, 'the first and last dates span the full plot range');
   assert.equal(middle.x - first.x, layout.plotWidth / 2, 'four elapsed days use half the eight-day x range');
-  assert.equal(first.y, layout.plotBottom, 'rating one stays on the fixed lower bound');
+  assert.equal(first.y, layout.plotBottom - layout.plotHeight / 5, 'rating one stays on its value within the zero-to-five scale');
   assert.equal(later.y, layout.plotTop, 'rating five stays on the fixed upper bound');
-  assert.equal(layout.yTicks[0], 1);
+  assert.equal(layout.yTicks[0], 0);
   assert.equal(layout.yTicks.at(-1), 5);
+  const low = layoutRatingTrend([{ id: 'low', date: '2026-10-03', rating: 0.1 }], { width: 500, height: 240 });
+  assert.ok(low.points[0].y < low.plotBottom && low.points[0].y > low.plotBottom - low.plotHeight / 5,
+    'a tenth-point rating remains inside the chart instead of being clipped below it');
   const single = layoutRatingTrend([{ id: 'only', date: '2026-10-03', rating: 3 }], { width: 500, height: 240 });
   assert.equal(single.points[0].x, single.plotLeft + single.plotWidth / 2, 'a one-date chart is centered on its date');
+});
+
+test('decimal ratings remain available to insight averages, filters, and ranking', () => {
+  const records = [
+    record({ id: 'low-rating', beanId: 'bean-a', date: '2026-10-01', rating: 0.1 }),
+    record({ id: 'middle-rating', beanId: 'bean-a', date: '2026-10-02', rating: 1.1 }),
+    record({ id: 'high-rating', beanId: 'bean-a', date: '2026-10-03', rating: 4.9 }),
+    record({ id: 'invalid-rating', beanId: 'bean-a', date: '2026-10-04', rating: 5.01 }),
+  ];
+  const model = buildRecordsInsights(records, [], 'bean-a');
+  assert.equal(model.ratedRecordCount, 3);
+  assert.equal(model.averageRating, (0.1 + 1.1 + 4.9) / 3);
+  assert.deepEqual(model.trend.map(point => point.rating), [0.1, 1.1, 4.9]);
+  assert.equal(model.bestRecord.id, 'high-rating');
+  assert.deepEqual(model.ratingOptions, [4.9, 1.1, 0.1]);
+  assert.equal(model.comparisonRecords.length, 3);
 });

@@ -818,9 +818,12 @@ button:focus-visible, .table-scroll:focus-visible {
 .record-insight-best-reason { margin: 10px 0 14px; color: #68685e; font-size: 0.78rem; line-height: 1.45; }
 .record-insight-best-date, .record-insight-best-note { margin: 8px 0 0; color: #68685e; font-size: 0.78rem; }
 .record-insight-rating { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
-.record-insight-rating-stars { color: #8b6b28; font-size: 0.86rem; letter-spacing: 0.035em; }
+.record-insight-rating-stars { display: inline-flex; align-items: center; gap: 1px; white-space: nowrap; }
+.record-insight-rating-stars svg { display: block; flex: 0 0 0.86rem; width: 0.86rem; height: 0.86rem; }
+.record-insight-rating-outline { fill: none; stroke: #d6d0c4; stroke-width: 1.35; stroke-linecap: round; stroke-linejoin: round; }
+.record-insight-rating-fill { fill: #8b6b28; stroke: none; }
 .record-insight-rating-number { color: #203d32; font-size: 0.78rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-.record-insight-best-heading > .record-insight-rating .record-insight-rating-stars { font-size: 1.02rem; }
+.record-insight-best-heading > .record-insight-rating .record-insight-rating-stars svg { flex-basis: 1.02rem; width: 1.02rem; height: 1.02rem; }
 .record-insight-recipe-conditions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 12px; margin: 14px 0 0; padding-top: 13px; border-top: 1px solid #ded7ca; }
 .record-insight-recipe-conditions dt, .record-insight-comparison-conditions dt { margin-bottom: 3px; color: #68685e; font-size: 0.7rem; }
 .record-insight-recipe-conditions dd, .record-insight-comparison-conditions dd { min-width: 0; margin: 0; color: #203d32; font-size: 0.8rem; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; white-space: pre-wrap; }
@@ -1140,14 +1143,18 @@ footer {
 
 .star-rating { min-width: 0; margin: 0; padding: 0; border: 0; }
 .star-rating legend { margin-bottom: 7px; padding: 0; }
-.rating-options { display: flex; flex-wrap: nowrap; gap: 2px; }
+.rating-options { position: relative; display: flex; width: max-content; flex-wrap: nowrap; gap: 2px; touch-action: none; }
 .rating-option { position: relative; display: grid; place-items: center; width: 44px; height: 48px; flex-shrink: 0; cursor: pointer; }
-.rating-option input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: inherit; }
 .rating-option svg { width: 34px; height: 34px; fill: none; stroke: #75756f; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
-.rating-option:has(input:checked) svg,
-.rating-option:has(~ .rating-option input:checked) svg { fill: #f5ad16; stroke: #a56a00; }
-.rating-option:has(input:focus-visible) { outline: 3px solid #8ab59a; outline-offset: 2px; border-radius: 6px; }
-.rating-option:has(input:disabled) { opacity: 0.5; cursor: default; }
+.rating-star-outline { fill: none; }
+.rating-star-fill { fill: #f5ad16; stroke: none; }
+.rating-slider-input { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; opacity: 0; cursor: pointer; touch-action: none; appearance: none; }
+.rating-options:has(.rating-slider-input:focus-visible) { outline: 3px solid #8ab59a; outline-offset: 3px; border-radius: 6px; }
+.star-rating:has(.rating-slider-input:disabled) .rating-options { opacity: 0.5; cursor: default; }
+.rating-value-row { display: flex; align-items: center; gap: 7px; margin-top: 3px; }
+.rating-value { min-width: 4.5em; color: #203d32; font-size: 0.9rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.rating-clear { min-height: 30px; padding: 4px 8px; color: #62685f; border: 0; background: transparent; font-size: 0.75rem; text-decoration: underline; text-underline-offset: 2px; }
+.rating-clear:disabled { color: #8a8e86; cursor: default; opacity: 0.55; }
 
 /* Match the approved records demo while keeping the application chrome shared. */
 .page:has(.records-demo-layout) { width: min(100% - 40px, 1280px); }
@@ -1167,7 +1174,6 @@ footer {
 .record-insight-comparison-table th { background: transparent; }
 .record-insight-comparison-conditions > div:last-child { grid-column: 1 / -1; }
 .record-insight-comparison-card-note { line-height: 1.45; }
-.record-insight-rating-stars { color: #8b6b28; }
 .record-insight-rating-cell .record-insight-rating-stars { font-size: 0.68rem; letter-spacing: 0; }
 .record-insight-rating-cell .record-insight-rating-number { font-size: 0.68rem; }
 .rating-chart-point-label { fill: #203d32; font: 700 10px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }

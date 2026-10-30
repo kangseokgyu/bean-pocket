@@ -1,0 +1,1 @@
+[{"value":"0.1","clipX":"3","clipWidth":"1.8","yellowPixels":163},{"value":"0.5","clipX":"3","clipWidth":"9","yellowPixels":6474},{"value":"0.9","clipX":"3","clipWidth":"16.2","yellowPixels":12788},{"value":"1.0","clipX":"3","clipWidth":"18","yellowPixels":12952}]

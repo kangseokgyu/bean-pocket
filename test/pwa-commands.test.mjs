@@ -402,7 +402,7 @@ test('record stores a fresh complete recipe snapshot and permits repeated same-d
   const recipe = storedRecipe();
   const selectedBean = bean(IDS.otherBean);
   const env = harness({ rows: { ...blankRows(), beans: [bean(), selectedBean], recipes: [recipe] } });
-  const input = { beanId: IDS.otherBean, recipeId: IDS.recipe, date: '2026-10-19', rating: 5, cupNote: '복숭아와 꿀' };
+  const input = { beanId: IDS.otherBean, recipeId: IDS.recipe, date: '2026-10-19', rating: 4.7, cupNote: '복숭아와 꿀' };
   const first = await env.commands.prepareRecord(input);
   const second = await env.commands.prepareRecord(input);
   assert.notEqual(first.key, second.key);
@@ -413,7 +413,7 @@ test('record stores a fresh complete recipe snapshot and permits repeated same-d
   assert.equal(env.rows.records.length, 2);
   for (const record of env.rows.records) {
     assert.equal(record.name, '2026-10-19 · V60 기본');
-    assert.equal(record.rating, 5);
+    assert.equal(record.rating, 4.7);
     assert.equal(record.beanId, IDS.otherBean);
     assert.equal(Object.hasOwn(record, 'bagId'), false);
     assert.deepEqual(record.snapshot, createSnapshot(selectedBean, storedRecipe()));
@@ -431,12 +431,12 @@ test('legacy bagId record payloads are rejected before journaling or writes', as
   assert.deepEqual(env.calls, []);
 });
 
-test('record requires a valid date and an integer rating from one to five', async () => {
+test('record requires a valid date and a tenth-point rating from 0.1 to 5', async () => {
   const env = harness();
   for (const input of [
     { beanId: IDS.bean, recipeId: IDS.recipe, date: '2026-02-30', rating: 4 },
     { beanId: IDS.bean, recipeId: IDS.recipe, date: '2026-10-19', rating: 0 },
-    { beanId: IDS.bean, recipeId: IDS.recipe, date: '2026-10-19', rating: 4.5 },
+    { beanId: IDS.bean, recipeId: IDS.recipe, date: '2026-10-19', rating: 4.51 },
   ]) await assert.rejects(env.commands.prepareRecord(input));
   await assert.rejects(env.commands.prepareRecord({ recipeId: IDS.recipe, date: '2026-10-19', rating: 4 }));
   assert.equal(env.calls.length, 0);

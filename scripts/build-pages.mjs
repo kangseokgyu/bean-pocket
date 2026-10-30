@@ -14,6 +14,7 @@ const sourceFiles = [
   'ui/controller.mjs',
   'ui/records-insights.mjs',
   'ui/records-insights-view.mjs',
+  'ui/star-rating.mjs',
   'ui/view.mjs',
   'data/notion-client.mjs',
   'data/notion-properties.mjs',

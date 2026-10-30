@@ -1,8 +1,11 @@
+import { isValidRating } from '../domain.mjs';
 import { layoutRatingTrend } from './records-insights.mjs';
 
 const svgElement = (document, name) => document.createElementNS('http://www.w3.org/2000/svg', name);
 const trendResizeRenderers = new WeakMap();
 let trendResizeObserver;
+let nextInsightRatingId = 0;
+const STAR_PATH = 'm12 3 2.78 5.63L21 9.54l-4.5 4.39 1.06 6.2L12 17.2l-5.56 2.93 1.06-6.2L3 9.54l6.22-.91Z';
 
 function observeTrendSize(svg, render) {
   const Observer = globalThis.ResizeObserver;
@@ -136,7 +139,7 @@ export function renderRecordsInsights(pane, data, document, recipeFilter, rating
   controls.append(makeInsightSelect(document, '정렬', 'data-insight-comparison-sort', comparisonSort,
     [['date-desc', '날짜 최신순'], ['date-asc', '날짜 오래된순'], ['rating-desc', '평가 높은순']]));
   controls.append(makeInsightSelect(document, '별점', 'data-insight-rating-filter', ratingFilter,
-    [['', '모든 별점'], ['5', '5점'], ['4', '4점'], ['3', '3점'], ['2', '2점'], ['1', '1점']]));
+    [['', '모든 별점'], ...(state.ratingOptions ?? []).map(rating => [String(rating), `${rating.toFixed(1)}점`])]));
   comparisons.append(controls);
   let comparisonRecords = [...(state.comparisonRecords ?? [])];
   if (recipeFilter) comparisonRecords = comparisonRecords.filter(record => record.recipeId === recipeFilter ||
@@ -174,7 +177,7 @@ function appendStatistic(list, name, value, note = '') {
 
 function renderRating(document, rating) {
   const group = make(document, 'span', undefined, 'record-insight-rating');
-  const valid = Number.isInteger(rating) && rating >= 1 && rating <= 5;
+  const valid = isValidRating(rating);
   if (!valid) {
     group.textContent = rating == null ? '별점 없음' : '별점 확인 필요';
     group.setAttribute('aria-label', group.textContent);
@@ -182,15 +185,45 @@ function renderRating(document, rating) {
   }
   group.setAttribute('role', 'img');
   group.setAttribute('aria-label', `별점 ${rating}/5`);
-  group.append(make(document, 'span', `${'★'.repeat(rating)}${'☆'.repeat(5 - rating)}`, 'record-insight-rating-stars'));
+  const stars = make(document, 'span', undefined, 'record-insight-rating-stars');
+  stars.setAttribute('aria-hidden', 'true');
+  const id = ++nextInsightRatingId;
+  for (let index = 0; index < 5; index += 1) {
+    const svg = svgElement(document, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('aria-hidden', 'true');
+    const outline = svgElement(document, 'path');
+    outline.setAttribute('d', STAR_PATH);
+    outline.setAttribute('class', 'record-insight-rating-outline');
+    const fill = svgElement(document, 'path');
+    fill.setAttribute('d', STAR_PATH);
+    fill.setAttribute('class', 'record-insight-rating-fill');
+    const clipId = `record-insight-rating-${id}-${index}`;
+    const clip = svgElement(document, 'clipPath');
+    clip.setAttribute('id', clipId);
+    clip.setAttribute('clipPathUnits', 'userSpaceOnUse');
+    const rect = svgElement(document, 'rect');
+    rect.setAttribute('class', 'rating-fill-rect');
+    rect.setAttribute('x', '3');
+    rect.setAttribute('y', '0');
+    rect.setAttribute('width', String(Math.round(Math.max(0, Math.min(1, rating - index)) * 180) / 10));
+    rect.setAttribute('height', '24');
+    clip.append(rect);
+    const defs = svgElement(document, 'defs');
+    defs.append(clip);
+    fill.setAttribute('clip-path', `url(#${clipId})`);
+    svg.append(defs, outline, fill);
+    stars.append(svg);
+  }
+  group.append(stars);
   group.append(make(document, 'span', `${rating}/5`, 'record-insight-rating-number'));
   return group;
 }
 
 function comparisonComparator(sort) {
   if (sort === 'date-asc') return (left, right) => String(left.date).localeCompare(String(right.date)) || String(left.id).localeCompare(String(right.id));
-  if (sort === 'rating-desc') return (left, right) => (Number.isInteger(right.rating) ? right.rating : 0) -
-    (Number.isInteger(left.rating) ? left.rating : 0) || String(right.date).localeCompare(String(left.date)) || String(left.id).localeCompare(String(right.id));
+  if (sort === 'rating-desc') return (left, right) => (isValidRating(right.rating) ? right.rating : 0) -
+    (isValidRating(left.rating) ? left.rating : 0) || String(right.date).localeCompare(String(left.date)) || String(left.id).localeCompare(String(right.id));
   return (left, right) => String(right.date).localeCompare(String(left.date)) || String(left.id).localeCompare(String(right.id));
 }
 
@@ -313,7 +346,7 @@ function updateTrendGeometry(svg, points, width, height) {
   const layout = layoutRatingTrend(points, { width: Math.max(280, Math.floor(width)), height });
   svg.setAttribute('viewBox', `0 0 ${layout.width} ${layout.height}`);
   for (const [index, rating] of layout.yTicks.entries()) {
-    const y = layout.plotBottom - (rating - 1) / 4 * layout.plotHeight;
+    const y = layout.plotBottom - rating / 5 * layout.plotHeight;
     const line = svg.querySelectorAll('.rating-chart-grid')[index];
     line?.setAttribute('x1', String(layout.plotLeft));
     line?.setAttribute('x2', String(layout.plotRight));
@@ -337,7 +370,7 @@ function updateTrendGeometry(svg, points, width, height) {
       item.rating === Number(label.getAttribute('data-rating')));
     if (!point) continue;
     label.setAttribute('x', String(point.x));
-    label.setAttribute('y', String(point.y + (point.rating === 5 ? 15 : -9)));
+    label.setAttribute('y', String(point.y + (point.rating >= 4.5 ? 15 : -9)));
   }
   const dateLabels = [...svg.querySelectorAll('[data-date-axis]')];
   for (const label of dateLabels) {
@@ -371,11 +404,11 @@ function renderRatingTrend(document, points) {
   title.textContent = '선택한 원두의 날짜별 별점 추이';
   const description = svgElement(document, 'desc');
   description.id = 'record-rating-chart-description';
-  description.textContent = `별점 축은 1점부터 5점까지 고정이며 날짜 간격은 실제 달력 날짜 간격입니다. 아래 텍스트 목록에 ${points.length}개 날짜와 별점이 있습니다.`;
+  description.textContent = `별점 축은 0점부터 5점까지 고정이며 날짜 간격은 실제 달력 날짜 간격입니다. 아래 텍스트 목록에 ${points.length}개 날짜와 별점이 있습니다.`;
   svg.append(title, description);
 
   for (const rating of layout.yTicks) {
-    const y = layout.plotBottom - (rating - 1) / 4 * layout.plotHeight;
+    const y = layout.plotBottom - rating / 5 * layout.plotHeight;
     const line = svgElement(document, 'line');
     line.setAttribute('x1', String(layout.plotLeft));
     line.setAttribute('x2', String(layout.plotRight));
@@ -435,7 +468,7 @@ function renderRatingTrend(document, points) {
   for (const point of labelPoints) {
     const label = svgElement(document, 'text');
     label.setAttribute('x', String(point.x));
-    label.setAttribute('y', String(point.y + (point.rating === 5 ? 15 : -9)));
+    label.setAttribute('y', String(point.y + (point.rating >= 4.5 ? 15 : -9)));
     label.setAttribute('text-anchor', 'middle');
     label.setAttribute('class', 'rating-chart-point-label');
     label.setAttribute('aria-hidden', 'true');

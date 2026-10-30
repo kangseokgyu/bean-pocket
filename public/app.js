@@ -1,5 +1,6 @@
 import { createSubmissionKeys } from '/submission.mjs';
-import { calculateSteps, formatTime, validateBean, validateRecipe, validateRecord, copyRecipe, createSnapshot, isCurrentRecord, summarizeRatings } from '/domain.mjs';
+import { calculateSteps, formatTime, validateBean, validateRecipe, validateRecord, copyRecipe, createSnapshot, isCurrentRecord, isValidRating, summarizeRatings } from '/domain.mjs';
+import { createStarRating } from '/ui/star-rating.mjs';
 
 const main = document.querySelector('#main');
 const dialog = document.querySelector('#form-dialog');
@@ -21,7 +22,7 @@ const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', y
 const displayDate = value => value ? escape(value.slice(0, 10).replaceAll('-', '. ')) : '날짜 미입력';
 const beanLink = id => '#bean/' + encodeURIComponent(id);
 const recipeLink = id => '#recipe/' + encodeURIComponent(id);
-const stars = rating => Number.isInteger(rating) && rating >= 1 && rating <= 5 ? '★'.repeat(rating) : '';
+const stars = rating => isValidRating(rating) ? '★'.repeat(rating) : '';
 const canSave = () => (connected || demo) && !stale && !loading;
 const disabled = () => canSave() ? '' : 'disabled';
 const currentRecords = () => data.records.filter(isCurrentRecord);
@@ -107,7 +108,7 @@ function renderRecord(record) {
   const needsConfirmation = record.beanResolution === 'needs-confirmation';
   const invalidLabels = [
     ...(record.invalidFields?.includes('date') ? ['날짜'] : []),
-    ...(record.invalidFields?.includes('rating') ? ['별점(정수 1~5)'] : []),
+    ...(record.invalidFields?.includes('rating') ? ['별점(0.1~5.0, 0.1점 단위)'] : []),
   ];
   const warnings = [
     ...(needsConfirmation ? ['과거 원두 관계를 확인해야 합니다.'] : []),
@@ -359,7 +360,8 @@ function removeStep(event) {
 function openRecord(recipe) {
   const beanOptions = data.beans.map(bean => `<option value="${escape(bean.id)}">${escape(bean.name)}</option>`).join('');
   const recipeOptions = data.recipes.map(item => `<option value="${escape(item.id)}" ${item.id === recipe?.id ? 'selected' : ''}>${escape(item.name)}</option>`).join('');
-  openDialog('한 잔의 기록', formShell(`<p class="form-help">원두와 공용 레시피를 선택합니다. 당시 원두 정보와 전체 레시피 단계가 함께 보존됩니다.</p><label class="field">원두 *<select name="beanId" required><option value="">원두를 선택해 주세요.</option>${beanOptions}</select></label><label class="field">레시피 *<select name="recipeId" required><option value="">레시피를 선택해 주세요.</option>${recipeOptions}</select></label>${field('date', '추출 날짜', today(), { type: 'date', required: true })}<fieldset><legend>전체 만족도 * (1~5점)</legend><div class="rating-options">${[1, 2, 3, 4, 5].map(rating => `<label><input name="rating" type="radio" value="${rating}" required>${rating} <span class="stars" aria-hidden="true">★</span></label>`).join('')}</div></fieldset>${textArea('cupNote', '컵노트 (선택)')}`));
+  openDialog('한 잔의 기록', formShell(`<p class="form-help">원두와 공용 레시피를 선택합니다. 당시 원두 정보와 전체 레시피 단계가 함께 보존됩니다.</p><label class="field">원두 *<select name="beanId" required><option value="">원두를 선택해 주세요.</option>${beanOptions}</select></label><label class="field">레시피 *<select name="recipeId" required><option value="">레시피를 선택해 주세요.</option>${recipeOptions}</select></label>${field('date', '추출 날짜', today(), { type: 'date', required: true })}<div data-star-rating></div>${textArea('cupNote', '컵노트 (선택)')}`));
+  dialogContent.querySelector('[data-star-rating]').replaceWith(createStarRating(document));
   bindForm((payload, key) => saveData('records', payload, key), '추출 기록과 당시 원두·레시피를 노션에 저장했습니다.');
 }
 

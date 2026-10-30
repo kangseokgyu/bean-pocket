@@ -1,0 +1,45 @@
+✖ record input star fill uses the visible SVG path bounds for tenths (10.038834ms)
+  AssertionError [ERR_ASSERTION]: 0.1 starts at the visible star boundary
+
+  '0' !== '3'
+
+      at TestContext.<anonymous> (file:///private/tmp/ax-decimal-rating-20261030/test/pwa-ui.view.test.mjs:3293:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '0',
+    expected: '3',
+    operator: 'strictEqual'
+  }
+
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 97.436625
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:3282:1
+✖ record input star fill uses the visible SVG path bounds for tenths (10.038834ms)
+  AssertionError [ERR_ASSERTION]: 0.1 starts at the visible star boundary
+
+  '0' !== '3'
+
+      at TestContext.<anonymous> (file:///private/tmp/ax-decimal-rating-20261030/test/pwa-ui.view.test.mjs:3293:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '0',
+    expected: '3',
+    operator: 'strictEqual'
+  }

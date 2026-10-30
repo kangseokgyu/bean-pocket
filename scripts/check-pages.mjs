@@ -19,6 +19,7 @@ const allowedFiles = new Set([
   'ui/controller.mjs',
   'ui/records-insights.mjs',
   'ui/records-insights-view.mjs',
+  'ui/star-rating.mjs',
   'ui/view.mjs',
   'data/notion-client.mjs',
   'data/notion-properties.mjs',
@@ -49,6 +50,7 @@ const requiredCacheFiles = [
   './ui/controller.mjs',
   './ui/records-insights.mjs',
   './ui/records-insights-view.mjs',
+  './ui/star-rating.mjs',
   './ui/view.mjs',
   './data/notion-client.mjs',
   './data/notion-properties.mjs',
@@ -136,7 +138,7 @@ export async function checkPages(directory = defaultOutputDir, { allowIncomplete
   if (missing.length) return true;
 
   const textFiles = new Map();
-  for (const relativePath of ['brew-picker-demo.html', 'brew-picker-demo.css', 'brew-picker-demo.mjs', 'app.mjs', 'commands/index.mjs', 'ui/controller.mjs', 'ui/records-insights.mjs', 'ui/records-insights-view.mjs', 'ui/view.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs', 'data/notion-client.mjs', 'data/notion-properties.mjs', 'data/read-repository.mjs', 'domain.mjs', 'index.html', 'manifest.webmanifest', 'platform/connection-file.mjs', 'state/submission-state.mjs', 'styles.css', 'sw.js']) {
+  for (const relativePath of ['brew-picker-demo.html', 'brew-picker-demo.css', 'brew-picker-demo.mjs', 'app.mjs', 'commands/index.mjs', 'ui/controller.mjs', 'ui/records-insights.mjs', 'ui/records-insights-view.mjs', 'ui/star-rating.mjs', 'ui/view.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs', 'data/notion-client.mjs', 'data/notion-properties.mjs', 'data/read-repository.mjs', 'domain.mjs', 'index.html', 'manifest.webmanifest', 'platform/connection-file.mjs', 'state/submission-state.mjs', 'styles.css', 'sw.js']) {
     textFiles.set(relativePath, (await readFile(path.join(directory, relativePath))).toString('utf8'));
   }
   const checkedText = new Map(textFiles);
@@ -151,6 +153,12 @@ export async function checkPages(directory = defaultOutputDir, { allowIncomplete
   // Normalize only the literal passed directly to the local SVG element constructor.
   checkedText.set('ui/records-insights-view.mjs', textFiles.get('ui/records-insights-view.mjs')
     .replaceAll("document.createElementNS('http://www.w3.org/2000/svg', name)", 'SVG_ELEMENT'));
+  checkedText.set('ui/star-rating.mjs', textFiles.get('ui/star-rating.mjs')
+    .replaceAll("document.createElementNS('http://www.w3.org/2000/svg', 'svg')", 'SVG_ELEMENT')
+    .replaceAll("document.createElementNS('http://www.w3.org/2000/svg', 'path')", 'SVG_PATH')
+    .replaceAll("document.createElementNS('http://www.w3.org/2000/svg', 'clipPath')", 'SVG_CLIP')
+    .replaceAll("document.createElementNS('http://www.w3.org/2000/svg', 'defs')", 'SVG_DEFS')
+    .replaceAll("document.createElementNS('http://www.w3.org/2000/svg', 'rect')", 'SVG_RECT'));
   rejectUnsafeContents(checkedText);
 
   if (includeProbes) {

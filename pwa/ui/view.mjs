@@ -1,5 +1,6 @@
-import { isCurrentRecord } from '../domain.mjs';
+import { isCurrentRecord, isValidRating } from '../domain.mjs';
 import { renderRecordsInsights } from './records-insights-view.mjs';
+import { createStarRating } from './star-rating.mjs';
 
 const make = (document, tag, text, className) => {
   const node = document.createElement(tag);
@@ -2022,7 +2023,7 @@ function recipeCard(document, recipe, data, detailed = false) {
   for (const record of records) {
     const recordItem = make(document, 'div', undefined, 'recipe-record-item');
     const bean = data.beans.find(item => item.id === record.beanId);
-    const validRating = Number.isInteger(record.rating) && record.rating >= 1 && record.rating <= 5;
+    const validRating = isValidRating(record.rating);
     const validSnapshot = record.snapshotStatus === 'valid' ? record.snapshot : null;
     const snapshot = validSnapshot?.version === 2 ? validSnapshot.recipe : validSnapshot;
     const recordHeader = make(document, 'div', undefined, 'entity-card-header record-summary-header');
@@ -2031,7 +2032,7 @@ function recipeCard(document, recipe, data, detailed = false) {
     recordItem.append(recordHeader);
     const invalidLabels = [
       ...(record.invalidFields?.includes('date') ? ['날짜'] : []),
-      ...(record.invalidFields?.includes('rating') ? ['별점(정수 1~5)'] : []),
+      ...(record.invalidFields?.includes('rating') ? ['별점(0.1~5.0, 0.1점 단위)'] : []),
     ];
     if (invalidLabels.length) recordItem.append(make(document, 'p', `기록 오류: ${invalidLabels.join(', ')}`, 'record-warning'));
     if (record.snapshotStatus === 'damaged') recordItem.append(make(document, 'p', '스냅샷이 손상되어 당시 조건을 표시할 수 없습니다.', 'record-warning'));
@@ -2230,32 +2231,6 @@ function hydrateRecordPickers(form, freshForm, data, optionPages, optionStates, 
   form.dataset.initialValues = JSON.stringify(initial);
 }
 
-function starRating(document) {
-  const group = make(document, 'fieldset', undefined, 'star-rating');
-  group.append(make(document, 'legend', '별점 (1~5)', 'form-field-label'));
-  const choices = make(document, 'div', undefined, 'rating-options');
-  for (let score = 1; score <= 5; score += 1) {
-    const option = make(document, 'label', undefined, 'rating-option');
-    const input = make(document, 'input');
-    input.type = 'radio';
-    input.name = 'rating';
-    input.value = String(score);
-    input.required = true;
-    input.setAttribute('aria-label', `${score}점`);
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', '0 0 24 24');
-    svg.setAttribute('aria-hidden', 'true');
-    svg.setAttribute('focusable', 'false');
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', 'm12 3 2.78 5.63L21 9.54l-4.5 4.39 1.06 6.2L12 17.2l-5.56 2.93 1.06-6.2L3 9.54l6.22-.91Z');
-    svg.append(path);
-    option.append(input, svg);
-    choices.append(option);
-  }
-  group.append(choices);
-  return group;
-}
-
 function buildRecordForm(document, data, optionPages, route, optionStates, connectionRevision = null) {
   const form = formBase(document, 'records', '추출 후 빠른 기록');
   const fields = make(document, 'fieldset', undefined, 'form-fieldset');
@@ -2285,7 +2260,7 @@ function buildRecordForm(document, data, optionPages, route, optionStates, conne
     syncSearchPickerTrigger(picker, data);
   }
   fields.append(label(document, '날짜', 'date', 'date', true));
-  fields.append(starRating(document));
+  fields.append(createStarRating(document));
   fields.append(label(document, '컵노트 (선택)', 'cupNote', 'textarea', false));
   form.append(fields);
   addFormActions(document, form);
@@ -2605,7 +2580,7 @@ function recordCard(document, record, data) {
   const validSnapshot = record.snapshotStatus === 'valid' ? record.snapshot : null;
   const snapshotBean = validSnapshot?.version === 2 ? validSnapshot.bean : null;
   const snapshotRecipe = validSnapshot?.version === 2 ? validSnapshot.recipe : validSnapshot;
-  const validRating = Number.isInteger(record.rating) && record.rating >= 1 && record.rating <= 5;
+  const validRating = isValidRating(record.rating);
   const beanName = bean?.name || snapshotBean?.name || (record.beanNameStatus === 'loading'
     ? '원두 이름 확인 중' : record.beanNameStatus === 'error' ? '원두 이름 불러오기 실패' : '원두 확인 필요');
   const recipeName = recipe?.name || snapshotRecipe?.name || (record.recipeNameStatus === 'loading'
@@ -2623,7 +2598,7 @@ function recordCard(document, record, data) {
   if (record.beanResolution === 'needs-confirmation') card.append(make(document, 'p', '과거 원두 관계를 확인해야 합니다.', 'record-warning'));
   const invalidLabels = [
     ...(record.invalidFields?.includes('date') ? ['날짜'] : []),
-    ...(record.invalidFields?.includes('rating') ? ['별점(정수 1~5)'] : []),
+    ...(record.invalidFields?.includes('rating') ? ['별점(0.1~5.0, 0.1점 단위)'] : []),
   ];
   if (invalidLabels.length) card.append(make(document, 'p', `기록 오류: ${invalidLabels.join(', ')}`, 'record-warning'));
   if (record.snapshotStatus === 'damaged') card.append(make(document, 'p', '스냅샷이 손상되어 당시 조건을 표시할 수 없습니다.', 'record-warning'));
@@ -3267,7 +3242,10 @@ function saveActiveDraft(content, drafts) {
   if (form.dataset.form === 'records') {
     values.rating = form.elements.rating.value;
     const initial = JSON.parse(form.dataset.initialValues || '{}');
-    if (Object.keys(initial).every(name => values[name] === initial[name])) return;
+    if (Object.keys(initial).every(name => values[name] === initial[name])) {
+      drafts.delete(form.dataset.form);
+      return;
+    }
   }
   const steps = [...form.querySelectorAll('.step-row')].map(row =>
     Object.fromEntries([...row.querySelectorAll('[name]')].map(field => [field.name, field.value])));
@@ -3290,6 +3268,7 @@ function restoreDraft(form, draft, data) {
     if (field) field.value = value;
   }
   if (form.dataset.form === 'records') {
+    form.elements.rating?.dispatchEvent(new Event('input'));
     for (const name of ['beanId', 'recipeId']) {
       const picker = form.elements[name]?.closest('[data-search-picker]');
       if (picker) syncSearchPickerTrigger(picker, data);

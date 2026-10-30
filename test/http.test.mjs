@@ -129,7 +129,7 @@ test('공개 HTTP 흐름: 연결→원두→레시피→평가→재조회, 봉�
   assert.equal(fake.rows.filter(row => row.parent.data_source_id === DATA_SOURCES.recipes).length, 1);
   const recipe = first.body;
   assert.equal(recipe.extractionGuide, input.extractionGuide);
-  for (const rating of [4, 4, 5]) {
+  for (const rating of [4, 4.3, 5]) {
     const result = await request('/api/records', {
       beanId: bean.id, recipeId: recipe.id, date: '2026-10-15', rating,
       snapshot: { temperature: 1 }, temperature: 1,
@@ -146,7 +146,8 @@ test('공개 HTTP 흐름: 연결→원두→레시피→평가→재조회, 봉�
   assert.equal(Object.hasOwn(before, 'bags'), false);
   assert.equal(before.recipes[0].steps[2].interval, 40);
   assert.equal(before.recipes[0].steps[2].cumulativeWater, 250);
-  assert.deepEqual(before.recipes[0].stats, { count: 3, average: 13 / 3 });
+  assert.deepEqual(before.recipes[0].stats, { count: 3, average: 13.3 / 3 });
+  assert.ok(before.records.some(record => record.rating === 4.3), 'a decimal rating survives storage and reload');
   assert.equal(before.records.length, 3);
 
   // Simulate a direct edit in Notion; old snapshots must stay intact.
@@ -198,10 +199,10 @@ test('기록의 bagId 제거, 날짜·별점 검증 및 독립 레시피 생성'
   assert.equal((await request('/api/records', { ...record, bagId: 'legacy-page-id' })).status, 400);
   assert.equal((await request('/api/records', { ...record, recipeId: 'not-a-recipe' })).status, 400);
   assert.equal((await request('/api/records', { ...record, date: '2026-02-30' })).status, 400);
-  for (const rating of [0, 6, 1.5, null, [4], true]) {
+  for (const rating of [0, 5.1, 1.51, null, [4], true]) {
     assert.equal((await request('/api/records', { ...record, rating })).status, 400);
   }
-  for (const rating of [1, 5]) assert.equal((await request('/api/records', { ...record, rating })).status, 201);
+  for (const rating of [0.1, 1, 1.5, 5]) assert.equal((await request('/api/records', { ...record, rating })).status, 201);
   const independent = await request('/api/recipes', { ...recipeInput(), beanId: 'not-a-bean' });
   assert.equal(independent.status, 201);
   assert.deepEqual(fake.rows.find(row => row.id === independent.body.id).properties['원두'], undefined);

@@ -1,0 +1,3 @@
+Command: node --test --test-name-pattern='insight decimal rating fills stars' test/pwa-ui.view.test.mjs
+
+Before the SVG clip rectangles were added, this behavior test failed because the decimal insight rating exposed 0 SVG stars instead of 5. After the change it asserts widths 24, 24, 24, 24, and 16.8 for a 4.7 score.

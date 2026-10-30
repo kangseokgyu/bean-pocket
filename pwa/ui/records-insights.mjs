@@ -1,4 +1,4 @@
-import { isCurrentRecord } from '../domain.mjs';
+import { isCurrentRecord, isValidRating } from '../domain.mjs';
 
 const validDate = value => {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
@@ -6,7 +6,7 @@ const validDate = value => {
   return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
 };
 
-const validRating = value => Number.isInteger(value) && value >= 1 && value <= 5;
+const validRating = isValidRating;
 const byId = (left, right) => left.id < right.id ? -1 : left.id > right.id ? 1 : 0;
 const byDateAscending = (left, right) => left.date.localeCompare(right.date) || byId(left, right);
 const byDateDescending = (left, right) => right.date.localeCompare(left.date) || byId(left, right);
@@ -69,6 +69,8 @@ export function buildRecordsInsights(records, beans = [], selectedBeanId = '', r
   const trend = ratedRows.map(record => ({ id: record.id, date: record.date, rating: record.rating, record }))
     .sort(byDateAscending);
   const comparisonRecords = selectedRows.filter(record => record.rating == null || validRating(record.rating)).sort(byDateDescending);
+  const ratingOptions = [...new Set(comparisonRecords.filter(record => validRating(record.rating)).map(record => record.rating))]
+    .sort((left, right) => right - left);
   const recipeOptions = new Map();
   for (const record of comparisonRecords) {
     const recipeId = record.recipeId || snapshotRecipe(record)?.id;
@@ -92,6 +94,7 @@ export function buildRecordsInsights(records, beans = [], selectedBeanId = '', r
     trend,
     bestRecord,
     comparisonRecords,
+    ratingOptions,
     recipeOptions: [...recipeOptions.values()].sort((left, right) =>
       left.name.localeCompare(right.name) || left.id.localeCompare(right.id)),
   };
@@ -115,10 +118,10 @@ export function layoutRatingTrend(points, { width = 640, height = 260 } = {}) {
     plotRight: margin.left + plotWidth,
     plotTop: margin.top,
     plotBottom: margin.top + plotHeight,
-    yTicks: [1, 2, 3, 4, 5],
     points: dates.map(point => ({ ...point,
       x: margin.left + (span ? (Date.parse(`${point.date}T00:00:00Z`) - firstTime) / span * plotWidth : plotWidth / 2),
-      y: margin.top + (5 - point.rating) / 4 * plotHeight,
+      y: margin.top + (5 - point.rating) / 5 * plotHeight,
     })),
+    yTicks: [0, 1, 2, 3, 4, 5],
   };
 }

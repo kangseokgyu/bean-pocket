@@ -1,0 +1,195 @@
+✖ 별점은 0.1부터 5.0까지 0.1 단위로 검증하고 숫자로 보존한다 (0.863584ms)
+  Error: 별점은 정수 1~5점으로 선택해 주세요.
+      at validateRecord (file:///private/tmp/ax-decimal-rating-20261030/lib/domain.mjs:133:11)
+      at TestContext.<anonymous> (file:///private/tmp/ax-decimal-rating-20261030/test/domain.test.mjs:13:140)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    status: 400,
+    safeToRetry: true
+  }
+
+✖ 유효 decimal 별점은 저장 검증과 레시피 평균 집계에서 제외되지 않는다 (1.237917ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+    {
+  +   average: 5,
+  +   count: 1
+  -   average: 3.1333333333333333,
+  -   count: 3
+    }
+
+      at TestContext.<anonymous> (file:///private/tmp/ax-decimal-rating-20261030/test/domain.test.mjs:14:143)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { count: 1, average: 5 },
+    expected: { count: 3, average: 3.1333333333333333 },
+    operator: 'deepStrictEqual'
+  }
+
+✖ chart coordinates use real date spacing and a fixed one-to-five rating scale (2.682291ms)
+  AssertionError [ERR_ASSERTION]: rating one stays on its value within the zero-to-five scale
+
+  192 !== 159.6
+
+      at TestContext.<anonymous> (file:///private/tmp/ax-decimal-rating-20261030/test/pwa-records-insights.test.mjs:147:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 192,
+    expected: 159.6,
+    operator: 'strictEqual'
+  }
+
+✖ decimal ratings remain available to insight averages, filters, and ranking (8.816042ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  0 !== 3
+
+      at TestContext.<anonymous> (file:///private/tmp/ax-decimal-rating-20261030/test/pwa-records-insights.test.mjs:166:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 3,
+    operator: 'strictEqual'
+  }
+
+✖ record rating supports tenth-point pointer, keyboard, cancellation, and draft interaction (10.544708ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  5 !== 1
+
+      at TestContext.<anonymous> (file:///private/tmp/ax-decimal-rating-20261030/test/pwa-ui.view.test.mjs:4338:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 5,
+    expected: 1,
+    operator: 'strictEqual'
+  }
+
+ℹ tests 5
+ℹ suites 0
+ℹ pass 0
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 104.800708
+
+✖ failing tests:
+
+test at test/domain.test.mjs:13:1
+✖ 별점은 0.1부터 5.0까지 0.1 단위로 검증하고 숫자로 보존한다 (0.863584ms)
+  Error: 별점은 정수 1~5점으로 선택해 주세요.
+      at validateRecord (file:///private/tmp/ax-decimal-rating-20261030/lib/domain.mjs:133:11)
+      at TestContext.<anonymous> (file:///private/tmp/ax-decimal-rating-20261030/test/domain.test.mjs:13:140)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    status: 400,
+    safeToRetry: true
+  }
+
+test at test/domain.test.mjs:14:1
+✖ 유효 decimal 별점은 저장 검증과 레시피 평균 집계에서 제외되지 않는다 (1.237917ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+    {
+  +   average: 5,
+  +   count: 1
+  -   average: 3.1333333333333333,
+  -   count: 3
+    }
+
+      at TestContext.<anonymous> (file:///private/tmp/ax-decimal-rating-20261030/test/domain.test.mjs:14:143)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { count: 1, average: 5 },
+    expected: { count: 3, average: 3.1333333333333333 },
+    operator: 'deepStrictEqual'
+  }
+
+test at test/pwa-records-insights.test.mjs:135:1
+✖ chart coordinates use real date spacing and a fixed one-to-five rating scale (2.682291ms)
+  AssertionError [ERR_ASSERTION]: rating one stays on its value within the zero-to-five scale
+
+  192 !== 159.6
+
+      at TestContext.<anonymous> (file:///private/tmp/ax-decimal-rating-20261030/test/pwa-records-insights.test.mjs:147:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 192,
+    expected: 159.6,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-records-insights.test.mjs:158:1
+✖ decimal ratings remain available to insight averages, filters, and ranking (8.816042ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  0 !== 3
+
+      at TestContext.<anonymous> (file:///private/tmp/ax-decimal-rating-20261030/test/pwa-records-insights.test.mjs:166:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 3,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:4331:1
+✖ record rating supports tenth-point pointer, keyboard, cancellation, and draft interaction (10.544708ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  5 !== 1
+
+      at TestContext.<anonymous> (file:///private/tmp/ax-decimal-rating-20261030/test/pwa-ui.view.test.mjs:4338:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 5,
+    expected: 1,
+    operator: 'strictEqual'
+  }

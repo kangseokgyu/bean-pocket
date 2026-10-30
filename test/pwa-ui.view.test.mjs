@@ -51,6 +51,7 @@ class TestElement {
   get textContent() { return this.text + this.children.map(child => child.textContent).join(''); }
   setAttribute(name, value) {
     this.attributes.set(name, String(value));
+    if (name === 'class') this.className = String(value);
     this.ownerDocument.notifyAttributeMutation(this, name);
   }
   showModal() {
@@ -76,6 +77,20 @@ class TestElement {
     for (let node = this; node; node = node.parentElement) {
       for (const listener of node.listeners.get('focusin') ?? []) listener({ target: this });
     }
+  }
+  getBoundingClientRect() { return this.rect ?? { left: 0, width: 0, right: 0, top: 0, bottom: 0, height: 0 }; }
+  setPointerCapture(pointerId) { this.capturedPointerId = pointerId; }
+  hasPointerCapture(pointerId) { return this.capturedPointerId === pointerId; }
+  releasePointerCapture(pointerId) {
+    if (this.capturedPointerId === pointerId) this.capturedPointerId = null;
+  }
+  dispatchEvent(event) {
+    const dispatched = { type: event.type, bubbles: event.bubbles, target: this,
+      preventDefault() { this.defaultPrevented = true; } };
+    for (let current = this; current; current = dispatched.bubbles ? current.parentElement : null) {
+      for (const listener of current.listeners.get(dispatched.type) ?? []) listener(dispatched);
+    }
+    return true;
   }
   reset() { for (const field of this.querySelectorAll('input[name],textarea[name],select[name]')) field.value = ''; }
   remove() { if (this.parentElement) this.parentElement.children = this.parentElement.children.filter(child => child !== this); this.parentElement = null; }
@@ -199,6 +214,13 @@ function createBeanView(document, options) {
 async function clickViewTarget(document, target) {
   const page = document.root.firstElementChild;
   for (const listener of page.listeners.get('click') ?? []) await listener({ target });
+}
+
+function fire(target, type, values = {}) {
+  const event = { target, ...values, defaultPrevented: false,
+    preventDefault() { this.defaultPrevented = true; } };
+  for (const listener of target.listeners.get(type) ?? []) listener(event);
+  return event;
 }
 
 const data = () => ({
@@ -874,7 +896,7 @@ test('invalid stored date and rating remain visible with field-specific warnings
   const card = document.root.querySelector('.record-card');
   assert.match(card.textContent, /not-a-date/);
   assert.match(card.textContent, /6\/5/);
-  assert.match(card.textContent, /기록 오류: 날짜, 별점\(정수 1~5\)/);
+  assert.match(card.textContent, /기록 오류: 날짜, 별점\(0\.1~5\.0, 0\.1점 단위\)/);
   assert.doesNotMatch(card.textContent, /6\/5 ★/);
 });
 
@@ -1499,6 +1521,7 @@ test('modal scroll direction reversal uses the latest touch movement', () => {
   dialog.scrollHeight = 500;
   dialog.clientHeight = 400;
   dialog.scrollTop = 100;
+  dialog.getBoundingClientRect = () => ({ left: 0, right: 390, top: 20, bottom: 844 });
   env.document.root.append(dialog);
   dialog.showModal();
 
@@ -3157,12 +3180,13 @@ test('records view keeps unfiltered bean insights separate from the filtered tab
   assert.match(insightSection.querySelector('.record-insight-best').textContent, /92℃/);
   assert.match(insightSection.querySelector('.record-insight-best').textContent, /240g/);
   assert.doesNotMatch(insightSection.querySelector('.record-insight-best-record').textContent, /현재 레시피|99℃|300g|40클릭/);
-  assert.ok(insightSection.querySelector('svg[role="img"]'));
+  const ratingChart = insightSection.querySelectorAll('svg').find(svg => svg.getAttribute('role') === 'img');
+  assert.ok(ratingChart);
   assert.ok(insightSection.querySelector('#record-rating-chart-values'));
-  assert.deepEqual(insightSection.querySelector('svg').querySelectorAll('text')
+  assert.deepEqual(ratingChart.querySelectorAll('text')
     .map(label => label.textContent).filter(label => label.endsWith('점')),
     ['3점', '4점', '5점'], 'each distinct date/rating point has a visible score label');
-  const ratingFiveLabel = insightSection.querySelector('svg').querySelectorAll('text')
+  const ratingFiveLabel = ratingChart.querySelectorAll('text')
     .find(label => label.textContent === '5점');
   assert.ok(Number(ratingFiveLabel.getAttribute('y')) > 10, 'top-axis rating labels stay inside the chart viewBox');
   assert.match(insightSection.textContent, /날짜별 별점 추이/);
@@ -3253,6 +3277,45 @@ test('insight bean cards expose visible summaries and selected state; empty or u
     loading: false }, screen: { route: '/records', complete: true, hasMore: false } });
   emptyView.renderRoute('/records');
   assert.match(emptyDocument.root.querySelector('.records-demo-layout').textContent, /최근 추출 기록이 있는 원두가 없습니다/);
+});
+
+test('record input star fill uses the visible SVG path bounds for tenths', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+  view.renderRoute('/records/new');
+  const slider = document.root.querySelector('form[data-form="records"]').elements.rating;
+  const firstFill = document.root.querySelectorAll('.rating-fill-rect')[0];
+
+  for (const [rating, width] of [['0.1', '1.8'], ['0.5', '9'], ['0.9', '16.2'], ['1.0', '18']]) {
+    slider.value = rating;
+    fire(slider, 'input');
+    assert.equal(firstFill.getAttribute('x'), '3', `${rating} starts at the visible star boundary`);
+    assert.equal(firstFill.getAttribute('width'), width, `${rating} fills a distinct fraction of the visible star`);
+  }
+});
+
+test('insight decimal rating fills use the same visible SVG bounds at tenths', () => {
+  const insightFill = rating => {
+    const document = new TestDocument();
+    const view = createBeanView(document);
+    const row = { ...data().records[0], id: `rating-${rating}`, rating };
+    const model = { ...buildRecordsInsights([row]), status: 'ready', loading: false };
+    view.renderData({ ...data(), records: [row], recordInsights: model,
+      screen: { route: '/records', complete: true, hasMore: false } });
+    view.renderRoute('/records');
+    const stars = document.root.querySelector('.record-insight-rating-stars');
+    return stars.querySelectorAll('.rating-fill-rect').map(rect => ({
+      x: rect.getAttribute('x'), width: rect.getAttribute('width'),
+    }));
+  };
+
+  assert.deepEqual(insightFill(0.1), [{ x: '3', width: '1.8' }, ...Array(4).fill({ x: '3', width: '0' })]);
+  assert.equal(insightFill(0.9)[0].width, '16.2');
+  assert.equal(insightFill(1)[0].width, '18');
+  assert.deepEqual(insightFill(4.7), Array.from({ length: 5 }, (_, index) => ({
+    x: '3', width: index < 4 ? '18' : '12.6',
+  })));
 });
 
 test('insight bean cards, comparison filter, and sort controls update the production view through delegated events', async () => {
@@ -4307,26 +4370,87 @@ test('integration: invalid record prefill closes the initial modal and exposes t
 });
 
 
-test('record rating offers five required native stars and preserves the selected score in drafts', () => {
+test('record rating supports tenth-point pointer, keyboard, cancellation, and draft interaction', () => {
   const document = new TestDocument();
   const view = createBeanView(document);
   view.renderData(data());
   view.renderRoute('/records/new');
   let form = document.root.querySelector('form[data-form="records"]');
-  const stars = form.querySelectorAll('input[name="rating"]');
-  assert.equal(stars.length, 5);
-  assert.deepEqual(stars.map(star => star.value), ['1', '2', '3', '4', '5']);
-  assert.ok(stars.every(star => star.type === 'radio' && star.required));
-  assert.deepEqual(stars.map(star => star.getAttribute('aria-label')), ['1점', '2점', '3점', '4점', '5점']);
-  assert.equal(form.elements.rating.value, '');
+  const slider = form.elements.rating;
+  assert.equal(form.querySelectorAll('input[name="rating"]').length, 1);
+  assert.equal(slider.type, 'number');
+  assert.equal(slider.min, '0.1');
+  assert.equal(slider.max, '5');
+  assert.equal(slider.step, '0.1');
+  assert.equal(slider.required, true);
+  assert.equal(slider.getAttribute('role'), 'slider');
+  assert.equal(slider.getAttribute('aria-valuetext'), '미입력');
+  assert.equal(slider.value, '');
+  const output = form.querySelector('[data-rating-output]');
+  assert.equal(output.textContent, '미입력');
   assert.equal(form.querySelectorAll('.rating-option').length, 5);
   assert.equal(form.querySelectorAll('svg').filter(svg => svg.closest('.star-rating')).length, 5);
-  form.elements.rating.value = '3';
+
+  slider.rect = { left: 10, width: 1000, right: 1010, top: 0, bottom: 48, height: 48 };
+  fire(slider, 'pointerdown', { button: 0, pointerId: 1, clientX: -50 });
+  assert.equal(slider.value, '0.1', 'the left boundary clamps to the minimum score');
+  assert.equal(slider.hasPointerCapture(1), true);
+  fire(slider, 'pointerdown', { button: 0, pointerId: 2, clientX: 910 });
+  fire(slider, 'pointermove', { pointerId: 2, clientX: 910 });
+  assert.equal(slider.value, '0.1', 'a second pointer cannot take over the active drag');
+  fire(slider, 'pointermove', { pointerId: 1, clientX: 500 });
+  assert.equal(slider.value, '2.5');
+  assert.equal(output.textContent, '2.5점', 'the score is visible during the drag');
+  assert.equal(form.querySelectorAll('.rating-fill-rect')[2].getAttribute('width'), '9');
+  fire(slider, 'pointercancel', { pointerId: 1, clientX: 500 });
+  assert.equal(slider.hasPointerCapture(1), false);
+  fire(slider, 'pointermove', { pointerId: 1, clientX: 1010 });
+  assert.equal(slider.value, '2.5', 'moves after pointer cancellation cannot change the value');
+  fire(slider, 'pointerdown', { button: 0, pointerId: 3, clientX: 1200 });
+  assert.equal(slider.value, '5.0', 'the right edge clamps to the maximum score');
+  fire(slider, 'pointerup', { pointerId: 3, clientX: 1200 });
+  assert.equal(slider.hasPointerCapture(3), false);
+  fire(slider, 'pointerdown', { button: 0, pointerId: 4, clientX: 810 });
+  slider.disabled = true;
+  fire(slider, 'pointermove', { pointerId: 4, clientX: 910 });
+  slider.disabled = false;
+  fire(slider, 'pointermove', { pointerId: 4, clientX: 1010 });
+  assert.equal(slider.value, '4.0', 'a disabled or cancelled drag cannot resume');
+
+  slider.value = '';
+  fire(slider, 'keydown', { key: 'ArrowRight', preventDefault() {} });
+  assert.equal(slider.value, '0.1');
+  fire(slider, 'keydown', { key: 'ArrowUp', preventDefault() {} });
+  assert.equal(slider.value, '0.2');
+  fire(slider, 'keydown', { key: 'ArrowLeft', preventDefault() {} });
+  assert.equal(slider.value, '0.1');
+  fire(slider, 'keydown', { key: 'End', preventDefault() {} });
+  assert.equal(slider.value, '5.0');
+  fire(slider, 'keydown', { key: 'Home', preventDefault() {} });
+  assert.equal(slider.value, '0.1');
+  fire(slider, 'keydown', { key: 'Delete', preventDefault() {} });
+  assert.equal(slider.value, '');
+  assert.equal(output.textContent, '미입력');
+  const clear = form.querySelector('.rating-clear');
+  slider.value = '2.0';
+  fire(slider, 'input');
+  fire(clear, 'click');
+  assert.equal(slider.value, '', 'the clear button restores the empty state');
+
+  slider.value = '3.7';
   view.renderRoute('/home');
   view.renderRoute('/records/new');
   form = document.root.querySelector('form[data-form="records"]');
-  assert.equal(form.elements.rating.value, '3');
-  assert.deepEqual(form.querySelectorAll('input[name="rating"]').map(star => Boolean(star.checked)), [false, false, true, false, false]);
+  assert.equal(form.elements.rating.value, '3.7');
+  assert.equal(form.querySelector('[data-rating-output]').textContent, '3.7점');
+  assert.equal(form.querySelectorAll('.rating-fill-rect')[3].getAttribute('width'), '12.6');
+  form.elements.rating.value = '';
+  fire(form.elements.rating, 'input');
+  view.renderRoute('/home');
+  view.renderRoute('/records/new');
+  form = document.root.querySelector('form[data-form="records"]');
+  assert.equal(form.elements.rating.value, '', 'clearing a restored draft stays empty after leaving and returning');
+  assert.equal(form.querySelector('[data-rating-output]').textContent, '미입력');
 });
 
 test('critic regression: initial server option page remains visible after loading the next picker page', () => {

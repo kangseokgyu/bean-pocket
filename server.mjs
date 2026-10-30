@@ -11,6 +11,7 @@ const staticFiles = {
   '/app.js': ['app.js', 'text/javascript; charset=utf-8'],
   '/submission.mjs': ['submission.mjs', 'text/javascript; charset=utf-8'],
   '/styles.css': ['styles.css', 'text/css; charset=utf-8'],
+  '/ui/star-rating.mjs': ['../pwa/ui/star-rating.mjs', 'text/javascript; charset=utf-8'],
 };
 
 async function readJson(request) {

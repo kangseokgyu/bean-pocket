@@ -12,4 +12,10 @@
 - Worker는 `gpt-6-luna / max`, Critic은 `gpt-6.1-sol / medium`으로 순차 실행했다. Critic이 6개 파일의 변경과 검증 근거를 직접 확인해 차단 결함 없이 승인 가능하다고 판단했다. 새 주석이나 suppression은 없다.
 - 변경 전 필수 조사와 의도 실패 확인을 먼저 수행했다. 같은 모델·렌더러를 변경하므로 구현은 Worker 한 명으로 한정하고 공유 파일 쓰기를 직렬화했다. 설치되지 않은 `control-ui`와 `deslop` 스킬은 Playwright 및 변경분 검토로 대체했다.
 
-실제 iOS Safari, 사용자 Notion 연결 데이터, 보조기기를 사용한 접근성은 검증하지 않았다. 브라우저 검증에는 합성 fixture를 사용했다. 게시 결과는 완료 후 별도로 기록한다.
+실제 iOS Safari, 사용자 Notion 연결 데이터, 보조기기를 사용한 접근성은 검증하지 않았다. 브라우저 검증에는 합성 fixture를 사용했다. 공개 파일 확인은 사용자 Notion 데이터 조회나 실제 iOS 실행을 대신하지 않는다.
+
+## 게시 결과
+
+변경 커밋 `131c8d5`를 main에 fast-forward 통합하고 `probes=false`로 [Pages 실행](https://github.com/kangseokgyu/bean-pocket/actions/runs/41058026832)을 요청했다. CI의 회귀 테스트, 일반판 빌드, 산출물 검사와 배포 단계가 모두 성공했다. 상세 단계는 [배포 결과](deployment.json)에 있다.
+
+[공개 앱](https://kangseokgyu.github.io/bean-pocket/)의 빌드 버전은 `71c6830b8c01`이다. 게시 파일 27개가 모두 HTTP 200이며 로컬 검증 빌드와 바이트 단위로 일치했다. 변경된 모델·렌더러·CSS와 서비스워커도 포함한다. [공개 파일 대조](public-files.json)에 SHA-256과 결과를 기록했다. 공개 파일 확인 후 소스 변경은 없고 게시 근거 문서만 추가했다.

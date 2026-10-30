@@ -1,0 +1,88 @@
+{
+  "id": 41058026832,
+  "status": "completed",
+  "conclusion": "success",
+  "head_sha": "131c8d5b67f68be83312cfe1274ea0bc86762b72",
+  "html_url": "https://github.com/kangseokgyu/bean-pocket/actions/runs/41058026832",
+  "probes": false,
+  "public_url": "https://kangseokgyu.github.io/bean-pocket/",
+  "build_version": "71c6830b8c01",
+  "jobs": [
+    {
+      "name": "build",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout approved default branch",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Node",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run regression tests",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build static PWA",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build experiment PWA",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Check publish artifact",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check experiment artifact",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Upload only static output",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Node",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout approved default branch",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "deploy",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Configure Pages",
+          "conclusion": "success"
+        },
+        {
+          "name": "Deploy checked artifact",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ]
+}

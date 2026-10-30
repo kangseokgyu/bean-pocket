@@ -1,0 +1,138 @@
+{
+  "index.html": {
+    "status": 200,
+    "sha256": "ee68b601cd9ac7172c71236c2ca2bfa0c330fa455323db26f1b904e86490f7e9",
+    "matches_local_build": true,
+    "version": "71c6830b8c01"
+  },
+  "styles.css": {
+    "status": 200,
+    "sha256": "6ac58af7fec7c4f56603073e45d5c8f2994ff9b8288211e8d3e4bd4cd81611fe",
+    "matches_local_build": true
+  },
+  "brew-picker-demo.html": {
+    "status": 200,
+    "sha256": "53ea01b115a81169b7ae9e985c17d29c0caf16305b33065f47938bdc2bce0b6a",
+    "matches_local_build": true
+  },
+  "brew-picker-demo.mjs": {
+    "status": 200,
+    "sha256": "863edc25d45322b052290328f0d17a406ddbad4646c8ee590c9593059dc7eac8",
+    "matches_local_build": true
+  },
+  "domain.mjs": {
+    "status": 200,
+    "sha256": "0ed4b21a4bab79b17d5791916a03ec5c783d34b6c33b3308fd13f69e18d7c9f5",
+    "matches_local_build": true
+  },
+  "brew-picker-demo.css": {
+    "status": 200,
+    "sha256": "d8f9a43038d7ba81a5ff397b3c3d8b896e7283972835c76aae65fa4002558608",
+    "matches_local_build": true
+  },
+  "app.mjs": {
+    "status": 200,
+    "sha256": "b4358f655166c169a5a8d3d98637593ad3ce1b5da5a65662d1919397db8c34ef",
+    "matches_local_build": true
+  },
+  "manifest.webmanifest": {
+    "status": 200,
+    "sha256": "83dc529ee8004d5aa06cf728873d97c04ece2143d3026f275780f293dedb1bdb",
+    "matches_local_build": true
+  },
+  "sw.js": {
+    "status": 200,
+    "sha256": "f3c1b718679efde896fc3ae7012cc9529f5aee7246845bac02e4e42eca6d1924",
+    "matches_local_build": true
+  },
+  "ui/view.mjs": {
+    "status": 200,
+    "sha256": "a853ac05dad9178d073de0357c4f4798ebbbb89affe7f555084314545f0d9f68",
+    "matches_local_build": true
+  },
+  "ui/records-insights.mjs": {
+    "status": 200,
+    "sha256": "5d305362585a53c3a8184fbb5353b3dea4afe9c8eaeefcc42d1ec42dbebcee25",
+    "matches_local_build": true
+  },
+  "ui/controller.mjs": {
+    "status": 200,
+    "sha256": "45b9115c7811356ec4987d9c178acebab89b06d2711dcb453c346a73d9e0a7c8",
+    "matches_local_build": true
+  },
+  "ui/records-insights-view.mjs": {
+    "status": 200,
+    "sha256": "045bc1119ccdddaed7b17bafd0298c19974a87dd45fbb9885b70fa7092995e44",
+    "matches_local_build": true
+  },
+  "ui/star-rating.mjs": {
+    "status": 200,
+    "sha256": "6520379674649054184697a829f52c5bcd02d50d94454034f0223e6f4f1406c4",
+    "matches_local_build": true
+  },
+  "platform/connection-file.mjs": {
+    "status": 200,
+    "sha256": "8389b0d1554c0948a6b66a1dcbf82d581f7c9c67889cecb6523afe70034af210",
+    "matches_local_build": true
+  },
+  "platform/app-lifecycle.mjs": {
+    "status": 200,
+    "sha256": "ca5b6d7fc53f473000945a14c6951f39a74c8ba829571cdc2c236e463d77c09b",
+    "matches_local_build": true
+  },
+  "platform/update-coordinator.mjs": {
+    "status": 200,
+    "sha256": "56015c1ff7738219e963bd29e9b5c77b73d043cf76b6f1698c692b9f4d32bbe7",
+    "matches_local_build": true
+  },
+  "state/submission-state.mjs": {
+    "status": 200,
+    "sha256": "b67861cf9b1e356448281187c3ad47950925105733a02a66d5a3808650f68b10",
+    "matches_local_build": true
+  },
+  "icons/bp-logo.png": {
+    "status": 200,
+    "sha256": "c96f9250074f8f84d9585267bcc5d41fe663a1b90cffa4765e3acf184baadaf7",
+    "matches_local_build": true
+  },
+  "icons/icon-192.png": {
+    "status": 200,
+    "sha256": "fed6a73c7549eae8cb25324bab6e5d9f831120b8db329cfa7a66e3bda4296761",
+    "matches_local_build": true
+  },
+  "icons/home-brew.png": {
+    "status": 200,
+    "sha256": "5ca4eba24ca3a37de5d8363f08bb982f4ea2adea2e95daccd395a05a5ff4d8b2",
+    "matches_local_build": true
+  },
+  "icons/favicon-bp-ivory.png": {
+    "status": 200,
+    "sha256": "1f0378cc66162d82ca61a427e277f28e2160df29c9963a205cf999be6e6caa1f",
+    "matches_local_build": true
+  },
+  "icons/icon-512.png": {
+    "status": 200,
+    "sha256": "0b0197281031a51957ae1c3a43037dcef08eb8d8d187f4b6df5eb212d0303316",
+    "matches_local_build": true
+  },
+  "commands/index.mjs": {
+    "status": 200,
+    "sha256": "84438fbdc033cbaac154851651adb4f72ad2905f58986bff0a25046e6855ff0b",
+    "matches_local_build": true
+  },
+  "data/read-repository.mjs": {
+    "status": 200,
+    "sha256": "eee7cc9edd501a7195b9e67473f5af625e3695cc09f66a8034703399d8c7594a",
+    "matches_local_build": true
+  },
+  "data/notion-client.mjs": {
+    "status": 200,
+    "sha256": "ffba8fb238cb4c3c7a0973f8defd800d2f82bd66d514f0bc2e84740dd953716c",
+    "matches_local_build": true
+  },
+  "data/notion-properties.mjs": {
+    "status": 200,
+    "sha256": "f8026f56f21c95524e74e3a4a5d8857b9721b4dfa55551af204b75b7218d0f25",
+    "matches_local_build": true
+  }
+}

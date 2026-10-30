@@ -1037,7 +1037,14 @@ footer {
 .brew-flow-pane h1 { margin: 0; font-size: clamp(1.6rem, 7vw, 2.25rem); }
 .brew-flow-pane h2 { margin: 8px 0 0; }
 .brew-flow-pane > .button { justify-self: start; }
-.brew-flow-pane > input[type="search"] { width: 100%; min-height: 48px; padding: 10px 12px; border: 1px solid #aaa394; border-radius: 8px; background: #fffefa; color: #203d32; }
+.brew-option-search { display: grid; gap: 6px; min-width: 0; }
+.brew-option-search-label { color: #3d5147; font-size: 0.875rem; font-weight: 700; }
+.brew-option-search-control { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; gap: 8px; width: 100%; min-height: 48px; padding: 0 10px; border: 1px solid #aaa394; border-radius: 8px; background: #fffefa; color: #203d32; }
+.brew-option-search-control:focus-within { border-color: #587464; box-shadow: 0 0 0 2px rgb(88 116 100 / 18%); }
+.brew-option-search-icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.brew-option-search-control > input[type="search"] { width: 100%; min-width: 0; min-height: 46px; padding: 10px 0; border: 0; outline: 0; background: transparent; color: inherit; font: inherit; }
+.brew-option-search-control > input[type="search"]:focus-visible { outline: none; }
+.brew-option-search-clear { min-height: 34px; padding: 5px 8px; font-size: 0.75rem; white-space: nowrap; }
 .brew-step-indicator { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; min-width: 0; margin: 0; padding: 0 0 8px; border-bottom: 1px solid #e0dbcf; list-style: none; }
 .brew-step-indicator > li { display: flex; align-items: center; gap: 8px; min-width: 0; padding-bottom: 4px; border-bottom: 2px solid transparent; color: #68685e; font-size: 0.8rem; }
 .brew-step-indicator > li[aria-current="step"] { border-color: #224b3c; color: #224b3c; font-weight: 700; }

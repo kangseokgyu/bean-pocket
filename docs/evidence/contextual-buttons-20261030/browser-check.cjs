@@ -139,6 +139,7 @@ async function main() {
     bean: { route: `/beans/${beanId}`, data: fixtureData('bean', buildRecordsInsights) },
     recipe: { route: `/recipes/${recipeId}`, data: fixtureData('recipe', buildRecordsInsights) },
     brew: { route: `/brew/bean?selectedBeanId=${beanId}&q=sidama`, data: fixtureData('brew-options', buildRecordsInsights) },
+    'record-form': { route: `/records/new?beanId=${beanId}&recipeId=${recipeId}`, data: fixtureData('record-form', buildRecordsInsights) },
     records: { route: '/records', data: fixtureData('records-loading', buildRecordsInsights) },
   };
   const dist = path.resolve(root, 'dist');
@@ -187,8 +188,23 @@ async function main() {
       assert.equal(await page.locator('.bean-detail-card .record-card').count(), 2);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
       await page.screenshot({ path: path.join(evidence, `bean-detail-${size}.png`), fullPage: true });
+      const recipeTab = page.getByRole('button', { name: '레시피', exact: true });
+      assert.equal(await recipeTab.evaluate(node => node.classList.contains('button--secondary')), false);
+      await recipeTab.hover();
+      const tabHoverBackground = await recipeTab.evaluate(node => getComputedStyle(node).backgroundColor);
+      assert.equal(tabHoverBackground, 'rgba(0, 0, 0, 0)');
+      await page.mouse.move(width - 4, height - 4);
+      for (let count = 0; count < 20 && !(await recipeTab.evaluate(node => node === document.activeElement)); count++) {
+        await page.keyboard.press('Tab');
+      }
+      assert.equal(await recipeTab.evaluate(node => node === document.activeElement), true);
+      assert.equal(await recipeTab.evaluate(node => node.matches(':focus-visible')), true);
+      const tabFocusBackground = await recipeTab.evaluate(node => getComputedStyle(node).backgroundColor);
+      assert.equal(tabFocusBackground, 'rgba(0, 0, 0, 0)');
       assert.deepEqual(errors, []);
-      results.push({ scenario: `bean-detail-${size}`, backLabel: '원두 목록으로', hitTargetMin: 44, records: 2, overflow: false });
+      results.push({ scenario: `bean-detail-${size}`, backLabel: '원두 목록으로', hitTargetMin: 44, records: 2,
+        navTab: '레시피', secondaryVariant: false, hoverBackground: tabHoverBackground, keyboardFocusVisible: true,
+        focusBackground: tabFocusBackground, overflow: false });
       await page.close();
     }
 
@@ -243,6 +259,33 @@ async function main() {
     assert.deepEqual(brewErrors, []);
     results.push({ scenario: 'brew-search-pagination-mobile', clearHitTargetMin: 44, paginationHitTargetMin: 44, overflow: false });
     await brewPage.close();
+
+    const pickerPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
+    const pickerErrors = [];
+    pickerPage.on('pageerror', error => pickerErrors.push(error.message));
+    await pickerPage.goto(`http://127.0.0.1:${port}/fixture?scenario=record-form`);
+    const openPicker = pickerPage.locator('.search-picker-trigger').first();
+    await openPicker.waitFor();
+    await openPicker.click();
+    const pickerDialog = pickerPage.locator('dialog.option-picker-dialog').first();
+    await pickerDialog.waitFor({ state: 'visible' });
+    const closePicker = pickerDialog.getByRole('button', { name: '닫기', exact: true });
+    assert.equal(await closePicker.getAttribute('data-action'), 'close-search-picker');
+    assert.equal(await closePicker.evaluate(node => node.classList.contains('button--utility')), true);
+    assert.ok((await closePicker.boundingBox()).height >= 44);
+    const closeBackground = await closePicker.evaluate(node => getComputedStyle(node).backgroundColor);
+    assert.equal(closeBackground, 'rgba(0, 0, 0, 0)');
+    await closePicker.hover();
+    const closeHoverBackground = await closePicker.evaluate(node => getComputedStyle(node).backgroundColor);
+    assert.equal(closeHoverBackground, 'rgb(242, 237, 227)');
+    await pickerPage.keyboard.press('Shift+Tab');
+    assert.equal(await closePicker.evaluate(node => node === document.activeElement), true);
+    assert.equal(await closePicker.evaluate(node => node.matches(':focus-visible')), true);
+    await pickerPage.screenshot({ path: path.join(evidence, 'search-picker-utility-close-mobile.png'), fullPage: true });
+    assert.deepEqual(pickerErrors, []);
+    results.push({ scenario: 'search-picker-close-mobile', utilityVariant: true, defaultBackground: closeBackground,
+      hoverBackground: closeHoverBackground, keyboardFocusVisible: true, hitTargetMin: 44, pageErrors: 0 });
+    await pickerPage.close();
 
     const recordsPage = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
     const recordErrors = [];

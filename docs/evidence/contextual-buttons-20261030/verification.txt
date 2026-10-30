@@ -1,20 +1,39 @@
-npm test
-exit: 0
-tests: 665 passed, 0 failed, 0 skipped
-duration: 42960.318583 ms
+Focused follow-up verification
+==============================
 
-npm run build:pages
-exit: 0
-build version: 046426a7f8d0
+Fixes
+-----
+- Nav tabs no longer carry the generic secondary variant, so their tab hover rule remains effective.
+- Search-picker close control retains its utility variant after adding the close-specific class.
+- Browser checks cover computed hover/focus colors, focus-visible state, original actions, and 44px hit targets.
 
-npm run check:pages
-exit: 0
-result: Pages artifact check passed
+Commands and results
+--------------------
+- npm test
+  exit: 0
+  tests: 665 passed, 0 failed, 0 skipped
+  duration: 43004.7775 ms
+- npm run build:pages
+  exit: 0
+  build version: 7f44ae3c033e
+- npm run check:pages
+  exit: 0
+  result: Pages artifact check passed
+- CONTEXTUAL_BUTTONS_PLAYWRIGHT_MODULE=/Users/kangseokgyu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright node docs/evidence/contextual-buttons-20261030/browser-check.cjs
+  exit: 0
+  scenarios: 7 passed
+  page errors: 0
+- git diff --check
+  exit: 0
 
-git diff --check
-exit: 0
+Regression assertion
+--------------------
+Before rebuilding, the updated browser harness ran against the existing pre-fix dist and failed as expected because the nav tab still had `button--secondary`. After rebuilding from the fix, all nav and search-picker computed-style assertions passed in Chromium.
 
-browser-check.cjs
-exit: 0
-scenarios: 6 passed
-page errors: 0
+Evidence
+--------
+- Nav hover and keyboard focus: browser-results.json, bean-detail-desktop.png, bean-detail-mobile.png.
+- Search-picker close utility color and keyboard focus ring: search-picker-utility-close-mobile.png.
+- Browser script and working Playwright module path: README.md.
+
+The harness serves the project dist with local loopback access. The screenshots use Chromium and in-memory fixture data; iOS Safari, physical devices, and assistive technology were not tested.

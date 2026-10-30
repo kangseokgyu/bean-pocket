@@ -15,17 +15,24 @@ The browser comparison used the recipe detail page with the same fixture data in
 - Direction comparison: [warm outline](direction-warm-outline-1440.png) and [soft sage](direction-soft-sage-1440.png).
 - Keyboard focus on the recipe back control: [mobile](recipe-detail-keyboard-focus-mobile.png).
 - Search utility and pagination: [mobile brew picker](brew-search-pagination-mobile.png).
+- Search-picker utility close control, showing its keyboard focus ring: [mobile record form](search-picker-utility-close-mobile.png).
 - Disabled insight pagination and full-width record pagination: [desktop records page](records-insights-disabled-pagination-desktop.png).
 
-The browser harness verifies the original button labels and `data-action` values, back `data-route` values, 44px minimum hit targets, `:focus-visible`, disabled pending state, wide pagination, horizontal overflow, and browser page errors. Results are in [browser-results.json](browser-results.json). It uses the built app and in-memory fixture data. No showcase page or dependency was added.
+The browser harness verifies the original button labels and `data-action` values, back `data-route` values, 44px minimum hit targets, `:focus-visible`, disabled pending state, wide pagination, horizontal overflow, and browser page errors. It also checks that nav tabs remain transparent on hover and keyboard focus, and that the search-picker close control keeps its utility styling. Results are in [browser-results.json](browser-results.json). It uses the built app and in-memory fixture data. No showcase page or dependency was added.
+
+To rerun after `npm run build:pages` in this environment:
+
+```sh
+CONTEXTUAL_BUTTONS_PLAYWRIGHT_MODULE=/Users/kangseokgyu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright node docs/evidence/contextual-buttons-20261030/browser-check.cjs
+```
 
 ## Verification
 
 - `npm test`: exit 0, 665 passed, 0 failed, 0 skipped.
-- `npm run build:pages`: exit 0, build version `046426a7f8d0`.
+- `npm run build:pages`: exit 0, build version `7f44ae3c033e`.
 - `npm run check:pages`: exit 0.
 - `git diff --check`: exit 0.
-- `browser-check.cjs`: exit 0, six scenario groups passed with no page errors.
+- `browser-check.cjs`: exit 0, seven scenario groups passed with no page errors. Nav hover/focus and close-button utility styles passed on desktop/mobile evidence.
 
 The first sandboxed browser launch could not bind localhost (`listen EPERM`). The final run used the project’s dist-backed fixture harness with local loopback access. A loading fixture alone did not remain disabled after the view applied its global state, so the disabled screenshot uses the app’s real pending state.
 

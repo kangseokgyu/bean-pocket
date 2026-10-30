@@ -523,6 +523,7 @@ export function createAppView(document = globalThis.document, {
     ['home', '홈'], ['beans', '원두'], ['recipes', '레시피'], ['records', '추출 기록'],
   ]) {
     const item = button(document, '', 'button', 'navigate');
+    item.className = 'button';
     item.setAttribute('aria-label', title);
     item.title = title;
     item.append(make(document, 'span', title, 'nav-label'));
@@ -2389,7 +2390,7 @@ function searchPicker(document, title, kind, target, page, placeholder, optional
   const dialogTitle = make(document, 'h2', optionTitle);
   dialogTitle.id = `${dialog.id}-title`;
   const close = button(document, '닫기', 'button', 'close-search-picker', 'utility');
-  close.className = 'button search-picker-close';
+  close.className = 'button button--utility search-picker-close';
   dialogHeader.append(dialogTitle, close);
 
   const search = make(document, 'input');

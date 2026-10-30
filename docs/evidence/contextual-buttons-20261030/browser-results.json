@@ -4,6 +4,11 @@
     "backLabel": "원두 목록으로",
     "hitTargetMin": 44,
     "records": 2,
+    "navTab": "레시피",
+    "secondaryVariant": false,
+    "hoverBackground": "rgba(0, 0, 0, 0)",
+    "keyboardFocusVisible": true,
+    "focusBackground": "rgba(0, 0, 0, 0)",
     "overflow": false
   },
   {
@@ -11,6 +16,11 @@
     "backLabel": "원두 목록으로",
     "hitTargetMin": 44,
     "records": 2,
+    "navTab": "레시피",
+    "secondaryVariant": false,
+    "hoverBackground": "rgba(0, 0, 0, 0)",
+    "keyboardFocusVisible": true,
+    "focusBackground": "rgba(0, 0, 0, 0)",
     "overflow": false
   },
   {
@@ -31,6 +41,15 @@
     "clearHitTargetMin": 44,
     "paginationHitTargetMin": 44,
     "overflow": false
+  },
+  {
+    "scenario": "search-picker-close-mobile",
+    "utilityVariant": true,
+    "defaultBackground": "rgba(0, 0, 0, 0)",
+    "hoverBackground": "rgb(242, 237, 227)",
+    "keyboardFocusVisible": true,
+    "hitTargetMin": 44,
+    "pageErrors": 0
   },
   {
     "scenario": "records-insights-disabled-pagination",

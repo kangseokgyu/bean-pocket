@@ -735,9 +735,12 @@ export function createAppView(document = globalThis.document, {
     activeDelete.resultStatus = result.status ?? 'failed';
     deleteRequestPending = false;
     deleteDialog.setAttribute('aria-busy', 'false');
-    deleteFeedback.hidden = false;
-    deleteFeedback.textContent = result.message ?? (result.status === 'succeeded'
+    const message = result.message ?? (result.status === 'succeeded'
       ? '삭제했습니다.' : '삭제하지 못했습니다. 목록을 새로고침해 주세요.');
+    const hideRecipeSuccess = activeDelete.action === 'delete-recipe'
+      && result.status === 'succeeded' && message === '삭제했습니다.';
+    deleteFeedback.hidden = hideRecipeSuccess;
+    deleteFeedback.textContent = hideRecipeSuccess ? '' : message;
     deleteFeedback.dataset.state = result.status === 'succeeded' ? 'success'
       : ['unknown', 'partial'].includes(result.status) ? 'uncertain' : 'error';
 

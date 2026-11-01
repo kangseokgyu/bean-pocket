@@ -1910,11 +1910,44 @@ test('bean, recipe, and record deletes submit only after the custom dialog is co
     assert.deepEqual(calls.at(-1), [action, { id }]);
     assert.equal(dialog.querySelector('[data-action="confirm-delete"]').querySelector('.button-label').textContent, '삭제 완료');
     assert.equal(dialog.querySelector('[data-action="confirm-delete"]').querySelector('.button-icon').dataset.icon, 'check');
-    assert.match(dialog.querySelector('.delete-confirm-feedback').textContent, /삭제/);
+    const feedback = dialog.querySelector('.delete-confirm-feedback');
+    if (action === 'delete-recipe') {
+      assert.equal(feedback.hidden, true);
+      assert.equal(feedback.textContent, '');
+    } else assert.match(feedback.textContent, /삭제/);
     await clickViewTarget(document, dialog.querySelector('[data-action="cancel-delete"]'));
     assert.equal(dialog.open, false);
   }
   assert.deepEqual(calls, cases.map(([, action, , id]) => [action, { id }]));
+});
+
+test('recipe deletion omits its success message and preserves warnings and errors', async () => {
+  const results = [
+    { status: 'succeeded' },
+    { status: 'succeeded', message: '삭제했습니다.' },
+    { status: 'succeeded', message: '삭제는 성공했지만 최신 목록을 불러오지 못했습니다. 목록을 새로고침해 주세요.' },
+    { status: 'failed', message: '추출 기록에서 사용 중인 레시피는 삭제할 수 없습니다.' },
+    { status: 'unknown', message: '삭제 여부 확인이 필요합니다.' },
+    { status: 'partial', message: '일부 항목의 삭제 결과를 확인해야 합니다.' },
+  ];
+  for (const result of results) {
+    const document = new TestDocument();
+    const view = createAppView(document, { schedule: () => 1 });
+    view.renderData(data());
+    view.renderRoute('/recipes');
+    view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }) });
+    await clickViewTarget(document, document.root.querySelector('[data-action="delete-recipe"]'));
+    assert.equal(view.showDeleteResult(result), true);
+    const dialog = document.root.querySelector('.delete-confirm-dialog');
+    const feedback = dialog.querySelector('.delete-confirm-feedback');
+    const successOnly = result.status === 'succeeded' && (!result.message || result.message === '삭제했습니다.');
+    assert.equal(feedback.hidden, successOnly);
+    assert.equal(feedback.textContent, successOnly ? '' : result.message);
+    if (successOnly) {
+      assert.equal(dialog.querySelector('[data-action="confirm-delete"]').querySelector('.button-label').textContent, '삭제 완료');
+      assert.equal(document.root.querySelector('.app-status').hidden, true);
+    }
+  }
 });
 
 test('bean delete button spinner replaces its progress toast, locks duplicates, and renders failures', async () => {

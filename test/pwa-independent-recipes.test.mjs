@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createSnapshot, validateRecord, validateRecipe } from '../lib/domain.mjs';
-import { decodePage, encodeProperties, relationTargets, schemas } from '../pwa/data/notion-properties.mjs';
+import { decodePage, encodeProperties, optionalProperties, relationTargets, schemas } from '../pwa/data/notion-properties.mjs';
 import { NotionClient } from '../pwa/data/notion-client.mjs';
 import { createReadRepository } from '../pwa/data/read-repository.mjs';
 
@@ -113,6 +113,58 @@ test('기록 snapshot v2는 당시 원두 전체 정보와 레시피 조건·단
   assert.deepEqual(snapshot.recipe.steps, recipe.steps);
   assert.equal(Object.hasOwn(snapshot.recipe, 'beanId'), false);
   assert.equal(Object.hasOwn(snapshot.recipe, 'stats'), false);
+});
+
+test('v3 actual snapshot은 삭제된 출처 레시피 관계가 없어도 수정 조건으로 다시 읽힌다', async () => {
+  const actualRecipe = {
+    id: IDS.recipe,
+    ...validateRecipe(recipeInput({ dose: 16, temperature: 91,
+      steps: [{ name: '뜸', time: '0:00', water: 45 }, { name: '붓기', time: '0:35', water: 205 }] })),
+  };
+  const snapshot = { version: 3, recordGeneration: 'bagless-v1', bean,
+    recipe: actualRecipe, source: { recipeId: IDS.recipe, recordId: IDS.record } };
+  const rows = {
+    beans: [rawPage('beans', IDS.bean, bean)], bags: [], recipes: [], steps: [],
+    records: [rawPage('records', IDS.record, { name: '실제 추출', beanId: IDS.bean, recipeId: null,
+      date: '2026-11-04', rating: 4.7, cupNote: '복숭아', snapshot })],
+  };
+  const repository = createReadRepository({ dataSources: SOURCES,
+    async queryAll(kind) { return structuredClone(rows[kind]); },
+    async getPage() { throw new Error('no live recipe should be requested'); },
+  });
+
+  const result = await repository.readAll();
+  assert.equal(result.records.length, 1);
+  assert.equal(result.records[0].snapshotStatus, 'valid');
+  assert.equal(result.records[0].snapshot.version, 3);
+  assert.equal(result.records[0].recipeId, IDS.recipe);
+  assert.equal(result.records[0].snapshot.recipe.dose, 16);
+  assert.equal(result.records[0].snapshot.recipe.temperature, 91);
+  assert.deepEqual(result.records[0].snapshot.recipe.steps.map(step => [step.seconds, step.water]), [[0, 45], [35, 205]]);
+  assert.equal(result.records[0].rating, 4.7);
+  assert.equal(result.records[0].beanId, IDS.bean);
+});
+
+test('원두 best relation codec은 Notion의 0/1/다중 cardinality를 보존한다', () => {
+  const ids = [IDS.record, 'eeeeeeee-5555-4555-8555-222222222222'];
+  const encoded = encodeProperties('beans', { name: '구지', bestRecordIds: ids });
+  assert.deepEqual(encoded['베스트 추출'].relation, ids.map(id => ({ id })));
+  assert.equal(relationTargets.beans.bestRecordIds, 'records');
+  assert.ok(optionalProperties.beans.includes('bestRecordIds'));
+  const page = rawPage('beans', IDS.bean, { ...bean, bestRecordIds: ids });
+  assert.deepEqual(decodePage('beans', page).bestRecordIds, ids);
+});
+
+test('best relation schema가 없는 기존 원두 데이터베이스도 읽기 검증은 성공하고 기능만 비활성 상태로 둔다', async () => {
+  const properties = Object.fromEntries(Object.values(schemas.beans)
+    .filter(([name]) => name !== '베스트 추출')
+    .map(([name, type]) => [name, { type, [type]: type === 'title' ? [] : [] }]));
+  const client = new NotionClient('synthetic-token', { dataSources: SOURCES, connectionRevision: REVISION,
+    fetchImpl: async () => ({ status: 200, ok: true,
+      async json() { return { object: 'data_source', id: SOURCES.beans, properties }; } }),
+  });
+  assert.equal(await client.verify(['beans']), true);
+  assert.equal(client.beanBestRecordRelationSupported, false);
 });
 
 test('records codec writes the selected bean relation and decodes old rows without it', () => {

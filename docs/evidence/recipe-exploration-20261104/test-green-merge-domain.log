@@ -1,0 +1,166 @@
+TAP version 13
+# Subtest: 누적 시간·간격·물 양을 계산한다
+ok 1 - 누적 시간·간격·물 양을 계산한다
+  ---
+  duration_ms: 3.873125
+  type: 'test'
+  ...
+# Subtest: 필수값과 실제 날짜, 수량, 온도, 시간순서, 총량 검증
+ok 2 - 필수값과 실제 날짜, 수량, 온도, 시간순서, 총량 검증
+  ---
+  duration_ms: 2.505583
+  type: 'test'
+  ...
+# Subtest: 레시피는 원두와 독립적이고 별점 기록에는 명시적 원두가 필요하다
+ok 3 - 레시피는 원두와 독립적이고 별점 기록에는 명시적 원두가 필요하다
+  ---
+  duration_ms: 0.74375
+  type: 'test'
+  ...
+# Subtest: 복사와 당시 조건 스냅샷은 독립적이다
+ok 4 - 복사와 당시 조건 스냅샷은 독립적이다
+  ---
+  duration_ms: 0.446416
+  type: 'test'
+  ...
+# Subtest: copyRecipe와 createSnapshot은 favorite 속성을 상속하거나 스냅샷에 보존하지 않는다
+ok 5 - copyRecipe와 createSnapshot은 favorite 속성을 상속하거나 스냅샷에 보존하지 않는다
+  ---
+  duration_ms: 0.412375
+  type: 'test'
+  ...
+# Subtest: 평균은 현재 generation 기록만 중복 포함해 집계하고 빈 평균은 null
+ok 6 - 평균은 현재 generation 기록만 중복 포함해 집계하고 빈 평균은 null
+  ---
+  duration_ms: 0.303666
+  type: 'test'
+  ...
+# Subtest: 숫자처럼 변환되는 배열과 객체는 수량·별점으로 허용하지 않는다
+ok 7 - 숫자처럼 변환되는 배열과 객체는 수량·별점으로 허용하지 않는다
+  ---
+  duration_ms: 0.414375
+  type: 'test'
+  ...
+# Subtest: 새 snapshot에는 bagless generation marker를 붙이고 marker 없는 기록은 평점 집계에서 제외한다
+ok 8 - 새 snapshot에는 bagless generation marker를 붙이고 marker 없는 기록은 평점 집계에서 제외한다
+  ---
+  duration_ms: 0.249708
+  type: 'test'
+  ...
+# Subtest: 별점은 0.1부터 5.0까지 0.1 단위로 검증하고 숫자로 보존한다
+ok 9 - 별점은 0.1부터 5.0까지 0.1 단위로 검증하고 숫자로 보존한다
+  ---
+  duration_ms: 1.322708
+  type: 'test'
+  ...
+# Subtest: 유효 decimal 별점은 저장 검증과 레시피 평균 집계에서 제외되지 않는다
+ok 10 - 유효 decimal 별점은 저장 검증과 레시피 평균 집계에서 제외되지 않는다
+  ---
+  duration_ms: 1.073625
+  type: 'test'
+  ...
+# Subtest: migration defaults to a read-only test dry-run and proposes a single-property records relation
+ok 11 - migration defaults to a read-only test dry-run and proposes a single-property records relation
+  ---
+  duration_ms: 18.773666
+  type: 'test'
+  ...
+# Subtest: apply preserves every existing property and a second run performs no PATCH
+ok 12 - apply preserves every existing property and a second run performs no PATCH
+  ---
+  duration_ms: 1.1805
+  type: 'test'
+  ...
+# Subtest: migration rejects a conflicting property before any write
+ok 13 - migration rejects a conflicting property before any write
+  ---
+  duration_ms: 0.546083
+  type: 'test'
+  ...
+# Subtest: post-write readback rejects any change to properties that existed before migration
+ok 14 - post-write readback rejects any change to properties that existed before migration
+  ---
+  duration_ms: 1.3835
+  type: 'test'
+  ...
+# Subtest: a lost PATCH response is reconciled by schema readback without issuing a second PATCH
+ok 15 - a lost PATCH response is reconciled by schema readback without issuing a second PATCH
+  ---
+  duration_ms: 0.613
+  type: 'test'
+  ...
+# Subtest: command parsing keeps apply opt-in and restricts target environments
+ok 16 - command parsing keeps apply opt-in and restricts target environments
+  ---
+  duration_ms: 0.189041
+  type: 'test'
+  ...
+# Subtest: 새 레시피는 원두 관계 없이 검증된다
+ok 17 - 새 레시피는 원두 관계 없이 검증된다
+  ---
+  duration_ms: 1.028166
+  type: 'test'
+  ...
+# Subtest: 추출 기록은 선택한 원두와 레시피를 각각 보관하며 봉지 필드가 없다
+ok 18 - 추출 기록은 선택한 원두와 레시피를 각각 보관하며 봉지 필드가 없다
+  ---
+  duration_ms: 2.963166
+  type: 'test'
+  ...
+# Subtest: 기록 snapshot v2는 당시 원두 전체 정보와 레시피 조건·단계를 함께 보존한다
+ok 19 - 기록 snapshot v2는 당시 원두 전체 정보와 레시피 조건·단계를 함께 보존한다
+  ---
+  duration_ms: 0.766333
+  type: 'test'
+  ...
+# Subtest: v3 actual snapshot은 삭제된 출처 레시피 관계가 없어도 수정 조건으로 다시 읽힌다
+ok 20 - v3 actual snapshot은 삭제된 출처 레시피 관계가 없어도 수정 조건으로 다시 읽힌다
+  ---
+  duration_ms: 4.646833
+  type: 'test'
+  ...
+# Subtest: 원두 best relation codec은 Notion의 0/1/다중 cardinality를 보존한다
+ok 21 - 원두 best relation codec은 Notion의 0/1/다중 cardinality를 보존한다
+  ---
+  duration_ms: 0.705583
+  type: 'test'
+  ...
+# Subtest: best relation schema가 없는 기존 원두 데이터베이스도 읽기 검증은 성공하고 기능만 비활성 상태로 둔다
+ok 22 - best relation schema가 없는 기존 원두 데이터베이스도 읽기 검증은 성공하고 기능만 비활성 상태로 둔다
+  ---
+  duration_ms: 1.927209
+  type: 'test'
+  ...
+# Subtest: records codec writes the selected bean relation and decodes old rows without it
+ok 23 - records codec writes the selected bean relation and decodes old rows without it
+  ---
+  duration_ms: 0.645709
+  type: 'test'
+  ...
+# Subtest: legacy v1 snapshot resolves a record bean when both new relations are absent
+ok 24 - legacy v1 snapshot resolves a record bean when both new relations are absent
+  ---
+  duration_ms: 1.653292
+  type: 'test'
+  ...
+# Subtest: unresolved legacy bean remains readable but does not enter current ratings
+ok 25 - unresolved legacy bean remains readable but does not enter current ratings
+  ---
+  duration_ms: 4.298959
+  type: 'test'
+  ...
+# Subtest: legacy data-source verification accepts a missing records.bean relation for read compatibility
+ok 26 - legacy data-source verification accepts a missing records.bean relation for read compatibility
+  ---
+  duration_ms: 34.613792
+  type: 'test'
+  ...
+1..26
+# tests 26
+# suites 0
+# pass 26
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 165.250916

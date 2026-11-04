@@ -98,9 +98,10 @@ export function fakePwaNotion({ missingProperties = {}, strictProjection = false
     const row = rows.find(item => item.id === parts[3]);
     if (!row) return Response.json({}, { status: 404 });
     if (method === 'PATCH') {
-      if (Object.hasOwn(body, 'in_trash')) row.in_trash = body.in_trash;
+      if (body.in_trash !== undefined) row.in_trash = body.in_trash;
       for (const [name, property] of Object.entries(body.properties ?? {})) {
-        row.properties[name] = { type: Object.keys(property)[0], ...property };
+        const type = Object.keys(property)[0];
+        row.properties[name] = { type, ...property, ...(type === 'relation' ? { has_more: false } : {}) };
       }
     }
     return Response.json(row);

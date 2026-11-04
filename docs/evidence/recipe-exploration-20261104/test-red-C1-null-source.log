@@ -1,0 +1,32 @@
+TAP version 13
+# Subtest: Node repository reads v3 null-source snapshots and preserves legacy ID mismatch checks
+not ok 1 - Node repository reads v3 null-source snapshots and preserves legacy ID mismatch checks
+  ---
+  duration_ms: 3.694583
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/1165/AX-1day/test/notion.test.mjs:114:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    'damaged' !== 'valid'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'valid'
+  actual: 'damaged'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/1165/AX-1day/test/notion.test.mjs:133:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 51.223875

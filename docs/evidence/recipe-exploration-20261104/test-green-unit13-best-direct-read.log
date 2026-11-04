@@ -1,0 +1,16 @@
+TAP version 13
+# Subtest: bean detail resolves its persisted best record by ID instead of deriving it from the loaded history page
+ok 1 - bean detail resolves its persisted best record by ID instead of deriving it from the loaded history page
+  ---
+  duration_ms: 6001.077209
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6057.489375

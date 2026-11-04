@@ -1,0 +1,16 @@
+TAP version 13
+# Subtest: lost best relation response is resolved by rereading the bean and record from Notion
+ok 1 - lost best relation response is resolved by rereading the bean and record from Notion
+  ---
+  duration_ms: 3906.524791
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4664.897208

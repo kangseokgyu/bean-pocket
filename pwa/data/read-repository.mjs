@@ -78,12 +78,13 @@ function isDate(value) {
   return value === null || (isRecord(value) && typeof value.start === 'string');
 }
 
-function validateRawProperties(kind, page) {
+function validateRawProperties(kind, page, client) {
   const fields = schemas[kind];
   if (!fields || !isRecord(page.properties)) return false;
 
   for (const [field, [name, type]] of Object.entries(fields)) {
     const property = page.properties[name];
+    if (kind === 'beans' && field === 'bestRecordIds' && client.beanBestRecordRelationSupported === false) continue;
     if (property === undefined && optionalProperties[kind]?.includes(field)) continue;
     if (!isRecord(property) || property.type !== type || !Object.hasOwn(property, type)) return false;
 
@@ -151,13 +152,14 @@ function getRecipeParentCriteria(page) {
 
 function readSnapshot(snapshot, recipeId) {
   if (!isRecord(snapshot)) return null;
-  const snapshotRecipeId = normalizeUuid(snapshot.version === 2 ? snapshot.recipe?.id : snapshot.id);
+  const snapshotRecipeId = normalizeUuid(snapshot.version === 3 ? snapshot.source?.recipeId
+    : snapshot.version === 2 ? snapshot.recipe?.id : snapshot.id);
   if (snapshotRecipeId !== recipeId) return null;
   try {
     const value = validateStoredSnapshot(snapshot);
     return {
       version: value.version,
-      beanId: normalizeUuid(value.version === 2 ? value.bean.id : value.beanId),
+      beanId: normalizeUuid(value.version >= 2 ? value.bean.id : value.beanId),
       value,
     };
   } catch {
@@ -207,6 +209,38 @@ export function createReadRepository(client) {
           value.cursor === undefined) throw new Error();
       return value.cursor;
     } catch { throw safeFailure('invalid-input'); }
+  }
+
+  function propertyNames(kind) {
+    return Object.entries(schemas[kind]).filter(([field]) => {
+      if (kind === 'beans' && field === 'bestRecordIds') return client.beanBestRecordRelationSupported !== false;
+      return true;
+    }).map(([, [name]]) => name);
+  }
+
+  function attachBeanBestState(bean, page) {
+    if (client.beanBestRecordRelationSupported === false) {
+      bean.bestRecordStatus = 'unsupported';
+      bean.bestRecordId = null;
+      return bean;
+    }
+    if (client.beanBestRecordRelationSupported !== true) return bean;
+    const property = page.properties?.['베스트 추출'];
+    if (!isRecord(property) || property.type !== 'relation' || !Array.isArray(property.relation) ||
+        property.has_more !== false || property.relation.some(item => !normalizeUuid(item?.id))) {
+      bean.bestRecordStatus = 'invalid';
+      bean.bestRecordId = null;
+      return bean;
+    }
+    const ids = property.relation.map(item => normalizeUuid(item.id));
+    if (ids.length > 1) {
+      bean.bestRecordStatus = 'invalid';
+      bean.bestRecordId = null;
+    } else {
+      bean.bestRecordStatus = ids.length ? 'checking' : 'none';
+      bean.bestRecordId = ids[0] ?? null;
+    }
+    return bean;
   }
 
   function pageCursor(kind, query, cursor) {
@@ -323,7 +357,7 @@ export function createReadRepository(client) {
     }
     const filter = listFilter('beans', searchText, favoriteOnly);
     const query = { filter, sorts: listSorts('beans'),
-      properties: Object.values(schemas.beans).map(([name]) => name) };
+      properties: propertyNames('beans') };
     const startCursor = queryCursor('beans', query, cursor);
     if (startCursor !== null && (typeof startCursor !== 'string' || !startCursor.trim())) {
       throw safeFailure('invalid-input');
@@ -338,9 +372,10 @@ export function createReadRepository(client) {
       }
       const items = [];
       for (const raw of page.items) {
-        if (!validateRawPage(raw, sourceIds.beans) || !validateRawProperties('beans', raw)) continue;
+        if (!validateRawPage(raw, sourceIds.beans) || !validateRawProperties('beans', raw, client)) continue;
         const bean = decodePage('beans', raw);
         bean.id = normalizeUuid(raw.id);
+        attachBeanBestState(bean, raw);
         rememberRecordParent('beans', bean.id, 'live', bean);
         items.push(bean);
       }
@@ -400,7 +435,7 @@ export function createReadRepository(client) {
     const tainted = new Set();
     for (const page of stepPages) {
       const observed = extractObservedRecipeIds(page).filter(id => selected.has(id));
-      const valid = validateRawPage(page, sourceIds.steps) && validateRawProperties('steps', page);
+      const valid = validateRawPage(page, sourceIds.steps) && validateRawProperties('steps', page, client);
       const recipeId = valid ? extractSingleRelation(page.properties['레시피']) : null;
       if (!recipeId || !selected.has(recipeId)) {
         for (const id of observed) tainted.add(id);
@@ -415,7 +450,7 @@ export function createReadRepository(client) {
   }
 
   async function validateSelectedRecipe(parentPage, stepPages, signal) {
-    if (!validateRawPage(parentPage, sourceIds.recipes) || !validateRawProperties('recipes', parentPage)) {
+    if (!validateRawPage(parentPage, sourceIds.recipes) || !validateRawProperties('recipes', parentPage, client)) {
       throw safeFailure('recipe-unavailable');
     }
     const criteria = getRecipeParentCriteria(parentPage);
@@ -434,7 +469,7 @@ export function createReadRepository(client) {
     let freshPage;
     try { freshPage = await getPage.call(client, criteria.id, { signal }); }
     catch { throw safeFailure('stale-read'); }
-    if (!validateRawPage(freshPage, sourceIds.recipes) || !validateRawProperties('recipes', freshPage) ||
+    if (!validateRawPage(freshPage, sourceIds.recipes) || !validateRawProperties('recipes', freshPage, client) ||
         JSON.stringify(criteria) !== JSON.stringify(getRecipeParentCriteria(freshPage))) {
       throw safeFailure('stale-read');
     }
@@ -454,7 +489,7 @@ export function createReadRepository(client) {
     }
     const filter = listFilter('recipes', searchText, favoriteOnly);
     const query = { filter, sorts: listSorts('recipes'),
-      properties: Object.values(schemas.recipes).map(([name]) => name) };
+      properties: propertyNames('recipes') };
     const startCursor = queryCursor('recipes', query, cursor);
     if (startCursor !== null && (typeof startCursor !== 'string' || !startCursor.trim())) {
       throw safeFailure('invalid-input');
@@ -463,7 +498,7 @@ export function createReadRepository(client) {
       ...(filter ? { filter } : {}), sorts: query.sorts, properties: query.properties, signal });
     const items = [];
     for (const raw of page.items) {
-      if (!validateRawPage(raw, sourceIds.recipes) || !validateRawProperties('recipes', raw)) continue;
+      if (!validateRawPage(raw, sourceIds.recipes) || !validateRawProperties('recipes', raw, client)) continue;
       const recipe = decodePage('recipes', raw);
       recipe.id = normalizeUuid(raw.id);
       recipe.beanId = extractSingleRelation(raw.properties['원두']);
@@ -494,7 +529,7 @@ export function createReadRepository(client) {
     try {
       const filters = uniqueIds.map(id => relationFilter(schemas.steps.recipeId[0], id));
       stepPages = await collectPages('steps', { filter: filters.length === 1 ? filters[0] : { or: filters },
-        properties: Object.values(schemas.steps).map(([name]) => name), signal });
+        properties: propertyNames('steps'), signal });
     } catch {
       return deepFreeze({ items: uniqueIds.map(id => ({ id, status: 'error' })) });
     }
@@ -518,11 +553,12 @@ export function createReadRepository(client) {
     if (!id) throw safeFailure('invalid-input');
     try {
       const raw = await getPage.call(client, id, { signal });
-      if (!validateRawPage(raw, sourceIds.beans) || !validateRawProperties('beans', raw)) {
+      if (!validateRawPage(raw, sourceIds.beans) || !validateRawProperties('beans', raw, client)) {
         throw safeFailure('bean-unavailable');
       }
       const bean = decodePage('beans', raw);
       bean.id = id;
+      attachBeanBestState(bean, raw);
       rememberRecordParent('beans', id, 'live', bean);
       return deepFreeze(bean);
     } catch (error) {
@@ -530,6 +566,42 @@ export function createReadRepository(client) {
       if (error?.httpStatus === 404) throw safeFailure('bean-unavailable');
       throw readError(error);
     }
+  }
+
+  async function getRecord(recordId, { signal } = {}) {
+    const id = normalizeUuid(recordId);
+    if (!id) throw safeFailure('invalid-input');
+    try {
+      const raw = await getPage.call(client, id, { signal });
+      if (!validateRawPage(raw, sourceIds.records) || !validateRawProperties('records', raw, client)) {
+        throw safeFailure('record-unavailable');
+      }
+      const record = currentRawRecordValue(raw);
+      if (!record) throw safeFailure('record-unavailable');
+      return deepFreeze(record);
+    } catch (error) {
+      if (safeFailures.has(error)) throw error;
+      if (error?.httpStatus === 404) throw safeFailure('record-unavailable');
+      throw readError(error);
+    }
+  }
+
+  async function resolveBeanBestRecord(bean, { signal } = {}) {
+    if (!isRecord(bean) || !normalizeUuid(bean.id)) return deepFreeze({ status: 'invalid', record: null });
+    if (bean.bestRecordStatus !== 'checking' || !normalizeUuid(bean.bestRecordId)) {
+      return deepFreeze({ status: bean.bestRecordStatus ?? 'unsupported', record: null });
+    }
+    let record;
+    try { record = await getRecord(bean.bestRecordId, { signal }); }
+    catch (error) {
+      return deepFreeze({ status: error?.httpStatus === 404 || error?.code === 'record-unavailable'
+        ? 'inaccessible' : 'error', record: null });
+    }
+    if (!isCurrentRecord(record) || record.beanId !== normalizeUuid(bean.id) ||
+        record.beanResolution === 'needs-confirmation') {
+      return deepFreeze({ status: 'invalid', record: null });
+    }
+    return deepFreeze({ status: 'ready', record });
   }
 
   async function getRecipeDetail(recipeId, { signal } = {}) {
@@ -542,7 +614,7 @@ export function createReadRepository(client) {
       throw readError(error);
     }
     const stepPages = await collectPages('steps', { filter: relationFilter(schemas.steps.recipeId[0], id),
-      properties: Object.values(schemas.steps).map(([name]) => name), signal });
+      properties: propertyNames('steps'), signal });
     return deepFreeze(await validateSelectedRecipe(parent, stepPages, signal));
   }
 
@@ -569,7 +641,7 @@ export function createReadRepository(client) {
       entry.lastUsedAt = now;
       state = structuredClone(entry.state);
     }
-    const properties = Object.values(schemas.records).map(([name]) => name);
+    const properties = propertyNames('records');
     const seen = new Set(state.seenIds);
     const queued = new Set(state.pendingRaw.map(page => normalizeUuid(page.id)));
 
@@ -624,8 +696,8 @@ export function createReadRepository(client) {
     const decoded = decodePage('records', page);
     const recipeRelation = relationState(page.properties['레시피']);
     const recipeIds = recipeRelation.ids;
-    const snapshotRecipeId = normalizeUuid(decoded.snapshot?.version === 2
-      ? decoded.snapshot.recipe?.id : decoded.snapshot?.id);
+    const snapshotRecipeId = normalizeUuid(decoded.snapshot?.version === 3 ? decoded.snapshot.source?.recipeId
+      : decoded.snapshot?.version === 2 ? decoded.snapshot.recipe?.id : decoded.snapshot?.id);
     const recipeId = recipeIds.length === 1 ? recipeIds[0]
       : recipeIds.length === 0 ? snapshotRecipeId
         : recipeIds.includes(snapshotRecipeId) ? snapshotRecipeId : null;
@@ -642,7 +714,7 @@ export function createReadRepository(client) {
     decoded.beanId = beanId;
     decoded.beanResolution = !beanId ? 'needs-confirmation'
       : beanRelation.ids.includes(beanId) ? 'relation'
-        : snapshot.version === 2 ? 'snapshot-v2' : 'snapshot-v1';
+        : snapshot.version >= 2 ? `snapshot-v${snapshot.version}` : 'snapshot-v1';
     decoded.relationEvidence = { bean: beanRelation, recipe: recipeRelation,
       legacyRecipeBean: { ids: [], complete: true, present: false } };
     if (recipeIds.length > 1 || !recipeRelation.complete) decoded.recipeCandidates = recipeIds;
@@ -651,8 +723,8 @@ export function createReadRepository(client) {
     decoded.snapshotStatus = 'valid';
     const issues = recordValidationIssues(decoded);
     if (issues.length) decoded.invalidFields = issues;
-    const snapshotBean = snapshot.value.version === 2 ? snapshot.value.bean : null;
-    const snapshotRecipe = snapshot.value.version === 2 ? snapshot.value.recipe : snapshot.value;
+    const snapshotBean = snapshot.value.version >= 2 ? snapshot.value.bean : null;
+    const snapshotRecipe = snapshot.value.version >= 2 ? snapshot.value.recipe : snapshot.value;
     decoded.beanNameStatus = recordParentNameStatus('beans', beanId, snapshotBean?.name);
     decoded.recipeNameStatus = recordParentNameStatus('recipes', recipeId, snapshotRecipe?.name);
     return decoded;
@@ -680,7 +752,7 @@ export function createReadRepository(client) {
       for (const id of batch) {
         try {
           const raw = await getPage.call(client, id, { signal });
-          if (!validateRawPage(raw, sourceIds[kind]) || !validateRawProperties(kind, raw) ||
+          if (!validateRawPage(raw, sourceIds[kind]) || !validateRawProperties(kind, raw, client) ||
               normalizeUuid(raw.id) !== id) {
             statuses[id] = 'error';
             continue;
@@ -723,7 +795,7 @@ export function createReadRepository(client) {
       await getRecipeDetail(id, { signal });
     }
     try {
-      const rows = await collectPages('records', { properties: Object.values(schemas.records).map(([name]) => name), signal });
+      const rows = await collectPages('records', { properties: propertyNames('records'), signal });
       const current = rows.map(currentRawRecordValue).filter(Boolean);
       const stats = summarizeRatings(current, id);
       return deepFreeze({ status: 'ready', complete: true, ...stats });
@@ -739,7 +811,7 @@ export function createReadRepository(client) {
     }
     const selected = new Set(ids.map(normalizeUuid));
     try {
-      const rows = await collectPages('records', { properties: Object.values(schemas.records).map(([name]) => name), signal });
+      const rows = await collectPages('records', { properties: propertyNames('records'), signal });
       const counts = Object.fromEntries([...selected].map(id => [id, 0]));
       for (const page of rows) {
         const record = currentRawRecordValue(page);
@@ -801,9 +873,10 @@ export function createReadRepository(client) {
     const beans = [];
     const beanIdSet = new Set();
     for (const page of rawData.beans) {
-      if (!validateRawPage(page, sourceIds.beans) || !validateRawProperties('beans', page)) continue;
+      if (!validateRawPage(page, sourceIds.beans) || !validateRawProperties('beans', page, client)) continue;
       const decoded = decodePage('beans', page);
       decoded.id = normalizeUuid(page.id);
+      attachBeanBestState(decoded, page);
       beans.push(decoded);
       beanIdSet.add(decoded.id);
     }
@@ -811,7 +884,7 @@ export function createReadRepository(client) {
     // 3. Raw Recipes & Parent criteria
     const rawRecipeCandidates = [];
     for (const page of rawData.recipes) {
-      if (!validateRawPage(page, sourceIds.recipes) || !validateRawProperties('recipes', page)) {
+      if (!validateRawPage(page, sourceIds.recipes) || !validateRawProperties('recipes', page, client)) {
         excluded.recipes++;
         continue;
       }
@@ -824,7 +897,7 @@ export function createReadRepository(client) {
     const taintedRecipeIds = new Set();
     for (const page of rawData.steps) {
       const observedRecipeIds = extractObservedRecipeIds(page);
-      const validPage = validateRawPage(page, sourceIds.steps) && validateRawProperties('steps', page);
+      const validPage = validateRawPage(page, sourceIds.steps) && validateRawProperties('steps', page, client);
       const recipeRelation = validPage ? extractSingleRelation(page.properties['레시피']) : null;
       if (!recipeRelation) {
         // A rejected row cannot count as a step. Its raw relation IDs still
@@ -879,7 +952,7 @@ export function createReadRepository(client) {
       } catch {
         throw safeFailure('stale-read');
       }
-      if (!validateRawPage(freshPage, sourceIds.recipes) || !validateRawProperties('recipes', freshPage)) {
+      if (!validateRawPage(freshPage, sourceIds.recipes) || !validateRawProperties('recipes', freshPage, client)) {
         throw safeFailure('stale-read');
       }
       const freshCriteria = getRecipeParentCriteria(freshPage);
@@ -898,7 +971,8 @@ export function createReadRepository(client) {
       const recipeRelationState = relationState(page.properties['레시피']);
       const recipeIds = recipeRelationState.ids;
       const decoded = decodePage('records', page);
-      const snapshotRecipeId = normalizeUuid(decoded.snapshot?.version === 2 ? decoded.snapshot.recipe?.id : decoded.snapshot?.id);
+      const snapshotRecipeId = normalizeUuid(decoded.snapshot?.version === 3 ? decoded.snapshot.source?.recipeId
+        : decoded.snapshot?.version === 2 ? decoded.snapshot.recipe?.id : decoded.snapshot?.id);
       const recipeRelation = recipeIds.length === 1 ? recipeIds[0]
         : recipeIds.length === 0 ? snapshotRecipeId
           : recipeIds.includes(snapshotRecipeId) ? snapshotRecipeId : null;
@@ -908,7 +982,7 @@ export function createReadRepository(client) {
       decoded.snapshotStatus = snapshot ? 'valid' : snapshotWasPresent ? 'damaged' : 'missing';
       const beanRelationState = relationState(page.properties['원두']);
       const snapshotBeanId = snapshot?.beanId ?? null;
-      const legacyRecipeIds = snapshot?.version === 2 ? []
+      const legacyRecipeIds = snapshot?.version >= 2 ? []
         : recipeIds.length ? recipeIds : recipeRelation ? [recipeRelation] : [];
       const legacyRecipeBeanState = combineRelationStates(legacyRecipeIds
         .map(id => recipeBeanRelations.get(id)).filter(Boolean));
@@ -930,7 +1004,7 @@ export function createReadRepository(client) {
       const beanResolution = candidates.length !== 1 || relationAmbiguous || !beanIsKnown
         ? 'needs-confirmation'
         : rowBeanIds.includes(selectedBeanId) ? 'relation'
-          : snapshot?.version === 2 ? 'snapshot-v2'
+          : snapshot?.version >= 2 ? `snapshot-v${snapshot.version}`
             : snapshot?.version === 1 && snapshotBeanId ? 'snapshot-v1'
               : 'legacy-recipe';
       decoded.id = normalizeUuid(page.id);
@@ -971,7 +1045,7 @@ export function createReadRepository(client) {
     return found;
   }
 
-  return Object.freeze({ listBeans, listRecipeSummaries, validateRecipeSummaries, getBean, getRecipeDetail,
+  return Object.freeze({ listBeans, listRecipeSummaries, validateRecipeSummaries, getBean, getRecord, resolveBeanBestRecord, getRecipeDetail,
     listRecords, hydrateRecordParents, invalidateRecordParentCache, searchOptions,
     getRecipeStats, getBeanRecordCounts, readAll, readRecipeForSnapshot });
 }

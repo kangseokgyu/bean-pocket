@@ -143,7 +143,7 @@ const makeSpinner = document => {
 };
 
 const idOf = value => String(value ?? '');
-const FORM_KINDS = new Set(['beans', 'recipes', 'records']);
+const FORM_KINDS = new Set(['beans', 'recipes', 'records', 'brews']);
 const IN_PROGRESS_STATUS_TYPES = new Set(['startup-checking', 'checking', 'saving', 'loading']);
 const COMPLETED_STATUS_TYPES = new Set(['saved', 'connected', 'resolved', 'loaded']);
 const STATUS_DISPLAY_MS = 1000;
@@ -308,6 +308,11 @@ export function createAppView(document = globalThis.document, {
   let insightRecipeFilter = '';
   let insightRatingFilter = '';
   let insightComparisonSort = 'date-desc';
+  let insightCompareRoute = '';
+  let insightCompareBeanId = '';
+  let insightCompareLeftId = '';
+  let insightCompareRightId = '';
+  let insightCompareRouteDefaultsPending = false;
   let recordManagementOpen = false;
   let beanFormOpen = false;
   let recipeFormOpen = routePath(route) === '/recipes/new';
@@ -660,10 +665,46 @@ export function createAppView(document = globalThis.document, {
     bindEntryDialogCancels();
     syncStatusToast();
   }
+  function syncInsightComparisonSelection() {
+    if (routePath(route) !== '/records') {
+      insightCompareRoute = '';
+      insightCompareBeanId = '';
+      insightCompareLeftId = '';
+      insightCompareRightId = '';
+      insightCompareRouteDefaultsPending = false;
+      return;
+    }
+    if (insightCompareRoute !== route) {
+      const params = routeParams(route);
+      insightCompareLeftId = params.get('compareSourceRecordId') || params.get('compareLeftId') || '';
+      insightCompareRightId = params.get('compareRecordId') || params.get('compareRightId') || '';
+      insightCompareRouteDefaultsPending = !!(insightCompareLeftId && insightCompareRightId);
+      insightCompareRoute = route;
+      insightCompareBeanId = currentData?.recordInsights?.selectedBeanId ?? '';
+    }
+    const state = currentData?.recordInsights;
+    const selectedBeanId = state?.selectedBeanId ?? '';
+    const records = state?.comparisonRecords ?? [];
+    if (insightCompareBeanId && selectedBeanId && insightCompareBeanId !== selectedBeanId &&
+        !insightCompareRouteDefaultsPending) {
+      insightCompareLeftId = '';
+      insightCompareRightId = '';
+    }
+    insightCompareBeanId = selectedBeanId;
+    const availableIds = new Set(records.map(record => record.id));
+    if (insightCompareRouteDefaultsPending && availableIds.has(insightCompareLeftId) &&
+        availableIds.has(insightCompareRightId)) insightCompareRouteDefaultsPending = false;
+    if (!insightCompareLeftId && !insightCompareRightId && records.length >= 2) {
+      insightCompareLeftId = records.at(-1).id;
+      insightCompareRightId = records[0].id;
+    }
+  }
   function renderCurrentContent() {
+    syncInsightComparisonSelection();
     renderPane(content, currentData, document, route, drafts, optionPages,
       beanFormOpen, recipeFormOpen, recordFormOpen, optionStates, insightRecipeFilter, insightRatingFilter,
-      insightComparisonSort, recordManagementOpen, open => { recordManagementOpen = open; }, currentState.connectionRevision);
+      insightComparisonSort, insightCompareLeftId, insightCompareRightId, recordManagementOpen,
+      open => { recordManagementOpen = open; }, currentState.connectionRevision);
     finishContentRender();
     applyViewState();
   }
@@ -1005,6 +1046,7 @@ export function createAppView(document = globalThis.document, {
     renderData(nextData) {
       saveActiveDraft(content, drafts);
       currentData = nextData;
+      syncInsightComparisonSelection();
       const insightRecipeOptions = currentData.recordInsights?.recipeOptions;
       if (insightRecipeFilter && Array.isArray(insightRecipeOptions) &&
           !insightRecipeOptions.some(recipe => recipe.id === insightRecipeFilter)) insightRecipeFilter = '';
@@ -1022,9 +1064,11 @@ export function createAppView(document = globalThis.document, {
         if (routeNeedsRender) {
           // Refresh the list around the live top-layer dialog without detaching it.
           const refreshed = make(document, 'section');
+          syncInsightComparisonSelection();
           renderPane(refreshed, currentData, document, route, new Map(), optionPages,
             beanFormOpen, recipeFormOpen, recordFormOpen, optionStates, insightRecipeFilter, insightRatingFilter,
-            insightComparisonSort, recordManagementOpen, open => { recordManagementOpen = open; }, currentState.connectionRevision);
+            insightComparisonSort, insightCompareLeftId, insightCompareRightId, recordManagementOpen,
+            open => { recordManagementOpen = open; }, currentState.connectionRevision);
           if (activeEntryKind === 'records') {
             hydrateRecordPickers(activeDialog.querySelector('form'),
               refreshed.querySelector('form[data-form="records"]'), currentData, optionPages, optionStates, document);
@@ -1201,7 +1245,17 @@ export function createAppView(document = globalThis.document, {
         unresolved, actions, document, view, openDeleteDialog, closeDeleteDialog, submitDelete,
         setInsightRecipeFilter(value) { insightRecipeFilter = value; if (currentData) view.renderData(currentData); },
         setInsightRatingFilter(value) { insightRatingFilter = value; if (currentData) view.renderData(currentData); },
-        setInsightComparisonSort(value) { insightComparisonSort = value; if (currentData) view.renderData(currentData); } });
+        setInsightComparisonSort(value) { insightComparisonSort = value; if (currentData) view.renderData(currentData); },
+        setInsightCompareLeft(value) {
+          insightCompareLeftId = value;
+          insightCompareRouteDefaultsPending = false;
+          if (currentData) view.renderData(currentData);
+        },
+        setInsightCompareRight(value) {
+          insightCompareRightId = value;
+          insightCompareRouteDefaultsPending = false;
+          if (currentData) view.renderData(currentData);
+        } });
       bindPullToRefresh({ page, document, actions });
     },
   };
@@ -1400,7 +1454,8 @@ function bindPullToRefresh({ page, document, actions }) {
 function applyState(page, state) {
   const globallyDisabled = state.frozen || state.pending;
   page.querySelectorAll('input,button,select,textarea').forEach(control => {
-    control.disabled = globallyDisabled || control.dataset.optionReady === 'false';
+    control.disabled = globallyDisabled || control.dataset.optionReady === 'false' ||
+      control.dataset.actionDisabled === 'true';
   });
   if (globallyDisabled || !state.unresolved) return;
   page.querySelectorAll('[data-action="delete-bean"], [data-action="delete-recipe"], [data-action="delete-record"]').forEach(control => { control.disabled = true; });
@@ -1499,10 +1554,13 @@ function renderUnavailableRoute(pane, document, route, error) {
   pane.append(make(document, 'h1', '선택한 항목을 확인할 수 없습니다.'));
   pane.append(make(document, 'p', error === 'recipe-unavailable'
     ? '레시피가 없거나 추출 단계가 유효하지 않습니다. 최신 목록에서 다시 선택해 주세요.'
-    : error === 'bean-required' ? '추출에 사용할 원두를 먼저 선택해 주세요.'
-      : '선택한 원두가 없거나 주소가 올바르지 않습니다. 원두 목록을 새로 확인해 주세요.', 'record-warning'));
+    : error === 'record-unavailable' ? '기록의 실제 조건을 확인할 수 없습니다. 기록 목록을 새로 확인해 주세요.'
+      : error === 'bean-required' ? '추출에 사용할 원두를 먼저 선택해 주세요.'
+        : '선택한 원두가 없거나 주소가 올바르지 않습니다. 원두 목록을 새로 확인해 주세요.', 'record-warning'));
   const beanId = params.get('beanId');
-  if (path === '/brew/run' && beanId) {
+  if (path === '/brew/run' && error === 'record-unavailable') {
+    pane.append(routeButton(document, '기록 목록으로', '/records', 'navigate', 'back'));
+  } else if (path === '/brew/run' && beanId) {
     pane.append(routeButton(document, '레시피 다시 선택', `/brew/recipe?beanId=${encodeURIComponent(beanId)}`, 'navigate', 'back'));
   } else if (path === '/records/new' && beanId) {
     pane.append(routeButton(document, '추출 다시 선택', `/brew/recipe?beanId=${encodeURIComponent(beanId)}`, 'navigate', 'back'));
@@ -1679,55 +1737,142 @@ function makeBrewPourTable(document, steps) {
   return wrap;
 }
 
+function recipeFromRecord(record) {
+  if (record?.snapshotStatus !== 'valid') return null;
+  return record.snapshot?.version >= 2 ? record.snapshot.recipe
+    : record.snapshot?.version === 1 ? record.snapshot : null;
+}
+
+function recipeIdFromRecord(record) {
+  const snapshot = record?.snapshot;
+  if (snapshot?.version === 3) return snapshot.source?.recipeId ?? null;
+  if (snapshot?.version === 2) return snapshot.recipe?.id ?? record.recipeId ?? null;
+  return snapshot?.version === 1 ? snapshot.id ?? record.recipeId ?? null : record?.recipeId ?? null;
+}
+
 function renderBrewRun(pane, data, document, route, params) {
-  const beanId = params.get('beanId');
-  const recipeId = params.get('recipeId');
+  const sourceRecordId = params.get('recordId') || params.get('sourceRecordId') || '';
+  const sourceRecord = sourceRecordId ? data.records?.find(item => item.id === sourceRecordId) : null;
+  const beanId = params.get('beanId') || sourceRecord?.beanId;
   const bean = data.beans?.find(item => item.id === beanId);
-  const recipe = data.recipes?.find(item => item.id === recipeId);
+  const recipeId = sourceRecord ? recipeIdFromRecord(sourceRecord) : params.get('recipeId');
+  const recipe = sourceRecord ? recipeFromRecord(sourceRecord) : data.recipes?.find(item => item.id === recipeId);
   if (!bean || !recipe || !Array.isArray(recipe.steps) || !recipe.steps.length) {
     renderUnavailableRoute(pane, document, route, 'recipe-unavailable');
     return;
   }
-  pane.append(make(document, 'h1', '추출 안내'));
+  pane.append(make(document, 'h1', sourceRecord ? '기록 조건으로 다시 추출' : '추출 준비'));
   pane.append(
     brewSelectionSummary(document, 'bean', '원두', bean.name, '원두 변경',
       `/brew/bean?selectedBeanId=${encodeURIComponent(bean.id)}`, 'back-to-beans'),
-    brewSelectionSummary(document, 'recipe', '레시피', recipe.name, '레시피 변경',
-      `/brew/recipe?beanId=${encodeURIComponent(bean.id)}&selectedRecipeId=${encodeURIComponent(recipe.id)}`, 'back-to-recipes'),
+    brewSelectionSummary(document, 'recipe', '출처 조건', recipe.name || '기록 당시 조건', '레시피 선택',
+      `/brew/recipe?beanId=${encodeURIComponent(bean.id)}&selectedRecipeId=${encodeURIComponent(recipeId ?? '')}`, 'back-to-recipes'),
   );
-
-  const conditionGroups = [
-    brewConditionGroup(document, '추출', [
-      ['드리퍼', recipe.dripper], ['원두량', recipe.dose === undefined || recipe.dose === null || recipe.dose === '' ? '' : `${recipe.dose}g`],
-      ['물 온도', recipe.temperature === undefined || recipe.temperature === null || recipe.temperature === '' ? '' : `${recipe.temperature}℃`],
-      ['총 물 양', recipe.totalWater === undefined || recipe.totalWater === null || recipe.totalWater === '' ? '' : `${recipe.totalWater}g`],
-    ]),
-    brewConditionGroup(document, '분쇄', [
-      ['분쇄도', recipe.grind], ['그라인더', recipe.grinder], ['그라인더 설정', recipe.grinderSetting],
-    ]),
-  ].filter(Boolean);
-  if (conditionGroups.length) {
-    const section = make(document, 'section', undefined, 'brew-condition-section');
-    section.append(make(document, 'h2', '추출 조건'));
-    const groups = make(document, 'div', undefined, 'brew-condition-groups');
-    groups.append(...conditionGroups);
-    section.append(groups);
-    pane.append(section);
+  pane.append(make(document, 'p', '이번 추출에 실제로 사용할 조건을 확인하고 바꾸세요. 저장된 기록에는 아래 전체 조건이 들어갑니다.', 'brew-edit-intro'));
+  const form = formBase(document, 'brews', '이번 추출과 평가 기록');
+  form.dataset.draftRoute = route;
+  const hidden = (name, value) => {
+    const input = make(document, 'input');
+    input.type = 'hidden'; input.name = name; input.value = value ?? '';
+    return input;
+  };
+  const sourceId = sourceRecord ? recipeIdFromRecord(sourceRecord) : recipeId;
+  form.append(hidden('beanId', bean.id), hidden('sourceRecipeId', sourceId),
+    hidden('sourceRecordId', sourceRecord?.id ?? params.get('sourceRecordId') ?? ''));
+  addFieldset(document, form, '추출 조건', [
+    ['조건 이름', 'name', 'text', true],
+    ['드리퍼', 'dripper', 'text', false],
+    ['원두량 (g)', 'dose', 'number', true, { min: 0, step: 'any' }],
+    ['분쇄도', 'grind', 'text', false],
+    ['그라인더', 'grinder', 'text', false],
+    ['그라인더 설정', 'grinderSetting', 'text', false],
+    ['분쇄 입자 (μm)', 'microns', 'number', false, { min: 0, step: 'any' }],
+    ['물 온도 (℃)', 'temperature', 'number', true, { min: 0, max: 100, step: 'any' }],
+    ['총 물 양 (g)', 'totalWater', 'number', true, { min: 0, step: 'any' }],
+  ], 'brew-condition-fields');
+  form.elements.name.value = recipe.name ?? '';
+  for (const key of ['dripper', 'dose', 'grind', 'grinder', 'grinderSetting', 'microns', 'temperature', 'totalWater']) {
+    form.elements[key].value = recipe[key] ?? '';
   }
+  form.append(label(document, '추출 가이드', 'extractionGuide', 'textarea', false, { rows: 3 }));
+  form.elements.extractionGuide.value = recipe.extractionGuide ?? '';
+  const changes = make(document, 'p', '공용 레시피 조건 그대로', 'brew-condition-changes');
+  changes.dataset.brewChanges = '';
+  changes.setAttribute('aria-live', 'polite');
+  form.append(changes);
+  const stages = make(document, 'section', undefined, 'brew-edit-stages');
+  stages.append(make(document, 'h3', '물 붓기 단계'));
+  const stageList = make(document, 'div', undefined, 'brew-stage-list');
+  stageList.dataset.brewStages = '';
+  stages.append(stageList, button(document, '단계 추가', 'button', 'add-brew-stage', 'utility'));
+  const total = make(document, 'p', '', 'brew-stage-total');
+  total.dataset.brewStageTotal = '';
+  total.setAttribute('aria-live', 'polite');
+  stages.append(total);
+  form.append(stages);
+  recipe.steps.forEach((step, index) => addBrewStage(document, stageList, step, index));
+  form.append(make(document, 'h3', '추출 평가'));
+  form.append(label(document, '추출 날짜', 'date', 'date', true));
+  form.append(createStarRating(document));
+  form.append(label(document, '컵노트 (선택)', 'cupNote', 'textarea', false));
+  form.elements.date.value = params.get('date') && isIsoDate(params.get('date')) ? params.get('date') : localDate();
+  form.dataset.initialConditions = JSON.stringify(brewRecipeInput(form));
+  addFormActions(document, form);
+  const save = form.querySelector('[data-entry-submit]');
+  if (save) { save.dataset.idleLabel = '추출 평가 저장'; setActionButton(save, '추출 평가 저장', 'idle'); }
+  updateBrewConditions(form);
+  pane.append(form);
+}
 
-  const pours = make(document, 'section', undefined, 'brew-pour-section');
-  pours.append(make(document, 'h2', '물 붓기'), makeBrewPourTable(document, recipe.steps));
-  pane.append(pours);
-  if (typeof recipe.extractionGuide === 'string' && recipe.extractionGuide.trim()) {
-    const guide = make(document, 'section', undefined, 'brew-guide-section');
-    guide.append(make(document, 'h2', '추출 가이드'), make(document, 'p', recipe.extractionGuide, 'brew-extraction-guide'));
-    pane.append(guide);
-  }
-  const complete = button(document, '추출 완료', 'button', 'complete-brew', 'primary');
-  complete.className = 'button button--primary primary-button';
-  complete.dataset.beanId = bean.id;
-  complete.dataset.recipeId = recipe.id;
-  pane.append(complete);
+function addBrewStage(document, list, step = {}, index = list.children.length) {
+  const row = make(document, 'fieldset', undefined, 'brew-stage-row');
+  row.append(make(document, 'legend', `단계 ${index + 1}`));
+  row.append(label(document, '단계 이름', 'stepName', 'text', false));
+  row.append(label(document, '누적 시간 (분:초)', 'time', 'text', true,
+    { placeholder: index === 0 ? '0:00' : '0:30', inputMode: 'text', pattern: '\\d+:[0-5]\\d' }));
+  row.append(label(document, '이번 물 양 (g)', 'water', 'number', true, { min: 0, step: 'any' }));
+  const remove = button(document, '단계 제거', 'button', 'remove-brew-stage', 'utility');
+  remove.disabled = index === 0;
+  row.append(remove);
+  row.querySelector('[name="stepName"]').value = step.name ?? '';
+  row.querySelector('[name="time"]').value = formatTime(step.seconds ?? 0);
+  row.querySelector('[name="water"]').value = step.water ?? '';
+  list.append(row);
+  return row;
+}
+
+function brewRecipeInput(form) {
+  return {
+    name: form.elements.name.value,
+    dripper: form.elements.dripper.value,
+    dose: form.elements.dose.value,
+    grind: form.elements.grind.value,
+    grinder: form.elements.grinder.value,
+    grinderSetting: form.elements.grinderSetting.value,
+    microns: form.elements.microns.value,
+    temperature: form.elements.temperature.value,
+    totalWater: form.elements.totalWater.value,
+    extractionGuide: form.elements.extractionGuide.value,
+    steps: [...form.querySelectorAll('.brew-stage-row')].map(row => ({
+      name: row.querySelector('[name="stepName"]').value,
+      time: row.querySelector('[name="time"]').value,
+      water: row.querySelector('[name="water"]').value,
+    })),
+  };
+}
+
+function updateBrewConditions(form) {
+  const actual = brewRecipeInput(form);
+  const initial = JSON.parse(form.dataset.initialConditions || '{}');
+  const labels = { name: '조건 이름', dripper: '드리퍼', dose: '원두량', grind: '분쇄도', grinder: '그라인더',
+    grinderSetting: '그라인더 설정', microns: '분쇄 입자', temperature: '물 온도', totalWater: '총 물 양',
+    extractionGuide: '추출 가이드', steps: '물 붓기 단계' };
+  const changed = Object.keys(labels).filter(key => JSON.stringify(actual[key]) !== JSON.stringify(initial[key]));
+  const status = form.querySelector('[data-brew-changes]');
+  if (status) status.textContent = changed.length ? `공용 레시피에서 변경: ${changed.map(key => labels[key]).join(', ')}` : '공용 레시피 조건 그대로';
+  const sum = actual.steps.reduce((total, step) => total + (Number(step.water) || 0), 0);
+  const total = form.querySelector('[data-brew-stage-total]');
+  if (total) total.textContent = `단계 물 합 ${Number(sum.toFixed(3))}g · 총 물 ${actual.totalWater || '—'}g`;
 }
 
 function renderBrewFlow(parent, data, document, route, optionPages) {
@@ -1756,6 +1901,7 @@ function renderBrewFlow(parent, data, document, route, optionPages) {
 function renderPane(parent, data, document, route = '/home', drafts = new Map(), optionPages = new Map(),
   beanFormOpen = false, recipeFormOpen = false, recordFormOpen = false, optionStates = new Map(),
   insightRecipeFilter = '', insightRatingFilter = '', insightComparisonSort = 'date-desc',
+  insightCompareLeftId = '', insightCompareRightId = '',
   recordManagementOpen = false, setRecordManagementOpen = () => {}, connectionRevision = null) {
   const path = routePath(route);
   const parts = path.split('/').filter(Boolean);
@@ -1863,7 +2009,8 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
       pane.append(makeEntryDialog(document, 'records', form, recordFormOpen));
     } else {
       renderRecords(pane, data, document, recordFormOpen, optionPages, optionStates, route,
-        insightRecipeFilter, insightRatingFilter, insightComparisonSort, recordManagementOpen, setRecordManagementOpen,
+        insightRecipeFilter, insightRatingFilter, insightComparisonSort, insightCompareLeftId,
+        insightCompareRightId, recordManagementOpen, setRecordManagementOpen,
         connectionRevision);
     }
   } else {
@@ -1993,6 +2140,25 @@ function renderBeanDetail(pane, data, document, beanId) {
   const information = beanDetailSection(document, '원두 정보');
   information.append(beanOverview(document, bean));
   detail.append(information);
+  const bestSection = beanDetailSection(document, '사용자 베스트 추출', 'bean-user-best');
+  if (bean.bestRecordStatus === 'ready' && bean.bestRecord) {
+    bestSection.append(make(document, 'p', '이 원두에서 직접 베스트로 지정한 추출입니다.', 'bean-best-description'));
+    bestSection.append(recordCard(document, bean.bestRecord, data));
+  } else {
+    const message = bean.bestRecordStatus === 'none' ? '아직 사용자 베스트 추출을 지정하지 않았습니다.'
+      : bean.bestRecordStatus === 'unsupported'
+        ? '베스트 추출을 쓰려면 원두 데이터베이스에 ‘베스트 추출’ 관계 속성을 추가해야 합니다. 기록 조회와 추출 저장은 계속 사용할 수 있습니다.'
+        : bean.bestRecordStatus === 'invalid'
+          ? '베스트 추출 관계가 여러 개이거나 형식이 올바르지 않습니다. Notion 관계를 확인해 주세요.'
+          : bean.bestRecordStatus === 'inaccessible'
+            ? '지정한 기록을 읽을 수 없습니다. 삭제되었거나 접근할 수 없는 상태일 수 있습니다.'
+            : bean.bestRecordStatus === 'error'
+              ? '베스트 추출 상태를 확인하지 못했습니다. 다시 불러와 주세요.'
+              : '베스트 추출 상태를 확인할 수 없습니다. 다시 불러와 주세요.';
+    bestSection.append(make(document, 'p', message,
+      ['invalid', 'inaccessible', 'error'].includes(bean.bestRecordStatus) ? 'record-warning' : 'muted-note'));
+  }
+  detail.append(bestSection);
   const records = currentRecords(data).filter(record => record.beanId === bean.id).sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
   const history = beanDetailSection(document, '이 원두의 추출 기록', 'bean-records');
   if (!records.length) history.append(make(document, 'p', data.screen?.hasMore
@@ -2043,9 +2209,10 @@ function recipeCard(document, recipe, data, detailed = false) {
   }
 
   const stats = recipe.stats ?? { count: 0, average: null };
-  article.append(make(document, 'p', stats.status === 'loading' ? '평가 통계를 확인 중입니다.'
-    : stats.status === 'error' ? '평가 통계를 확인하지 못했습니다.'
-      : stats.count ? `평가 ${stats.count}회 · 평균 ${Number(stats.average).toFixed(1)}점` : '평가 없음 · 0회', 'recipe-rating'));
+  article.append(make(document, 'p', stats.status === 'loading' ? '출처 추출 평가 통계를 확인 중입니다.'
+    : stats.status === 'error' ? '출처 추출 평가 통계를 확인하지 못했습니다.'
+      : stats.count ? `이 레시피에서 시작한 추출 평가 ${stats.count}회 · 평균 ${Number(stats.average).toFixed(1)}점`
+        : '이 레시피에서 시작한 추출 평가 없음 · 0회', 'recipe-rating'));
 
   const steps = Array.isArray(recipe.steps) ? recipe.steps : [];
   const stepsSection = make(document, 'section', undefined, 'recipe-detail-section recipe-steps-section');
@@ -2076,7 +2243,7 @@ function recipeCard(document, recipe, data, detailed = false) {
     const bean = data.beans.find(item => item.id === record.beanId);
     const validRating = isValidRating(record.rating);
     const validSnapshot = record.snapshotStatus === 'valid' ? record.snapshot : null;
-    const snapshot = validSnapshot?.version === 2 ? validSnapshot.recipe : validSnapshot;
+    const snapshot = validSnapshot?.version >= 2 ? validSnapshot.recipe : validSnapshot;
     const recordHeader = make(document, 'div', undefined, 'entity-card-header record-summary-header');
     recordHeader.append(make(document, 'p', `${record.date || '날짜 확인 필요'} · 원두: ${bean?.name || '원두 확인 필요'} · ${record.rating ?? '별점 확인 필요'}/5 ${validRating ? '★'.repeat(record.rating) : ''}`),
       trashButton(document, 'records', record.id, recordName(record, data.recipes.find(item => item.id === record.recipeId), snapshot)));
@@ -2552,7 +2719,8 @@ function preferredOptionPage(serverPage, cachedPage) {
 }
 
 function renderRecords(pane, data, document, formOpen, optionPages, optionStates, route = '/records/new',
-  insightRecipeFilter = '', insightRatingFilter = '', insightComparisonSort = 'date-desc', managementOpen = false,
+  insightRecipeFilter = '', insightRatingFilter = '', insightComparisonSort = 'date-desc',
+  comparisonLeftId = '', comparisonRightId = '', managementOpen = false,
   setManagementOpen = () => {}, connectionRevision = null) {
   const form = buildRecordForm(document, data, optionPages, route, optionStates, connectionRevision);
   form.id = 'new-record-form';
@@ -2602,7 +2770,8 @@ function renderRecords(pane, data, document, formOpen, optionPages, optionStates
   pageMore.dataset.recordPageMore = '';
   managementBody.append(pageMore);
   management.append(managementBody);
-  renderRecordsInsights(pane, data, document, insightRecipeFilter, insightRatingFilter, insightComparisonSort, management);
+  renderRecordsInsights(pane, data, document, insightRecipeFilter, insightRatingFilter, insightComparisonSort,
+    comparisonLeftId, comparisonRightId, management);
   renderRecordRows(list, data, selectedFilters.beanId ?? '', selectedFilters.recipeId ?? '');
 }
 
@@ -2627,11 +2796,11 @@ function renderRecordRows(list, data, beanId, recipeId) {
 
 function recordCard(document, record, data) {
   const card = make(document, 'article', undefined, 'record-card');
-  const bean = data.beans.find(item => item.id === record.beanId);
-  const recipe = data.recipes.find(item => item.id === record.recipeId);
+  const bean = (data.beans ?? []).find(item => item.id === record.beanId);
+  const recipe = (data.recipes ?? []).find(item => item.id === record.recipeId);
   const validSnapshot = record.snapshotStatus === 'valid' ? record.snapshot : null;
-  const snapshotBean = validSnapshot?.version === 2 ? validSnapshot.bean : null;
-  const snapshotRecipe = validSnapshot?.version === 2 ? validSnapshot.recipe : validSnapshot;
+  const snapshotBean = validSnapshot?.version >= 2 ? validSnapshot.bean : null;
+  const snapshotRecipe = validSnapshot?.version >= 2 ? validSnapshot.recipe : validSnapshot;
   const validRating = isValidRating(record.rating);
   const beanName = bean?.name || snapshotBean?.name || (record.beanNameStatus === 'loading'
     ? '원두 이름 확인 중' : record.beanNameStatus === 'error' ? '원두 이름 불러오기 실패' : '원두 확인 필요');
@@ -2655,7 +2824,53 @@ function recordCard(document, record, data) {
   if (invalidLabels.length) card.append(make(document, 'p', `기록 오류: ${invalidLabels.join(', ')}`, 'record-warning'));
   if (record.snapshotStatus === 'damaged') card.append(make(document, 'p', '스냅샷이 손상되어 당시 조건을 표시할 수 없습니다.', 'record-warning'));
   if (record.cupNote) card.append(make(document, 'p', `컵노트: ${record.cupNote}`));
+  const actions = make(document, 'div', undefined, 'record-card-actions');
+  const replay = button(document, '이 조건으로 다시 추출', 'button', 'replay-record', 'secondary');
+  replay.dataset.recordId = record.id;
+  replay.dataset.beanId = record.beanId ?? '';
+  replay.disabled = !isCurrentRecord(record) || record.beanResolution === 'needs-confirmation' ||
+    !Array.isArray(snapshotRecipe?.steps) || !snapshotRecipe.steps.length;
+  replay.dataset.actionDisabled = String(replay.disabled);
+  const saveRecipe = button(document, '공용 레시피로 저장', 'button', 'save-shared-recipe', 'secondary');
+  saveRecipe.dataset.recordId = record.id;
+  saveRecipe.disabled = !isCurrentRecord(record) || !Array.isArray(snapshotRecipe?.steps) || !snapshotRecipe.steps.length;
+  saveRecipe.dataset.actionDisabled = String(saveRecipe.disabled);
+  const selectedBest = bean?.bestRecordId === record.id && ['checking', 'ready'].includes(bean.bestRecordStatus);
+  const setBest = button(document, selectedBest ? '현재 사용자 베스트' : '이 원두의 베스트로 지정',
+    'button', 'set-best-record', 'secondary');
+  setBest.dataset.recordId = record.id;
+  setBest.dataset.beanId = record.beanId ?? '';
+  setBest.disabled = selectedBest || bean?.bestRecordStatus === 'unsupported' || !bean ||
+    !isCurrentRecord(record) || record.beanResolution === 'needs-confirmation' || !validRating ||
+    !!record.invalidFields?.length;
+  setBest.dataset.actionDisabled = String(setBest.disabled);
+  actions.append(replay, saveRecipe, setBest);
+  if (bean?.bestRecordStatus === 'unsupported') {
+    actions.append(make(document, 'p', 'Notion 원두 데이터베이스에 ‘베스트 추출’ 관계 속성을 추가하면 지정할 수 있습니다.',
+      'record-best-unavailable'));
+  } else if (!bean) {
+    actions.append(make(document, 'p', '원두 정보를 확인할 수 없어 베스트를 지정할 수 없습니다.', 'record-best-unavailable'));
+  } else if (!validRating) {
+    actions.append(make(document, 'p', '유효한 별점 기록만 사용자 베스트로 지정할 수 있습니다.', 'record-best-unavailable'));
+  }
+  card.append(actions);
   return card;
+}
+
+function recordFromDisplayedData(data, recordId) {
+  return (data.records ?? []).find(record => record.id === recordId) ??
+    (data.beans ?? []).find(bean => bean.bestRecord?.id === recordId)?.bestRecord ?? null;
+}
+
+function actualRecipeForSharedLibrary(record) {
+  const recipe = recipeFromRecord(record);
+  if (!recipe || !Array.isArray(recipe.steps) || !recipe.steps.length) return null;
+  return {
+    name: recipe.name, dripper: recipe.dripper, dose: recipe.dose, grind: recipe.grind,
+    grinder: recipe.grinder, grinderSetting: recipe.grinderSetting, microns: recipe.microns,
+    temperature: recipe.temperature, totalWater: recipe.totalWater, extractionGuide: recipe.extractionGuide,
+    steps: recipe.steps.map(step => ({ name: step.name, seconds: step.seconds ?? step.time, water: step.water })),
+  };
 }
 
 function recordParentNameNote(kind, status, snapshotName) {
@@ -2770,7 +2985,7 @@ function buildResolutionForm(document, operation) {
 function bindEvents({ page, nav, connectionForm, tokenInput, scheduleTokenValidation,
   resetTokenValidation, originalConnectionCheck, content, actions, document, view,
   openDeleteDialog, closeDeleteDialog, submitDelete, setInsightRecipeFilter, setInsightRatingFilter,
-  setInsightComparisonSort }) {
+  setInsightComparisonSort, setInsightCompareLeft, setInsightCompareRight }) {
   connectionForm.addEventListener('input', event => {
     if (event.target === tokenInput && !event.target.disabled) {
       const rawToken = String(tokenInput.value ?? '');
@@ -2869,6 +3084,45 @@ function bindEvents({ page, nav, connectionForm, tokenInput, scheduleTokenValida
       const selected = Array.from(content.querySelectorAll('[data-action="select-insight-bean"]'))
         .find(card => card.dataset.beanId === beanId);
       selected?.focus?.();
+      return;
+    }
+    if (action === 'replay-record') {
+      const recordId = target.dataset.recordId;
+      if (recordId) navigateTo(`/brew/run?recordId=${encodeURIComponent(recordId)}`);
+      return;
+    }
+    if (action === 'save-shared-recipe') {
+      const record = recordFromDisplayedData(windowData ?? {}, target.dataset.recordId);
+      const recipe = actualRecipeForSharedLibrary(record);
+      if (!recipe || typeof actions.submit !== 'function') return;
+      target.disabled = true;
+      try {
+        const result = await actions.submit('recipes', recipe);
+        if (result?.status === 'succeeded') {
+          view.showStatus({ type: 'saved', message: '기록 당시 실제 조건으로 공용 레시피를 저장했습니다.' });
+        }
+      } catch {
+        // Controller status reports whether the independent recipe write failed or needs recovery.
+      } finally {
+        if (target.isConnected !== false && target.dataset.state !== 'success') target.disabled = false;
+      }
+      return;
+    }
+    if (action === 'set-best-record') {
+      if (typeof actions.submit !== 'function') return;
+      target.disabled = true;
+      try {
+        const result = await actions.submit('set-best-record', {
+          beanId: target.dataset.beanId, recordId: target.dataset.recordId,
+        });
+        if (result?.status === 'succeeded') {
+          view.showStatus({ type: 'saved', message: '이 추출을 사용자 베스트로 지정했습니다.' });
+        }
+      } catch {
+        // The controller supplies a fixed message for unsupported, invalid, and uncertain writes.
+      } finally {
+        if (target.isConnected !== false) target.disabled = false;
+      }
       return;
     }
     if (action === 'open-search-picker') {
@@ -3007,6 +3261,29 @@ function bindEvents({ page, nav, connectionForm, tokenInput, scheduleTokenValida
       navigateTo(`/records/new?beanId=${encodeURIComponent(beanId)}&recipeId=${encodeURIComponent(recipeId)}&date=${localDate()}`);
       return;
     }
+    if (action === 'add-brew-stage') {
+      const form = target.form;
+      const stages = form?.querySelector('[data-brew-stages]');
+      if (!form || !stages) return;
+      const lastTime = parseInputTime(stages.lastElementChild?.querySelector('[name="time"]')?.value ?? '') ?? 0;
+      addBrewStage(document, stages, { name: '', seconds: lastTime + 30, water: 10 }, stages.children.length);
+      updateBrewConditions(form);
+      actions.setDirty(true, 'brews');
+      return;
+    }
+    if (action === 'remove-brew-stage') {
+      const row = target.closest('.brew-stage-row');
+      const form = target.form;
+      if (!row || !form || row.querySelector('[name="time"]') === form.querySelector('.brew-stage-row [name="time"]')) return;
+      row.remove();
+      [...form.querySelectorAll('.brew-stage-row')].forEach((stage, index) => {
+        stage.querySelector('legend').textContent = `단계 ${index + 1}`;
+        stage.querySelector('[data-action="remove-brew-stage"]').disabled = index === 0;
+      });
+      updateBrewConditions(form);
+      actions.setDirty(true, 'brews');
+      return;
+    }
     if (action === 'cancel-connection') {
       if (view.cancelConnection()) view.showStatus({ type: 'cancelled', message: '연결 입력을 취소했습니다.' });
       return;
@@ -3055,6 +3332,7 @@ function bindEvents({ page, nav, connectionForm, tokenInput, scheduleTokenValida
         view.clearDraft(kind);
         actions.setDirty(false, kind);
         view.showStatus({ type: 'cancelled', message: '입력을 취소했습니다.' });
+        if (kind === 'brews') navigateTo('/records');
       }
       return;
     }
@@ -3131,6 +3409,7 @@ function bindEvents({ page, nav, connectionForm, tokenInput, scheduleTokenValida
     }
     const form = event.target.form;
     if (FORM_KINDS.has(form?.dataset.form)) actions.setDirty(true, form.dataset.form);
+    if (form?.dataset.form === 'brews') updateBrewConditions(form);
     updatePreview(content);
     event.target.removeAttribute('aria-invalid');
   });
@@ -3144,6 +3423,8 @@ function bindEvents({ page, nav, connectionForm, tokenInput, scheduleTokenValida
     if (event.target.matches('[data-insight-comparison-sort]')) {
       setInsightComparisonSort(event.target.value);
     }
+    if (event.target.matches('[data-insight-compare-left]')) setInsightCompareLeft(event.target.value);
+    if (event.target.matches('[data-insight-compare-right]')) setInsightCompareRight(event.target.value);
     updatePreview(content);
   });
   content.addEventListener('focusin', event => {
@@ -3175,7 +3456,8 @@ function bindEvents({ page, nav, connectionForm, tokenInput, scheduleTokenValida
     clearInvalidFields(form);
     let payload;
     try {
-      payload = kind === 'recipes' ? recipePayload(form) : Object.fromEntries(new FormData(form));
+      payload = kind === 'recipes' ? recipePayload(form)
+        : kind === 'brews' ? brewPayload(form) : Object.fromEntries(new FormData(form));
     } catch {
       view.showStatus({ type: 'validation-error', message: '입력값이나 최신 원본 관계를 확인해 주세요.' });
       return;
@@ -3184,7 +3466,14 @@ function bindEvents({ page, nav, connectionForm, tokenInput, scheduleTokenValida
       if (kind === 'recipes' && form.dataset.copyId) {
         await actions.submit('copy', { recipeId: form.dataset.copyId, changes: payload });
       } else {
-        await actions.submit(kind, payload);
+        const result = await actions.submit(kind, payload);
+        if (kind === 'brews' && result?.status === 'succeeded') {
+          const sourceRecordId = payload.sourceRecordId;
+          const newRecordId = result.value?.id;
+          const pair = sourceRecordId && newRecordId
+            ? `?compareSourceRecordId=${encodeURIComponent(sourceRecordId)}&compareRecordId=${encodeURIComponent(newRecordId)}` : '';
+          navigateTo(`/records${pair}`);
+        }
       }
     } catch {
       // Controller status is the single user-facing report for a failed operation.
@@ -3253,6 +3542,18 @@ function recipePayload(form) {
   return values;
 }
 
+function brewPayload(form) {
+  return {
+    beanId: form.elements.beanId.value,
+    sourceRecipeId: form.elements.sourceRecipeId.value || null,
+    sourceRecordId: form.elements.sourceRecordId.value || null,
+    actualRecipe: brewRecipeInput(form),
+    date: form.elements.date.value,
+    rating: form.elements.rating.value,
+    cupNote: form.elements.cupNote.value,
+  };
+}
+
 function updatePreview(content) {
   const form = content.querySelector('form[data-form="recipes"]');
   if (!form) return;
@@ -3303,7 +3604,7 @@ function saveActiveDraft(content, drafts) {
   if (!form || form.closest('dialog')?.dataset.saveState === 'success') return;
   const values = {};
   for (const field of form.querySelectorAll('input[name],textarea[name],select[name]')) {
-    if (field.closest('.step-row') || (field.type === 'radio' && !field.checked)) continue;
+    if (field.closest('.step-row, .brew-stage-row') || (field.type === 'radio' && !field.checked)) continue;
     values[field.name] = field.value;
   }
   if (form.dataset.form === 'records') {
@@ -3314,7 +3615,7 @@ function saveActiveDraft(content, drafts) {
       return;
     }
   }
-  const steps = [...form.querySelectorAll('.step-row')].map(row =>
+  const steps = [...form.querySelectorAll('.step-row, .brew-stage-row')].map(row =>
     Object.fromEntries([...row.querySelectorAll('[name]')].map(field => [field.name, field.value])));
   drafts.set(form.dataset.form, { values, steps, copyId: form.dataset.copyId || null,
     route: form.dataset.draftRoute, flowKey: form.dataset.draftFlow });
@@ -3354,6 +3655,20 @@ function restoreDraft(form, draft, data) {
       }
     }
     updatePreview(panel);
+  }
+  if (form.dataset.form === 'brews' && draft.steps?.length) {
+    const wrap = form.querySelector('[data-brew-stages]');
+    wrap.replaceChildren();
+    for (const values of draft.steps) {
+      const row = addBrewStage(form.ownerDocument, wrap, {
+        name: values.stepName, seconds: parseInputTime(values.time) ?? 0, water: values.water,
+      }, wrap.children.length);
+      for (const [name, value] of Object.entries(values)) {
+        const field = row.querySelector(`[name="${name}"]`);
+        if (field) field.value = value;
+      }
+    }
+    updateBrewConditions(form);
   }
   if (draft.copyId) form.dataset.copyId = draft.copyId;
 }

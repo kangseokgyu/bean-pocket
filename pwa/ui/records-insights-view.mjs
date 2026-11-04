@@ -1,5 +1,5 @@
 import { isValidRating } from '../domain.mjs';
-import { layoutRatingTrends } from './records-insights.mjs';
+import { compareBrewRecords, layoutRatingTrends } from './records-insights.mjs';
 
 const svgElement = (document, name) => document.createElementNS('http://www.w3.org/2000/svg', name);
 const trendResizeRenderers = new WeakMap();
@@ -42,7 +42,8 @@ const button = (document, text, type = 'submit', action, variant = 'secondary') 
 };
 const formatTime = seconds => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 
-export function renderRecordsInsights(pane, data, document, recipeFilter, ratingFilter, comparisonSort, management) {
+export function renderRecordsInsights(pane, data, document, recipeFilter, ratingFilter, comparisonSort,
+  comparisonLeftId, comparisonRightId, management) {
   const state = data.recordInsights;
   if (!state) {
     if (management) pane.append(management);
@@ -66,7 +67,7 @@ export function renderRecordsInsights(pane, data, document, recipeFilter, rating
   const sidebar = make(document, 'aside', undefined, 'record-insight-sidebar');
   sidebar.setAttribute('aria-labelledby', 'record-insight-bean-heading');
   const sidebarHeading = make(document, 'div', undefined, 'record-insight-section-heading');
-  sidebarHeading.append(make(document, 'h3', '최근 추출 원두'));
+  sidebarHeading.append(make(document, 'h3', '추출 원두'));
   sidebarHeading.lastElementChild.id = 'record-insight-bean-heading';
   sidebarHeading.append(make(document, 'span', `${state.beans?.length ?? 0}종`, 'record-insight-count-chip'));
   sidebar.append(sidebarHeading, make(document, 'p', '마지막 추출이 최근인 원두부터 표시합니다.', 'record-insight-sidebar-help'));
@@ -148,7 +149,9 @@ export function renderRecordsInsights(pane, data, document, recipeFilter, rating
   controls.append(makeInsightSelect(document, '별점', 'data-insight-rating-filter', ratingFilter,
     [['', '모든 별점'], ...(state.ratingOptions ?? []).map(rating => [String(rating), `${rating.toFixed(1)}점`])]));
   comparisons.append(controls);
-  let comparisonRecords = [...(state.comparisonRecords ?? [])];
+  const allComparisonRecords = [...(state.comparisonRecords ?? [])];
+  comparisons.append(renderSelectedRecordComparison(document, allComparisonRecords, comparisonLeftId, comparisonRightId));
+  let comparisonRecords = [...allComparisonRecords];
   if (recipeFilter) comparisonRecords = comparisonRecords.filter(record => record.recipeId === recipeFilter ||
     recipeForRecord(record)?.id === recipeFilter);
   if (ratingFilter) comparisonRecords = comparisonRecords.filter(record => String(record.rating) === ratingFilter);
@@ -162,6 +165,66 @@ export function renderRecordsInsights(pane, data, document, recipeFilter, rating
   if (management) content.append(management);
   layout.append(trend, sidebar, content);
   pane.append(layout);
+}
+
+function comparisonOptionLabel(record) {
+  const recipe = recipeForRecord(record);
+  const rating = isValidRating(record.rating) ? `${record.rating.toFixed(1)}점` : '별점 없음';
+  return `${record.date || '날짜 확인 필요'} · ${rating} · ${recipe?.name || '기록 당시 조건'}`;
+}
+
+function renderSelectedRecordComparison(document, records, leftId, rightId) {
+  const section = make(document, 'section', undefined, 'record-insight-pair-comparison');
+  section.dataset.brewConditionComparison = '';
+  section.dataset.compareLeftId = leftId || '';
+  section.dataset.compareRightId = rightId || '';
+  section.append(sectionHeader(document, '두 추출 조건 비교',
+    '같은 원두의 두 기록을 골라 실제 조건과 평가 차이를 확인합니다.', '', 'record-insight-pair-heading'));
+  const options = [['', '기록 선택'], ...records.map(record => [record.id, comparisonOptionLabel(record)])];
+  const selectors = make(document, 'div', undefined, 'record-insight-pair-controls');
+  selectors.append(makeInsightSelect(document, '기록 A', 'data-insight-compare-left', leftId, options),
+    makeInsightSelect(document, '기록 B', 'data-insight-compare-right', rightId, options));
+  section.append(selectors);
+  const byId = new Map(records.map(record => [record.id, record]));
+  const leftRecord = byId.get(leftId);
+  const rightRecord = byId.get(rightId);
+  if (!leftRecord || !rightRecord) {
+    section.append(make(document, 'p', records.length < 2
+      ? '같은 원두의 기록이 두 건 이상 있어야 비교할 수 있습니다.'
+      : '같은 원두의 기록 두 건을 선택해 비교하세요.', 'record-insight-pair-empty'));
+    return section;
+  }
+  const result = compareBrewRecords(leftRecord, rightRecord);
+  if (result.status !== 'ready') {
+    const message = result.status === 'same-record' ? '서로 다른 두 기록을 선택해 주세요.'
+      : result.status === 'different-beans' ? '같은 원두의 기록 두 건을 선택해 주세요.'
+        : '기록 당시 조건을 확인할 수 없어 비교할 수 없습니다.';
+    section.append(make(document, 'p', message, 'record-insight-pair-empty'));
+    return section;
+  }
+  const table = make(document, 'table', undefined, 'record-insight-pair-table');
+  table.dataset.brewConditionTable = '';
+  const heading = make(document, 'tr');
+  for (const text of ['비교 항목', comparisonOptionLabel(leftRecord), comparisonOptionLabel(rightRecord)]) {
+    const cell = make(document, 'th', text);
+    cell.setAttribute('scope', 'col');
+    heading.append(cell);
+  }
+  const head = make(document, 'thead');
+  head.append(heading);
+  const body = make(document, 'tbody');
+  for (const value of result.values) {
+    const row = make(document, 'tr', undefined, value.changed ? 'is-changed' : '');
+    row.dataset.compareField = value.key;
+    row.dataset.changed = String(value.changed);
+    row.append(make(document, 'th', value.label), make(document, 'td', value.left), make(document, 'td', value.right));
+    body.append(row);
+  }
+  table.append(head, body);
+  const changedCount = result.values.filter(value => value.changed).length;
+  section.append(make(document, 'p', `${changedCount}개 항목에서 차이가 있습니다.`, 'record-insight-pair-difference-count'),
+    table);
+  return section;
 }
 
 function sectionHeader(document, title, description, tag, headingId) {
@@ -236,7 +299,7 @@ function comparisonComparator(sort) {
 
 function recipeForRecord(record) {
   const snapshot = record.snapshotStatus === 'valid' ? record.snapshot : null;
-  return snapshot?.version === 2 ? snapshot.recipe : snapshot?.version === 1 ? snapshot : null;
+  return snapshot?.version >= 2 ? snapshot.recipe : snapshot?.version === 1 ? snapshot : null;
 }
 
 function renderComparisonRecords(document, records) {

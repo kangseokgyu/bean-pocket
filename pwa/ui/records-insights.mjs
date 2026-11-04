@@ -12,11 +12,11 @@ const byDateAscending = (left, right) => left.date.localeCompare(right.date) || 
 const byDateDescending = (left, right) => right.date.localeCompare(left.date) || byId(left, right);
 
 function snapshotBean(record) {
-  return record.snapshot?.version === 2 ? record.snapshot.bean : null;
+  return record.snapshot?.version >= 2 ? record.snapshot.bean : null;
 }
 
 function snapshotRecipe(record) {
-  if (record.snapshot?.version === 2) return record.snapshot.recipe;
+  if (record.snapshot?.version >= 2) return record.snapshot.recipe;
   return record.snapshot?.version === 1 ? record.snapshot : null;
 }
 
@@ -26,6 +26,73 @@ function recordBeanName(record, liveBeans) {
 
 function ratingRecord(record) {
   return validDate(record.date) && validRating(record.rating);
+}
+
+function comparisonRecipe(record) {
+  const snapshot = record?.snapshot;
+  if (snapshot?.version >= 2) return snapshot.recipe;
+  return snapshot?.version === 1 ? snapshot : null;
+}
+
+function presentValue(value, unit = '') {
+  if (value === null || value === undefined || value === '') return '기록 없음';
+  return `${value}${unit}`;
+}
+
+function presentStage(stage, index) {
+  if (!stage) return '기록 없음';
+  const seconds = Number.isFinite(stage.seconds) ? stage.seconds
+    : typeof stage.time === 'string' && /^\d+:[0-5]\d$/.test(stage.time)
+      ? Number(stage.time.split(':')[0]) * 60 + Number(stage.time.split(':')[1]) : null;
+  const time = seconds === null ? stage.time ?? '시간 없음'
+    : `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+  const name = typeof stage.name === 'string' && stage.name.trim() ? stage.name : `${index + 1}단계`;
+  return `${name} · ${time} · ${presentValue(stage.water, ' g')}`;
+}
+
+export function compareBrewRecords(leftRecord, rightRecord) {
+  if (!leftRecord || !rightRecord || !isCurrentRecord(leftRecord) || !isCurrentRecord(rightRecord) ||
+      !comparisonRecipe(leftRecord) || !comparisonRecipe(rightRecord)) {
+    return { status: 'snapshot-unavailable', values: [] };
+  }
+  if (leftRecord.beanId !== rightRecord.beanId) return { status: 'different-beans', values: [] };
+  if (leftRecord.id === rightRecord.id) return { status: 'same-record', values: [] };
+
+  const left = comparisonRecipe(leftRecord);
+  const right = comparisonRecipe(rightRecord);
+  const fields = [
+    ['name', '조건 이름', left.name, right.name, ''],
+    ['dripper', '드리퍼', left.dripper, right.dripper, ''],
+    ['dose', '도징', left.dose, right.dose, ' g'],
+    ['grind', '분쇄도', left.grind, right.grind, ''],
+    ['grinder', '그라인더', left.grinder, right.grinder, ''],
+    ['grinderSetting', '그라인더 설정', left.grinderSetting, right.grinderSetting, ''],
+    ['microns', '분쇄 입자', left.microns, right.microns, ' μm'],
+    ['temperature', '물 온도', left.temperature, right.temperature, ' ℃'],
+    ['totalWater', '총 물 양', left.totalWater, right.totalWater, ' g'],
+    ['extractionGuide', '추출 가이드', left.extractionGuide, right.extractionGuide, ''],
+  ].map(([key, label, leftValue, rightValue, unit]) => ({
+    key, label, left: presentValue(leftValue, unit), right: presentValue(rightValue, unit),
+    changed: (leftValue ?? '') !== (rightValue ?? ''),
+  }));
+  const stepCount = Math.max(left.steps?.length ?? 0, right.steps?.length ?? 0);
+  for (let index = 0; index < stepCount; index++) {
+    const leftValue = left.steps?.[index];
+    const rightValue = right.steps?.[index];
+    const leftText = presentStage(leftValue, index);
+    const rightText = presentStage(rightValue, index);
+    fields.push({ key: `steps.${index + 1}`, label: `단계 ${index + 1}`, left: leftText, right: rightText,
+      changed: leftText !== rightText });
+  }
+  const leftRating = validRating(leftRecord.rating) ? `${leftRecord.rating.toFixed(1)}/5` : '별점 없음';
+  const rightRating = validRating(rightRecord.rating) ? `${rightRecord.rating.toFixed(1)}/5` : '별점 없음';
+  fields.push({ key: 'rating', label: '별점', left: leftRating, right: rightRating,
+    changed: leftRating !== rightRating });
+  const leftNote = typeof leftRecord.cupNote === 'string' && leftRecord.cupNote.trim() ? leftRecord.cupNote : '기록 없음';
+  const rightNote = typeof rightRecord.cupNote === 'string' && rightRecord.cupNote.trim() ? rightRecord.cupNote : '기록 없음';
+  fields.push({ key: 'cupNote', label: '컵노트', left: leftNote, right: rightNote, changed: leftNote !== rightNote });
+  return { status: 'ready', beanId: leftRecord.beanId, leftRecordId: leftRecord.id,
+    rightRecordId: rightRecord.id, values: fields };
 }
 
 export function buildRecordsInsights(records, beans = [], selectedBeanId = '', recipes = []) {
@@ -62,11 +129,11 @@ export function buildRecordsInsights(records, beans = [], selectedBeanId = '', r
         : latestRecord.rating == null ? '별점 없음' : '별점 확인 필요',
       recordCount: beanRecords.length,
     };
-  }).sort((left, right) => right.latestDate.localeCompare(left.latestDate) || byId(left, right)).slice(0, 3);
+  }).sort((left, right) => right.latestDate.localeCompare(left.latestDate) || byId(left, right));
   const selectedBean = beanOptions.find(bean => bean.id === selectedBeanId) ?? beanOptions[0] ?? null;
   const selectedRows = selectedBean ? recordsByBean.get(selectedBean.id) ?? [] : [];
   const ratedRows = selectedRows.filter(ratingRecord);
-  const trendSeries = beanOptions.map(bean => ({
+  const trendSeries = beanOptions.slice(0, 3).map(bean => ({
     beanId: bean.id,
     beanName: bean.name,
     points: (recordsByBean.get(bean.id) ?? []).filter(ratingRecord)

@@ -452,3 +452,58 @@ test('회귀 2 추가: 쓰기 5xx·성공 응답 JSON 유실은 같은 키에 �
     assert.equal(writes, 1);
   }
 });
+
+test('actual-condition HTTP records preserve adjusted snapshots and legacy template writes', async t => {
+  const { request } = await setup(t);
+  await request('/api/connect', { token: 'synthetic-http-token' });
+  const bean = (await request('/api/beans', { name: '조건 조정 원두' })).body;
+  const recipe = (await request('/api/recipes', recipeInput())).body;
+  const actualRecipe = { ...recipeInput(), name: '개별 추출 조건', dose: 18, temperature: 90,
+    totalWater: 260, steps: [{ name: '뜸', time: '0:00', water: 60 }, { name: '붓기', time: '0:35', water: 200 }] };
+  const sourceRecipeId = '99999999-9999-4999-8999-999999999999';
+  const payload = { beanId: bean.id, sourceRecipeId, actualRecipe,
+    date: '2026-11-04', rating: 4.3, cupNote: '복숭아' };
+  const saved = await request('/api/records', payload);
+  assert.equal(saved.status, 201);
+  assert.equal(saved.body.recipeId, null, 'a deleted source keeps provenance without a live relation');
+  assert.equal(saved.body.snapshot.version, 3);
+  assert.equal(saved.body.snapshot.source.recipeId, sourceRecipeId);
+  assert.equal(saved.body.snapshot.recipe.dose, 18);
+  assert.equal(saved.body.snapshot.recipe.temperature, 90);
+  assert.deepEqual(saved.body.snapshot.recipe.steps.map(step => step.water), [60, 200]);
+  const loaded = (await request('/api/data')).body;
+  assert.equal(loaded.recipes.find(item => item.id === recipe.id).dose, 15);
+  assert.equal(loaded.records.find(item => item.id === saved.body.id).snapshot.recipe.temperature, 90);
+  const legacy = await request('/api/records', { beanId: bean.id, recipeId: recipe.id,
+    date: '2026-11-04', rating: 4.7 });
+  assert.equal(legacy.status, 201);
+  assert.equal(legacy.body.snapshot.version, 2);
+  assert.equal(legacy.body.snapshot.recipe.dose, 15);
+  for (const actual of [
+    { ...actualRecipe, steps: [{ time: '0:10', water: 260 }] },
+    { ...actualRecipe, totalWater: 250 },
+  ]) {
+    assert.equal((await request('/api/records', { ...payload, actualRecipe: actual })).status, 400);
+  }
+  assert.equal((await request('/api/data')).body.records.length, 2, 'invalid adjusted conditions create no records');
+});
+
+
+for (const explicitNull of [false, true]) {
+  test(`actual-condition HTTP round-trip supports ${explicitNull ? 'null' : 'omitted'} source recipe`, async t => {
+    const { request } = await setup(t);
+    await request('/api/connect', { token: 'synthetic-http-token' });
+    const bean = (await request('/api/beans', { name: '독립 추출 원두' })).body;
+    const actualRecipe = { ...recipeInput(), dose: 18, temperature: 90 };
+    const saved = await request('/api/records', { beanId: bean.id, actualRecipe,
+      ...(explicitNull ? { sourceRecipeId: null } : {}), date: '2026-11-04', rating: 4.3 });
+    assert.equal(saved.status, 201);
+    const record = (await request('/api/data')).body.records.find(row => row.id === saved.body.id);
+    assert.equal(record.snapshotStatus, 'valid');
+    assert.equal(record.snapshot.version, 3);
+    assert.equal(record.snapshot.source.recipeId, null);
+    assert.equal(record.snapshot.recipe.dose, 18);
+    assert.equal(record.snapshot.recipe.temperature, 90);
+    assert.deepEqual(record.snapshot.recipe.steps.map(step => step.water), [50, 100, 100]);
+  });
+}

@@ -1,8 +1,12 @@
 import {
   InputError,
   copyRecipe,
+  createActualSnapshot,
   createSnapshot,
+  isCurrentRecord,
+  isValidRating,
   validateBean,
+  validateBrewRecord,
   validateRecord,
   validateRecipe,
   validateStoredRecipe,
@@ -164,6 +168,24 @@ function normalizedRecordInput(value) {
   return { ...record, beanId, recipeId };
 }
 
+function normalizedBrewInput(value) {
+  const input = inputObject(value, '추출 조건');
+  const beanId = normalizedId(input.beanId, '원두');
+  const sourceRecipeId = input.sourceRecipeId == null ? null : normalizedId(input.sourceRecipeId, '출처 레시피');
+  const sourceRecordId = input.sourceRecordId == null ? null : normalizedId(input.sourceRecordId, '출처 기록');
+  const actualRecipe = validateRecipe(input.actualRecipe);
+  const record = validateBrewRecord(input, { id: beanId }, sourceRecipeId);
+  return { ...record, sourceRecipeId, sourceRecordId, actualRecipe };
+}
+
+function normalizedBestInput(value) {
+  const input = inputObject(value, '베스트 추출');
+  return {
+    beanId: normalizedId(input.beanId, '원두'),
+    recordId: normalizedId(input.recordId, '추출 기록'),
+  };
+}
+
 export function createCommands({ client, repository, submissionState } = {}) {
   if (!client || typeof client.createPage !== 'function' || typeof client.archiveCreatedPage !== 'function' ||
       typeof client.connectionRevision !== 'string' || !client.dataSources ||
@@ -233,6 +255,20 @@ export function createCommands({ client, repository, submissionState } = {}) {
       throw Object.freeze({ code: 'schema-unsupported', writeState: 'not-sent' });
     }
     return prepare('records', normalizedRecordInput(payload));
+  }
+
+  async function prepareBrew(payload) {
+    if (client.recordBeanRelationSupported !== true) {
+      throw Object.freeze({ code: 'schema-unsupported', writeState: 'not-sent' });
+    }
+    return prepare('records', normalizedBrewInput(payload), { kind: 'brews' });
+  }
+
+  async function prepareBestRecord(payload) {
+    if (client.beanBestRecordRelationSupported !== true || typeof client.setBeanBestRecord !== 'function') {
+      throw Object.freeze({ code: 'best-record-unsupported', writeState: 'not-sent' });
+    }
+    return prepare('set-best-record', normalizedBestInput(payload));
   }
 
   async function writeCreate(operation, kind, payload) {
@@ -365,10 +401,48 @@ export function createCommands({ client, repository, submissionState } = {}) {
           return writeCreate(operation, 'records', record);
         }
 
+        if (metadata.kind === 'brews') {
+          const bean = requireBean(latest, payload.beanId);
+          const hasLiveSource = payload.sourceRecipeId !== null &&
+            oneById(latest?.recipes, payload.sourceRecipeId) !== null;
+          const record = {
+            beanId: bean.id,
+            recipeId: hasLiveSource ? payload.sourceRecipeId : null,
+            date: payload.date,
+            rating: payload.rating,
+            cupNote: payload.cupNote,
+            name: `${payload.date} · ${payload.actualRecipe.name}`,
+            snapshot: createActualSnapshot(bean, payload.actualRecipe, payload.sourceRecipeId, payload.sourceRecordId),
+          };
+          validateCreatePayload('records', record, client.dataSources);
+          return writeCreate(operation, 'records', record);
+        }
+
+        if (metadata.kind === 'set-best-record') {
+          if (client.beanBestRecordRelationSupported !== true || typeof client.setBeanBestRecord !== 'function') {
+            throw Object.freeze({ code: 'best-record-unsupported', writeState: 'not-sent' });
+          }
+          const bean = requireBean(latest, payload.beanId);
+          const record = requireRecord(latest, payload.recordId);
+          if (!isCurrentRecord(record) || record.beanId !== bean.id || record.beanResolution === 'needs-confirmation' ||
+              !isValidRating(record.rating) || record.invalidFields?.length) {
+            throw new InputError('같은 원두의 유효한 추출 기록만 베스트로 지정할 수 있습니다.');
+          }
+          const currentBestIds = Array.isArray(bean.bestRecordIds) ? bean.bestRecordIds
+            : bean.bestRecordId ? [bean.bestRecordId] : [];
+          if (currentBestIds.length > 1) throw new InputError('베스트 추출 관계가 여러 개입니다. 원두 데이터베이스를 확인해 주세요.');
+          const beforeRecordId = currentBestIds[0] ?? null;
+          if (beforeRecordId === record.id) throw new InputError('이미 이 추출이 베스트로 지정되어 있습니다.');
+          return operation.write(() => client.setBeanBestRecord(bean.id, record.id), {
+            updateTarget: { kind: 'beans', id: bean.id, beforeRecordId, nextRecordId: record.id },
+          });
+        }
+
         throw Object.freeze({ code: 'invalid-draft', writeState: 'not-sent' });
       },
     ));
   }
 
-  return Object.freeze({ prepareBean, prepareDeleteBean, prepareDeleteRecipe, prepareDeleteRecord, prepareRecipe, prepareRecord, prepareCopy, execute });
+  return Object.freeze({ prepareBean, prepareDeleteBean, prepareDeleteRecipe, prepareDeleteRecord,
+    prepareRecipe, prepareRecord, prepareBrew, prepareBestRecord, prepareCopy, execute });
 }

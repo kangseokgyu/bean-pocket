@@ -203,6 +203,55 @@ test('a saved brew uses its edited actual conditions without changing the shared
   assert.equal(env.rows.recipes[0].temperature, 93);
 });
 
+test('a bean best record can only point to a current record for the same bean', async () => {
+  const recordId = 'eeeeeeee-5555-4555-8555-111111111111';
+  const currentRecord = { id: recordId, beanId: IDS.bean, recipeId: IDS.recipe,
+    date: '2026-11-03', rating: 4.7, cupNote: '복숭아', snapshotStatus: 'valid',
+    snapshot: createSnapshot(bean(), storedRecipe()) };
+  const env = harness({ rows: { ...blankRows(), beans: [bean(IDS.bean), bean(IDS.otherBean)],
+    recipes: [storedRecipe()], records: [currentRecord] } });
+  const updates = [];
+  env.client.beanBestRecordRelationSupported = true;
+  env.client.setBeanBestRecord = async (beanId, targetId) => {
+    updates.push([beanId, targetId]);
+    return { id: beanId, recordId: targetId };
+  };
+  const draft = await env.commands.prepareBestRecord({ beanId: IDS.bean, recordId });
+  const result = await env.commands.execute(draft);
+  assert.equal(result.status, 'succeeded');
+  assert.deepEqual(updates, [[IDS.bean, recordId]]);
+
+  const wrongBeanDraft = await env.commands.prepareBestRecord({ beanId: IDS.otherBean, recordId });
+  assert.equal((await env.commands.execute(wrongBeanDraft)).status, 'failed');
+  assert.deepEqual(updates, [[IDS.bean, recordId]]);
+});
+
+test('an uncertain best update journals its before/after target for readback resolution', async () => {
+  const recordId = 'eeeeeeee-5555-4555-8555-111111111111';
+  const currentRecord = { id: recordId, beanId: IDS.bean, recipeId: IDS.recipe,
+    date: '2026-11-03', rating: 4.7, cupNote: '복숭아', snapshotStatus: 'valid',
+    snapshot: createSnapshot(bean(), storedRecipe()) };
+  const env = harness({ rows: { ...blankRows(), beans: [bean()], recipes: [storedRecipe()], records: [currentRecord] } });
+  env.client.beanBestRecordRelationSupported = true;
+  env.client.setBeanBestRecord = async () => { throw unknown; };
+  const draft = await env.commands.prepareBestRecord({ beanId: IDS.bean, recordId });
+  const result = await env.commands.execute(draft);
+  assert.equal(result.status, 'unknown');
+  const operation = env.journal().operations[0];
+  assert.deepEqual(operation.updateTarget, { kind: 'beans', id: IDS.bean,
+    beforeRecordId: null, nextRecordId: recordId, state: 'unknown' });
+  await env.submissionState.withWriteLock(context => context.confirmResolution(operation.key, {
+    originalConfirmed: true,
+    decision: 'saved',
+    async freshRead(savedOperation) {
+      return { connectionRevision: savedOperation.connectionRevision,
+        targetFingerprint: savedOperation.targetFingerprint, outcome: 'saved',
+        updateTarget: { kind: 'beans', id: IDS.bean, recordId } };
+    },
+  }));
+  assert.equal(env.journal().operations[0].status, 'succeeded');
+});
+
 test('bean name is required before any operation is submitted', async () => {
   const env = harness();
   await assert.rejects(env.commands.prepareBean({ name: '  ' }));

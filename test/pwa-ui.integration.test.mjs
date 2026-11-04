@@ -5,7 +5,7 @@ import { NotionClient } from '../pwa/data/notion-client.mjs';
 import { createReadRepository } from '../pwa/data/read-repository.mjs';
 import { createCommands } from '../pwa/commands/index.mjs';
 import { createSubmissionState } from '../pwa/state/submission-state.mjs';
-import { memoryPlatform, fakePwaNotion, testConnection } from './fixtures/pwa-environment.mjs';
+import { DATA_SOURCES, memoryPlatform, fakePwaNotion, testConnection } from './fixtures/pwa-environment.mjs';
 import { readFile } from 'node:fs/promises';
 
 const validRecipe = beanId => ({ name: 'V60', beanId, dose: 15, totalWater: 250, temperature: 93,
@@ -16,6 +16,7 @@ function startupApp({ native = memoryPlatform(), fake = fakePwaNotion(), route =
   const statuses = [];
   const entrySuccesses = [];
   const deleteResults = [];
+  let unresolvedOperations = [];
   let currentRoute = route;
   const state = createSubmissionState(native);
   const readSavedConnection = readConnection ?? (async () => {
@@ -26,7 +27,7 @@ function startupApp({ native = memoryPlatform(), fake = fakePwaNotion(), route =
     currentRoute() { return currentRoute; },
     showConnection(value) { connectionStates.push(value); },
     showStatus(value) { statuses.push(value); },
-    renderData() {}, setState() {}, showUnresolved() {},
+    renderData() {}, setState() {}, showUnresolved(items) { unresolvedOperations = items; },
     showEntrySuccess(kind) { entrySuccesses.push(kind); return true; },
     showDeleteResult(result) { deleteResults.push(result); },
   }, state, file: { readConnection: readSavedConnection },
@@ -35,6 +36,7 @@ function startupApp({ native = memoryPlatform(), fake = fakePwaNotion(), route =
   makeRepository: client => createReadRepository(client),
   makeCommands: options => createCommands(options) });
   return { app, native, fake, connectionStates, statuses, entrySuccesses, deleteResults,
+    get unresolvedOperations() { return unresolvedOperations; },
     setRoute(value) { currentRoute = value; } };
 }
 
@@ -90,6 +92,59 @@ test('controller public flows use real Notion, repository, commands and journal 
   assert.deepEqual(entrySuccesses, ['beans', 'recipes', 'recipes', 'records']);
   assert.deepEqual(clearedForms, [], 'the view keeps each confirmed entry open for its success feedback');
   assert.ok(native.journal().operations.every(operation => operation.status === 'succeeded'));
+});
+
+test('record replay loads the saved actual snapshot even when its source recipe was deleted', async () => {
+  const setup = startupApp({ route: '/records' });
+  const { app, fake, setRoute } = setup;
+  await app.connect(testConnection());
+  const bean = await app.submit('beans', { name: '케냐', origin: '키리냐가' });
+  const recipe = await app.submit('recipes', validRecipe(bean.value.id));
+  const actualRecipe = { ...validRecipe(bean.value.id), name: 'V60 조정', dose: 18, temperature: 89 };
+  const saved = await app.submit('brews', { beanId: bean.value.id, sourceRecipeId: recipe.value.id,
+    sourceRecordId: null, actualRecipe, date: '2026-11-04', rating: '4.3', cupNote: '자두' });
+  assert.equal(saved.status, 'succeeded');
+  const sourceRow = fake.rows.find(row => row.id === recipe.value.id);
+  sourceRow.in_trash = true;
+
+  const route = `/brew/run?recordId=${encodeURIComponent(saved.value.id)}`;
+  setRoute(route);
+  const replay = await app.loadRoute(route, { force: true });
+
+  assert.equal(replay.screen.error, undefined, 'deleted source template does not block replay');
+  assert.equal(replay.beans[0].id, bean.value.id, 'bean identity comes from the saved snapshot');
+  assert.equal(replay.records[0].id, saved.value.id);
+  assert.equal(replay.records[0].snapshot.recipe.dose, 18);
+  assert.equal(replay.records[0].snapshot.recipe.temperature, 89);
+  assert.equal(replay.records[0].snapshot.recipe.name, 'V60 조정');
+});
+
+test('source and result pair loads directly when the source record is outside the current page', async () => {
+  const setup = startupApp({ route: '/beans' });
+  const { app, fake, setRoute } = setup;
+  await app.connect(testConnection());
+  const bean = await app.submit('beans', { name: '두 기록 비교 원두' });
+  const recipe = await app.submit('recipes', validRecipe(bean.value.id));
+  const source = await app.submit('brews', { beanId: bean.value.id, sourceRecipeId: recipe.value.id,
+    sourceRecordId: null, actualRecipe: validRecipe(bean.value.id), date: '2026-11-01', rating: '4.1', cupNote: '자두' });
+  const result = await app.submit('brews', { beanId: bean.value.id, sourceRecipeId: recipe.value.id,
+    sourceRecordId: source.value.id, actualRecipe: { ...validRecipe(bean.value.id), dose: 18 },
+    date: '2026-11-04', rating: '4.6', cupNote: '복숭아' });
+  fake.intercept = async call => {
+    if (call.pathname !== `/v1/data_sources/${DATA_SOURCES.records}/query` || call.method !== 'POST') return null;
+    return Response.json({ object: 'list', results: fake.rows.filter(row => row.parent.data_source_id === DATA_SOURCES.records &&
+      row.id !== source.value.id), has_more: false, next_cursor: null });
+  };
+
+  const route = `/records?compareSourceRecordId=${source.value.id}&compareRecordId=${result.value.id}`;
+  setRoute(route);
+  const page = await app.loadRoute(route, { force: true });
+
+  assert.ok(page.recordInsights.comparisonRecords.some(record => record.id === source.value.id),
+    'the source record is included for the requested pair even though the listing page omitted it');
+  assert.ok(page.recordInsights.comparisonRecords.some(record => record.id === result.value.id));
+  assert.ok(fake.calls.some(call => call.pathname === `/v1/pages/${source.value.id}` && call.method === 'GET'),
+    'the source snapshot is checked by direct record ID lookup');
 });
 
 test('successful entity writes keep inline completion and omit saved or post-write loaded toasts', async () => {
@@ -228,6 +283,58 @@ test('unknown write resolution requires explicit confirmation and a fresh read b
   assert.equal(unresolved.length, 0);
   fake.intercept = null;
   assert.equal((await app.submit('beans', { name: '확인 후 재시도' })).status, 'succeeded');
+});
+
+test('lost best relation response is resolved by rereading the bean and record from Notion', async () => {
+  const setup = startupApp({ route: '/beans' });
+  const { app, fake, native } = setup;
+  await app.connect(testConnection());
+  const bean = await app.submit('beans', { name: '베스트 테스트 원두' });
+  const recipe = await app.submit('recipes', validRecipe(bean.value.id));
+  const record = await app.submit('records', { beanId: bean.value.id, recipeId: recipe.value.id,
+    date: '2026-11-03', rating: '4.7', cupNote: '복숭아' });
+  fake.intercept = async call => {
+    if (call.pathname !== `/v1/pages/${bean.value.id}` || call.method !== 'PATCH' || !call.body?.properties?.['베스트 추출']) return null;
+    const page = fake.rows.find(item => item.id === bean.value.id);
+    const relation = call.body.properties['베스트 추출'];
+    page.properties['베스트 추출'] = { type: 'relation', ...relation, has_more: false };
+    return Promise.reject(new TypeError('lost update response'));
+  };
+  const outcome = await app.submit('set-best-record', { beanId: bean.value.id, recordId: record.value.id });
+  assert.equal(outcome.status, 'unknown');
+  assert.equal(setup.unresolvedOperations.length, 1);
+  assert.equal(setup.unresolvedOperations[0].kind, 'set-best-record');
+  await setup.unresolvedOperations[0].resolve({ originalConfirmed: true, decision: 'saved' });
+  assert.equal(native.journal().operations.at(-1).status, 'succeeded');
+  assert.equal(setup.unresolvedOperations.length, 0);
+  assert.deepEqual(fake.rows.find(item => item.id === bean.value.id).properties['베스트 추출'].relation,
+    [{ id: record.value.id }]);
+});
+
+test('bean detail resolves its persisted best record by ID instead of deriving it from the loaded history page', async () => {
+  const setup = startupApp({ route: '/beans' });
+  const { app, fake, setRoute } = setup;
+  await app.connect(testConnection());
+  const bean = await app.submit('beans', { name: '베스트 상세 원두' });
+  const recipe = await app.submit('recipes', validRecipe(bean.value.id));
+  const record = await app.submit('records', { beanId: bean.value.id, recipeId: recipe.value.id,
+    date: '2026-11-02', rating: '4.4', cupNote: '자몽' });
+  const bestWrite = await app.submit('set-best-record', { beanId: bean.value.id, recordId: record.value.id });
+  assert.equal(bestWrite.status, 'succeeded');
+  fake.intercept = async call => {
+    if (call.pathname !== `/v1/data_sources/${DATA_SOURCES.records}/query` || call.method !== 'POST') return null;
+    return Response.json({ object: 'list', results: [], has_more: false, next_cursor: null });
+  };
+
+  const route = `/beans/${bean.value.id}`;
+  setRoute(route);
+  const detail = await app.loadRoute(route, { force: true });
+
+  assert.equal(detail.beans[0].bestRecordStatus, 'ready');
+  assert.equal(detail.beans[0].bestRecord.id, record.value.id);
+  assert.equal(detail.beans[0].bestRecord.cupNote, '자몽');
+  assert.ok(fake.calls.some(call => call.pathname === `/v1/pages/${record.value.id}` && call.method === 'GET'),
+    'the persisted relation is resolved by direct record ID even when the loaded history page omits it');
 });
 
 test('a second native UI client waits for startup lock release and reads the saved connection', async () => {

@@ -1,3 +1,4 @@
+import { isCurrentRecord } from '../domain.mjs';
 import { buildRecordsInsights } from './records-insights.mjs';
 
 const SOURCE_KEYS = Object.freeze(['beans', 'recipes', 'steps', 'records']);
@@ -30,6 +31,7 @@ const SAFE_MESSAGES = Object.freeze({
   'read-failed': '최신 목록을 불러오지 못했습니다. 연결과 권한을 확인해 주세요.',
   'schema-unsupported': '새 추출 기록을 저장하려면 Notion records 데이터베이스에 ‘원두’ 관계가 필요합니다. 기존 기록 조회는 계속할 수 있습니다.',
   'recipe-guide-unsupported': '추출 가이드를 저장하려면 Notion recipes 데이터베이스에 rich_text 속성을 추가해 주세요. 기존 레시피 조회는 계속할 수 있습니다.',
+  'best-record-unsupported': '베스트 추출 기능을 쓰려면 Notion beans 데이터베이스에 records를 대상으로 하는 ‘베스트 추출’ 관계를 추가해 주세요. 일반 추출 기록 저장은 계속할 수 있습니다.',
   'stale-read': '조회 중 데이터가 바뀌었습니다. 다시 조회해 주세요.',
   'resolution-read-failed': '확인 중 최신 데이터를 읽지 못했습니다. 원본을 확인한 뒤 다시 시도해 주세요.',
   'invalid-resolution': '확인 입력을 처리하지 못했습니다. 원본 상태와 입력한 페이지를 확인해 주세요.',
@@ -196,12 +198,13 @@ export function createAppController({
   }
 
   function routeSchemas(route) {
-    const { path } = routeLocation(route);
+    const { path, params } = routeLocation(route);
     const [section, id] = path.split('/').filter(Boolean);
     if (!section || section === 'home') return [];
     if (section === 'brew') {
       if (id === 'bean') return ['beans'];
-      if (id === 'recipe' || id === 'run') return ['beans', 'recipes', 'steps'];
+      if (id === 'recipe') return ['beans', 'recipes', 'steps'];
+      if (id === 'run') return params.has('recordId') ? ['beans', 'records'] : ['beans', 'recipes', 'steps'];
       return [];
     }
     if (section === 'beans') return id ? ['beans', 'records', 'recipes'] : ['beans'];
@@ -214,6 +217,24 @@ export function createAppController({
   function routeCacheKey(route, cursor = null) {
     const query = route.startsWith('/records') ? recordFilters : {};
     return [activeConnection?.revision ?? 'disconnected', route, JSON.stringify(query), cursor ?? 'first'].join('|');
+  }
+
+  async function includeComparisonPair(records, route, signal) {
+    const params = routeLocation(route).params;
+    const ids = [params.get('compareSourceRecordId'), params.get('compareRecordId')]
+      .filter((value, index, values) => value && values.indexOf(value) === index);
+    if (ids.length !== 2 || typeof repository.getRecord !== 'function') return records;
+    const pair = await Promise.all(ids.map(async id => {
+      try { return await repository.getRecord(id, { signal }); }
+      catch { return null; }
+    }));
+    const sameBean = pair.length === 2 && pair.every(record => isCurrentRecord(record) &&
+      record.beanResolution !== 'needs-confirmation' && typeof record.beanId === 'string' && record.beanId) &&
+      pair[0].beanId === pair[1].beanId;
+    if (!sameBean) return records;
+    const byId = new Map((records ?? []).map(record => [record.id, record]));
+    for (const record of pair) byId.set(record.id, record);
+    return [...byId.values()];
   }
 
   function reusableBrewSelection(route) {
@@ -272,9 +293,10 @@ export function createAppController({
   }
 
   function unavailableScreen(route, error) {
-    if (!['bean-required', 'bean-unavailable', 'recipe-unavailable', 'invalid-input'].includes(error?.code)) return null;
+    if (!['bean-required', 'bean-unavailable', 'recipe-unavailable', 'record-unavailable', 'invalid-input'].includes(error?.code)) return null;
     return { beans: [], recipes: [], records: [], excluded: {},
-      screen: { route, error: error.code === 'invalid-input' ? 'bean-unavailable' : error.code,
+      screen: { route, error: error.code === 'invalid-input' ? 'bean-unavailable'
+        : error.code === 'record-unavailable' ? 'record-unavailable' : error.code,
         nextCursor: null, hasMore: false, complete: true } };
   }
 
@@ -319,6 +341,28 @@ export function createAppController({
     if (section === 'brew' && id === 'run') {
       const beanId = params.get('beanId');
       const recipeId = params.get('recipeId');
+      const recordId = params.get('recordId');
+      if (recordId) {
+        try {
+          const record = await repository.getRecord(recordId, { signal });
+          if (!record || record.snapshotStatus !== 'valid' || record.beanResolution === 'needs-confirmation' ||
+              !record.beanId || (beanId && beanId !== record.beanId)) {
+            return unavailableScreen(route, { code: 'record-unavailable' });
+          }
+          const bean = await repository.getBean(record.beanId, { signal });
+          const recipe = record.snapshot?.version >= 2 ? record.snapshot.recipe
+            : record.snapshot?.version === 1 ? record.snapshot : null;
+          if (!Array.isArray(recipe?.steps) || !recipe.steps.length) {
+            return unavailableScreen(route, { code: 'record-unavailable' });
+          }
+          return { beans: [bean], recipes: [recipe], records: [record], excluded: {},
+            screen: { route, nextCursor: null, hasMore: false, complete: true } };
+        } catch (error) {
+          const unavailable = unavailableScreen(route, error);
+          if (unavailable) return unavailable;
+          throw error;
+        }
+      }
       if (!beanId) return unavailableScreen(route, { code: 'bean-required' });
       if (!recipeId) return unavailableScreen(route, { code: 'recipe-unavailable' });
       try {
@@ -345,8 +389,14 @@ export function createAppController({
       const bean = cursor && data?.screen?.route === route
         ? data.beans.find(item => item.id === id) ?? await repository.getBean(id, { signal })
         : await repository.getBean(id, { signal });
-      const page = await repository.listRecords({ beanId: id, ...pageOptions });
-      return { beans: [bean], recipes: page.recipes, records: page.items, excluded: {},
+      const [page, best] = await Promise.all([
+        repository.listRecords({ beanId: id, ...pageOptions }),
+        typeof repository.resolveBeanBestRecord === 'function'
+          ? repository.resolveBeanBestRecord(bean, { signal })
+          : Promise.resolve({ status: bean.bestRecordStatus ?? 'unsupported', record: null }),
+      ]);
+      const beanWithBest = { ...bean, bestRecordStatus: best.status, bestRecord: best.record };
+      return { beans: [beanWithBest], recipes: page.recipes, records: page.items, excluded: {},
         screen: { route, nextCursor: page.nextCursor, hasMore: page.hasMore, complete: page.complete } };
     }
     if (section === 'recipes' && !id) {
@@ -398,7 +448,8 @@ export function createAppController({
     }
     if (section === 'records') {
       const page = await repository.listRecords({ ...recordFilters, ...pageOptions });
-      const result = { beans: page.beans, recipes: page.recipes, records: page.items, excluded: {},
+      const items = await includeComparisonPair(page.items, route, signal);
+      const result = { beans: page.beans, recipes: page.recipes, records: items, excluded: {},
         screen: { route, filters: { ...recordFilters }, nextCursor: page.nextCursor,
           hasMore: page.hasMore, complete: page.complete } };
       const filterBeans = cachedFilterOptions('beans', page.beans, recordFilters.beanId);
@@ -464,6 +515,14 @@ export function createAppController({
           } else {
             recordInsights = { ...recordInsights, status: 'loading', loading: false, error: '' };
           }
+        } else if (recordInsights.status === 'ready') {
+          const params = routeLocation(route).params;
+          const pairIds = [params.get('compareSourceRecordId'), params.get('compareRecordId')].filter(Boolean);
+          if (pairIds.length === 2) {
+            const pair = fetched.records.filter(record => pairIds.includes(record.id));
+            if (pair.length === 2) saveRecordInsightsPage({ items: pair, nextCursor: recordInsights.nextCursor,
+              hasMore: recordInsights.hasMore, complete: recordInsights.complete }, true);
+          }
         }
         fetched = withRecordInsights(fetched);
       }
@@ -518,7 +577,7 @@ export function createAppController({
           const recipeStatuses = result.recipeStatuses ?? {};
           const snapshotName = (record, kind) => {
             const snapshot = record.snapshot;
-            if (snapshot?.version === 2) return kind === 'beans' ? snapshot.bean?.name : snapshot.recipe?.name;
+            if (snapshot?.version >= 2) return kind === 'beans' ? snapshot.bean?.name : snapshot.recipe?.name;
             return kind === 'recipes' ? snapshot?.name : '';
           };
           const visibleRecords = (data?.records ?? []).map(record => {
@@ -630,7 +689,10 @@ export function createAppController({
       const page = await repository.listRecords({ cursor: null, limit: SCREEN_PAGE_SIZE, signal });
       if (request !== insightReadGeneration || generation !== routeGeneration || signal.aborted ||
           revision !== activeConnection?.revision || currentRoute() !== route) return;
-      saveRecordInsightsPage(page);
+      const items = await includeComparisonPair(page.items, route, signal);
+      if (request !== insightReadGeneration || generation !== routeGeneration || signal.aborted ||
+          revision !== activeConnection?.revision || currentRoute() !== route) return;
+      saveRecordInsightsPage({ ...page, items });
       publishRecordInsights(key);
     } catch {
       if (request !== insightReadGeneration || generation !== routeGeneration || signal.aborted ||
@@ -672,7 +734,10 @@ export function createAppController({
       const page = await repository.listRecords({ cursor, limit: SCREEN_PAGE_SIZE, signal });
       if (request !== insightReadGeneration || generation !== routeGeneration || signal?.aborted ||
           revision !== activeConnection?.revision || routeLocation(currentRoute()).path !== '/records') return null;
-      saveRecordInsightsPage(page, append);
+      const items = await includeComparisonPair(page.items, route, signal);
+      if (request !== insightReadGeneration || generation !== routeGeneration || signal?.aborted ||
+          revision !== activeConnection?.revision || routeLocation(currentRoute()).path !== '/records') return null;
+      saveRecordInsightsPage({ ...page, items }, append);
       publishRecordInsights(key);
       return data;
     } catch {
@@ -1003,6 +1068,33 @@ export function createAppController({
           }
           const freshStack = makeStack(current);
           await freshStack.nextClient.verify();
+          if (operation.updateTarget) {
+            if (pageIds.length || !['saved', 'not-saved', 'cancelled'].includes(resolution.decision) ||
+                freshStack.nextClient.beanBestRecordRelationSupported !== true) {
+              throw Object.freeze({ code: 'invalid-resolution' });
+            }
+            const target = operation.updateTarget;
+            const page = await freshStack.nextClient.getPage(target.id);
+            const relation = page.properties?.['베스트 추출'];
+            const relationIds = Array.isArray(relation?.relation)
+              ? relation.relation.map(item => typeof item?.id === 'string' && UUID.test(item.id) ? item.id.toLowerCase() : null)
+              : null;
+            if (target.kind !== 'beans' || page.parent?.type !== 'data_source_id' ||
+                page.parent.data_source_id !== current.dataSources.beans || page.archived !== false || page.in_trash !== false ||
+                relation?.type !== 'relation' || relation.has_more !== false || !relationIds || relationIds.some(id => !id) ||
+                relationIds.length > 1) throw Object.freeze({ code: 'invalid-resolution' });
+            const currentRecordId = relationIds[0] ?? null;
+            const expectedRecordId = resolution.decision === 'saved' ? target.nextRecordId : target.beforeRecordId;
+            if (currentRecordId !== expectedRecordId) throw Object.freeze({ code: 'invalid-resolution' });
+            if (resolution.decision === 'saved') {
+              const selected = await freshStack.nextRepository.getRecord(target.nextRecordId);
+              if (!selected || selected.beanId !== target.id || selected.beanResolution === 'needs-confirmation') {
+                throw Object.freeze({ code: 'invalid-resolution' });
+              }
+            }
+            return { connectionRevision: operation.connectionRevision, targetFingerprint: operation.targetFingerprint,
+              outcome: resolution.decision, updateTarget: { kind: 'beans', id: target.id, recordId: currentRecordId } };
+          }
           if (DELETE_TARGET_BY_OPERATION[operation.kind]) {
             if (pageIds.length || !operation.deleteTarget || !['saved', 'not-saved'].includes(resolution.decision)) {
               throw Object.freeze({ code: 'invalid-resolution' });
@@ -1087,7 +1179,8 @@ export function createAppController({
       await client.verify();
       const prepare = {
           'delete-bean': 'prepareDeleteBean', 'delete-recipe': 'prepareDeleteRecipe',
-          'delete-record': 'prepareDeleteRecord', beans: 'prepareBean', recipes: 'prepareRecipe', records: 'prepareRecord',
+          'delete-record': 'prepareDeleteRecord', 'set-best-record': 'prepareBestRecord',
+          beans: 'prepareBean', recipes: 'prepareRecipe', records: 'prepareRecord', brews: 'prepareBrew',
         }[kind];
       if (kind !== 'copy' && !prepare) throw Object.freeze({ code: 'input' });
       const draft = kind === 'copy'
@@ -1105,7 +1198,7 @@ export function createAppController({
         }
         view.clearStatus?.();
         stateChanged();
-        invalidateScreenCache(kind);
+        invalidateScreenCache(kind === 'set-best-record' ? 'records' : kind);
         let deleteMessage = '삭제했습니다.';
         try { await readLatest({ skipVerify: true, suppressCompletion: true }); }
         catch {

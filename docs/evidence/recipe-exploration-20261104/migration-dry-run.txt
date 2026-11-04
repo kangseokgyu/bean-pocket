@@ -1,0 +1,7 @@
+test dry-run
+test: would add relation; apply=no; existing properties preserved=yes; target relation=planned
+exitCode=0
+
+operating dry-run
+operating: would add relation; apply=no; existing properties preserved=yes; target relation=planned
+exitCode=0

@@ -1,0 +1,12 @@
+[
+  {
+    "environment": "test",
+    "status": 200,
+    "propertyCount": 8
+  },
+  {
+    "environment": "operating",
+    "status": 200,
+    "propertyCount": 8
+  }
+]

@@ -76,7 +76,13 @@ export function fakePwaNotion() {
     }
     const row = rows.find(item => item.id === parts[3]);
     if (!row) return Response.json({}, { status: 404 });
-    if (method === 'PATCH') row.in_trash = body.in_trash;
+    if (method === 'PATCH') {
+      if (body.in_trash !== undefined) row.in_trash = body.in_trash;
+      for (const [name, property] of Object.entries(body.properties ?? {})) {
+        const type = Object.keys(property)[0];
+        row.properties[name] = { type, ...property, ...(type === 'relation' ? { has_more: false } : {}) };
+      }
+    }
     return Response.json(row);
   } };
   return fake;

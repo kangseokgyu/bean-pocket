@@ -3,9 +3,10 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { NotionClient, NotionRepository, readDataSources } from './lib/notion.mjs';
-import { InputError, validateBean, validateRecipe, validateRecord, validateStoredRecipe, createSnapshot } from './lib/domain.mjs';
+import { InputError, createActualSnapshot, validateBean, validateBrewRecord, validateRecipe, validateRecord, validateStoredRecipe, createSnapshot } from './lib/domain.mjs';
 
 const publicDirectory = new URL('./public/', import.meta.url);
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const staticFiles = {
   '/': ['index.html', 'text/html; charset=utf-8'],
   '/app.js': ['app.js', 'text/javascript; charset=utf-8'],
@@ -86,6 +87,24 @@ export function createApp({ fetchImpl = globalThis.fetch, initialToken = process
     }
     if (path === '/api/records') {
       const bean = requireItem(data.beans, body.beanId, '원두');
+      if (Object.hasOwn(body, 'actualRecipe')) {
+        const sourceRecipeId = body.sourceRecipeId == null ? null : String(body.sourceRecipeId).trim().toLowerCase();
+        const sourceRecordId = body.sourceRecordId == null ? null : String(body.sourceRecordId).trim().toLowerCase();
+        if ((sourceRecipeId !== null && !UUID.test(sourceRecipeId)) ||
+            (sourceRecordId !== null && !UUID.test(sourceRecordId))) {
+          throw new InputError('추출 기록 출처를 확인해 주세요.');
+        }
+        const actualRecipe = validateRecipe(body.actualRecipe);
+        const validated = validateBrewRecord(body, bean, sourceRecipeId);
+        validated.recipeId = sourceRecipeId && data.recipes.some(item => item.id === sourceRecipeId)
+          ? sourceRecipeId : null;
+        const record = {
+          ...validated,
+          name: `${validated.date} · ${actualRecipe.name}`,
+          snapshot: createActualSnapshot(bean, actualRecipe, sourceRecipeId, sourceRecordId),
+        };
+        return targetRepository.create('records', record);
+      }
       const recipe = requireItem(data.recipes, body.recipeId, '레시피');
       validateStoredRecipe(recipe);
       const record = validateRecord(body, recipe, bean);

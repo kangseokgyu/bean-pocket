@@ -4843,3 +4843,80 @@ test('bookmark submits a desired boolean and restores keyboard focus, while brew
   assert.match(view.currentRoute(), /q=coffee/);
   assert.equal(document.root.querySelector('[data-action="favorite-item"]'), null);
 });
+
+test('explicit comparison selects an older fourth bean despite a previous different selection and renders both actual snapshots', async () => {
+  const document = new TestDocument();
+  const view = createAppView(document);
+  const baseline = data();
+  const beans = ['a', 'b', 'c', 'target'].map(id => ({ id, name: `원두 ${id}` }));
+  const row = (id, beanId, date, dose) => ({ ...baseline.records[0], id, beanId, date,
+    beanResolution: 'relation', snapshotStatus: 'valid', snapshot: {
+      version: 3, recordGeneration: 'bagless-v1', bean: { id: beanId, name: `원두 ${beanId}` },
+      recipe: { ...baseline.recipes[0], id: RECIPE, dose }, source: { recipeId: RECIPE, recordId: null },
+    } });
+  const recent = [row('new-a', 'a', '2026-11-04', 15), row('new-b', 'b', '2026-11-03', 15),
+    row('new-c', 'c', '2026-11-02', 15)];
+  const pair = [row('target-left', 'target', '2026-10-01', 16), row('target-right', 'target', '2026-10-02', 18)];
+  const legacy = { ...pair[0], id: 'old-generation', snapshot: { ...pair[0].snapshot, recordGeneration: 'old' } };
+  const invalid = { ...pair[0], id: 'invalid-date', date: 'invalid', invalidFields: ['date'] };
+  const all = [...recent, ...pair, legacy, invalid];
+  const context = { async inspect() { return { initialized: false, blocked: false }; },
+    async readJournal() { return { operations: [], connectionGuard: null }; },
+    async beginConnectionChange() {}, async commitConnectionChange() {} };
+  const controller = createAppController({ view,
+    state: { withWriteLock: action => action(context) }, file: {},
+    makeClient: () => ({ async verify() {} }),
+    makeRepository: () => ({
+      async listRecords() { return { items: recent, beans, recipes: baseline.recipes,
+        nextCursor: null, hasMore: false, complete: true }; },
+      async getRecord(id) { return all.find(record => record.id === id); },
+    }), makeCommands: () => ({}), uuid: () => 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  });
+  view.renderRoute('/records');
+  controller.bind();
+  await controller.connect({ token: 'test-only', dataSources: {} });
+  controller.setRecordInsightsBean('b');
+  assert.equal(document.root.querySelector('.record-insight-selected-bean').querySelector('h3').textContent, '원두 b');
+  const route = '/records?compareSourceRecordId=target-left&compareRecordId=target-right';
+  view.renderRoute(route);
+  const loaded = await controller.loadRoute(route, { force: true });
+  assert.equal(document.root.querySelector('.record-insight-selected-bean').querySelector('h3').textContent, '원두 target');
+  const left = document.root.querySelector('[data-insight-compare-left]');
+  const right = document.root.querySelector('[data-insight-compare-right]');
+  assert.equal(left.querySelectorAll('option').find(option => option.selected)?.value, 'target-left');
+  assert.equal(right.querySelectorAll('option').find(option => option.selected)?.value, 'target-right');
+  assert.deepEqual(left.querySelectorAll('option').filter(option => option.value).map(option => option.value),
+    ['target-right', 'target-left']);
+  const comparison = document.root.querySelector('[data-brew-condition-comparison]');
+  assert.equal(comparison.dataset.compareLeftId, 'target-left');
+  assert.equal(comparison.dataset.compareRightId, 'target-right');
+  assert.match(comparison.querySelector('[data-compare-field="dose"]').textContent, /16 g.*18 g/);
+  assert.deepEqual(document.root.querySelectorAll('.record-insight-chart-legend-name').map(node => node.textContent),
+    ['원두 a', '원두 b', '원두 c']);
+  assert.ok(document.root.querySelector('[data-action="select-insight-bean"][data-bean-id="target"]'));
+  left.value = 'target-right';
+  left.dispatchEvent({ type: 'change', bubbles: true });
+  const changedRight = document.root.querySelector('[data-insight-compare-right]');
+  changedRight.value = 'target-left';
+  changedRight.dispatchEvent({ type: 'change', bubbles: true });
+  view.renderData(loaded);
+  const swapped = document.root.querySelector('[data-brew-condition-comparison]');
+  assert.equal(swapped.dataset.compareLeftId, 'target-right');
+  assert.equal(swapped.dataset.compareRightId, 'target-left');
+  assert.match(swapped.querySelector('[data-compare-field="dose"]').textContent, /18 g.*16 g/);
+  controller.setRecordInsightsBean('b');
+  assert.equal(document.root.querySelector('.record-insight-selected-bean').querySelector('h3').textContent, '원두 b');
+  for (const invalidRoute of [
+    '/records?compareSourceRecordId=new-a&compareRecordId=target-right',
+    '/records?compareSourceRecordId=missing&compareRecordId=target-right',
+    '/records?compareSourceRecordId=old-generation&compareRecordId=target-right',
+    '/records?compareSourceRecordId=invalid-date&compareRecordId=target-right',
+  ]) {
+    controller.setRecordInsightsBean('b');
+    view.renderRoute(invalidRoute);
+    await controller.loadRoute(invalidRoute, { force: true });
+    assert.equal(document.root.querySelector('.record-insight-selected-bean').querySelector('h3').textContent, '원두 b');
+    assert.equal(document.root.querySelector('[data-brew-condition-comparison]').querySelector('[data-brew-condition-table]'), null);
+    assert.doesNotMatch(document.root.querySelector('[data-brew-condition-comparison]').textContent, /16 g.*18 g/);
+  }
+});

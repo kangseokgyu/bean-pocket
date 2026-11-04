@@ -67,7 +67,7 @@ export function renderRecordsInsights(pane, data, document, recipeFilter, rating
   const sidebar = make(document, 'aside', undefined, 'record-insight-sidebar');
   sidebar.setAttribute('aria-labelledby', 'record-insight-bean-heading');
   const sidebarHeading = make(document, 'div', undefined, 'record-insight-section-heading');
-  sidebarHeading.append(make(document, 'h3', '최근 추출 원두'));
+  sidebarHeading.append(make(document, 'h3', '추출 원두'));
   sidebarHeading.lastElementChild.id = 'record-insight-bean-heading';
   sidebarHeading.append(make(document, 'span', `${state.beans?.length ?? 0}종`, 'record-insight-count-chip'));
   sidebar.append(sidebarHeading, make(document, 'p', '마지막 추출이 최근인 원두부터 표시합니다.', 'record-insight-sidebar-help'));

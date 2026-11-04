@@ -225,18 +225,18 @@ export function createAppController({
     const params = routeLocation(route).params;
     const ids = [params.get('compareSourceRecordId'), params.get('compareRecordId')]
       .filter((value, index, values) => value && values.indexOf(value) === index);
-    if (ids.length !== 2 || typeof repository.getRecord !== 'function') return records;
+    if (ids.length !== 2 || typeof repository.getRecord !== 'function') return { items: records, beanId: null };
     const pair = await Promise.all(ids.map(async id => {
       try { return await repository.getRecord(id, { signal }); }
       catch { return null; }
     }));
-    const sameBean = pair.length === 2 && pair.every(record => isCurrentRecord(record) &&
+    const sameBean = pair.length === 2 && pair.every(record => isCurrentRecord(record) && !record.invalidFields?.length &&
       record.beanResolution !== 'needs-confirmation' && typeof record.beanId === 'string' && record.beanId) &&
       pair[0].beanId === pair[1].beanId;
-    if (!sameBean) return records;
+    if (!sameBean) return { items: records, beanId: null };
     const byId = new Map((records ?? []).map(record => [record.id, record]));
     for (const record of pair) byId.set(record.id, record);
-    return [...byId.values()];
+    return { items: [...byId.values()], beanId: pair[0].beanId };
   }
 
   function reusableBrewSelection(route) {
@@ -454,8 +454,9 @@ export function createAppController({
     }
     if (section === 'records') {
       const page = await repository.listRecords({ ...recordFilters, ...pageOptions });
-      const items = await includeComparisonPair(page.items, route, signal);
-      const result = { beans: page.beans, recipes: page.recipes, records: items, excluded: {},
+      const comparison = await includeComparisonPair(page.items, route, signal);
+      const result = { beans: page.beans, recipes: page.recipes, records: comparison.items,
+        comparisonBeanId: comparison.beanId, excluded: {},
         screen: { route, filters: { ...recordFilters }, nextCursor: page.nextCursor,
           hasMore: page.hasMore, complete: page.complete } };
       const filterBeans = cachedFilterOptions('beans', page.beans, recordFilters.beanId);
@@ -513,6 +514,7 @@ export function createAppController({
       if (generation !== routeGeneration || controller.signal.aborted) return null;
       if (routeLocation(route).path === '/records') {
         if (recordInsights.revision !== activeConnection?.revision) resetRecordInsights(activeConnection?.revision);
+        if (fetched.comparisonBeanId) recordInsights.selectedBeanId = fetched.comparisonBeanId;
         if (recordInsights.status === 'idle') {
           const selectedFilters = fetched.screen?.filters ?? recordFilters;
           if (cursor == null && !selectedFilters.beanId && !selectedFilters.recipeId) {
@@ -696,10 +698,11 @@ export function createAppController({
       const page = await repository.listRecords({ cursor: null, limit: SCREEN_PAGE_SIZE, signal });
       if (request !== insightReadGeneration || generation !== routeGeneration || signal.aborted ||
           revision !== activeConnection?.revision || currentRoute() !== route) return;
-      const items = await includeComparisonPair(page.items, route, signal);
+      const comparison = await includeComparisonPair(page.items, route, signal);
       if (request !== insightReadGeneration || generation !== routeGeneration || signal.aborted ||
           revision !== activeConnection?.revision || currentRoute() !== route) return;
-      saveRecordInsightsPage({ ...page, items });
+      if (comparison.beanId && !recordInsights.selectedBeanId) recordInsights.selectedBeanId = comparison.beanId;
+      saveRecordInsightsPage({ ...page, items: comparison.items });
       publishRecordInsights(key);
     } catch {
       if (request !== insightReadGeneration || generation !== routeGeneration || signal.aborted ||
@@ -741,10 +744,11 @@ export function createAppController({
       const page = await repository.listRecords({ cursor, limit: SCREEN_PAGE_SIZE, signal });
       if (request !== insightReadGeneration || generation !== routeGeneration || signal?.aborted ||
           revision !== activeConnection?.revision || routeLocation(currentRoute()).path !== '/records') return null;
-      const items = await includeComparisonPair(page.items, route, signal);
+      const comparison = await includeComparisonPair(page.items, route, signal);
       if (request !== insightReadGeneration || generation !== routeGeneration || signal?.aborted ||
           revision !== activeConnection?.revision || routeLocation(currentRoute()).path !== '/records') return null;
-      saveRecordInsightsPage({ ...page, items }, append);
+      if (comparison.beanId && !recordInsights.selectedBeanId) recordInsights.selectedBeanId = comparison.beanId;
+      saveRecordInsightsPage({ ...page, items: comparison.items }, append);
       publishRecordInsights(key);
       return data;
     } catch {

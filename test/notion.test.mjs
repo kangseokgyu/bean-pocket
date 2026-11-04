@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {NotionClient,NotionRepository,encodeProperties,decodePage} from '../lib/notion.mjs';
+import { createActualSnapshot, createSnapshot, validateRecipe } from '../lib/domain.mjs';
 import { DATA_SOURCES } from './fixtures/notion-config.mjs';
 test('읽기는 페이지네이션하며 쓰기는 data_source_id 부모와 정확한 속성을 쓴다',async()=>{let calls=[];const client=new NotionClient('secret',{fetchImpl:async(url,options)=>{calls.push({url,options});return Response.json(calls.length===1?{results:[{id:'one'}],has_more:true,next_cursor:'next'}:{results:[{id:'two'}],has_more:false});}});assert.equal((await client.queryAll(DATA_SOURCES.beans)).length,2);assert.equal(JSON.parse(calls[1].options.body).start_cursor,'next');assert.equal(calls[0].options.headers['Notion-Version'],'2025-09-03');await client.createPage(DATA_SOURCES.beans,{});assert.deepEqual(JSON.parse(calls[2].options.body).parent,{type:'data_source_id',data_source_id:DATA_SOURCES.beans});assert.equal(calls[2].options.redirect,'error');});
 test('429는 재시도 없이 안전한 오류로 전달',async()=>{let count=0;const client=new NotionClient('secret',{fetchImpl:async()=>{count++;return Response.json({message:'secret'},{status:429});}});await assert.rejects(()=>client.queryAll(DATA_SOURCES.beans),/잠시/);assert.equal(count,1);});
@@ -108,3 +109,32 @@ test('server keeps invalid stored fields and damaged snapshots visible only as w
 test('legacy server repository blocks bag pages and bag-linked record writes before Notion',async()=>{let calls=0;const repo=new NotionRepository({dataSources:DATA_SOURCES,recordBeanRelationSupported:true,createPage:async()=>{calls++;return{id:'unexpected'};}});await assert.rejects(()=>repo.create('bags',{name:'old bag',beanId:CRITIC_IDS.beanA}),/봉지|지원하지/);await assert.rejects(()=>repo.create('records',{name:'record',beanId:CRITIC_IDS.beanA,recipeId:CRITIC_IDS.recipe,bagId:null}),/봉지|bagId/);assert.equal(calls,0);});
 
 test('bagless generation omits the bag relation in encoded record writes',()=>{const properties=encodeProperties('records',{name:'기록',beanId:CRITIC_IDS.beanA,recipeId:CRITIC_IDS.recipe,date:'2026-10-26',rating:5,snapshot:{version:2,recordGeneration:'bagless-v1'}});assert.equal(Object.hasOwn(properties,'원두 봉지'),false);});
+
+
+test('Node repository reads v3 null-source snapshots and preserves legacy ID mismatch checks', async () => {
+  const bean = { id: CRITIC_IDS.beanA, name: '출처 없는 추출 원두' };
+  const recipe = validateRecipe({ name: '실제 조건', dose: 18, temperature: 90, totalWater: 260,
+    steps: [{ time: '0:00', water: 60 }, { time: '0:35', water: 200 }] });
+  const v3 = createActualSnapshot(bean, recipe);
+  const legacyRecipe = { ...recipe, id: CRITIC_IDS.recipe };
+  const cases = [
+    { snapshot: v3, recipeId: null, expected: 'valid' },
+    { snapshot: { ...v3, source: { recipeId: null, recordId: null } }, expected: 'valid' },
+    { snapshot: v3, recipeId: CRITIC_IDS.recipe, expected: 'damaged' },
+    { snapshot: createActualSnapshot(bean, recipe, CRITIC_IDS.recipe), recipeId: CRITIC_IDS.beanB, expected: 'damaged' },
+    { snapshot: createSnapshot(bean, legacyRecipe), recipeId: CRITIC_IDS.beanB, expected: 'damaged' },
+    { snapshot: { version: 1, ...legacyRecipe, beanId: bean.id }, recipeId: CRITIC_IDS.beanB, expected: 'damaged' },
+  ];
+  for (const { snapshot, recipeId, expected } of cases) {
+    const pages = criticDataset();
+    pages.records = [criticPage('records', CRITIC_IDS.record, { beanId: bean.id, recipeId,
+      date: '2026-11-04', rating: 4.3, snapshot })];
+    const loaded = (await criticRepository(pages).all()).records[0];
+    assert.equal(loaded.snapshotStatus, expected);
+    if (expected === 'valid') {
+      assert.equal(loaded.snapshot.source.recipeId, null);
+      assert.equal(loaded.snapshot.recipe.dose, 18);
+      assert.deepEqual(loaded.snapshot.recipe.steps.map(step => step.water), [60, 200]);
+    } else assert.equal(loaded.snapshot, null);
+  }
+});

@@ -17,7 +17,7 @@ function record({ id, beanId, beanName = beanId, date, rating, recipeName = '보
   };
 }
 
-test('three distinct beans are ordered by newest valid record with a stable tie break', () => {
+test('all comparison beans are ordered by newest valid record with a stable tie break', () => {
   const records = [
     record({ id: 'old-a', beanId: 'bean-a', date: '2026-10-01', rating: 3 }),
     record({ id: 'new-b', beanId: 'bean-b', date: '2026-10-09', rating: 4 }),
@@ -28,7 +28,7 @@ test('three distinct beans are ordered by newest valid record with a stable tie 
   const model = buildRecordsInsights(records);
 
   assert.deepEqual(model.beans.map(bean => [bean.id, bean.latestDate]), [
-    ['bean-a', '2026-10-12'], ['bean-d', '2026-10-12'], ['bean-c', '2026-10-11'],
+    ['bean-a', '2026-10-12'], ['bean-d', '2026-10-12'], ['bean-c', '2026-10-11'], ['bean-b', '2026-10-09'],
   ]);
   assert.deepEqual(model.beans[0], {
     id: 'bean-a', name: '시다마', origin: '', roaster: '', variety: '', process: '', tastingNotes: '',

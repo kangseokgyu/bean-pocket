@@ -129,11 +129,11 @@ export function buildRecordsInsights(records, beans = [], selectedBeanId = '', r
         : latestRecord.rating == null ? '별점 없음' : '별점 확인 필요',
       recordCount: beanRecords.length,
     };
-  }).sort((left, right) => right.latestDate.localeCompare(left.latestDate) || byId(left, right)).slice(0, 3);
+  }).sort((left, right) => right.latestDate.localeCompare(left.latestDate) || byId(left, right));
   const selectedBean = beanOptions.find(bean => bean.id === selectedBeanId) ?? beanOptions[0] ?? null;
   const selectedRows = selectedBean ? recordsByBean.get(selectedBean.id) ?? [] : [];
   const ratedRows = selectedRows.filter(ratingRecord);
-  const trendSeries = beanOptions.map(bean => ({
+  const trendSeries = beanOptions.slice(0, 3).map(bean => ({
     beanId: bean.id,
     beanName: bean.name,
     points: (recordsByBean.get(bean.id) ?? []).filter(ratingRecord)

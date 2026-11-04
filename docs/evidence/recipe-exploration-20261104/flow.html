@@ -84,7 +84,7 @@
       <article class="node">
         <span class="step">4</span>
         <h3>같은 원두 기록 두 건 비교</h3>
-        <p>새 추출과 출발 기록을 기본 쌍으로 연다. 사용자는 같은 원두의 다른 기록도 고를 수 있고, 요청 기록이 목록 밖이면 ID로 직접 읽는다.</p>
+        <p>새 추출과 출발 기록을 기본 쌍으로 연다. 유효한 요청 쌍의 원두를 선택하고 목록 밖 기록은 ID로 직접 읽는다. 비교 원두 목록은 전체 불러온 원두를 유지하고, 추이 차트만 최근 3종으로 제한한다. 이후 원두와 두 기록 선택을 자유롭게 바꾼다.</p>
         <a class="source" href="../../../pwa/ui/controller.mjs">pwa/ui/controller.mjs · includeComparisonPair</a>
         <a class="source" href="../../../pwa/ui/records-insights.mjs">pwa/ui/records-insights.mjs · compareBrewRecords</a>
       </article>
@@ -109,7 +109,7 @@
   <section aria-labelledby="contract-title">
     <h2 id="contract-title">데이터 계약</h2>
     <div class="contract">
-      <article><strong>스냅샷 호환</strong><p>새 v3 실제 조건 스냅샷을 저장하고 v1/v2 기록과 `bagless-v1` 세대 판독을 유지한다.</p></article>
+      <article><strong>스냅샷 호환</strong><p>새 v3 실제 조건 스냅샷은 출처가 없는 null도 허용한다. v1/v2 기록과 `bagless-v1` 세대 판독을 유지하고 관계 ID 불일치는 거부한다.</p></article>
       <article><strong>베스트 관계</strong><p>beans에서 records를 가리키는 one-way relation을 쓴다. 앱은 관계가 0개 또는 1개인지 검증하고 불가 상태를 구분한다.</p></article>
       <article><strong>레시피 통계</strong><p>“이 레시피에서 시작한 추출 평가”를 세며 조건이 서로 같다고 가정하지 않는다.</p></article>
     </div>

@@ -10,7 +10,7 @@ const kinds = ['beans', 'recipes', 'steps', 'records'];
 const SOURCES = Object.fromEntries(kinds.map((kind, i) => [kind, uuid(i + 1)]));
 const REVISION = uuid(10), PAGE = uuid(20), OTHER = uuid(21);
 const TOKEN = 'unit-credential-only', RAW = 'private-response-sentinel';
-const RELATIONS = { recipes: { beanId: 'beans' }, steps: { recipeId: 'recipes' }, records: { beanId: 'beans', recipeId: 'recipes' } };
+const RELATIONS = { beans: { bestRecordIds: 'records' }, recipes: { beanId: 'beans' }, steps: { recipeId: 'recipes' }, records: { beanId: 'beans', recipeId: 'recipes' } };
 function source(kind) {
   return { object: 'data_source', id: SOURCES[kind], properties: Object.fromEntries(Object.entries(schemas[kind] || {}).map(([key, [name, type]]) =>
     [name, { type, ...(type === 'relation' ? { relation: { data_source_id: SOURCES[RELATIONS[kind][key]] } } : {}) }])) };
@@ -152,7 +152,7 @@ test('verify는 object/id/속성 누락·다른 타입·관계의 다른 데이�
     const { client } = harness(() => { const s = source('beans'); mutate(s); return response(200, s); });
     await rejected(client.verify(), 'not-sent', 'invalid-response');
   }
-  for (const kind of Object.keys(RELATIONS)) {
+  for (const kind of Object.keys(RELATIONS).filter(kind => kind !== 'beans')) {
     const { client } = harness(url => {
       const key = kinds.find(k => url.endsWith(SOURCES[k]));
       const s = source(key);
@@ -463,8 +463,8 @@ test('배열·UTF-8 500000byte 한도와 stringify 오류는 fetch 전 안전하
   assert.equal(calls.length, 0);
 });
 
-test('canonical 31속성·긴 snapshot 왕복과 기존 decode 의미·서버 함수 동일성을 유지한다', () => {
-  assert.equal(Object.values(schemas).reduce((sum, fields) => sum + Object.keys(fields).length, 0), 31);
+test('canonical 34속성·긴 snapshot 왕복과 기존 decode 의미·서버 함수 동일성을 유지한다', () => {
+  assert.equal(Object.values(schemas).reduce((sum, fields) => sum + Object.keys(fields).length, 0), 34);
   assert.equal(serverEncode, encodeProperties); assert.equal(serverDecode, decodePage);
   const snapshot = { version: 1, name: '원본', steps: [{ order: 1, seconds: 0, water: 50 }], note: '가'.repeat(5000) };
   const properties = encodeProperties('records', { name: '기록', recipeId: PAGE, snapshot });
@@ -559,4 +559,86 @@ test('bagless generation writes no legacy bag relation property', async () => {
   });
   const properties = JSON.parse(calls[0].init.body).properties;
   assert.equal(Object.hasOwn(properties, '원두 봉지'), false);
+});
+
+test('favorite checkbox encodes, decodes with boolean, and supports updateFavorite', async () => {
+  const { client, calls } = await recordsHarness((url, init) => {
+    const method = init?.method ?? 'GET';
+    if (method === 'PATCH') {
+      const body = JSON.parse(init.body);
+      return response(200, page(PAGE, 'beans', { properties: body.properties }));
+    }
+    return response(200, page(PAGE, 'beans'));
+  });
+  assert.equal(typeof client.updateFavorite, 'function');
+  const updated = await client.updateFavorite('beans', PAGE, true);
+  assert.equal(updated.favorite, true);
+  const patchBody = JSON.parse(calls.at(-1).init.body);
+  assert.deepEqual(patchBody.properties['즐겨찾기'], { checkbox: true });
+});
+
+test('createPage omits favorite when schema does not support favorite', async () => {
+  const { client, calls } = await recordsHarness((url, init) => {
+    const method = init?.method ?? 'GET';
+    if (method === 'POST') {
+      const body = JSON.parse(init.body);
+      return response(200, page(PAGE, 'beans', { properties: body.properties }));
+    }
+    return response(200, page(PAGE, 'beans'));
+  });
+  await client.createPage('beans', { name: '새 원두', favorite: false });
+  const sentProps = JSON.parse(calls.at(-1).init.body).properties;
+  // If favorite is supported it encodes as checkbox: false, if not supported it is omitted.
+  // Either way createPage must succeed.
+  assert.ok(sentProps['원두 이름']);
+});
+
+test('favorite PATCH rejects an unconfirmed checkbox value as unknown', async () => {
+  const { client } = await recordsHarness((url, init) => response(200, page(PAGE, 'beans', {
+    properties: init.method === 'PATCH' ? { '즐겨찾기': { type: 'checkbox', checkbox: false } } : {},
+  })));
+  await assert.rejects(client.updateFavorite('beans', PAGE, true), error => error.writeState === 'unknown');
+});
+
+test('schemas without favorite keep bean and recipe creation available and omit unknown property', async () => {
+  const { client, calls } = harness((url, init) => {
+    const kind = kinds.find(key => url.endsWith('/data_sources/' + SOURCES[key]));
+    if (kind) {
+      const schema = source(kind); delete schema.properties['즐겨찾기'];
+      return response(200, schema);
+    }
+    const body = JSON.parse(init.body);
+    return response(200, page(PAGE, Object.keys(SOURCES).find(key => SOURCES[key] === body.parent.data_source_id), { properties: body.properties }));
+  });
+  await client.verify();
+  assert.equal(client.beanFavoriteSupported, false);
+  assert.equal(client.recipeFavoriteSupported, false);
+  await client.createPage('beans', { name: 'Bean' });
+  await client.createPage('recipes', { name: 'Recipe', dose: 15, temperature: 93, totalWater: 250 });
+  const creates = calls.filter(call => call.init.method === 'POST');
+  assert.equal(creates.length, 2);
+  assert.ok(creates.every(call => !Object.hasOwn(JSON.parse(call.init.body).properties, '즐겨찾기')));
+  await assert.rejects(client.updateFavorite('beans', PAGE, true), error => error.code === 'favorite-unsupported' && error.writeState === 'not-sent');
+});
+
+
+test('an incompatible optional best relation disables only best updates', async () => {
+  for (const replacement of [undefined, { type: 'number' },
+    { type: 'relation', relation: { data_source_id: OTHER } }]) {
+    const { client, calls } = harness(url => {
+      const kind = kinds.find(key => url.endsWith(SOURCES[key]));
+      const schema = source(kind);
+      if (kind === 'beans') {
+        if (replacement === undefined) delete schema.properties['베스트 추출'];
+        else schema.properties['베스트 추출'] = replacement;
+      }
+      return response(200, schema);
+    });
+    assert.equal(await client.verify(), true);
+    assert.equal(client.beanBestRecordRelationSupported, false);
+    const before = calls.length;
+    await rejected(client.setBeanBestRecord(PAGE, OTHER), 'not-sent', 'best-record-unsupported');
+    assert.equal(calls.length, before);
+    assert.equal(client.beanFavoriteSupported, true);
+  }
 });

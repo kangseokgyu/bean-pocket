@@ -93,6 +93,7 @@ function validateRawProperties(kind, page, client) {
     if (type === 'relation' && !isRelation(value, property)) return false;
     if (type === 'date' && !isDate(value)) return false;
     if (type === 'number' && value !== null && (typeof value !== 'number' || !Number.isFinite(value))) return false;
+    if (type === 'checkbox' && typeof value !== 'boolean') return false;
   }
   return true;
 }
@@ -328,11 +329,23 @@ export function createReadRepository(client) {
     return safeFailure(code, 'not-sent', details);
   }
 
-  async function listBeans({ cursor = null, limit = 20, query: searchText = '', signal } = {}) {
+  function listFilter(kind, searchText, favoriteOnly) {
+    if (typeof favoriteOnly !== 'boolean') throw safeFailure('invalid-input');
+    if (favoriteOnly && client[`${kind === 'beans' ? 'bean' : 'recipe'}FavoriteSupported`] === false) {
+      throw safeFailure('favorite-unsupported');
+    }
+    const filters = [];
+    if (searchText.trim()) filters.push({ property: schemas[kind].name[0], title: { contains: searchText.trim() } });
+    if (favoriteOnly) filters.push({ property: schemas[kind].favorite[0], checkbox: { equals: true } });
+    if (filters.length > 1) return { and: filters };
+    return filters[0];
+  }
+
+  async function listBeans({ cursor = null, limit = 20, query: searchText = '', favoriteOnly = false, signal } = {}) {
     if (typeof queryPage !== 'function' || typeof searchText !== 'string' || searchText.length > 100) {
       throw safeFailure('invalid-input');
     }
-    const filter = searchText.trim() ? { property: schemas.beans.name[0], title: { contains: searchText.trim() } } : undefined;
+    const filter = listFilter('beans', searchText, favoriteOnly);
     const query = { filter, sorts: [{ property: schemas.beans.name[0], direction: 'ascending' }],
       properties: propertyNames('beans') };
     const startCursor = queryCursor('beans', query, cursor);
@@ -460,11 +473,11 @@ export function createReadRepository(client) {
     return validated;
   }
 
-  async function listRecipeSummaries({ cursor = null, limit = 20, query: searchText = '', signal } = {}) {
+  async function listRecipeSummaries({ cursor = null, limit = 20, query: searchText = '', favoriteOnly = false, signal } = {}) {
     if (typeof queryPage !== 'function' || typeof searchText !== 'string' || searchText.length > 100) {
       throw safeFailure('invalid-input');
     }
-    const filter = searchText.trim() ? { property: schemas.recipes.name[0], title: { contains: searchText.trim() } } : undefined;
+    const filter = listFilter('recipes', searchText, favoriteOnly);
     const query = { filter, sorts: [{ property: schemas.recipes.name[0], direction: 'ascending' }],
       properties: propertyNames('recipes') };
     const startCursor = queryCursor('recipes', query, cursor);
@@ -808,14 +821,14 @@ export function createReadRepository(client) {
     }
   }
 
-  async function searchOptions({ kind, query = '', cursor = null, limit = 20, signal } = {}) {
+  async function searchOptions({ kind, query = '', favoriteOnly = false, cursor = null, limit = 20, signal } = {}) {
     const normalizedQuery = typeof query === 'string' ? query.trim() : '';
     if (!['beans', 'recipes'].includes(kind) || typeof query !== 'string' || normalizedQuery.length > 100) {
       throw safeFailure('invalid-input');
     }
     const page = kind === 'beans'
-      ? await listBeans({ query: normalizedQuery, cursor, limit, signal })
-      : await listRecipeSummaries({ query: normalizedQuery, cursor, limit, signal });
+      ? await listBeans({ query: normalizedQuery, favoriteOnly, cursor, limit, signal })
+      : await listRecipeSummaries({ query: normalizedQuery, favoriteOnly, cursor, limit, signal });
     if (kind === 'recipes' && page.items.length) {
       const validation = await validateRecipeSummaries(page.items.map(item => item.id), { signal });
       const recipeById = new Map(validation.items.map(item => [item.id,

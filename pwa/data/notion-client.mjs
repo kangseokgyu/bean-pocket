@@ -1,5 +1,5 @@
 import { CURRENT_RECORD_GENERATION } from '../domain.mjs';
-import { schemas, relationTargets, optionalProperties, encodeProperties } from './notion-properties.mjs';
+import { schemas, relationTargets, optionalProperties, encodeProperties, decodePage } from './notion-properties.mjs';
 
 const KINDS = Object.freeze(['beans', 'recipes', 'steps', 'records']);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -181,6 +181,8 @@ export class NotionClient {
   #recipeExtractionGuideSupported = null;
   #recordBeanRelationSupported = null;
   #beanBestRecordRelationSupported = null;
+  #beanFavoriteSupported = null;
+  #recipeFavoriteSupported = null;
   #readTail = Promise.resolve();
   #lastReadAt = 0;
 
@@ -207,6 +209,8 @@ export class NotionClient {
   get recipeExtractionGuideSupported() { return this.#recipeExtractionGuideSupported; }
   get recordBeanRelationSupported() { return this.#recordBeanRelationSupported; }
   get beanBestRecordRelationSupported() { return this.#beanBestRecordRelationSupported; }
+  get beanFavoriteSupported() { return this.#beanFavoriteSupported; }
+  get recipeFavoriteSupported() { return this.#recipeFavoriteSupported; }
 
   #source(kind) {
     if (typeof kind !== 'string' || !Object.hasOwn(this.#dataSources, kind)) {
@@ -300,6 +304,8 @@ export class NotionClient {
       let recipeExtractionGuideSupported = false;
       let recordBeanRelationSupported = false;
       let beanBestRecordRelationSupported = false;
+      let beanFavoriteSupported = false;
+      let recipeFavoriteSupported = false;
       await this.#scheduleRead(() => this.#request('/data_sources/' + sourceId, {
         signal,
         validate: data => {
@@ -316,6 +322,8 @@ export class NotionClient {
             if (!record(property) || property.type !== type) return false;
             if (kind === 'recipes' && field === 'extractionGuide') recipeExtractionGuideSupported = true;
             if (kind === 'records' && field === 'beanId') recordBeanRelationSupported = true;
+            if (kind === 'beans' && field === 'favorite') beanFavoriteSupported = true;
+            if (kind === 'recipes' && field === 'favorite') recipeFavoriteSupported = true;
             if (type !== 'relation') return true;
             return record(property.relation) &&
               uuid(property.relation.data_source_id) === this.#dataSources[relationTargets[kind][field]];
@@ -325,6 +333,8 @@ export class NotionClient {
       if (kind === 'recipes') this.#recipeExtractionGuideSupported = recipeExtractionGuideSupported;
       if (kind === 'records') this.#recordBeanRelationSupported = recordBeanRelationSupported;
       if (kind === 'beans') this.#beanBestRecordRelationSupported = beanBestRecordRelationSupported;
+      if (kind === 'beans') this.#beanFavoriteSupported = beanFavoriteSupported;
+      if (kind === 'recipes') this.#recipeFavoriteSupported = recipeFavoriteSupported;
     }
     return true;
   }
@@ -451,6 +461,12 @@ export class NotionClient {
     if (kind === 'recipes' && this.#recipeExtractionGuideSupported === false) {
       delete payload.properties['추출 가이드'];
     }
+    if (kind === 'beans' && this.#beanFavoriteSupported === false) {
+      delete payload.properties['즐겨찾기'];
+    }
+    if (kind === 'recipes' && this.#recipeFavoriteSupported === false) {
+      delete payload.properties['즐겨찾기'];
+    }
     return this.#request('/pages', {
       method: 'POST', writing: true,
       body: { parent: { type: 'data_source_id', data_source_id: sourceId }, properties: payload.properties },
@@ -507,5 +523,27 @@ export class NotionClient {
       method: 'PATCH', writing: true, body: { in_trash: true },
       validate: data => validPage(data, id) && data.in_trash === true,
     });
+  }
+
+  async updateFavorite(kind, value, favorite) {
+    if (!['beans', 'recipes'].includes(kind) || typeof favorite !== 'boolean') {
+      throw failure('invalid-input', 'not-sent');
+    }
+    if (this[kind === 'beans' ? 'beanFavoriteSupported' : 'recipeFavoriteSupported'] === false) {
+      throw failure('favorite-unsupported', 'not-sent');
+    }
+    const id = this.#pageId(value);
+    const sourceId = this.#source(kind);
+    const page = await this.getPage(id);
+    if (!validPage(page, id, sourceId) || page.in_trash !== false || page.archived !== false) {
+      throw failure('invalid-target', 'not-sent');
+    }
+    const updated = await this.#request('/pages/' + id, {
+      method: 'PATCH', writing: true,
+      body: { properties: { [schemas[kind].favorite[0]]: { checkbox: favorite } } },
+      validate: data => validPage(data, id, sourceId) && data.in_trash !== true && data.archived !== true &&
+        data.properties?.[schemas[kind].favorite[0]]?.checkbox === favorite,
+    });
+    return decodePage(kind, updated);
   }
 }

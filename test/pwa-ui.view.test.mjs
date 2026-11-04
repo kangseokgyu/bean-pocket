@@ -2049,7 +2049,7 @@ test('bean details group all bean metadata and records inside the recipe card hi
   assert.ok(detail);
   assert.equal(detail.querySelector('h3').textContent, '원두 <안전>');
   assert.deepEqual(detail.querySelectorAll('.bean-detail-section')
-    .map(section => section.querySelector('h4').textContent), ['원두 정보', '이 원두의 추출 기록']);
+    .map(section => section.querySelector('h4').textContent), ['원두 정보', '사용자 베스트 추출', '이 원두의 추출 기록']);
   assert.deepEqual(detail.querySelector('.bean-primary-metadata').querySelectorAll('dt').map(node => node.textContent),
     ['산지·농장', '로스터리']);
   assert.deepEqual(detail.querySelector('.bean-metadata').querySelectorAll('dt').map(node => node.textContent),
@@ -3085,8 +3085,8 @@ test('bean cards open their records through a full-card native link without a re
   assert.ok(link, 'the bean title is a keyboard-accessible native link');
   assert.equal(link.getAttribute('href'), `#/beans/${BEAN}`);
   assert.equal(link.getAttribute('aria-label'), '원두 <안전> 추출 기록 보기');
-  assert.equal(card.querySelectorAll('button').length, 1, 'only the delete button remains');
-  assert.equal(card.querySelector('button').dataset.action, 'delete-bean');
+  assert.equal(card.querySelectorAll('button').length, 2, 'bookmark and delete remain independent of the card link');
+  assert.ok(card.querySelector('[data-action="delete-bean"]'));
   assert.ok(card.textContent.includes('추출 기록 1개'));
   const css = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
   assert.match(css, /\.bean-card-link::after\s*\{[^}]*inset:\s*0/s);
@@ -3158,8 +3158,8 @@ test('recipe list cards link their entire surface to details without a details b
   assert.ok(link, 'recipe title is a native keyboard-accessible link');
   assert.equal(link.getAttribute('href'), `#/recipes/${RECIPE}`);
   assert.equal(link.getAttribute('aria-label'), 'V60 상세 보기');
-  assert.equal(card.querySelectorAll('button').length, 1, 'only delete remains');
-  assert.equal(card.querySelector('button').dataset.action, 'delete-recipe');
+  assert.equal(card.querySelectorAll('button').length, 2, 'bookmark and delete remain independent of the card link');
+  assert.ok(card.querySelector('[data-action="delete-recipe"]'));
   assert.deepEqual(Object.fromEntries(card.querySelectorAll('.recipe-metric').map(metric => [
     metric.dataset.metric, metric.querySelector('dd').textContent,
   ])), { dose: '15g', water: '250g', temperature: '93℃', ratio: '1 : 16.7' });
@@ -4036,18 +4036,17 @@ test('brew routes preserve selected parents and show the saved recipe guide with
   view.renderRoute(`/brew/run?beanId=${BEAN}&recipeId=${RECIPE}`);
   const run = document.root.querySelector('.brew-run-pane');
   assert.ok(run);
-  assert.match(run.textContent, /15g/);
-  assert.match(run.textContent, /93℃/);
-  assert.match(run.textContent, /250g/);
-  assert.match(run.textContent, /교반 없음/);
-  assert.match(run.textContent, /목표 추출 완료 시간: 2분 30초/);
-  assert.equal(run.querySelectorAll('.steps-table').length, 1);
+  const form = run.querySelector('form[data-form="brews"]');
+  assert.equal(form.elements.dose.value, 15);
+  assert.equal(form.elements.temperature.value, 93);
+  assert.equal(form.elements.totalWater.value, 250);
+  assert.equal(form.elements.extractionGuide.value, '교반 없음\n목표 추출 완료 시간: 2분 30초');
+  assert.equal(form.querySelectorAll('.brew-stage-row').length, 2);
   assert.equal(run.querySelector('[data-action="start-timer"]'), null);
   const back = run.querySelector('[data-action="back-to-recipes"]');
   assert.equal(back.dataset.route, `/brew/recipe?beanId=${BEAN}&selectedRecipeId=${RECIPE}`);
-  const complete = run.querySelector('[data-action="complete-brew"]');
-  assert.equal(complete.dataset.beanId, BEAN);
-  assert.equal(complete.dataset.recipeId, RECIPE);
+  assert.equal(form.elements.beanId.value, BEAN);
+  assert.equal(form.elements.sourceRecipeId.value, RECIPE);
 });
 
 test('brew bean and recipe option cards are full-area buttons and preserve selection and readiness', () => {
@@ -4134,36 +4133,26 @@ test('brew overview marks the active step and aligns selection, conditions, and 
   assert.equal(runRecipe.querySelector('[data-action="back-to-recipes"]').dataset.route,
     `/brew/recipe?beanId=${BEAN}&selectedRecipeId=${RECIPE}`);
 
-  const groups = pane.querySelectorAll('.brew-condition-group');
-  assert.deepEqual(groups.map(group => group.querySelector('h3')?.textContent), ['추출', '분쇄']);
-  assert.match(groups[0].textContent, /V60.*15g.*93℃.*250g/);
-  assert.match(groups[1].textContent, /중간보다 가늘게.*Comandante.*24클릭/);
-
-  const tableRegion = pane.querySelector('.brew-pour-table-scroll');
-  assert.equal(tableRegion.getAttribute('role'), 'region');
-  assert.equal(tableRegion.getAttribute('aria-label'), '물 붓기 단계 표');
-  assert.equal(tableRegion.getAttribute('tabindex'), '0', 'the horizontally scrollable table region is keyboard focusable');
-  const table = pane.querySelector('.brew-pour-table');
-  assert.deepEqual(table.querySelector('thead').querySelector('tr').children.map(cell => cell.textContent), [
-    '단계', '경과 시간', '이번 물 양', '누적 물 양',
-  ]);
-  const secondPour = table.querySelector('tbody').children[1].children;
-  assert.equal(secondPour[0].textContent, '붓기');
-  assert.equal(secondPour[1].querySelector('.brew-pour-time').textContent, '1:10');
-  assert.equal(secondPour[1].querySelector('.brew-pour-interval').textContent, '간격 40초');
-  assert.equal(secondPour[2].textContent, '200g');
-  assert.equal(secondPour[3].textContent, '250g');
-  assert.equal(pane.querySelector('.brew-extraction-guide').textContent,
-    '교반 없음\n목표 추출 완료 시간: 2분 30초');
-  assert.equal(pane.querySelector('[data-action="complete-brew"]').dataset.beanId, BEAN);
-  assert.equal(pane.querySelector('[data-action="complete-brew"]').dataset.recipeId, RECIPE);
-
+  const form = pane.querySelector('form[data-form="brews"]');
+  assert.equal(form.elements.dripper.value, 'V60');
+  assert.equal(form.elements.dose.value, 15);
+  assert.equal(form.elements.grind.value, '중간보다 가늘게');
+  assert.equal(form.elements.grinder.value, 'Comandante');
+  assert.equal(form.elements.grinderSetting.value, '24클릭');
+  const rows = form.querySelectorAll('.brew-stage-row');
+  assert.equal(rows.length, 2);
+  assert.equal(rows[1].querySelector('[name="stepName"]').value, '붓기');
+  assert.equal(rows[1].querySelector('[name="time"]').value, '1:10');
+  assert.equal(rows[1].querySelector('[name="water"]').value, 200);
+  assert.match(form.querySelector('[data-brew-stage-total]').textContent, /250g/);
   const sparse = data();
   sparse.recipes[0] = { ...sparse.recipes[0], grind: '', grinder: '', grinderSetting: '', microns: null };
   view.renderData(sparse);
   view.renderRoute(`/brew/run?beanId=${BEAN}&recipeId=${RECIPE}`);
-  assert.deepEqual(document.root.querySelectorAll('.brew-condition-group').map(group => group.querySelector('h3')?.textContent), ['추출'],
-    'the optional grind group is absent when the recipe has no grind fields');
+  const sparseForm = document.root.querySelector('form[data-form="brews"]');
+  assert.equal(sparseForm.elements.grind.value, '');
+  assert.equal(sparseForm.elements.grinder.value, '');
+  assert.equal(sparseForm.elements.microns.value, '');
 });
 
 test('brew preparation submits edited conditions, stages, decimal rating, date, and cup note together', async () => {
@@ -4379,7 +4368,7 @@ test('a new connection does not prefill the record form from the previous connec
 });
 
 
-test('brew clicks preserve bean and recipe in browser history and complete into a prefilled record form', async () => {
+test('brew clicks preserve bean and recipe in browser history and open actual-condition evaluation', async () => {
   const previousWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
   const previousLocation = Object.getOwnPropertyDescriptor(globalThis, 'location');
   let hash = '#/home';
@@ -4435,12 +4424,13 @@ test('brew clicks preserve bean and recipe in browser history and complete into 
     assert.equal(document.root.querySelector('[data-action="select-brew-recipe"]').getAttribute('aria-pressed'), 'true');
     await click(document.root.querySelector('[data-action="select-brew-recipe"]'));
     showHashRoute();
-    await click(document.root.querySelector('[data-action="complete-brew"]'));
-    assert.match(location.hash, new RegExp(`^#/records/new\\?beanId=${BEAN}&recipeId=${RECIPE}&date=\\d{4}-\\d{2}-\\d{2}$`));
-    showHashRoute();
-    const form = document.root.querySelector('form[data-form="records"]');
+    const form = document.root.querySelector('form[data-form="brews"]');
+    assert.ok(form);
     assert.equal(form.elements.beanId.value, BEAN);
-    assert.equal(form.elements.recipeId.value, RECIPE);
+    assert.equal(form.elements.sourceRecipeId.value, RECIPE);
+    assert.equal(form.elements.dose.value, 15);
+    assert.equal(form.elements.rating.value, '');
+    assert.match(form.elements.date.value, /^\d{4}-\d{2}-\d{2}$/);
   } finally {
     if (previousWindow) Object.defineProperty(globalThis, 'window', previousWindow);
     else delete globalThis.window;
@@ -4813,4 +4803,43 @@ test('critic regression: selected filter options survive a search and unrelated 
   view.renderData(current);
   const select = document.root.querySelector('[data-record-filter="beanId"]');
   assert.ok(select.options.some(option => option.value === BEAN), 'matching selected option should remain in native select');
+});
+
+test('bean and recipe lists expose bookmark state and favorite filters separately from ratings', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  current.beans[0].favorite = true;
+  view.renderData(current);
+  const bookmark = document.root.querySelector('[data-action="favorite-item"]');
+  assert.ok(bookmark);
+  assert.equal(bookmark.getAttribute('aria-pressed'), 'true');
+  assert.match(bookmark.getAttribute('aria-label'), /즐겨찾기 해제/);
+  assert.ok(document.root.querySelector('[data-action="favorite-filter"]'));
+  view.renderRoute('/recipes');
+  view.renderData(current);
+  assert.ok(document.root.querySelector('[data-action="favorite-item"]'));
+  assert.ok(document.root.querySelector('[data-action="favorite-filter"]'));
+});
+
+test('bookmark submits a desired boolean and restores keyboard focus, while brew favorite filter preserves search', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  view.renderData(current);
+  const calls = [];
+  view.bind({ getState: () => ({}), async submit(kind, payload) {
+    calls.push({ kind, payload }); current.beans[0].favorite = payload.favorite; view.renderData(current);
+  } });
+  const bookmark = document.root.querySelector('[data-action="favorite-item"]');
+  bookmark.focus();
+  await clickViewTarget(document, bookmark);
+  assert.deepEqual(calls, [{ kind: 'favorite-bean', payload: { id: BEAN, favorite: true } }]);
+  assert.equal(document.activeElement.dataset.id, BEAN);
+  assert.equal(document.activeElement.getAttribute('aria-pressed'), 'true');
+  view.renderRoute('/brew/bean?q=coffee');
+  await clickViewTarget(document, document.root.querySelector('[data-action="favorite-filter"]'));
+  assert.match(view.currentRoute(), /favorite=true/);
+  assert.match(view.currentRoute(), /q=coffee/);
+  assert.equal(document.root.querySelector('[data-action="favorite-item"]'), null);
 });

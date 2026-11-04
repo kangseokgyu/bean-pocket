@@ -1,0 +1,33 @@
+✖ favorite recovery stays blocked when the original checkbox schema is removed (1790.357667ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-ui.integration.test.mjs:509:3)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects'
+  }
+
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2581.671959
+
+✖ failing tests:
+
+test at test/pwa-ui.integration.test.mjs:493:1
+✖ favorite recovery stays blocked when the original checkbox schema is removed (1790.357667ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-ui.integration.test.mjs:509:3)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects'
+  }

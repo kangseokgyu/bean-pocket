@@ -17,6 +17,8 @@ function startupApp({ native = memoryPlatform(), fake = fakePwaNotion(), route =
   const entrySuccesses = [];
   const deleteResults = [];
   let unresolvedOperations = [];
+  const rendered = [];
+  const searchOptions = [];
   let currentRoute = route;
   const state = createSubmissionState(native);
   const readSavedConnection = readConnection ?? (async () => {
@@ -27,7 +29,7 @@ function startupApp({ native = memoryPlatform(), fake = fakePwaNotion(), route =
     currentRoute() { return currentRoute; },
     showConnection(value) { connectionStates.push(value); },
     showStatus(value) { statuses.push(value); },
-    renderData() {}, setState() {}, showUnresolved(items) { unresolvedOperations = items; },
+    renderData(value) { rendered.push(value); }, setSearchOptions(...args) { searchOptions.push(args); }, setState() {}, showUnresolved(items) { unresolvedOperations = items; },
     showEntrySuccess(kind) { entrySuccesses.push(kind); return true; },
     showDeleteResult(result) { deleteResults.push(result); },
   }, state, file: { readConnection: readSavedConnection },
@@ -35,7 +37,7 @@ function startupApp({ native = memoryPlatform(), fake = fakePwaNotion(), route =
     connectionRevision: connection.revision, fetchImpl: fake.fetch }),
   makeRepository: client => createReadRepository(client),
   makeCommands: options => createCommands(options) });
-  return { app, native, fake, connectionStates, statuses, entrySuccesses, deleteResults,
+  return { app, native, fake, connectionStates, statuses, entrySuccesses, deleteResults, rendered, searchOptions,
     get unresolvedOperations() { return unresolvedOperations; },
     setRoute(value) { currentRoute = value; } };
 }
@@ -552,4 +554,175 @@ test('saved resolution rejects a recipe parent that is absent from the complete 
   await assert.rejects(app.resolveOperation(operation.key, { originalConfirmed: true, decision: 'saved' }));
   assert.equal(native.journal().operations.find(item => item.key === operation.key).status, 'partial');
   assert.equal(app.getState().unresolved, true);
+});
+
+test('favorites persist through real adapters, remain out of copies and snapshots, and filter catalog and brew routes', async () => {
+  const { app, fake, native, setRoute, entrySuccesses } = startupApp({ route: '/beans' });
+  await app.connect(testConnection());
+  const first = await app.submit('beans', { name: 'Favorite bean' });
+  await app.submit('beans', { name: 'Other bean' });
+  const recipe = await app.submit('recipes', validRecipe(first.value.id));
+  assert.equal((await app.submit('favorite-bean', { id: first.value.id, favorite: true })).status, 'succeeded');
+  assert.equal((await app.submit('favorite-recipe', { id: recipe.value.id, favorite: true })).status, 'succeeded');
+  const loaded = await app.loadRoute('/beans?favorite=true', { force: true });
+  assert.deepEqual(loaded.beans.map(item => item.id), [first.value.id]);
+  assert.equal(loaded.beans[0].favorite, true);
+  setRoute('/brew/bean?favorite=true');
+  const brew = await app.loadRoute('/brew/bean?favorite=true', { force: true });
+  assert.deepEqual(brew.beans.map(item => item.id), [first.value.id]);
+  const copied = await app.submit('copy', { recipeId: recipe.value.id, changes: { name: 'Copy' } });
+  const copyPage = fake.rows.find(row => row.id === copied.value.id);
+  assert.equal(copyPage.properties['즐겨찾기'].checkbox, false);
+  assert.deepEqual(native.journal().operations.filter(op => op.kind.startsWith('favorite-')).map(op => op.favoriteTarget.favorite), [true, true]);
+  assert.equal(entrySuccesses.some(kind => kind.startsWith('favorite-')), false);
+});
+
+test('an uncertain favorite PATCH blocks writes and fresh original value resolves without another PATCH', async () => {
+  const { app, fake, native } = startupApp({ route: '/beans' });
+  await app.connect(testConnection());
+  const bean = await app.submit('beans', { name: 'Recover favorite' });
+  fake.intercept = call => {
+    if (call.method !== 'PATCH' || !call.body?.properties?.['즐겨찾기']) return null;
+    fake.rows.find(row => row.id === bean.value.id).properties['즐겨찾기'].checkbox = true;
+    throw new TypeError('synthetic lost response');
+  };
+  const result = await app.submit('favorite-bean', { id: bean.value.id, favorite: true });
+  assert.equal(result.status, 'unknown');
+  assert.equal(app.getState().unresolved, true);
+  await assert.rejects(app.submit('beans', { name: 'Blocked' }), error => error.code === 'unresolved-operation');
+  const patchCount = fake.calls.filter(call => call.method === 'PATCH').length;
+  const operation = native.journal().operations.at(-1);
+  fake.intercept = null;
+  await app.resolveOperation(operation.key, { originalConfirmed: true, decision: 'saved' });
+  assert.equal(app.getState().unresolved, false);
+  assert.equal(native.journal().operations.at(-1).status, 'succeeded');
+  assert.equal(fake.calls.filter(call => call.method === 'PATCH').length, patchCount);
+});
+
+test('favorite recovery stays blocked when the original checkbox schema is removed', async () => {
+  const { app, fake, native } = startupApp({ route: '/beans' });
+  await app.connect(testConnection());
+  const bean = await app.submit('beans', { name: 'Missing favorite schema' });
+  fake.intercept = call => {
+    if (call.method === 'PATCH') throw new TypeError('synthetic lost response');
+    return null;
+  };
+  assert.equal((await app.submit('favorite-bean', { id: bean.value.id, favorite: false })).status, 'unknown');
+  fake.intercept = call => {
+    if (call.method !== 'GET' || call.pathname !== `/v1/data_sources/${testConnection().dataSources.beans}`) return null;
+    return Response.json({ object: 'data_source', id: testConnection().dataSources.beans,
+      properties: Object.fromEntries(Object.entries(fake.rows[0].properties)
+        .filter(([name]) => name !== '즐겨찾기')) });
+  };
+  const operation = native.journal().operations.at(-1);
+  await assert.rejects(app.resolveOperation(operation.key, { originalConfirmed: true, decision: 'saved' }),
+    error => error.code === 'resolution-read-failed');
+  assert.equal(native.journal().operations.at(-1).status, 'unknown');
+  assert.equal(app.getState().unresolved, true);
+});
+
+for (const [httpStatus, code, message] of [
+  [401, 'unauthorized', 'Notion 토큰을 확인해 주세요.'],
+  [403, 'forbidden', '데이터 소스 접근 권한을 확인해 주세요.'],
+  [429, 'rate-limited', '잠시'],
+]) {
+  test(`favorite PATCH HTTP ${httpStatus} preserves safe next-action guidance without retry`, async () => {
+    const { app, fake, native, statuses } = startupApp({ route: '/beans' });
+    await app.connect(testConnection());
+    const bean = await app.submit('beans', { name: 'Rejected favorite' });
+    fake.intercept = call => call.method === 'PATCH'
+      ? Response.json({ message: 'private server diagnostic must not escape' }, { status: httpStatus }) : null;
+    const result = await app.submit('favorite-bean', { id: bean.value.id, favorite: true });
+    assert.equal(result.status, 'failed');
+    assert.equal(result.code, code);
+    assert.ok(statuses.some(status => status.message.includes(message)));
+    assert.doesNotMatch(JSON.stringify(statuses), /private server diagnostic/);
+    assert.equal(native.journal().operations.at(-1).status, 'failed');
+    assert.equal(app.getState().unresolved, false);
+    assert.equal(fake.calls.filter(call => call.method === 'PATCH').length, 1);
+  });
+}
+
+for (const picker of [false, true]) {
+  test(`late favorite ${picker ? 'picker' : 'catalog'} response cannot populate the replacement connection or cache`, async () => {
+    const route = '/brew/bean?favorite=true';
+    const { app, fake, rendered, searchOptions } = startupApp({ route });
+    await app.connect(testConnection());
+    const bean = await app.submit('beans', { name: 'Original favorite' });
+    await app.submit('favorite-bean', { id: bean.value.id, favorite: true });
+    let release;
+    let started;
+    const waiting = new Promise(resolve => { started = resolve; });
+    fake.intercept = call => {
+      if (call.method !== 'POST' || !call.pathname.endsWith('/query')) return null;
+      const captured = structuredClone(fake.rows.filter(row => row.id === bean.value.id));
+      started();
+      return new Promise(resolve => { release = () => resolve(Response.json({ object: 'list', results: captured, has_more: false, next_cursor: null })); });
+    };
+    const oldRead = picker ? app.loadSearchOptions('beans', '', null, 'brew') : app.loadRoute(route, { force: true });
+    await waiting;
+    fake.intercept = null;
+    fake.rows.find(row => row.id === bean.value.id).properties['즐겨찾기'].checkbox = false;
+    const replacement = { ...testConnection(), revision: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' };
+    await app.connect(replacement);
+    const renderCount = rendered.length;
+    const optionCount = searchOptions.length;
+    release();
+    await oldRead;
+    assert.equal(rendered.length, renderCount);
+    assert.equal(searchOptions.length, optionCount);
+    assert.deepEqual(rendered.at(-1).beans, []);
+    const fresh = await app.loadSearchOptions('beans', '', null, 'brew');
+    assert.deepEqual(fresh.items, [], 'old favorite response must not poison the replacement option cache');
+  });
+}
+
+test('unknown favorite recovery rejects changed connection revision and data-source identity', async () => {
+  const { app, fake, native } = startupApp({ route: '/beans' });
+  await app.connect(testConnection());
+  const bean = await app.submit('beans', { name: 'Connection-bound favorite' });
+  fake.intercept = call => { if (call.method === 'PATCH') throw new TypeError('lost response'); return null; };
+  assert.equal((await app.submit('favorite-bean', { id: bean.value.id, favorite: true })).status, 'unknown');
+  fake.intercept = null;
+  const key = native.journal().operations.at(-1).key;
+  for (const changed of [
+    { ...testConnection(), revision: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' },
+    { ...testConnection(), dataSources: { ...testConnection().dataSources, beans: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' } },
+  ]) {
+    native.files.set('connection.json', JSON.stringify(changed));
+    await assert.rejects(app.resolveOperation(key, { originalConfirmed: true, decision: 'not-saved' }));
+    assert.equal(native.journal().operations.at(-1).status, 'unknown');
+    assert.equal(app.getState().unresolved, true);
+  }
+  assert.equal(fake.calls.filter(call => call.method === 'PATCH').length, 1);
+});
+
+test('favorite and best updates preserve each other and actual snapshots omit catalog preferences', async () => {
+  const { app, fake, native } = startupApp({ route: '/beans' });
+  await app.connect(testConnection());
+  const bean = await app.submit('beans', { name: '즐겨찾기와 베스트 원두' });
+  const recipeInput = validRecipe(bean.value.id);
+  const recipe = await app.submit('recipes', recipeInput);
+  assert.equal((await app.submit('favorite-bean', { id: bean.value.id, favorite: true })).status, 'succeeded');
+  assert.equal((await app.submit('favorite-recipe', { id: recipe.value.id, favorite: true })).status, 'succeeded');
+  const record = await app.submit('brews', { beanId: bean.value.id, sourceRecipeId: recipe.value.id,
+    actualRecipe: recipeInput, date: '2026-11-04', rating: '4.6', cupNote: '살구' });
+  assert.equal(record.status, 'succeeded');
+  const stored = fake.rows.find(row => row.id === record.value.id);
+  const snapshot = JSON.parse(stored.properties['당시 레시피 스냅샷'].rich_text.map(part => part.text.content).join(''));
+  assert.equal(Object.hasOwn(snapshot.bean, 'favorite'), false);
+  assert.equal(Object.hasOwn(snapshot.recipe, 'favorite'), false);
+  assert.equal((await app.submit('set-best-record', { beanId: bean.value.id, recordId: record.value.id })).status, 'succeeded');
+  const beanPage = fake.rows.find(row => row.id === bean.value.id);
+  assert.equal(beanPage.properties['즐겨찾기'].checkbox, true);
+  assert.equal((await app.submit('favorite-bean', { id: bean.value.id, favorite: false })).status, 'succeeded');
+  assert.deepEqual(beanPage.properties['베스트 추출'].relation, [{ id: record.value.id }]);
+  const patches = fake.calls.filter(call => call.method === 'PATCH');
+  assert.ok(patches.every(call => Object.keys(call.body.properties).length === 1));
+  const bestOperation = native.journal().operations.find(op => op.kind === 'set-best-record');
+  assert.equal(bestOperation.updateTarget.nextRecordId, record.value.id);
+  assert.equal(Object.hasOwn(bestOperation, 'favoriteTarget'), false);
+  const favoriteOperation = native.journal().operations.find(op => op.kind === 'favorite-bean');
+  assert.equal(favoriteOperation.favoriteTarget.favorite, true);
+  assert.equal(Object.hasOwn(favoriteOperation, 'updateTarget'), false);
 });

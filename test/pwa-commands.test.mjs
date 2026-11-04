@@ -651,3 +651,21 @@ test('bag operations are unavailable and a legacy bagId record payload is reject
   assert.deepEqual(env.journal().operations, []);
   assert.deepEqual(env.calls, []);
 });
+
+test('favorite commands save an explicit value under the lock and reject missing latest targets', async () => {
+  const h = harness({ rows: { ...blankRows(), beans: [bean()] } });
+  const writes = [];
+  h.client.updateFavorite = async (kind, id, favorite) => {
+    assert.equal(h.isLocked(), true);
+    writes.push({ kind, id, favorite });
+    return { id, favorite };
+  };
+  for (let n = 0; n < 2; n++) {
+    const result = await h.commands.execute(await h.commands.prepareFavoriteBean({ id: IDS.bean, favorite: true }));
+    assert.equal(result.status, 'succeeded');
+  }
+  assert.deepEqual(writes.map(item => item.favorite), [true, true]);
+  h.rows.beans = [];
+  assert.equal((await h.commands.execute(await h.commands.prepareFavoriteBean({ id: IDS.bean, favorite: false }))).status, 'failed');
+  assert.equal(writes.length, 2);
+});

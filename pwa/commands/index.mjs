@@ -232,6 +232,14 @@ export function createCommands({ client, repository, submissionState } = {}) {
   }
 
 
+  async function prepareFavorite(kind, payload) {
+    const input = inputObject(payload);
+    if (typeof input.favorite !== 'boolean') throw new InputError('즐겨찾기 값을 확인해 주세요.');
+    return prepare(kind, { id: normalizedId(input.id, '즐겨찾기 대상'), favorite: input.favorite });
+  }
+  const prepareFavoriteBean = payload => prepareFavorite('favorite-bean', payload);
+  const prepareFavoriteRecipe = payload => prepareFavorite('favorite-recipe', payload);
+
   async function prepareRecipe(payload) {
     return prepare('recipes', normalizedRecipeInput(payload));
   }
@@ -353,6 +361,15 @@ export function createCommands({ client, repository, submissionState } = {}) {
         }
 
         const latest = await repository.readAll();
+        if (metadata.kind.startsWith('favorite-')) {
+          const kind = metadata.kind === 'favorite-bean' ? 'beans' : 'recipes';
+          if (!oneById(latest?.[kind], payload.id)) throw new InputError('최신 조회에서 즐겨찾기 대상을 찾을 수 없습니다.');
+          if (client[kind === 'beans' ? 'beanFavoriteSupported' : 'recipeFavoriteSupported'] === false || typeof client.updateFavorite !== 'function') {
+            throw Object.freeze({ code: 'favorite-unsupported', writeState: 'not-sent' });
+          }
+          return operation.write(() => client.updateFavorite(kind, payload.id, payload.favorite));
+        }
+
         if (metadata.kind === 'delete-bean') {
           requireBean(latest, payload.id);
           const hasRecordDependency = Array.isArray(latest.records) && latest.records.some(record =>
@@ -443,6 +460,6 @@ export function createCommands({ client, repository, submissionState } = {}) {
     ));
   }
 
-  return Object.freeze({ prepareBean, prepareDeleteBean, prepareDeleteRecipe, prepareDeleteRecord,
+  return Object.freeze({ prepareFavoriteBean, prepareFavoriteRecipe, prepareBean, prepareDeleteBean, prepareDeleteRecipe, prepareDeleteRecord,
     prepareRecipe, prepareRecord, prepareBrew, prepareBestRecord, prepareCopy, execute });
 }

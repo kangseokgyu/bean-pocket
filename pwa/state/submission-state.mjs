@@ -15,7 +15,8 @@ const DELETE_TARGET_KIND = Object.freeze({
   'delete-bean': 'beans', 'delete-recipe': 'recipes', 'delete-record': 'records',
 });
 const UPDATE_TARGET_KIND = Object.freeze({ 'set-best-record': 'beans' });
-const SAFE_RESULT_CODES = ['delete-in-use', 'delete-dependency-unknown'];
+const FAVORITE_TARGET_KIND = Object.freeze({ 'favorite-bean': 'beans', 'favorite-recipe': 'recipes' });
+const SAFE_RESULT_CODES = ['delete-in-use', 'delete-dependency-unknown', 'favorite-unsupported', 'forbidden', 'unauthorized', 'rate-limited'];
 const drafts = new WeakSet();
 const failures = new WeakSet();
 const unresolved = operation => ['processing', 'unknown', 'partial'].includes(operation.status);
@@ -25,8 +26,16 @@ function fail(code, writeState = 'not-sent') {
   failures.add(value);
   return value;
 }
-function safe(error, fallback) {
-  return error !== null && typeof error === 'object' && failures.has(error) ? error : fail(fallback);
+function safe(error, fallback, preserveHttpRejection = false) {
+  if (error !== null && typeof error === 'object' && failures.has(error)) return error;
+  try {
+    if (preserveHttpRejection && error?.writeState === 'rejected') {
+      if (error.code === 'http-rejected' && error.httpStatus === 401) return fail('unauthorized', 'rejected');
+      if (error.code === 'http-rejected' && error.httpStatus === 403) return fail('forbidden', 'rejected');
+      if (error.code === 'rate-limited' && error.httpStatus === 429) return fail('rate-limited', 'rejected');
+    }
+  } catch { /* Untrusted errors retain the generic failure. */ }
+  return fail(fallback);
 }
 function uuid(value) {
   if (typeof value !== 'string' || !UUID.test(value)) throw fail('invalid-input');
@@ -112,7 +121,7 @@ function parseJournal(text) {
     const keys = new Set();
     for (const op of value.operations) {
       if (!exact(op, ['key', 'kind', 'connectionRevision', 'targetFingerprint', 'payloadFingerprint', 'status', 'createdPages', 'updatedAt',
-        ...(Object.hasOwn(op, 'deleteTarget') ? ['deleteTarget'] : []), ...(Object.hasOwn(op, 'updateTarget') ? ['updateTarget'] : [])]) ||
+        ...(Object.hasOwn(op, 'deleteTarget') ? ['deleteTarget'] : []), ...(Object.hasOwn(op, 'updateTarget') ? ['updateTarget'] : []), ...(Object.hasOwn(op, 'favoriteTarget') ? ['favoriteTarget'] : [])]) ||
           !KIND.test(op.kind) || !HASH.test(op.targetFingerprint) || !HASH.test(op.payloadFingerprint) ||
           !STATUSES.includes(op.status) || !Array.isArray(op.createdPages) || typeof op.updatedAt !== 'string' ||
           !Number.isFinite(Date.parse(op.updatedAt))) throw 0;
@@ -139,6 +148,12 @@ function parseJournal(text) {
           }
         } else if (op.status !== 'processing' && unresolved(op)) throw 0;
       } else if (Object.hasOwn(op, 'updateTarget')) throw 0;
+      const favoriteKind = FAVORITE_TARGET_KIND[op.kind];
+      if (favoriteKind) {
+        const target = op.favoriteTarget;
+        if (!exact(target, ['kind', 'id', 'favorite']) || target.kind !== favoriteKind || typeof target.favorite !== 'boolean' || op.createdPages.length) throw 0;
+        target.id = uuid(target.id);
+      } else if (Object.hasOwn(op, 'favoriteTarget')) throw 0;
       const ids = new Set();
       for (const page of op.createdPages) {
         if (!exact(page, ['kind', 'id', 'archiveState']) || (!SOURCES.includes(page.kind) && page.kind !== 'bags') || !ARCHIVE_STATES.includes(page.archiveState)) throw 0;
@@ -297,6 +312,11 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
           if (deleteKind) {
             operation.deleteTarget = { kind: deleteKind, id: uuid(draft.payload.id), archiveState: 'active' };
           }
+          const favoriteKind = FAVORITE_TARGET_KIND[draft.kind];
+          if (favoriteKind) {
+            if (typeof draft.payload.favorite !== 'boolean') throw fail('invalid-draft');
+            operation.favoriteTarget = { kind: favoriteKind, id: uuid(draft.payload.id), favorite: draft.payload.favorite };
+          }
           initial.journal.operations.push(operation);
           await persist(initial.journal);
           ownedKeys.add(draft.key);
@@ -393,7 +413,7 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
                 }
                 else rejected = true;
               }
-              throw safe(error, sent ? 'write-error' : 'write-blocked');
+              throw safe(error, sent ? 'write-error' : 'write-blocked', Boolean(current?.favoriteTarget));
             } finally { writing = false; }
           }
           const op = Object.freeze({ write: (...args) => {
@@ -488,7 +508,12 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
           let resolvedPages;
           let resolvedDeleteTarget;
           let resolvedUpdateTarget;
-          if (DELETE_TARGET_KIND[op.kind]) {
+          if (FAVORITE_TARGET_KIND[op.kind]) {
+            const target = evidence.favoriteTarget;
+            if (!exact(target, ['kind', 'id', 'favorite']) || target.kind !== op.favoriteTarget.kind || target.id !== op.favoriteTarget.id ||
+                typeof target.favorite !== 'boolean' || decision === 'cancelled' ||
+                (target.favorite === op.favoriteTarget.favorite) !== (decision === 'saved')) throw fail('invalid-resolution');
+          } else if (DELETE_TARGET_KIND[op.kind]) {
             const target = evidence.deleteTarget;
             if (!exact(target, ['kind', 'id', 'archiveState']) || target.kind !== DELETE_TARGET_KIND[op.kind] ||
                 target.id !== op.deleteTarget.id || decision === 'cancelled' ||

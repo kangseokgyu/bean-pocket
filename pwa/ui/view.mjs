@@ -1536,7 +1536,7 @@ function routeButton(document, title, route, action = 'navigate', variant = 'sec
 }
 
 function brewOptionScope(route, kind) {
-  return kind === 'recipes' ? routeParams(route).get('beanId') ?? '' : 'beans';
+  return `${kind === 'recipes' ? routeParams(route).get('beanId') ?? '' : 'beans'}|${routeParams(route).get('favorite') === 'true'}`;
 }
 
 function brewOptionPage(data, optionPages, kind, routeQuery, route) {
@@ -1601,6 +1601,7 @@ function renderBrewOptions(pane, data, document, route, optionPages, kind, selec
   searchControl.append(search, clearSearch);
   searchField.append(searchControl);
   pane.append(searchField);
+  appendFavoriteFilter(pane, document, data, kind, route);
 
   const items = page.items ?? [];
   if (!items.length) {
@@ -1965,6 +1966,7 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
     pane.append(makeEntryDialog(document, 'recipes', form, recipeFormOpen));
     addStep(pane, document);
     updatePreview(pane);
+    appendFavoriteFilter(pane, document, data, 'recipes', route);
     if (!data.recipes.length) pane.append(make(document, 'p', data.screen?.hasMore
       ? '레시피를 더 확인 중입니다. 더 보기로 계속 확인해 주세요.'
       : data.screen?.complete === false ? '레시피 목록을 끝까지 확인하지 못했습니다. 새로고침해 주세요.'
@@ -1979,7 +1981,7 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
       link.dataset.action = 'navigate';
       link.dataset.route = `/recipes/${recipe.id}`;
       title.append(link);
-      recipeHeader.append(title, trashButton(document, 'recipes', recipe.id, recipe.name));
+      recipeHeader.append(title, favoriteButton(document, data, 'recipes', recipe), trashButton(document, 'recipes', recipe.id, recipe.name));
       card.append(recipeHeader, recipeOverview(document, recipe));
 
       const summary = make(document, 'div', undefined, 'recipe-summary-meta');
@@ -2034,7 +2036,31 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
   updateNavigationCurrent(parent.ownerDocument, route);
 }
 
+function favoriteButton(document, data, kind, item) {
+  const control = button(document, undefined, 'button', 'favorite-item', 'utility');
+  control.className = 'button favorite-button';
+  control.dataset.kind = kind;
+  control.dataset.id = item.id;
+  control.dataset.favorite = String(item.favorite === true);
+  control.setAttribute('aria-pressed', String(item.favorite === true));
+  control.setAttribute('aria-label', `${item.name} 즐겨찾기 ${item.favorite ? '해제' : '추가'}`);
+  control.disabled = data.favoriteSupport?.[kind] === false;
+  control.append(decorativeSvg(document, '0 0 24 24', 'favorite-icon', ['M6 3h12v18l-6-4-6 4V3Z']));
+  return control;
+}
+
+function appendFavoriteFilter(pane, document, data, kind, route) {
+  const active = routeParams(route).get('favorite') === 'true';
+  const control = button(document, '즐겨찾기만 보기', 'button', 'favorite-filter', 'utility');
+  control.className = 'button favorite-filter';
+  control.setAttribute('aria-pressed', String(active));
+  control.disabled = data.favoriteSupport?.[kind] === false;
+  pane.append(control);
+  if (control.disabled) pane.append(make(document, 'p', '즐겨찾기를 사용하려면 Notion에 즐겨찾기 checkbox 속성을 추가하고 연결을 다시 확인해 주세요.', 'muted-note'));
+}
+
 function renderBeans(pane, data, document, formOpen) {
+  appendFavoriteFilter(pane, document, data, 'beans', data.screen?.route ?? '/beans');
   const form = formBase(document, 'beans', '새 원두');
   form.id = 'new-bean-form';
   addFieldset(document, form, '원두 정보', [
@@ -2062,7 +2088,7 @@ function renderBeans(pane, data, document, formOpen) {
     link.dataset.action = 'navigate';
     link.dataset.route = `/beans/${bean.id}`;
     title.append(link);
-    header.append(title, trashButton(document, 'beans', bean.id, bean.name));
+    header.append(title, favoriteButton(document, data, 'beans', bean), trashButton(document, 'beans', bean.id, bean.name));
     card.append(header);
     card.append(beanOverview(document, bean));
     const records = currentRecords(data).filter(record => record.beanId === bean.id);
@@ -2901,14 +2927,15 @@ function fillSelect(select, rows, placeholder, optional = false) {
 
 function buildResolutionForm(document, operation) {
   const deleting = operation.kind.startsWith('delete-');
+  const favoriting = operation.kind.startsWith('favorite-');
   const deleteNames = { beans: '원두', recipes: '레시피', records: '추출 기록' };
   const names = { beans: '원두', recipes: '레시피', records: '추출 기록' };
   const targetName = deleteNames[operation.targetKind] ?? '항목';
-  const hasKnownPages = deleting || operation.knownPageCount > 0;
+  const hasKnownPages = deleting || favoriting || operation.knownPageCount > 0;
   const card = make(document, 'article', undefined, 'resolution-card');
   const status = deleting ? '삭제 여부 확인 필요' : operation.status === 'partial' ? '일부 저장' : '저장 여부 확인 필요';
   card.append(make(document, 'h3', `${deleting ? `${targetName} 삭제` : names[operation.kind] ?? '저장'} · ${status}`));
-  card.append(make(document, 'p', deleting ? `Notion 원본에서 삭제 대상(${targetName})의 휴지통 이동 여부를 직접 확인해 주세요. 확인 과정에서는 삭제를 다시 요청하지 않습니다.` : hasKnownPages
+  card.append(make(document, 'p', favoriting ? 'Notion 원본의 즐겨찾기 체크 상태를 확인해 주세요. 확인 과정에서는 저장을 다시 요청하지 않습니다.' : deleting ? `Notion 원본에서 삭제 대상(${targetName})의 휴지통 이동 여부를 직접 확인해 주세요. 확인 과정에서는 삭제를 다시 요청하지 않습니다.` : hasKnownPages
     ? `확인된 항목 ${operation.knownPageCount}개. 원본에서 이 항목의 상태를 확인해 저장됨 또는 모두 보관 취소됨을 선택해 주세요.`
     : 'Notion 원본을 직접 확인하고, 이번 작업의 결과에 맞는 선택을 해 주세요.'));
   if (!hasKnownPages) card.append(make(document, 'p', '저장됨을 선택할 때는 이번 작업으로 새로 만들어진 모든 페이지의 ID를 입력해 주세요. ID는 상태 메시지에 표시하지 않습니다.', 'muted-note'));
@@ -2918,7 +2945,7 @@ function buildResolutionForm(document, operation) {
   form.append(confirmed);
   const decision = label(document, '확인 결과', 'decision', 'select', true);
   const select = decision.querySelector('select');
-  const decisions = deleting ? [
+  const decisions = favoriting ? [['saved', `즐겨찾기가 요청한 상태(${operation.favorite ? '추가' : '해제'})임을 확인함`], ['not-saved', '즐겨찾기가 요청한 상태와 다름을 확인함']] : deleting ? [
     ['saved', `${targetName}: 휴지통에 있음을 확인함`],
     ['not-saved', `${targetName}: 삭제되지 않고 남아 있음을 확인함`],
   ] : [
@@ -3045,6 +3072,31 @@ function bindEvents({ page, nav, connectionForm, tokenInput, scheduleTokenValida
     const target = event.target.closest('[data-action]');
     const action = target?.dataset.action;
     if (!action || target.disabled) return;
+    if (action === 'favorite-filter') {
+      const route = view.currentRoute();
+      const params = routeParams(route);
+      if (params.get('favorite') === 'true') params.delete('favorite');
+      else params.set('favorite', 'true');
+      const search = content.querySelector('[data-option-target="brew"][data-option-search-kind]');
+      if (search?.value) params.set('q', search.value);
+      const query = params.toString();
+      navigateTo(`${routePath(route)}${query ? `?${query}` : ''}`);
+      return;
+    }
+    if (action === 'favorite-item') {
+      const state = actions.getState?.() ?? {};
+      if (state.pending || state.frozen || state.unresolved) return;
+      const id = target.dataset.id;
+      const kind = target.dataset.kind;
+      const restoreFocus = document.activeElement === target;
+      try { await actions.submit(kind === 'beans' ? 'favorite-bean' : 'favorite-recipe', { id, favorite: target.dataset.favorite !== 'true' }); }
+      catch { /* Controller supplies the safe status message. */ }
+      if (restoreFocus) {
+        const replacement = Array.from(content.querySelectorAll('[data-action="favorite-item"]')).find(item => item.dataset.id === id);
+        (replacement ?? content.querySelector('[data-action="favorite-filter"]'))?.focus?.();
+      }
+      return;
+    }
     if (action === 'select-insight-bean') {
       const beanId = target.dataset.beanId;
       const currentBean = Array.from(content.querySelectorAll('[data-action="select-insight-bean"]'))

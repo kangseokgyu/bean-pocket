@@ -1,0 +1,51 @@
+TAP version 13
+# Subtest: migration defaults to a read-only test dry-run and proposes a single-property records relation
+ok 1 - migration defaults to a read-only test dry-run and proposes a single-property records relation
+  ---
+  duration_ms: 10.871667
+  type: 'test'
+  ...
+# Subtest: apply preserves every existing property and a second run performs no PATCH
+not ok 2 - apply preserves every existing property and a second run performs no PATCH
+  ---
+  duration_ms: 0.642292
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/1165/AX-1day/test/migrate-best-record-relation.test.mjs:46:1'
+  failureType: 'testCodeFailure'
+  error: 'The post-update relation does not target the records data source.'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    migrationError (file:///Users/kangseokgyu/.codex/worktrees/1165/AX-1day/scripts/migrate-best-record-relation.mjs:16:10)
+    assertPostSchema (file:///Users/kangseokgyu/.codex/worktrees/1165/AX-1day/scripts/migrate-best-record-relation.mjs:127:11)
+    migrateBestRecordRelation (file:///Users/kangseokgyu/.codex/worktrees/1165/AX-1day/scripts/migrate-best-record-relation.mjs:175:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/1165/AX-1day/test/migrate-best-record-relation.test.mjs:50:17)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: migration rejects a conflicting property before any write
+ok 3 - migration rejects a conflicting property before any write
+  ---
+  duration_ms: 0.452458
+  type: 'test'
+  ...
+# Subtest: post-write readback rejects any change to properties that existed before migration
+ok 4 - post-write readback rejects any change to properties that existed before migration
+  ---
+  duration_ms: 0.986125
+  type: 'test'
+  ...
+# Subtest: command parsing keeps apply opt-in and restricts target environments
+ok 5 - command parsing keeps apply opt-in and restricts target environments
+  ---
+  duration_ms: 0.157167
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 4
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 58.835917

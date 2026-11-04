@@ -35,6 +35,7 @@ function createHarness({ records = seedRecords(), failUnfilteredOnce = false, de
     async beginConnectionChange() {}, async commitConnectionChange() {},
   };
   const repository = {
+    async getRecord(id) { return records.find(record => record.id === id); },
     async listRecords(options = {}) {
       reads.push({ ...options });
       const filtered = records.filter(record => (!options.beanId || record.beanId === options.beanId) &&
@@ -174,4 +175,49 @@ test('reconnection clears prior overview selection and stale aborted pages canno
   await stalePage;
   assert.equal(setup.latestData.recordInsights.loadedCount, 2, 'late response from the previous connection is ignored');
   assert.equal(setup.latestData.recordInsights.selectedBeanId, 'bean-b');
+});
+
+
+test('filtered entry initializes the unfiltered overview and later pages preserve manual selection', async () => {
+  const setup = createHarness();
+  await setup.connect();
+  setup.setRoute('/records');
+  await setup.controller.setRecordFilters({ recipeId: 'recipe-a' });
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.ok(setup.latestData.records.every(record => record.recipeId === 'recipe-a'));
+  assert.equal(setup.latestData.recordInsights.status, 'ready');
+  assert.equal(setup.latestData.recordInsights.error, '');
+  assert.equal(setup.latestData.recordInsights.loadedCount, 2);
+  assert.deepEqual(setup.latestData.recordInsights.records.map(record => record.id), ['record-a1', 'record-b1']);
+  setup.controller.setRecordInsightsBean('bean-a');
+  const result = await setup.controller.loadMoreInsights();
+  assert.ok(result);
+  assert.equal(setup.latestData.recordInsights.loadedCount, 4);
+  assert.equal(setup.latestData.recordInsights.selectedBeanId, 'bean-a');
+  assert.equal(setup.latestData.recordInsights.error, '');
+});
+
+test('filtered explicit comparison initializes its older bean then insight paging respects a manual switch', async () => {
+  const records = [
+    makeRecord({ id: 'new-a', beanId: 'a', recipeId: 'recipe-a', date: '2026-11-04', rating: 4 }),
+    makeRecord({ id: 'new-b', beanId: 'b', recipeId: 'recipe-b', date: '2026-11-03', rating: 4 }),
+    makeRecord({ id: 'new-c', beanId: 'c', recipeId: 'recipe-c', date: '2026-11-02', rating: 4 }),
+    makeRecord({ id: 'old-left', beanId: 'target', recipeId: 'recipe-target', date: '2026-10-01', rating: 4.3 }),
+    makeRecord({ id: 'old-right', beanId: 'target', recipeId: 'recipe-target', date: '2026-10-02', rating: 4.7 }),
+  ];
+  const setup = createHarness({ records });
+  await setup.connect();
+  const route = '/records?compareSourceRecordId=old-left&compareRecordId=old-right';
+  setup.setRoute(route);
+  await setup.controller.setRecordFilters({ recipeId: 'recipe-a' });
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(setup.latestData.recordInsights.status, 'ready');
+  assert.equal(setup.latestData.recordInsights.error, '');
+  assert.equal(setup.latestData.recordInsights.selectedBeanId, 'target');
+  assert.deepEqual(setup.latestData.recordInsights.comparisonRecords.map(record => record.id), ['old-right', 'old-left']);
+  setup.controller.setRecordInsightsBean('b');
+  await setup.controller.loadMoreInsights();
+  assert.equal(setup.latestData.recordInsights.selectedBeanId, 'b');
+  assert.equal(setup.latestData.recordInsights.error, '');
+  assert.deepEqual(setup.latestData.recordInsights.comparisonRecords.map(record => record.id), ['new-b']);
 });

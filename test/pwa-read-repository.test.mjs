@@ -203,9 +203,9 @@ function setRelation(page, propertyName, ids, hasMore = false) {
 test('모듈은 공개 factory와 repository methods만 제공한다', () => {
   assert.deepEqual(Object.keys(repositoryModule), ['createReadRepository']);
   const repository = createReadRepository(fixture().client);
-  assert.deepEqual(Object.keys(repository).sort(), ['getBean', 'getBeanRecordCounts', 'getRecipeDetail', 'getRecipeStats',
+  assert.deepEqual(Object.keys(repository).sort(), ['getBean', 'getBeanRecordCounts', 'getRecipeDetail', 'getRecipeStats', 'getRecord',
     'hydrateRecordParents', 'invalidateRecordParentCache', 'listBeans', 'listRecipeSummaries', 'listRecords',
-    'readAll', 'readRecipeForSnapshot',
+    'readAll', 'readRecipeForSnapshot', 'resolveBeanBestRecord',
     'searchOptions', 'validateRecipeSummaries']);
   assert.ok(Object.isFrozen(repository));
 });

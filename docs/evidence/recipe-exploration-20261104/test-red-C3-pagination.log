@@ -1,0 +1,94 @@
+TAP version 13
+# Subtest: records insights keep their own bounded cursor and selection outside recipe filters and table paging
+not ok 1 - records insights keep their own bounded cursor and selection outside recipe filters and table paging
+  ---
+  duration_ms: 11.984792
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/1165/AX-1day/test/pwa-ui.records-insights.integration.test.mjs:89:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    2 !== 4
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 4
+  actual: 2
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/1165/AX-1day/test/pwa-ui.records-insights.integration.test.mjs:116:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: insight read failures stay inline and do not replace the filtered records page
+ok 2 - insight read failures stay inline and do not replace the filtered records page
+  ---
+  duration_ms: 3.169584
+  type: 'test'
+  ...
+# Subtest: record create and delete reset and reload the bounded insights cursor
+ok 3 - record create and delete reset and reload the bounded insights cursor
+  ---
+  duration_ms: 0.912833
+  type: 'test'
+  ...
+# Subtest: reconnection clears prior overview selection and stale aborted pages cannot cross the connection boundary
+ok 4 - reconnection clears prior overview selection and stale aborted pages cannot cross the connection boundary
+  ---
+  duration_ms: 0.493208
+  type: 'test'
+  ...
+# Subtest: filtered entry initializes the unfiltered overview and later pages preserve manual selection
+not ok 5 - filtered entry initializes the unfiltered overview and later pages preserve manual selection
+  ---
+  duration_ms: 1.821292
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/1165/AX-1day/test/pwa-ui.records-insights.integration.test.mjs:181:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    'error' !== 'ready'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'ready'
+  actual: 'error'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/1165/AX-1day/test/pwa-ui.records-insights.integration.test.mjs:188:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: filtered explicit comparison initializes its older bean then insight paging respects a manual switch
+not ok 6 - filtered explicit comparison initializes its older bean then insight paging respects a manual switch
+  ---
+  duration_ms: 2.06625
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/1165/AX-1day/test/pwa-ui.records-insights.integration.test.mjs:200:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    'error' !== 'ready'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'ready'
+  actual: 'error'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/1165/AX-1day/test/pwa-ui.records-insights.integration.test.mjs:214:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 3
+# fail 3
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 70.06525

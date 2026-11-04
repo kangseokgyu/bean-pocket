@@ -1,0 +1,196 @@
+TAP version 13
+# Subtest: the shipped page has a real UI mount point
+ok 1 - the shipped page has a real UI mount point
+  ---
+  duration_ms: 3.475333
+  type: 'test'
+  ...
+# Subtest: controller public flows use real Notion, repository, commands and journal adapters
+ok 2 - controller public flows use real Notion, repository, commands and journal adapters
+  ---
+  duration_ms: 7097.384875
+  type: 'test'
+  ...
+# Subtest: record replay loads the saved actual snapshot even when its source recipe was deleted
+ok 3 - record replay loads the saved actual snapshot even when its source recipe was deleted
+  ---
+  duration_ms: 2826.803541
+  type: 'test'
+  ...
+# Subtest: source and result pair loads directly when the source record is outside the current page
+ok 4 - source and result pair loads directly when the source record is outside the current page
+  ---
+  duration_ms: 6000.973458
+  type: 'test'
+  ...
+# Subtest: successful entity writes keep inline completion and omit saved or post-write loaded toasts
+ok 5 - successful entity writes keep inline completion and omit saved or post-write loaded toasts
+  ---
+  duration_ms: 8466.768333
+  type: 'test'
+  ...
+# Subtest: successful write refetch failures keep save and delete recovery notices
+ok 6 - successful write refetch failures keep save and delete recovery notices
+  ---
+  duration_ms: 2470.685625
+  type: 'test'
+  ...
+# Subtest: unknown writes preserve the draft state and prevent a second UI submission
+ok 7 - unknown writes preserve the draft state and prevent a second UI submission
+  ---
+  duration_ms: 8.480875
+  type: 'test'
+  ...
+# Subtest: unknown write resolution requires explicit confirmation and a fresh read before writes resume
+ok 8 - unknown write resolution requires explicit confirmation and a fresh read before writes resume
+  ---
+  duration_ms: 11.395708
+  type: 'test'
+  ...
+# Subtest: lost best relation response is resolved by rereading the bean and record from Notion
+ok 9 - lost best relation response is resolved by rereading the bean and record from Notion
+  ---
+  duration_ms: 3884.973375
+  type: 'test'
+  ...
+# Subtest: bean detail resolves its persisted best record by ID instead of deriving it from the loaded history page
+ok 10 - bean detail resolves its persisted best record by ID instead of deriving it from the loaded history page
+  ---
+  duration_ms: 5988.084583
+  type: 'test'
+  ...
+# Subtest: a second native UI client waits for startup lock release and reads the saved connection
+ok 11 - a second native UI client waits for startup lock release and reads the saved connection
+  ---
+  duration_ms: 104.718084
+  type: 'test'
+  ...
+# Subtest: home startup verifies a saved connection through the real Notion client
+ok 12 - home startup verifies a saved connection through the real Notion client
+  ---
+  duration_ms: 2.617708
+  type: 'test'
+  ...
+# Subtest: home startup keeps the saved settings on a temporary verify failure and restores them on retry
+ok 13 - home startup keeps the saved settings on a temporary verify failure and restores them on retry
+  ---
+  duration_ms: 1.748458
+  type: 'test'
+  ...
+# Subtest: home startup shows a safe retry state when saved connection storage cannot be read
+ok 14 - home startup shows a safe retry state when saved connection storage cannot be read
+  ---
+  duration_ms: 0.364041
+  type: 'test'
+  ...
+# Subtest: home startup opens first-time connection entry only when the connection file is absent
+ok 15 - home startup opens first-time connection entry only when the connection file is absent
+  ---
+  duration_ms: 0.425083
+  type: 'test'
+  ...
+# Subtest: saved connection authorization failures keep retry and settings edit entry available
+ok 16 - saved connection authorization failures keep retry and settings edit entry available
+  ---
+  duration_ms: 0.600083
+  type: 'test'
+  ...
+# Subtest: startup recovery guards remain repair-only and block connection replacement
+ok 17 - startup recovery guards remain repair-only and block connection replacement
+  ---
+  duration_ms: 2.120333
+  type: 'test'
+  ...
+# Subtest: saved startup keeps route-specific verification and query loading lazy
+ok 18 - saved startup keeps route-specific verification and query loading lazy
+  ---
+  duration_ms: 355.050042
+  type: 'test'
+  ...
+# Subtest: unreadable saved storage can recover on retry without replacing settings
+ok 19 - unreadable saved storage can recover on retry without replacing settings
+  ---
+  duration_ms: 1.562375
+  type: 'test'
+  ...
+# Subtest: legacy bag journals stay unresolved after startup and never auto-send
+ok 20 - legacy bag journals stay unresolved after startup and never auto-send
+  ---
+  duration_ms: 705.215666
+  type: 'test'
+  ...
+# Subtest: saved resolution rejects a recipe parent that is absent from the complete fresh projection
+ok 21 - saved resolution rejects a recipe parent that is absent from the complete fresh projection
+  ---
+  duration_ms: 12.012334
+  type: 'test'
+  ...
+# Subtest: favorites persist through real adapters, remain out of copies and snapshots, and filter catalog and brew routes
+ok 22 - favorites persist through real adapters, remain out of copies and snapshots, and filter catalog and brew routes
+  ---
+  duration_ms: 6697.302333
+  type: 'test'
+  ...
+# Subtest: an uncertain favorite PATCH blocks writes and fresh original value resolves without another PATCH
+ok 23 - an uncertain favorite PATCH blocks writes and fresh original value resolves without another PATCH
+  ---
+  duration_ms: 1766.659916
+  type: 'test'
+  ...
+# Subtest: favorite recovery stays blocked when the original checkbox schema is removed
+ok 24 - favorite recovery stays blocked when the original checkbox schema is removed
+  ---
+  duration_ms: 1413.261541
+  type: 'test'
+  ...
+# Subtest: favorite PATCH HTTP 401 preserves safe next-action guidance without retry
+ok 25 - favorite PATCH HTTP 401 preserves safe next-action guidance without retry
+  ---
+  duration_ms: 1404.195709
+  type: 'test'
+  ...
+# Subtest: favorite PATCH HTTP 403 preserves safe next-action guidance without retry
+ok 26 - favorite PATCH HTTP 403 preserves safe next-action guidance without retry
+  ---
+  duration_ms: 1405.864375
+  type: 'test'
+  ...
+# Subtest: favorite PATCH HTTP 429 preserves safe next-action guidance without retry
+ok 27 - favorite PATCH HTTP 429 preserves safe next-action guidance without retry
+  ---
+  duration_ms: 1407.798209
+  type: 'test'
+  ...
+# Subtest: late favorite catalog response cannot populate the replacement connection or cache
+ok 28 - late favorite catalog response cannot populate the replacement connection or cache
+  ---
+  duration_ms: 2465.7225
+  type: 'test'
+  ...
+# Subtest: late favorite picker response cannot populate the replacement connection or cache
+ok 29 - late favorite picker response cannot populate the replacement connection or cache
+  ---
+  duration_ms: 2113.039333
+  type: 'test'
+  ...
+# Subtest: unknown favorite recovery rejects changed connection revision and data-source identity
+ok 30 - unknown favorite recovery rejects changed connection revision and data-source identity
+  ---
+  duration_ms: 1411.399292
+  type: 'test'
+  ...
+# Subtest: favorite and best updates preserve each other and actual snapshots omit catalog preferences
+ok 31 - favorite and best updates preserve each other and actual snapshots omit catalog preferences
+  ---
+  duration_ms: 7059.108583
+  type: 'test'
+  ...
+1..31
+# tests 31
+# suites 0
+# pass 31
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 65864.383542

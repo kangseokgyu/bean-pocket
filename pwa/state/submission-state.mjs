@@ -14,6 +14,7 @@ const DELETE_TARGET_KIND = Object.freeze({
   'delete-bag': 'bags',
   'delete-bean': 'beans', 'delete-recipe': 'recipes', 'delete-record': 'records',
 });
+const UPDATE_TARGET_KIND = Object.freeze({ 'set-best-record': 'beans' });
 const FAVORITE_TARGET_KIND = Object.freeze({ 'favorite-bean': 'beans', 'favorite-recipe': 'recipes' });
 const SAFE_RESULT_CODES = ['delete-in-use', 'delete-dependency-unknown', 'favorite-unsupported', 'forbidden', 'unauthorized', 'rate-limited'];
 const drafts = new WeakSet();
@@ -119,7 +120,8 @@ function parseJournal(text) {
     if (value.activeConnectionRevision === null && (!guard || value.operations.length)) throw 0;
     const keys = new Set();
     for (const op of value.operations) {
-      if (!exact(op, ['key', 'kind', 'connectionRevision', 'targetFingerprint', 'payloadFingerprint', 'status', 'createdPages', 'updatedAt', ...(Object.hasOwn(op, 'deleteTarget') ? ['deleteTarget'] : []), ...(Object.hasOwn(op, 'favoriteTarget') ? ['favoriteTarget'] : [])]) ||
+      if (!exact(op, ['key', 'kind', 'connectionRevision', 'targetFingerprint', 'payloadFingerprint', 'status', 'createdPages', 'updatedAt',
+        ...(Object.hasOwn(op, 'deleteTarget') ? ['deleteTarget'] : []), ...(Object.hasOwn(op, 'updateTarget') ? ['updateTarget'] : []), ...(Object.hasOwn(op, 'favoriteTarget') ? ['favoriteTarget'] : [])]) ||
           !KIND.test(op.kind) || !HASH.test(op.targetFingerprint) || !HASH.test(op.payloadFingerprint) ||
           !STATUSES.includes(op.status) || !Array.isArray(op.createdPages) || typeof op.updatedAt !== 'string' ||
           !Number.isFinite(Date.parse(op.updatedAt))) throw 0;
@@ -133,6 +135,19 @@ function parseJournal(text) {
             !ARCHIVE_STATES.includes(target.archiveState) || op.createdPages.length) throw 0;
         target.id = uuid(target.id);
       } else if (Object.hasOwn(op, 'deleteTarget')) throw 0;
+      const updateKind = UPDATE_TARGET_KIND[op.kind];
+      if (updateKind) {
+        if (op.createdPages.length) throw 0;
+        if (Object.hasOwn(op, 'updateTarget')) {
+          const target = op.updateTarget;
+          if (!exact(target, ['kind', 'id', 'beforeRecordId', 'nextRecordId', 'state']) || target.kind !== updateKind ||
+              !['active', 'unknown', 'confirmed'].includes(target.state)) throw 0;
+          target.id = uuid(target.id);
+          for (const key of ['beforeRecordId', 'nextRecordId']) {
+            if (target[key] !== null) target[key] = uuid(target[key]);
+          }
+        } else if (op.status !== 'processing' && unresolved(op)) throw 0;
+      } else if (Object.hasOwn(op, 'updateTarget')) throw 0;
       const favoriteKind = FAVORITE_TARGET_KIND[op.kind];
       if (favoriteKind) {
         const target = op.favoriteTarget;
@@ -316,8 +331,9 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
             try {
               if (uncertain) throw fail('unresolved-operation');
               if (typeof callback !== 'function' || !exact(options, Object.keys(options)) ||
-                  Object.keys(options).some(key => !['createdKind', 'archiveId', 'deleteId', 'deleteKind'].includes(key)) ||
+                  Object.keys(options).some(key => !['createdKind', 'archiveId', 'deleteId', 'deleteKind', 'updateTarget'].includes(key)) ||
                   ([options.createdKind, options.archiveId, options.deleteId].filter(Boolean).length > 1) ||
+                  (options.updateTarget && (options.createdKind || options.archiveId || options.deleteId || options.deleteKind)) ||
                   (options.createdKind && !SOURCES.includes(options.createdKind)) ||
                   (options.deleteKind && !['beans', 'recipes', 'records'].includes(options.deleteKind))) throw fail('invalid-write');
               const checked = await check(draft, clientRevision);
@@ -330,6 +346,15 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
                     (options.deleteKind !== undefined && target.kind !== options.deleteKind) ||
                     (target.kind !== 'beans' && options.deleteKind !== target.kind)) throw fail('invalid-delete');
               } else if (deleteId || options.deleteKind) throw fail('invalid-delete');
+              if (options.updateTarget) {
+                const target = options.updateTarget;
+                if (draft.kind !== 'set-best-record' || !exact(target, ['kind', 'id', 'beforeRecordId', 'nextRecordId']) ||
+                    target.kind !== UPDATE_TARGET_KIND[draft.kind] || uuid(target.id) !== draft.payload.beanId ||
+                    target.nextRecordId !== draft.payload.recordId || current.updateTarget) throw fail('invalid-update');
+                current.updateTarget = { kind: target.kind, id: uuid(target.id),
+                  beforeRecordId: target.beforeRecordId === null ? null : uuid(target.beforeRecordId),
+                  nextRecordId: target.nextRecordId === null ? null : uuid(target.nextRecordId), state: 'active' };
+              } else if (draft.kind === 'set-best-record') throw fail('invalid-update');
               const archiveId = options.archiveId === undefined ? null : uuid(options.archiveId);
               archivedPage = archiveId ? current.createdPages.find(item => item.id === archiveId) : null;
               if (archiveId && (!archivedPage || archivedPage.archiveState !== 'active')) throw fail('invalid-archive');
@@ -353,6 +378,13 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
                 if (result?.id?.toLowerCase() !== deleteId || result?.in_trash !== true) throw fail('invalid-write-response', 'unknown');
                 current.deleteTarget.archiveState = 'archived';
               }
+              if (options.updateTarget) {
+                if (uuid(result?.id) !== current.updateTarget.id ||
+                    (result?.recordId == null ? null : uuid(result.recordId)) !== current.updateTarget.nextRecordId) {
+                  throw fail('invalid-write-response', 'unknown');
+                }
+                current.updateTarget.state = 'confirmed';
+              }
               confirmed++;
               current.updatedAt = timestamp();
               await persist(journal);
@@ -370,6 +402,11 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
                   }
                   if (archivedPage && !poisoned) {
                     archivedPage.archiveState = 'unknown';
+                    current.updatedAt = timestamp();
+                    await persist(journal);
+                  }
+                  if (current?.updateTarget && !poisoned) {
+                    current.updateTarget.state = 'unknown';
                     current.updatedAt = timestamp();
                     await persist(journal);
                   }
@@ -470,6 +507,7 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
 
           let resolvedPages;
           let resolvedDeleteTarget;
+          let resolvedUpdateTarget;
           if (FAVORITE_TARGET_KIND[op.kind]) {
             const target = evidence.favoriteTarget;
             if (!exact(target, ['kind', 'id', 'favorite']) || target.kind !== op.favoriteTarget.kind || target.id !== op.favoriteTarget.id ||
@@ -481,6 +519,14 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
                 target.id !== op.deleteTarget.id || decision === 'cancelled' ||
                 target.archiveState !== (decision === 'saved' ? 'archived' : 'active')) throw fail('invalid-resolution');
             resolvedDeleteTarget = canonical(target);
+          } else if (UPDATE_TARGET_KIND[op.kind]) {
+            const target = op.updateTarget;
+            const observed = evidence.updateTarget;
+            if (!target || !exact(observed, ['kind', 'id', 'recordId']) || observed.kind !== UPDATE_TARGET_KIND[op.kind] ||
+                observed.id !== target.id || !['saved', 'not-saved', 'cancelled'].includes(decision)) throw fail('invalid-resolution');
+            const expectedRecordId = decision === 'saved' ? target.nextRecordId : target.beforeRecordId;
+            if (observed.recordId !== expectedRecordId) throw fail('invalid-resolution');
+            resolvedUpdateTarget = { ...target, state: 'confirmed' };
           } else if (op.createdPages.length) {
             const freshPages = resolutionPages(evidence.createdPages);
             if (freshPages.length !== op.createdPages.length) throw fail('invalid-resolution');
@@ -504,6 +550,7 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
           if (!resolvedOperation) throw fail('resolution-changed');
           if (resolvedPages) resolvedOperation.createdPages = resolvedPages;
           if (resolvedDeleteTarget) resolvedOperation.deleteTarget = resolvedDeleteTarget;
+          if (resolvedUpdateTarget) resolvedOperation.updateTarget = resolvedUpdateTarget;
           resolvedOperation.status = decision === 'saved' ? 'succeeded' : 'failed';
           resolvedOperation.updatedAt = timestamp();
           await persist(latest.journal); poisoned = false;

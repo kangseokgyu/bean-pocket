@@ -1,0 +1,7 @@
+test post-apply dry-run
+test: already configured; apply=no; existing properties preserved=yes; target relation readback=verified
+exitCode=0
+
+operating post-apply dry-run
+operating: already configured; apply=no; existing properties preserved=yes; target relation readback=verified
+exitCode=0

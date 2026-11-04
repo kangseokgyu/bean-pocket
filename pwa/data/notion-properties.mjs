@@ -7,6 +7,7 @@ export const schemas = {
     variety: ['품종', 'rich_text'],
     process: ['가공 방식', 'rich_text'],
     tastingNotes: ['로스터리 향미 노트', 'rich_text'],
+    bestRecordIds: ['베스트 추출', 'relation'],
     favorite: ['즐겨찾기', 'checkbox'],
   },
   recipes: {
@@ -59,11 +60,12 @@ export function encodeProperties(kind, data) {
     // stored values remain untouched and old schemas need not expose it.
     if (kind === 'recipes' && key === 'beanId') continue;
     const value = data[key];
+    if (kind === 'beans' && key === 'bestRecordIds' && value === undefined) continue;
     let encoded;
     if (type === 'title' || type === 'rich_text') {
       encoded = richText(key === 'snapshot' ? JSON.stringify(value ?? null) : value);
     } else if (type === 'relation') {
-      encoded = value ? [{ id: value }] : [];
+      encoded = Array.isArray(value) ? value.map(id => ({ id })) : value ? [{ id: value }] : [];
     } else if (type === 'date') {
       encoded = value ? { start: value } : null;
     } else if (type === 'checkbox') {
@@ -79,6 +81,7 @@ export function encodeProperties(kind, data) {
 export function decodePage(kind, page) {
   const result = { id: page.id };
   for (const [key, [name, type]] of Object.entries(schemas[kind])) {
+    if (kind === 'beans' && key === 'bestRecordIds' && page.properties?.[name] === undefined) continue;
     const property = page.properties?.[name] ?? {};
     if (type === 'title' || type === 'rich_text') {
       const text = (Array.isArray(property[type]) ? property[type] : []).map(item =>
@@ -94,6 +97,11 @@ export function decodePage(kind, page) {
         result[key] = text;
       }
     } else if (type === 'relation') {
+      if (kind === 'beans' && key === 'bestRecordIds') {
+        result[key] = Array.isArray(property.relation) ? property.relation.map(item => item?.id).filter(id => typeof id === 'string') : null;
+        result.bestRecordRelationComplete = property.has_more === false;
+        continue;
+      }
       result[key] = Array.isArray(property.relation) && property.relation.length === 1 &&
         typeof property.relation[0]?.id === 'string' ? property.relation[0].id : null;
     } else if (type === 'date') {
@@ -108,6 +116,7 @@ export function decodePage(kind, page) {
 }
 
 export const relationTargets = {
+  beans: { bestRecordIds: 'records' },
   recipes: { beanId: 'beans' },
   steps: { recipeId: 'recipes' },
   records: { beanId: 'beans', recipeId: 'recipes' },
@@ -116,7 +125,7 @@ export const relationTargets = {
 // Older user databases can be read without the additive relations. Record
 // creation requires records.beanId support and is gated by client.verify().
 export const optionalProperties = {
-  beans: ['favorite'],
+  beans: ['bestRecordIds', 'favorite'],
   recipes: ['beanId', 'extractionGuide', 'favorite'],
   records: ['beanId'],
 };

@@ -1,0 +1,60 @@
+TAP version 13
+# Subtest: record actions replay the source snapshot and create separate shared-recipe and best operations
+not ok 1 - record actions replay the source snapshot and create separate shared-recipe and best operations
+  ---
+  duration_ms: 18.567125
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/1165/AX-1day/test/pwa-ui.view.test.mjs:3370:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'set-best-record'
+    - 'recipes'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'recipes'
+  actual: 'set-best-record'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/1165/AX-1day/test/pwa-ui.view.test.mjs:3392:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: missing best relation explains the schema requirement and blocks only best selection
+not ok 2 - missing best relation explains the schema requirement and blocks only best selection
+  ---
+  duration_ms: 4.911583
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/1165/AX-1day/test/pwa-ui.view.test.mjs:3404:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    2026-06-15 · 원두 <안전>레시피: V60 · 5/5 ★★★★★컵노트: 꿀, 살구이 조건으로 다시 추출공용 레시피로 저장이 원두의 베스트로 지정Notion 원두 데이터베이스에 ‘베스트 추출’ 관계 속성을 추가하면 지정할 수 있습니다.
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/1165/AX-1day/test/pwa-ui.view.test.mjs:3413:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 0
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1089.056541

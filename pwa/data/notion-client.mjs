@@ -67,7 +67,8 @@ function serialize(body) {
 function createPayload(kind, data, dataSources) {
   try {
     if (typeof kind !== 'string' || !KINDS.includes(kind) || !record(data) ||
-        (kind === 'records' && (data.snapshot?.recordGeneration !== CURRENT_RECORD_GENERATION || Object.hasOwn(data, 'bagId'))) ||
+        (kind === 'records' && (![2, 3].includes(data.snapshot?.version) ||
+          data.snapshot?.recordGeneration !== CURRENT_RECORD_GENERATION || Object.hasOwn(data, 'bagId'))) ||
         !hasValidSourceIds(dataSources)) {
       throw failure('invalid-input', 'not-sent');
     }
@@ -179,6 +180,7 @@ export class NotionClient {
   #timeoutMs;
   #recipeExtractionGuideSupported = null;
   #recordBeanRelationSupported = null;
+  #beanBestRecordRelationSupported = null;
   #beanFavoriteSupported = null;
   #recipeFavoriteSupported = null;
   #verifiedQueryProperties = new Map();
@@ -207,6 +209,7 @@ export class NotionClient {
   get connectionRevision() { return this.#connectionRevision; }
   get recipeExtractionGuideSupported() { return this.#recipeExtractionGuideSupported; }
   get recordBeanRelationSupported() { return this.#recordBeanRelationSupported; }
+  get beanBestRecordRelationSupported() { return this.#beanBestRecordRelationSupported; }
   get beanFavoriteSupported() { return this.#beanFavoriteSupported; }
   get recipeFavoriteSupported() { return this.#recipeFavoriteSupported; }
 
@@ -301,6 +304,7 @@ export class NotionClient {
       const sourceId = this.#dataSources[kind];
       let recipeExtractionGuideSupported = false;
       let recordBeanRelationSupported = false;
+      let beanBestRecordRelationSupported = false;
       let beanFavoriteSupported = false;
       let recipeFavoriteSupported = false;
       const verifiedSource = await this.#scheduleRead(() => this.#request('/data_sources/' + sourceId, {
@@ -309,6 +313,12 @@ export class NotionClient {
           if (!record(data) || data.object !== 'data_source' || uuid(data.id) !== sourceId || !record(data.properties)) return false;
           return Object.entries(schemas[kind]).every(([field, [name, type]]) => {
             const property = data.properties[name];
+            if (kind === 'beans' && field === 'bestRecordIds') {
+              if (!record(property) || property.type !== type) return true;
+              beanBestRecordRelationSupported = record(property.relation) &&
+                uuid(property.relation.data_source_id) === this.#dataSources.records;
+              return true;
+            }
             if (property === undefined && optionalProperties[kind]?.includes(field)) return true;
             if (!record(property) || property.type !== type) return false;
             if (kind === 'recipes' && field === 'extractionGuide') recipeExtractionGuideSupported = true;
@@ -325,6 +335,7 @@ export class NotionClient {
         .flatMap(([name, property]) => typeof property.id === 'string' ? [name, property.id] : [name])));
       if (kind === 'recipes') this.#recipeExtractionGuideSupported = recipeExtractionGuideSupported;
       if (kind === 'records') this.#recordBeanRelationSupported = recordBeanRelationSupported;
+      if (kind === 'beans') this.#beanBestRecordRelationSupported = beanBestRecordRelationSupported;
       if (kind === 'beans') this.#beanFavoriteSupported = beanFavoriteSupported;
       if (kind === 'recipes') this.#recipeFavoriteSupported = recipeFavoriteSupported;
     }
@@ -437,7 +448,8 @@ export class NotionClient {
 
   async createPage(kind, domainData) {
     if (kind === 'records' && record(domainData) &&
-        (domainData.snapshot?.recordGeneration !== CURRENT_RECORD_GENERATION || Object.hasOwn(domainData, 'bagId'))) {
+        (![2, 3].includes(domainData.snapshot?.version) ||
+          domainData.snapshot?.recordGeneration !== CURRENT_RECORD_GENERATION || Object.hasOwn(domainData, 'bagId'))) {
       throw failure('invalid-input', 'not-sent');
     }
     const sourceId = this.#source(kind);
@@ -488,6 +500,22 @@ export class NotionClient {
       method: 'PATCH', writing: true, body: { in_trash: true },
       validate: data => validPage(data, id, sourceId) && data.in_trash === true,
     });
+  }
+
+  async setBeanBestRecord(beanValue, recordValue, { signal } = {}) {
+    if (this.#beanBestRecordRelationSupported !== true) throw failure('best-record-unsupported', 'not-sent');
+    const beanId = this.#pageId(beanValue);
+    const recordId = recordValue == null ? null : this.#pageId(recordValue);
+    return this.#request('/pages/' + beanId, {
+      method: 'PATCH', writing: true, signal,
+      body: { properties: { '베스트 추출': { relation: recordId ? [{ id: recordId }] : [] } } },
+      validate: data => {
+        const relation = data?.properties?.['베스트 추출']?.relation;
+        return validPage(data, beanId, this.#dataSources.beans) &&
+          data.in_trash !== true && data.archived !== true && Array.isArray(relation) &&
+          (recordId === null ? relation.length === 0 : relation.length === 1 && uuid(relation[0]?.id) === recordId);
+      },
+    }).then(() => ({ id: beanId, recordId }));
   }
 
   async archiveBean(value) {

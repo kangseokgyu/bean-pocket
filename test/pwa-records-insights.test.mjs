@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildRecordsInsights, layoutRatingTrend, layoutRatingTrends } from '../pwa/ui/records-insights.mjs';
+import { buildRecordsInsights, compareBrewRecords, layoutRatingTrend, layoutRatingTrends } from '../pwa/ui/records-insights.mjs';
 
 const generation = 'bagless-v1';
 
@@ -17,7 +17,7 @@ function record({ id, beanId, beanName = beanId, date, rating, recipeName = '보
   };
 }
 
-test('three distinct beans are ordered by newest valid record with a stable tie break', () => {
+test('all comparison beans are ordered by newest valid record with a stable tie break', () => {
   const records = [
     record({ id: 'old-a', beanId: 'bean-a', date: '2026-10-01', rating: 3 }),
     record({ id: 'new-b', beanId: 'bean-b', date: '2026-10-09', rating: 4 }),
@@ -28,7 +28,7 @@ test('three distinct beans are ordered by newest valid record with a stable tie 
   const model = buildRecordsInsights(records);
 
   assert.deepEqual(model.beans.map(bean => [bean.id, bean.latestDate]), [
-    ['bean-a', '2026-10-12'], ['bean-d', '2026-10-12'], ['bean-c', '2026-10-11'],
+    ['bean-a', '2026-10-12'], ['bean-d', '2026-10-12'], ['bean-c', '2026-10-11'], ['bean-b', '2026-10-09'],
   ]);
   assert.deepEqual(model.beans[0], {
     id: 'bean-a', name: '시다마', origin: '', roaster: '', variety: '', process: '', tastingNotes: '',
@@ -154,6 +154,49 @@ test('selected bean statistics and comparison choices describe only loaded snaps
   assert.deepEqual(model.recipeOptions.map(({ id, name }) => [id, name]), [
     ['recipe-v60', '기록 V60'], ['recipe-origami', '현재 오리가미'],
   ]);
+});
+
+test('brew comparison uses actual snapshots and includes changed conditions, stages, decimal rating, and cup note', () => {
+  const recipe = ({ dose, temperature, pour, name }) => ({
+    id: 'source-recipe', name, dripper: 'V60', dose, grind: '중간', grinder: 'Comandante',
+    grinderSetting: '24클릭', microns: 700, temperature, totalWater: 250, extractionGuide: '천천히 붓기',
+    steps: [
+      { name: '뜸', seconds: 0, interval: 0, water: 50, cumulativeWater: 50 },
+      { name: '1차', seconds: 30, interval: 30, water: pour, cumulativeWater: pour + 50 },
+      { name: '2차', seconds: 70, interval: 40, water: 100, cumulativeWater: 250 },
+    ],
+  });
+  const actualRecord = ({ id, date, rating, cupNote, conditions }) => ({
+    id, beanId: 'bean-a', beanResolution: 'relation', date, rating, cupNote,
+    snapshotStatus: 'valid', snapshot: { version: 3, recordGeneration: generation,
+      bean: { id: 'bean-a', name: '원두 A' }, recipe: recipe(conditions),
+      source: { recipeId: 'source-recipe', recordId: null } },
+  });
+  const earlier = actualRecord({ id: 'earlier', date: '2026-10-01', rating: 4.2, cupNote: '살구',
+    conditions: { dose: 15, temperature: 93, pour: 100, name: 'V60' } });
+  const later = actualRecord({ id: 'later', date: '2026-10-02', rating: 4.7, cupNote: '복숭아',
+    conditions: { dose: 16, temperature: 91, pour: 120, name: 'V60 조정' } });
+
+  const comparison = compareBrewRecords(earlier, later);
+
+  assert.equal(comparison.status, 'ready');
+  assert.deepEqual(comparison.values.filter(value => value.changed).map(value => value.key), [
+    'name', 'dose', 'temperature', 'steps.2', 'rating', 'cupNote',
+  ]);
+  assert.deepEqual(comparison.values.find(value => value.key === 'rating'), {
+    key: 'rating', label: '별점', left: '4.2/5', right: '4.7/5', changed: true,
+  });
+  assert.deepEqual(comparison.values.find(value => value.key === 'cupNote'), {
+    key: 'cupNote', label: '컵노트', left: '살구', right: '복숭아', changed: true,
+  });
+});
+
+test('brew comparison refuses records from different beans and damaged snapshots', () => {
+  const left = record({ id: 'left', beanId: 'bean-a', date: '2026-10-01', rating: 4 });
+  const right = record({ id: 'right', beanId: 'bean-b', date: '2026-10-02', rating: 3 });
+  assert.equal(compareBrewRecords(left, right).status, 'different-beans');
+  assert.equal(compareBrewRecords(left, { ...right, beanId: 'bean-a', snapshotStatus: 'damaged' }).status,
+    'snapshot-unavailable');
 });
 
 test('chart coordinates use real date spacing and a zero-to-five rating scale', () => {

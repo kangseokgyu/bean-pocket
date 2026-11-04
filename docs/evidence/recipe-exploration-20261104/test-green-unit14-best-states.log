@@ -1,0 +1,16 @@
+TAP version 13
+# Subtest: bean detail names invalid and inaccessible persisted best relations separately
+ok 1 - bean detail names invalid and inaccessible persisted best relations separately
+  ---
+  duration_ms: 7.890125
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 64.854458

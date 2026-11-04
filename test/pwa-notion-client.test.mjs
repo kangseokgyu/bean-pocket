@@ -10,7 +10,7 @@ const kinds = ['beans', 'recipes', 'steps', 'records'];
 const SOURCES = Object.fromEntries(kinds.map((kind, i) => [kind, uuid(i + 1)]));
 const REVISION = uuid(10), PAGE = uuid(20), OTHER = uuid(21);
 const TOKEN = 'unit-credential-only', RAW = 'private-response-sentinel';
-const RELATIONS = { recipes: { beanId: 'beans' }, steps: { recipeId: 'recipes' }, records: { beanId: 'beans', recipeId: 'recipes' } };
+const RELATIONS = { beans: { bestRecordIds: 'records' }, recipes: { beanId: 'beans' }, steps: { recipeId: 'recipes' }, records: { beanId: 'beans', recipeId: 'recipes' } };
 function source(kind) {
   return { object: 'data_source', id: SOURCES[kind], properties: Object.fromEntries(Object.entries(schemas[kind] || {}).map(([key, [name, type]]) =>
     [name, { type, ...(type === 'relation' ? { relation: { data_source_id: SOURCES[RELATIONS[kind][key]] } } : {}) }])) };
@@ -152,7 +152,7 @@ test('verify는 object/id/속성 누락·다른 타입·관계의 다른 데이�
     const { client } = harness(() => { const s = source('beans'); mutate(s); return response(200, s); });
     await rejected(client.verify(), 'not-sent', 'invalid-response');
   }
-  for (const kind of Object.keys(RELATIONS)) {
+  for (const kind of Object.keys(RELATIONS).filter(kind => kind !== 'beans')) {
     const { client } = harness(url => {
       const key = kinds.find(k => url.endsWith(SOURCES[k]));
       const s = source(key);
@@ -463,8 +463,8 @@ test('배열·UTF-8 500000byte 한도와 stringify 오류는 fetch 전 안전하
   assert.equal(calls.length, 0);
 });
 
-test('canonical 31속성·긴 snapshot 왕복과 기존 decode 의미·서버 함수 동일성을 유지한다', () => {
-  assert.equal(Object.values(schemas).reduce((sum, fields) => sum + Object.keys(fields).length, 0), 33);
+test('canonical 34속성·긴 snapshot 왕복과 기존 decode 의미·서버 함수 동일성을 유지한다', () => {
+  assert.equal(Object.values(schemas).reduce((sum, fields) => sum + Object.keys(fields).length, 0), 34);
   assert.equal(serverEncode, encodeProperties); assert.equal(serverDecode, decodePage);
   const snapshot = { version: 1, name: '원본', steps: [{ order: 1, seconds: 0, water: 50 }], note: '가'.repeat(5000) };
   const properties = encodeProperties('records', { name: '기록', recipeId: PAGE, snapshot });
@@ -621,9 +621,31 @@ test('schemas without favorite keep bean and recipe creation available and omit 
   await assert.rejects(client.updateFavorite('beans', PAGE, true), error => error.code === 'favorite-unsupported' && error.writeState === 'not-sent');
 });
 
+
+test('an incompatible optional best relation disables only best updates', async () => {
+  for (const replacement of [undefined, { type: 'number' },
+    { type: 'relation', relation: { data_source_id: OTHER } }]) {
+    const { client, calls } = harness(url => {
+      const kind = kinds.find(key => url.endsWith(SOURCES[key]));
+      const schema = source(kind);
+      if (kind === 'beans') {
+        if (replacement === undefined) delete schema.properties['베스트 추출'];
+        else schema.properties['베스트 추출'] = replacement;
+      }
+      return response(200, schema);
+    });
+    assert.equal(await client.verify(), true);
+    assert.equal(client.beanBestRecordRelationSupported, false);
+    const before = calls.length;
+    await rejected(client.setBeanBestRecord(PAGE, OTHER), 'not-sent', 'best-record-unsupported');
+    assert.equal(calls.length, before);
+    assert.equal(client.beanFavoriteSupported, true);
+  }
+});
+
 test('queryPage omits absent optional schema properties and refreshes projections after re-verification', async () => {
   let legacy = true;
-  const missing = { beans: ['즐겨찾기'], recipes: ['원두', '추출 가이드', '즐겨찾기'], records: ['원두'] };
+  const missing = { beans: ['즐겨찾기', '베스트 추출'], recipes: ['원두', '추출 가이드', '즐겨찾기'], records: ['원두'] };
   const { client, calls } = harness((url, init) => {
     const request = new URL(url);
     const kind = kinds.find(key => request.pathname.includes(SOURCES[key]));

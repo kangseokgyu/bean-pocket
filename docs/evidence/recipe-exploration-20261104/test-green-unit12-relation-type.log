@@ -1,0 +1,46 @@
+TAP version 13
+# Subtest: migration defaults to a read-only test dry-run and proposes a single-property records relation
+ok 1 - migration defaults to a read-only test dry-run and proposes a single-property records relation
+  ---
+  duration_ms: 11.250041
+  type: 'test'
+  ...
+# Subtest: apply preserves every existing property and a second run performs no PATCH
+ok 2 - apply preserves every existing property and a second run performs no PATCH
+  ---
+  duration_ms: 0.913833
+  type: 'test'
+  ...
+# Subtest: migration rejects a conflicting property before any write
+ok 3 - migration rejects a conflicting property before any write
+  ---
+  duration_ms: 0.423666
+  type: 'test'
+  ...
+# Subtest: post-write readback rejects any change to properties that existed before migration
+ok 4 - post-write readback rejects any change to properties that existed before migration
+  ---
+  duration_ms: 1.104709
+  type: 'test'
+  ...
+# Subtest: a lost PATCH response is reconciled by schema readback without issuing a second PATCH
+ok 5 - a lost PATCH response is reconciled by schema readback without issuing a second PATCH
+  ---
+  duration_ms: 0.488125
+  type: 'test'
+  ...
+# Subtest: command parsing keeps apply opt-in and restricts target environments
+ok 6 - command parsing keeps apply opt-in and restricts target environments
+  ---
+  duration_ms: 0.149041
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 59.704917

@@ -642,3 +642,35 @@ test('an incompatible optional best relation disables only best updates', async 
     assert.equal(client.beanFavoriteSupported, true);
   }
 });
+
+test('queryPage omits absent optional schema properties and refreshes projections after re-verification', async () => {
+  let legacy = true;
+  const missing = { beans: ['즐겨찾기', '베스트 추출'], recipes: ['원두', '추출 가이드', '즐겨찾기'], records: ['원두'] };
+  const { client, calls } = harness((url, init) => {
+    const request = new URL(url);
+    const kind = kinds.find(key => request.pathname.includes(SOURCES[key]));
+    const schema = source(kind);
+    if (legacy) for (const name of missing[kind] ?? []) delete schema.properties[name];
+    if (init.method === 'GET') return response(200, schema);
+    if (request.searchParams.getAll('filter_properties').some(name => !Object.hasOwn(schema.properties, name))) {
+      return response(400, { message: 'Unknown projection property' });
+    }
+    return response(200, list([], true, 'next-page'));
+  });
+  await client.verify();
+  for (const kind of ['beans', 'recipes', 'records']) {
+    const properties = Object.values(schemas[kind]).map(([name]) => name);
+    const first = await client.queryPage(kind, { properties, limit: 20 });
+    const second = await client.queryPage(kind, { properties, cursor: first.nextCursor, limit: 20 });
+    assert.equal(second.nextCursor, 'next-page');
+    const queries = calls.filter(call => call.init.method === 'POST' && call.url.includes(SOURCES[kind]));
+    assert.equal(queries.length, 2);
+    for (const call of queries) assert.deepEqual(new URL(call.url).searchParams.getAll('filter_properties'),
+      properties.filter(name => !missing[kind].includes(name)));
+    assert.equal(JSON.parse(queries[1].init.body).start_cursor, 'next-page');
+  }
+  legacy = false;
+  await client.verify();
+  await client.queryPage('beans', { properties: ['원두 이름', '즐겨찾기'] });
+  assert.deepEqual(new URL(calls.at(-1).url).searchParams.getAll('filter_properties'), ['원두 이름', '즐겨찾기']);
+});

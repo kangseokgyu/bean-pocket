@@ -183,6 +183,7 @@ export class NotionClient {
   #beanBestRecordRelationSupported = null;
   #beanFavoriteSupported = null;
   #recipeFavoriteSupported = null;
+  #verifiedQueryProperties = new Map();
   #readTail = Promise.resolve();
   #lastReadAt = 0;
 
@@ -306,7 +307,7 @@ export class NotionClient {
       let beanBestRecordRelationSupported = false;
       let beanFavoriteSupported = false;
       let recipeFavoriteSupported = false;
-      await this.#scheduleRead(() => this.#request('/data_sources/' + sourceId, {
+      const verifiedSource = await this.#scheduleRead(() => this.#request('/data_sources/' + sourceId, {
         signal,
         validate: data => {
           if (!record(data) || data.object !== 'data_source' || uuid(data.id) !== sourceId || !record(data.properties)) return false;
@@ -330,6 +331,8 @@ export class NotionClient {
           });
         },
       }), signal, { pace: signal !== undefined });
+      this.#verifiedQueryProperties.set(kind, new Set(Object.entries(verifiedSource.properties)
+        .flatMap(([name, property]) => typeof property.id === 'string' ? [name, property.id] : [name])));
       if (kind === 'recipes') this.#recipeExtractionGuideSupported = recipeExtractionGuideSupported;
       if (kind === 'records') this.#recordBeanRelationSupported = recordBeanRelationSupported;
       if (kind === 'beans') this.#beanBestRecordRelationSupported = beanBestRecordRelationSupported;
@@ -355,7 +358,10 @@ export class NotionClient {
     }
 
     const query = new URLSearchParams();
-    for (const property of properties ?? []) query.append('filter_properties', property);
+    const verifiedProperties = this.#verifiedQueryProperties.get(kind);
+    for (const property of properties ?? []) {
+      if (!verifiedProperties || verifiedProperties.has(property)) query.append('filter_properties', property);
+    }
     const path = '/data_sources/' + sourceId + '/query' + (query.size ? '?' + query.toString() : '');
     const body = {
       page_size: limit,

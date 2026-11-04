@@ -726,3 +726,36 @@ test('favorite and best updates preserve each other and actual snapshots omit ca
   assert.equal(favoriteOperation.favoriteTarget.favorite, true);
   assert.equal(Object.hasOwn(favoriteOperation, 'updateTarget'), false);
 });
+
+test('legacy schemas without optional properties keep catalogs and brew pickers readable', async () => {
+  const missingProperties = { beans: ['즐겨찾기', '베스트 추출'], recipes: ['원두', '추출 가이드', '즐겨찾기'], records: ['원두'] };
+  const fake = fakePwaNotion({ missingProperties, strictProjection: true });
+  const { app, setRoute } = startupApp({ route: '/beans', fake });
+  await app.connect(testConnection());
+  const bean = await app.submit('beans', { name: 'Legacy bean' });
+  const recipe = await app.submit('recipes', validRecipe(bean.value.id));
+  assert.equal(bean.status, 'succeeded');
+  assert.equal(recipe.status, 'succeeded');
+  for (const [route, kind, id] of [
+    ['/beans', 'beans', bean.value.id], ['/recipes', 'recipes', recipe.value.id],
+    ['/brew/bean', 'beans', bean.value.id], [`/brew/recipe?beanId=${bean.value.id}`, 'recipes', recipe.value.id],
+  ]) {
+    setRoute(route);
+    const result = await app.loadRoute(route, { force: true });
+    assert.deepEqual(result[kind].map(item => item.id), [id], route);
+    assert.equal(result[kind][0].favorite, false);
+    assert.equal(result.favoriteSupport[kind], false);
+    if (kind === 'beans') assert.equal(result.beans[0].bestRecordStatus, 'unsupported');
+  }
+  for (const kind of ['beans', 'recipes']) {
+    const options = await app.loadSearchOptions(kind, '', null, 'brew');
+    assert.equal(options.items.length, 1);
+  }
+  const sourceKind = id => Object.keys(testConnection().dataSources).find(kind => testConnection().dataSources[kind] === id);
+  const queries = fake.calls.filter(call => call.method === 'POST' && call.pathname.endsWith('/query'));
+  assert.ok(queries.length >= 6);
+  for (const call of queries) {
+    const kind = sourceKind(call.pathname.split('/')[3]);
+    assert.ok(call.queryProperties.every(name => !missingProperties[kind]?.includes(name)), kind);
+  }
+});

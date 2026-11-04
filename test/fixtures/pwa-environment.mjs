@@ -48,15 +48,17 @@ function matchesFilter(row, filter) {
   return true;
 }
 
-export function fakePwaNotion() {
+export function fakePwaNotion({ missingProperties = {}, strictProjection = false } = {}) {
   const rows = [];
   const calls = [];
   let sequence = 0;
   const fake = { rows, calls, intercept: null, async fetch(url, options = {}) {
-    const pathname = new URL(url).pathname;
+    const requestUrl = new URL(url);
+    const pathname = requestUrl.pathname;
+    const queryProperties = requestUrl.searchParams.getAll('filter_properties');
     const method = options.method || 'GET';
     const body = options.body ? JSON.parse(options.body) : null;
-    const call = { pathname, method, body };
+    const call = { pathname, method, body, queryProperties };
     calls.push(call);
     const intercepted = await fake.intercept?.(call);
     if (intercepted) return intercepted;
@@ -65,12 +67,21 @@ export function fakePwaNotion() {
       const id = parts[3];
       const kind = Object.keys(DATA_SOURCES).find(key => DATA_SOURCES[key] === id);
       if (!kind) return Response.json({}, { status: 404 });
+      const fields = Object.entries(schemas[kind]).filter(([, [name]]) => !missingProperties[kind]?.includes(name));
       if (method === 'GET') {
-        const properties = Object.fromEntries(Object.entries(schemas[kind]).map(([field, [name, type]]) =>
+        const properties = Object.fromEntries(fields.map(([field, [name, type]]) =>
           [name, { type, [type]: type === 'relation' ? { data_source_id: DATA_SOURCES[relationTargets[kind][field]] } : {} }]));
         return Response.json({ object: 'data_source', id, properties });
       }
-      return Response.json({ object: 'list', results: rows.filter(row => row.parent.data_source_id === id && !row.in_trash && matchesFilter(row, body?.filter)),
+      if (queryProperties.some(name => !fields.some(([, [available]]) => available === name))) {
+        return Response.json({ message: 'Unknown projection property' }, { status: 400 });
+      }
+      const results = rows.filter(row => row.parent.data_source_id === id && !row.in_trash && matchesFilter(row, body?.filter));
+      const projected = strictProjection ? results.map(row => ({ ...row,
+        properties: Object.fromEntries(Object.entries(row.properties).filter(([name]) =>
+          fields.some(([, [available]]) => available === name) && (!queryProperties.length || queryProperties.includes(name)))),
+      })) : results;
+      return Response.json({ object: 'list', results: projected,
         has_more: false, next_cursor: null });
     }
     if (pathname === '/v1/pages' && method === 'POST') {

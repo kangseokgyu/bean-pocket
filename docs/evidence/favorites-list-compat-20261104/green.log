@@ -1,0 +1,10 @@
+✔ queryPage omits absent optional schema properties and refreshes projections after re-verification (2461.958542ms)
+✔ legacy schemas without optional properties keep catalogs and brew pickers readable (8112.548625ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8228.355958

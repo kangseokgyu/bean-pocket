@@ -1,0 +1,24 @@
+✖ queryPage omits absent optional schema properties and refreshes projections after re-verification (356.83725ms)
+  { code: 'http-rejected', writeState: 'not-sent', httpStatus: 400 }
+
+✖ legacy schemas without optional properties keep catalogs and brew pickers readable (1806.497208ms)
+  { code: 'http-rejected', writeState: 'not-sent', httpStatus: 400 }
+
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1952.536791
+
+✖ failing tests:
+
+test at test/pwa-notion-client.test.mjs:624:1
+✖ queryPage omits absent optional schema properties and refreshes projections after re-verification (356.83725ms)
+  { code: 'http-rejected', writeState: 'not-sent', httpStatus: 400 }
+
+test at test/pwa-ui.integration.test.mjs:593:1
+✖ legacy schemas without optional properties keep catalogs and brew pickers readable (1806.497208ms)
+  { code: 'http-rejected', writeState: 'not-sent', httpStatus: 400 }

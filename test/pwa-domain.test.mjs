@@ -90,3 +90,18 @@ test('공급 모듈의 복사·스냅샷은 원본 조건·단계·평가를 공
   assert.equal(snapshot.version, 2);
   assert.equal(snapshot.recordGeneration, 'bagless-v1');
 });
+
+test('완성 조건과 출처를 담은 v3 기록 snapshot은 기존 세대 표식과 0초 단계 검증을 유지한다', async () => {
+  const d = await loadDomain();
+  const snapshot = {
+    version: 3,
+    recordGeneration: 'bagless-v1',
+    bean: { id: 'bean-id', name: '구지' },
+    recipe: { id: 'recipe-id', ...d.validateRecipe({ ...recipe(), dose: 16, temperature: 91,
+      steps: [{ name: '뜸', time: '0:00', water: 45 }, { name: '붓기', time: '0:35', water: 205 }] }) },
+    source: { recipeId: 'recipe-id', recordId: 'record-id' },
+  };
+  assert.deepEqual(d.validateStoredSnapshot(snapshot), snapshot);
+  assert.throws(() => d.validateStoredSnapshot({ ...snapshot, recipe: { ...snapshot.recipe, id: 'other-recipe' } }), d.InputError);
+  assert.equal(d.CURRENT_RECORD_GENERATION, 'bagless-v1');
+});

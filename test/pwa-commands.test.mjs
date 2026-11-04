@@ -178,6 +178,31 @@ test('createCommands prepares an isolated bean draft and saves optional origin t
   assert.equal(env.journal().operations[0].status, 'succeeded');
 });
 
+test('a saved brew uses its edited actual conditions without changing the shared recipe', async () => {
+  const shared = storedRecipe();
+  const env = harness({ rows: { ...blankRows(), beans: [bean()], recipes: [shared] } });
+  const actualRecipe = validateRecipe(recipeInput(IDS.bean, {
+    dose: 16, grind: '조금 굵게', temperature: 91, totalWater: 250,
+    steps: [{ name: '뜸', time: '0:00', water: 45 }, { name: '붓기', time: '0:35', water: 205 }],
+  }));
+  const draft = await env.commands.prepareBrew({ beanId: IDS.bean, sourceRecipeId: IDS.recipe,
+    sourceRecordId: null, actualRecipe, date: '2026-11-04', rating: '4.7', cupNote: '맑고 단맛' });
+  const result = await env.commands.execute(draft);
+
+  assert.equal(result.status, 'succeeded');
+  const saved = env.calls.at(-1).data;
+  assert.equal(env.calls.at(-1).kind, 'records');
+  assert.equal(saved.recipeId, IDS.recipe);
+  assert.equal(saved.snapshot.version, 3);
+  assert.equal(saved.snapshot.recipe.dose, 16);
+  assert.equal(saved.snapshot.recipe.temperature, 91);
+  assert.deepEqual(saved.snapshot.recipe.steps.map(step => [step.seconds, step.water, step.cumulativeWater]),
+    [[0, 45, 45], [35, 205, 250]]);
+  assert.equal(saved.rating, 4.7);
+  assert.equal(env.rows.recipes[0].dose, 15);
+  assert.equal(env.rows.recipes[0].temperature, 93);
+});
+
 test('bean name is required before any operation is submitted', async () => {
   const env = harness();
   await assert.rejects(env.commands.prepareBean({ name: '  ' }));

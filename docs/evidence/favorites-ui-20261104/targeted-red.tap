@@ -1,0 +1,254 @@
+✔ 모듈은 공개 factory와 repository methods만 제공한다 (5.771ms)
+✔ factory는 네 source ID를 검증하고 생성 시점 값을 복사한다 (8.188667ms)
+✔ listBeans reads one metadata page without touching other sources or re-reading recipe parents (0.71225ms)
+✖ catalog reads sort supported favorites before names and keep missing schemas readable (1.859334ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      [
+        {
+  -       direction: 'descending',
+  -       property: '즐겨찾기'
+  -     },
+  -     {
+          direction: 'ascending',
+          property: '원두 이름'
+        }
+      ],
+      [
+        {
+  -       direction: 'descending',
+  -       property: '즐겨찾기'
+  -     },
+  -     {
+          direction: 'ascending',
+          property: '레시피 이름'
+        }
+      ]
+    ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-ui-20261104/test/pwa-read-repository.test.mjs:275:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ [ [Object] ], [ [Object] ] ],
+    expected: [ [ [Object], [Object] ], [ [Object], [Object] ] ],
+    operator: 'deepStrictEqual'
+  }
+
+✖ favorite ordering happens before the catalog page boundary (21.568291ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   'A other',
+  -   'A saved',
+      'B saved'
+    ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-ui-20261104/test/pwa-read-repository.test.mjs:341:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'A other', 'B saved' ],
+    expected: [ 'A saved', 'B saved' ],
+    operator: 'deepStrictEqual'
+  }
+
+✔ listBeans and listRecipeSummaries accept favoriteOnly filter and combine with search query (0.40275ms)
+✔ favorite cursor belongs to the favorite filter and search query (0.600875ms)
+✔ favorite filter fails clearly when the connected schema has no checkbox (0.306458ms)
+✔ listRecipeSummaries reads only one metadata page and leaves stage validation marked pending (0.54225ms)
+✔ getRecipeDetail fetches and validates only the selected parent and its complete relation-filtered stages (0.967917ms)
+✔ listRecords scans one globally sorted stream and locally matches bagless-v1 snapshots (1.93175ms)
+✔ listRecords preserves continuation after bounded raw pages with no visible bagless rows (0.378458ms)
+✔ searchOptions applies the typed title filter and binds continuation to the query (0.484834ms)
+✔ bean counts and recipe stats scan exact current-generation snapshots on demand (1.238583ms)
+✔ 네 source를 모두 읽고 단계 정렬·기록 snapshot·별점 집계를 만든 뒤 깊게 고정한다 (0.991416ms)
+✔ 진짜 빈 네 source는 빈 데이터로 반환하고 조회 실패와 구분한다 (0.891167ms)
+✔ queryAll beans 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다 (0.443458ms)
+✔ queryAll recipes 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다 (1.022209ms)
+✔ queryAll steps 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다 (0.520416ms)
+✔ queryAll records 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다 (0.71475ms)
+✔ 삭제·잘못된 ID·source·parent 페이지는 codec 전에 제외한다 (2.407917ms)
+✔ raw history is retained while only bagless-generation snapshots affect aggregates (1.31675ms)
+✔ 잘리거나 다중인 관계가 있어도 기존 기록과 평가는 보존하고 불확실성을 표시한다 (1.121208ms)
+✔ 기록의 폐기된 봉지 관계는 원두 판독에 사용하지 않고 평가를 보존한다 (0.908083ms)
+✔ records.bean 관계가 없어도 snapshot·legacy recipe·bag 근거를 읽고 모순은 확인 대상으로 보존한다 (0.762291ms)
+✔ 버전 1 snapshot 전체·기록 날짜·별점을 검증한다 (1.279ms)
+✔ multi-bean legacy recipe candidates conflict with a v1 snapshot and remain unresolved (0.952458ms)
+✔ truncated legacy relations preserve observed candidates and force confirmation (0.900459ms)
+✔ invalid v1/v2 snapshots remain attached to the record as damage status, not renderable data (1.246625ms)
+✔ 잘못된 recipe 속성은 recipe만 제외하고 손상된 record 필드도 원본 평가를 보존한다 (1.302958ms)
+✔ order 1 부재·순서 gap/중복·파생값 손상·tiny-water 자식 삭제는 완성 레시피로 노출하지 않는다 (1.615833ms)
+✔ epsilon 경계에서 손상된 마지막 자식이 남은 prefix를 완성 레시피로 만들지 않는다 (0.83025ms)
+▶ 식별 가능한 부모 관계가 있는 잘못된 자식은 그 부모를 taint한다
+  ✔ 잘못된 number 값 (0.853584ms)
+  ✔ 잘못된 property type (0.396083ms)
+  ✔ 복수 부모 관계 (0.721917ms)
+  ✔ 잘린 부모 관계 (1.211208ms)
+  ✔ 관계 배열이 남은 잘못된 relation type (0.935ms)
+  ✔ 관계 배열이 남은 잘못된 child ID (0.369625ms)
+  ✔ 관계 배열이 남은 잘못된 child source (0.578875ms)
+✔ 식별 가능한 부모 관계가 있는 잘못된 자식은 그 부모를 taint한다 (6.007875ms)
+▶ parent 조회 뒤 parent archive 또는 조건·bean·last_edited_time 변경은 전체 조회를 stale-read로 끝낸다
+  ✔ archive (0.40475ms)
+  ✔ trash (0.569167ms)
+  ✔ name (0.536666ms)
+  ✔ dripper (1.252583ms)
+  ✔ dose (0.716041ms)
+  ✔ grind (1.344666ms)
+  ✔ grinder (0.562792ms)
+  ✔ grinder setting (0.298625ms)
+  ✔ microns (0.368834ms)
+  ✔ temperature (0.989083ms)
+  ✔ total water (1.009375ms)
+  ✔ bean relation (1.1345ms)
+  ✔ last edited (1.492208ms)
+  ✔ source (1.030583ms)
+✔ parent 조회 뒤 parent archive 또는 조건·bean·last_edited_time 변경은 전체 조회를 stale-read로 끝낸다 (12.942125ms)
+✔ parent 비교는 첫 rich text 조각 뒤의 변경도 stale-read로 감지한다 (1.296666ms)
+▶ parent 최종 getPage 실패와 ID 불일치는 안전 stale-read로 전환한다
+  ✔ failure (1.067833ms)
+  ✔ id-mismatch (0.850083ms)
+✔ parent 최종 getPage 실패와 ID 불일치는 안전 stale-read로 전환한다 (2.282125ms)
+✔ 현재 recipe가 삭제되어도 유효한 과거 record snapshot은 저장된 값 그대로 읽는다 (0.364625ms)
+✔ 손상되거나 버전이 다른 record snapshot은 제외하고 원본을 공개하지 않는다 (0.682333ms)
+✔ readRecipeForSnapshot은 매 호출마다 네 source와 parent를 새로 확인한다 (1.60575ms)
+✔ 관계 부재와 완전 조회 실패는 빈 collection으로 위장하지 않는다 (0.292208ms)
+✔ recipe statistics reuse the exact recently validated detail when supplied by its caller (0.802291ms)
+✔ listRecords retains valid raw rows beyond the visible page for its continuation (5.807833ms)
+✔ recipe search options retain the validated bean parent for scoped selection (0.549583ms)
+
+<--- Last few GCs --->
+
+[48337:0x766e80c000]     5571 ms: Scavenge (reduce) (interleaved) 4086.6 (4103.4) -> 4086.6 (4096.4) MB, pooled: 0 MB, 1.54 / 0.00 ms  (average mu = 0.061, current mu = 0.011) allocation failure; 
+[48337:0x766e80c000]     6603 ms: Mark-Compact (reduce) 4091.1 (4101.0) -> 4091.1 (4101.0) MB, pooled: 0 MB, 1026.71 / 0.00 ms  (+ 4.0 ms in 0 steps since start of marking, biggest step 0.0 ms, walltime since start of marking 1035 ms) (average mu = 0.031,
+
+<--- JS stacktrace --->
+
+FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory
+----- Native stack trace -----
+
+ 1: 0x100f0c9e8 node::OOMErrorHandler(char const*, v8::OOMDetails const&) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+ 2: 0x1010b5eec v8::Utils::ReportOOMFailure(v8::internal::Isolate*, char const*, v8::OOMDetails const&) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+ 3: 0x1010b5ea0 v8::internal::V8::FatalProcessOutOfMemory(v8::internal::Isolate*, char const*, v8::OOMDetails const&) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+ 4: 0x1012739c0 v8::internal::Heap::CallGCPrologueCallbacks(v8::GCType, v8::GCCallbackFlags, v8::internal::GCTracer::Scope::ScopeId) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+ 5: 0x1012756c4 v8::internal::Heap::DevToolsTraceEventScope::~DevToolsTraceEventScope() [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+ 6: 0x101274088 v8::internal::Heap::CollectGarbage(v8::internal::AllocationSpace, v8::internal::GarbageCollectionReason, v8::GCCallbackFlags)::$_1::operator()() const [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+ 7: 0x101273d38 void heap::base::Stack::SetMarkerAndCallbackImpl<v8::internal::Heap::CollectGarbage(v8::internal::AllocationSpace, v8::internal::GarbageCollectionReason, v8::GCCallbackFlags)::$_1>(heap::base::Stack*, void*, void const*) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+ 8: 0x100e1c028 PushAllRegistersAndIterateStack [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+ 9: 0x1012722dc v8::internal::Heap::CollectGarbage(v8::internal::AllocationSpace, v8::internal::GarbageCollectionReason, v8::GCCallbackFlags) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+10: 0x101200124 v8::internal::StackGuard::HandleInterrupts(v8::internal::StackGuard::InterruptLevel) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+11: 0x101577d88 v8::internal::Runtime_StackGuard(int, unsigned long*, v8::internal::Isolate*) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+12: 0x100cfb9f4 Builtins_CEntry_Return1_ArgvOnStack_NoBuiltinExit [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+13: 0x100c9ce4c Builtins_ArrayPrototypePush [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+14: 0x10e64a9a0 
+15: 0x100c64838 Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+16: 0x100c64838 Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+17: 0x100c653cc Builtins_InterpreterPushArgsThenFastConstructFunction [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+18: 0x100ddecb4 Builtins_ConstructHandler [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+19: 0x100c64838 Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+20: 0x100c656a0 Builtins_InterpreterEnterAtBytecode [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+21: 0x100c64838 Builtins_InterpreterEntryTrampoline [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+22: 0x100ca1e20 Builtins_AsyncFunctionAwaitResolveClosure [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+23: 0x100d6f298 Builtins_PromiseFulfillReactionJob [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+24: 0x100c91214 Builtins_RunMicrotasks [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+25: 0x100c623f0 Builtins_JSRunMicrotasksEntry [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+26: 0x1011d8798 v8::internal::(anonymous namespace)::Invoke(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+27: 0x1011d8e68 v8::internal::(anonymous namespace)::InvokeWithTryCatch(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+28: 0x1011fdf54 v8::internal::MicrotaskQueue::RunMicrotasks(v8::internal::Isolate*) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+29: 0x1011fdce4 v8::internal::MicrotaskQueue::PerformCheckpointInternal(v8::Isolate*) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+30: 0x100e1d5e4 node::InternalCallbackScope::Close() [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+31: 0x100e1d444 node::InternalCallbackScope::~InternalCallbackScope() [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+32: 0x100f13520 node::fs::FileHandle::CloseReq::Resolve() [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+33: 0x100f13f44 node::fs::FileHandle::ClosePromise()::$_0::__invoke(uv_fs_s*) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+34: 0x100f03340 node::MakeLibuvRequestCallback<uv_fs_s, void (*)(uv_fs_s*)>::Wrapper(uv_fs_s*) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+35: 0x10569e660 uv__work_done [/opt/homebrew/Cellar/libuv/1.49.2/lib/libuv.1.dylib]
+36: 0x1056a1cf4 uv__async_io [/opt/homebrew/Cellar/libuv/1.49.2/lib/libuv.1.dylib]
+37: 0x1056b2114 uv__io_poll [/opt/homebrew/Cellar/libuv/1.49.2/lib/libuv.1.dylib]
+38: 0x1056a2184 uv_run [/opt/homebrew/Cellar/libuv/1.49.2/lib/libuv.1.dylib]
+39: 0x100e1e488 node::SpinEventLoopInternal(node::Environment*) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+40: 0x100f5759c node::NodeMainInstance::Run(node::ExitCode*, node::Environment*) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+41: 0x100f572f0 node::NodeMainInstance::Run() [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+42: 0x100ecca68 node::Start(int, char**) [/opt/homebrew/Cellar/node/23.4.0/bin/node]
+43: 0x18841cd7c start [/usr/lib/dyld]
+✖ test/pwa-ui.view.test.mjs (6678.594208ms)
+  'test failed'
+
+ℹ tests 67
+ℹ suites 0
+ℹ pass 64
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6692.055333
+
+✖ failing tests:
+
+test at test/pwa-read-repository.test.mjs:259:1
+✖ catalog reads sort supported favorites before names and keep missing schemas readable (1.859334ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      [
+        {
+  -       direction: 'descending',
+  -       property: '즐겨찾기'
+  -     },
+  -     {
+          direction: 'ascending',
+          property: '원두 이름'
+        }
+      ],
+      [
+        {
+  -       direction: 'descending',
+  -       property: '즐겨찾기'
+  -     },
+  -     {
+          direction: 'ascending',
+          property: '레시피 이름'
+        }
+      ]
+    ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-ui-20261104/test/pwa-read-repository.test.mjs:275:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ [ [Object] ], [ [Object] ] ],
+    expected: [ [ [Object], [Object] ], [ [Object], [Object] ] ],
+    operator: 'deepStrictEqual'
+  }
+
+test at test/pwa-read-repository.test.mjs:301:1
+✖ favorite ordering happens before the catalog page boundary (21.568291ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   'A other',
+  -   'A saved',
+      'B saved'
+    ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-ui-20261104/test/pwa-read-repository.test.mjs:341:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'A other', 'B saved' ],
+    expected: [ 'A saved', 'B saved' ],
+    operator: 'deepStrictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:1:1
+✖ test/pwa-ui.view.test.mjs (6678.594208ms)
+  'test failed'

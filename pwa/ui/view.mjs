@@ -187,6 +187,7 @@ export function createAppView(document = globalThis.document, {
   const root = document.querySelector('#app-root');
   if (!root) throw new Error('앱 화면을 만들 수 없습니다.');
   const page = make(document, 'div', undefined, 'app-content');
+  page.setAttribute('tabindex', '-1');
   root.replaceChildren(page);
 
   let currentState = { frozen: false, pending: false, unresolved: false, connectionRevision: null };
@@ -1543,7 +1544,6 @@ function renderBrewOptions(pane, data, document, route, optionPages, kind, selec
   searchControl.append(search, clearSearch);
   searchField.append(searchControl);
   pane.append(searchField);
-  appendFavoriteFilter(pane, document, data, kind, route);
 
   const items = page.items ?? [];
   if (!items.length) {
@@ -1820,7 +1820,6 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
     pane.append(makeEntryDialog(document, 'recipes', form, recipeFormOpen));
     addStep(pane, document);
     updatePreview(pane);
-    appendFavoriteFilter(pane, document, data, 'recipes', route);
     if (!data.recipes.length) pane.append(make(document, 'p', data.screen?.hasMore
       ? '레시피를 더 확인 중입니다. 더 보기로 계속 확인해 주세요.'
       : data.screen?.complete === false ? '레시피 목록을 끝까지 확인하지 못했습니다. 새로고침해 주세요.'
@@ -1891,29 +1890,18 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
 
 function favoriteButton(document, data, kind, item) {
   const control = button(document, undefined, 'button', 'favorite-item', 'utility');
-  control.className = 'button favorite-button';
+  control.className = 'button icon-button entity-favorite';
   control.dataset.kind = kind;
   control.dataset.id = item.id;
   control.dataset.favorite = String(item.favorite === true);
   control.setAttribute('aria-pressed', String(item.favorite === true));
   control.setAttribute('aria-label', `${item.name} 즐겨찾기 ${item.favorite ? '해제' : '추가'}`);
   control.disabled = data.favoriteSupport?.[kind] === false;
-  control.append(decorativeSvg(document, '0 0 24 24', 'favorite-icon', ['M6 3h12v18l-6-4-6 4V3Z']));
+  control.append(decorativeSvg(document, '0 0 24 24', 'favorite-icon', ['M12 2.5 14.9 8.4 21.4 9.3 16.7 13.9 17.8 20.4 12 17.3 6.2 20.4 7.3 13.9 2.6 9.3 9.1 8.4 12 2.5Z']));
   return control;
 }
 
-function appendFavoriteFilter(pane, document, data, kind, route) {
-  const active = routeParams(route).get('favorite') === 'true';
-  const control = button(document, '즐겨찾기만 보기', 'button', 'favorite-filter', 'utility');
-  control.className = 'button favorite-filter';
-  control.setAttribute('aria-pressed', String(active));
-  control.disabled = data.favoriteSupport?.[kind] === false;
-  pane.append(control);
-  if (control.disabled) pane.append(make(document, 'p', '즐겨찾기를 사용하려면 Notion에 즐겨찾기 checkbox 속성을 추가하고 연결을 다시 확인해 주세요.', 'muted-note'));
-}
-
 function renderBeans(pane, data, document, formOpen) {
-  appendFavoriteFilter(pane, document, data, 'beans', data.screen?.route ?? '/beans');
   const form = formBase(document, 'beans', '새 원두');
   form.id = 'new-bean-form';
   addFieldset(document, form, '원두 정보', [
@@ -2857,17 +2845,6 @@ function bindEvents({ page, nav, connectionForm, tokenInput, scheduleTokenValida
     const target = event.target.closest('[data-action]');
     const action = target?.dataset.action;
     if (!action || target.disabled) return;
-    if (action === 'favorite-filter') {
-      const route = view.currentRoute();
-      const params = routeParams(route);
-      if (params.get('favorite') === 'true') params.delete('favorite');
-      else params.set('favorite', 'true');
-      const search = content.querySelector('[data-option-target="brew"][data-option-search-kind]');
-      if (search?.value) params.set('q', search.value);
-      const query = params.toString();
-      navigateTo(`${routePath(route)}${query ? `?${query}` : ''}`);
-      return;
-    }
     if (action === 'favorite-item') {
       const state = actions.getState?.() ?? {};
       if (state.pending || state.frozen || state.unresolved) return;
@@ -2878,7 +2855,7 @@ function bindEvents({ page, nav, connectionForm, tokenInput, scheduleTokenValida
       catch { /* Controller supplies the safe status message. */ }
       if (restoreFocus) {
         const replacement = Array.from(content.querySelectorAll('[data-action="favorite-item"]')).find(item => item.dataset.id === id);
-        (replacement ?? content.querySelector('[data-action="favorite-filter"]'))?.focus?.();
+        (replacement ?? content.querySelector('[data-action="favorite-item"]') ?? page).focus?.();
       }
       return;
     }

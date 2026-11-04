@@ -307,12 +307,22 @@ export function createReadRepository(client) {
     return filters[0];
   }
 
+  function listSorts(kind) {
+    const favoriteSupported = kind === 'beans'
+      ? client.beanFavoriteSupported !== false
+      : client.recipeFavoriteSupported !== false;
+    return [
+      ...(favoriteSupported ? [{ property: schemas[kind].favorite[0], direction: 'descending' }] : []),
+      { property: schemas[kind].name[0], direction: 'ascending' },
+    ];
+  }
+
   async function listBeans({ cursor = null, limit = 20, query: searchText = '', favoriteOnly = false, signal } = {}) {
     if (typeof queryPage !== 'function' || typeof searchText !== 'string' || searchText.length > 100) {
       throw safeFailure('invalid-input');
     }
     const filter = listFilter('beans', searchText, favoriteOnly);
-    const query = { filter, sorts: [{ property: schemas.beans.name[0], direction: 'ascending' }],
+    const query = { filter, sorts: listSorts('beans'),
       properties: Object.values(schemas.beans).map(([name]) => name) };
     const startCursor = queryCursor('beans', query, cursor);
     if (startCursor !== null && (typeof startCursor !== 'string' || !startCursor.trim())) {
@@ -443,7 +453,7 @@ export function createReadRepository(client) {
       throw safeFailure('invalid-input');
     }
     const filter = listFilter('recipes', searchText, favoriteOnly);
-    const query = { filter, sorts: [{ property: schemas.recipes.name[0], direction: 'ascending' }],
+    const query = { filter, sorts: listSorts('recipes'),
       properties: Object.values(schemas.recipes).map(([name]) => name) };
     const startCursor = queryCursor('recipes', query, cursor);
     if (startCursor !== null && (typeof startCursor !== 'string' || !startCursor.trim())) {

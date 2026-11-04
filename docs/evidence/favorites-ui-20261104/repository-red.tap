@@ -1,0 +1,126 @@
+✖ catalog reads sort supported favorites before names and keep missing schemas readable (3.168166ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      [
+        {
+  -       direction: 'descending',
+  -       property: '즐겨찾기'
+  -     },
+  -     {
+          direction: 'ascending',
+          property: '원두 이름'
+        }
+      ],
+      [
+        {
+  -       direction: 'descending',
+  -       property: '즐겨찾기'
+  -     },
+  -     {
+          direction: 'ascending',
+          property: '레시피 이름'
+        }
+      ]
+    ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-ui-20261104/test/pwa-read-repository.test.mjs:275:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ [ [Object] ], [ [Object] ] ],
+    expected: [ [ [Object], [Object] ], [ [Object], [Object] ] ],
+    operator: 'deepStrictEqual'
+  }
+
+✖ favorite ordering happens before the catalog page boundary (17.13025ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   'A other',
+  -   'A saved',
+      'B saved'
+    ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-ui-20261104/test/pwa-read-repository.test.mjs:341:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'A other', 'B saved' ],
+    expected: [ 'A saved', 'B saved' ],
+    operator: 'deepStrictEqual'
+  }
+
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 104.795208
+
+✖ failing tests:
+
+test at test/pwa-read-repository.test.mjs:259:1
+✖ catalog reads sort supported favorites before names and keep missing schemas readable (3.168166ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      [
+        {
+  -       direction: 'descending',
+  -       property: '즐겨찾기'
+  -     },
+  -     {
+          direction: 'ascending',
+          property: '원두 이름'
+        }
+      ],
+      [
+        {
+  -       direction: 'descending',
+  -       property: '즐겨찾기'
+  -     },
+  -     {
+          direction: 'ascending',
+          property: '레시피 이름'
+        }
+      ]
+    ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-ui-20261104/test/pwa-read-repository.test.mjs:275:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ [ [Object] ], [ [Object] ] ],
+    expected: [ [ [Object], [Object] ], [ [Object], [Object] ] ],
+    operator: 'deepStrictEqual'
+  }
+
+test at test/pwa-read-repository.test.mjs:301:1
+✖ favorite ordering happens before the catalog page boundary (17.13025ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   'A other',
+  -   'A saved',
+      'B saved'
+    ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-ui-20261104/test/pwa-read-repository.test.mjs:341:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'A other', 'B saved' ],
+    expected: [ 'A saved', 'B saved' ],
+    operator: 'deepStrictEqual'
+  }

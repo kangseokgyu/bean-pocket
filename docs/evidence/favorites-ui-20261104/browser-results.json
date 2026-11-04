@@ -1,0 +1,122 @@
+{
+  "viewport": 390,
+  "results": [
+    {
+      "route": "/beans",
+      "styles": {
+        "favorite": [
+          [
+            "width",
+            "46px"
+          ],
+          [
+            "height",
+            "46px"
+          ],
+          [
+            "padding",
+            "8px"
+          ],
+          [
+            "backgroundColor",
+            "rgba(0, 0, 0, 0)"
+          ],
+          [
+            "borderWidth",
+            "1px"
+          ],
+          [
+            "borderColor",
+            "rgba(0, 0, 0, 0)"
+          ]
+        ],
+        "trash": [
+          [
+            "width",
+            "46px"
+          ],
+          [
+            "height",
+            "46px"
+          ],
+          [
+            "padding",
+            "8px"
+          ],
+          [
+            "backgroundColor",
+            "rgba(0, 0, 0, 0)"
+          ],
+          [
+            "borderWidth",
+            "1px"
+          ],
+          [
+            "borderColor",
+            "rgba(0, 0, 0, 0)"
+          ]
+        ]
+      },
+      "toggleReorders": true
+    },
+    {
+      "route": "/recipes",
+      "styles": {
+        "favorite": [
+          [
+            "width",
+            "46px"
+          ],
+          [
+            "height",
+            "46px"
+          ],
+          [
+            "padding",
+            "8px"
+          ],
+          [
+            "backgroundColor",
+            "rgba(0, 0, 0, 0)"
+          ],
+          [
+            "borderWidth",
+            "1px"
+          ],
+          [
+            "borderColor",
+            "rgba(0, 0, 0, 0)"
+          ]
+        ],
+        "trash": [
+          [
+            "width",
+            "46px"
+          ],
+          [
+            "height",
+            "46px"
+          ],
+          [
+            "padding",
+            "8px"
+          ],
+          [
+            "backgroundColor",
+            "rgba(0, 0, 0, 0)"
+          ],
+          [
+            "borderWidth",
+            "1px"
+          ],
+          [
+            "borderColor",
+            "rgba(0, 0, 0, 0)"
+          ]
+        ]
+      },
+      "toggleReorders": true
+    }
+  ],
+  "errors": []
+}

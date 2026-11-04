@@ -4634,24 +4634,29 @@ test('critic regression: selected filter options survive a search and unrelated 
   assert.ok(select.options.some(option => option.value === BEAN), 'matching selected option should remain in native select');
 });
 
-test('bean and recipe lists expose bookmark state and favorite filters separately from ratings', () => {
+test('bean and recipe lists expose accessible star toggles without favorite-only controls', () => {
   const document = new TestDocument();
   const view = createBeanView(document);
   const current = data();
   current.beans[0].favorite = true;
+  current.favoriteSupport = { beans: false, recipes: false };
   view.renderData(current);
-  const bookmark = document.root.querySelector('[data-action="favorite-item"]');
-  assert.ok(bookmark);
-  assert.equal(bookmark.getAttribute('aria-pressed'), 'true');
-  assert.match(bookmark.getAttribute('aria-label'), /즐겨찾기 해제/);
-  assert.ok(document.root.querySelector('[data-action="favorite-filter"]'));
+  const favorite = document.root.querySelector('[data-action="favorite-item"]');
+  assert.ok(favorite);
+  assert.equal(favorite.getAttribute('aria-pressed'), 'true');
+  assert.match(favorite.getAttribute('aria-label'), /즐겨찾기 해제/);
+  assert.match(favorite.className, /entity-favorite/);
+  assert.equal(favorite.querySelector('.favorite-icon').children[0].getAttribute('d'),
+    'M12 2.5 14.9 8.4 21.4 9.3 16.7 13.9 17.8 20.4 12 17.3 6.2 20.4 7.3 13.9 2.6 9.3 9.1 8.4 12 2.5Z');
+  assert.equal(document.root.querySelector('[data-action="favorite-filter"]'), null);
+  assert.doesNotMatch(document.root.textContent, /checkbox 속성/);
   view.renderRoute('/recipes');
-  view.renderData(current);
   assert.ok(document.root.querySelector('[data-action="favorite-item"]'));
-  assert.ok(document.root.querySelector('[data-action="favorite-filter"]'));
+  assert.equal(document.root.querySelector('[data-action="favorite-filter"]'), null);
+  assert.doesNotMatch(document.root.textContent, /checkbox 속성/);
 });
 
-test('bookmark submits a desired boolean and restores keyboard focus, while brew favorite filter preserves search', async () => {
+test('star submits a desired boolean and restores keyboard focus', async () => {
   const document = new TestDocument();
   const view = createBeanView(document);
   const current = data();
@@ -4666,9 +4671,20 @@ test('bookmark submits a desired boolean and restores keyboard focus, while brew
   assert.deepEqual(calls, [{ kind: 'favorite-bean', payload: { id: BEAN, favorite: true } }]);
   assert.equal(document.activeElement.dataset.id, BEAN);
   assert.equal(document.activeElement.getAttribute('aria-pressed'), 'true');
-  view.renderRoute('/brew/bean?q=coffee');
-  await clickViewTarget(document, document.root.querySelector('[data-action="favorite-filter"]'));
-  assert.match(view.currentRoute(), /favorite=true/);
-  assert.match(view.currentRoute(), /q=coffee/);
-  assert.equal(document.root.querySelector('[data-action="favorite-item"]'), null);
+});
+
+test('critic focus leaves no detached toggle after page-boundary reorder', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  current.beans[0].favorite = true;
+  view.renderData(current);
+  view.bind({ getState: () => ({}), async submit() {
+    current.beans[0] = { ...current.beans[0], id: '22222222-2222-4222-8222-222222222222', name: 'Other favorite', favorite: true };
+    view.renderData(current);
+  } });
+  const toggle = document.root.querySelector('[data-action="favorite-item"]');
+  toggle.focus();
+  await clickViewTarget(document, toggle);
+  assert.notEqual(document.activeElement, toggle, 'Focus still references removed toggle when refreshed first page excludes toggled item');
 });

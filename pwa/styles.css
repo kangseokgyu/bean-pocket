@@ -755,7 +755,7 @@ button:focus-visible, .table-scroll:focus-visible {
 .recipe-card-link::after, .bean-card-link::after { content: ''; position: absolute; inset: 0; border-radius: 12px; }
 .recipe-card-link:focus-visible, .bean-card-link:focus-visible { outline: none; }
 .recipe-card-link:focus-visible::after, .bean-card-link:focus-visible::after { outline: 3px solid #8ab59a; outline-offset: 2px; }
-.recipe-summary-card .entity-delete, .bean-card .entity-delete { position: relative; z-index: 1; }
+.recipe-summary-card .entity-delete, .bean-card .entity-delete, .entity-favorite { position: relative; z-index: 1; }
 @media (hover: hover) and (pointer: fine) {
   .recipe-summary-card, .bean-card { transition: background-color 150ms ease, border-color 150ms ease; }
   .recipe-summary-card:hover, .bean-card:hover { background: #f6f8f0; border-color: #8ab59a; }
@@ -788,9 +788,9 @@ button:focus-visible, .table-scroll:focus-visible {
 .entity-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
 .entity-card-header h3, .entity-card-header h4 { min-width: 0; overflow-wrap: anywhere; margin: 0 0 12px; }
 .entity-card-header h3 { margin-bottom: 0; font-size: 0.9375rem; line-height: 1.5; }
-.entity-delete { flex: 0 0 46px; width: 46px; height: 46px; margin: -14px -8px -14px 0; color: #737373; background: transparent; border-color: transparent; }
-.entity-delete svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.entity-delete:hover:not(:disabled) { background: #f0f0ed; border-color: #b7b7af; }
+.entity-delete, .entity-favorite { flex: 0 0 46px; width: 46px; height: 46px; margin: -14px -8px -14px 0; color: #737373; background: transparent; border-color: transparent; }
+.entity-delete svg, .entity-favorite svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.entity-delete:hover:not(:disabled), .entity-favorite:hover:not(:disabled) { background: #f0f0ed; border-color: #b7b7af; }
 .bag-card { padding-top: 10px; border-top: 1px solid #e0dbcf; }
 .bag-card + .bag-card { margin-top: 10px; }
 .bag-card > :last-child, .bean-card > :last-child, .bean-detail-card > :last-child,
@@ -1318,11 +1318,5 @@ footer {
   .record-insight-comparison-card .record-insight-comparison-conditions { grid-template-columns: minmax(0, 1fr); }
 }
 
-.favorite-button, .favorite-filter { min-width: 44px; min-height: 44px; flex-shrink: 0; }
-.favorite-button { padding: 10px; position: relative; z-index: 1; }
-.favorite-icon { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; }
-.favorite-button[aria-pressed="true"] .favorite-icon { fill: currentColor; }
-.favorite-filter { margin-bottom: 16px; }
-.favorite-filter[aria-pressed="true"] { background: var(--ink, #342b24); color: var(--surface, #fff); }
-.favorite-button:focus-visible, .favorite-filter:focus-visible { outline: 3px solid #8b572a; outline-offset: 3px; }
+.entity-favorite[aria-pressed="true"] .favorite-icon { fill: currentColor; }
 .entity-card-header > h3 { flex: 1; min-width: 0; }

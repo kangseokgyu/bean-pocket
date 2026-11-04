@@ -1,0 +1,35 @@
+✖ critic focus leaves no detached toggle after page-boundary reorder (7.545709ms)
+  AssertionError [ERR_ASSERTION]: Focus still references removed toggle when refreshed first page excludes toggled item
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-ui-20261104/test/pwa-ui.view.test.mjs:4689:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [TestElement],
+    expected: [TestElement],
+    operator: 'notStrictEqual'
+  }
+
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 90.882875
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:4676:1
+✖ critic focus leaves no detached toggle after page-boundary reorder (7.545709ms)
+  AssertionError [ERR_ASSERTION]: Focus still references removed toggle when refreshed first page excludes toggled item
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-ui-20261104/test/pwa-ui.view.test.mjs:4689:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [TestElement],
+    expected: [TestElement],
+    operator: 'notStrictEqual'
+  }

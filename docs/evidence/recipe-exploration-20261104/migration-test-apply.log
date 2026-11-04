@@ -1,0 +1,3 @@
+environment: test; explicit apply
+test: updated; apply=yes; existing properties preserved=yes; target relation readback=verified
+exitCode=0

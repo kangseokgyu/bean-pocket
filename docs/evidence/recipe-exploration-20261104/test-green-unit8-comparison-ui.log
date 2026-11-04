@@ -1,0 +1,16 @@
+TAP version 13
+# Subtest: records page defaults to the brew source pair and lets the user compare any two records for that bean
+ok 1 - records page defaults to the brew source pair and lets the user compare any two records for that bean
+  ---
+  duration_ms: 34.912167
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 89.473083

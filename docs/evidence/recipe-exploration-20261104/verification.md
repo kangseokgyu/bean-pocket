@@ -114,3 +114,44 @@ Worker는 `rg -n includeComparisonPair pwa/ui/controller.mjs`로 호출 세 곳�
 | `git diff --check` | 0 | 오류 없음 | [원문](diff-check-C3.log) |
 
 `node --check pwa/ui/controller.mjs`도 종료 코드 0이다. 제품 소스를 다시 고정했으며 Orchestrator의 전체 테스트·최종 dist 브라우저 실행과 동일 Critic의 독립 재검토가 남아 있다. 이전 성공·실패 증거와 실제 schema 적용 기록은 그대로 보존한다.
+
+
+## main 선택적 속성 호환 수정 통합
+
+C1/C2/C3 승인 뒤 main의 `0362bd5`를 통합했다. 자동 병합된 production client의 검증 완료 속성 목록과 query projection 필터를 유지했으며, fixture의 선택적 속성 누락·엄격한 projection 모의 기능도 유지했다. 이 과정에서 Worker는 제품 소스를 추가로 변경하지 않았다.
+
+충돌한 `test/pwa-notion-client.test.mjs`와 `test/pwa-ui.integration.test.mjs`는 양쪽 테스트를 모두 보존했다. 기존 베스트 비지원·즐겨찾기와 베스트의 독립 PATCH·v3 스냅샷 검증, 새 main의 선택적 속성 누락 projection·catalog·추출 선택기 검증을 함께 유지한다. 새 호환 회귀는 beans에 즐겨찾기와 베스트 추출 속성이 모두 없는 경우로 확대했다. 해당 연결에서도 원두·레시피 목록과 추출 선택기가 읽히고 베스트는 unsupported로 남음을 확인한다.
+
+| 명령 | 종료 코드 | 결과 | 근거 |
+| --- | --- | --- | --- |
+| `node --test test/pwa-notion-client.test.mjs` | 0 | 58개 통과 | [client](test-compat-merge-client-final.log) |
+| `node --test test/pwa-read-repository.test.mjs test/pwa-independent-recipes.test.mjs` | 0 | 74개 통과 | [repository](test-compat-merge-repository.log) |
+| `node --test --test-name-pattern='legacy schemas without optional properties' test/pwa-ui.integration.test.mjs` | 0 | 엄격한 projection을 사용하는 catalog·추출 선택기 1개 통과 | [catalog](test-compat-merge-catalog-final.log) |
+| `npm run build:pages` | 0 | 빌드 `3729e1901247` | [빌드](build-pages-compat-merge.log) |
+| `npm run check:pages` | 0 | 산출물 검사 통과 | [검사](check-pages-compat-merge.log) |
+| `git diff --check` | 0 | 오류 없음 | [원문](diff-check-compat-merge.log) |
+
+통합 소스를 다시 고정했다. Orchestrator는 새 main 통합 delta에 대해 전체 테스트·dist 브라우저·독립 Critic 검토를 이어간다. 앞선 C1/C2/C3의 승인과 검증 증거는 그대로 보존한다.
+
+충돌 해결 직후의 client·controller adapter 통합 batch도 종료 코드 0으로 90개가 통과했다. [원문](test-compat-merge-focused.log)을 보존한다. 이후 legacy schema에서 베스트 속성도 빠진 경우로 강화한 테스트는 위 client·catalog 최종 실행에서 다시 확인했다.
+
+## 게시 전 최종 통합 결과
+
+최신 main `0362bd5`를 통합한 제품 코드에서 `npm test` 723개가 모두 통과했다. 종료 코드는 0이다. [최종 전체 로그](test-integrated-final.log)에 원문을 보관한다. `npm run build:pages`와 `npm run check:pages`도 종료 코드 0이며 최종 빌드는 `3729e1901247`이다.
+
+[최종 산출물 Chrome 검증](browser-integrated-final.log)은 390px·1440px에서 실제 조건 조정, 소수 별점·컵노트 저장, 재추출, 임의 두 기록 비교, 베스트 지정과 공용 레시피 저장을 통과했다. 준비·비교·베스트 화면 각각 가로 넘침이 없고 JavaScript·HTTP 오류는 0건이었다. 합성 저장소를 사용한 범위는 앞 절과 같다.
+
+[최종 결함 재검토](critic-final-review.md)와 [최신 main 통합 재검토](critic-integration-review.md)는 모두 승인됐다. C1·C2·C3 실행 재현과 원인 수정 이력을 이전 보고서에 보존한다. [최종 민감 값 검사](private-value-scan-final.json)는 133개 텍스트에서 실제 토큰과 비공개 데이터 소스 ID의 일치가 없음을 확인했다.
+
+적용한 원칙은 다음과 같다.
+
+- Model the Domain과 Redesign from First Principles에 따라 공용 템플릿과 기록별 실제 조건을 구분했다.
+- Experience First에 따라 매 추출의 조건 조정을 허용하고 유용한 조건만 공용 레시피로 등록하게 했다.
+- Sequence Work into Verifiable Units에 따라 기능 단위 실패·통과를 기록했다.
+- Fix Root Causes와 Migrate Callers Then Delete Legacy APIs에 따라 비교 helper의 모든 내부 호출을 같은 반환 계약으로 변경했다.
+- Make Operations Idempotent와 Boundary Discipline에 따라 스키마 설정의 충돌을 경계에서 거절하고 이미 설정된 관계에는 재요청하지 않았다.
+- Prove It Works에 따라 빌드 산출물의 브라우저 흐름과 게시 파일의 바이트 대조를 검증 기준으로 삼았다.
+
+게시 실행과 공개 파일 대조는 별도 deployment.md에 기록한다.
+
+원문 TAP 실패 로그에는 Node 출력의 공백 행을 그대로 보존했다. 증거를 강제 추가한 뒤 공백 검사는 해당 원문 `.log`를 제외한 코드·문서에 적용한다. 제품 소스의 `git diff --check`는 Worker 검증에서 통과했다.

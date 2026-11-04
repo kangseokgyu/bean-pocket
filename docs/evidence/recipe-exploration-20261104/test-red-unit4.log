@@ -1,0 +1,223 @@
+TAP version 13
+# Subtest: createCommands prepares an isolated bean draft and saves optional origin through the shared field
+ok 1 - createCommands prepares an isolated bean draft and saves optional origin through the shared field
+  ---
+  duration_ms: 8.853791
+  type: 'test'
+  ...
+# Subtest: a saved brew uses its edited actual conditions without changing the shared recipe
+ok 2 - a saved brew uses its edited actual conditions without changing the shared recipe
+  ---
+  duration_ms: 2.390792
+  type: 'test'
+  ...
+# Subtest: a bean best record can only point to a current record for the same bean
+not ok 3 - a bean best record can only point to a current record for the same bean
+  ---
+  duration_ms: 0.420375
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/1165/AX-1day/test/pwa-commands.test.mjs:206:1'
+  failureType: 'testCodeFailure'
+  error: 'env.commands.prepareBestRecord is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/1165/AX-1day/test/pwa-commands.test.mjs:219:36)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: an uncertain best update journals its before/after target for readback resolution
+not ok 4 - an uncertain best update journals its before/after target for readback resolution
+  ---
+  duration_ms: 0.257791
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/1165/AX-1day/test/pwa-commands.test.mjs:229:1'
+  failureType: 'testCodeFailure'
+  error: 'env.commands.prepareBestRecord is not a function'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/1165/AX-1day/test/pwa-commands.test.mjs:237:36)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: bean name is required before any operation is submitted
+ok 5 - bean name is required before any operation is submitted
+  ---
+  duration_ms: 0.199833
+  type: 'test'
+  ...
+# Subtest: bean name alone is sufficient and absent optional fields stay empty
+ok 6 - bean name alone is sufficient and absent optional fields stay empty
+  ---
+  duration_ms: 2.535042
+  type: 'test'
+  ...
+# Subtest: bean writes distinguish a clear rejection from an uncertain response
+    # Subtest: rejected
+    ok 1 - rejected
+      ---
+      duration_ms: 1.127208
+      type: 'test'
+      ...
+    # Subtest: unknown
+    ok 2 - unknown
+      ---
+      duration_ms: 1.035625
+      type: 'test'
+      ...
+    1..2
+ok 7 - bean writes distinguish a clear rejection from an uncertain response
+  ---
+  duration_ms: 2.594208
+  type: 'test'
+  ...
+# Subtest: legacy bag relation writes are rejected before creating a journal entry
+ok 8 - legacy bag relation writes are rejected before creating a journal entry
+  ---
+  duration_ms: 0.460792
+  type: 'test'
+  ...
+# Subtest: old connection revision blocks a prepared record before any Notion write
+ok 9 - old connection revision blocks a prepared record before any Notion write
+  ---
+  duration_ms: 0.74525
+  type: 'test'
+  ...
+# Subtest: recipe saves parent then all stages in reverse order after full preflight
+ok 10 - recipe saves parent then all stages in reverse order after full preflight
+  ---
+  duration_ms: 2.417125
+  type: 'test'
+  ...
+# Subtest: legacy recipe schema blocks a nonempty guide before journal creation for create and copy
+ok 11 - legacy recipe schema blocks a nonempty guide before journal creation for create and copy
+  ---
+  duration_ms: 0.4235
+  type: 'test'
+  ...
+# Subtest: any recipe payload over a Notion transport limit is rejected before the parent write
+ok 12 - any recipe payload over a Notion transport limit is rejected before the parent write
+  ---
+  duration_ms: 2.425
+  type: 'test'
+  ...
+# Subtest: known stage rejection archives the confirmed parent before known stages in reverse order
+ok 13 - known stage rejection archives the confirmed parent before known stages in reverse order
+  ---
+  duration_ms: 2.471458
+  type: 'test'
+  ...
+# Subtest: unknown stage response stops immediately without further create or cleanup writes
+ok 14 - unknown stage response stops immediately without further create or cleanup writes
+  ---
+  duration_ms: 1.072708
+  type: 'test'
+  ...
+# Subtest: failed parent archive prevents child cleanup and preserves the partial recipe
+ok 15 - failed parent archive prevents child cleanup and preserves the partial recipe
+  ---
+  duration_ms: 1.920666
+  type: 'test'
+  ...
+# Subtest: a rejected child archive leaves only that child active and still cleans later known children
+ok 16 - a rejected child archive leaves only that child active and still cleans later known children
+  ---
+  duration_ms: 1.5635
+  type: 'test'
+  ...
+# Subtest: copy creates a new independent recipe with changed values and rejects a stale source snapshot
+ok 17 - copy creates a new independent recipe with changed values and rejects a stale source snapshot
+  ---
+  duration_ms: 2.515791
+  type: 'test'
+  ...
+# Subtest: copy blocks when only the source extraction guide changes after preparation
+ok 18 - copy blocks when only the source extraction guide changes after preparation
+  ---
+  duration_ms: 0.762
+  type: 'test'
+  ...
+# Subtest: copy treats legacy undefined and empty extraction guides as equivalent
+ok 19 - copy treats legacy undefined and empty extraction guides as equivalent
+  ---
+  duration_ms: 3.167541
+  type: 'test'
+  ...
+# Subtest: copied recipes stay independent of the legacy bean relation
+ok 20 - copied recipes stay independent of the legacy bean relation
+  ---
+  duration_ms: 1.297208
+  type: 'test'
+  ...
+# Subtest: a recipe can be created without selecting or storing a bean
+ok 21 - a recipe can be created without selecting or storing a bean
+  ---
+  duration_ms: 1.22275
+  type: 'test'
+  ...
+# Subtest: record stores a fresh complete recipe snapshot and permits repeated same-day intent
+ok 22 - record stores a fresh complete recipe snapshot and permits repeated same-day intent
+  ---
+  duration_ms: 1.176292
+  type: 'test'
+  ...
+# Subtest: legacy bagId record payloads are rejected before journaling or writes
+ok 23 - legacy bagId record payloads are rejected before journaling or writes
+  ---
+  duration_ms: 0.094625
+  type: 'test'
+  ...
+# Subtest: record requires a valid date and a tenth-point rating from 0.1 to 5
+ok 24 - record requires a valid date and a tenth-point rating from 0.1 to 5
+  ---
+  duration_ms: 0.163208
+  type: 'test'
+  ...
+# Subtest: old record drafts without a bean and unresolved journal entries cannot be resent
+ok 25 - old record drafts without a bean and unresolved journal entries cannot be resent
+  ---
+  duration_ms: 0.878083
+  type: 'test'
+  ...
+# Subtest: records writes fail before journal creation when the connected legacy schema lacks records.bean
+ok 26 - records writes fail before journal creation when the connected legacy schema lacks records.bean
+  ---
+  duration_ms: 0.17075
+  type: 'test'
+  ...
+# Subtest: T20 rereads the real T15 repository under lock and the saved record round-trips its snapshot
+ok 27 - T20 rereads the real T15 repository under lock and the saved record round-trips its snapshot
+  ---
+  duration_ms: 4.134458
+  type: 'test'
+  ...
+# Subtest: T18 partial recipe remains hidden by the real T15 completeness check
+ok 28 - T18 partial recipe remains hidden by the real T15 completeness check
+  ---
+  duration_ms: 1.76875
+  type: 'test'
+  ...
+# Subtest: bag operations are unavailable and a legacy bagId record payload is rejected before journal creation
+ok 29 - bag operations are unavailable and a legacy bagId record payload is rejected before journal creation
+  ---
+  duration_ms: 0.122291
+  type: 'test'
+  ...
+1..29
+# tests 31
+# suites 0
+# pass 29
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 97.251333

@@ -1,0 +1,221 @@
+TAP version 13
+# Subtest: createCommands prepares an isolated bean draft and saves optional origin through the shared field
+ok 1 - createCommands prepares an isolated bean draft and saves optional origin through the shared field
+  ---
+  duration_ms: 8.539708
+  type: 'test'
+  ...
+# Subtest: a saved brew uses its edited actual conditions without changing the shared recipe
+ok 2 - a saved brew uses its edited actual conditions without changing the shared recipe
+  ---
+  duration_ms: 2.218125
+  type: 'test'
+  ...
+# Subtest: bean name is required before any operation is submitted
+ok 3 - bean name is required before any operation is submitted
+  ---
+  duration_ms: 0.256208
+  type: 'test'
+  ...
+# Subtest: bean name alone is sufficient and absent optional fields stay empty
+ok 4 - bean name alone is sufficient and absent optional fields stay empty
+  ---
+  duration_ms: 1.113084
+  type: 'test'
+  ...
+# Subtest: bean writes distinguish a clear rejection from an uncertain response
+    # Subtest: rejected
+    ok 1 - rejected
+      ---
+      duration_ms: 1.677125
+      type: 'test'
+      ...
+    # Subtest: unknown
+    ok 2 - unknown
+      ---
+      duration_ms: 0.926917
+      type: 'test'
+      ...
+    1..2
+ok 5 - bean writes distinguish a clear rejection from an uncertain response
+  ---
+  duration_ms: 2.903291
+  type: 'test'
+  ...
+# Subtest: legacy bag relation writes are rejected before creating a journal entry
+ok 6 - legacy bag relation writes are rejected before creating a journal entry
+  ---
+  duration_ms: 0.224
+  type: 'test'
+  ...
+# Subtest: old connection revision blocks a prepared record before any Notion write
+ok 7 - old connection revision blocks a prepared record before any Notion write
+  ---
+  duration_ms: 0.951459
+  type: 'test'
+  ...
+# Subtest: recipe saves parent then all stages in reverse order after full preflight
+ok 8 - recipe saves parent then all stages in reverse order after full preflight
+  ---
+  duration_ms: 3.363542
+  type: 'test'
+  ...
+# Subtest: legacy recipe schema blocks a nonempty guide before journal creation for create and copy
+ok 9 - legacy recipe schema blocks a nonempty guide before journal creation for create and copy
+  ---
+  duration_ms: 0.572833
+  type: 'test'
+  ...
+# Subtest: any recipe payload over a Notion transport limit is rejected before the parent write
+ok 10 - any recipe payload over a Notion transport limit is rejected before the parent write
+  ---
+  duration_ms: 2.796541
+  type: 'test'
+  ...
+# Subtest: known stage rejection archives the confirmed parent before known stages in reverse order
+ok 11 - known stage rejection archives the confirmed parent before known stages in reverse order
+  ---
+  duration_ms: 2.576417
+  type: 'test'
+  ...
+# Subtest: unknown stage response stops immediately without further create or cleanup writes
+ok 12 - unknown stage response stops immediately without further create or cleanup writes
+  ---
+  duration_ms: 1.217458
+  type: 'test'
+  ...
+# Subtest: failed parent archive prevents child cleanup and preserves the partial recipe
+ok 13 - failed parent archive prevents child cleanup and preserves the partial recipe
+  ---
+  duration_ms: 1.439417
+  type: 'test'
+  ...
+# Subtest: a rejected child archive leaves only that child active and still cleans later known children
+ok 14 - a rejected child archive leaves only that child active and still cleans later known children
+  ---
+  duration_ms: 2.013167
+  type: 'test'
+  ...
+# Subtest: copy creates a new independent recipe with changed values and rejects a stale source snapshot
+ok 15 - copy creates a new independent recipe with changed values and rejects a stale source snapshot
+  ---
+  duration_ms: 2.079458
+  type: 'test'
+  ...
+# Subtest: copy blocks when only the source extraction guide changes after preparation
+ok 16 - copy blocks when only the source extraction guide changes after preparation
+  ---
+  duration_ms: 0.614083
+  type: 'test'
+  ...
+# Subtest: copy treats legacy undefined and empty extraction guides as equivalent
+ok 17 - copy treats legacy undefined and empty extraction guides as equivalent
+  ---
+  duration_ms: 1.980208
+  type: 'test'
+  ...
+# Subtest: copied recipes stay independent of the legacy bean relation
+ok 18 - copied recipes stay independent of the legacy bean relation
+  ---
+  duration_ms: 1.502375
+  type: 'test'
+  ...
+# Subtest: a recipe can be created without selecting or storing a bean
+ok 19 - a recipe can be created without selecting or storing a bean
+  ---
+  duration_ms: 0.957959
+  type: 'test'
+  ...
+# Subtest: record stores a fresh complete recipe snapshot and permits repeated same-day intent
+ok 20 - record stores a fresh complete recipe snapshot and permits repeated same-day intent
+  ---
+  duration_ms: 1.555083
+  type: 'test'
+  ...
+# Subtest: legacy bagId record payloads are rejected before journaling or writes
+ok 21 - legacy bagId record payloads are rejected before journaling or writes
+  ---
+  duration_ms: 0.124083
+  type: 'test'
+  ...
+# Subtest: record requires a valid date and a tenth-point rating from 0.1 to 5
+ok 22 - record requires a valid date and a tenth-point rating from 0.1 to 5
+  ---
+  duration_ms: 0.177041
+  type: 'test'
+  ...
+# Subtest: old record drafts without a bean and unresolved journal entries cannot be resent
+ok 23 - old record drafts without a bean and unresolved journal entries cannot be resent
+  ---
+  duration_ms: 1.287583
+  type: 'test'
+  ...
+# Subtest: records writes fail before journal creation when the connected legacy schema lacks records.bean
+ok 24 - records writes fail before journal creation when the connected legacy schema lacks records.bean
+  ---
+  duration_ms: 0.214959
+  type: 'test'
+  ...
+# Subtest: T20 rereads the real T15 repository under lock and the saved record round-trips its snapshot
+ok 25 - T20 rereads the real T15 repository under lock and the saved record round-trips its snapshot
+  ---
+  duration_ms: 4.641
+  type: 'test'
+  ...
+# Subtest: T18 partial recipe remains hidden by the real T15 completeness check
+ok 26 - T18 partial recipe remains hidden by the real T15 completeness check
+  ---
+  duration_ms: 2.189833
+  type: 'test'
+  ...
+# Subtest: bag operations are unavailable and a legacy bagId record payload is rejected before journal creation
+ok 27 - bag operations are unavailable and a legacy bagId record payload is rejected before journal creation
+  ---
+  duration_ms: 0.1275
+  type: 'test'
+  ...
+# Subtest: 배포된 domain.mjs는 lib/domain.mjs 원본과 바이트가 같다
+ok 28 - 배포된 domain.mjs는 lib/domain.mjs 원본과 바이트가 같다
+  ---
+  duration_ms: 2.780208
+  type: 'test'
+  ...
+# Subtest: 공급한 원본 도메인 변경이 배포 버전에 반영된다
+ok 29 - 공급한 원본 도메인 변경이 배포 버전에 반영된다
+  ---
+  duration_ms: 19.797209
+  type: 'test'
+  ...
+# Subtest: 정적 모듈의 시간·간격·누적 물 양과 입력 검증이 유지된다
+ok 30 - 정적 모듈의 시간·간격·누적 물 양과 입력 검증이 유지된다
+  ---
+  duration_ms: 1.839083
+  type: 'test'
+  ...
+# Subtest: 정적 모듈의 날짜·0.1점 별점·원두 관계와 빈 평균 의미가 유지된다
+ok 31 - 정적 모듈의 날짜·0.1점 별점·원두 관계와 빈 평균 의미가 유지된다
+  ---
+  duration_ms: 1.409333
+  type: 'test'
+  ...
+# Subtest: 공급 모듈의 복사·스냅샷은 원본 조건·단계·평가를 공유하지 않는다
+ok 32 - 공급 모듈의 복사·스냅샷은 원본 조건·단계·평가를 공유하지 않는다
+  ---
+  duration_ms: 0.450042
+  type: 'test'
+  ...
+# Subtest: 완성 조건과 출처를 담은 v3 기록 snapshot은 기존 세대 표식과 0초 단계 검증을 유지한다
+ok 33 - 완성 조건과 출처를 담은 v3 기록 snapshot은 기존 세대 표식과 0초 단계 검증을 유지한다
+  ---
+  duration_ms: 0.52
+  type: 'test'
+  ...
+1..33
+# tests 35
+# suites 0
+# pass 35
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 120.023209

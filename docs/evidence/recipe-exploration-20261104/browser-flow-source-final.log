@@ -1,0 +1,4 @@
+command: node docs/evidence/recipe-exploration-20261104/verify-recipe-exploration-browser.mjs
+{"browser":"Chrome","version":"156.0.8078.80","scenarios":[{"viewport":"390x900","adjusted":true,"rated":true,"replayed":true,"comparedArbitraryPair":true,"bestPersisted":true,"sharedTemplateSaved":true,"horizontalOverflow":false,"pageErrors":0,"failedResponses":0},{"viewport":"1440x900","adjusted":true,"rated":true,"replayed":true,"comparedArbitraryPair":true,"bestPersisted":true,"sharedTemplateSaved":true,"horizontalOverflow":false,"pageErrors":0,"failedResponses":0}]}
+
+exitCode=0

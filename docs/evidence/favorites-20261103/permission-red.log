@@ -1,0 +1,115 @@
+✖ favorite PATCH HTTP 401 preserves safe next-action guidance without retry (1453.426209ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - 'unauthorized'
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-ui.integration.test.mjs:528:12)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 'unauthorized',
+    operator: 'strictEqual'
+  }
+
+✖ favorite PATCH HTTP 403 preserves safe next-action guidance without retry (1417.42925ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - 'forbidden'
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-ui.integration.test.mjs:528:12)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 'forbidden',
+    operator: 'strictEqual'
+  }
+
+✖ favorite PATCH HTTP 429 preserves safe next-action guidance without retry (1416.178958ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - 'rate-limited'
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-ui.integration.test.mjs:528:12)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 'rate-limited',
+    operator: 'strictEqual'
+  }
+
+ℹ tests 3
+ℹ suites 0
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4397.944791
+
+✖ failing tests:
+
+test at test/pwa-ui.integration.test.mjs:520:3
+✖ favorite PATCH HTTP 401 preserves safe next-action guidance without retry (1453.426209ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - 'unauthorized'
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-ui.integration.test.mjs:528:12)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 'unauthorized',
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.integration.test.mjs:520:3
+✖ favorite PATCH HTTP 403 preserves safe next-action guidance without retry (1417.42925ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - 'forbidden'
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-ui.integration.test.mjs:528:12)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 'forbidden',
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.integration.test.mjs:520:3
+✖ favorite PATCH HTTP 429 preserves safe next-action guidance without retry (1416.178958ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - 'rate-limited'
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-ui.integration.test.mjs:528:12)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 'rate-limited',
+    operator: 'strictEqual'
+  }

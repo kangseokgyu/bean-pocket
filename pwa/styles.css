@@ -1317,3 +1317,12 @@ footer {
   .record-insight-controls { grid-template-columns: minmax(0, 1fr); }
   .record-insight-comparison-card .record-insight-comparison-conditions { grid-template-columns: minmax(0, 1fr); }
 }
+
+.favorite-button, .favorite-filter { min-width: 44px; min-height: 44px; flex-shrink: 0; }
+.favorite-button { padding: 10px; position: relative; z-index: 1; }
+.favorite-icon { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.favorite-button[aria-pressed="true"] .favorite-icon { fill: currentColor; }
+.favorite-filter { margin-bottom: 16px; }
+.favorite-filter[aria-pressed="true"] { background: var(--ink, #342b24); color: var(--surface, #fff); }
+.favorite-button:focus-visible, .favorite-filter:focus-visible { outline: 3px solid #8b572a; outline-offset: 3px; }
+.entity-card-header > h3 { flex: 1; min-width: 0; }

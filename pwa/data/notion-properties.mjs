@@ -7,6 +7,7 @@ export const schemas = {
     variety: ['품종', 'rich_text'],
     process: ['가공 방식', 'rich_text'],
     tastingNotes: ['로스터리 향미 노트', 'rich_text'],
+    favorite: ['즐겨찾기', 'checkbox'],
   },
   recipes: {
     name: ['레시피 이름', 'title'],
@@ -20,6 +21,7 @@ export const schemas = {
     microns: ['분쇄 입자 굵기(μm)', 'number'],
     temperature: ['물 온도(℃)', 'number'],
     totalWater: ['총 물 양(g)', 'number'],
+    favorite: ['즐겨찾기', 'checkbox'],
   },
   steps: {
     name: ['단계 이름', 'title'],
@@ -64,6 +66,8 @@ export function encodeProperties(kind, data) {
       encoded = value ? [{ id: value }] : [];
     } else if (type === 'date') {
       encoded = value ? { start: value } : null;
+    } else if (type === 'checkbox') {
+      encoded = Boolean(value);
     } else {
       encoded = value ?? null;
     }
@@ -94,6 +98,8 @@ export function decodePage(kind, page) {
         typeof property.relation[0]?.id === 'string' ? property.relation[0].id : null;
     } else if (type === 'date') {
       result[key] = typeof property.date?.start === 'string' ? property.date.start : null;
+    } else if (type === 'checkbox') {
+      result[key] = property.checkbox === true;
     } else {
       result[key] = typeof property.number === 'number' && Number.isFinite(property.number) ? property.number : null;
     }
@@ -110,6 +116,7 @@ export const relationTargets = {
 // Older user databases can be read without the additive relations. Record
 // creation requires records.beanId support and is gated by client.verify().
 export const optionalProperties = {
-  recipes: ['beanId', 'extractionGuide'],
+  beans: ['favorite'],
+  recipes: ['beanId', 'extractionGuide', 'favorite'],
   records: ['beanId'],
 };

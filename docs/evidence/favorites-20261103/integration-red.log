@@ -1,0 +1,66 @@
+✔ the shipped page has a real UI mount point (3.201625ms)
+✔ controller public flows use real Notion, repository, commands and journal adapters (7107.661583ms)
+✔ successful entity writes keep inline completion and omit saved or post-write loaded toasts (8528.6645ms)
+✔ successful write refetch failures keep save and delete recovery notices (2479.466833ms)
+✔ unknown writes preserve the draft state and prevent a second UI submission (9.162041ms)
+✔ unknown write resolution requires explicit confirmation and a fresh read before writes resume (11.211916ms)
+✔ a second native UI client waits for startup lock release and reads the saved connection (105.428333ms)
+✔ home startup verifies a saved connection through the real Notion client (3.4555ms)
+✔ home startup keeps the saved settings on a temporary verify failure and restores them on retry (5.457083ms)
+✔ home startup shows a safe retry state when saved connection storage cannot be read (1.28275ms)
+✔ home startup opens first-time connection entry only when the connection file is absent (0.460792ms)
+✔ saved connection authorization failures keep retry and settings edit entry available (0.767417ms)
+✔ startup recovery guards remain repair-only and block connection replacement (2.114084ms)
+✔ saved startup keeps route-specific verification and query loading lazy (354.436333ms)
+✔ unreadable saved storage can recover on retry without replacing settings (3.753ms)
+✔ legacy bag journals stay unresolved after startup and never auto-send (708.373125ms)
+✔ saved resolution rejects a recipe parent that is absent from the complete fresh projection (16.30575ms)
+✖ favorites persist through real adapters, remain out of copies and snapshots, and filter catalog and brew routes (5673.245625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   'cccccccc-cccc-4ccc-8ccc-000000000002'
+  -   'cccccccc-cccc-4ccc-8ccc-000000000001'
+    ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-ui.integration.test.mjs:459:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'cccccccc-cccc-4ccc-8ccc-000000000002' ],
+    expected: [ 'cccccccc-cccc-4ccc-8ccc-000000000001' ],
+    operator: 'deepStrictEqual'
+  }
+
+ℹ tests 18
+ℹ suites 0
+ℹ pass 17
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 25805.468166
+
+✖ failing tests:
+
+test at test/pwa-ui.integration.test.mjs:450:1
+✖ favorites persist through real adapters, remain out of copies and snapshots, and filter catalog and brew routes (5673.245625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   'cccccccc-cccc-4ccc-8ccc-000000000002'
+  -   'cccccccc-cccc-4ccc-8ccc-000000000001'
+    ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-ui.integration.test.mjs:459:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'cccccccc-cccc-4ccc-8ccc-000000000002' ],
+    expected: [ 'cccccccc-cccc-4ccc-8ccc-000000000001' ],
+    operator: 'deepStrictEqual'
+  }

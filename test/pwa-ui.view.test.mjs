@@ -3085,8 +3085,8 @@ test('bean cards open their records through a full-card native link without a re
   assert.ok(link, 'the bean title is a keyboard-accessible native link');
   assert.equal(link.getAttribute('href'), `#/beans/${BEAN}`);
   assert.equal(link.getAttribute('aria-label'), '원두 <안전> 추출 기록 보기');
-  assert.equal(card.querySelectorAll('button').length, 1, 'only the delete button remains');
-  assert.equal(card.querySelector('button').dataset.action, 'delete-bean');
+  assert.equal(card.querySelectorAll('button').length, 2, 'bookmark and delete remain independent of the card link');
+  assert.ok(card.querySelector('[data-action="delete-bean"]'));
   assert.ok(card.textContent.includes('추출 기록 1개'));
   const css = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
   assert.match(css, /\.bean-card-link::after\s*\{[^}]*inset:\s*0/s);
@@ -3158,8 +3158,8 @@ test('recipe list cards link their entire surface to details without a details b
   assert.ok(link, 'recipe title is a native keyboard-accessible link');
   assert.equal(link.getAttribute('href'), `#/recipes/${RECIPE}`);
   assert.equal(link.getAttribute('aria-label'), 'V60 상세 보기');
-  assert.equal(card.querySelectorAll('button').length, 1, 'only delete remains');
-  assert.equal(card.querySelector('button').dataset.action, 'delete-recipe');
+  assert.equal(card.querySelectorAll('button').length, 2, 'bookmark and delete remain independent of the card link');
+  assert.ok(card.querySelector('[data-action="delete-recipe"]'));
   assert.deepEqual(Object.fromEntries(card.querySelectorAll('.recipe-metric').map(metric => [
     metric.dataset.metric, metric.querySelector('dd').textContent,
   ])), { dose: '15g', water: '250g', temperature: '93℃', ratio: '1 : 16.7' });
@@ -4632,4 +4632,43 @@ test('critic regression: selected filter options survive a search and unrelated 
   view.renderData(current);
   const select = document.root.querySelector('[data-record-filter="beanId"]');
   assert.ok(select.options.some(option => option.value === BEAN), 'matching selected option should remain in native select');
+});
+
+test('bean and recipe lists expose bookmark state and favorite filters separately from ratings', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  current.beans[0].favorite = true;
+  view.renderData(current);
+  const bookmark = document.root.querySelector('[data-action="favorite-item"]');
+  assert.ok(bookmark);
+  assert.equal(bookmark.getAttribute('aria-pressed'), 'true');
+  assert.match(bookmark.getAttribute('aria-label'), /즐겨찾기 해제/);
+  assert.ok(document.root.querySelector('[data-action="favorite-filter"]'));
+  view.renderRoute('/recipes');
+  view.renderData(current);
+  assert.ok(document.root.querySelector('[data-action="favorite-item"]'));
+  assert.ok(document.root.querySelector('[data-action="favorite-filter"]'));
+});
+
+test('bookmark submits a desired boolean and restores keyboard focus, while brew favorite filter preserves search', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  view.renderData(current);
+  const calls = [];
+  view.bind({ getState: () => ({}), async submit(kind, payload) {
+    calls.push({ kind, payload }); current.beans[0].favorite = payload.favorite; view.renderData(current);
+  } });
+  const bookmark = document.root.querySelector('[data-action="favorite-item"]');
+  bookmark.focus();
+  await clickViewTarget(document, bookmark);
+  assert.deepEqual(calls, [{ kind: 'favorite-bean', payload: { id: BEAN, favorite: true } }]);
+  assert.equal(document.activeElement.dataset.id, BEAN);
+  assert.equal(document.activeElement.getAttribute('aria-pressed'), 'true');
+  view.renderRoute('/brew/bean?q=coffee');
+  await clickViewTarget(document, document.root.querySelector('[data-action="favorite-filter"]'));
+  assert.match(view.currentRoute(), /favorite=true/);
+  assert.match(view.currentRoute(), /q=coffee/);
+  assert.equal(document.root.querySelector('[data-action="favorite-item"]'), null);
 });

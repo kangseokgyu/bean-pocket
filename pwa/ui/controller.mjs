@@ -29,6 +29,7 @@ const SAFE_MESSAGES = Object.freeze({
   partial: '일부 항목만 저장되었습니다. 원본을 확인한 뒤 복구를 진행해 주세요.',
   'read-failed': '최신 목록을 불러오지 못했습니다. 연결과 권한을 확인해 주세요.',
   'schema-unsupported': '새 추출 기록을 저장하려면 Notion records 데이터베이스에 ‘원두’ 관계가 필요합니다. 기존 기록 조회는 계속할 수 있습니다.',
+  'favorite-unsupported': '즐겨찾기를 사용하려면 Notion 원두·레시피 데이터베이스에 즐겨찾기 checkbox 속성을 추가하고 연결을 다시 확인해 주세요.',
   'recipe-guide-unsupported': '추출 가이드를 저장하려면 Notion recipes 데이터베이스에 rich_text 속성을 추가해 주세요. 기존 레시피 조회는 계속할 수 있습니다.',
   'stale-read': '조회 중 데이터가 바뀌었습니다. 다시 조회해 주세요.',
   'resolution-read-failed': '확인 중 최신 데이터를 읽지 못했습니다. 원본을 확인한 뒤 다시 시도해 주세요.',
@@ -94,7 +95,8 @@ export function createAppController({
     unresolvedOperations = operations.filter(operation => ['unknown', 'partial'].includes(operation.status));
     view.showUnresolved?.(unresolvedOperations.map(operation => ({
       kind: operation.kind,
-      targetKind: operation.deleteTarget?.kind,
+      targetKind: operation.deleteTarget?.kind ?? operation.favoriteTarget?.kind,
+      favorite: operation.favoriteTarget?.favorite,
       status: operation.status,
       knownPageCount: operation.createdPages.length,
       resolve: resolution => resolveOperation(operation.key, resolution),
@@ -246,12 +248,15 @@ export function createAppController({
   }
 
   async function readOptionPage(target, kind, query, cursor, signal) {
-    const key = [activeConnection?.revision, target, kind, query, cursor ?? 'first'].join('|');
+    const revision = activeConnection?.revision;
+    const requestRepository = repository;
+    const key = [revision, target, kind, query, false, cursor ?? 'first'].join('|');
     if (cursor == null) {
       const cached = currentCacheOption(key);
       if (cached) return cached;
     }
-    const result = await repository.searchOptions({ kind, query, cursor, limit: SCREEN_PAGE_SIZE, signal });
+    const result = await requestRepository.searchOptions({ kind, query, cursor, limit: SCREEN_PAGE_SIZE, signal });
+    if (revision !== activeConnection?.revision || requestRepository !== repository || signal?.aborted) return result;
     optionCache.set(key, { value: result, savedAt: Date.now() });
     return result;
   }
@@ -288,6 +293,7 @@ export function createAppController({
     const { path, params } = routeLocation(route);
     const [section, id] = path.split('/').filter(Boolean);
     const query = params.get('q')?.trim() ?? '';
+    const favoriteOnly = params.get('favorite') === 'true';
     const pageOptions = { cursor, limit: SCREEN_PAGE_SIZE, signal };
 
     if (!section || section === 'home') {
@@ -295,7 +301,7 @@ export function createAppController({
         screen: { route, nextCursor: null, hasMore: false, complete: true } };
     }
     if (section === 'brew' && id === 'bean') {
-      const page = await repository.listBeans({ ...pageOptions, query });
+      const page = await repository.listBeans({ ...pageOptions, query, favoriteOnly });
       return { beans: page.items, recipes: [], records: [], excluded: {},
         screen: { route, nextCursor: page.nextCursor, hasMore: page.hasMore, complete: page.complete } };
     }
@@ -305,7 +311,7 @@ export function createAppController({
       try {
         const [bean, page] = await Promise.all([
           repository.getBean(beanId, { signal }),
-          repository.listRecipeSummaries({ ...pageOptions, query }),
+          repository.listRecipeSummaries({ ...pageOptions, query, favoriteOnly }),
         ]);
         return { beans: [bean], recipes: page.items,
           records: [], excluded: {},
@@ -336,7 +342,7 @@ export function createAppController({
       }
     }
     if (section === 'beans' && !id) {
-      const page = await repository.listBeans(pageOptions);
+      const page = await repository.listBeans({ ...pageOptions, query, favoriteOnly });
       return { beans: page.items.map(bean => ({ ...bean, recordCount: { status: 'loading', count: null } })),
         recipes: [], records: [], excluded: {}, screen: { route, nextCursor: page.nextCursor,
           hasMore: page.hasMore, complete: page.complete } };
@@ -350,7 +356,7 @@ export function createAppController({
         screen: { route, nextCursor: page.nextCursor, hasMore: page.hasMore, complete: page.complete } };
     }
     if (section === 'recipes' && !id) {
-      const page = await repository.listRecipeSummaries(pageOptions);
+      const page = await repository.listRecipeSummaries({ ...pageOptions, query, favoriteOnly });
       return { beans: [], recipes: page.items, records: [], excluded: {},
         screen: { route, nextCursor: page.nextCursor, hasMore: page.hasMore, complete: page.complete } };
     }
@@ -407,7 +413,7 @@ export function createAppController({
       return result;
     }
     if (section === 'recipes' && id === 'new') {
-      const page = await repository.listRecipeSummaries(pageOptions);
+      const page = await repository.listRecipeSummaries({ ...pageOptions, query, favoriteOnly });
       return { beans: [], recipes: page.items, records: [], excluded: {},
         screen: { route, nextCursor: page.nextCursor, hasMore: page.hasMore, complete: page.complete } };
     }
@@ -467,6 +473,7 @@ export function createAppController({
         }
         fetched = withRecordInsights(fetched);
       }
+      fetched.favoriteSupport = { beans: client.beanFavoriteSupported !== false, recipes: client.recipeFavoriteSupported !== false };
       fetched.screen = { ...fetched.screen, append, connectionRevision: activeConnection?.revision ?? null };
       data = mergeScreenData(previous, fetched);
       dataRevision = activeConnection?.revision ?? null;
@@ -702,7 +709,8 @@ export function createAppController({
     const optionIdentity = target + ':' + kind;
     const optionEpoch = (optionSearchGeneration.get(optionIdentity) ?? 0) + 1;
     optionSearchGeneration.set(optionIdentity, optionEpoch);
-    const key = [connectionRevision, target, kind, query, cursor ?? 'first'].join('|');
+    const favoriteOnly = target === 'brew' && routeLocation(currentRoute()).params.get('favorite') === 'true';
+    const key = [connectionRevision, target, kind, query, favoriteOnly, cursor ?? 'first'].join('|');
     const cached = !append && currentCacheOption(key);
     if (cached) {
       view.setSearchOptions?.(target, kind, cached, false, query);
@@ -710,7 +718,7 @@ export function createAppController({
     }
     view.setSearchOptionsState?.(target, kind, { status: 'loading', query, append });
     try {
-      const result = await repository.searchOptions({ kind, query, cursor, limit: SCREEN_PAGE_SIZE,
+      const result = await repository.searchOptions({ kind, query, favoriteOnly, cursor, limit: SCREEN_PAGE_SIZE,
         signal: routeReadController?.signal });
       if (routeEpoch !== routeGeneration || optionSearchGeneration.get(optionIdentity) !== optionEpoch ||
           connectionRevision !== activeConnection?.revision || routeReadController?.signal.aborted) return null;
@@ -741,7 +749,7 @@ export function createAppController({
   function cachedFilterOptions(kind, relatedRows, selectedId) {
     const revision = activeConnection?.revision ?? 'disconnected';
     const prefix = [revision, 'filters', kind, ''].join('|');
-    const first = currentCacheOption([revision, 'filters', kind, '', 'first'].join('|'));
+    const first = currentCacheOption([revision, 'filters', kind, '', false, 'first'].join('|'));
     if (!first) return null;
     const items = [...first.items];
     if (selectedId && !items.some(item => item.id === selectedId)) {
@@ -761,6 +769,13 @@ export function createAppController({
   }
 
   function invalidateScreenCache(kind) {
+    if (kind === 'favorite-bean' || kind === 'favorite-recipe') {
+      const target = kind === 'favorite-bean' ? 'beans' : 'recipes';
+      view.clearSearchOptions?.(target);
+      for (const key of screenCache.keys()) if (key.includes(`|/${target}`) || key.includes('|/brew')) screenCache.delete(key);
+      for (const key of optionCache.keys()) if (key.includes(`|${target}|`)) optionCache.delete(key);
+      return;
+    }
     if (kind === 'beans' || kind === 'delete-bean') repository?.invalidateRecordParentCache?.('beans');
     if (['recipes', 'copy', 'delete-recipe'].includes(kind)) repository?.invalidateRecordParentCache?.('recipes');
     if (kind === 'beans') {
@@ -1003,6 +1018,20 @@ export function createAppController({
           }
           const freshStack = makeStack(current);
           await freshStack.nextClient.verify();
+          if (operation.favoriteTarget) {
+            if (pageIds.length || !['saved', 'not-saved'].includes(resolution.decision) ||
+                await fingerprint(current.dataSources) !== operation.targetFingerprint) throw Object.freeze({ code: 'invalid-resolution' });
+            const target = operation.favoriteTarget;
+            const supported = target.kind === 'beans'
+              ? freshStack.nextClient.beanFavoriteSupported : freshStack.nextClient.recipeFavoriteSupported;
+            if (supported === false) throw Object.freeze({ code: 'favorite-unsupported' });
+            const item = target.kind === 'beans'
+              ? await freshStack.nextRepository.getBean(target.id)
+              : await freshStack.nextRepository.getRecipeDetail(target.id);
+            if (typeof item.favorite !== 'boolean' || (item.favorite === target.favorite) !== (resolution.decision === 'saved')) throw Object.freeze({ code: 'invalid-resolution' });
+            return { connectionRevision: operation.connectionRevision, targetFingerprint: operation.targetFingerprint,
+              outcome: resolution.decision, favoriteTarget: { ...target, favorite: item.favorite } };
+          }
           if (DELETE_TARGET_BY_OPERATION[operation.kind]) {
             if (pageIds.length || !operation.deleteTarget || !['saved', 'not-saved'].includes(resolution.decision)) {
               throw Object.freeze({ code: 'invalid-resolution' });
@@ -1060,6 +1089,7 @@ export function createAppController({
           };
         },
       }));
+      screenCache.clear(); optionCache.clear(); view.clearSearchOptions?.();
       await readUnresolved();
       view.showStatus?.({ type: 'resolved', message: '확인 결과를 저장했습니다. 다시 제출하기 전에 최신 목록을 확인해 주세요.' });
       if (activeConnection) {
@@ -1087,7 +1117,7 @@ export function createAppController({
       await client.verify();
       const prepare = {
           'delete-bean': 'prepareDeleteBean', 'delete-recipe': 'prepareDeleteRecipe',
-          'delete-record': 'prepareDeleteRecord', beans: 'prepareBean', recipes: 'prepareRecipe', records: 'prepareRecord',
+          'delete-record': 'prepareDeleteRecord', 'favorite-bean': 'prepareFavoriteBean', 'favorite-recipe': 'prepareFavoriteRecipe', beans: 'prepareBean', recipes: 'prepareRecipe', records: 'prepareRecord',
         }[kind];
       if (kind !== 'copy' && !prepare) throw Object.freeze({ code: 'input' });
       const draft = kind === 'copy'
@@ -1095,7 +1125,7 @@ export function createAppController({
         : await commands[prepare](payload);
       const result = await commands.execute(draft);
       if (result.status === 'succeeded') {
-        if (!deleting) {
+        if (!deleting && !kind.startsWith('favorite-')) {
           const formKind = kind === 'copy' ? 'recipes' : kind;
           dirtyKinds.delete(formKind);
           if (view.showEntrySuccess?.(formKind) !== true) {
@@ -1122,7 +1152,7 @@ export function createAppController({
           : SAFE_MESSAGES[result.code] ?? SAFE_MESSAGES['delete-failed'];
         view.showStatus?.({ type: result.status, message });
         view.showDeleteResult?.({ status: result.status, message });
-      } else showFailure({ code: result.status }, result.status);
+      } else showFailure({ code: result.code ?? result.status }, result.status);
       return result;
     } catch (error) {
       if (error?.writeState === 'unknown' || error?.writeState === 'partial') await readUnresolved();

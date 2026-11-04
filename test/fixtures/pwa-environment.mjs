@@ -38,6 +38,16 @@ export function memoryPlatform({ initialized = true } = {}) {
   return { files, storage, locks, journal: () => JSON.parse(files.get('submission-journal.json')) };
 }
 
+function matchesFilter(row, filter) {
+  if (!filter) return true;
+  if (filter.and) return filter.and.every(child => matchesFilter(row, child));
+  const value = row.properties[filter.property];
+  if (filter.checkbox) return value?.checkbox === filter.checkbox.equals;
+  if (filter.title) return (value?.title ?? []).map(part => part.plain_text ?? part.text?.content ?? '').join('').includes(filter.title.contains);
+  if (filter.relation) return value?.relation?.some(part => part.id === filter.relation.contains) ?? false;
+  return true;
+}
+
 export function fakePwaNotion() {
   const rows = [];
   const calls = [];
@@ -60,7 +70,7 @@ export function fakePwaNotion() {
           [name, { type, [type]: type === 'relation' ? { data_source_id: DATA_SOURCES[relationTargets[kind][field]] } : {} }]));
         return Response.json({ object: 'data_source', id, properties });
       }
-      return Response.json({ object: 'list', results: rows.filter(row => row.parent.data_source_id === id && !row.in_trash),
+      return Response.json({ object: 'list', results: rows.filter(row => row.parent.data_source_id === id && !row.in_trash && matchesFilter(row, body?.filter)),
         has_more: false, next_cursor: null });
     }
     if (pathname === '/v1/pages' && method === 'POST') {
@@ -76,7 +86,12 @@ export function fakePwaNotion() {
     }
     const row = rows.find(item => item.id === parts[3]);
     if (!row) return Response.json({}, { status: 404 });
-    if (method === 'PATCH') row.in_trash = body.in_trash;
+    if (method === 'PATCH') {
+      if (Object.hasOwn(body, 'in_trash')) row.in_trash = body.in_trash;
+      for (const [name, property] of Object.entries(body.properties ?? {})) {
+        row.properties[name] = { type: Object.keys(property)[0], ...property };
+      }
+    }
     return Response.json(row);
   } };
   return fake;

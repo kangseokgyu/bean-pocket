@@ -1,0 +1,125 @@
+{
+  "baselineCommit": "93f2c65b55c56eb62b35811377cd39a9cf36bba0",
+  "measurements": [
+    {
+      "run": 1,
+      "side": "trunk",
+      "favoriteOnly": false,
+      "rows": 20,
+      "queries": 1,
+      "errors": 0
+    },
+    {
+      "run": 1,
+      "side": "head",
+      "favoriteOnly": false,
+      "rows": 20,
+      "queries": 1,
+      "errors": 0
+    },
+    {
+      "run": 1,
+      "side": "head",
+      "favoriteOnly": true,
+      "rows": 20,
+      "queries": 1,
+      "errors": 0
+    },
+    {
+      "run": 2,
+      "side": "trunk",
+      "favoriteOnly": false,
+      "rows": 20,
+      "queries": 1,
+      "errors": 0
+    },
+    {
+      "run": 2,
+      "side": "head",
+      "favoriteOnly": false,
+      "rows": 20,
+      "queries": 1,
+      "errors": 0
+    },
+    {
+      "run": 2,
+      "side": "head",
+      "favoriteOnly": true,
+      "rows": 20,
+      "queries": 1,
+      "errors": 0
+    },
+    {
+      "run": 3,
+      "side": "trunk",
+      "favoriteOnly": false,
+      "rows": 20,
+      "queries": 1,
+      "errors": 0
+    },
+    {
+      "run": 3,
+      "side": "head",
+      "favoriteOnly": false,
+      "rows": 20,
+      "queries": 1,
+      "errors": 0
+    },
+    {
+      "run": 3,
+      "side": "head",
+      "favoriteOnly": true,
+      "rows": 20,
+      "queries": 1,
+      "errors": 0
+    },
+    {
+      "run": 4,
+      "side": "trunk",
+      "favoriteOnly": false,
+      "rows": 20,
+      "queries": 1,
+      "errors": 0
+    },
+    {
+      "run": 4,
+      "side": "head",
+      "favoriteOnly": false,
+      "rows": 20,
+      "queries": 1,
+      "errors": 0
+    },
+    {
+      "run": 4,
+      "side": "head",
+      "favoriteOnly": true,
+      "rows": 20,
+      "queries": 1,
+      "errors": 0
+    },
+    {
+      "run": 5,
+      "side": "trunk",
+      "favoriteOnly": false,
+      "rows": 20,
+      "queries": 1,
+      "errors": 0
+    },
+    {
+      "run": 5,
+      "side": "head",
+      "favoriteOnly": false,
+      "rows": 20,
+      "queries": 1,
+      "errors": 0
+    },
+    {
+      "run": 5,
+      "side": "head",
+      "favoriteOnly": true,
+      "rows": 20,
+      "queries": 1,
+      "errors": 0
+    }
+  ]
+}

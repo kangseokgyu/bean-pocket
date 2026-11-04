@@ -1,0 +1,88 @@
+✔ validateNotionToken checks only the token bot endpoint and returns safe outcomes (1.308458ms)
+✔ validateNotionToken marks only 401 as invalid and treats permission, rate, and server errors as unavailable (0.360833ms)
+✔ validateNotionToken times out and caller cancellation never becomes an invalid token result (5.719667ms)
+✔ validateCreatePayload reuses the create transport limits without issuing a request (5.133416ms)
+✔ verify can validate only the current screen source while verify() keeps full onboarding checks (2.103333ms)
+✔ verify는 설정된 네 스키마와 forward 관계 타입·대상을 읽기만 검증한다 (0.500542ms)
+✔ verify는 object/id/속성 누락·다른 타입·관계의 다른 데이터 소스를 거부한다 (1.14025ms)
+✔ legacy 설정은 records.bean 관계 없이 조회 검증을 통과하지만 기록 쓰기는 보내지 않는다 (0.396625ms)
+✔ 설정을 복사·정규화하고 client revision·데이터 소스를 불변 캡처한다 (0.407125ms)
+✔ constructor의 잘못된 설정은 원문 없는 not-sent 오류다 (0.602959ms)
+✔ 조회는 전체 페이지의 원시 객체를 반환하고 cursor를 body로만 보낸다 (0.378167ms)
+✔ query는 매 page incomplete를 확인하며 has_more=false여도 부분 성공을 반환하지 않는다 (0.256583ms)
+✔ query는 cursor 없음·공백·반복·순환을 끝내고 누적 배열을 반환하지 않는다 (0.545417ms)
+✔ query는 잘못된 목록·페이지·음수 개수 형태와 중간 HTTP 오류를 거부한다 (0.623417ms)
+✔ queryPage sends one scoped filtered page and returns continuation metadata (0.534291ms)
+✔ queryPage rejects bad limits and malformed or incomplete pages, and retries 429 only a finite number of times (1056.327958ms)
+✔ read-only page reads retry rate limits finitely before returning the validated page (1.018083ms)
+✔ kind와 UUID의 URL/path 주입은 fetch 전에 차단한다 (1.295292ms)
+✔ 생성은 domain 입력을 공유 encode로 직렬화하며 호출 뒤 입력 변경과 분리한다 (2.281208ms)
+✔ getPage 정규화와 archiveCreatedPage 고정 body·취소 확인 (0.41675ms)
+✔ archivePage verifies the target data source for each user-deletable entity (1.272125ms)
+✔ create/get/archive의 잘못된 성공 body·식별자는 성공으로 취급하지 않는다 (4.250125ms)
+✔ HTTP 400 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다 (0.287333ms)
+✔ HTTP 401 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다 (0.133292ms)
+✔ HTTP 403 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다 (0.121375ms)
+✔ HTTP 404 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다 (0.121083ms)
+✔ HTTP 409 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다 (0.1165ms)
+✔ HTTP 413 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다 (0.123167ms)
+✔ HTTP 415 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다 (0.121083ms)
+✔ HTTP 422 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다 (0.112708ms)
+✔ HTTP 429 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다 (0.128583ms)
+✔ HTTP 408 쓰기는 unknown이고 재시도하지 않는다 (0.096875ms)
+✔ HTTP 500 쓰기는 unknown이고 재시도하지 않는다 (0.062917ms)
+✔ HTTP 503 쓰기는 unknown이고 재시도하지 않는다 (0.063458ms)
+✔ HTTP 599 쓰기는 unknown이고 재시도하지 않는다 (0.06475ms)
+✔ Retry-After의 잘못된 값은 안전 오류에서 생략한다 (0.947583ms)
+✔ 네트워크 예외와 JSON 해석 실패는 원문·cause 없이 요청 성격에 맞게 변환한다 (0.567875ms)
+✔ abort 무시 fetch 대기도 전체 timeout 종료 / 읽기 (5.74825ms)
+✔ abort 무시 fetch 대기도 전체 timeout 종료 / 쓰기 (5.556084ms)
+✔ abort 무시 json 대기도 전체 timeout 종료 / 읽기 (4.810084ms)
+✔ abort 무시 json 대기도 전체 timeout 종료 / 쓰기 (5.979792ms)
+✔ rich_text 100조각은 허용하고 101조각과 실제 wire의 2001자 text는 전송 전에 거부한다 (4.361625ms)
+✔ 배열·UTF-8 500000byte 한도와 stringify 오류는 fetch 전 안전하게 끝난다 (4.248458ms)
+✔ canonical 31속성·긴 snapshot 왕복과 기존 decode 의미·서버 함수 동일성을 유지한다 (0.418417ms)
+✔ 주입된 fetch는 브라우저 global receiver로 호출된다 (0.1065ms)
+✔ 5xx·408은 거절로 오해시키는 code가 아닌 http-error로 표시한다 (0.200833ms)
+✔ 실제 wire payload의 500000byte 경계를 정확히 적용한다 (7.622708ms)
+✔ 잘못된 응답 getter·json 없음은 원문을 누설하지 않는다 (0.461ms)
+✔ 동기 JSON 해석이 timer를 지연해도 전체 기한을 넘기면 timeout이다 (12.032834ms)
+✔ client의 긴 스냅샷 wire 분할·응답 raw page·shared decode 왕복을 확인한다 (0.466042ms)
+✔ bag create/archive and bagId record writes stop before fetch (0.177666ms)
+✔ bagless generation writes no legacy bag relation property (0.1705ms)
+✔ favorite checkbox encodes, decodes with boolean, and supports updateFavorite (0.262708ms)
+✔ createPage omits favorite when schema does not support favorite (0.166333ms)
+✖ favorite PATCH rejects an unconfirmed checkbox value as unknown (0.448167ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-notion-client.test.mjs:600:3)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects'
+  }
+
+✔ schemas without favorite keep bean and recipe creation available and omit unknown property (0.328209ms)
+ℹ tests 56
+ℹ suites 0
+ℹ pass 55
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1239.207916
+
+✖ failing tests:
+
+test at test/pwa-notion-client.test.mjs:596:1
+✖ favorite PATCH rejects an unconfirmed checkbox value as unknown (0.448167ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-notion-client.test.mjs:600:3)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects'
+  }

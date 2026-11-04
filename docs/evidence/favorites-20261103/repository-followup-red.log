@@ -1,0 +1,191 @@
+✔ 모듈은 공개 factory와 repository methods만 제공한다 (2.770125ms)
+✔ factory는 네 source ID를 검증하고 생성 시점 값을 복사한다 (6.587917ms)
+✔ listBeans reads one metadata page without touching other sources or re-reading recipe parents (0.401333ms)
+✖ listBeans and listRecipeSummaries accept favoriteOnly filter and combine with search query (1.783375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   property: '원두 이름',
+  +   title: {
+  +     contains: '에티오피아'
+  +   }
+  -   and: [
+  -     {
+  -       property: '원두 이름',
+  -       title: {
+  -         contains: '에티오피아'
+  -       }
+  -     },
+  -     {
+  -       checkbox: {
+  -         equals: true
+  -       },
+  -       property: '즐겨찾기'
+  -     }
+  -   ]
+    }
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-read-repository.test.mjs:273:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { property: '원두 이름', title: { contains: '에티오피아' } },
+    expected: { and: [ [Object], [Object] ] },
+    operator: 'deepStrictEqual'
+  }
+
+✖ favorite cursor belongs to the favorite filter and search query (0.27975ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-read-repository.test.mjs:303:3)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects'
+  }
+
+✖ favorite filter fails clearly when the connected schema has no checkbox (0.180166ms)
+  AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+      at async TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-read-repository.test.mjs:317:3)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { code: 'read-failed', writeState: 'not-sent' },
+    operator: 'rejects'
+  }
+
+✔ listRecipeSummaries reads only one metadata page and leaves stage validation marked pending (0.379375ms)
+✔ getRecipeDetail fetches and validates only the selected parent and its complete relation-filtered stages (0.618875ms)
+✔ listRecords scans one globally sorted stream and locally matches bagless-v1 snapshots (1.178084ms)
+✔ listRecords preserves continuation after bounded raw pages with no visible bagless rows (0.437125ms)
+✔ searchOptions applies the typed title filter and binds continuation to the query (0.311375ms)
+✔ bean counts and recipe stats scan exact current-generation snapshots on demand (0.859917ms)
+✔ 네 source를 모두 읽고 단계 정렬·기록 snapshot·별점 집계를 만든 뒤 깊게 고정한다 (0.8385ms)
+✔ 진짜 빈 네 source는 빈 데이터로 반환하고 조회 실패와 구분한다 (0.826291ms)
+✔ queryAll beans 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다 (0.348125ms)
+✔ queryAll recipes 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다 (0.221625ms)
+✔ queryAll steps 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다 (0.4465ms)
+✔ queryAll records 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다 (0.36175ms)
+✔ 삭제·잘못된 ID·source·parent 페이지는 codec 전에 제외한다 (0.837583ms)
+✔ raw history is retained while only bagless-generation snapshots affect aggregates (0.687917ms)
+✔ 잘리거나 다중인 관계가 있어도 기존 기록과 평가는 보존하고 불확실성을 표시한다 (0.814417ms)
+✔ 기록의 폐기된 봉지 관계는 원두 판독에 사용하지 않고 평가를 보존한다 (0.592041ms)
+✔ records.bean 관계가 없어도 snapshot·legacy recipe·bag 근거를 읽고 모순은 확인 대상으로 보존한다 (1.414292ms)
+✔ 버전 1 snapshot 전체·기록 날짜·별점을 검증한다 (0.700625ms)
+✔ multi-bean legacy recipe candidates conflict with a v1 snapshot and remain unresolved (0.52375ms)
+✔ truncated legacy relations preserve observed candidates and force confirmation (0.474ms)
+✔ invalid v1/v2 snapshots remain attached to the record as damage status, not renderable data (0.4855ms)
+✔ 잘못된 recipe 속성은 recipe만 제외하고 손상된 record 필드도 원본 평가를 보존한다 (0.30025ms)
+✔ order 1 부재·순서 gap/중복·파생값 손상·tiny-water 자식 삭제는 완성 레시피로 노출하지 않는다 (1.183125ms)
+✔ epsilon 경계에서 손상된 마지막 자식이 남은 prefix를 완성 레시피로 만들지 않는다 (0.390542ms)
+▶ 식별 가능한 부모 관계가 있는 잘못된 자식은 그 부모를 taint한다
+  ✔ 잘못된 number 값 (0.275292ms)
+  ✔ 잘못된 property type (0.23875ms)
+  ✔ 복수 부모 관계 (0.240834ms)
+  ✔ 잘린 부모 관계 (0.239708ms)
+  ✔ 관계 배열이 남은 잘못된 relation type (0.391916ms)
+  ✔ 관계 배열이 남은 잘못된 child ID (0.2315ms)
+  ✔ 관계 배열이 남은 잘못된 child source (0.217292ms)
+✔ 식별 가능한 부모 관계가 있는 잘못된 자식은 그 부모를 taint한다 (2.095041ms)
+▶ parent 조회 뒤 parent archive 또는 조건·bean·last_edited_time 변경은 전체 조회를 stale-read로 끝낸다
+  ✔ archive (0.424958ms)
+  ✔ trash (0.353792ms)
+  ✔ name (0.300791ms)
+  ✔ dripper (0.338375ms)
+  ✔ dose (0.285458ms)
+  ✔ grind (0.423958ms)
+  ✔ grinder (0.256875ms)
+  ✔ grinder setting (0.328ms)
+  ✔ microns (0.245708ms)
+  ✔ temperature (0.240333ms)
+  ✔ total water (0.237417ms)
+  ✔ bean relation (0.244291ms)
+  ✔ last edited (0.237917ms)
+  ✔ source (0.424708ms)
+✔ parent 조회 뒤 parent archive 또는 조건·bean·last_edited_time 변경은 전체 조회를 stale-read로 끝낸다 (4.652916ms)
+✔ parent 비교는 첫 rich text 조각 뒤의 변경도 stale-read로 감지한다 (0.325667ms)
+▶ parent 최종 getPage 실패와 ID 불일치는 안전 stale-read로 전환한다
+  ✔ failure (0.259167ms)
+  ✔ id-mismatch (0.229875ms)
+✔ parent 최종 getPage 실패와 ID 불일치는 안전 stale-read로 전환한다 (0.557625ms)
+✔ 현재 recipe가 삭제되어도 유효한 과거 record snapshot은 저장된 값 그대로 읽는다 (0.228209ms)
+✔ 손상되거나 버전이 다른 record snapshot은 제외하고 원본을 공개하지 않는다 (0.376041ms)
+✔ readRecipeForSnapshot은 매 호출마다 네 source와 parent를 새로 확인한다 (0.871958ms)
+✔ 관계 부재와 완전 조회 실패는 빈 collection으로 위장하지 않는다 (0.21825ms)
+✔ recipe statistics reuse the exact recently validated detail when supplied by its caller (0.57775ms)
+✔ listRecords retains valid raw rows beyond the visible page for its continuation (16.556583ms)
+✔ recipe search options retain the validated bean parent for scoped selection (1.797334ms)
+ℹ tests 64
+ℹ suites 0
+ℹ pass 61
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 160.212917
+
+✖ failing tests:
+
+test at test/pwa-read-repository.test.mjs:259:1
+✖ listBeans and listRecipeSummaries accept favoriteOnly filter and combine with search query (1.783375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   property: '원두 이름',
+  +   title: {
+  +     contains: '에티오피아'
+  +   }
+  -   and: [
+  -     {
+  -       property: '원두 이름',
+  -       title: {
+  -         contains: '에티오피아'
+  -       }
+  -     },
+  -     {
+  -       checkbox: {
+  -         equals: true
+  -       },
+  -       property: '즐겨찾기'
+  -     }
+  -   ]
+    }
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-read-repository.test.mjs:273:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { property: '원두 이름', title: { contains: '에티오피아' } },
+    expected: { and: [ [Object], [Object] ] },
+    operator: 'deepStrictEqual'
+  }
+
+test at test/pwa-read-repository.test.mjs:286:1
+✖ favorite cursor belongs to the favorite filter and search query (0.27975ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-read-repository.test.mjs:303:3)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects'
+  }
+
+test at test/pwa-read-repository.test.mjs:308:1
+✖ favorite filter fails clearly when the connected schema has no checkbox (0.180166ms)
+  AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+      at async TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-read-repository.test.mjs:317:3)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { code: 'read-failed', writeState: 'not-sent' },
+    operator: 'rejects'
+  }

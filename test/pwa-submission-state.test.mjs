@@ -533,3 +533,23 @@ test('corrupt/extra-field journal never overwritten or exposed', async () => {
     assert.equal(env.files.get(journalName), bad);
   }
 });
+
+test('unknown favorite journal retains target and intended value and resolves only matching fresh evidence', async () => {
+  const env = environment();
+  const d = await createSubmissionDraft('favorite-bean', { id: ID, favorite: true }, {
+    connectionRevision: REV, dataSources: sources, cryptoImpl: webcrypto,
+  });
+  const result = await execute(env, d, op => op.write(async () => { throw { writeState: 'unknown' }; }));
+  assert.equal(result.status, 'unknown');
+  const operation = env.journal().operations[0];
+  assert.deepEqual(operation.favoriteTarget, { kind: 'beans', id: ID, favorite: true });
+  const resolve = favorite => env.make().withWriteLock(ctx => ctx.confirmResolution(d.key, {
+    originalConfirmed: true, decision: 'saved', freshRead: async op => ({
+      connectionRevision: REV, targetFingerprint: op.targetFingerprint, outcome: 'saved',
+      favoriteTarget: { kind: 'beans', id: ID, favorite },
+    }),
+  }));
+  await rejectsCode(resolve(false), 'invalid-resolution');
+  await resolve(true);
+  assert.equal(env.journal().operations[0].status, 'succeeded');
+});

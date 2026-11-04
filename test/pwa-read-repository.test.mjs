@@ -244,7 +244,7 @@ test('listBeans reads one metadata page without touching other sources or re-rea
     },
   };
   const result = await createReadRepository(client).listBeans({ cursor: null, limit: 20 });
-  assert.deepEqual(result.items, [{ id: IDS.bean, name: '에티오피아', roaster: '로스터리', origin: '구지', variety: '', process: '워시드', tastingNotes: '복숭아' }]);
+  assert.deepEqual(result.items, [{ id: IDS.bean, name: '에티오피아', roaster: '로스터리', origin: '구지', variety: '', process: '워시드', tastingNotes: '복숭아', favorite: false }]);
   const cursor = JSON.parse(decodeURIComponent(result.nextCursor));
   assert.equal(cursor.cursor, 'bean-next');
   assert.equal(cursor.kind, 'beans');
@@ -254,6 +254,69 @@ test('listBeans reads one metadata page without touching other sources or re-rea
   assert.equal(calls.length, 1);
   assert.equal(calls[0].kind, 'beans');
   assert.equal(calls[0].options.limit, 20);
+});
+
+test('listBeans and listRecipeSummaries accept favoriteOnly filter and combine with search query', async () => {
+  const calls = [];
+  const client = {
+    dataSources: SOURCES,
+    async queryAll() { throw new Error('queryAll not used'); },
+    async getPage() { throw new Error('getPage not used'); },
+    async queryPage(kind, options) {
+      calls.push({ kind, options });
+      return { items: [], nextCursor: null, hasMore: false, complete: true };
+    },
+  };
+  const repo = createReadRepository(client);
+  await repo.listBeans({ favoriteOnly: true, query: '에티오피아' });
+  assert.equal(calls.length, 1);
+  assert.deepEqual(calls[0].options.filter, {
+    and: [
+      { property: '원두 이름', title: { contains: '에티오피아' } },
+      { property: '즐겨찾기', checkbox: { equals: true } },
+    ],
+  });
+  await repo.listRecipeSummaries({ favoriteOnly: true });
+  assert.equal(calls.length, 2);
+  assert.deepEqual(calls[1].options.filter, {
+    property: '즐겨찾기', checkbox: { equals: true },
+  });
+});
+
+test('favorite cursor belongs to the favorite filter and search query', async () => {
+  const calls = [];
+  const client = {
+    dataSources: SOURCES,
+    async queryAll() { throw new Error('queryAll not used'); },
+    async getPage() { throw new Error('getPage not used'); },
+    async queryPage(kind, options) {
+      calls.push({ kind, options });
+      return { items: [], nextCursor: calls.length === 1 ? 'next' : null,
+        hasMore: calls.length === 1, complete: calls.length !== 1 };
+    },
+  };
+  const repo = createReadRepository(client);
+  const first = await repo.listBeans({ favoriteOnly: true, query: '구지' });
+  assert.equal(calls[0].options.cursor, null);
+  await repo.listBeans({ favoriteOnly: true, query: '구지', cursor: first.nextCursor });
+  assert.equal(calls[1].options.cursor, 'next');
+  await assert.rejects(repo.listBeans({ favoriteOnly: false, query: '구지', cursor: first.nextCursor }),
+    error => error.code === 'invalid-input');
+  assert.equal(calls.length, 2);
+});
+
+test('favorite filter fails clearly when the connected schema has no checkbox', async () => {
+  let queries = 0;
+  const client = {
+    dataSources: SOURCES,
+    beanFavoriteSupported: false,
+    async queryAll() { throw new Error('queryAll not used'); },
+    async getPage() { throw new Error('getPage not used'); },
+    async queryPage() { queries++; throw new Error('unsupported filter reached Notion'); },
+  };
+  await assert.rejects(createReadRepository(client).listBeans({ favoriteOnly: true }),
+    error => error.code === 'favorite-unsupported');
+  assert.equal(queries, 0);
 });
 
 test('listRecipeSummaries reads only one metadata page and leaves stage validation marked pending', async () => {

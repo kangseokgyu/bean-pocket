@@ -1,0 +1,140 @@
+✔ createCommands prepares an isolated bean draft and saves optional origin through the shared field (14.221666ms)
+✔ bean name is required before any operation is submitted (0.2335ms)
+✔ bean name alone is sufficient and absent optional fields stay empty (1.198917ms)
+▶ bean writes distinguish a clear rejection from an uncertain response
+  ✔ rejected (1.37675ms)
+  ✔ unknown (1.078208ms)
+✔ bean writes distinguish a clear rejection from an uncertain response (2.723375ms)
+✔ legacy bag relation writes are rejected before creating a journal entry (0.447917ms)
+✔ old connection revision blocks a prepared record before any Notion write (1.283334ms)
+✔ recipe saves parent then all stages in reverse order after full preflight (2.118333ms)
+✔ legacy recipe schema blocks a nonempty guide before journal creation for create and copy (0.703334ms)
+✔ any recipe payload over a Notion transport limit is rejected before the parent write (3.900292ms)
+✔ known stage rejection archives the confirmed parent before known stages in reverse order (3.29375ms)
+✔ unknown stage response stops immediately without further create or cleanup writes (1.351708ms)
+✔ failed parent archive prevents child cleanup and preserves the partial recipe (3.14075ms)
+✔ a rejected child archive leaves only that child active and still cleans later known children (2.098625ms)
+✔ copy creates a new independent recipe with changed values and rejects a stale source snapshot (2.387208ms)
+✔ copy blocks when only the source extraction guide changes after preparation (0.550542ms)
+✔ copy treats legacy undefined and empty extraction guides as equivalent (3.947375ms)
+✔ copied recipes stay independent of the legacy bean relation (1.611917ms)
+✔ a recipe can be created without selecting or storing a bean (1.588375ms)
+✔ record stores a fresh complete recipe snapshot and permits repeated same-day intent (1.564875ms)
+✔ legacy bagId record payloads are rejected before journaling or writes (0.1325ms)
+✔ record requires a valid date and a tenth-point rating from 0.1 to 5 (0.142416ms)
+✔ old record drafts without a bean and unresolved journal entries cannot be resent (0.934041ms)
+✔ records writes fail before journal creation when the connected legacy schema lacks records.bean (0.199208ms)
+✔ T20 rereads the real T15 repository under lock and the saved record round-trips its snapshot (15.534709ms)
+✔ T18 partial recipe remains hidden by the real T15 completeness check (2.135167ms)
+✔ bag operations are unavailable and a legacy bagId record payload is rejected before journal creation (0.120375ms)
+✖ favorite commands save an explicit value under the lock and reject missing latest targets (0.171375ms)
+  TypeError [Error]: h.commands.prepareFavoriteBean is not a function
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-commands.test.mjs:590:62)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7)
+
+✔ draft canonical hash, isolated deep freeze, new intent key and ordered arrays (8.281542ms)
+✔ draft rejects non-JSON/getters/cycles and invalid target/revision without exposing input (1.039583ms)
+✔ processing and known ID durable before subsequent dispatch, exact secret-free journal, success (3.729625ms)
+✔ same succeeded key never reruns, fresh intent same payload allowed (1.468541ms)
+✔ failed key never reruns; altered or forged same-key payload rejected (1.664125ms)
+✔ native contention, unsupported locks, lock failure, reentry and expired context fail closed (0.424292ms)
+✔ distinct state instances contend through the shared native lock (0.125083ms)
+✔ callback return closes context admission and drains admitted work before native unlock (0.674083ms)
+✔ runOperation drains an in-flight hook and expires escaped hooks before releasing the lock (1.033708ms)
+✔ storage failure at root prevents network and fails closed (0.791417ms)
+✔ storage failure at directory prevents network and fails closed (0.336083ms)
+✔ storage failure at handle prevents network and fails closed (0.254417ms)
+✔ storage failure at createWritable prevents network and fails closed (0.310584ms)
+✔ storage failure at write prevents network and fails closed (0.276083ms)
+✔ storage failure at close prevents network and fails closed (0.766167ms)
+✔ storage failure at afterClose prevents network and fails closed (0.350875ms)
+✔ storage failure at getFile prevents network and fails closed (0.27775ms)
+✔ storage failure at text prevents network and fails closed (0.286166ms)
+✔ result persistence failure latches memory and restart processing becomes unknown (3.94375ms)
+✔ successful close with altered readback blocks dispatch and latches uncertainty (0.388875ms)
+✔ unknown and partial globally block new keys and connection changes, no auto retry (3.123625ms)
+✔ caught write errors retain unknown or rejected outcome instead of succeeding (0.907583ms)
+✔ connection and journal revision reread before every write blocks stale client/draft (0.66375ms)
+✔ one file missing refuses first connection and mutation: connection.json (2.278958ms)
+✔ one file missing refuses first connection and mutation: submission-journal.json (0.57325ms)
+✔ first connection guard, commit readback, replacement, stale old client and interrupted guard (1.859ms)
+✔ connection recovery requires a persisted guard and both files (0.66ms)
+✔ confirmConnection adopts the original active revision after an interrupted replacement (1.308125ms)
+✔ close/readback uncertainty in connection change retains blocking guard (1.189208ms)
+✔ resolution requires original confirmation, concrete decision and fresh same-target read callback (1.557ms)
+✔ resolution compares the original durable connection snapshot after fresh read (0.659709ms)
+✔ journal UUID identity is canonical and returned snapshots are deeply immutable (0.509ms)
+✔ raw Error returned from a dispatched callback is redacted and marked unknown (0.877458ms)
+✔ clock and crypto feature failures use fixed safe errors (0.546416ms)
+✔ archive only current-operation known pages; rejected archive preserves partial and unknown archive blocks (1.241375ms)
+✔ uncertain archive callback durably changes the page archive state to unknown (1.049375ms)
+✔ corrupt/extra-field journal never overwritten or exposed (0.735042ms)
+✖ unknown favorite journal retains target and intended value and resolves only matching fresh evidence (1.875459ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + undefined
+  - {
+  -   favorite: true,
+  -   id: 'cccccccc-cccc-cccc-cccc-cccccccccccc',
+  -   kind: 'beans'
+  - }
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-submission-state.test.mjs:545:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { kind: 'beans', id: 'cccccccc-cccc-cccc-cccc-cccccccccccc', favorite: true },
+    operator: 'deepStrictEqual'
+  }
+
+ℹ tests 67
+ℹ suites 0
+ℹ pass 65
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 173.850166
+
+✖ failing tests:
+
+test at test/pwa-commands.test.mjs:581:1
+✖ favorite commands save an explicit value under the lock and reject missing latest targets (0.171375ms)
+  TypeError [Error]: h.commands.prepareFavoriteBean is not a function
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-commands.test.mjs:590:62)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7)
+
+test at test/pwa-submission-state.test.mjs:537:1
+✖ unknown favorite journal retains target and intended value and resolves only matching fresh evidence (1.875459ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + undefined
+  - {
+  -   favorite: true,
+  -   id: 'cccccccc-cccc-cccc-cccc-cccccccccccc',
+  -   kind: 'beans'
+  - }
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-favorites-20261103/test/pwa-submission-state.test.mjs:545:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { kind: 'beans', id: 'cccccccc-cccc-cccc-cccc-cccccccccccc', favorite: true },
+    operator: 'deepStrictEqual'
+  }

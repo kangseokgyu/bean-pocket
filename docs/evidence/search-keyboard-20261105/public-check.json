@@ -1,0 +1,48 @@
+{
+  "url": "https://kangseokgyu.github.io/bean-pocket/",
+  "build_version": "50779679988f",
+  "checks": [
+    {
+      "path": "index.html",
+      "status": 200,
+      "sha256": "2a00d870f9dae7f267a4942425facd05a5f8bcc6bc15e3e2ddf270cd3e331209",
+      "matches_local": true,
+      "version_present": true
+    },
+    {
+      "path": "app.mjs",
+      "status": 200,
+      "sha256": "b4358f655166c169a5a8d3d98637593ad3ce1b5da5a65662d1919397db8c34ef",
+      "matches_local": true,
+      "version_present": null
+    },
+    {
+      "path": "ui/view.mjs",
+      "status": 200,
+      "sha256": "3766948585332885f2ac1ed743ab76f6c0b7c1a2d53ed25873b576f10ac2b89e",
+      "matches_local": true,
+      "version_present": null
+    },
+    {
+      "path": "styles.css",
+      "status": 200,
+      "sha256": "9b8f2bfbdb25f26eb448808a703dc1fb285f2e69e481371e6f94abc4931c93d9",
+      "matches_local": true,
+      "version_present": null
+    },
+    {
+      "path": "sw.js",
+      "status": 200,
+      "sha256": "569cd4df36d2b5592f4b930d4e3e905fb9dc4ac81277bf8511f7703343cc9660",
+      "matches_local": true,
+      "version_present": true
+    },
+    {
+      "path": "manifest.webmanifest",
+      "status": 200,
+      "sha256": "83dc529ee8004d5aa06cf728873d97c04ece2143d3026f275780f293dedb1bdb",
+      "matches_local": true,
+      "version_present": null
+    }
+  ]
+}

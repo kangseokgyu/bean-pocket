@@ -36,6 +36,11 @@ const expectedFiles = [
   'ui/controller.mjs',
   'ui/records-insights-view.mjs',
   'ui/records-insights.mjs',
+  'ui/shared/buttons.mjs',
+  'ui/shared/dialogs.mjs',
+  'ui/shared/dom.mjs',
+  'ui/shared/form-fields.mjs',
+  'ui/shared/icons.mjs',
   'ui/star-rating.mjs',
   'ui/view.mjs',
 ];
@@ -65,6 +70,7 @@ async function writeSourceFixture(sourceDir) {
   await mkdir(path.join(sourceDir, 'state'), { recursive: true });
   await mkdir(path.join(sourceDir, 'commands'), { recursive: true });
   await mkdir(path.join(sourceDir, 'ui'), { recursive: true });
+  await mkdir(path.join(sourceDir, 'ui/shared'), { recursive: true });
   const files = {
     'brew-picker-demo.html': '<html lang="ko"><head><link rel="stylesheet" href="./brew-picker-demo.css"><script type="module" src="./brew-picker-demo.mjs"></script></head><body>카드 선택 데모</body></html>',
     'brew-picker-demo.css': 'body { color: #203d32; }',
@@ -73,6 +79,11 @@ async function writeSourceFixture(sourceDir) {
     'ui/controller.mjs': 'export const controller = {};',
     'ui/records-insights.mjs': 'export const insights = {};',
     'ui/records-insights-view.mjs': 'export const renderInsights = () => {};',
+    'ui/shared/buttons.mjs': 'export const button = () => {};',
+    'ui/shared/dialogs.mjs': 'export const makeEntryDialog = () => {};',
+    'ui/shared/dom.mjs': 'export const make = () => {};',
+    'ui/shared/form-fields.mjs': 'export const label = () => {};',
+    'ui/shared/icons.mjs': 'export const actionIcon = () => {};',
     'ui/star-rating.mjs': 'export const createStarRating = () => {};',
     'ui/view.mjs': 'export const view = {};',
     'platform/app-lifecycle.mjs': 'export const lifecycle = {};',
@@ -337,6 +348,19 @@ test('빌더는 필수 소스 누락과 소스 심볼릭 링크를 거부한다'
   );
 });
 
+test('builder rejects a nested UI source directory symlink', async t => {
+  const { root, sourceDir } = await buildFixture(t);
+  const nested = path.join(sourceDir, 'ui/shared');
+  const outside = path.join(root, 'outside');
+  await mkdir(outside);
+  await rm(nested, { recursive: true, force: true });
+  await symlink(outside, nested, 'dir');
+  await assert.rejects(
+    buildPages({ sourceDir, outputDir: path.join(root, 'nested-symlink-dist') }),
+    /심볼릭 링크|symlink/i,
+  );
+});
+
 test('빌더는 symlink 부모 경로로 소스를 출력 경로로 지정해도 원본을 보존한다', async t => {
   const root = await makeTempDirectory(t);
   const sourceDir = path.join(root, 'pwa');
@@ -412,7 +436,7 @@ test('Service Worker install·activate·fetch는 scope를 격리하고 앱 파�
   assert.ok(!remaining.includes(staleA), '자기 scope의 이전 버전 캐시는 정리해야 한다');
   assert.notEqual(cacheA, cacheB, '같은 출처의 서로 다른 scope는 별도 namespace를 사용해야 한다');
 
-  const appFiles = ['./', './index.html', './app.mjs', './brew-picker-demo.html', './brew-picker-demo.css', './brew-picker-demo.mjs', './commands/index.mjs', './ui/controller.mjs', './ui/records-insights.mjs', './ui/records-insights-view.mjs', './ui/star-rating.mjs', './ui/view.mjs', './data/notion-client.mjs', './data/notion-properties.mjs', './data/read-repository.mjs', './domain.mjs', './platform/app-lifecycle.mjs', './platform/connection-file.mjs', './platform/update-coordinator.mjs', './state/submission-state.mjs', './styles.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/bp-logo.png', './icons/favicon-bp-ivory.png', './icons/home-brew.png'];
+  const appFiles = ['./', './index.html', './app.mjs', './brew-picker-demo.html', './brew-picker-demo.css', './brew-picker-demo.mjs', './commands/index.mjs', './ui/controller.mjs', './ui/records-insights.mjs', './ui/records-insights-view.mjs', './ui/star-rating.mjs', './ui/view.mjs', './ui/shared/buttons.mjs', './ui/shared/dialogs.mjs', './ui/shared/dom.mjs', './ui/shared/form-fields.mjs', './ui/shared/icons.mjs', './data/notion-client.mjs', './data/notion-properties.mjs', './data/read-repository.mjs', './domain.mjs', './platform/app-lifecycle.mjs', './platform/connection-file.mjs', './platform/update-coordinator.mjs', './state/submission-state.mjs', './styles.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/bp-logo.png', './icons/favicon-bp-ivory.png', './icons/home-brew.png'];
   assert.deepEqual(cacheStorage.stores.get(cacheA).files.map(request => [request.url, request.cache]),
     appFiles.map(file => [new URL(file, scopeA).href, 'reload']));
   assert.deepEqual(cacheStorage.stores.get(cacheB).files.map(request => [request.url, request.cache]),

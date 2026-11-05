@@ -16,6 +16,11 @@ const sourceFiles = [
   'ui/records-insights-view.mjs',
   'ui/star-rating.mjs',
   'ui/view.mjs',
+  'ui/shared/buttons.mjs',
+  'ui/shared/dialogs.mjs',
+  'ui/shared/dom.mjs',
+  'ui/shared/form-fields.mjs',
+  'ui/shared/icons.mjs',
   'data/notion-client.mjs',
   'data/notion-properties.mjs',
   'data/read-repository.mjs',
@@ -96,6 +101,11 @@ async function readSourceFiles(sourceDir, includeProbes) {
   for (const directory of ['commands', 'ui']) {
     const info = await lstat(path.join(sourceDir, directory));
     if (info.isSymbolicLink() || !info.isDirectory()) throw new Error(`PWA 모듈 디렉터리는 심볼릭 링크일 수 없습니다: ${directory}`);
+  }
+
+  const sharedUiInfo = await lstat(path.join(sourceDir, 'ui/shared'));
+  if (sharedUiInfo.isSymbolicLink() || !sharedUiInfo.isDirectory()) {
+    throw new Error('PWA 공용 UI 모듈 디렉터리는 심볼릭 링크가 아닌 디렉터리여야 합니다.');
   }
 
   if (includeProbes) {

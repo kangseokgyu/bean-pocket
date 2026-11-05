@@ -7,7 +7,8 @@ import { buildPages } from '../scripts/build-pages.mjs';
 import { checkPages } from '../scripts/check-pages.mjs';
 
 const modules = ['commands/index.mjs', 'ui/controller.mjs', 'ui/records-insights.mjs', 'ui/records-insights-view.mjs',
-  'ui/view.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs'];
+  'ui/view.mjs', 'ui/shared/buttons.mjs', 'ui/shared/dialogs.mjs', 'ui/shared/dom.mjs',
+  'ui/shared/form-fields.mjs', 'ui/shared/icons.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs'];
 
 test('server-page demo records mark their generated v2 snapshot valid', async () => {
   const app = await readFile(new URL('../public/app.js', import.meta.url), 'utf8');
@@ -70,6 +71,32 @@ test('product commands, UI and lifecycle ship byte-for-byte and all affect the r
   }
 });
 
+test('PWA view import closure is present in the published precache', async t => {
+  const f = await fixture(t);
+  await buildPages(f);
+  await checkPages(f.outputDir);
+  const worker = await readFile(path.join(f.outputDir, 'sw.js'), 'utf8');
+  const pending = ['ui/view.mjs'];
+  const visited = new Set();
+  while (pending.length) {
+    const file = pending.pop();
+    if (visited.has(file)) continue;
+    visited.add(file);
+    const source = await readFile(path.join(f.outputDir, file), 'utf8');
+    for (const match of source.matchAll(/(?:from\s*|import\s*)['"](\.{1,2}\/[^'"]+)['"]/g)) {
+      const dependency = path.posix.normalize(path.posix.join(path.posix.dirname(file), match[1]));
+      assert.ok(!dependency.startsWith('../'), `${file} must resolve within the PWA output`);
+      await readFile(path.join(f.outputDir, dependency));
+      assert.ok(worker.includes(`./${dependency}`), `${dependency} must be precached`);
+      pending.push(dependency);
+    }
+  }
+  for (const file of ['ui/shared/buttons.mjs', 'ui/shared/dialogs.mjs', 'ui/shared/dom.mjs',
+    'ui/shared/form-fields.mjs', 'ui/shared/icons.mjs']) {
+    assert.ok(visited.has(file), `${file} must be reachable from the view facade`);
+  }
+});
+
 test('production records insights resolve domain logic inside the Pages bundle', async t => {
   const f = await fixture(t);
   await buildPages(f);
@@ -121,7 +148,7 @@ test('SVG namespace is allowed only in UI element creation, never as a request U
   const f = await fixture(t);
   await buildPages(f);
   await checkPages(f.outputDir);
-  const target = path.join(f.outputDir, 'ui/view.mjs');
+  const target = path.join(f.outputDir, 'ui/shared/icons.mjs');
   const original = await readFile(target, 'utf8');
   for (const extra of [
     "fetch('http://www.w3.org/2000/svg');",
@@ -131,6 +158,11 @@ test('SVG namespace is allowed only in UI element creation, never as a request U
     await assert.rejects(checkPages(f.outputDir), /외부 URL/);
   }
   await writeFile(target, original);
+  const viewModule = path.join(f.outputDir, 'ui/view.mjs');
+  const originalView = await readFile(viewModule, 'utf8');
+  await writeFile(viewModule, originalView + "\ndocument.createElementNS('http://www.w3.org/2000/svg', 'svg');");
+  await assert.rejects(checkPages(f.outputDir), /외부 URL/);
+  await writeFile(viewModule, originalView);
   const otherModule = path.join(f.outputDir, 'ui/controller.mjs');
   const originalOtherModule = await readFile(otherModule, 'utf8');
   await writeFile(otherModule, originalOtherModule + "\ndocument.createElementNS('http://www.w3.org/2000/svg', 'svg');");

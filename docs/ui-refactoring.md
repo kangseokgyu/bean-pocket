@@ -1,6 +1,6 @@
 # Bean Pocket UI/controller refactoring
 
-Status: R0 baseline recorded. R1-R6 are pending.
+Status: R0 baseline and R1 shared-helper extraction are complete. R2-R6 are pending.
 
 ## Goal
 
@@ -10,7 +10,7 @@ The implementation stays in the feature worktree based on 0e0c2f3. It does not c
 
 ## Pinned interfaces
 
-createAppView(document = globalThis.document, { schedule, cancelSchedule, validateToken } = {}) remains exported. Its returned methods remain showStatus, clearStatus, showConnection, clearSecret, beginConnectionSave, finishConnectionSave, editConnection, cancelConnection, showConnectionSuccess, setState, setFrozen, clearForm, clearDraft, setRouteReadState, renderData, currentRoute, onRouteChange, renderRoute, resolveRecordDraft, showBeanForm, showRecipeForm, showRecordForm, setSearchOptions, setSearchOptionsState, clearSearchOptions, showEntrySuccess, showUnresolved, and bind.
+createAppView(document = globalThis.document, { schedule, cancelSchedule, validateToken } = {}) remains exported. Its returned methods remain showStatus, clearStatus, showConnection, clearSecret, beginConnectionSave, finishConnectionSave, editConnection, cancelConnection, showConnectionSuccess, finishStartup, setState, setFrozen, clearForm, clearDraft, setRouteReadState, renderData, currentRoute, onRouteChange, renderRoute, resolveRecordDraft, showBeanForm, showRecipeForm, showRecordForm, setSearchOptions, setSearchOptionsState, clearSearchOptions, showEntrySuccess, showDeleteResult, showUnresolved, and bind.
 
 createAppController retains its current options object and its returned methods: initialize, connect, confirmCurrent, resolveOperation, refresh, submit, setDirty, setFrozen, getState, bind, loadRoute, loadMore, loadMoreInsights, loadSearchOptions, setRecordFilters, and setRecordInsightsBean.
 
@@ -40,11 +40,11 @@ Candidate B is selected. It matches the requested module groups and the existing
 | Phase | Work | Exit check |
 | --- | --- | --- |
 | R0 | Record contracts, compare two local shapes, record the baseline tests and build checks, and link the main-owned browser baseline. | Contract and evidence paths are committed. Baseline npm test, npm run build:pages, and npm run check:pages are green. |
-| R1 | Extract shared DOM, button, field, and dialog helpers. | Focused tests for new exports fail before module creation and pass after extraction. Existing UI tests remain green. |
+| R1 | Extract shared DOM, icon, button, field, dialog, and spinner helpers. Keep UI state, routes, and composition in the view facade. Include new files in build/check, hash, source scan, cache, and fixture contracts; reject the nested `ui/shared` source symlink. | Focused helper tests fail before module creation and pass after extraction. Existing UI tests and PWA security checks remain green. |
 | R2 | Move home, beans, recipes, records, and brew screen rendering. Keep view assembly and state in the facade. | Focused screen tests and existing view tests pass. |
 | R3 | Move bean, recipe, and record form builders, then event bindings, picker, pull-to-refresh, and status toast behavior. | Form, event, draft, cancel, focus, picker, spinner, and toast tests pass through the facade. |
 | R4 | Extract safe screen cache, loader, search-option, and insight logic into pwa/ui/controller/. Keep each abort, route generation, search generation, and connection revision distinct. Leave connection-session logic in controller.mjs unless it can move without splitting lock, journal, and active-connection ownership. | Controller unit and facade tests pass, including pagination, cache TTL/invalidation, stale responses, favorite writes, and connection-boundary cases. |
-| R5 | Update PWA build/check allowlists, source text scanning, app cache, version/hash inputs, SVG exceptions, fixture lists, nested-directory symlink checks, and their negative tests. | New modules are included and checked. Security-negative tests still reject unsafe sources and symlink ancestors. |
+| R5 | Extend the PWA build/check, source scanning, app cache, version/hash, fixture, SVG, and nested-directory symlink contracts for screen, form, interaction, and controller modules as they are extracted. | Every added module is included and checked. Security-negative tests still reject unsafe sources and symlink ancestors. |
 | R6 | Review all retained and additive tests, update docs/pwa-contracts.md, docs/verification.md, root README.md, docs/implementation-status.md, and docs/pwa-usage.md. Record final limits and verification evidence. | npm test, npm run build:pages, and npm run check:pages pass after the last edit. Main completes browser comparison separately. |
 
 Every implementation phase writes tests first. A focused test for a new module must fail because the module or required behavior check is absent, then pass after the move. After each phase, run all three required commands and save the original command output in docs/evidence/ui-refactor-20261106/. Do not start the next phase until the current phase is green. Commit each verified phase separately.

@@ -1,42 +1,11 @@
 import { isCurrentRecord, isValidRating } from '../domain.mjs';
 import { renderRecordsInsights } from './records-insights-view.mjs';
 import { createStarRating } from './star-rating.mjs';
-
-const make = (document, tag, text, className) => {
-  const node = document.createElement(tag);
-  if (text !== undefined) node.textContent = String(text);
-  if (className) node.className = className;
-  return node;
-};
-
-const label = (document, title, name, type = 'text', required = false, attrs = {}) => {
-  const wrap = make(document, 'label', undefined, 'form-field');
-  wrap.append(make(document, 'span', title, 'form-field-label'));
-  const input = make(document, type === 'textarea' ? 'textarea' : type === 'select' ? 'select' : 'input');
-  input.name = name;
-  if (type !== 'textarea' && type !== 'select') input.type = type;
-  input.required = required;
-  for (const [key, value] of Object.entries(attrs)) input[key] = value;
-  wrap.append(input);
-  return wrap;
-};
-
-const button = (document, text, type = 'submit', action, variant = 'secondary') => {
-  const node = make(document, 'button', text, `button button--${variant}`);
-  node.type = type;
-  if (action) node.dataset.action = action;
-  if (variant === 'back' && text !== undefined) node.setAttribute('aria-label', String(text));
-  return node;
-};
-
-const ACTION_ICON_PATHS = Object.freeze({
-  save: 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2ZM17 21v-8H7v8ZM7 3v5h8',
-  x: 'M18 6 6 18M6 6l12 12',
-  check: 'M4 12l5 5 11-11',
-  warning: 'M12 3 22 20H2L12 3Zm0 6v5m0 3h.01',
-  edit: 'm16 3 5 5M4 15 16 3l5 5L9 20l-6 1 1-6Z',
-  trash: 'M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7',
-});
+import { make, makeSpinner } from './shared/dom.mjs';
+import { actionIcon, navigationIcon, decorativeSvg } from './shared/icons.mjs';
+import { button, actionButton, setActionButton, iconButton, trashButton } from './shared/buttons.mjs';
+import { label, addFieldset, formBase, addFormActions } from './shared/form-fields.mjs';
+import { showNativeDialog, makeEntryDialog } from './shared/dialogs.mjs';
 
 const NAVIGATION_ITEMS = Object.freeze([
   { kind: 'route', route: '/home', label: '홈', icon: 'home' },
@@ -46,130 +15,9 @@ const NAVIGATION_ITEMS = Object.freeze([
   { kind: 'route', route: '/records', label: '추출 기록', icon: 'records' },
 ]);
 
-const NAVIGATION_ICON_PATHS = Object.freeze({
-  home: 'M3 10.5 12 3l9 7.5M5 9v12h14V9M9 21v-7h6v7',
-  beans: 'M20.6 7.3c-1.2-3.7-5.9-5-10.2-2.7S2 10.9 3.2 14.6s5.9 5 10.2 2.7 8.4-6.3 7.2-10ZM7.2 17c.8-3.8 3.5-7.7 7.6-10.5',
-  brew: 'M4 8h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8Zm12 2h2a3 3 0 0 1 0 6h-3M4 21h14',
-  recipes: 'M5 4.5h12a2 2 0 0 1 2 2v13H7a2 2 0 0 1-2-2v-13ZM5 4.5v13a2 2 0 0 0 2 2m3-11h5m-5 4h5',
-  records: 'M12 8v4l2.5 1.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z',
-});
-
-function actionIcon(document, name) {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('aria-hidden', 'true');
-  svg.setAttribute('focusable', 'false');
-  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  path.setAttribute('d', ACTION_ICON_PATHS[name]);
-  if (name === 'check') path.setAttribute('pathLength', '1');
-  svg.append(path);
-  return svg;
-}
-
-function navigationIcon(document, name) {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('class', 'nav-icon');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('aria-hidden', 'true');
-  svg.setAttribute('focusable', 'false');
-  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  path.setAttribute('d', NAVIGATION_ICON_PATHS[name]);
-  svg.append(path);
-  return svg;
-}
-
-function decorativeSvg(document, viewBox, className, pathData) {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', viewBox);
-  svg.setAttribute('class', className);
-  svg.setAttribute('aria-hidden', 'true');
-  svg.setAttribute('focusable', 'false');
-  for (const entry of pathData) {
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', typeof entry === 'string' ? entry : entry.d);
-    if (typeof entry !== 'string' && entry.marker) path.setAttribute(`data-${entry.marker}`, '');
-    svg.append(path);
-  }
-  return svg;
-}
-
-function actionButton(document, text, type, icon, action) {
-  const node = button(document, '', type, action);
-  node.className = `button action-button action-${icon === 'x' ? 'cancel' : 'save'}`;
-  const iconNode = make(document, 'span', undefined, 'button-icon');
-  iconNode.dataset.icon = icon;
-  iconNode.dataset.state = 'idle';
-  iconNode.setAttribute('aria-hidden', 'true');
-  iconNode.append(actionIcon(document, icon));
-  const labelNode = make(document, 'span', text, 'button-label');
-  labelNode.dataset.actionLabel = '';
-  node.append(iconNode, labelNode);
-  node.dataset.state = 'idle';
-  node.setAttribute('aria-busy', 'false');
-  return node;
-}
-
-function setActionButton(buttonNode, text, state, icon = state === 'success' ? 'check' : 'save') {
-  const labelNode = buttonNode.querySelector('[data-action-label]');
-  if (labelNode) labelNode.textContent = text;
-  buttonNode.dataset.state = state;
-  buttonNode.setAttribute('aria-busy', String(state === 'saving'));
-  const iconNode = buttonNode.querySelector('.button-icon');
-  if (!iconNode) return;
-  iconNode.dataset.state = state;
-  if (iconNode.dataset.icon !== icon) {
-    iconNode.dataset.icon = icon;
-    iconNode.replaceChildren(actionIcon(buttonNode.ownerDocument, icon));
-  }
-}
-
-const iconButton = (document, icon, title, action) => {
-  const node = button(document, '', 'button', action);
-  node.className = 'button icon-button';
-  node.setAttribute('aria-label', title);
-  node.title = title;
-  const glyph = make(document, 'span', icon);
-  glyph.setAttribute('aria-hidden', 'true');
-  node.append(glyph);
-  return node;
-};
-
-function trashButton(document, kind, id, name) {
-  const action = { beans: 'delete-bean', recipes: 'delete-recipe', records: 'delete-record' }[kind];
-  const remove = iconButton(document, '', `${name} 삭제`, action);
-  remove.className += ' entity-delete';
-  remove.dataset.id = id;
-  remove.dataset.name = name;
-  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  icon.setAttribute('viewBox', '0 0 24 24');
-  icon.setAttribute('aria-hidden', 'true');
-  icon.setAttribute('focusable', 'false');
-  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  path.setAttribute('d', 'M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7');
-  icon.append(path);
-  remove.replaceChildren(icon);
-  return remove;
-}
-
 function recordName(record, recipe, snapshotRecipe) {
   return `${record.date || '추출 기록'} · ${recipe?.name || snapshotRecipe?.name || '추출 기록'}`;
 }
-
-const showNativeDialog = dialog => {
-  if (typeof dialog.showModal === 'function') dialog.showModal();
-  else dialog.open = true;
-};
-
-const makeSpinner = document => {
-  const spinner = make(document, 'span', undefined, 'pull-refresh-spinner');
-  spinner.setAttribute('aria-hidden', 'true');
-  for (let index = 0; index < 12; index++) {
-    const spoke = make(document, 'span', undefined, 'pull-refresh-spoke');
-    spoke.setAttribute('style', `transform: rotate(${index * 30}deg); opacity: ${(index + 1) / 12}`);
-    spinner.append(spoke);
-  }
-  return spinner;
-};
 
 const idOf = value => String(value ?? '');
 const FORM_KINDS = new Set(['beans', 'recipes', 'records', 'brews']);
@@ -1564,33 +1412,6 @@ function applyState(page, state) {
       }
     });
   });
-}
-
-function addFieldset(document, parent, title, fields, className = '') {
-  const set = make(document, 'fieldset', undefined, `form-fieldset ${className}`.trim());
-  set.append(make(document, 'legend', title));
-  for (const field of fields) set.append(label(document, ...field));
-  parent.append(set);
-}
-
-function formBase(document, kind, title) {
-  const form = make(document, 'form', undefined, 'form-grid');
-  form.dataset.form = kind;
-  const heading = make(document, 'h2', title);
-  heading.id = `${kind}-form-title`;
-  form.append(heading);
-  return form;
-}
-
-function makeEntryDialog(document, kind, form, open) {
-  const dialog = make(document, 'dialog', undefined, 'entry-dialog');
-  dialog.id = `${kind}-entry-dialog`;
-  dialog.dataset.entryDialog = kind;
-  dialog.dataset.open = String(open);
-  dialog.setAttribute('aria-modal', 'true');
-  dialog.setAttribute('aria-labelledby', `${kind}-form-title`);
-  dialog.append(form);
-  return dialog;
 }
 
 function renderHome(pane, document) {
@@ -3004,16 +2825,6 @@ function recordParentNameNote(kind, status, snapshotName) {
     ? `현재 ${name} 이름을 불러오지 못해 기록 당시 이름을 표시합니다.`
     : `현재 ${name} 이름을 불러오지 못했습니다.`;
   return '';
-}
-
-function addFormActions(document, form) {
-  const actions = make(document, 'div', undefined, 'form-actions');
-  const cancel = actionButton(document, '취소', 'button', 'x', 'cancel-form');
-  const submit = actionButton(document, '저장', 'submit', 'save');
-  submit.dataset.entrySubmit = '';
-  submit.dataset.idleLabel = '저장';
-  actions.append(cancel, submit);
-  form.append(actions);
 }
 
 function fillSelect(select, rows, placeholder, optional = false) {

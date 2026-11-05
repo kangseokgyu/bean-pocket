@@ -1,0 +1,47 @@
+✖ narrow-screen navigation stays outside the page pull transform (3.321541ms)
+  AssertionError [ERR_ASSERTION]: idle navigation is attached to the viewport shell
+
+  false !== true
+
+      at assertOutsidePullTransform (file:///private/tmp/ax-floating-glass-nav-20261105/test/pwa-ui.view.test.mjs:1846:12)
+      at TestContext.<anonymous> (file:///private/tmp/ax-floating-glass-nav-20261105/test/pwa-ui.view.test.mjs:1850:3)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual'
+  }
+
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 87.278542
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:1815:1
+✖ narrow-screen navigation stays outside the page pull transform (3.321541ms)
+  AssertionError [ERR_ASSERTION]: idle navigation is attached to the viewport shell
+
+  false !== true
+
+      at assertOutsidePullTransform (file:///private/tmp/ax-floating-glass-nav-20261105/test/pwa-ui.view.test.mjs:1846:12)
+      at TestContext.<anonymous> (file:///private/tmp/ax-floating-glass-nav-20261105/test/pwa-ui.view.test.mjs:1850:3)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual'
+  }

@@ -566,8 +566,20 @@ export function createAppView(document = globalThis.document, {
   }
   const header = document.querySelector('.site-header');
   const headerTools = header?.querySelector('.header-tools');
-  if (headerTools) header.insertBefore(nav, headerTools);
-  else (header ?? page).append(nav);
+  const narrowNavigation = document.defaultView?.matchMedia?.('(max-width: 600px)');
+  function placeNavigation() {
+    if (narrowNavigation?.matches && document.body) {
+      document.body.append(nav);
+      return;
+    }
+    if (headerTools) {
+      header.insertBefore(nav, headerTools);
+      return;
+    }
+    (header ?? page).append(nav);
+  }
+  placeNavigation();
+  narrowNavigation?.addEventListener?.('change', placeNavigation);
 
   function applyViewState() {
     applyState(page, currentState);

@@ -1812,6 +1812,53 @@ test('navigation exposes a guarded center action beside its four accessible rout
   assert.equal(view.currentRoute(), '/home', 'a pending operation cannot start another brew');
 });
 
+test('narrow-screen navigation stays outside the page pull transform', () => {
+  const document = new TestDocument();
+  const body = document.createElement('body');
+  const page = document.createElement('div');
+  page.className = 'page';
+  page.dataset.pullState = 'idle';
+  page.style.transform = 'translateY(0px)';
+  const header = document.createElement('header');
+  header.className = 'site-header';
+  const headerTools = document.createElement('div');
+  headerTools.className = 'header-tools';
+  header.append(headerTools);
+  page.append(header, document.root);
+  body.append(page);
+  document.body = body;
+
+  let isNarrow = true;
+  const changeListeners = [];
+  document.defaultView = { matchMedia(query) {
+    assert.equal(query, '(max-width: 600px)');
+    return { get matches() { return isNarrow; }, addEventListener(_type, listener) { changeListeners.push(listener); } };
+  } };
+  const querySelector = document.querySelector.bind(document);
+  document.querySelector = selector => selector === '.site-header' ? header
+    : selector === '.page' ? page : querySelector(selector);
+
+  createAppView(document);
+  const nav = body.querySelector('nav.tabs');
+  const assertOutsidePullTransform = state => {
+    page.dataset.pullState = state;
+    page.style.transform = state === 'idle' ? 'translateY(0px)' : 'translateY(36px)';
+    assert.equal(nav.parentElement === body, true, `${state} navigation is attached to the viewport shell`);
+    assert.equal(nav.closest('.page') === null, true, `${state} navigation has no transformed page ancestor`);
+  };
+
+  assertOutsidePullTransform('idle');
+  assertOutsidePullTransform('pulling');
+
+  isNarrow = false;
+  changeListeners.forEach(listener => listener());
+  assert.equal(nav.parentElement === header, true, 'wide navigation remains in the site header');
+
+  isNarrow = true;
+  changeListeners.forEach(listener => listener());
+  assert.equal(nav.parentElement === body, true, 'narrow navigation returns to the viewport shell');
+});
+
 test('bean deletion opens a safe native dialog and restores focus after cancel or Escape', async () => {
   const document = new TestDocument(), view = createBeanView(document);
   view.showConnection({ connected: true });

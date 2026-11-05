@@ -1065,7 +1065,7 @@ footer {
     text-decoration: none;
     white-space: nowrap;
   }
-  .tabs .button:hover:not(:disabled) { color: #252522; background: rgb(60 60 56 / 7%); }
+  .tabs .button:hover { color: #252522; background: rgb(60 60 56 / 9%); }
   .tabs [aria-current="page"] {
     border-radius: 20px;
     background: rgb(60 60 56 / 9%);
@@ -1093,7 +1093,7 @@ footer {
     color: #30302d;
     font-weight: 700;
   }
-  .tabs .tabs-start-brew:hover:not(:disabled) { background: rgb(60 60 56 / 12%); }
+  .tabs .tabs-start-brew:hover { background: rgb(60 60 56 / 12%); }
   .tabs .button:focus-visible { outline-color: #696962; }
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     .tabs {

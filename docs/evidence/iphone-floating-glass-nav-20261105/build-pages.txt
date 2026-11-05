@@ -2,4 +2,4 @@
 > build:pages
 > node scripts/build-pages.mjs
 
-Pages 산출물 생성 완료 (6997caa17994)
+Pages 산출물 생성 완료 (048b4c8f511c)

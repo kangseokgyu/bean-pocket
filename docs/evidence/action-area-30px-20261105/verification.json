@@ -1,0 +1,41 @@
+{
+  "change": "Favorite and delete button areas 30x30 CSS px; icons remain 22x22",
+  "tests": {
+    "command": "npm test",
+    "exitCode": 0,
+    "total": 748,
+    "failed": 0,
+    "log": "/private/tmp/ax-action-area-30px-test.log"
+  },
+  "build": {
+    "commands": [
+      "npm run build:pages",
+      "npm run check:pages"
+    ],
+    "exitCode": 0,
+    "version": "486613ecae20"
+  },
+  "browser": {
+    "command": "node docs/evidence/action-area-30px-20261105/verify-browser.mjs",
+    "exitCode": 0,
+    "cases": 8,
+    "widths": [
+      320,
+      390,
+      768,
+      1280
+    ],
+    "checks": [
+      "30x30 buttons",
+      "22x22 icons",
+      "aligned adjacent buttons",
+      "favorite toggles",
+      "no horizontal overflow",
+      "no page errors"
+    ]
+  },
+  "limitations": [
+    "Actual iPhone and live Notion writes not tested"
+  ],
+  "environment": "Preview server listen EPERM in sandbox; unrestricted server and Chrome checks passed."
+}

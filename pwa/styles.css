@@ -1088,13 +1088,17 @@ footer {
   .tabs .nav-label { display: none; }
   .tabs .tabs-start-brew {
     display: grid;
+    justify-self: center;
+    width: 44px;
     min-height: 44px;
-    border: 1px solid rgb(72 72 68 / 20%);
-    background: rgb(60 60 56 / 8%);
-    color: #30302d;
+    border: 0;
+    border-radius: 50%;
+    background: #30302d;
+    color: #fff;
+    box-shadow: 0 2px 6px rgb(27 29 27 / 18%);
     font-weight: 700;
   }
-  .tabs .tabs-start-brew:hover { background: rgb(60 60 56 / 12%); }
+  .tabs .tabs-start-brew:hover { background: #191917; color: #fff; }
   .tabs .button:focus-visible { outline-color: #696962; }
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     .tabs {

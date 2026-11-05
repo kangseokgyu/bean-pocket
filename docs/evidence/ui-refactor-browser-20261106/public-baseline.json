@@ -1,0 +1,169 @@
+{
+  "url": "https://kangseokgyu.github.io/bean-pocket/",
+  "version": "214f2f1363ed",
+  "verifiedAt": "2026-11-05T15:52:39.336Z",
+  "files": [
+    {
+      "file": "app.mjs",
+      "status": 200,
+      "bytes": 1587,
+      "sha256": "b4358f655166c169a5a8d3d98637593ad3ce1b5da5a65662d1919397db8c34ef"
+    },
+    {
+      "file": "brew-picker-demo.css",
+      "status": 200,
+      "bytes": 5320,
+      "sha256": "d8f9a43038d7ba81a5ff397b3c3d8b896e7283972835c76aae65fa4002558608"
+    },
+    {
+      "file": "brew-picker-demo.html",
+      "status": 200,
+      "bytes": 2629,
+      "sha256": "53ea01b115a81169b7ae9e985c17d29c0caf16305b33065f47938bdc2bce0b6a"
+    },
+    {
+      "file": "brew-picker-demo.mjs",
+      "status": 200,
+      "bytes": 5267,
+      "sha256": "863edc25d45322b052290328f0d17a406ddbad4646c8ee590c9593059dc7eac8"
+    },
+    {
+      "file": "commands/index.mjs",
+      "status": 200,
+      "bytes": 21437,
+      "sha256": "74a847a81955b36c74e38aed6df8c5da9c1abcb80aca13a1bd81d8a5192fc364"
+    },
+    {
+      "file": "data/notion-client.mjs",
+      "status": 200,
+      "bytes": 25131,
+      "sha256": "9556de33e9ba7e8e249620ed90ed759ceb0c7a217854562a4095b055ec30a856"
+    },
+    {
+      "file": "data/notion-properties.mjs",
+      "status": 200,
+      "bytes": 5160,
+      "sha256": "01a7b5a2496cfb6ab309761caab00c578dde5d71ea1d5899a433ef7225a9de3a"
+    },
+    {
+      "file": "data/read-repository.mjs",
+      "status": 200,
+      "bytes": 45254,
+      "sha256": "8c7253805425c73f5658516f38e286b7a70ee184b12fa82833fc2bfa9e66a1d9"
+    },
+    {
+      "file": "domain.mjs",
+      "status": 200,
+      "bytes": 10004,
+      "sha256": "a6823fc842d798eed3bbdd0e511e5e71602731f81c10004af35dd6d43d0fedc3"
+    },
+    {
+      "file": "icons/bp-logo.png",
+      "status": 200,
+      "bytes": 37954,
+      "sha256": "c96f9250074f8f84d9585267bcc5d41fe663a1b90cffa4765e3acf184baadaf7"
+    },
+    {
+      "file": "icons/favicon-bp-ivory.png",
+      "status": 200,
+      "bytes": 1886,
+      "sha256": "1f0378cc66162d82ca61a427e277f28e2160df29c9963a205cf999be6e6caa1f"
+    },
+    {
+      "file": "icons/home-brew.png",
+      "status": 200,
+      "bytes": 896607,
+      "sha256": "5ca4eba24ca3a37de5d8363f08bb982f4ea2adea2e95daccd395a05a5ff4d8b2"
+    },
+    {
+      "file": "icons/icon-192.png",
+      "status": 200,
+      "bytes": 1942,
+      "sha256": "fed6a73c7549eae8cb25324bab6e5d9f831120b8db329cfa7a66e3bda4296761"
+    },
+    {
+      "file": "icons/icon-512.png",
+      "status": 200,
+      "bytes": 6181,
+      "sha256": "0b0197281031a51957ae1c3a43037dcef08eb8d8d187f4b6df5eb212d0303316"
+    },
+    {
+      "file": "index.html",
+      "status": 200,
+      "bytes": 1247,
+      "sha256": "443575a2ac3b765bf4149d51a324888673fb6b68e130a17bb4c7d8d578b9d739"
+    },
+    {
+      "file": "manifest.webmanifest",
+      "status": 200,
+      "bytes": 402,
+      "sha256": "83dc529ee8004d5aa06cf728873d97c04ece2143d3026f275780f293dedb1bdb"
+    },
+    {
+      "file": "platform/app-lifecycle.mjs",
+      "status": 200,
+      "bytes": 7354,
+      "sha256": "ca5b6d7fc53f473000945a14c6951f39a74c8ba829571cdc2c236e463d77c09b"
+    },
+    {
+      "file": "platform/connection-file.mjs",
+      "status": 200,
+      "bytes": 6732,
+      "sha256": "8389b0d1554c0948a6b66a1dcbf82d581f7c9c67889cecb6523afe70034af210"
+    },
+    {
+      "file": "platform/update-coordinator.mjs",
+      "status": 200,
+      "bytes": 9346,
+      "sha256": "56015c1ff7738219e963bd29e9b5c77b73d043cf76b6f1698c692b9f4d32bbe7"
+    },
+    {
+      "file": "state/submission-state.mjs",
+      "status": 200,
+      "bytes": 35978,
+      "sha256": "4ba7e86bd8fe900aa4655821b3a5105160718f92d2267bb3bcef85f98027e931"
+    },
+    {
+      "file": "styles.css",
+      "status": 200,
+      "bytes": 61505,
+      "sha256": "d3b4f8e95749f713e9f261912d6d9d734c97a5254e40f167211a1a7a425c7cd5"
+    },
+    {
+      "file": "sw.js",
+      "status": 200,
+      "bytes": 8383,
+      "sha256": "10440f4108849bd3deb7fda68758eacefa4e6869da267b8d298ef04c9c52880a"
+    },
+    {
+      "file": "ui/controller.mjs",
+      "status": 200,
+      "bytes": 71145,
+      "sha256": "33b286abebf2de156909013e1f0f4089ae2f5b4c0fbbca5055b4145e1b52a7f7"
+    },
+    {
+      "file": "ui/records-insights-view.mjs",
+      "status": 200,
+      "bytes": 36243,
+      "sha256": "cc23ac3bd8e82f43c78fe6e1d900ff3fdf777c7db280bc6671c09f9c8f2cd9d0"
+    },
+    {
+      "file": "ui/records-insights.mjs",
+      "status": 200,
+      "bytes": 10845,
+      "sha256": "e3537053f357ab4289b0bca58f9eb722ae13e2569068dcb5573f377c00fe7234"
+    },
+    {
+      "file": "ui/star-rating.mjs",
+      "status": 200,
+      "bytes": 7047,
+      "sha256": "6520379674649054184697a829f52c5bcd02d50d94454034f0223e6f4f1406c4"
+    },
+    {
+      "file": "ui/view.mjs",
+      "status": 200,
+      "bytes": 192286,
+      "sha256": "3766948585332885f2ac1ed743ab76f6c0b7c1a2d53ed25873b576f10ac2b89e"
+    }
+  ]
+}

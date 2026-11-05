@@ -1,0 +1,160 @@
+{
+  "conclusion": "success",
+  "createdAt": "2026-11-04T12:15:12Z",
+  "event": "workflow_dispatch",
+  "headSha": "1cb3e8c4e6b37c7d57198843b89f4fb897bae539",
+  "jobs": [
+    {
+      "completedAt": "2026-11-04T12:17:00Z",
+      "conclusion": "success",
+      "databaseId": 126566439519,
+      "name": "build",
+      "startedAt": "2026-11-04T12:15:15Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-04T12:15:17Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-04T12:15:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-04T12:15:20Z",
+          "conclusion": "success",
+          "name": "Checkout approved default branch",
+          "number": 2,
+          "startedAt": "2026-11-04T12:15:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-04T12:15:21Z",
+          "conclusion": "success",
+          "name": "Set up Node",
+          "number": 3,
+          "startedAt": "2026-11-04T12:15:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-04T12:16:56Z",
+          "conclusion": "success",
+          "name": "Run regression tests",
+          "number": 4,
+          "startedAt": "2026-11-04T12:15:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-04T12:16:56Z",
+          "conclusion": "success",
+          "name": "Build static PWA",
+          "number": 5,
+          "startedAt": "2026-11-04T12:16:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-04T12:16:56Z",
+          "conclusion": "skipped",
+          "name": "Build experiment PWA",
+          "number": 6,
+          "startedAt": "2026-11-04T12:16:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-04T12:16:57Z",
+          "conclusion": "success",
+          "name": "Check publish artifact",
+          "number": 7,
+          "startedAt": "2026-11-04T12:16:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-04T12:16:57Z",
+          "conclusion": "skipped",
+          "name": "Check experiment artifact",
+          "number": 8,
+          "startedAt": "2026-11-04T12:16:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-04T12:16:58Z",
+          "conclusion": "success",
+          "name": "Upload only static output",
+          "number": 9,
+          "startedAt": "2026-11-04T12:16:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-04T12:16:58Z",
+          "conclusion": "success",
+          "name": "Post Set up Node",
+          "number": 17,
+          "startedAt": "2026-11-04T12:16:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-04T12:16:58Z",
+          "conclusion": "success",
+          "name": "Post Checkout approved default branch",
+          "number": 18,
+          "startedAt": "2026-11-04T12:16:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-04T12:16:58Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 19,
+          "startedAt": "2026-11-04T12:16:58Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/kangseokgyu/bean-pocket/actions/runs/41827662728/job/126566439519"
+    },
+    {
+      "completedAt": "2026-11-04T12:17:27Z",
+      "conclusion": "success",
+      "databaseId": 126567318304,
+      "name": "deploy",
+      "startedAt": "2026-11-04T12:17:04Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-04T12:17:06Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-04T12:17:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-04T12:17:07Z",
+          "conclusion": "success",
+          "name": "Configure Pages",
+          "number": 2,
+          "startedAt": "2026-11-04T12:17:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-04T12:17:25Z",
+          "conclusion": "success",
+          "name": "Deploy checked artifact",
+          "number": 3,
+          "startedAt": "2026-11-04T12:17:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-04T12:17:25Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 4,
+          "startedAt": "2026-11-04T12:17:25Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/kangseokgyu/bean-pocket/actions/runs/41827662728/job/126567318304"
+    }
+  ],
+  "updatedAt": "2026-11-04T12:17:28Z",
+  "url": "https://github.com/kangseokgyu/bean-pocket/actions/runs/41827662728"
+}

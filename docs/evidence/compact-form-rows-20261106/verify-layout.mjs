@@ -19,6 +19,12 @@ async function openPreview(page, viewport) {
   await page.waitForFunction(() => document.documentElement.dataset.previewReady === 'true');
 }
 
+async function settleDialog(page, selector) {
+  await page.locator(selector).evaluate(async dialog => {
+    await Promise.all(dialog.getAnimations().map(animation => animation.finished));
+  });
+}
+
 async function readCompactForm(page) {
   return page.evaluate(() => {
     const dialog = document.querySelector('.entry-dialog[open]');
@@ -72,6 +78,7 @@ async function testCompactForm(page, viewport, kind) {
     else view.showRecipeForm();
   }, kind);
   await page.waitForFunction(() => document.querySelector('.entry-dialog[open]'));
+  await settleDialog(page, '.entry-dialog[open]');
   const layout = await readCompactForm(page);
   const label = `${kind} ${viewport.name}`;
   assert.ok(layout.pageWidth <= layout.viewport.width, `${label}: no horizontal page overflow`);
@@ -109,6 +116,7 @@ async function testNotion(page, viewport) {
   await openPreview(page, viewport);
   await page.locator('.connection-toggle').click();
   await page.waitForFunction(() => document.querySelector('#connection-settings[open]'));
+  await settleDialog(page, '#connection-settings[open]');
   await page.locator('#connection-token').fill('preview-token-only');
   await page.evaluate(() => { document.querySelector('[data-token-status-icon]').dataset.state = 'valid'; });
   await page.locator('#connection-token').focus();
@@ -123,15 +131,18 @@ async function testNotion(page, viewport) {
       const fieldBox = field.getBoundingClientRect();
       return {
         label: label.textContent,
+        height: fieldBox.height,
         labelWidth: label.clientWidth,
         labelScrollWidth: label.scrollWidth,
         labelBottom: labelBox.bottom,
         inputTop: inputBox.top,
+        inputHeight: inputBox.height,
         inputLeft: inputBox.left,
         inputRight: inputBox.right,
         fieldLeft: fieldBox.left,
         fieldRight: fieldBox.right,
         fontSize: getComputedStyle(input).fontSize,
+        borderWidth: getComputedStyle(field).borderTopWidth,
         iconRight: icon?.getBoundingClientRect().right,
         iconVisible: !!icon && icon.getBoundingClientRect().width > 0,
       };
@@ -152,16 +163,21 @@ async function testNotion(page, viewport) {
   assert.ok(layout.dialogScrollWidth <= layout.dialogWidth, `${label}: no horizontal dialog overflow`);
   assert.equal(layout.fields.length, 5, `${label}: token and four source IDs render`);
   for (const field of layout.fields) {
+    assert.ok(field.height >= 44 && field.height <= 58.625, `${label}: ${field.label} stays within the prior 58.625px height and keeps a touch target`);
     assert.ok(field.labelWidth > 0, `${label}: ${field.label} label is visible`);
     assert.ok(field.labelScrollWidth <= field.labelWidth + 1, `${label}: ${field.label} label is not clipped`);
     assert.ok(field.labelBottom <= field.inputTop + 1, `${label}: ${field.label} sits above its value`);
     assert.ok(field.inputLeft >= field.fieldLeft && field.inputRight <= field.fieldRight, `${label}: ${field.label} value stays inside its border`);
+    assert.ok(field.inputHeight >= 38, `${label}: ${field.label} input keeps its 38px touch target`);
     assert.ok(Number.parseFloat(field.fontSize) >= 16, `${label}: ${field.label} value stays at least 16px`);
+    assert.equal(field.borderWidth, '1px', `${label}: ${field.label} keeps its border`);
   }
   assert.equal(layout.fields[0].iconVisible, true, `${label}: token status icon is visible`);
   assert.ok(layout.fields[0].iconRight <= layout.fields[0].inputRight, `${label}: token status icon stays inside the input`);
   assert.equal(layout.tokenFieldOutline, '3px', `${label}: focus appears on the bordered token field`);
   assert.equal(layout.tokenInputOutlineStyle, 'none', `${label}: token input does not draw a duplicate outline`);
+  await page.locator('#connection-settings .form-field--connection .form-field-label').first().click();
+  assert.equal(await page.evaluate(() => document.activeElement.name), 'token', `${label}: clicking the persistent label focuses its input`);
   await page.screenshot({ path: new URL(`./notion-${viewport.name}.png`, import.meta.url).pathname });
   results.push({ kind: 'notion', viewport: viewport.name, layout });
 }
@@ -174,8 +190,10 @@ async function testPicker(page, viewport) {
     view.showRecordForm();
   });
   await page.waitForFunction(() => document.querySelector('.entry-dialog[open]'));
+  await settleDialog(page, '.entry-dialog[open]');
   await page.locator('.search-picker-trigger').first().click();
   await page.waitForFunction(() => document.querySelector('.option-picker-dialog[open]'));
+  await settleDialog(page, '.option-picker-dialog[open]');
   const search = page.locator('.option-picker-dialog[open] [data-option-picker-search]');
   await search.focus();
   const layout = await page.evaluate(() => {

@@ -1,0 +1,907 @@
+{
+  "baseline": "0e0c2f3:pwa/styles.css",
+  "passed": true,
+  "results": [
+    {
+      "width": 320,
+      "before": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "dialogWidth": 318,
+        "dialogScrollWidth": 318,
+        "dialogScrollHeight": 541,
+        "fields": [
+          {
+            "label": "통합 토큰",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 290,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": true,
+            "iconLeft": 274,
+            "iconRight": 292,
+            "inputRight": 305
+          },
+          {
+            "label": "원두 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 290,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 305
+          },
+          {
+            "label": "레시피 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 290,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 305
+          },
+          {
+            "label": "레시피 단계 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 290,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 305
+          },
+          {
+            "label": "추출 기록 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 290,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 305
+          }
+        ]
+      },
+      "after": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "dialogWidth": 318,
+        "dialogScrollWidth": 318,
+        "dialogScrollHeight": 536,
+        "fields": [
+          {
+            "label": "통합 토큰",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 268,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": true,
+            "iconLeft": 263,
+            "iconRight": 281,
+            "inputRight": 294
+          },
+          {
+            "label": "원두 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 268,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 294
+          },
+          {
+            "label": "레시피 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 268,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 294
+          },
+          {
+            "label": "레시피 단계 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 268,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 294
+          },
+          {
+            "label": "추출 기록 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 268,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 294
+          }
+        ]
+      },
+      "focus": {
+        "fieldWidth": "3px",
+        "fieldStyle": "solid",
+        "inputStyle": "none"
+      }
+    },
+    {
+      "width": 390,
+      "before": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "dialogWidth": 388,
+        "dialogScrollWidth": 388,
+        "dialogScrollHeight": 516,
+        "fields": [
+          {
+            "label": "통합 토큰",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 360,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": true,
+            "iconLeft": 344,
+            "iconRight": 362,
+            "inputRight": 375
+          },
+          {
+            "label": "원두 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 360,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 375
+          },
+          {
+            "label": "레시피 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 360,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 375
+          },
+          {
+            "label": "레시피 단계 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 360,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 375
+          },
+          {
+            "label": "추출 기록 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 360,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 375
+          }
+        ]
+      },
+      "after": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "dialogWidth": 388,
+        "dialogScrollWidth": 388,
+        "dialogScrollHeight": 511,
+        "fields": [
+          {
+            "label": "통합 토큰",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 338,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": true,
+            "iconLeft": 333,
+            "iconRight": 351,
+            "inputRight": 364
+          },
+          {
+            "label": "원두 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 338,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 364
+          },
+          {
+            "label": "레시피 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 338,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 364
+          },
+          {
+            "label": "레시피 단계 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 338,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 364
+          },
+          {
+            "label": "추출 기록 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 338,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 364
+          }
+        ]
+      },
+      "focus": {
+        "fieldWidth": "3px",
+        "fieldStyle": "solid",
+        "inputStyle": "none"
+      }
+    },
+    {
+      "width": 601,
+      "before": {
+        "viewport": 601,
+        "pageWidth": 601,
+        "dialogWidth": 567,
+        "dialogScrollWidth": 567,
+        "dialogScrollHeight": 522,
+        "fields": [
+          {
+            "label": "통합 토큰",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 523,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": true,
+            "iconLeft": 531,
+            "iconRight": 549,
+            "inputRight": 562
+          },
+          {
+            "label": "원두 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 523,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 562
+          },
+          {
+            "label": "레시피 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 523,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 562
+          },
+          {
+            "label": "레시피 단계 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 523,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 562
+          },
+          {
+            "label": "추출 기록 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 523,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 562
+          }
+        ]
+      },
+      "after": {
+        "viewport": 601,
+        "pageWidth": 601,
+        "dialogWidth": 567,
+        "dialogScrollWidth": 567,
+        "dialogScrollHeight": 517,
+        "fields": [
+          {
+            "label": "통합 토큰",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 501,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": true,
+            "iconLeft": 520,
+            "iconRight": 538,
+            "inputRight": 551
+          },
+          {
+            "label": "원두 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 501,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 551
+          },
+          {
+            "label": "레시피 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 501,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 551
+          },
+          {
+            "label": "레시피 단계 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 501,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 551
+          },
+          {
+            "label": "추출 기록 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 501,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 551
+          }
+        ]
+      },
+      "focus": {
+        "fieldWidth": "3px",
+        "fieldStyle": "solid",
+        "inputStyle": "none"
+      }
+    },
+    {
+      "width": 640,
+      "before": {
+        "viewport": 640,
+        "pageWidth": 640,
+        "dialogWidth": 606,
+        "dialogScrollWidth": 606,
+        "dialogScrollHeight": 522,
+        "fields": [
+          {
+            "label": "통합 토큰",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 562,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": true,
+            "iconLeft": 570,
+            "iconRight": 588,
+            "inputRight": 601
+          },
+          {
+            "label": "원두 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 562,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 601
+          },
+          {
+            "label": "레시피 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 562,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 601
+          },
+          {
+            "label": "레시피 단계 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 562,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 601
+          },
+          {
+            "label": "추출 기록 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 562,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 601
+          }
+        ]
+      },
+      "after": {
+        "viewport": 640,
+        "pageWidth": 640,
+        "dialogWidth": 606,
+        "dialogScrollWidth": 606,
+        "dialogScrollHeight": 517,
+        "fields": [
+          {
+            "label": "통합 토큰",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 540,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": true,
+            "iconLeft": 559,
+            "iconRight": 577,
+            "inputRight": 590
+          },
+          {
+            "label": "원두 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 540,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 590
+          },
+          {
+            "label": "레시피 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 540,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 590
+          },
+          {
+            "label": "레시피 단계 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 540,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 590
+          },
+          {
+            "label": "추출 기록 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 540,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 590
+          }
+        ]
+      },
+      "focus": {
+        "fieldWidth": "3px",
+        "fieldStyle": "solid",
+        "inputStyle": "none"
+      }
+    },
+    {
+      "width": 768,
+      "before": {
+        "viewport": 768,
+        "pageWidth": 768,
+        "dialogWidth": 718,
+        "dialogScrollWidth": 718,
+        "dialogScrollHeight": 522,
+        "fields": [
+          {
+            "label": "통합 토큰",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 674,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": true,
+            "iconLeft": 690,
+            "iconRight": 708,
+            "inputRight": 721
+          },
+          {
+            "label": "원두 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 674,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 721
+          },
+          {
+            "label": "레시피 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 674,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 721
+          },
+          {
+            "label": "레시피 단계 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 674,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 721
+          },
+          {
+            "label": "추출 기록 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 674,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 721
+          }
+        ]
+      },
+      "after": {
+        "viewport": 768,
+        "pageWidth": 768,
+        "dialogWidth": 718,
+        "dialogScrollWidth": 718,
+        "dialogScrollHeight": 517,
+        "fields": [
+          {
+            "label": "통합 토큰",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 652,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": true,
+            "iconLeft": 679,
+            "iconRight": 697,
+            "inputRight": 710
+          },
+          {
+            "label": "원두 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 652,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 710
+          },
+          {
+            "label": "레시피 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 652,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 710
+          },
+          {
+            "label": "레시피 단계 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 652,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 710
+          },
+          {
+            "label": "추출 기록 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 652,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 710
+          }
+        ]
+      },
+      "focus": {
+        "fieldWidth": "3px",
+        "fieldStyle": "solid",
+        "inputStyle": "none"
+      }
+    },
+    {
+      "width": 1280,
+      "before": {
+        "viewport": 1280,
+        "pageWidth": 1280,
+        "dialogWidth": 718,
+        "dialogScrollWidth": 718,
+        "dialogScrollHeight": 522,
+        "fields": [
+          {
+            "label": "통합 토큰",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 674,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": true,
+            "iconLeft": 946,
+            "iconRight": 964,
+            "inputRight": 977
+          },
+          {
+            "label": "원두 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 674,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 977
+          },
+          {
+            "label": "레시피 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 674,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 977
+          },
+          {
+            "label": "레시피 단계 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 674,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 977
+          },
+          {
+            "label": "추출 기록 데이터 소스 ID",
+            "height": 58.625,
+            "inputHeight": 38,
+            "inputWidth": 674,
+            "fontSize": "16px",
+            "borderWidth": "0px",
+            "paddingBlock": "0px",
+            "gap": "4px",
+            "iconVisible": false,
+            "inputRight": 977
+          }
+        ]
+      },
+      "after": {
+        "viewport": 1280,
+        "pageWidth": 1280,
+        "dialogWidth": 718,
+        "dialogScrollWidth": 718,
+        "dialogScrollHeight": 517,
+        "fields": [
+          {
+            "label": "통합 토큰",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 652,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": true,
+            "iconLeft": 935,
+            "iconRight": 953,
+            "inputRight": 966
+          },
+          {
+            "label": "원두 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 652,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 966
+          },
+          {
+            "label": "레시피 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 652,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 966
+          },
+          {
+            "label": "레시피 단계 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 652,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 966
+          },
+          {
+            "label": "추출 기록 데이터 소스 ID",
+            "height": 57.59375,
+            "inputHeight": 38,
+            "inputWidth": 652,
+            "fontSize": "16px",
+            "borderWidth": "1px",
+            "paddingBlock": "0px",
+            "gap": "2px",
+            "iconVisible": false,
+            "inputRight": 966
+          }
+        ]
+      },
+      "focus": {
+        "fieldWidth": "3px",
+        "fieldStyle": "solid",
+        "inputStyle": "none"
+      }
+    }
+  ],
+  "errors": []
+}

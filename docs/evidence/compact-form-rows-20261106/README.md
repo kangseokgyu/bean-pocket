@@ -20,15 +20,24 @@ The fourth browser check exited with code 1 because the picker trigger renders a
 
 The fifth browser check exited with code 1 because the preview's `view.bind()` stub omitted the `setDirty` callback used by form input events. The fixture now provides that callback.
 
+The first height comparison sampled the dialog's 160 ms opening animation. The comparison now waits for that animation to finish before reading field bounds.
+
 ## Browser checks
 
 `verify-layout.mjs` checks 320 px, 390 px, desktop, and a 320 px high viewport. It checks the bean and recipe rows, Notion fields, and the record selection picker. Screenshots and measured results are stored beside this file.
 
+## Critic review
+
+The first layout made each Notion field 78.594 px tall, up from the main baseline of 58.625 px. The extra wrapper padding increased the five-field connection form by 100 px at phone widths. The review and its baseline measurements are in [review.md](review.md) and [critic-layout-results.json](critic-layout-results.json).
+
+The revision removes vertical wrapper padding and reduces the label-to-value gap to 2 px. With the same preview DOM, Chrome measured all five fields at 57.594 px at 320 px, 390 px, 601 px, 640 px, 768 px, and 1280 px. At 320 px, dialog scroll height fell from 541 px to 536 px. At 390 px, it fell from 516 px to 511 px. The 38 px input, 16 px text, outer border, focus ring, label activation, and token icon placement remained intact. See [the height comparison](notion-height-comparison.json) and [its command log](notion-height-comparison.txt).
+
 ## Final checks
 
 - `npm test` exited with code 0. All 748 tests passed. See [the test log](npm-test.txt).
-- `npm run build:pages` exited with code 0 and produced build `f1f870413165`. See [the build log](build-pages.txt).
+- `npm run build:pages` exited with code 0 and produced build `3a674801afe0`. See [the build log](build-pages.txt).
 - `npm run check:pages` exited with code 0. See [the page check log](check-pages.txt).
-- `node docs/evidence/compact-form-rows-20261106/verify-layout.mjs` exited with code 0. Chrome checked 16 cases with no page errors. See [the browser results](browser-results.json) and [the browser log](browser-validation.txt).
+- `node docs/evidence/compact-form-rows-20261106/verify-layout.mjs` exited with code 0. Chrome checked 16 cases with no page errors and enforced the 58.625 px Notion field limit. See [the browser results](browser-results.json) and [the browser log](browser-validation.txt).
+- `node docs/evidence/compact-form-rows-20261106/compare-notion-height.mjs` exited with code 0. Chrome compared main CSS with the revised CSS at six widths. See [the height comparison](notion-height-comparison.json).
 
 The 390 px by 320 px viewport approximates the reduced screen area while a keyboard is open. The check did not run on an iPhone and did not open an iOS keyboard.

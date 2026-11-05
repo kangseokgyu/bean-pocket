@@ -1,0 +1,14 @@
+node:internal/modules/run_main:104
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: 320px: baseline 통합 토큰 height is 58.13690185546875px, expected 58.625px
+    at file:///private/tmp/ax-compact-form-rows-20261106/docs/evidence/compact-form-rows-20261106/compare-notion-height.mjs:83:14 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '=='
+}
+
+Node.js v23.4.0

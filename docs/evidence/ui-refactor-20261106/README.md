@@ -29,6 +29,8 @@ The helper DOM tests initially failed because `pwa/ui/shared/dom.mjs` did not ex
 | `npm test` | Exit 0. 756 passed, 0 failed. | [r1/npm-test.log](r1/npm-test.log) |
 | `npm run build:pages` | Exit 0. Pages build `4d78a122c7b1`. | [r1/build-pages.log](r1/build-pages.log) |
 | `npm run check:pages` | Exit 0. Artifact and security checks passed. | [r1/check-pages.log](r1/check-pages.log) |
+| Critic independent focused suite | Exit 0. 36 passed, 0 failed. | [r1/critic-focused.log](r1/critic-focused.log) |
+| Critic independent view suite | Exit 0. 191 passed, 0 failed. | [r1/critic-view.log](r1/critic-view.log) |
 
 R1 also updates the module allowlist, text scan, byte/hash coverage, service-worker cache and expected app-file list, SVG exception scope, and import-closure check. `ui/shared/icons.mjs` is the only new helper module exempted for direct SVG element constructors. The view facade and button modules remain subject to external-URL rejection. The main-owned browser baseline and artifacts were not changed.
 

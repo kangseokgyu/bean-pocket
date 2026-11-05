@@ -1,0 +1,44 @@
+✔ PWA check path draws from the short stroke to the long stroke (0.429459ms)
+✔ server check path draws from the short stroke to the long stroke (0.073ms)
+✔ PWA action and status checks share the approved motion and reduced-motion behavior (0.44675ms)
+✔ server action checks use the approved motion and reduced-motion behavior (0.271834ms)
+✔ Pages 빌드는 삭제된 추출 기록 데모와 링크·캐시를 다시 공급하지 않는다 (81.14775ms)
+✔ Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록을 만든다 (31.304208ms)
+✔ 검사기는 공개 데모 자산의 외부 URL과 루트 절대 경로를 거부한다 (50.716959ms)
+✔ 검사기는 누락 파일과 허용 목록 밖 산출물을 거부한다 (44.135916ms)
+✔ 검사기는 루트 절대 경로와 허용 파일 안의 비밀값을 거부한다 (49.76025ms)
+✔ 검사기는 Service Worker가 API 경로를 앱 캐시에 넣는 변경을 거부한다 (25.585667ms)
+✔ 검사기는 scope별 캐시 namespace가 빠진 Service Worker를 거부한다 (34.033292ms)
+✔ 검사기는 HTTP 캐시를 우회하지 않는 Service Worker precache를 거부한다 (32.124042ms)
+✔ 빌더는 필수 소스 누락과 소스 심볼릭 링크를 거부한다 (46.155709ms)
+✔ builder rejects a nested UI source directory symlink (21.771125ms)
+✔ 빌더는 symlink 부모 경로로 소스를 출력 경로로 지정해도 원본을 보존한다 (6.752875ms)
+✔ 검사기는 산출물 심볼릭 링크와 잘못된 dist 루트를 거부한다 (27.457708ms)
+✔ 실제 PWA 소스에는 API 호출이나 외부 요청이 없고 하위 경로 자원만 쓴다 (24.436625ms)
+✔ Service Worker install·activate·fetch는 scope를 격리하고 앱 파일만 다룬다 (26.47725ms)
+✔ 빌드 hash는 같은 소스에서 재현되고 소스 변경 시 바뀐다 (50.983167ms)
+✔ BP logo is supplied byte-for-byte, cached offline, and changes the build version (36.008083ms)
+✔ homepage brew illustration ships byte-for-byte, is cached offline, and changes the build version (39.045708ms)
+✔ server-page demo records mark their generated v2 snapshot valid (4.365958ms)
+✔ public save updates the spinner icon with pending, success, and restored states (1.174625ms)
+✔ public save keeps actual success feedback visible before closing the dialog (0.714ms)
+✔ product commands, UI and lifecycle ship byte-for-byte and all affect the release version (372.961959ms)
+✔ PWA view import closure is present in the published precache (56.017084ms)
+✔ production records insights resolve domain logic inside the Pages bundle (43.789125ms)
+✔ commands/UI directory symlinks cannot bypass the source boundary (38.884875ms)
+✔ release checker rejects activation moved outside the handshake, aliases and removed guards (104.647375ms)
+✔ SVG namespace is allowed only in UI element creation, never as a request URL (89.230542ms)
+✔ shared DOM helper creates text nodes with the requested class (0.483458ms)
+✔ shared SVG helpers preserve local icon paths and decorative markers (0.239084ms)
+✔ shared buttons preserve action selectors and accessible progress states (0.474666ms)
+✔ shared form helpers preserve field names, labels, fieldsets, and action controls (0.518959ms)
+✔ shared dialog helpers retain entry dialog semantics and native fallback (0.124375ms)
+✔ pull refresh spinner keeps twelve decorative spokes (0.129542ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 792.191125

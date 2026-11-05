@@ -17,7 +17,7 @@ createAppController retains its current options object and its returned methods:
 ## Behavior contracts to preserve
 
 - Keep route names, element order where users and tests depend on it, IDs, classes, data actions, labels, and accessibility attributes.
-- Keep form and modal node identity, field values, selection, dirty state, and focus through route changes, data renders, and connection changes.
+- Preserve the existing draft and field restoration across route and data renders. Keep the active dialog node, values, and focus in the existing in-place `renderData` paths; route and connection transitions retain their existing rebuild/reset behavior.
 - Keep cancel paths local. They clear the relevant draft and never submit or change the journal.
 - Keep loading, success, error, unknown, and partial states distinct. Preserve button spinners and avoid duplicate progress toasts.
 - Keep favorite updates, picker text and selection, search generations, query cursors, route aborts, connection revisions, cache TTL and invalidation independent.

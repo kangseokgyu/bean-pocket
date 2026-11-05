@@ -118,6 +118,8 @@ class TestElement {
     return result;
   }
   matches(selector) {
+    const descendant = selector.match(/^(\.[\w-]+)\s+(\.[\w-]+|\[[^\]]+\])$/);
+    if (descendant) return this.matches(descendant[2]) && Boolean(this.parentElement?.closest(descendant[1]));
     const attr = selector.match(/\[([^\]=]+)(?:="([^"]*)")?\]/);
     const tag = selector.match(/^[a-z][a-z0-9-]*/i)?.[0]?.toLowerCase();
     const classes = [...selector.matchAll(/\.([a-z0-9_-]+)/gi)].map(match => match[1]);
@@ -1802,6 +1804,8 @@ test('navigation exposes a guarded center action beside its four accessible rout
     await listener({ target: start });
   }
   assert.equal(view.currentRoute(), '/brew/bean', 'the action starts the existing bean selection flow');
+  assert.equal(start.getAttribute('aria-current'), 'page', 'starting a brew selects its center control');
+  assert.equal(items[0].getAttribute('aria-current'), null, 'starting a brew clears the home selection');
 
   view.renderRoute('/home');
   view.setState({ pending: true });
@@ -1810,6 +1814,31 @@ test('navigation exposes a guarded center action beside its four accessible rout
     await listener({ target: start });
   }
   assert.equal(view.currentRoute(), '/home', 'a pending operation cannot start another brew');
+});
+
+test('brewing routes select only the center action and restore route selection on exit', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+  const items = document.root.querySelector('nav.tabs').querySelectorAll('button');
+  const routes = [
+    ['/home', 0],
+    ['/brew/bean', 2],
+    [`/brew/recipe?beanId=${BEAN}`, 2],
+    [`/brew/run?beanId=${BEAN}&recipeId=${RECIPE}`, 2],
+    ['/beans', 1],
+    ['/recipes', 3],
+    ['/records', 4],
+    ['/home', 0],
+  ];
+  for (const [route, selected] of routes) {
+    view.renderRoute(route);
+    assert.deepEqual(
+      items.map(item => item.getAttribute('aria-current')),
+      items.map((_, index) => index === selected ? 'page' : null),
+      `${route} marks only its own navigation control as current`
+    );
+  }
 });
 
 test('narrow-screen navigation stays outside the page pull transform', () => {

@@ -3732,10 +3732,9 @@ function markInvalidField(form, field) {
 
 function updateNavigationCurrent(document, route) {
   const section = routePath(route).split('/').filter(Boolean)[0] ?? 'home';
-  const selected = section === 'brew' ? 'home' : section;
-  document.querySelectorAll('.tabs [data-route]').forEach(item => {
-    const key = item.dataset.route.split('/').filter(Boolean)[0];
-    if (key === selected) item.setAttribute('aria-current', 'page');
+  document.querySelectorAll('.tabs .nav-item').forEach(item => {
+    const key = item.dataset.navKind === 'action' ? 'brew' : item.dataset.route.split('/').filter(Boolean)[0];
+    if (key === section) item.setAttribute('aria-current', 'page');
     else item.removeAttribute('aria-current');
   });
 }

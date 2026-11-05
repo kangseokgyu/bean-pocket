@@ -577,6 +577,41 @@ test('favorite checkbox encodes, decodes with boolean, and supports updateFavori
   assert.deepEqual(patchBody.properties['즐겨찾기'], { checkbox: true });
 });
 
+test('a favorite save verifies one schema, reads its target page, and patches only the checkbox', async () => {
+  const { client, calls } = harness((url, init) => {
+    if (url.endsWith('/data_sources/' + SOURCES.beans)) return response(200, source('beans'));
+    if (url.endsWith('/pages/' + PAGE) && init.method === 'PATCH') {
+      return response(200, page(PAGE, 'beans', { properties: JSON.parse(init.body).properties }));
+    }
+    if (url.endsWith('/pages/' + PAGE) && init.method === 'GET') return response(200, page(PAGE, 'beans'));
+    return response(404, {});
+  });
+
+  await client.verify(['beans']);
+  const updated = await client.updateFavorite('beans', PAGE, true);
+
+  assert.equal(updated.favorite, true);
+  assert.deepEqual(calls.map(call => [call.init.method, new URL(call.url).pathname]), [
+    ['GET', '/v1/data_sources/' + SOURCES.beans],
+    ['GET', '/v1/pages/' + PAGE],
+    ['PATCH', '/v1/pages/' + PAGE],
+  ]);
+  assert.deepEqual(JSON.parse(calls[2].init.body), { properties: { '즐겨찾기': { checkbox: true } } });
+});
+
+test('favorite writes reject a foreign, archived, or trashed page before patching', async () => {
+  for (const extra of [
+    { parent: { type: 'data_source_id', data_source_id: SOURCES.recipes } },
+    { archived: true },
+    { in_trash: true },
+  ]) {
+    const { client, calls } = await recordsHarness((url, init) =>
+      response(200, page(PAGE, 'beans', init.method === 'GET' ? extra : { properties: JSON.parse(init.body).properties })));
+    await assert.rejects(client.updateFavorite('beans', PAGE, true), error => error.code === 'invalid-target' && error.writeState === 'not-sent');
+    assert.deepEqual(calls.map(call => call.init.method), ['GET']);
+  }
+});
+
 test('createPage omits favorite when schema does not support favorite', async () => {
   const { client, calls } = await recordsHarness((url, init) => {
     const method = init?.method ?? 'GET';

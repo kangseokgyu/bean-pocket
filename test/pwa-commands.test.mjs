@@ -655,8 +655,14 @@ test('bag operations are unavailable and a legacy bagId record payload is reject
 test('favorite commands save an explicit value under the lock and reject missing latest targets', async () => {
   const h = harness({ rows: { ...blankRows(), beans: [bean()] } });
   const writes = [];
+  let readAllCalls = 0;
+  const readAll = h.repository.readAll;
+  h.repository.readAll = async () => { readAllCalls += 1; return readAll(); };
   h.client.updateFavorite = async (kind, id, favorite) => {
     assert.equal(h.isLocked(), true);
+    if (!h.rows[kind].some(item => item.id === id)) {
+      throw Object.freeze({ code: 'invalid-target', writeState: 'not-sent' });
+    }
     writes.push({ kind, id, favorite });
     return { id, favorite };
   };
@@ -668,4 +674,5 @@ test('favorite commands save an explicit value under the lock and reject missing
   h.rows.beans = [];
   assert.equal((await h.commands.execute(await h.commands.prepareFavoriteBean({ id: IDS.bean, favorite: false }))).status, 'failed');
   assert.equal(writes.length, 2);
+  assert.equal(readAllCalls, 0, 'favorite writes validate the target page directly instead of reading every source');
 });

@@ -754,8 +754,8 @@ export function createAppView(document = globalThis.document, {
     const params = routeParams(route);
     const routeQuery = params.get('q') ?? '';
     const query = search.value;
-    const cachedPage = optionPages.get(`brew:${kind}`);
-    const hasMatchingPage = cachedPage?.scope === brewOptionScope(route, kind) && cachedPage.query === query;
+    const cachedPage = cachedBrewOptionPage(optionPages, kind, route);
+    const hasMatchingPage = cachedPage?.query === query;
     if (!hasMatchingPage && query !== routeQuery) return true;
     const page = hasMatchingPage ? cachedPage : {
       items: kind === 'beans' ? currentData.beans ?? [] : currentData.recipes ?? [],
@@ -1637,9 +1637,15 @@ function brewOptionScope(route, kind) {
   return `${kind === 'recipes' ? routeParams(route).get('beanId') ?? '' : 'beans'}|${routeParams(route).get('favorite') === 'true'}`;
 }
 
-function brewOptionPage(data, optionPages, kind, routeQuery, route) {
+function cachedBrewOptionPage(optionPages, kind, route) {
   const cached = optionPages.get(`brew:${kind}`);
-  if (cached && Date.now() - cached.savedAt < 60000 && cached.scope === brewOptionScope(route, kind) && (!routeQuery || cached.query === routeQuery)) return cached;
+  return cached && Date.now() - cached.savedAt < 60000 && cached.scope === brewOptionScope(route, kind)
+    ? cached : null;
+}
+
+function brewOptionPage(data, optionPages, kind, routeQuery, route) {
+  const cached = cachedBrewOptionPage(optionPages, kind, route);
+  if (cached && (!routeQuery || cached.query === routeQuery)) return cached;
   return { items: kind === 'beans' ? data.beans ?? [] : data.recipes ?? [],
     nextCursor: data.screen?.nextCursor ?? null, hasMore: !!data.screen?.hasMore,
     complete: data.screen?.complete !== false, query: routeQuery };

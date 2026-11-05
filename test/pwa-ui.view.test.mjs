@@ -4473,6 +4473,44 @@ for (const kind of ['beans', 'recipes']) {
   });
 }
 
+for (const kind of ['beans', 'recipes']) {
+  test(`brew ${kind} same-route refresh ignores expired search option pages`, () => {
+    const document = new TestDocument();
+    const view = createBeanView(document);
+    const route = kind === 'beans' ? '/brew/bean' : `/brew/recipe?beanId=${BEAN}`;
+    const current = data();
+    view.renderData(current);
+    view.renderRoute(route);
+    view.renderData(current);
+
+    const search = document.root.querySelector(`[data-option-search-kind="${kind}"]`);
+    search.focus();
+    const ancestors = ancestorChain(search);
+    const expiredItem = kind === 'beans'
+      ? { id: 'expired-bean', name: '만료된 원두', status: 'ready' }
+      : { ...current.recipes[0], id: 'expired-recipe', name: '만료된 레시피' };
+    view.setSearchOptions('brew', kind, { items: [expiredItem], hasMore: false, complete: true }, false, '');
+
+    const originalNow = Date.now;
+    const savedAt = originalNow();
+    Date.now = () => savedAt + 61000;
+    try {
+      const refreshedItems = kind === 'beans'
+        ? [{ id: 'fresh-bean', name: '갱신된 원두', origin: '시다마' }]
+        : [{ ...current.recipes[0], id: 'fresh-recipe', name: '갱신된 레시피' }];
+      view.renderData({ ...current, [kind]: refreshedItems });
+    } finally {
+      Date.now = originalNow;
+    }
+
+    assertSameAncestorChain(search, ancestors);
+    assert.equal(document.activeElement === search, true, 'expired-page refresh keeps focus on the original input');
+    const results = document.root.querySelector('.brew-option-results').textContent;
+    assert.match(results, kind === 'beans' ? /갱신된 원두/ : /갱신된 레시피/);
+    assert.doesNotMatch(results, kind === 'beans' ? /만료된 원두/ : /만료된 레시피/);
+  });
+}
+
 test('brew search ignores a response for the previous query during the next debounce', async () => {
   const document = new TestDocument();
   const view = createBeanView(document);

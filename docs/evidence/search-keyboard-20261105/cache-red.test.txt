@@ -1,0 +1,84 @@
+✖ brew beans same-route refresh ignores expired search option pages (9.000041ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /갱신된 원두/. Input:
+  
+  '만료된 원두이 원두로 내리기 →'
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:4509:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '만료된 원두이 원두로 내리기 →',
+    expected: /갱신된 원두/,
+    operator: 'match'
+  }
+
+✖ brew recipes same-route refresh ignores expired search option pages (3.9625ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /갱신된 레시피/. Input:
+  
+  '만료된 레시피15g · 93℃ · 물 250g · 2단계이 레시피로 준비하기 →'
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:4509:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '만료된 레시피15g · 93℃ · 물 250g · 2단계이 레시피로 준비하기 →',
+    expected: /갱신된 레시피/,
+    operator: 'match'
+  }
+
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 98.554833
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:4477:3
+✖ brew beans same-route refresh ignores expired search option pages (9.000041ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /갱신된 원두/. Input:
+  
+  '만료된 원두이 원두로 내리기 →'
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:4509:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '만료된 원두이 원두로 내리기 →',
+    expected: /갱신된 원두/,
+    operator: 'match'
+  }
+
+test at test/pwa-ui.view.test.mjs:4477:3
+✖ brew recipes same-route refresh ignores expired search option pages (3.9625ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /갱신된 레시피/. Input:
+  
+  '만료된 레시피15g · 93℃ · 물 250g · 2단계이 레시피로 준비하기 →'
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:4509:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '만료된 레시피15g · 93℃ · 물 250g · 2단계이 레시피로 준비하기 →',
+    expected: /갱신된 레시피/,
+    operator: 'match'
+  }

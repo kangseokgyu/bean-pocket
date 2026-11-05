@@ -1,0 +1,15 @@
+✔ brew search pages render validated options and keep pagination controls (11.96125ms)
+✔ brew beans same-route refresh and option results keep the focused search subtree (3.638959ms)
+✔ brew recipes same-route refresh and option results keep the focused search subtree (3.387958ms)
+✔ brew search ignores a response for the previous query during the next debounce (282.572792ms)
+✔ brew search defers composition results and scopes the ended composition to its route (843.569125ms)
+✔ brew selection navigation and connection changes still replace the route content (5.374291ms)
+✔ brew name search is visibly labeled and a no-result query can return to the full list (7.449959ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1242.618167

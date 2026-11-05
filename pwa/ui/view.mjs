@@ -327,6 +327,7 @@ export function createAppView(document = globalThis.document, {
   globalThis.visualViewport?.addEventListener('resize', () => syncStatusToast());
   page.addEventListener('scroll', () => syncStatusToast(), true);
   let currentData = null;
+  let renderedConnectionRevision = null;
   let route = normalizeRoute(globalThis.location?.hash?.slice(1) || '/home');
   let routeNeedsDataRender = true;
   const routeHiddenChildren = new Set();
@@ -740,12 +741,49 @@ export function createAppView(document = globalThis.document, {
       insightCompareRightId = records[0].id;
     }
   }
+  function refreshBrewOptionResults() {
+    const path = routePath(route);
+    const kind = path === '/brew/bean' ? 'beans' : path === '/brew/recipe' ? 'recipes' : null;
+    if (!kind || currentData?.screen?.error) return false;
+    const pane = content.querySelector('.brew-flow-pane');
+    const results = pane?.querySelector('.brew-option-results');
+    const search = pane?.querySelector(`[data-option-search-kind="${kind}"]`);
+    if (!results || !search) return false;
+    if (search.dataset.optionComposing === 'true') return true;
+
+    const params = routeParams(route);
+    const routeQuery = params.get('q') ?? '';
+    const query = search.value;
+    const cachedPage = optionPages.get(`brew:${kind}`);
+    const hasMatchingPage = cachedPage?.scope === brewOptionScope(route, kind) && cachedPage.query === query;
+    if (!hasMatchingPage && query !== routeQuery) return true;
+    const page = hasMatchingPage ? cachedPage : {
+      items: kind === 'beans' ? currentData.beans ?? [] : currentData.recipes ?? [],
+      nextCursor: currentData.screen?.nextCursor ?? null,
+      hasMore: !!currentData.screen?.hasMore,
+      complete: currentData.screen?.complete !== false,
+      query: routeQuery,
+    };
+    const selectedBean = kind === 'recipes'
+      ? currentData.beans?.find(item => item.id === params.get('beanId'))
+      : null;
+    if (kind === 'recipes' && !selectedBean) return false;
+    const selectedId = params.get(kind === 'beans' ? 'selectedBeanId' : 'selectedRecipeId') ?? '';
+    const updated = renderBrewOptionResults(document, kind, selectedBean, selectedId, query, page);
+    results.replaceChildren(...updated.children);
+    if (hasMatchingPage) {
+      search.dataset.optionLoaded = 'true';
+      search.dataset.optionQuery = query;
+    }
+    return true;
+  }
   function renderCurrentContent() {
     syncInsightComparisonSelection();
     renderPane(content, currentData, document, route, drafts, optionPages,
       beanFormOpen, recipeFormOpen, recordFormOpen, optionStates, insightRecipeFilter, insightRatingFilter,
       insightComparisonSort, insightCompareLeftId, insightCompareRightId, recordManagementOpen,
       open => { recordManagementOpen = open; }, currentState.connectionRevision);
+    renderedConnectionRevision = currentState.connectionRevision;
     finishContentRender();
     applyViewState();
   }
@@ -1127,6 +1165,11 @@ export function createAppView(document = globalThis.document, {
         }
         return;
       }
+      if (renderedConnectionRevision === currentState.connectionRevision && refreshBrewOptionResults()) {
+        finishContentRender();
+        applyViewState();
+        return;
+      }
       renderCurrentContent();
     },
     currentRoute() { return route; },
@@ -1159,6 +1202,9 @@ export function createAppView(document = globalThis.document, {
       const cachedPage = optionPages.get(optionKey);
       let previousPage = cachedPage;
       if (target === 'brew') {
+        const search = Array.from(content.querySelectorAll('[data-option-search-kind]'))
+          .find(item => item.dataset.optionTarget === target && item.dataset.optionSearchKind === kind);
+        if (!search || search.dataset.optionComposing === 'true' || search.value !== query) return;
         const sameScope = cachedPage?.scope === brewOptionScope(route, kind);
         previousPage = sameScope && cachedPage?.query === query ? cachedPage : null;
         if (!previousPage && query === (routeParams(route).get('q') ?? '')) {
@@ -1180,7 +1226,17 @@ export function createAppView(document = globalThis.document, {
         });
       if (target === 'brew') {
         optionPages.set(optionKey, { ...page, items: optionItems, query, scope: brewOptionScope(route, kind), savedAt: Date.now() });
-        if (currentData) renderCurrentContent();
+        const search = Array.from(content.querySelectorAll('[data-option-search-kind]'))
+          .find(item => item.dataset.optionTarget === target && item.dataset.optionSearchKind === kind);
+        if (search) {
+          search.dataset.optionLoaded = 'true';
+          search.dataset.optionQuery = query;
+        }
+        if (currentData) {
+          refreshBrewOptionResults();
+          finishContentRender();
+          applyViewState();
+        }
         return;
       }
       const select = Array.from(content.querySelectorAll('[data-option-select-kind]'))
@@ -1589,6 +1645,77 @@ function brewOptionPage(data, optionPages, kind, routeQuery, route) {
     complete: data.screen?.complete !== false, query: routeQuery };
 }
 
+function renderBrewOptionResults(document, kind, selectedBean, selectedId, query, page) {
+  const isBeans = kind === 'beans';
+  const results = make(document, 'div', undefined, 'brew-option-results');
+  const items = [...(page.items ?? [])].sort((left, right) => Number(right.favorite === true) - Number(left.favorite === true));
+  if (!items.length) {
+    const stillLoading = page.hasMore || page.complete === false;
+    const noun = isBeans ? '원두' : '레시피';
+    if (query) {
+      const message = `“${query}” 검색 결과가 없습니다.${stillLoading
+        ? ' 다른 항목도 계속 확인할 수 있습니다.' : ' 입력어를 확인하거나 전체 목록에서 다시 찾아보세요.'}`;
+      results.append(make(document, 'p', message, 'empty-state'));
+      const browseAll = button(document, `전체 ${noun} 보기`, 'button', 'browse-all-brew-options', 'utility');
+      browseAll.dataset.optionTarget = 'brew';
+      browseAll.dataset.optionKind = kind;
+      results.append(browseAll);
+    } else {
+      const message = isBeans
+        ? '원두가 아직 등록되지 않았습니다. 원두를 먼저 등록한 뒤 추출을 시작해 주세요.'
+        : '등록된 레시피가 없습니다. 레시피를 등록한 뒤 다시 선택해 주세요.';
+      results.append(make(document, 'p', stillLoading ? `${message} 다른 항목도 계속 확인할 수 있습니다.` : message, 'empty-state'));
+      if (isBeans) {
+        results.append(routeButton(document, '원두 등록하기', '/beans'));
+        results.append(routeButton(document, '홈으로 돌아가기', '/home'));
+      } else {
+        results.append(routeButton(document, '레시피 메뉴에서 등록하기', '/recipes'));
+        results.append(routeButton(document, '원두 다시 선택', `/brew/bean?selectedBeanId=${encodeURIComponent(selectedBean.id)}`, 'back-to-beans', 'back'));
+      }
+    }
+  }
+
+  const list = make(document, 'div', undefined, 'brew-option-list');
+  for (const item of items) {
+    const card = button(document, undefined, 'button', isBeans ? 'select-brew-bean' : 'select-brew-recipe');
+    card.className = 'button brew-option-card';
+    card.dataset[isBeans ? 'beanId' : 'recipeId'] = item.id;
+    if (!isBeans) card.dataset.beanId = selectedBean.id;
+    card.setAttribute('aria-pressed', String(item.id === selectedId));
+    const ready = isBeans || item.status === 'ready' || item.validationStatus === 'ready' ||
+      (item.status === undefined && item.validationStatus === undefined && Array.isArray(item.steps) && item.steps.length > 0);
+    card.disabled = !ready;
+    if (!isBeans) card.dataset.optionReady = String(ready);
+    card.append(make(document, 'strong', item.name, 'brew-option-name'));
+    if (item.favorite === true) card.append(make(document, 'span', '★ 즐겨찾기', 'muted-note brew-option-favorite'));
+    if (isBeans) {
+      const details = [item.origin, item.roaster].filter(Boolean).join(' · ');
+      if (details) card.append(make(document, 'span', details, 'muted-note brew-option-details'));
+      if (item.id === selectedId) card.append(make(document, 'span', '선택한 원두', 'brew-selected-label'));
+      card.append(make(document, 'span', '이 원두로 내리기 →', 'brew-option-action'));
+    } else {
+      card.append(make(document, 'span', `${item.dose}g · ${item.temperature}℃ · 물 ${item.totalWater}g · ${item.steps?.length ?? 0}단계`, 'brew-option-details'));
+      if (!ready) card.append(make(document, 'span', item.status === 'error' || item.validationStatus === 'error'
+        ? '레시피를 확인할 수 없어 선택할 수 없습니다.' : '레시피 단계를 확인 중입니다.', 'muted-note brew-option-status'));
+      if (item.id === selectedId) card.append(make(document, 'span', '선택한 레시피', 'brew-selected-label'));
+      card.append(make(document, 'span', ready ? '이 레시피로 준비하기 →' : '레시피 단계 확인 후 선택 가능', 'brew-option-action'));
+    }
+    list.append(card);
+  }
+  if (items.length) results.append(list);
+  if (page.hasMore) {
+    const more = routeButton(document, '더 불러오기', '', 'more-options', 'pagination');
+    more.className = 'button button--pagination page-load-more';
+    more.dataset.optionTarget = 'brew';
+    more.dataset.optionKind = kind;
+    more.dataset.nextCursor = page.nextCursor ?? '';
+    results.append(more);
+  } else if (page.complete === false) {
+    results.append(make(document, 'p', '전체 목록을 확인하지 못했습니다. 다시 조회해 주세요.', 'record-warning'));
+  }
+  return results;
+}
+
 function renderUnavailableRoute(pane, document, route, error) {
   const path = routePath(route);
   const params = routeParams(route);
@@ -1643,72 +1770,7 @@ function renderBrewOptions(pane, data, document, route, optionPages, kind, selec
   searchControl.append(search, clearSearch);
   searchField.append(searchControl);
   pane.append(searchField);
-
-  const items = [...(page.items ?? [])].sort((left, right) => Number(right.favorite === true) - Number(left.favorite === true));
-  if (!items.length) {
-    const stillLoading = page.hasMore || page.complete === false;
-    const noun = isBeans ? '원두' : '레시피';
-    if (search.value) {
-      const message = `“${search.value}” 검색 결과가 없습니다.${stillLoading
-        ? ' 다른 항목도 계속 확인할 수 있습니다.' : ' 입력어를 확인하거나 전체 목록에서 다시 찾아보세요.'}`;
-      pane.append(make(document, 'p', message, 'empty-state'));
-      const browseAll = button(document, `전체 ${noun} 보기`, 'button', 'browse-all-brew-options', 'utility');
-      browseAll.dataset.optionTarget = 'brew';
-      browseAll.dataset.optionKind = kind;
-      pane.append(browseAll);
-    } else {
-      const message = isBeans
-        ? '원두가 아직 등록되지 않았습니다. 원두를 먼저 등록한 뒤 추출을 시작해 주세요.'
-        : '등록된 레시피가 없습니다. 레시피를 등록한 뒤 다시 선택해 주세요.';
-      pane.append(make(document, 'p', stillLoading ? `${message} 다른 항목도 계속 확인할 수 있습니다.` : message, 'empty-state'));
-      if (isBeans) {
-        pane.append(routeButton(document, '원두 등록하기', '/beans'));
-        pane.append(routeButton(document, '홈으로 돌아가기', '/home'));
-      } else {
-        pane.append(routeButton(document, '레시피 메뉴에서 등록하기', '/recipes'));
-        pane.append(routeButton(document, '원두 다시 선택', `/brew/bean?selectedBeanId=${encodeURIComponent(selectedBean.id)}`, 'back-to-beans', 'back'));
-      }
-    }
-  }
-
-  const list = make(document, 'div', undefined, 'brew-option-list');
-  for (const item of items) {
-    const card = button(document, undefined, 'button', isBeans ? 'select-brew-bean' : 'select-brew-recipe');
-    card.className = 'button brew-option-card';
-    card.dataset[isBeans ? 'beanId' : 'recipeId'] = item.id;
-    if (!isBeans) card.dataset.beanId = selectedBean.id;
-    card.setAttribute('aria-pressed', String(item.id === selectedId));
-    const ready = isBeans || item.status === 'ready' || item.validationStatus === 'ready' ||
-      (item.status === undefined && item.validationStatus === undefined && Array.isArray(item.steps) && item.steps.length > 0);
-    card.disabled = !ready;
-    if (!isBeans) card.dataset.optionReady = String(ready);
-    card.append(make(document, 'strong', item.name, 'brew-option-name'));
-    if (item.favorite === true) card.append(make(document, 'span', '★ 즐겨찾기', 'muted-note brew-option-favorite'));
-    if (isBeans) {
-      const details = [item.origin, item.roaster].filter(Boolean).join(' · ');
-      if (details) card.append(make(document, 'span', details, 'muted-note brew-option-details'));
-      if (item.id === selectedId) card.append(make(document, 'span', '선택한 원두', 'brew-selected-label'));
-      card.append(make(document, 'span', '이 원두로 내리기 →', 'brew-option-action'));
-    } else {
-      card.append(make(document, 'span', `${item.dose}g · ${item.temperature}℃ · 물 ${item.totalWater}g · ${item.steps?.length ?? 0}단계`, 'brew-option-details'));
-      if (!ready) card.append(make(document, 'span', item.status === 'error' || item.validationStatus === 'error'
-        ? '레시피를 확인할 수 없어 선택할 수 없습니다.' : '레시피 단계를 확인 중입니다.', 'muted-note brew-option-status'));
-      if (item.id === selectedId) card.append(make(document, 'span', '선택한 레시피', 'brew-selected-label'));
-      card.append(make(document, 'span', ready ? '이 레시피로 준비하기 →' : '레시피 단계 확인 후 선택 가능', 'brew-option-action'));
-    }
-    list.append(card);
-  }
-  if (items.length) pane.append(list);
-  if (page.hasMore) {
-    const more = routeButton(document, '더 불러오기', '', 'more-options', 'pagination');
-    more.className = 'button button--pagination page-load-more';
-    more.dataset.optionTarget = 'brew';
-    more.dataset.optionKind = kind;
-    more.dataset.nextCursor = page.nextCursor ?? '';
-    pane.append(more);
-  } else if (page.complete === false) {
-    pane.append(make(document, 'p', '전체 목록을 확인하지 못했습니다. 다시 조회해 주세요.', 'record-warning'));
-  }
+  pane.append(renderBrewOptionResults(document, kind, selectedBean, selectedId, search.value, page));
 }
 
 function brewStepIndicator(pane, document, path) {
@@ -3070,6 +3132,21 @@ function bindEvents({ page, nav, connectionForm, tokenInput, scheduleTokenValida
   const loadOptions = (target, kind, query = '', cursor = null, append = false) => {
     void actions.loadSearchOptions?.(kind, query, cursor, target, append);
   };
+  const scheduleOptionSearch = search => {
+    const { optionSearchKind: kind, optionTarget: targetName } = search.dataset;
+    const key = `${targetName}:${kind}`;
+    const searchRoute = view.currentRoute();
+    const query = search.value;
+    search.dataset.optionLoaded = 'false';
+    view.setSearchOptionsState?.(targetName, kind, { status: 'loading', query });
+    clearTimeout(optionSearchTimers.get(key));
+    const timer = setTimeout(() => {
+      if (optionSearchTimers.get(key) !== timer) return;
+      optionSearchTimers.delete(key);
+      if (view.currentRoute() === searchRoute) loadOptions(targetName, kind, query);
+    }, 250);
+    optionSearchTimers.set(key, timer);
+  };
   const openSearchPicker = picker => {
     const state = actions.getState?.() ?? {};
     if (!picker || state.pending || state.frozen || state.unresolved) return;
@@ -3234,7 +3311,10 @@ function bindEvents({ page, nav, connectionForm, tokenInput, scheduleTokenValida
       const search = pane?.querySelector('[data-option-search-kind]');
       if (!search) return;
       const { optionSearchKind: kind, optionTarget: targetName } = search.dataset;
-      clearTimeout(optionSearchTimers.get(`${targetName}:${kind}`));
+      const key = `${targetName}:${kind}`;
+      clearTimeout(optionSearchTimers.get(key));
+      optionSearchTimers.delete(key);
+      delete search.dataset.optionComposing;
       search.value = '';
       search.dataset.optionLoaded = 'false';
       const clearSearch = pane.querySelector('[data-action="clear-brew-search"]');
@@ -3447,6 +3527,20 @@ function bindEvents({ page, nav, connectionForm, tokenInput, scheduleTokenValida
   page.addEventListener('click', handleClick);
   if (nav.parentElement !== page) nav.addEventListener('click', handleClick);
 
+  content.addEventListener('compositionstart', event => {
+    const search = event.target;
+    if (!search.matches('[data-option-search-kind]') || search.dataset.optionTarget !== 'brew') return;
+    search.dataset.optionComposing = 'true';
+    const key = `${search.dataset.optionTarget}:${search.dataset.optionSearchKind}`;
+    clearTimeout(optionSearchTimers.get(key));
+    optionSearchTimers.delete(key);
+  });
+  content.addEventListener('compositionend', event => {
+    const search = event.target;
+    if (!search.matches('[data-option-search-kind]') || search.dataset.optionTarget !== 'brew') return;
+    delete search.dataset.optionComposing;
+    if (!search.disabled) scheduleOptionSearch(search);
+  });
   content.addEventListener('input', event => {
     if (event.target.disabled) return;
     if (event.target.matches('[data-option-search-kind]')) {
@@ -3454,15 +3548,12 @@ function bindEvents({ page, nav, connectionForm, tokenInput, scheduleTokenValida
       if (targetName === 'brew') {
         const clearSearch = event.target.parentElement?.querySelector('[data-action="clear-brew-search"]');
         if (clearSearch) clearSearch.hidden = !event.target.value;
+        if (event.isComposing || event.target.dataset.optionComposing === 'true') {
+          event.target.dataset.optionLoaded = 'false';
+          return;
+        }
       }
-      const key = `${targetName}:${kind}`;
-      const searchRoute = view.currentRoute();
-      event.target.dataset.optionLoaded = 'false';
-      view.setSearchOptionsState?.(targetName, kind, { status: 'loading', query: event.target.value });
-      clearTimeout(optionSearchTimers.get(key));
-      optionSearchTimers.set(key, setTimeout(() => {
-        if (view.currentRoute() === searchRoute) loadOptions(targetName, kind, event.target.value);
-      }, 250));
+      scheduleOptionSearch(event.target);
       return;
     }
     const form = event.target.form;

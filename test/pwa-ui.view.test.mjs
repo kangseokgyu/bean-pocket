@@ -4881,6 +4881,7 @@ test('critic: initial and later brew pages append uniquely without leaking into 
   current.screen = { route: '/brew/bean', hasMore: true, nextCursor: 'bean-page-2', complete: false };
   view.renderData(current);
   view.renderRoute('/brew/bean');
+  view.bind({});
   view.setSearchOptions('brew', 'beans', { items: [{ id: secondBeanId, name: '두 번째 원두', status: 'ready' }],
     nextCursor: 'bean-page-3', hasMore: true, complete: false }, true, '');
   assert.deepEqual(document.root.querySelectorAll('[data-action="select-brew-bean"]').map(item => item.dataset.beanId),
@@ -4894,6 +4895,9 @@ test('critic: initial and later brew pages append uniquely without leaking into 
   assert.deepEqual(document.root.querySelectorAll('[data-action="select-brew-bean"]').map(item => item.dataset.beanId),
     [BEAN, secondBeanId, thirdBeanId]);
 
+  const search = document.root.querySelector('[data-option-search-kind="beans"]');
+  search.value = '검색';
+  fireBubbling(search, 'input');
   view.setSearchOptions('brew', 'beans', { items: [{ id: secondBeanId, name: '검색 결과 1', status: 'ready' }],
     nextCursor: 'search-page-2', hasMore: true, complete: false }, false, '검색');
   view.setSearchOptions('brew', 'beans', { items: [

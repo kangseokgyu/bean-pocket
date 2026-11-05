@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brew search keyboard preservation flow</title>
+  <style>
+    :root { color-scheme: light; font: 16px/1.5 system-ui, sans-serif; color: #203d32; background: #f5f4ee; }
+    body { max-width: 1120px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1 { margin: 0 0 8px; font-size: clamp(1.6rem, 4vw, 2.2rem); }
+    .lead { max-width: 70ch; margin: 0 0 28px; color: #52645a; }
+    .flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; align-items: stretch; }
+    .step { position: relative; padding: 18px; border: 1px solid #d8d1c3; border-radius: 14px; background: #fffefa; box-shadow: 0 4px 14px #203d320a; }
+    .step h2 { margin: 0 0 8px; font-size: 1rem; }
+    .step p { margin: 0; color: #52645a; font-size: .9rem; }
+    .step code, .branch code { padding: 2px 4px; border-radius: 4px; background: #edf1e9; font-size: .82em; }
+    .number { display: grid; place-items: center; width: 28px; height: 28px; margin-bottom: 12px; border-radius: 50%; color: white; background: #224b3c; font-weight: 700; }
+    .step:not(:last-child)::after { content: '→'; position: absolute; top: 38px; right: -18px; z-index: 1; color: #65816f; font-size: 1.25rem; font-weight: 700; }
+    .branch { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
+    .branch section { padding: 16px 18px; border-radius: 12px; }
+    .keep { border: 1px solid #a9c7af; background: #edf5ee; }
+    .replace { border: 1px solid #d7b798; background: #fbf1e8; }
+    .branch h2 { margin: 0 0 6px; font-size: 1rem; }
+    .branch p { margin: 0; color: #52645a; font-size: .9rem; }
+    .sources { margin-top: 26px; padding-top: 14px; border-top: 1px solid #d8d1c3; color: #52645a; font-size: .85rem; }
+    .sources ul { margin: 6px 0 0; padding-left: 20px; }
+    @media (max-width: 760px) {
+      body { padding-inline: 14px; }
+      .flow { grid-template-columns: 1fr; }
+      .step:not(:last-child)::after { content: '↓'; top: auto; right: 50%; bottom: -22px; }
+      .branch { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Brew search keeps its input mounted</h1>
+  <p class="lead">The brew selection search uses the input's current value as the active query. Search responses update the result area while the focused input and its surrounding route nodes stay in place.</p>
+  <main class="flow" aria-label="Brew search event flow">
+    <section class="step">
+      <span class="number">1</span>
+      <h2>Read input</h2>
+      <p><code>content</code> handles input and composition events. The 250 ms timer captures the query and route.</p>
+    </section>
+    <section class="step">
+      <span class="number">2</span>
+      <h2>Load options</h2>
+      <p><code>loadSearchOptions</code> keeps its existing route, connection, and request generation checks.</p>
+    </section>
+    <section class="step">
+      <span class="number">3</span>
+      <h2>Check active query</h2>
+      <p><code>setSearchOptions</code> ignores a response whose query differs from the mounted input or arrives during composition.</p>
+    </section>
+    <section class="step">
+      <span class="number">4</span>
+      <h2>Replace results only</h2>
+      <p><code>renderBrewOptionResults</code> builds cards, empty states, and paging controls inside the existing result wrapper.</p>
+    </section>
+  </main>
+  <div class="branch" aria-label="Render boundary">
+    <section class="keep">
+      <h2>Same selection route and connection</h2>
+      <p><code>refreshBrewOptionResults</code> updates only the result wrapper. The input, its ancestors, value, and focus remain attached.</p>
+    </section>
+    <section class="replace">
+      <h2>Route or connection changes</h2>
+      <p>The full <code>renderCurrentContent</code> path remains active so the next screen gets fresh route and connection state.</p>
+    </section>
+  </div>
+  <footer class="sources">
+    <strong>Source references</strong>
+    <ul>
+      <li><code>pwa/ui/view.mjs</code>: <code>refreshBrewOptionResults</code>, <code>renderData</code>, and <code>setSearchOptions</code>.</li>
+      <li><code>pwa/ui/controller.mjs</code>: <code>loadSearchOptions</code> retains its existing generation checks.</li>
+      <li><code>pwa/styles.css</code>: <code>.brew-option-results</code> preserves the selection screen spacing.</li>
+    </ul>
+  </footer>
+</body>
+</html>

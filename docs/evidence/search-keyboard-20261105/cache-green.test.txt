@@ -1,0 +1,10 @@
+✔ brew beans same-route refresh ignores expired search option pages (8.408875ms)
+✔ brew recipes same-route refresh ignores expired search option pages (3.945792ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 96.0835

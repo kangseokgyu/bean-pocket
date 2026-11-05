@@ -1,0 +1,18 @@
+{
+  "url": "https://kangseokgyu.github.io/bean-pocket/",
+  "buildVersion": "8532092f19be",
+  "deployedCommit": "235fed229c79ac57f0af5f777d006f1fa58bf963",
+  "workflowRun": "https://github.com/kangseokgyu/bean-pocket/actions/runs/42047892445",
+  "conclusion": "success",
+  "probes": false,
+  "publicVerification": {
+    "files": 27,
+    "allMatch": true,
+    "evidence": "public-files.json",
+    "displayedBuild": "8532092f19be"
+  },
+  "integration": "Fast-forward to main; tested source and build inputs unchanged. CI reran tests, build and artifact check successfully.",
+  "limitations": [
+    "Physical iPhone and live Notion writes not tested"
+  ]
+}

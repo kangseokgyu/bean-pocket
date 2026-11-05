@@ -3,7 +3,10 @@
   "tests": {
     "command": "npm test",
     "exitCode": 0,
-    "log": "/private/tmp/ax-button-size-test-unrestricted.log"
+    "log": "/private/tmp/ax-button-size-test-unrestricted.log",
+    "total": 748,
+    "passed": 748,
+    "failed": 0
   },
   "build": {
     "commands": [

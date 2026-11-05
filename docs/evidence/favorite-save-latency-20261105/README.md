@@ -18,3 +18,19 @@ Worker는 `gpt-6-luna`와 추론 수준 `max`로 실행했다. Critic은 `gpt-6.
 ## 최신 main 통합
 
 기능 커밋 `016b4e7` 이후 원격 main의 검색 화면 개선 `47a5def`를 통합했다. 병합 커밋은 `01d4a4f`이며 충돌은 없었다. 통합 상태에서 `npm test` 748개, `npm run build:pages`, `npm run check:pages`가 모두 통과했다. 빌드 버전은 `d4a802fa340c`다. 로그는 같은 임시 증거 폴더의 `integrated-npm-test.log`, `integrated-build-pages.log`, `integrated-check-pages.log`에 있다.
+
+Critic은 자동 병합된 즐겨찾기 테스트 보존과 view·controller 호환성을 확인하고 통합본도 게시 가능으로 판정했다.
+
+## 게시 결과
+
+main 통합 커밋은 `759e389`다. push 직전 원격에 검색 화면 게시 기록 `cb91208`이 추가되어 최초 push가 거부됐다. 해당 문서 2개를 보존한 `8faf2f0`을 push했고, 검증된 앱·테스트·빌더 코드와 동일함을 확인했다. 최초 push 실패 뒤 잘못 요청했던 이전 원격 커밋의 워크플로 `42040625233`은 취소 완료됐다.
+
+커밋 `8faf2f0a83ef190995330e79f9c2a17a7ee41eb6`에서 `probes=false`로 실행한 [일반판 워크플로](https://github.com/kangseokgyu/bean-pocket/actions/runs/42040705487)가 성공했다. main의 회귀 테스트, 일반판 빌드, 산출물 검사와 배포가 모두 통과했다. 상세 결과는 [deployment.json](deployment.json)에 있다.
+
+[공개 앱](https://kangseokgyu.github.io/bean-pocket/)의 빌드 `d4a802fa340c`를 확인했다. 정적 파일 27개가 모두 HTTP 200이며 로컬 통합 산출물과 바이트 단위로 일치했다. 변경된 `commands/index.mjs`와 `ui/controller.mjs`, 앱 진입점·CSS·manifest·SW도 포함한다. 결과는 [public-files.json](public-files.json)에 있다. 공개 확인은 다음 명령으로 다시 실행할 수 있다.
+
+```sh
+node docs/evidence/favorite-save-latency-20261105/public-check.mjs dist docs/evidence/favorite-save-latency-20261105/public-files.json
+```
+
+공개 파일 확인은 실제 Notion 연결에서의 저장 시간, 브라우저의 시각적 동작, iPhone의 기존 서비스 워커 갱신을 검증하지 않는다.

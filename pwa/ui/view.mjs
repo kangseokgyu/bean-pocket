@@ -37,6 +37,22 @@ const ACTION_ICON_PATHS = Object.freeze({
   trash: 'M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7',
 });
 
+const NAVIGATION_ITEMS = Object.freeze([
+  { kind: 'route', route: '/home', label: '홈', icon: 'home' },
+  { kind: 'route', route: '/beans', label: '원두', icon: 'beans' },
+  { kind: 'action', action: 'start-brew', label: '추출 시작', icon: 'brew' },
+  { kind: 'route', route: '/recipes', label: '레시피', icon: 'recipes' },
+  { kind: 'route', route: '/records', label: '추출 기록', icon: 'records' },
+]);
+
+const NAVIGATION_ICON_PATHS = Object.freeze({
+  home: 'M3 10.5 12 3l9 7.5M5 9v12h14V9M9 21v-7h6v7',
+  beans: 'M20.6 7.3c-1.2-3.7-5.9-5-10.2-2.7S2 10.9 3.2 14.6s5.9 5 10.2 2.7 8.4-6.3 7.2-10ZM7.2 17c.8-3.8 3.5-7.7 7.6-10.5',
+  brew: 'M4 8h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8Zm12 2h2a3 3 0 0 1 0 6h-3M4 21h14',
+  recipes: 'M5 4.5h12a2 2 0 0 1 2 2v13H7a2 2 0 0 1-2-2v-13ZM5 4.5v13a2 2 0 0 0 2 2m3-11h5m-5 4h5',
+  records: 'M12 8v4l2.5 1.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z',
+});
+
 function actionIcon(document, name) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 24 24');
@@ -45,6 +61,18 @@ function actionIcon(document, name) {
   const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   path.setAttribute('d', ACTION_ICON_PATHS[name]);
   if (name === 'check') path.setAttribute('pathLength', '1');
+  svg.append(path);
+  return svg;
+}
+
+function navigationIcon(document, name) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', 'nav-icon');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('focusable', 'false');
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', NAVIGATION_ICON_PATHS[name]);
   svg.append(path);
   return svg;
 }
@@ -525,15 +553,15 @@ export function createAppView(document = globalThis.document, {
 
   const nav = make(document, 'nav', undefined, 'tabs');
   nav.setAttribute('aria-label', '커피 기록 메뉴');
-  for (const [key, title] of [
-    ['home', '홈'], ['beans', '원두'], ['recipes', '레시피'], ['records', '추출 기록'],
-  ]) {
-    const item = button(document, '', 'button', 'navigate');
-    item.className = 'button';
-    item.setAttribute('aria-label', title);
-    item.title = title;
-    item.append(make(document, 'span', title, 'nav-label'));
-    item.dataset.route = `/${key}`;
+  for (const entry of NAVIGATION_ITEMS) {
+    const action = entry.kind === 'route' ? 'navigate' : entry.action;
+    const item = button(document, '', 'button', action);
+    item.className = `button nav-item${entry.kind === 'action' ? ' tabs-start-brew' : ''}`;
+    item.dataset.navKind = entry.kind;
+    item.setAttribute('aria-label', entry.label);
+    item.title = entry.label;
+    item.append(navigationIcon(document, entry.icon), make(document, 'span', entry.label, 'nav-label'));
+    if (entry.kind === 'route') item.dataset.route = entry.route;
     nav.append(item);
   }
   const header = document.querySelector('.site-header');

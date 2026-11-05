@@ -9,3 +9,10 @@
 - `npm run build:pages`, `npm run check:pages`: 종료 0, 빌드 `00f85a84a4a7`.
 - `git diff --check`: 종료 0.
 - 실제 Notion 데이터·iPhone 설치 환경은 확인하지 않았다.
+
+- main 통합: fast-forward, 검증 대상 소스 동일 확인. 통합 후 build:pages/check:pages 종료 0.
+- 게시 커밋: `c2205068dea5ac9f2d0abaae69100fd48c75354a`.
+- 일반판 게시 성공: https://github.com/kangseokgyu/bean-pocket/actions/runs/41960840178 (`deploy.log`, gh run watch 종료 0).
+- 초기 게시 요청 41960753503은 push 완료 전 이전 커밋으로 시작되어 취소하고 재실행했다.
+- 공개 주소: https://kangseokgyu.github.io/bean-pocket/
+- 공개 확인: verify-public.mjs 종료 0, 빌드 `00f85a84a4a7`, 27개 파일 모두 로컬 dist 바이트와 일치 (`public-files.json`).

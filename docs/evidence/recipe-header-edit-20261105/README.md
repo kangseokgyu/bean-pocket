@@ -11,3 +11,5 @@
 - `node docs/evidence/recipe-header-edit-20261105/browser-check.cjs`: Chrome의 320px, 390px, 1440px에서 통과. 긴 제목, 두 버튼 순서, 간격 0px, 클릭 영역 46px, 가로 넘침 없음, 클릭·Enter·Space 안내, Tab 이동과 포커스 표시를 확인했다. 삭제 확인창 취소와 삭제 액션·레시피 ID 전달도 확인했다. `browser-results.json`과 화면 PNG 참조.
 
 브라우저 삭제 검증은 모의 submit을 사용했다. 실제 Notion 데이터의 삭제와 물리 iPhone은 검증하지 않았다.
+
+최신 main `2743a00` 통합 후 전체 732개 테스트와 빌드·산출물 검사, 세 화면 크기 브라우저 검증을 다시 통과했다. 통합 빌드 버전은 `8f6fd4759ebb`이다. `integrated-test.log`, `build.log`, `check.log`, `integrated-browser.log`에 결과를 보관했다.

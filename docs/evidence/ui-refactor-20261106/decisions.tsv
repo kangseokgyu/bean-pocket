@@ -1,0 +1,4 @@
+ts	phase	decision	why	evidence	result
+2026-11-05T15:47:21Z	R0	Selected separate shared, form, screen, and interaction layers after comparing two local structures.	The facade can retain state and public methods while renderers depend on small explicit inputs.	docs/ui-refactoring.md	Candidate B selected; no code moved
+2026-11-05T15:47:21Z	R0	Accepted the main-reported browser baseline as input and left its harness and candidate run with main.	Main owns browser comparison; worker owns Node validation.	docs/evidence/ui-refactor-browser-20261106/results.json	21 cases PASS by main report
+2026-11-05T15:47:21Z	R0	Recorded the Node, build, and check baseline after the default sandbox blocked localhost tests.	The complete Node suite passed with approved loopback access.	docs/evidence/ui-refactor-20261106/README.md	748/748 tests; build and check exit 0

@@ -24,3 +24,11 @@ An expired cached option page (60 seconds or older) no longer overrides fresh sa
 - `search-keyboard-flow.html`: standalone flow diagram grounded in the view and controller functions.
 
 No iPhone or iOS simulator was available, so native keyboard behavior was not directly exercised. The regression tests verify that the same search input stays attached and focused through updates.
+
+## Integration verification
+
+The Critic approved `0d4865b` after the cache-expiration correction. See `review.md`. Latest remote main `aec8295` contained deployment documentation only and was merged in `2069d71`.
+
+After integration, `npm test` passed 739/739 with exit 0. `npm run build:pages` passed with build `50779679988f`, and `npm run check:pages` passed. Logs are `integrated-npm.test.txt`, `integrated-build.pages.txt`, and `integrated-check.pages.txt`.
+
+The unavailable Cursor-specific deslop and control-ui integrations were not invoked. Independent Critic review and `git diff --check` were used for local review. iPhone Safari and home-screen keyboard behavior remain unverified.

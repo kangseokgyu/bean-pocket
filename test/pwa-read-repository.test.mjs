@@ -256,7 +256,7 @@ test('listBeans reads one metadata page without touching other sources or re-rea
   assert.equal(calls[0].options.limit, 20);
 });
 
-test('catalog reads sort supported favorites before names and keep missing schemas readable', async () => {
+test('catalog reads sort favorites then newest registrations and keep missing schemas readable', async () => {
   const calls = [];
   const client = {
     dataSources: SOURCES,
@@ -273,8 +273,8 @@ test('catalog reads sort supported favorites before names and keep missing schem
   await repository.listBeans();
   await repository.listRecipeSummaries();
   assert.deepEqual(calls.map(call => call.options.sorts), [
-    [{ property: '즐겨찾기', direction: 'descending' }, { property: '원두 이름', direction: 'ascending' }],
-    [{ property: '즐겨찾기', direction: 'descending' }, { property: '레시피 이름', direction: 'ascending' }],
+    [{ property: '즐겨찾기', direction: 'descending' }, { timestamp: 'created_time', direction: 'descending' }],
+    [{ property: '즐겨찾기', direction: 'descending' }, { timestamp: 'created_time', direction: 'descending' }],
   ]);
 
   const unsupportedCalls = [];
@@ -292,57 +292,62 @@ test('catalog reads sort supported favorites before names and keep missing schem
   const beans = await compatibleRepository.listBeans();
   await compatibleRepository.listRecipeSummaries();
   assert.deepEqual(unsupportedCalls.map(call => call.options.sorts), [
-    [{ property: '원두 이름', direction: 'ascending' }],
-    [{ property: '레시피 이름', direction: 'ascending' }],
+    [{ timestamp: 'created_time', direction: 'descending' }],
+    [{ timestamp: 'created_time', direction: 'descending' }],
   ]);
   assert.equal(beans.items[0].favorite, false);
 });
 
-test('favorite ordering happens before the catalog page boundary', async () => {
-  const favorite = (page, value) => {
-    page.properties['즐겨찾기'] = { id: 'favorite', type: 'checkbox', checkbox: value };
-    return page;
-  };
-  const rows = [
-    favorite(beanPage(IDS.bean, 'A other'), false),
-    favorite(beanPage(IDS.otherBean, 'B saved'), true),
-    favorite(beanPage('b1111111-1111-4111-8111-333333333333', 'A saved'), true),
-    favorite(beanPage('b1111111-1111-4111-8111-444444444444', 'B other'), false),
-  ];
-  const client = {
-    dataSources: SOURCES,
-    beanFavoriteSupported: true,
-    async queryAll() { throw new Error('queryAll not used'); },
-    async getPage() { throw new Error('getPage not used'); },
-    async queryPage(_kind, options) {
-      const sorted = [...rows].sort((left, right) => {
-        for (const sort of options.sorts) {
-          const property = sort.property;
-          const leftValue = property === '즐겨찾기'
-            ? Number(left.properties[property].checkbox)
-            : left.properties[property].title[0].text.content;
-          const rightValue = property === '즐겨찾기'
-            ? Number(right.properties[property].checkbox)
-            : right.properties[property].title[0].text.content;
-          const comparison = String(leftValue).localeCompare(String(rightValue), 'ko');
-          if (comparison) return sort.direction === 'descending' ? -comparison : comparison;
-        }
-        return 0;
-      });
-      const start = options.cursor === null ? 0 : Number(options.cursor);
-      const end = start + options.limit;
-      return { items: sorted.slice(start, end), nextCursor: end < sorted.length ? String(end) : null,
-        hasMore: end < sorted.length, complete: end >= sorted.length };
-    },
-  };
-  const repository = createReadRepository(client);
-  const first = await repository.listBeans({ limit: 2 });
-  const second = await repository.listBeans({ limit: 2, cursor: first.nextCursor });
-  assert.deepEqual(first.items.map(bean => bean.name), ['A saved', 'B saved']);
-  assert.ok(first.items.every(bean => bean.favorite));
-  assert.deepEqual(second.items.map(bean => bean.name), ['A other', 'B other']);
-  assert.ok(second.items.every(bean => !bean.favorite));
-});
+for (const kind of ['beans', 'recipes']) {
+  test(`${kind} favorites and newest registrations sort before the page boundary`, async () => {
+    const favorite = (page, value) => {
+      page.properties['즐겨찾기'] = { id: 'favorite', type: 'checkbox', checkbox: value };
+      return page;
+    };
+    const makePage = (id, name) => kind === 'beans' ? beanPage(id, name) : recipePage(id, { name });
+    const rows = [
+      favorite(makePage(IDS.bean, 'A other'), false),
+      favorite(makePage(IDS.otherBean, 'B saved'), true),
+      favorite(makePage('b1111111-1111-4111-8111-333333333333', 'A saved'), true),
+      favorite(makePage('b1111111-1111-4111-8111-444444444444', 'B other'), false),
+    ].map((page, index) => ({ ...page, created_time: `2026-11-0${[5, 4, 3, 6][index]}T00:00:00.000Z` }));
+    const client = {
+      dataSources: SOURCES,
+      beanFavoriteSupported: true,
+      recipeFavoriteSupported: true,
+      async queryAll() { throw new Error('queryAll not used'); },
+      async getPage() { throw new Error('getPage not used'); },
+      async queryPage(_kind, options) {
+        const sorted = [...rows].sort((left, right) => {
+          for (const sort of options.sorts) {
+            const property = sort.property;
+            const leftValue = sort.timestamp ? left[sort.timestamp] : property === '즐겨찾기'
+              ? Number(left.properties[property].checkbox)
+              : left.properties[property].title[0].text.content;
+            const rightValue = sort.timestamp ? right[sort.timestamp] : property === '즐겨찾기'
+              ? Number(right.properties[property].checkbox)
+              : right.properties[property].title[0].text.content;
+            const comparison = String(leftValue).localeCompare(String(rightValue), 'ko');
+            if (comparison) return sort.direction === 'descending' ? -comparison : comparison;
+          }
+          return 0;
+        });
+        const start = options.cursor === null ? 0 : Number(options.cursor);
+        const end = start + options.limit;
+        return { items: sorted.slice(start, end), nextCursor: end < sorted.length ? String(end) : null,
+          hasMore: end < sorted.length, complete: end >= sorted.length };
+      },
+    };
+    const repository = createReadRepository(client);
+    const list = kind === 'beans' ? repository.listBeans : repository.listRecipeSummaries;
+    const first = await list({ limit: 2 });
+    const second = await list({ limit: 2, cursor: first.nextCursor });
+    assert.deepEqual(first.items.map(bean => bean.name), ['B saved', 'A saved']);
+    assert.ok(first.items.every(bean => bean.favorite));
+    assert.deepEqual(second.items.map(bean => bean.name), ['B other', 'A other']);
+    assert.ok(second.items.every(bean => !bean.favorite));
+  });
+}
 
 test('listBeans and listRecipeSummaries accept favoriteOnly filter and combine with search query', async () => {
   const calls = [];

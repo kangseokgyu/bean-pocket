@@ -347,7 +347,7 @@ export function createReadRepository(client) {
       : client.recipeFavoriteSupported !== false;
     return [
       ...(favoriteSupported ? [{ property: schemas[kind].favorite[0], direction: 'descending' }] : []),
-      { property: schemas[kind].name[0], direction: 'ascending' },
+      { timestamp: 'created_time', direction: 'descending' },
     ];
   }
 

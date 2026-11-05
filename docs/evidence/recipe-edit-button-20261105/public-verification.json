@@ -1,0 +1,42 @@
+{
+  "url": "https://kangseokgyu.github.io/bean-pocket/",
+  "build": "251ef24c4066",
+  "commit": "a3d7e49c4f7a20029fcd2b2d2c2e273217303711",
+  "run": "https://github.com/kangseokgyu/bean-pocket/actions/runs/41968002339",
+  "checks": [
+    {
+      "file": "index.html",
+      "status": 200,
+      "matches_local": true
+    },
+    {
+      "file": "ui/view.mjs",
+      "status": 200,
+      "matches_local": true
+    },
+    {
+      "file": "app.mjs",
+      "status": 200,
+      "matches_local": true
+    },
+    {
+      "file": "styles.css",
+      "status": 200,
+      "matches_local": true
+    },
+    {
+      "file": "manifest.webmanifest",
+      "status": 200,
+      "matches_local": true
+    },
+    {
+      "file": "sw.js",
+      "status": 200,
+      "matches_local": true
+    }
+  ],
+  "unverified": [
+    "physical iPhone",
+    "real Notion data"
+  ]
+}

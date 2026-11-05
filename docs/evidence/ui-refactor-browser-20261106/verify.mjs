@@ -19,6 +19,8 @@ try {
  await page.goto(`http://127.0.0.1:4216/${mode}/pwa/index.html`);
  await page.waitForFunction(()=>window.harnessReady||window.harnessError);
  assert.equal(await page.evaluate(()=>window.harnessError),undefined);
+ const interfaces=await page.evaluate(()=>({view:Object.keys(harness.view).sort(),controller:Object.keys(harness.app).sort()}));
+ if(mode==='candidate')assert.deepEqual(interfaces,JSON.parse(await readFile(`${resultRoot}/baseline/results.json`,'utf8')).interfaces,'facade public methods');
  await page.locator('.startup-overlay').waitFor({state:'hidden',timeout:5000});
  const ids=await page.evaluate(()=>({bean:harness.bean.id,recipe:harness.recipe.id}));
  async function navigate(route){await page.evaluate(route=>{harness.view.renderRoute(route);},route);await page.waitForFunction(route=>harness.latest?.screen?.route===route,route);await page.waitForFunction(()=>{const d=harness.latest;return !(d.beans??[]).some(b=>b.recordCount?.status==='loading')&&!(d.recipes??[]).some(r=>r.validationStatus==='checking'||(harness.view.currentRoute().startsWith('/recipes/')&&r.stats?.status==='loading'))&&!(d.records??[]).some(r=>r.beanNameStatus==='loading'||r.recipeNameStatus==='loading')&&d.recordInsights?.status!=='loading'&&!d.recordInsights?.loading;},{},{timeout:30000}).catch(async error=>{console.log(JSON.stringify(await page.evaluate(()=>({route:harness.view.currentRoute(),latest:harness.latest,calls:harness.fake.calls.slice(-6)}))));throw error;});await page.evaluate(()=>harness.view.clearStatus());await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));}
@@ -59,6 +61,6 @@ try {
  const favorite=page.locator('.entity-favorite').first();const pressed=await favorite.getAttribute('aria-pressed');await favorite.click();await page.waitForFunction(old=>document.querySelector('.entity-favorite')?.getAttribute('aria-pressed')!==old,pressed);
  results.push({favoriteToggle:true});
  assert.deepEqual(errors,[]);assert.deepEqual(responses,[]);
- await writeFile(`${out}/results.json`,JSON.stringify({mode,results,errors,responses,scope:'Chromium real View+Controller; memory storage/fake Notion; no SW lifecycle or real iPhone'},null,2));
+ await writeFile(`${out}/results.json`,JSON.stringify({mode,interfaces,results,errors,responses,scope:'Chromium real View+Controller; memory storage/fake Notion; no SW lifecycle or real iPhone'},null,2));
  console.log(JSON.stringify({mode,passed:true,cases:results.length}));
 }finally{await browser.close();}

@@ -1,0 +1,263 @@
+✖ brew search pages render validated options and keep pagination controls (8.417666ms)
+  AssertionError [ERR_ASSERTION]: the search has the same number of ancestors
+  
+  5 !== 8
+  
+      at assertSameAncestorChain (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:248:10)
+      at TestContext.<anonymous> (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:4406:3)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 5,
+    expected: 8,
+    operator: 'strictEqual'
+  }
+
+✖ brew beans same-route refresh and option results keep the focused search subtree (3.304ms)
+  AssertionError [ERR_ASSERTION]: the search has the same number of ancestors
+  
+  5 !== 8
+  
+      at assertSameAncestorChain (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:248:10)
+      at TestContext.<anonymous> (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:4457:5)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 5,
+    expected: 8,
+    operator: 'strictEqual'
+  }
+
+✖ brew recipes same-route refresh and option results keep the focused search subtree (3.209ms)
+  AssertionError [ERR_ASSERTION]: the search has the same number of ancestors
+  
+  5 !== 8
+  
+      at assertSameAncestorChain (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:248:10)
+      at TestContext.<anonymous> (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:4457:5)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 5,
+    expected: 8,
+    operator: 'strictEqual'
+  }
+
+✖ brew search ignores a response for the previous query during the next debounce (2.960042ms)
+  AssertionError [ERR_ASSERTION]: the search has the same number of ancestors
+  
+  5 !== 8
+  
+      at assertSameAncestorChain (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:248:10)
+      at TestContext.<anonymous> (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:4496:3)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 5,
+    expected: 8,
+    operator: 'strictEqual'
+  }
+
+✖ brew search defers composition results and scopes the ended composition to its route (289.51425ms)
+  AssertionError [ERR_ASSERTION]: composition does not search before the text is committed
+  + actual - expected
+  
+  + [
+  +   [
+  +     'beans',
+  +     '한글',
+  +     null,
+  +     'brew',
+  +     false
+  +   ]
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:4532:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 'beans', '한글', null, 'brew', false ] ],
+    expected: [],
+    operator: 'deepStrictEqual'
+  }
+
+✔ brew selection navigation and connection changes still replace the route content (6.3845ms)
+✖ brew name search is visibly labeled and a no-result query can return to the full list (3.38525ms)
+  AssertionError [ERR_ASSERTION]: the search has the same number of ancestors
+  
+  5 !== 8
+  
+      at assertSameAncestorChain (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:248:10)
+      at TestContext.<anonymous> (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:4595:3)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 5,
+    expected: 8,
+    operator: 'strictEqual'
+  }
+
+ℹ tests 7
+ℹ suites 0
+ℹ pass 1
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 916587.571125
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:4388:1
+✖ brew search pages render validated options and keep pagination controls (8.417666ms)
+  AssertionError [ERR_ASSERTION]: the search has the same number of ancestors
+  
+  5 !== 8
+  
+      at assertSameAncestorChain (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:248:10)
+      at TestContext.<anonymous> (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:4406:3)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 5,
+    expected: 8,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:4440:3
+✖ brew beans same-route refresh and option results keep the focused search subtree (3.304ms)
+  AssertionError [ERR_ASSERTION]: the search has the same number of ancestors
+  
+  5 !== 8
+  
+      at assertSameAncestorChain (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:248:10)
+      at TestContext.<anonymous> (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:4457:5)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 5,
+    expected: 8,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:4440:3
+✖ brew recipes same-route refresh and option results keep the focused search subtree (3.209ms)
+  AssertionError [ERR_ASSERTION]: the search has the same number of ancestors
+  
+  5 !== 8
+  
+      at assertSameAncestorChain (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:248:10)
+      at TestContext.<anonymous> (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:4457:5)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 5,
+    expected: 8,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:4476:1
+✖ brew search ignores a response for the previous query during the next debounce (2.960042ms)
+  AssertionError [ERR_ASSERTION]: the search has the same number of ancestors
+  
+  5 !== 8
+  
+      at assertSameAncestorChain (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:248:10)
+      at TestContext.<anonymous> (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:4496:3)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 5,
+    expected: 8,
+    operator: 'strictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:4513:1
+✖ brew search defers composition results and scopes the ended composition to its route (289.51425ms)
+  AssertionError [ERR_ASSERTION]: composition does not search before the text is committed
+  + actual - expected
+  
+  + [
+  +   [
+  +     'beans',
+  +     '한글',
+  +     null,
+  +     'brew',
+  +     false
+  +   ]
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:4532:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 'beans', '한글', null, 'brew', false ] ],
+    expected: [],
+    operator: 'deepStrictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:4573:1
+✖ brew name search is visibly labeled and a no-result query can return to the full list (3.38525ms)
+  AssertionError [ERR_ASSERTION]: the search has the same number of ancestors
+  
+  5 !== 8
+  
+      at assertSameAncestorChain (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:248:10)
+      at TestContext.<anonymous> (file:///private/tmp/ax-search-keyboard-20261105/test/pwa-ui.view.test.mjs:4595:3)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 5,
+    expected: 8,
+    operator: 'strictEqual'
+  }

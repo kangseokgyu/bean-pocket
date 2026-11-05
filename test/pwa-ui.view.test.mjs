@@ -225,6 +225,32 @@ function fire(target, type, values = {}) {
   return event;
 }
 
+function fireBubbling(target, type, values = {}) {
+  const event = { type, target, ...values, defaultPrevented: false,
+    preventDefault() { this.defaultPrevented = true; } };
+  for (let current = target; current; current = current.parentElement) {
+    for (const listener of current.listeners.get(type) ?? []) listener(event);
+  }
+  return event;
+}
+
+function ancestorChain(node) {
+  const chain = [];
+  for (let current = node; current; current = current.parentElement) {
+    assert.ok(chain.length < 100, 'the DOM parent chain is finite');
+    chain.push(current);
+  }
+  return chain;
+}
+
+function assertSameAncestorChain(node, expected) {
+  const actual = ancestorChain(node);
+  assert.equal(actual.length, expected.length, 'the search has the same number of ancestors');
+  for (const [index, ancestor] of expected.entries()) {
+    assert.equal(actual[index] === ancestor, true, `search ancestor ${index} is the same attached element`);
+  }
+}
+
 const data = () => ({
   beans: [{ id: BEAN, name: '원두 <안전>', origin: '시다마 · 테스트 농장', roaster: '로스터리', variety: '74110', process: '워시드', tastingNotes: '복숭아' }],
   bags: [{ id: '22222222-2222-4222-8222-222222222222', name: '6월 봉지', beanId: BEAN, roastedOn: '2026-06-01' }],
@@ -4359,32 +4385,189 @@ test('empty bean selection explains registration and provides routes to register
   assert.ok(pane.querySelectorAll('[data-route="/home"]').some(item => item.textContent.includes('홈으로')));
 });
 
-test('brew search pages render validated options and keep pagination controls', () => {
+test('brew search pages render validated options and keep pagination controls', async () => {
   const document = new TestDocument();
   const view = createBeanView(document);
+  const requests = [];
+  view.bind({ loadSearchOptions(...args) { requests.push(args); } });
   view.renderData(data());
   view.renderRoute('/brew/bean');
+  const search = document.root.querySelector('[data-option-search-kind="beans"]');
+  search.focus();
+  const ancestors = ancestorChain(search);
+  search.value = '검색';
+  fireBubbling(search, 'input');
   view.setSearchOptions('brew', 'beans', {
     items: [{ id: BEAN, name: '검색된 원두', status: 'ready' }],
     nextCursor: 'bean-next', hasMore: true, complete: false,
   }, false, '검색');
 
   const pane = document.root.querySelector('.brew-flow-pane');
-  assert.equal(pane.querySelector('[data-option-search-kind="beans"]').value, '검색');
+  assertSameAncestorChain(search, ancestors);
+  assert.equal(document.activeElement === search, true);
+  assert.equal(pane.querySelector('[data-option-search-kind="beans"]') === search, true);
+  assert.equal(search.value, '검색');
   assert.match(pane.textContent, /검색된 원두/);
   const more = pane.querySelector('[data-action="more-options"]');
   assert.ok(more);
   assert.equal(more.dataset.optionTarget, 'brew');
   assert.equal(more.dataset.optionKind, 'beans');
   assert.equal(more.dataset.nextCursor, 'bean-next');
+  await clickViewTarget(document, more);
+  assert.deepEqual(requests, [['beans', '검색', 'bean-next', 'brew', true]]);
+  view.setSearchOptions('brew', 'beans', {
+    items: [{ id: 'second-bean', name: '다음 원두', status: 'ready' }],
+    nextCursor: null, hasMore: false, complete: true,
+  }, true, '검색');
+  assertSameAncestorChain(search, ancestors);
+  assert.equal(document.activeElement === search, true);
+  assert.equal(document.root.querySelectorAll('[data-bean-id]').length, 2);
 
   view.renderRoute(`/brew/recipe?beanId=${BEAN}`);
+  const recipeSearch = document.root.querySelector('[data-option-search-kind="recipes"]');
+  recipeSearch.value = 'V60';
+  fireBubbling(recipeSearch, 'input');
   view.setSearchOptions('brew', 'recipes', {
     items: [{ id: RECIPE, name: '검증된 레시피', status: 'ready', beanId: BEAN }],
     nextCursor: null, hasMore: false, complete: true,
   }, false, 'V60');
   assert.equal(document.root.querySelector('[data-action="select-brew-recipe"]').dataset.recipeId, RECIPE);
-  assert.equal(document.root.querySelector('.brew-flow-pane').querySelector('[data-option-search-kind="recipes"]').value, 'V60');
+  assert.equal(document.root.querySelector('.brew-flow-pane').querySelector('[data-option-search-kind="recipes"]') === recipeSearch, true);
+  assert.equal(recipeSearch.value, 'V60');
+});
+
+for (const kind of ['beans', 'recipes']) {
+  test(`brew ${kind} same-route refresh and option results keep the focused search subtree`, () => {
+    const document = new TestDocument();
+    const view = createBeanView(document);
+    const route = kind === 'beans' ? '/brew/bean' : `/brew/recipe?beanId=${BEAN}`;
+    const current = data();
+    view.renderData(current);
+    view.renderRoute(route);
+    view.renderData(current);
+
+    const search = document.root.querySelector(`[data-option-search-kind="${kind}"]`);
+    search.focus();
+    const ancestors = ancestorChain(search);
+    const refreshed = { ...current, [kind]: kind === 'beans'
+      ? [{ id: 'fresh-bean', name: '새 원두', origin: '시다마' }]
+      : [{ ...current.recipes[0], id: 'fresh-recipe', name: '새 레시피' }] };
+    view.renderData(refreshed);
+
+    assertSameAncestorChain(search, ancestors);
+    assert.equal(document.activeElement, search, 'same-route data refresh keeps focus on the original input');
+    assert.equal(document.root.querySelector(`[data-option-search-kind="${kind}"]`) === search, true);
+    assert.match(document.root.querySelector('.brew-option-list').textContent, kind === 'beans' ? /새 원두/ : /새 레시피/);
+
+    search.value = 'typed query';
+    const result = kind === 'beans'
+      ? { id: 'matching-bean', name: '일치 원두' }
+      : { id: 'matching-recipe', name: '일치 레시피', beanId: BEAN, status: 'ready', steps: current.recipes[0].steps };
+    view.setSearchOptions('brew', kind, { items: [result], hasMore: false, complete: true }, false, 'typed query');
+
+    assertSameAncestorChain(search, ancestors);
+    assert.equal(document.activeElement, search, 'matching response keeps focus on the original input');
+    assert.equal(search.value, 'typed query');
+    assert.match(document.root.querySelector('.brew-option-list').textContent,
+      kind === 'beans' ? /일치 원두/ : /일치 레시피/);
+  });
+}
+
+test('brew search ignores a response for the previous query during the next debounce', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const requests = [];
+  view.bind({ loadSearchOptions(...args) { requests.push(args); } });
+  const current = data();
+  view.renderData(current);
+  view.renderRoute('/brew/bean');
+  view.renderData(current);
+  const search = document.root.querySelector('[data-option-search-kind="beans"]');
+  search.focus();
+  const ancestors = ancestorChain(search);
+  const initialList = document.root.querySelector('.brew-option-list');
+
+  search.value = 'new query';
+  fireBubbling(search, 'input');
+  view.setSearchOptions('brew', 'beans', {
+    items: [{ id: 'stale-bean', name: '이전 검색 결과' }], hasMore: false, complete: true,
+  }, false, 'previous query');
+
+  assertSameAncestorChain(search, ancestors);
+  assert.equal(document.activeElement, search);
+  assert.equal(search.value, 'new query', 'an older response must not restore its query into the input');
+  assert.equal(document.root.querySelector('.brew-option-list') === initialList, true,
+    'a response for another query does not replace the visible results');
+  assert.equal(document.root.querySelector('[data-bean-id="stale-bean"]'), null);
+
+  await new Promise(resolve => setTimeout(resolve, 275));
+  assert.deepEqual(requests, [['beans', 'new query', null, 'brew', false]]);
+  view.setSearchOptions('brew', 'beans', {
+    items: [{ id: 'current-bean', name: '현재 검색 결과' }], hasMore: false, complete: true,
+  }, false, 'new query');
+  assertSameAncestorChain(search, ancestors);
+  assert.equal(document.activeElement, search);
+  assert.ok(document.root.querySelector('[data-bean-id="current-bean"]'));
+});
+
+test('brew search defers composition results and scopes the ended composition to its route', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const requests = [];
+  view.bind({ loadSearchOptions(...args) { requests.push(args); } });
+  const current = data();
+  view.renderData(current);
+  view.renderRoute('/brew/bean');
+  view.renderData(current);
+  const search = document.root.querySelector('[data-option-search-kind="beans"]');
+  const initialList = document.root.querySelector('.brew-option-list');
+
+  fireBubbling(search, 'compositionstart');
+  search.value = '한글';
+  fireBubbling(search, 'input', { isComposing: true });
+  view.setSearchOptions('brew', 'beans', {
+    items: [{ id: 'partial-bean', name: '조합 중 결과' }], hasMore: false, complete: true,
+  }, false, '한글');
+  await new Promise(resolve => setTimeout(resolve, 275));
+  assert.deepEqual(requests, [], 'composition does not search before the text is committed');
+  assert.equal(document.root.querySelector('.brew-option-list') === initialList, true,
+    'a response arriving during composition does not replace results');
+  assert.equal(search.value, '한글');
+
+  fireBubbling(search, 'compositionend');
+  await new Promise(resolve => setTimeout(resolve, 275));
+  assert.deepEqual(requests, [['beans', '한글', null, 'brew', false]]);
+
+  fireBubbling(search, 'compositionstart');
+  search.value = '다음 입력';
+  fireBubbling(search, 'input', { isComposing: true });
+  fireBubbling(search, 'compositionend');
+  view.renderRoute(`/brew/recipe?beanId=${BEAN}`);
+  await new Promise(resolve => setTimeout(resolve, 275));
+  assert.deepEqual(requests, [['beans', '한글', null, 'brew', false]],
+    'a queued composition request from a prior selection route is discarded');
+});
+
+test('brew selection navigation and connection changes still replace the route content', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.setState({ connectionRevision: 'connection-one' });
+  const current = data();
+  view.renderData(current);
+  view.renderRoute('/brew/bean');
+  view.renderData(current);
+  const beanSearch = document.root.querySelector('[data-option-search-kind="beans"]');
+
+  view.renderRoute(`/brew/recipe?beanId=${BEAN}`);
+  const recipeSearch = document.root.querySelector('[data-option-search-kind="recipes"]');
+  assert.notStrictEqual(recipeSearch, beanSearch, 'route navigation creates the next selection screen');
+  assert.equal(ancestorChain(beanSearch).includes(document.root), false, 'the previous route subtree is detached');
+
+  view.setState({ connectionRevision: 'connection-two' });
+  view.renderData(current);
+  const reconnectedSearch = document.root.querySelector('[data-option-search-kind="recipes"]');
+  assert.notStrictEqual(reconnectedSearch, recipeSearch, 'a changed connection renders the current route anew');
+  assert.equal(ancestorChain(recipeSearch).includes(document.root), false, 'the old connection subtree is detached');
 });
 
 test('brew name search is visibly labeled and a no-result query can return to the full list', async () => {
@@ -4397,14 +4580,20 @@ test('brew name search is visibly labeled and a no-result query can return to th
 
   const beanPane = document.root.querySelector('.brew-flow-pane');
   const beanSearch = beanPane.querySelector('[data-option-search-kind="beans"]');
+  beanSearch.focus();
+  const beanAncestors = ancestorChain(beanSearch);
   assert.equal(beanPane.querySelector(`label[for="${beanSearch.id}"]`)?.textContent, '원두 이름 검색');
   assert.equal(beanSearch.getAttribute('placeholder'), '예: 에티오피아 시다마');
   assert.equal(beanSearch.parentElement.querySelector('svg')?.getAttribute('aria-hidden'), 'true');
   assert.equal(beanPane.querySelector('[data-action="clear-brew-search"]').hidden, true);
   assert.equal(beanPane.querySelector('.brew-option-search-help'), null, 'there is no extra note below the input');
 
+  beanSearch.value = '시다마 원두';
+  fireBubbling(beanSearch, 'input');
   view.setSearchOptions('brew', 'beans', { items: [], hasMore: false, complete: true }, false, '시다마 원두');
   const noBeans = document.root.querySelector('.brew-flow-pane');
+  assertSameAncestorChain(beanSearch, beanAncestors);
+  assert.equal(document.activeElement === beanSearch, true);
   assert.match(noBeans.textContent, /시다마 원두.*검색 결과가 없습니다/);
   assert.equal(noBeans.querySelector('[data-action="clear-brew-search"]').hidden, false);
   const clearSearch = noBeans.querySelector('[data-action="clear-brew-search"]');
@@ -4412,20 +4601,32 @@ test('brew name search is visibly labeled and a no-result query can return to th
   assert.equal(calls.length, 1, 'clear-search click should make one request');
   assert.deepEqual(calls.at(-1), ['beans', '', null, 'brew', false]);
   assert.equal(document.root.querySelector('[data-option-search-kind="beans"]').value, '');
+  assertSameAncestorChain(beanSearch, beanAncestors);
+  assert.equal(document.activeElement === beanSearch, true);
 
-  view.setSearchOptions('brew', 'beans', { items: [], hasMore: false, complete: true }, false, '시다마 원두');
+  beanSearch.value = '두 번째 검색';
+  fireBubbling(beanSearch, 'input');
+  view.setSearchOptions('brew', 'beans', { items: [], hasMore: false, complete: true }, false, '두 번째 검색');
   const noBeansAgain = document.root.querySelector('.brew-flow-pane');
+  assertSameAncestorChain(beanSearch, beanAncestors);
+  assert.equal(document.activeElement === beanSearch, true);
   const showBeans = noBeansAgain.querySelector('[data-action="browse-all-brew-options"]');
   assert.equal(showBeans.textContent, '전체 원두 보기');
   await clickViewTarget(document, showBeans);
   assert.equal(calls.length, 2, 'browse-all click should make one request');
   assert.deepEqual(calls.at(-1), ['beans', '', null, 'brew', false]);
   assert.equal(document.root.querySelector('[data-option-search-kind="beans"]').value, '', 'browse all clears the query');
+  assertSameAncestorChain(beanSearch, beanAncestors);
+  assert.equal(document.activeElement === beanSearch, true);
 
   view.renderRoute(`/brew/recipe?beanId=${BEAN}`);
+  const recipeSearch = document.root.querySelector('[data-option-search-kind="recipes"]');
+  recipeSearch.value = '아이스 V60';
+  fireBubbling(recipeSearch, 'input');
   view.setSearchOptions('brew', 'recipes', { items: [], hasMore: false, complete: true }, false, '아이스 V60');
   const noRecipes = document.root.querySelector('.brew-flow-pane');
-  const recipeSearch = noRecipes.querySelector('[data-option-search-kind="recipes"]');
+  const recipeAncestors = ancestorChain(recipeSearch);
+  assert.equal(noRecipes.querySelector('[data-option-search-kind="recipes"]') === recipeSearch, true);
   assert.equal(noRecipes.querySelector(`label[for="${recipeSearch.id}"]`)?.textContent, '레시피 이름 검색');
   assert.equal(recipeSearch.getAttribute('placeholder'), '예: V60');
   assert.match(noRecipes.textContent, /아이스 V60.*검색 결과가 없습니다/);

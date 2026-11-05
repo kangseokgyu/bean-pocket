@@ -5218,6 +5218,32 @@ test('star submits a desired boolean and restores keyboard focus', async () => {
   assert.equal(document.activeElement.getAttribute('aria-pressed'), 'true');
 });
 
+test('star ignores a repeated click while its save is pending', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+  let pending = false;
+  let release;
+  const saving = new Promise(resolve => { release = resolve; });
+  const calls = [];
+  view.bind({ getState: () => ({ pending }), async submit(kind, payload) {
+    calls.push({ kind, payload });
+    pending = true;
+    view.setState({ pending: true, frozen: false, unresolved: false });
+    return saving;
+  } });
+  const star = document.root.querySelector('[data-action="favorite-item"]');
+  const firstClick = clickViewTarget(document, star);
+  await Promise.resolve();
+  await clickViewTarget(document, star);
+  assert.equal(calls.length, 1, 'a second click cannot dispatch another favorite write');
+
+  pending = false;
+  view.setState({ pending: false, frozen: false, unresolved: false });
+  release({ status: 'succeeded' });
+  await firstClick;
+});
+
 test('critic focus leaves no detached toggle after page-boundary reorder', async () => {
   const document = new TestDocument();
   const view = createBeanView(document);

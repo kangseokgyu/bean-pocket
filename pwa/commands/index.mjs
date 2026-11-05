@@ -360,15 +360,15 @@ export function createCommands({ client, repository, submissionState } = {}) {
           return writeCreate(operation, 'beans', payload);
         }
 
-        const latest = await repository.readAll();
         if (metadata.kind.startsWith('favorite-')) {
           const kind = metadata.kind === 'favorite-bean' ? 'beans' : 'recipes';
-          if (!oneById(latest?.[kind], payload.id)) throw new InputError('최신 조회에서 즐겨찾기 대상을 찾을 수 없습니다.');
           if (client[kind === 'beans' ? 'beanFavoriteSupported' : 'recipeFavoriteSupported'] === false || typeof client.updateFavorite !== 'function') {
             throw Object.freeze({ code: 'favorite-unsupported', writeState: 'not-sent' });
           }
           return operation.write(() => client.updateFavorite(kind, payload.id, payload.favorite));
         }
+
+        const latest = await repository.readAll();
 
         if (metadata.kind === 'delete-bean') {
           requireBean(latest, payload.id);

@@ -865,6 +865,16 @@ export function createAppController({
     }
   }
 
+  function updateVisibleFavorite(kind, id, favorite, connection, requestClient) {
+    if (activeConnection !== connection || client !== requestClient ||
+        dataRevision !== connection?.revision || data?.screen?.route !== currentRoute()) return;
+    const target = kind === 'favorite-bean' ? 'beans' : 'recipes';
+    const items = data?.[target];
+    if (!Array.isArray(items) || !items.some(item => item.id === id)) return;
+    data = { ...data, [target]: items.map(item => item.id === id ? { ...item, favorite } : item) };
+    view.renderData?.(data);
+  }
+
   async function readLatest({ skipVerify = false, notifyCompletion = false, suppressCompletion = false } = {}) {
     return loadRoute(currentRoute(), { force: true, skipVerify, notifyCompletion, suppressCompletion });
   }
@@ -1205,12 +1215,27 @@ export function createAppController({
     if (frozen) throw Object.freeze({ code: 'lifecycle-frozen' });
     if (pending || !commands) throw Object.freeze({ code: 'lock-unavailable' });
     if (unresolvedOperations.length) throw Object.freeze({ code: 'unresolved-operation' });
+    routeReadController?.abort();
+    routeReadController = null;
+    routeGeneration += 1;
+    const favorite = kind === 'favorite-bean' || kind === 'favorite-recipe';
+    const favoriteSource = kind === 'favorite-bean' ? 'beans' : 'recipes';
+    const submissionConnection = activeConnection;
+    const submissionClient = client;
+    let pendingReleased = false;
+    const releasePending = () => {
+      if (pendingReleased) return;
+      pending = false;
+      pendingReleased = true;
+      stateChanged();
+    };
     pending = true;
     stateChanged();
     const deleting = Boolean(DELETE_TARGET_BY_OPERATION[kind]);
     view.showStatus?.({ type: 'saving', message: deleting ? '삭제 중입니다.' : '저장 중입니다.' });
     try {
-      await client.verify();
+      if (favorite) await client.verify([favoriteSource]);
+      else await client.verify();
       const prepare = {
           'delete-bean': 'prepareDeleteBean', 'delete-recipe': 'prepareDeleteRecipe',
           'delete-record': 'prepareDeleteRecord', 'set-best-record': 'prepareBestRecord',
@@ -1232,8 +1257,14 @@ export function createAppController({
           }
         }
         view.clearStatus?.();
-        stateChanged();
         invalidateScreenCache(kind === 'set-best-record' ? 'records' : kind);
+        if (favorite) {
+          updateVisibleFavorite(kind, payload.id, payload.favorite, submissionConnection, submissionClient);
+          releasePending();
+          void readLatest({ skipVerify: true, suppressCompletion: true }).catch(() => {});
+          return result;
+        }
+        stateChanged();
         let deleteMessage = '삭제했습니다.';
         try { await readLatest({ skipVerify: true, suppressCompletion: true }); }
         catch {
@@ -1261,8 +1292,7 @@ export function createAppController({
       });
       throw error;
     } finally {
-      pending = false;
-      stateChanged();
+      releasePending();
     }
   }
 

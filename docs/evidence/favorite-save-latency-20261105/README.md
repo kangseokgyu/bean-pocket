@@ -14,3 +14,7 @@
 원본 로그는 작업 환경의 `/private/tmp/ax-favorite-latency-evidence/`에 보관했다. 최초 검증은 `red-targeted.tap`, `green-targeted.tap`, `green-ui-targeted.tap`, `npm-test.log`, `npm-test-escalated.log`에서 확인할 수 있다. 추가 수정은 `critic-status-red.tap`, `critic-status-green.tap`, `critic-status-repro-after.txt`, 최종 필수 검사는 `npm-test-review.log`, `build-pages-review.log`, `check-pages-review.log`에 기록했다.
 
 Worker는 `gpt-6-luna`와 추론 수준 `max`로 실행했다. Critic은 `gpt-6.1-sol`과 추론 수준 `medium`으로 독립 검토했고, 재현 스크립트 재실행 후 기존 지적사항 해결과 게시 가능을 확인했다. UI 검증은 프로젝트 TestDocument와 합성 Notion 응답을 사용하는 어댑터 통합 테스트로 수행했다. 실제 Notion 저장 시간과 물리 기기 동작은 측정하지 않았다.
+
+## 최신 main 통합
+
+기능 커밋 `016b4e7` 이후 원격 main의 검색 화면 개선 `47a5def`를 통합했다. 병합 커밋은 `01d4a4f`이며 충돌은 없었다. 통합 상태에서 `npm test` 748개, `npm run build:pages`, `npm run check:pages`가 모두 통과했다. 빌드 버전은 `d4a802fa340c`다. 로그는 같은 임시 증거 폴더의 `integrated-npm-test.log`, `integrated-build-pages.log`, `integrated-check-pages.log`에 있다.

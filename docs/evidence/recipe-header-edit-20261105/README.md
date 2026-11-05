@@ -13,3 +13,11 @@
 브라우저 삭제 검증은 모의 submit을 사용했다. 실제 Notion 데이터의 삭제와 물리 iPhone은 검증하지 않았다.
 
 최신 main `2743a00` 통합 후 전체 732개 테스트와 빌드·산출물 검사, 세 화면 크기 브라우저 검증을 다시 통과했다. 통합 빌드 버전은 `8f6fd4759ebb`이다. `integrated-test.log`, `build.log`, `check.log`, `integrated-browser.log`에 결과를 보관했다.
+
+## 게시 결과
+
+일반판 `probes=false` [배포 41987985876](https://github.com/kangseokgyu/bean-pocket/actions/runs/41987985876)의 build·deploy job이 성공했다. 배포 커밋은 `453a616ba89c246561097108a3709e2b5866527b`이다.
+
+공개 주소는 https://kangseokgyu.github.io/bean-pocket/ 이며 빌드는 `8f6fd4759ebb`이다. `public-check.mjs` 실행으로 index, view, CSS, app, manifest, SW가 HTTP 200이며 로컬 빌드와 바이트 단위로 일치함을 확인했다. `public-results.json`에 SHA-256과 확인 시각을 기록했다.
+
+기능 브랜치의 첫 push는 HTTP 408로 중단되었으며 한 번 재시도해 성공했다. main push와 배포는 성공했다.

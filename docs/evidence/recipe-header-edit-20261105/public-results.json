@@ -1,0 +1,36 @@
+{
+  "base": "https://kangseokgyu.github.io/bean-pocket/",
+  "verifiedAt": "2026-11-05T07:35:40.533Z",
+  "results": [
+    {
+      "file": "index.html",
+      "status": 200,
+      "sha256": "b2921708dc238c003db673ccc504137010ca40e33fbf9f6a4fc7f56ebd3ac100"
+    },
+    {
+      "file": "ui/view.mjs",
+      "status": 200,
+      "sha256": "f63ddbdb01eb24cffb858fbeb19301fead2f3e234bff0c41f757509b8efd548e"
+    },
+    {
+      "file": "styles.css",
+      "status": 200,
+      "sha256": "be896bfdb4947c969663c52c69b0a4acd8c46a9519dec13d943bed906b8a55fb"
+    },
+    {
+      "file": "app.mjs",
+      "status": 200,
+      "sha256": "b4358f655166c169a5a8d3d98637593ad3ce1b5da5a65662d1919397db8c34ef"
+    },
+    {
+      "file": "manifest.webmanifest",
+      "status": 200,
+      "sha256": "83dc529ee8004d5aa06cf728873d97c04ece2143d3026f275780f293dedb1bdb"
+    },
+    {
+      "file": "sw.js",
+      "status": 200,
+      "sha256": "bd95483935eec4fe3331d8d9ae6f7ba2691d0cf281857366f328965d44fd76de"
+    }
+  ]
+}

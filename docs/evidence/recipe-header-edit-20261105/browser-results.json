@@ -1,0 +1,62 @@
+[
+  {
+    "width": 320,
+    "edit": {
+      "x": 198,
+      "y": 190.796875,
+      "width": 46,
+      "height": 46
+    },
+    "delete": {
+      "x": 244,
+      "y": 190.796875,
+      "width": 46,
+      "height": 46
+    },
+    "gap": 0,
+    "overflow": false,
+    "keyboard": true,
+    "deleteDispatch": true,
+    "pageErrors": []
+  },
+  {
+    "width": 390,
+    "edit": {
+      "x": 264,
+      "y": 192.796875,
+      "width": 46,
+      "height": 46
+    },
+    "delete": {
+      "x": 310,
+      "y": 192.796875,
+      "width": 46,
+      "height": 46
+    },
+    "gap": 0,
+    "overflow": false,
+    "keyboard": true,
+    "deleteDispatch": true,
+    "pageErrors": []
+  },
+  {
+    "width": 1440,
+    "edit": {
+      "x": 983,
+      "y": 205.796875,
+      "width": 46,
+      "height": 46
+    },
+    "delete": {
+      "x": 1029,
+      "y": 205.796875,
+      "width": 46,
+      "height": 46
+    },
+    "gap": 0,
+    "overflow": false,
+    "keyboard": true,
+    "deleteDispatch": true,
+    "pageErrors": []
+  }
+]

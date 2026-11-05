@@ -34,6 +34,7 @@ const ACTION_ICON_PATHS = Object.freeze({
   x: 'M18 6 6 18M6 6l12 12',
   check: 'M4 12l5 5 11-11',
   warning: 'M12 3 22 20H2L12 3Zm0 6v5m0 3h.01',
+  edit: 'm16 3 5 5M4 15 16 3l5 5L9 20l-6 1 1-6Z',
   trash: 'M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7',
 });
 
@@ -2226,7 +2227,17 @@ function renderRecipeDetail(pane, data, document, recipeId) {
 function recipeCard(document, recipe, data, detailed = false) {
   const article = make(document, 'article', undefined, 'recipe-card');
   const header = make(document, 'div', undefined, 'entity-card-header');
-  header.append(make(document, 'h3', recipe.name), trashButton(document, 'recipes', recipe.id, recipe.name));
+  header.append(make(document, 'h3', recipe.name));
+  const headerActions = make(document, 'div', undefined, 'recipe-header-actions');
+  if (detailed) {
+    const edit = iconButton(document, '', `${recipe.name} 수정`, 'edit-recipe');
+    edit.className += ' entity-edit';
+    edit.dataset.id = recipe.id;
+    edit.replaceChildren(actionIcon(document, 'edit'));
+    headerActions.append(edit);
+  }
+  headerActions.append(trashButton(document, 'recipes', recipe.id, recipe.name));
+  header.append(headerActions);
   article.append(header, recipeOverview(document, recipe));
 
   const validation = recipeValidationMessage(recipe);
@@ -2316,10 +2327,6 @@ function recipeCard(document, recipe, data, detailed = false) {
     record.dataset.id = recipe.id;
     record.disabled = !recipeReady(recipe);
     actions.append(record);
-
-    const edit = button(document, '레시피 수정', 'button', 'edit-recipe');
-    edit.dataset.id = recipe.id;
-    actions.append(edit);
   }
   const copy = button(document, '이 레시피 복사', 'button', 'copy-recipe');
   copy.dataset.id = recipe.id;

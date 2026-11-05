@@ -1270,7 +1270,7 @@ test('recipe detail groups conditions, pour steps, guide, and records in reading
     ['추출 조건', '붓기 단계', '추출 가이드', '추출 기록']);
   assert.ok(detail.querySelector('.recipe-steps-section').querySelector('.steps-table'));
   assert.ok(detail.querySelector('.recipe-records').querySelector('.record-summary-header'));
-  assert.equal(detail.querySelector('.recipe-card-actions').querySelectorAll('button').length, 3);
+  assert.equal(detail.querySelector('.recipe-card-actions').querySelectorAll('button').length, 2);
 });
 
 test('recipe detail edit action announces the placeholder without changing the selected recipe', async () => {
@@ -1281,9 +1281,16 @@ test('recipe detail edit action announces the placeholder without changing the s
   view.renderData(current);
   view.renderRoute(`/recipes/${RECIPE}`);
 
-  const edit = document.root.querySelector('.recipe-card-actions [data-action="edit-recipe"]');
+  const header = document.root.querySelector('.recipe-card .entity-card-header');
+  const group = header.querySelector('.recipe-header-actions');
+  assert.ok(group, 'detail header groups edit and delete');
+  assert.deepEqual(group.querySelectorAll('button').map(node => node.dataset.action), ['edit-recipe', 'delete-recipe']);
+  assert.equal(document.root.querySelector('.recipe-card-actions [data-action="edit-recipe"]'), null);
+  const edit = group.querySelector('[data-action="edit-recipe"]');
   assert.ok(edit, 'recipe detail exposes an edit button');
-  assert.equal(edit.textContent, '레시피 수정');
+  assert.equal(edit.textContent, '');
+  assert.equal(edit.getAttribute('aria-label'), `${current.recipes[0].name} 수정`);
+  assert.equal(edit.querySelector('svg').getAttribute('aria-hidden'), 'true');
   assert.equal(edit.dataset.id, RECIPE, 'the action identifies the selected recipe');
   assert.equal(edit.disabled, false);
 

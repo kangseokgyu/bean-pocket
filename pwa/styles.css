@@ -789,10 +789,12 @@ button:focus-visible, .table-scroll:focus-visible {
 
 .entity-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
 .entity-card-header h3, .entity-card-header h4 { min-width: 0; overflow-wrap: anywhere; margin: 0 0 12px; }
+.recipe-header-actions { display: flex; flex: 0 0 auto; gap: 0; margin: -14px -8px -14px 0; }
+.recipe-header-actions > .button { margin: 0; }
 .entity-card-header h3 { margin-bottom: 0; font-size: 0.9375rem; line-height: 1.5; }
-.entity-delete, .entity-favorite { flex: 0 0 46px; width: 46px; height: 46px; margin: -14px -8px -14px 0; color: #737373; background: transparent; border-color: transparent; }
-.entity-delete svg, .entity-favorite svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.entity-delete:hover:not(:disabled), .entity-favorite:hover:not(:disabled) { background: #f0f0ed; border-color: #b7b7af; }
+.entity-delete, .entity-favorite, .entity-edit { flex: 0 0 46px; width: 46px; height: 46px; margin: -14px -8px -14px 0; color: #737373; background: transparent; border-color: transparent; }
+.entity-delete svg, .entity-favorite svg, .entity-edit svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.entity-delete:hover:not(:disabled), .entity-favorite:hover:not(:disabled), .entity-edit:hover:not(:disabled) { background: #f0f0ed; border-color: #b7b7af; }
 .bag-card { padding-top: 10px; border-top: 1px solid #e0dbcf; }
 .bag-card + .bag-card { margin-top: 10px; }
 .bag-card > :last-child, .bean-card > :last-child, .bean-detail-card > :last-child,

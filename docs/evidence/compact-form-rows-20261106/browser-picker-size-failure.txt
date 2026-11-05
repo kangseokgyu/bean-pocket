@@ -1,0 +1,15 @@
+node:internal/modules/run_main:104
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: picker 320: selection trigger keeps its touch target
+    at testPicker (file:///private/tmp/ax-compact-form-rows-20261106/docs/evidence/compact-form-rows-20261106/verify-layout.mjs:198:10)
+    at async file:///private/tmp/ax-compact-form-rows-20261106/docs/evidence/compact-form-rows-20261106/verify-layout.mjs:213:5 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '=='
+}
+
+Node.js v23.4.0

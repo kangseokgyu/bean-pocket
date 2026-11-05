@@ -420,6 +420,7 @@ export function createAppView(document = globalThis.document, {
   const connectionForm = make(document, 'form', undefined, 'form-grid');
   connectionForm.dataset.form = 'connection';
   const tokenField = label(document, '통합 토큰', 'token', 'password', true, { autocomplete: 'off' });
+  tokenField.className += ' form-field--connection';
   const tokenInput = tokenField.querySelector('input');
   const tokenLabel = tokenField.querySelector('.form-field-label');
   const tokenControl = make(document, 'div', undefined, 'token-input-control');
@@ -443,8 +444,10 @@ export function createAppView(document = globalThis.document, {
   tokenField.replaceChildren(tokenLabel, tokenControl, tokenValidationText);
   connectionForm.append(tokenField);
   for (const [key, title] of SOURCE_FIELDS) {
-    connectionForm.append(label(document, title + ' 데이터 소스 ID', key, 'text', true,
-      { autocomplete: 'off', spellcheck: false, autocapitalize: 'off' }));
+    const sourceField = label(document, title + ' 데이터 소스 ID', key, 'text', true,
+      { autocomplete: 'off', spellcheck: false, autocapitalize: 'off' });
+    sourceField.className += ' form-field--connection';
+    connectionForm.append(sourceField);
   }
   const connectionActions = make(document, 'div', undefined, 'form-actions');
   const connectionCancel = actionButton(document, '취소', 'button', 'x', 'cancel-connection');
@@ -2168,7 +2171,7 @@ function renderBeans(pane, data, document, formOpen) {
     ['품종', 'variety', 'text', false],
     ['가공 방식', 'process', 'text', false],
     ['향미 노트', 'tastingNotes', 'textarea', false],
-  ]);
+  ], 'form-fieldset--compact');
   addFormActions(document, form);
   pane.append(makeEntryDialog(document, 'beans', form, formOpen));
 
@@ -2520,7 +2523,7 @@ function buildRecipeForm(document, data) {
     ['분쇄 입자 (μm, 선택)', 'microns', 'number', false, { step: 'any', min: 0 }],
     ['물 온도 (℃)', 'temperature', 'number', true, { step: 'any', min: 0, max: 100 }],
     ['총 물 양 (g)', 'totalWater', 'number', true, { step: 'any', min: 0 }],
-  ]);
+  ], 'form-fieldset--compact');
   form.append(label(document, '추출 가이드 (선택)', 'extractionGuide', 'textarea', false, {
     rows: 4,
     placeholder: '예: 교반 없음, 목표 2분 30초 완성',

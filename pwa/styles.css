@@ -246,6 +246,26 @@ html:has(dialog[open]), body:has(dialog[open]) { overflow: hidden; overscroll-be
 .form-fieldset legend { padding: 0 6px; font-size: 0.8rem; font-weight: 700; line-height: 1.3; }
 .form-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .form-field-label { color: #3d5147; font-size: 0.8rem; font-weight: 650; line-height: 1.3; }
+.form-fieldset--compact > .form-field {
+  display: grid;
+  grid-template-columns: minmax(0, 38%) minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+.form-fieldset--compact > .form-field:has(textarea) {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+}
+.form-fieldset--compact > .form-field:has(textarea) textarea { width: 100%; }
+.form-field--connection {
+  gap: 5px;
+  padding: 9px 10px;
+  border: 1px solid #d8d1c3;
+  border-radius: 10px;
+  background: #fffefa;
+}
+.form-field--connection .form-field-label { font-size: 0.75rem; }
 
 .search-picker { position: relative; }
 .search-picker .search-picker-select {
@@ -334,6 +354,14 @@ html:has(dialog[open]), body:has(dialog[open]) { overflow: hidden; overscroll-be
 }
 .token-input-control { position: relative; min-width: 0; }
 .token-input-control input { padding-right: 44px; }
+.form-field--connection > input,
+.form-field--connection .token-input-control > input {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0 0 0 0;
+}
+.form-field--connection .token-input-control > input { padding-right: 44px; }
 .token-validation-icon {
   position: absolute;
   top: 50%;
@@ -381,6 +409,8 @@ button:focus-visible, .table-scroll:focus-visible {
   outline: 3px solid #8ab59a;
   outline-offset: 2px;
 }
+.form-field--connection:focus-within { outline: 3px solid #8ab59a; outline-offset: 2px; }
+.form-field--connection input:focus { outline: none; }
 
 .form-field [type="checkbox"] {
   width: 24px;

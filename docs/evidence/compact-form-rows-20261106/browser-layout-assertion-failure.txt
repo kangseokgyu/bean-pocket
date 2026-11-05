@@ -1,0 +1,18 @@
+node:internal/modules/run_main:104
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: beans 320: fieldset uses the intended column count
+
+2 !== 1
+
+    at testCompactForm (file:///private/tmp/ax-compact-form-rows-20261106/docs/evidence/compact-form-rows-20261106/verify-layout.mjs:76:10)
+    at async file:///private/tmp/ax-compact-form-rows-20261106/docs/evidence/compact-form-rows-20261106/verify-layout.mjs:200:5 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 2,
+  expected: 1,
+  operator: 'strictEqual'
+}
+
+Node.js v23.4.0

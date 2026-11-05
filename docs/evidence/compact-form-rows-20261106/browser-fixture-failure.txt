@@ -1,0 +1,29 @@
+node:internal/modules/run_main:104
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: preview reports no browser errors
++ actual - expected
+
++ [
++   'actions.setDirty is not a function',
++   'actions.setDirty is not a function',
++   'actions.setDirty is not a function',
++   'actions.setDirty is not a function'
++ ]
+- []
+
+    at file:///private/tmp/ax-compact-form-rows-20261106/docs/evidence/compact-form-rows-20261106/verify-layout.mjs:215:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [
+    'actions.setDirty is not a function',
+    'actions.setDirty is not a function',
+    'actions.setDirty is not a function',
+    'actions.setDirty is not a function'
+  ],
+  expected: [],
+  operator: 'deepStrictEqual'
+}
+
+Node.js v23.4.0

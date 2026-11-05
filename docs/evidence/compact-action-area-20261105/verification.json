@@ -1,0 +1,43 @@
+{
+  "change": "Favorite and delete button areas 25x25 CSS px; SVG icons remain 22x22",
+  "tests": {
+    "command": "npm test",
+    "exitCode": 0,
+    "log": "/private/tmp/ax-button-size-test-unrestricted.log"
+  },
+  "build": {
+    "commands": [
+      "npm run build:pages",
+      "npm run check:pages"
+    ],
+    "exitCode": 0,
+    "version": "8532092f19be"
+  },
+  "browser": {
+    "command": "node docs/evidence/compact-action-area-20261105/verify-browser.mjs",
+    "exitCode": 0,
+    "cases": 8,
+    "widths": [
+      320,
+      390,
+      768,
+      1280
+    ],
+    "routes": [
+      "/beans",
+      "/recipes"
+    ],
+    "checks": [
+      "button width and height 25",
+      "SVG width and height 22",
+      "adjacent aligned controls",
+      "favorite toggle",
+      "no horizontal overflow",
+      "no page errors"
+    ]
+  },
+  "initialFailure": "Sandbox run: 18 local HTTP tests failed with listen EPERM; rerun unrestricted. Chrome initially blocked by sandbox, unrestricted rerun passed.",
+  "limitations": [
+    "Actual iPhone and live Notion writes not tested"
+  ]
+}

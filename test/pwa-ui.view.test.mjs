@@ -1771,22 +1771,45 @@ test('refresh requires a 240px downward pull and checks the release position', (
 });
 
 
-test('navigation uses text-only menus with accessible names', () => {
+test('navigation exposes a guarded center action beside its four accessible routes', async () => {
   const document = new TestDocument();
-  createBeanView(document);
+  const view = createBeanView(document);
   const items = document.root.querySelector('nav.tabs').querySelectorAll('button');
-  const expected = [['home', '홈'], ['beans', '원두'], ['recipes', '레시피'], ['records', '추출 기록']];
+  const expected = [
+    ['route', '/home', 'navigate', '홈'],
+    ['route', '/beans', 'navigate', '원두'],
+    ['action', undefined, 'start-brew', '추출 시작'],
+    ['route', '/recipes', 'navigate', '레시피'],
+    ['route', '/records', 'navigate', '추출 기록'],
+  ];
   assert.equal(items.length, expected.length);
   items.forEach((item, index) => {
-    const [key, title] = expected[index];
-    assert.equal(item.dataset.route, `/${key}`);
-    assert.equal(item.dataset.action, 'navigate');
+    const [kind, route, action, title] = expected[index];
+    assert.equal(item.dataset.navKind, kind);
+    assert.equal(item.dataset.route, route);
+    assert.equal(item.dataset.action, action);
     assert.equal(item.type, 'button');
     assert.equal(item.getAttribute('aria-label'), title);
     assert.equal(item.title, title);
-    assert.equal(item.textContent, title, 'menu labels remain visible');
-    assert.equal(item.querySelector('svg'), null, 'navigation contains text only');
+    assert.equal(item.querySelector('.nav-label')?.textContent, title, 'menu labels remain visible');
+    assert.equal(item.querySelector('svg')?.getAttribute('aria-hidden'), 'true', 'icons are decorative');
   });
+
+  view.bind({});
+  view.renderData(data());
+  const start = items[2];
+  for (const listener of document.root.firstElementChild.listeners.get('click') ?? []) {
+    await listener({ target: start });
+  }
+  assert.equal(view.currentRoute(), '/brew/bean', 'the action starts the existing bean selection flow');
+
+  view.renderRoute('/home');
+  view.setState({ pending: true });
+  assert.equal(start.disabled, true, 'the action inherits the navigation pending guard');
+  for (const listener of document.root.firstElementChild.listeners.get('click') ?? []) {
+    await listener({ target: start });
+  }
+  assert.equal(view.currentRoute(), '/home', 'a pending operation cannot start another brew');
 });
 
 test('bean deletion opens a safe native dialog and restores focus after cancel or Escape', async () => {
@@ -2097,7 +2120,7 @@ test('header navigation changes routes and remains locked while work is pending'
   const nav = header.querySelector('nav.tabs');
   assert.ok(nav, 'primary navigation belongs in the site header');
   assert.equal(document.root.querySelector('nav.tabs'), null);
-  assert.deepEqual(nav.children.map(item => item.textContent), ['홈', '원두', '레시피', '추출 기록']);
+  assert.deepEqual(nav.children.map(item => item.textContent), ['홈', '원두', '추출 시작', '레시피', '추출 기록']);
   view.bind({});
   view.renderData(data());
   view.showConnection({ connected: true });
@@ -4006,7 +4029,7 @@ test('home is the default and root route, with the requested hero and four menu 
   assert.equal(artwork.getAttribute('alt'), '');
   assert.equal(artwork.getAttribute('aria-hidden'), 'true');
   assert.equal(hero.querySelector('[data-action="start-brew"]').textContent, '추출 시작');
-  assert.deepEqual(document.root.querySelector('nav.tabs').children.map(item => [item.dataset.route, item.textContent]), [
+  assert.deepEqual(document.root.querySelector('nav.tabs').children.filter(item => item.dataset.route).map(item => [item.dataset.route, item.textContent]), [
     ['/home', '홈'], ['/beans', '원두'], ['/recipes', '레시피'], ['/records', '추출 기록'],
   ]);
 

@@ -1270,7 +1270,32 @@ test('recipe detail groups conditions, pour steps, guide, and records in reading
     ['추출 조건', '붓기 단계', '추출 가이드', '추출 기록']);
   assert.ok(detail.querySelector('.recipe-steps-section').querySelector('.steps-table'));
   assert.ok(detail.querySelector('.recipe-records').querySelector('.record-summary-header'));
-  assert.equal(detail.querySelector('.recipe-card-actions').querySelectorAll('button').length, 2);
+  assert.equal(detail.querySelector('.recipe-card-actions').querySelectorAll('button').length, 3);
+});
+
+test('recipe detail edit action announces the placeholder without changing the selected recipe', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.bind({ setDirty() {} });
+  const current = data();
+  view.renderData(current);
+  view.renderRoute(`/recipes/${RECIPE}`);
+
+  const edit = document.root.querySelector('.recipe-card-actions [data-action="edit-recipe"]');
+  assert.ok(edit, 'recipe detail exposes an edit button');
+  assert.equal(edit.textContent, '레시피 수정');
+  assert.equal(edit.dataset.id, RECIPE, 'the action identifies the selected recipe');
+  assert.equal(edit.disabled, false);
+
+  const beforeClick = structuredClone(current);
+  await clickViewTarget(document, edit);
+
+  const status = document.root.querySelector('.app-status');
+  assert.equal(status.textContent, '레시피 수정 기능을 준비 중입니다.');
+  assert.equal(status.getAttribute('role'), 'status');
+  assert.equal(view.currentRoute(), `/recipes/${RECIPE}`);
+  assert.deepEqual(current, beforeClick, 'the placeholder action does not mutate recipe data');
+  assert.equal(document.root.querySelector('form[data-form="recipes"]'), null);
 });
 
 test('recipe detail places the guide below the pour table and copy preserves its text', async () => {

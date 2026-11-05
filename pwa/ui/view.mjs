@@ -2316,6 +2316,10 @@ function recipeCard(document, recipe, data, detailed = false) {
     record.dataset.id = recipe.id;
     record.disabled = !recipeReady(recipe);
     actions.append(record);
+
+    const edit = button(document, '레시피 수정', 'button', 'edit-recipe');
+    edit.dataset.id = recipe.id;
+    actions.append(edit);
   }
   const copy = button(document, '이 레시피 복사', 'button', 'copy-recipe');
   copy.dataset.id = recipe.id;
@@ -3390,6 +3394,12 @@ function bindEvents({ page, nav, connectionForm, tokenInput, scheduleTokenValida
         syncSearchPickerTrigger(form.elements.recipeId.closest('[data-search-picker]'), windowData);
         actions.setDirty(true, 'records');
       }
+      return;
+    }
+    if (action === 'edit-recipe') {
+      const recipe = windowData?.recipes.find(item => item.id === target.dataset.id);
+      if (!recipe) return;
+      view.showStatus({ type: 'info', message: '레시피 수정 기능을 준비 중입니다.' });
       return;
     }
     if (action === 'confirm-connection') {

@@ -1,0 +1,157 @@
+{
+  "results": [
+    {
+      "width": 320,
+      "route": "/beans",
+      "boxes": [
+        {
+          "gap": 0,
+          "favoriteWidth": 46,
+          "trashWidth": 46,
+          "aligned": true
+        },
+        {
+          "gap": 0,
+          "favoriteWidth": 46,
+          "trashWidth": 46,
+          "aligned": true
+        }
+      ],
+      "favoriteToggle": true
+    },
+    {
+      "width": 320,
+      "route": "/recipes",
+      "boxes": [
+        {
+          "gap": 0,
+          "favoriteWidth": 46,
+          "trashWidth": 46,
+          "aligned": true
+        },
+        {
+          "gap": 0,
+          "favoriteWidth": 46,
+          "trashWidth": 46,
+          "aligned": true
+        }
+      ],
+      "favoriteToggle": true
+    },
+    {
+      "width": 390,
+      "route": "/beans",
+      "boxes": [
+        {
+          "gap": 0,
+          "favoriteWidth": 46,
+          "trashWidth": 46,
+          "aligned": true
+        },
+        {
+          "gap": 0,
+          "favoriteWidth": 46,
+          "trashWidth": 46,
+          "aligned": true
+        }
+      ],
+      "favoriteToggle": true
+    },
+    {
+      "width": 390,
+      "route": "/recipes",
+      "boxes": [
+        {
+          "gap": 0,
+          "favoriteWidth": 46,
+          "trashWidth": 46,
+          "aligned": true
+        },
+        {
+          "gap": 0,
+          "favoriteWidth": 46,
+          "trashWidth": 46,
+          "aligned": true
+        }
+      ],
+      "favoriteToggle": true
+    },
+    {
+      "width": 768,
+      "route": "/beans",
+      "boxes": [
+        {
+          "gap": 0,
+          "favoriteWidth": 46,
+          "trashWidth": 46,
+          "aligned": true
+        },
+        {
+          "gap": 0,
+          "favoriteWidth": 46,
+          "trashWidth": 46,
+          "aligned": true
+        }
+      ],
+      "favoriteToggle": true
+    },
+    {
+      "width": 768,
+      "route": "/recipes",
+      "boxes": [
+        {
+          "gap": 0,
+          "favoriteWidth": 46,
+          "trashWidth": 46,
+          "aligned": true
+        },
+        {
+          "gap": 0,
+          "favoriteWidth": 46,
+          "trashWidth": 46,
+          "aligned": true
+        }
+      ],
+      "favoriteToggle": true
+    },
+    {
+      "width": 1280,
+      "route": "/beans",
+      "boxes": [
+        {
+          "gap": 0,
+          "favoriteWidth": 46,
+          "trashWidth": 46,
+          "aligned": true
+        },
+        {
+          "gap": 0,
+          "favoriteWidth": 46,
+          "trashWidth": 46,
+          "aligned": true
+        }
+      ],
+      "favoriteToggle": true
+    },
+    {
+      "width": 1280,
+      "route": "/recipes",
+      "boxes": [
+        {
+          "gap": 0,
+          "favoriteWidth": 46,
+          "trashWidth": 46,
+          "aligned": true
+        },
+        {
+          "gap": 0,
+          "favoriteWidth": 46,
+          "trashWidth": 46,
+          "aligned": true
+        }
+      ],
+      "favoriteToggle": true
+    }
+  ],
+  "errors": []
+}

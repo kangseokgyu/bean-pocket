@@ -1414,4 +1414,5 @@ footer {
 }
 
 .entity-favorite[aria-pressed="true"] .favorite-icon { fill: currentColor; }
+.entity-card-header > .entity-favorite { margin-right: -12px; }
 .entity-card-header > h3 { flex: 1; min-width: 0; }

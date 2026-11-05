@@ -1,0 +1,20 @@
+node:internal/modules/run_main:104
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: /beans at 320px must have adjacent button boxes
+
+4 !== 0
+
+    at file:///private/tmp/ax-adjacent-actions-20261105/docs/evidence/adjacent-actions-20261105/verify-browser.mjs:25:16
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at process.processImmediate (node:internal/timers:479:9)
+    at process.callbackTrampoline (node:internal/async_hooks:130:17) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 4,
+  expected: 0,
+  operator: 'strictEqual'
+}
+
+Node.js v23.4.0

@@ -21,3 +21,13 @@ Requested adjustment: reduce wrapper padding/gap and/or allocate the internal in
 - Did not repeat the worker's full 748-test run because no product changes were made during review.
 
 Limitations: desktop Chrome layout is not a physical iPhone keyboard test. The synthetic fixture does not perform real Notion writes or validate real credentials. Actual persistence was not newly exercised in this focused review.
+
+## Re-review of `a312be9`
+
+Final verdict: **PASS**. The P2 height regression is resolved.
+
+Independently ran Chrome against the same feature worktree server at localhost:4208, asserted that the fetched stylesheet exactly matches the worktree file, and compared it to main `0e0c2f3` CSS at widths 320, 390, 601, 640, 768, and 1280. Every connection field is now 57.59375 px versus the prior 58.625 px. The 390 px dialog content is 511 px versus 516 px; at 320 px it is 536 px versus 541 px. See `critic-recheck-results.json`.
+
+Actual browser assertions also passed for 38 px input height, 16 px text, label activation, persistent labels above inputs, no dialog horizontal overflow, visible 3 px solid wrapper focus, and token icon placement below the label and inside the field. Product change since the first review is limited to wrapper padding and gap. No further blocking finding.
+
+This re-review did not rerun unchanged recipe/picker checks or the full test suite. Physical iPhone keyboard behavior and real Notion writes remain unverified.

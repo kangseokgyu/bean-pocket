@@ -1014,7 +1014,7 @@ footer {
 @media (max-width: 600px) {
   .page {
     width: min(100% - 24px, 760px);
-    padding: 14px 0 calc(104px + env(safe-area-inset-bottom, 0px));
+    padding: 14px 0 calc(88px + env(safe-area-inset-bottom, 0px));
   }
   .bean-section { padding: 12px 0; }
   .panel, .data-panel, .unresolved-panel, .card-skeletons { padding: 13px; border-radius: 13px; }
@@ -1031,17 +1031,18 @@ footer {
   .tabs {
     position: fixed;
     top: auto;
-    right: max(12px, env(safe-area-inset-right, 0px));
+    right: auto;
     bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-    left: max(12px, env(safe-area-inset-left, 0px));
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 20;
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     align-items: center;
     gap: 4px;
-    width: auto;
+    width: min(280px, calc(100% - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
     margin: 0;
-    padding: 7px;
+    padding: 6px;
     border: 1px solid rgb(72 72 68 / 18%);
     border-radius: 28px;
     background: #f7f6f2;
@@ -1052,9 +1053,9 @@ footer {
     display: grid;
     justify-items: center;
     align-content: center;
-    gap: 2px;
-    min-height: 54px;
-    padding: 5px 2px;
+    gap: 0;
+    min-height: 44px;
+    padding: 4px 2px;
     border: 0;
     border-radius: 20px;
     background: transparent;
@@ -1075,8 +1076,8 @@ footer {
   }
   .tabs .nav-icon {
     display: block;
-    width: 19px;
-    height: 19px;
+    width: 22px;
+    height: 22px;
     fill: none;
     stroke: currentColor;
     stroke-width: 1.7;
@@ -1084,10 +1085,10 @@ footer {
     stroke-linejoin: round;
     pointer-events: none;
   }
-  .tabs .nav-label { display: block; max-width: 100%; overflow: hidden; text-overflow: clip; }
+  .tabs .nav-label { display: none; }
   .tabs .tabs-start-brew {
     display: grid;
-    min-height: 58px;
+    min-height: 44px;
     border: 1px solid rgb(72 72 68 / 20%);
     background: rgb(60 60 56 / 8%);
     color: #30302d;

@@ -5035,3 +5035,28 @@ test('explicit comparison selects an older fourth bean despite a previous differ
     assert.doesNotMatch(document.root.querySelector('[data-brew-condition-comparison]').textContent, /16 g.*18 g/);
   }
 });
+
+for (const kind of ['beans', 'recipes']) {
+  test(`brew ${kind} show favorites first with a visible label and preserve source order`, () => {
+    const document = new TestDocument();
+    const view = createBeanView(document);
+    const current = data();
+    const original = current[kind][0];
+    current[kind] = [
+      { ...original, id: 'ordinary-1', name: 'A 일반' },
+      { ...original, id: 'favorite-1', name: 'Z 즐겨찾기', favorite: true },
+      { ...original, id: 'favorite-2', name: 'B 즐겨찾기', favorite: true },
+      { ...original, id: 'ordinary-2', name: 'C 일반', favorite: false },
+    ];
+    const sourceOrder = current[kind].map(item => item.id);
+    view.renderData(current);
+    const route = kind === 'beans' ? '/brew/bean' : `/brew/recipe?beanId=${BEAN}`;
+    view.renderRoute(route);
+    const cards = document.root.querySelector('.brew-option-list').children;
+    const key = kind === 'beans' ? 'beanId' : 'recipeId';
+    assert.deepEqual(cards.map(card => card.dataset[key]), ['favorite-1', 'favorite-2', 'ordinary-1', 'ordinary-2']);
+    assert.equal(cards[0].querySelector('.brew-option-favorite').textContent, '★ 즐겨찾기');
+    assert.equal(cards[2].querySelector('.brew-option-favorite'), null);
+    assert.deepEqual(current[kind].map(item => item.id), sourceOrder);
+  });
+}

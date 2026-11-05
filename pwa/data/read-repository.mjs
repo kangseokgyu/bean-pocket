@@ -845,11 +845,11 @@ export function createReadRepository(client) {
         item.status === 'ready' ? item.recipe : null]));
       return deepFreeze({ ...page, items: page.items.map(item => {
         const recipe = recipeById.get(item.id);
-        return { id: item.id, name: item.name, beanId: recipe?.beanId ?? null,
+        return { id: item.id, name: item.name, beanId: recipe?.beanId ?? null, favorite: item.favorite === true,
           status: recipe ? 'ready' : 'error' };
       }) });
     }
-    return deepFreeze({ ...page, items: page.items.map(item => ({ id: item.id, name: item.name, status: 'ready' })) });
+    return deepFreeze({ ...page, items: page.items.map(item => ({ id: item.id, name: item.name, favorite: item.favorite === true, status: 'ready' })) });
   }
 
   async function fetchAllRaw() {

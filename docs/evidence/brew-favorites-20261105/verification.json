@@ -1,0 +1,31 @@
+{
+  "buildVersion": "de77ae6d6c82",
+  "targeted": {
+    "command": "node --test test/pwa-ui.view.test.mjs test/pwa-read-repository.test.mjs",
+    "exitCode": 0,
+    "passed": 248
+  },
+  "red": {
+    "exitCode": 1,
+    "expectedFailures": 3,
+    "reason": "favorite search metadata absent and brew cards kept ordinary items before favorites"
+  },
+  "full": {
+    "command": "npm test",
+    "exitCode": 0,
+    "log": "npm-test.log"
+  },
+  "build": {
+    "command": "npm run build:pages",
+    "exitCode": 0
+  },
+  "check": {
+    "command": "npm run check:pages",
+    "exitCode": 0
+  },
+  "environmentFailure": "Initial sandboxed npm test failed: listen EPERM 127.0.0.1; rerun outside sandbox passed.",
+  "limitations": [
+    "No live personal Notion connection or physical iPhone session tested."
+  ],
+  "agents": "Simple change performed directly; no subagents used."
+}

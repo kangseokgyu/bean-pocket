@@ -1,0 +1,159 @@
+✖ searchOptions applies the typed title filter and binds continuation to the query (2.708541ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      {
+  -     favorite: true,
+        id: 'b1111111-1111-4111-8111-111111111111',
+        name: '에티오피아',
+        status: 'ready'
+      }
+    ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-brew-favorites-20261105/test/pwa-read-repository.test.mjs:541:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { id: 'b1111111-1111-4111-8111-111111111111', name: '에티오피아', status: 'ready' } ],
+    expected: [ { id: 'b1111111-1111-4111-8111-111111111111', name: '에티오피아', favorite: true, status: 'ready' } ],
+    operator: 'deepStrictEqual'
+  }
+
+✖ brew beans show favorites first with a visible label and preserve source order (7.856125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   'ordinary-1',
+      'favorite-1',
+      'favorite-2',
+  -   'ordinary-1',
+      'ordinary-2'
+    ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-brew-favorites-20261105/test/pwa-ui.view.test.mjs:5057:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'ordinary-1', 'favorite-1', 'favorite-2', 'ordinary-2' ],
+    expected: [ 'favorite-1', 'favorite-2', 'ordinary-1', 'ordinary-2' ],
+    operator: 'deepStrictEqual'
+  }
+
+✖ brew recipes show favorites first with a visible label and preserve source order (2.502125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   'ordinary-1',
+      'favorite-1',
+      'favorite-2',
+  -   'ordinary-1',
+      'ordinary-2'
+    ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-brew-favorites-20261105/test/pwa-ui.view.test.mjs:5057:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'ordinary-1', 'favorite-1', 'favorite-2', 'ordinary-2' ],
+    expected: [ 'favorite-1', 'favorite-2', 'ordinary-1', 'ordinary-2' ],
+    operator: 'deepStrictEqual'
+  }
+
+ℹ tests 3
+ℹ suites 0
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 96.419541
+
+✖ failing tests:
+
+test at test/pwa-read-repository.test.mjs:526:1
+✖ searchOptions applies the typed title filter and binds continuation to the query (2.708541ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      {
+  -     favorite: true,
+        id: 'b1111111-1111-4111-8111-111111111111',
+        name: '에티오피아',
+        status: 'ready'
+      }
+    ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-brew-favorites-20261105/test/pwa-read-repository.test.mjs:541:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { id: 'b1111111-1111-4111-8111-111111111111', name: '에티오피아', status: 'ready' } ],
+    expected: [ { id: 'b1111111-1111-4111-8111-111111111111', name: '에티오피아', favorite: true, status: 'ready' } ],
+    operator: 'deepStrictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:5040:3
+✖ brew beans show favorites first with a visible label and preserve source order (7.856125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   'ordinary-1',
+      'favorite-1',
+      'favorite-2',
+  -   'ordinary-1',
+      'ordinary-2'
+    ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-brew-favorites-20261105/test/pwa-ui.view.test.mjs:5057:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.start (node:internal/test_runner/test:829:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'ordinary-1', 'favorite-1', 'favorite-2', 'ordinary-2' ],
+    expected: [ 'favorite-1', 'favorite-2', 'ordinary-1', 'ordinary-2' ],
+    operator: 'deepStrictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:5040:3
+✖ brew recipes show favorites first with a visible label and preserve source order (2.502125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   'ordinary-1',
+      'favorite-1',
+      'favorite-2',
+  -   'ordinary-1',
+      'ordinary-2'
+    ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/ax-brew-favorites-20261105/test/pwa-ui.view.test.mjs:5057:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'ordinary-1', 'favorite-1', 'favorite-2', 'ordinary-2' ],
+    expected: [ 'favorite-1', 'favorite-2', 'ordinary-1', 'ordinary-2' ],
+    operator: 'deepStrictEqual'
+  }

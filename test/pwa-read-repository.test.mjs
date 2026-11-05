@@ -531,12 +531,14 @@ test('searchOptions applies the typed title filter and binds continuation to the
     async getPage() { throw new Error('bean search needs no related page'); },
     async queryPage(kind, options) {
       calls.push({ kind, options });
-      return { items: [beanPage()], nextCursor: 'next', hasMore: true, complete: false };
+      const bean = beanPage();
+      bean.properties['즐겨찾기'] = { type: 'checkbox', checkbox: true };
+      return { items: [bean], nextCursor: 'next', hasMore: true, complete: false };
     },
   };
   const repository = createReadRepository(client);
   const page = await repository.searchOptions({ kind: 'beans', query: '에티오피아', limit: 20 });
-  assert.deepEqual(page.items, [{ id: IDS.bean, name: '에티오피아', status: 'ready' }]);
+  assert.deepEqual(page.items, [{ id: IDS.bean, name: '에티오피아', favorite: true, status: 'ready' }]);
   assert.deepEqual(calls[0].options.filter, { property: '원두 이름', title: { contains: '에티오피아' } });
   await assert.rejects(repository.searchOptions({ kind: 'beans', query: '다른 검색', cursor: page.nextCursor }),
     error => error.code === 'invalid-input');
@@ -1038,6 +1040,7 @@ test('listRecords retains valid raw rows beyond the visible page for its continu
 
 test('recipe search options retain the validated bean parent for scoped selection', async () => {
   const parent = recipePage();
+  parent.properties['즐겨찾기'] = { type: 'checkbox', checkbox: true };
   const client = {
     dataSources: SOURCES,
     async queryAll() { throw new Error('recipe search is paged'); },
@@ -1055,5 +1058,5 @@ test('recipe search options retain the validated bean parent for scoped selectio
 
   const page = await repository.searchOptions({ kind: 'recipes', query: 'V60', limit: 20 });
 
-  assert.deepEqual(page.items, [{ id: IDS.recipe, name: 'V60', beanId: IDS.bean, status: 'ready' }]);
+  assert.deepEqual(page.items, [{ id: IDS.recipe, name: 'V60', beanId: IDS.bean, favorite: true, status: 'ready' }]);
 });

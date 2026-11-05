@@ -1643,7 +1643,7 @@ function renderBrewOptions(pane, data, document, route, optionPages, kind, selec
   searchField.append(searchControl);
   pane.append(searchField);
 
-  const items = page.items ?? [];
+  const items = [...(page.items ?? [])].sort((left, right) => Number(right.favorite === true) - Number(left.favorite === true));
   if (!items.length) {
     const stillLoading = page.hasMore || page.complete === false;
     const noun = isBeans ? '원두' : '레시피';
@@ -1682,6 +1682,7 @@ function renderBrewOptions(pane, data, document, route, optionPages, kind, selec
     card.disabled = !ready;
     if (!isBeans) card.dataset.optionReady = String(ready);
     card.append(make(document, 'strong', item.name, 'brew-option-name'));
+    if (item.favorite === true) card.append(make(document, 'span', '★ 즐겨찾기', 'muted-note brew-option-favorite'));
     if (isBeans) {
       const details = [item.origin, item.roaster].filter(Boolean).join(' · ');
       if (details) card.append(make(document, 'span', details, 'muted-note brew-option-details'));

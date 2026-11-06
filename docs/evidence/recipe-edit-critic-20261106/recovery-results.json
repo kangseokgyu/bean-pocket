@@ -1,0 +1,11 @@
+{
+  "savedUnknown": "unknown",
+  "ledger1": [
+    "unknown"
+  ],
+  "retryCode": "unresolved-operation",
+  "resolvedSaved": "succeeded",
+  "beforeUnknown": "unknown",
+  "resolvedBefore": "failed",
+  "writesDuringRecovery": 0
+}

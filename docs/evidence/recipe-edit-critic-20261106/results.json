@@ -1,0 +1,24 @@
+[
+  {
+    "viewport": "mobile",
+    "save": "succeeded",
+    "confirmedPages": 4,
+    "cancel": "keep and discard verified",
+    "draft": "route preserved",
+    "stale": "zero write rejection",
+    "historicalRecord": "unchanged",
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "viewport": "desktop",
+    "save": "succeeded",
+    "confirmedPages": 4,
+    "cancel": "keep and discard verified",
+    "draft": "route preserved",
+    "stale": "zero write rejection",
+    "historicalRecord": "unchanged",
+    "overflow": false,
+    "errors": []
+  }
+]

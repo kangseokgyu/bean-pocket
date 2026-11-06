@@ -146,9 +146,8 @@ footer .build-version { margin-top: 8px; letter-spacing: normal; font-weight: 40
   height: 44px;
   min-height: 44px;
   padding: 0;
-  background: #fffefa;
-  border-color: #d8d1c3;
-  border-radius: 50%;
+  background: transparent;
+  border: 0;
   color: #31443a;
 }
 .connection-toggle svg {
@@ -161,7 +160,7 @@ footer .build-version { margin-top: 8px; letter-spacing: normal; font-weight: 40
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.connection-toggle[aria-expanded="true"] { background: #e8eee7; border-color: #aab8aa; color: #224b3c; }
+.connection-toggle[aria-expanded="true"] { background: #e8eee7; color: #224b3c; }
 
 .bean-section {
   flex: 1;
@@ -489,8 +488,7 @@ button:focus-visible, .table-scroll:focus-visible {
   height: 44px;
   min-height: 44px;
   padding: 0;
-  border-color: #d4c9b8;
-  border-radius: 999px;
+  border: 0;
   background: transparent;
   color: #52695b;
   font-weight: 600;
@@ -500,7 +498,7 @@ button:focus-visible, .table-scroll:focus-visible {
   font-size: 1.05rem;
   line-height: 1;
 }
-.button.button--back:hover:not(:disabled) { border-color: #bbae98; background: #f7f1e7; }
+.button.button--back:hover:not(:disabled) { background: #f7f1e7; }
 
 .button.button--pagination {
   width: 100%;
@@ -853,8 +851,8 @@ button:focus-visible, .table-scroll:focus-visible {
 .entity-delete, .entity-favorite, .entity-edit { flex: 0 0 46px; width: 46px; height: 46px; margin: -14px -8px -14px 0; color: #737373; background: transparent; border-color: transparent; }
 .entity-delete, .entity-favorite, .entity-edit { flex-basis: 35px; width: 35px; height: 35px; min-height: 35px; padding: 0; }
 .entity-delete svg, .entity-favorite svg, .entity-edit svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.entity-delete:hover:not(:disabled), .entity-favorite:hover:not(:disabled), .entity-edit:hover:not(:disabled),
-.connection-toggle:hover:not(:disabled) { background: #f0f0ed; border-color: #b7b7af; }
+.entity-delete:hover:not(:disabled), .entity-favorite:hover:not(:disabled), .entity-edit:hover:not(:disabled) { background: #f0f0ed; border-color: #b7b7af; }
+.connection-toggle:hover:not(:disabled) { background: #f0f0ed; }
 .bag-card { padding-top: 10px; border-top: 1px solid #e0dbcf; }
 .bag-card + .bag-card { margin-top: 10px; }
 .bag-card > :last-child, .bean-card > :last-child, .bean-detail-card > :last-child,

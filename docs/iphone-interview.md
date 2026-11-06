@@ -62,7 +62,7 @@
 - Q22~Q23: Xcode 설치·서명과 로컬 PC 웹 제안은 최종 방향 변경으로 폐기했다.
 - Q24: 사용자가 GitHub Pages PWA 방향에 ‘예’라고 답했다. 현재 결정은 [ADR-0003](adr/0003-github-pages-personal-pwa.md)을 따른다.
 
-[기존 독립 실행 계획](iphone-standalone-plan.html)의 암호화·잠금 제안은 이번 확정 범위와 다르므로 현재 요구사항으로 취급하지 않는다. [현재 입력·저장 방식 설명](current-editing-overview.html)은 기존 구현의 정적 확인 결과다.
+[기존 독립 실행 계획](iphone-standalone-plan.html)의 암호화·잠금 제안은 이번 확정 범위와 다르므로 현재 요구사항으로 취급하지 않는다. 현재 화면 입력과 저장 동작은 [PWA 사용 안내](pwa-usage.md)를 참고한다.
 
 ## 근거와 검증 상태
 

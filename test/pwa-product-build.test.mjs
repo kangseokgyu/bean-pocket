@@ -166,12 +166,14 @@ self['skip' + 'Waiting']();
 });
 
 
-test('SVG namespace is allowed only in UI element creation, never as a request URL', async t => {
+test('SVG namespace is allowed only for literal elements in the icon module, never as a request URL', async t => {
   const f = await fixture(t);
   await buildPages(f);
   await checkPages(f.outputDir);
   const target = path.join(f.outputDir, 'ui/shared/icons.mjs');
   const original = await readFile(target, 'utf8');
+  assert.match(original,
+    /document\.createElementNS\('http:\/\/www\.w3\.org\/2000\/svg', 'circle'\)/);
   for (const extra of [
     "fetch('http://www.w3.org/2000/svg');",
     "document.createElementNS('https://example.invalid', 'svg');",
@@ -183,6 +185,8 @@ test('SVG namespace is allowed only in UI element creation, never as a request U
   const viewModule = path.join(f.outputDir, 'ui/view.mjs');
   const originalView = await readFile(viewModule, 'utf8');
   await writeFile(viewModule, originalView + "\ndocument.createElementNS('http://www.w3.org/2000/svg', 'svg');");
+  await assert.rejects(checkPages(f.outputDir), /외부 URL/);
+  await writeFile(viewModule, originalView + "\ndocument.createElementNS('http://www.w3.org/2000/svg', 'circle');");
   await assert.rejects(checkPages(f.outputDir), /외부 URL/);
   await writeFile(viewModule, originalView);
   const otherModule = path.join(f.outputDir, 'ui/controller.mjs');

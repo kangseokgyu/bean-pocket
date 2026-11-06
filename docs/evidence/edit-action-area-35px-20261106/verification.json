@@ -1,0 +1,41 @@
+{
+  "change": "Edit button area matches favorite/delete at 35x35 CSS px; SVG remains 22x22",
+  "tests": {
+    "command": "npm test",
+    "exitCode": 0,
+    "total": 748,
+    "passed": 748,
+    "failed": 0,
+    "log": "/private/tmp/ax-edit-action-area-35px-test.log"
+  },
+  "build": {
+    "commands": [
+      "npm run build:pages",
+      "npm run check:pages"
+    ],
+    "exitCode": 0,
+    "version": "2994b79bc8f9"
+  },
+  "browser": {
+    "command": "node docs/evidence/edit-action-area-35px-20261106/browser-check.cjs",
+    "exitCode": 0,
+    "widths": [
+      320,
+      390,
+      1440
+    ],
+    "checks": [
+      "35x35 edit and delete buttons",
+      "22x22 SVG icons",
+      "aligned adjacent buttons",
+      "hover and keyboard focus",
+      "edit click and keyboard activation",
+      "delete confirmation and dispatch",
+      "no horizontal overflow",
+      "no page errors"
+    ]
+  },
+  "limitations": [
+    "Actual iPhone and live Notion writes not tested"
+  ]
+}

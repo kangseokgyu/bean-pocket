@@ -75,6 +75,17 @@ Moved the search picker DOM and actions, delegated event binding, pull-to-refres
 | `npm run check:pages` | Exit 0. Pages artifact check passed. | [r3c/check-pages.log](r3c/check-pages.log) |
 | Published view import cycle check | Exit 0. No cycles in 27 modules. | [r3c/import-cycles.log](r3c/import-cycles.log) |
 
-## Remaining phases
+## R4-R5 controller reads and Pages integration
 
-R4-R6 remain pending. Main owns independent review and browser comparison.
+Moved cache keys, expiry and eviction, option reads, route loaders, and insight projection into `pwa/ui/controller/`. The controller still owns connection and journal handling, write order, request generations, and the checks before publishing a response. Deferred reads still start after the first screen is published.
+
+| Command | Result | Log |
+| --- | --- | --- |
+| Controller read tests before extraction | Exit 1. Node could not import the missing cache module. | [r4-r5/before.log](r4-r5/before.log) |
+| Release checks before integration | Exit 1. The controller module was missing from the output and the builder accepted the directory symlink. | [r4-r5/release-before.log](r4-r5/release-before.log) |
+| Focused controller, UI, connection, write, and Pages tests | Exit 0. 141 passed, 0 failed. | [r4-r5/focused.log](r4-r5/focused.log) |
+| `npm test` with loopback access | Exit 0. 769 passed, 0 failed. | [r4-r5/npm-test.log](r4-r5/npm-test.log) |
+| `npm run build:pages` | Exit 0. Pages build `bf23f84f2158`. | [r4-r5/build-pages.log](r4-r5/build-pages.log) |
+| `npm run check:pages` | Exit 0. Artifact and security checks passed. | [r4-r5/check-pages.log](r4-r5/check-pages.log) |
+
+The release tests check the four modules for byte equality, version hash changes, URL scanning, precache coverage, and imports without cycles. The builder and checker reject symlinks to populated controller directories.

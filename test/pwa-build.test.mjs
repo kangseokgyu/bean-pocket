@@ -34,6 +34,10 @@ const expectedFiles = [
   'styles.css',
   'sw.js',
   'ui/controller.mjs',
+  'ui/controller/cache.mjs',
+  'ui/controller/loader.mjs',
+  'ui/controller/record-insights.mjs',
+  'ui/controller/search.mjs',
   'ui/forms/bean-form.mjs',
   'ui/forms/recipe-form.mjs',
   'ui/forms/record-form.mjs',
@@ -88,6 +92,7 @@ async function writeSourceFixture(sourceDir) {
   await mkdir(path.join(sourceDir, 'commands'), { recursive: true });
   await mkdir(path.join(sourceDir, 'ui'), { recursive: true });
   await mkdir(path.join(sourceDir, 'ui/shared'), { recursive: true });
+  await mkdir(path.join(sourceDir, 'ui/controller'), { recursive: true });
   await mkdir(path.join(sourceDir, 'ui/interactions'), { recursive: true });
   await mkdir(path.join(sourceDir, 'ui/forms'), { recursive: true });
   await mkdir(path.join(sourceDir, 'ui/screens'), { recursive: true });
@@ -97,6 +102,10 @@ async function writeSourceFixture(sourceDir) {
     'brew-picker-demo.mjs': 'export const demo = true;',
     'commands/index.mjs': 'export const commands = {};',
     'ui/controller.mjs': 'export const controller = {};',
+    'ui/controller/cache.mjs': 'export const fixture = true;',
+    'ui/controller/loader.mjs': 'export const fixture = true;',
+    'ui/controller/record-insights.mjs': 'export const fixture = true;',
+    'ui/controller/search.mjs': 'export const fixture = true;',
     'ui/forms/bean-form.mjs': 'export const buildBeanForm = () => {};',
     'ui/forms/recipe-form.mjs': 'export const buildRecipeForm = () => {};',
     'ui/forms/record-form.mjs': 'export const buildRecordForm = () => {};',
@@ -434,6 +443,27 @@ test('checker rejects a populated interactions output directory symlink', async 
   await assert.rejects(checkPages(outputDir), /심볼릭 링크.*ui\/interactions/);
 });
 
+test('builder rejects a populated controller source directory symlink', async t => {
+  const { root, sourceDir } = await buildFixture(t);
+  const nested = path.join(sourceDir, 'ui/controller');
+  const outside = path.join(root, 'outside-controller');
+  await rename(nested, outside);
+  await symlink(outside, nested, 'dir');
+  await assert.rejects(
+    buildPages({ sourceDir, outputDir: path.join(root, 'controller-symlink-dist') }),
+    /심볼릭 링크.*ui\/controller/,
+  );
+});
+
+test('checker rejects a populated controller output directory symlink', async t => {
+  const { root, outputDir } = await buildProductionFixture(t);
+  const nested = path.join(outputDir, 'ui/controller');
+  const outside = path.join(root, 'outside-controller');
+  await rename(nested, outside);
+  await symlink(outside, nested, 'dir');
+  await assert.rejects(checkPages(outputDir), /심볼릭 링크.*ui\/controller/);
+});
+
 test('빌더는 symlink 부모 경로로 소스를 출력 경로로 지정해도 원본을 보존한다', async t => {
   const root = await makeTempDirectory(t);
   const sourceDir = path.join(root, 'pwa');
@@ -512,6 +542,8 @@ test('Service Worker install·activate·fetch는 scope를 격리하고 앱 파�
   const appFiles = [
     './', './index.html', './app.mjs', './brew-picker-demo.html', './brew-picker-demo.css',
     './brew-picker-demo.mjs', './commands/index.mjs', './ui/controller.mjs',
+    './ui/controller/cache.mjs', './ui/controller/loader.mjs',
+    './ui/controller/record-insights.mjs', './ui/controller/search.mjs',
     './ui/interactions/events.mjs', './ui/interactions/pull-to-refresh.mjs',
     './ui/interactions/search-picker.mjs', './ui/interactions/status-toast.mjs',
     './ui/records-insights.mjs',

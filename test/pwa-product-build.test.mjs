@@ -6,7 +6,8 @@ import path from 'node:path';
 import { buildPages } from '../scripts/build-pages.mjs';
 import { checkPages } from '../scripts/check-pages.mjs';
 
-const modules = ['commands/index.mjs', 'ui/controller.mjs', 'ui/records-insights.mjs', 'ui/records-insights-view.mjs',
+const controllerModules = ['cache', 'search', 'loader', 'record-insights'].map(name => `ui/controller/${name}.mjs`);
+const modules = [...controllerModules, 'commands/index.mjs', 'ui/controller.mjs', 'ui/records-insights.mjs', 'ui/records-insights-view.mjs',
   'ui/interactions/events.mjs', 'ui/interactions/pull-to-refresh.mjs',
   'ui/interactions/search-picker.mjs', 'ui/interactions/status-toast.mjs',
   'ui/forms/record-form.mjs', 'ui/screens/brew.mjs', 'ui/screens/records.mjs',
@@ -77,26 +78,32 @@ test('product commands, UI and lifecycle ship byte-for-byte and all affect the r
   }
 });
 
-test('PWA view import closure is present in the published precache', async t => {
+test('PWA view and controller import closures are acyclic and present in the published precache', async t => {
   const f = await fixture(t);
   await buildPages(f);
   await checkPages(f.outputDir);
   const worker = await readFile(path.join(f.outputDir, 'sw.js'), 'utf8');
-  const pending = ['ui/view.mjs'];
-  const visited = new Set();
-  while (pending.length) {
-    const file = pending.pop();
-    if (visited.has(file)) continue;
-    visited.add(file);
-    const source = await readFile(path.join(f.outputDir, file), 'utf8');
-    for (const match of source.matchAll(/(?:from\s*|import\s*)['"](\.{1,2}\/[^'"]+)['"]/g)) {
-      const dependency = path.posix.normalize(path.posix.join(path.posix.dirname(file), match[1]));
-      assert.ok(!dependency.startsWith('../'), `${file} must resolve within the PWA output`);
-      await readFile(path.join(f.outputDir, dependency));
-      assert.ok(worker.includes(`./${dependency}`), `${dependency} must be precached`);
-      pending.push(dependency);
+  async function importClosure(entry) {
+    const visited = new Set();
+    const active = new Set();
+    async function visit(file) {
+      assert.ok(!active.has(file), `circular import: ${[...active, file].join(' -> ')}`);
+      if (visited.has(file)) return;
+      active.add(file);
+      const source = await readFile(path.join(f.outputDir, file), 'utf8');
+      for (const match of source.matchAll(/(?:from\s*|import\s*)['"](\.{1,2}\/[^'"]+)['"]/g)) {
+        const dependency = path.posix.normalize(path.posix.join(path.posix.dirname(file), match[1]));
+        assert.ok(!dependency.startsWith('../'), `${file} must resolve within the PWA output`);
+        assert.ok(worker.includes(`./${dependency}`), `${dependency} must be precached`);
+        await visit(dependency);
+      }
+      active.delete(file);
+      visited.add(file);
     }
+    await visit(entry);
+    return visited;
   }
+  const viewModules = await importClosure('ui/view.mjs');
   for (const file of ['ui/interactions/events.mjs', 'ui/interactions/pull-to-refresh.mjs',
     'ui/interactions/search-picker.mjs', 'ui/interactions/status-toast.mjs',
     'ui/forms/bean-form.mjs', 'ui/forms/recipe-form.mjs', 'ui/forms/record-form.mjs',
@@ -104,7 +111,11 @@ test('PWA view import closure is present in the published precache', async t => 
     'ui/shared/buttons.mjs', 'ui/shared/date.mjs', 'ui/shared/dialogs.mjs', 'ui/shared/dom.mjs',
     'ui/shared/favorite-button.mjs', 'ui/shared/form-fields.mjs', 'ui/shared/icons.mjs',
     'ui/shared/recipe-presentation.mjs', 'ui/shared/record-card.mjs', 'ui/shared/route.mjs']) {
-    assert.ok(visited.has(file), `${file} must be reachable from the view facade`);
+    assert.ok(viewModules.has(file), `${file} must be reachable from the view facade`);
+  }
+  const controllerImports = await importClosure('ui/controller.mjs');
+  for (const file of controllerModules) {
+    assert.ok(controllerImports.has(file), `${file} must be reachable from the controller facade`);
   }
 });
 

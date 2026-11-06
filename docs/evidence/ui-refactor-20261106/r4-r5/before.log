@@ -1,0 +1,33 @@
+node:internal/modules/esm/resolve:275
+    throw new ERR_MODULE_NOT_FOUND(
+          ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/kangseokgyu/.codex/worktrees/bean-pocket-ui-refactor/AX-1day/pwa/ui/controller/cache.mjs' imported from /Users/kangseokgyu/.codex/worktrees/bean-pocket-ui-refactor/AX-1day/test/pwa-controller-reads.test.mjs
+    at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+    at moduleResolve (node:internal/modules/esm/resolve:860:10)
+    at defaultResolve (node:internal/modules/esm/resolve:984:11)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:780:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:704:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:687:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:305:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:175:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///Users/kangseokgyu/.codex/worktrees/bean-pocket-ui-refactor/AX-1day/pwa/ui/controller/cache.mjs'
+}
+
+Node.js v22.17.0
+✖ test/pwa-controller-reads.test.mjs (36.816583ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41.349334
+
+✖ failing tests:
+
+test at test/pwa-controller-reads.test.mjs:1:1
+✖ test/pwa-controller-reads.test.mjs (36.816583ms)
+  'test failed'

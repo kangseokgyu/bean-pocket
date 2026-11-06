@@ -1,0 +1,292 @@
+[
+  {
+    "width": 390,
+    "closed": {
+      "button": {
+        "width": 44,
+        "height": 44,
+        "background": "rgb(255, 254, 250)",
+        "border": "rgb(216, 209, 195)",
+        "color": "rgb(49, 68, 58)",
+        "borderRadius": "50%",
+        "outline": "rgb(49, 68, 58) none 3px"
+      },
+      "svg": {
+        "width": 22,
+        "height": 22,
+        "stroke": "1.7px",
+        "linecap": "round",
+        "linejoin": "round"
+      },
+      "expanded": "false",
+      "disabled": false,
+      "focused": false,
+      "focusVisible": false,
+      "overflow": false
+    },
+    "hover": {
+      "button": {
+        "width": 44,
+        "height": 44,
+        "background": "rgb(240, 240, 237)",
+        "border": "rgb(183, 183, 175)",
+        "color": "rgb(49, 68, 58)",
+        "borderRadius": "50%",
+        "outline": "rgb(49, 68, 58) none 3px"
+      },
+      "svg": {
+        "width": 22,
+        "height": 22,
+        "stroke": "1.7px",
+        "linecap": "round",
+        "linejoin": "round"
+      },
+      "expanded": "false",
+      "disabled": false,
+      "focused": false,
+      "focusVisible": false,
+      "overflow": false
+    },
+    "openHover": {
+      "button": {
+        "width": 44,
+        "height": 44,
+        "background": "rgb(232, 238, 231)",
+        "border": "rgb(170, 184, 170)",
+        "color": "rgb(34, 75, 60)",
+        "borderRadius": "50%",
+        "outline": "rgb(34, 75, 60) none 3px"
+      },
+      "svg": {
+        "width": 22,
+        "height": 22,
+        "stroke": "1.7px",
+        "linecap": "round",
+        "linejoin": "round"
+      },
+      "expanded": "true",
+      "disabled": false,
+      "focused": false,
+      "focusVisible": false,
+      "overflow": false
+    },
+    "dialogOpen": true,
+    "expanded": {
+      "button": {
+        "width": 44,
+        "height": 44,
+        "background": "rgb(232, 238, 231)",
+        "border": "rgb(170, 184, 170)",
+        "color": "rgb(34, 75, 60)",
+        "borderRadius": "50%",
+        "outline": "rgb(34, 75, 60) none 3px"
+      },
+      "svg": {
+        "width": 22,
+        "height": 22,
+        "stroke": "1.7px",
+        "linecap": "round",
+        "linejoin": "round"
+      },
+      "expanded": "true",
+      "disabled": false,
+      "focused": false,
+      "focusVisible": false,
+      "overflow": false
+    },
+    "afterEscape": {
+      "button": {
+        "width": 44,
+        "height": 44,
+        "background": "rgb(255, 254, 250)",
+        "border": "rgb(216, 209, 195)",
+        "color": "rgb(49, 68, 58)",
+        "borderRadius": "50%",
+        "outline": "rgb(138, 181, 154) solid 3px"
+      },
+      "svg": {
+        "width": 22,
+        "height": 22,
+        "stroke": "1.7px",
+        "linecap": "round",
+        "linejoin": "round"
+      },
+      "expanded": "false",
+      "disabled": false,
+      "focused": true,
+      "focusVisible": true,
+      "overflow": false,
+      "dialogOpen": false
+    },
+    "spaceOpen": true,
+    "keyboardFocus": {
+      "button": {
+        "width": 44,
+        "height": 44,
+        "background": "rgb(255, 254, 250)",
+        "border": "rgb(216, 209, 195)",
+        "color": "rgb(49, 68, 58)",
+        "borderRadius": "50%",
+        "outline": "rgb(138, 181, 154) solid 3px"
+      },
+      "svg": {
+        "width": 22,
+        "height": 22,
+        "stroke": "1.7px",
+        "linecap": "round",
+        "linejoin": "round"
+      },
+      "expanded": "false",
+      "disabled": false,
+      "focused": true,
+      "focusVisible": true,
+      "overflow": false
+    },
+    "enterOpen": true
+  },
+  {
+    "width": 1280,
+    "closed": {
+      "button": {
+        "width": 44,
+        "height": 44,
+        "background": "rgb(255, 254, 250)",
+        "border": "rgb(216, 209, 195)",
+        "color": "rgb(49, 68, 58)",
+        "borderRadius": "50%",
+        "outline": "rgb(49, 68, 58) none 3px"
+      },
+      "svg": {
+        "width": 22,
+        "height": 22,
+        "stroke": "1.7px",
+        "linecap": "round",
+        "linejoin": "round"
+      },
+      "expanded": "false",
+      "disabled": false,
+      "focused": false,
+      "focusVisible": false,
+      "overflow": false
+    },
+    "hover": {
+      "button": {
+        "width": 44,
+        "height": 44,
+        "background": "rgb(240, 240, 237)",
+        "border": "rgb(183, 183, 175)",
+        "color": "rgb(49, 68, 58)",
+        "borderRadius": "50%",
+        "outline": "rgb(49, 68, 58) none 3px"
+      },
+      "svg": {
+        "width": 22,
+        "height": 22,
+        "stroke": "1.7px",
+        "linecap": "round",
+        "linejoin": "round"
+      },
+      "expanded": "false",
+      "disabled": false,
+      "focused": false,
+      "focusVisible": false,
+      "overflow": false
+    },
+    "openHover": {
+      "button": {
+        "width": 44,
+        "height": 44,
+        "background": "rgb(232, 238, 231)",
+        "border": "rgb(170, 184, 170)",
+        "color": "rgb(34, 75, 60)",
+        "borderRadius": "50%",
+        "outline": "rgb(34, 75, 60) none 3px"
+      },
+      "svg": {
+        "width": 22,
+        "height": 22,
+        "stroke": "1.7px",
+        "linecap": "round",
+        "linejoin": "round"
+      },
+      "expanded": "true",
+      "disabled": false,
+      "focused": false,
+      "focusVisible": false,
+      "overflow": false
+    },
+    "dialogOpen": true,
+    "expanded": {
+      "button": {
+        "width": 44,
+        "height": 44,
+        "background": "rgb(232, 238, 231)",
+        "border": "rgb(170, 184, 170)",
+        "color": "rgb(34, 75, 60)",
+        "borderRadius": "50%",
+        "outline": "rgb(34, 75, 60) none 3px"
+      },
+      "svg": {
+        "width": 22,
+        "height": 22,
+        "stroke": "1.7px",
+        "linecap": "round",
+        "linejoin": "round"
+      },
+      "expanded": "true",
+      "disabled": false,
+      "focused": false,
+      "focusVisible": false,
+      "overflow": false
+    },
+    "afterEscape": {
+      "button": {
+        "width": 44,
+        "height": 44,
+        "background": "rgb(255, 254, 250)",
+        "border": "rgb(216, 209, 195)",
+        "color": "rgb(49, 68, 58)",
+        "borderRadius": "50%",
+        "outline": "rgb(138, 181, 154) solid 3px"
+      },
+      "svg": {
+        "width": 22,
+        "height": 22,
+        "stroke": "1.7px",
+        "linecap": "round",
+        "linejoin": "round"
+      },
+      "expanded": "false",
+      "disabled": false,
+      "focused": true,
+      "focusVisible": true,
+      "overflow": false,
+      "dialogOpen": false
+    },
+    "spaceOpen": true,
+    "keyboardFocus": {
+      "button": {
+        "width": 44,
+        "height": 44,
+        "background": "rgb(255, 254, 250)",
+        "border": "rgb(216, 209, 195)",
+        "color": "rgb(49, 68, 58)",
+        "borderRadius": "50%",
+        "outline": "rgb(138, 181, 154) solid 3px"
+      },
+      "svg": {
+        "width": 22,
+        "height": 22,
+        "stroke": "1.7px",
+        "linecap": "round",
+        "linejoin": "round"
+      },
+      "expanded": "false",
+      "disabled": false,
+      "focused": true,
+      "focusVisible": true,
+      "overflow": false
+    },
+    "enterOpen": true
+  }
+]

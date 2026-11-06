@@ -282,6 +282,51 @@ test('connection settings open only after no saved connection is found', () => {
   assert.equal(panel.open, true);
 });
 
+test('connection settings header control uses an accessible outlined gear button', () => {
+  const document = new TestDocument();
+  createBeanView(document);
+  const toggle = document.root.querySelector('.connection-toggle');
+  const icon = toggle.querySelector('svg');
+  assert.ok(icon, 'settings control renders an SVG gear');
+  assert.equal(icon.getAttribute('viewBox'), '0 0 24 24');
+  assert.equal(icon.getAttribute('aria-hidden'), 'true');
+  assert.equal(icon.getAttribute('focusable'), 'false');
+  assert.ok(icon.querySelector('path'), 'gear outline is drawn with a vector path');
+  assert.equal(toggle.getAttribute('aria-label'), 'Notion 연결 설정');
+  assert.equal(toggle.title, 'Notion 연결 설정');
+  assert.equal(toggle.getAttribute('aria-controls'), 'connection-settings');
+  assert.equal(toggle.getAttribute('aria-expanded'), 'false');
+  assert.equal(toggle.disabled, true, 'the button stays disabled before startup resolves');
+
+  const stylesheet = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
+  const buttonRule = stylesheet.match(/\.button\.connection-toggle\s*\{([^}]*)\}/s);
+  const iconRule = stylesheet.match(/\.connection-toggle\s+svg\s*\{([^}]*)\}/s);
+  assert.ok(buttonRule, 'settings button has its own visual treatment');
+  assert.ok(iconRule, 'settings SVG has a matching outlined-icon treatment');
+  for (const declaration of [
+    /flex:\s*0 0 44px/,
+    /width:\s*44px/,
+    /min-width:\s*44px/,
+    /height:\s*44px/,
+    /min-height:\s*44px/,
+    /border-radius:\s*50%/,
+    /border-color:\s*#d8d1c3/,
+    /background:\s*#fffefa/,
+    /color:\s*#31443a/,
+  ]) assert.match(buttonRule[1], declaration);
+  for (const declaration of [
+    /width:\s*22px/,
+    /height:\s*22px/,
+    /fill:\s*none/,
+    /stroke:\s*currentColor/,
+    /stroke-width:\s*1\.7/,
+    /stroke-linecap:\s*round/,
+    /stroke-linejoin:\s*round/,
+  ]) assert.match(iconRule[1], declaration);
+  assert.match(stylesheet, /\.connection-toggle:hover:not\(:disabled\)[^{]*\{[^}]*background:\s*#f0f0ed/s);
+  assert.match(stylesheet, /\.connection-toggle\[aria-expanded="true"\]\s*\{[^}]*background:\s*#e8eee7[^}]*color:\s*#224b3c/s);
+});
+
 test('startup checking shows the status toast outside the locked page until retry is needed', () => {
   const document = new TestDocument();
   const { body, page } = mountInPage(document);
@@ -423,6 +468,7 @@ test('saved connection opens settings modally and closing discards unsaved secre
   const icon = tools.querySelector('button');
   assert.ok(icon, 'settings icon belongs in the header slot before build information');
   assert.equal(icon.getAttribute('aria-label'), 'Notion 연결 설정');
+  assert.equal(icon.getAttribute('aria-controls'), 'connection-settings');
   const panel = document.root.querySelector('.connection-panel');
   assert.equal(icon.disabled, true);
   view.showConnection({ connected: true });
@@ -3769,7 +3815,7 @@ test('insight bean cards, comparison filter, and sort controls update the produc
   recipe.value = alternateRecipe;
   change(recipe);
   assert.deepEqual(comparisonIds(), ['comparison-mid'], 'recipe filtering changes only selected-bean comparison rows');
-  assert.equal(document.root.querySelectorAll('circle').length, 4,
+  assert.equal(content.querySelector('.rating-trend-chart').querySelectorAll('circle').length, 4,
     'comparison filters leave every loaded top-three bean in the trend');
   assert.equal(document.root.querySelector('.record-insight-best-record').dataset.insightRecordId, 'comparison-high',
     'the best record remains on the full loaded selected-bean scope');
@@ -3830,7 +3876,7 @@ test('changing the selected bean clears a recipe filter that does not belong to 
   filter.value = RECIPE;
   for (const listener of content.listeners.get('change') ?? []) listener({ target: filter });
   assert.deepEqual(comparisonIds(), [original.records[0].id]);
-  assert.equal(content.querySelectorAll('circle').length, 2);
+  assert.equal(content.querySelector('.rating-trend-chart').querySelectorAll('circle').length, 2);
 
   await clickViewTarget(document, content.querySelector(`[data-action="select-insight-bean"][data-bean-id="${otherBeanId}"]`));
   content = document.root.querySelector('.data-panel');
@@ -3844,7 +3890,7 @@ test('changing the selected bean clears a recipe filter that does not belong to 
   const summaryStats = selectedSummary.querySelector('.record-insight-bean-stats').querySelectorAll('dd');
   assert.equal(summaryStats[0].textContent, '1건');
   assert.equal(summaryStats[1].textContent, '3.0점');
-  assert.equal(content.querySelectorAll('circle').length, 2);
+  assert.equal(content.querySelector('.rating-trend-chart').querySelectorAll('circle').length, 2);
   assert.equal(content.querySelector('.record-insight-best-record').dataset.insightRecordId, otherRecord.id);
 });
 
@@ -4175,6 +4221,26 @@ test('home is the default and root route, with the requested hero and four menu 
   view.renderRoute('/');
   assert.equal(view.currentRoute(), '/home');
   assert.ok(document.root.querySelector('.home-hero'));
+});
+
+test('back buttons show an arrow and keep their accessible destination and route', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+
+  for (const [route, destination, target] of [
+    [`/beans/${BEAN}`, '원두 목록으로', '/beans'],
+    [`/recipes/${RECIPE}`, '레시피 목록으로 돌아가기', '/recipes'],
+  ]) {
+    view.renderRoute(route);
+    const back = document.root.querySelector('.button--back');
+    assert.ok(back);
+    assert.equal(back.type, 'button');
+    assert.equal(back.getAttribute('aria-label'), destination);
+    assert.equal(back.dataset.route, target);
+    assert.equal(back.textContent, '←');
+    assert.equal(back.querySelector('.back-arrow').getAttribute('aria-hidden'), 'true');
+  }
 });
 
 test('brew routes preserve selected parents and show the saved recipe guide without an automatic timer', () => {
@@ -5458,7 +5524,7 @@ test('explicit comparison selects an older fourth bean despite a previous differ
 });
 
 for (const kind of ['beans', 'recipes']) {
-  test(`brew ${kind} show favorites first with a visible label and preserve source order`, () => {
+  test(`brew ${kind} show favorites first and preserve source order`, () => {
     const document = new TestDocument();
     const view = createBeanView(document);
     const current = data();
@@ -5476,7 +5542,12 @@ for (const kind of ['beans', 'recipes']) {
     const cards = document.root.querySelector('.brew-option-list').children;
     const key = kind === 'beans' ? 'beanId' : 'recipeId';
     assert.deepEqual(cards.map(card => card.dataset[key]), ['favorite-1', 'favorite-2', 'ordinary-1', 'ordinary-2']);
-    assert.equal(cards[0].querySelector('.brew-option-favorite').textContent, '★ 즐겨찾기');
+    const badge = cards[0].querySelector('.brew-option-favorite');
+    assert.equal(cards[0].tagName, 'button');
+    assert.equal(badge?.getAttribute('role'), 'img');
+    assert.equal(badge?.getAttribute('aria-label'), '즐겨찾기');
+    assert.equal(badge?.textContent, '');
+    assert.equal(badge?.querySelector('svg.favorite-icon')?.getAttribute('aria-hidden'), 'true');
     assert.equal(cards[2].querySelector('.brew-option-favorite'), null);
     assert.deepEqual(current[kind].map(item => item.id), sourceOrder);
   });

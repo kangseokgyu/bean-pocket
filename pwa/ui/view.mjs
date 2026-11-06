@@ -1,5 +1,5 @@
 import { make } from './shared/dom.mjs';
-import { actionIcon, navigationIcon } from './shared/icons.mjs';
+import { actionIcon, navigationIcon, settingsIcon } from './shared/icons.mjs';
 import { button, actionButton, setActionButton, iconButton } from './shared/buttons.mjs';
 import { label } from './shared/form-fields.mjs';
 import { showNativeDialog, makeEntryDialog } from './shared/dialogs.mjs';
@@ -115,8 +115,9 @@ export function createAppView(document = globalThis.document, {
   let connectionAvailable = false;
   let connectionTimer = null;
   let connectionFocusPending = false;
-  const connectionToggle = iconButton(document, '⚙', 'Notion 연결 설정', 'toggle-connection');
+  const connectionToggle = iconButton(document, '', 'Notion 연결 설정', 'toggle-connection');
   connectionToggle.className = 'button icon-button connection-toggle';
+  connectionToggle.replaceChildren(settingsIcon(document));
   connectionToggle.setAttribute('aria-controls', connection.id);
   connectionToggle.setAttribute('aria-expanded', 'false');
   connectionToggle.disabled = true;

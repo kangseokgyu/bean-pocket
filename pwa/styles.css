@@ -1,8 +1,9 @@
 :root {
+  --action-label-size: 14px;
   color-scheme: light;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: #203d32;
-  background: #f3efe6;
+  background: #ffffff;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-text-size-adjust: 100%;
@@ -80,6 +81,9 @@ body {
 button, input, select, textarea { font: inherit; }
 
 button { touch-action: manipulation; }
+button, .button, .record-management > summary, .record-insight-chart-values > summary {
+  font-size: var(--action-label-size);
+}
 
 .page {
   width: min(100% - 32px, 760px);
@@ -94,7 +98,7 @@ button { touch-action: manipulation; }
   position: sticky;
   top: 0;
   z-index: 5;
-  background: #f3efe6;
+  background: #ffffff;
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
@@ -136,15 +140,28 @@ footer .build-version { margin-top: 8px; letter-spacing: normal; font-weight: 40
 .header-tools { margin-left: auto; flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
 #connection-tools { display: flex; }
 .button.connection-toggle {
+  flex: 0 0 44px;
+  width: 44px;
   min-width: 44px;
+  height: 44px;
   min-height: 44px;
-  padding: 6px;
-  background: transparent;
-  border-color: transparent;
-  color: #587464;
-  font-size: 1.25rem;
+  padding: 0;
+  background: #fffefa;
+  border-color: #d8d1c3;
+  border-radius: 50%;
+  color: #31443a;
 }
-.connection-toggle[aria-expanded="true"] { background: #e8eee7; }
+.connection-toggle svg {
+  display: block;
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.connection-toggle[aria-expanded="true"] { background: #e8eee7; border-color: #aab8aa; color: #224b3c; }
 
 .bean-section {
   flex: 1;
@@ -305,8 +322,9 @@ html:has(dialog[open]), body:has(dialog[open]) { overflow: hidden; overscroll-be
   text-align: left;
 }
 .search-picker-value { min-width: 0; font-weight: 650; overflow-wrap: anywhere; }
+.search-picker-trigger[data-has-selection="true"] .search-picker-value { font-size: 1rem; }
 .search-picker-selection-details { min-width: 0; margin-inline-start: auto; color: #657267; font-size: 0.78rem; font-weight: 500; overflow-wrap: anywhere; }
-.search-picker-chevron { flex: 0 0 14px; width: 14px; color: #587464; text-align: center; }
+.search-picker-chevron { flex: 0 0 14px; width: 14px; color: #587464; font-size: 1rem; text-align: center; }
 .search-picker-chevron::before { content: '⌄'; }
 .option-picker-dialog {
   width: min(calc(100% - 32px), 520px);
@@ -343,8 +361,9 @@ html:has(dialog[open]), body:has(dialog[open]) { overflow: hidden; overscroll-be
 }
 .search-picker-result > button:hover:not(:disabled), .search-picker-result > button[aria-pressed="true"] { border-color: #668a72; background: #eef3eb; }
 .search-picker-result-copy { display: grid; gap: 3px; min-width: 0; }
-.search-picker-result-name { font-weight: 650; overflow-wrap: anywhere; }
-.search-picker-result-details, .search-picker-result-action { color: #657267; font-size: 0.8rem; overflow-wrap: anywhere; }
+.search-picker-result-name { font-size: 1rem; font-weight: 650; overflow-wrap: anywhere; }
+.search-picker-result-details, .search-picker-result-action { color: #657267; overflow-wrap: anywhere; }
+.search-picker-result-details { font-size: 0.8rem; }
 .search-picker-result-action { flex: 0 0 auto; }
 .search-picker-status { margin: 14px 0 0; color: #546056; line-height: 1.5; }
 .option-picker-dialog [data-option-more], .option-picker-dialog [data-action="register-search-option"],
@@ -462,22 +481,22 @@ button:focus-visible, .table-scroll:focus-visible {
 .button.button--back {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 0;
   justify-self: start;
-  width: fit-content;
-  min-height: 46px;
-  padding: 8px 14px;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
   border-color: #d4c9b8;
   border-radius: 999px;
   background: transparent;
   color: #52695b;
-  font-size: 0.9rem;
   font-weight: 600;
   box-shadow: none;
 }
-.button.button--back::before {
-  content: "←";
-  flex: 0 0 auto;
+.back-arrow {
   font-size: 1.05rem;
   line-height: 1;
 }
@@ -505,7 +524,6 @@ button:focus-visible, .table-scroll:focus-visible {
   border-radius: 9px;
   background: transparent;
   color: #52695b;
-  font-size: 0.82rem;
   font-weight: 600;
   box-shadow: none;
 }
@@ -529,7 +547,6 @@ button:focus-visible, .table-scroll:focus-visible {
   min-height: 44px;
   padding: 0 14px;
   border-radius: 10px;
-  font-size: 14px;
   font-weight: 600;
   line-height: 1.2;
   white-space: nowrap;
@@ -648,7 +665,6 @@ button:focus-visible, .table-scroll:focus-visible {
   border-radius: 0;
   background: transparent;
   color: #587464;
-  font-size: 1rem;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -837,7 +853,8 @@ button:focus-visible, .table-scroll:focus-visible {
 .entity-delete, .entity-favorite, .entity-edit { flex: 0 0 46px; width: 46px; height: 46px; margin: -14px -8px -14px 0; color: #737373; background: transparent; border-color: transparent; }
 .entity-delete, .entity-favorite, .entity-edit { flex-basis: 35px; width: 35px; height: 35px; min-height: 35px; padding: 0; }
 .entity-delete svg, .entity-favorite svg, .entity-edit svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.entity-delete:hover:not(:disabled), .entity-favorite:hover:not(:disabled), .entity-edit:hover:not(:disabled) { background: #f0f0ed; border-color: #b7b7af; }
+.entity-delete:hover:not(:disabled), .entity-favorite:hover:not(:disabled), .entity-edit:hover:not(:disabled),
+.connection-toggle:hover:not(:disabled) { background: #f0f0ed; border-color: #b7b7af; }
 .bag-card { padding-top: 10px; border-top: 1px solid #e0dbcf; }
 .bag-card + .bag-card { margin-top: 10px; }
 .bag-card > :last-child, .bean-card > :last-child, .bean-detail-card > :last-child,
@@ -992,7 +1009,6 @@ button:focus-visible, .table-scroll:focus-visible {
 .record-insight-management-note { margin: 0; color: #68685e; font-size: 0.8125rem; }
 .record-management { color: #203d32; }
 .record-management > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; color: #76543a; cursor: pointer; }
-.record-management > summary strong { font-size: 0.95rem; }
 .record-management > summary span { color: #68685e; font-size: 0.72rem; text-align: right; }
 .record-management-body { display: grid; gap: 8px; margin-top: 12px; }
 .record-management-page-more { min-width: 0; }
@@ -1072,7 +1088,6 @@ footer {
   .record-insight-recipe-conditions dd { margin-bottom: 5px; }
   .site-header { gap: 4px; }
   .brand-logo { width: 52px; height: 32px; }
-  .button.connection-toggle { min-width: 28px; padding-inline: 2px; font-size: 1rem; }
   .tabs {
     position: fixed;
     top: auto;
@@ -1105,7 +1120,6 @@ footer {
     border-radius: 20px;
     background: transparent;
     color: #343431;
-    font-size: 0.625rem;
     font-weight: 550;
     line-height: 1.2;
     text-decoration: none;
@@ -1275,7 +1289,6 @@ footer {
   min-height: 62px;
   padding: 14px 23px;
   border-radius: 16px;
-  font-size: 1.15rem;
 }
 .home-start-cup, .home-start-arrow {
   width: 25px;
@@ -1319,7 +1332,7 @@ footer {
 .brew-option-search-icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
 .brew-option-search-control > input[type="search"] { width: 100%; min-width: 0; min-height: 36px; padding: 6px 0; border: 0; outline: 0; background: transparent; color: inherit; font: inherit; font-size: 16px; line-height: 1.35; }
 .brew-option-search-control > input[type="search"]:focus-visible { outline: none; }
-.brew-option-search-clear { min-height: 34px; padding: 5px 8px; font-size: 0.75rem; white-space: nowrap; }
+.brew-option-search-clear { min-height: 34px; padding: 5px 8px; white-space: nowrap; }
 .brew-step-indicator { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; min-width: 0; margin: 0; padding: 0 0 8px; border-bottom: 1px solid #e0dbcf; list-style: none; }
 .brew-step-indicator > li { display: flex; align-items: center; gap: 8px; min-width: 0; padding-bottom: 4px; border-bottom: 2px solid transparent; color: #68685e; font-size: 0.8rem; }
 .brew-step-indicator > li[aria-current="step"] { border-color: #224b3c; color: #224b3c; font-weight: 700; }
@@ -1328,14 +1341,18 @@ footer {
 .brew-selection-copy { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
 .brew-selection-label { color: #68685e; font-size: 0.75rem; line-height: 1.35; }
 .brew-selection-name { color: #203d32; font-size: 0.95rem; }
-.brew-selection-summary > .button { flex: 0 0 auto; min-height: 44px; padding: 8px 12px; font-size: 0.8rem; }
+.brew-selection-summary > .button { flex: 0 0 auto; min-height: 44px; padding: 8px 12px; }
 .brew-option-list { display: grid; gap: 12px; min-width: 0; }
-.brew-option-card { display: flex; flex-direction: column; align-items: stretch; gap: 4px; width: 100%; min-width: 0; min-height: 128px; padding: 16px; border-color: #d8d1c3; border-radius: 12px; background: #fffefa; color: #203d32; text-align: left; font-size: 0.875rem; line-height: 1.5; }
+.brew-option-card { display: flex; flex-direction: column; align-items: stretch; gap: 4px; width: 100%; min-width: 0; min-height: 128px; padding: 16px; border-color: #d8d1c3; border-radius: 12px; background: #fffefa; color: #203d32; text-align: left; line-height: 1.5; }
 .brew-option-card:hover:not(:disabled) { border-color: #8ab59a; background: #f6f8f0; }
 .brew-option-card[aria-pressed="true"] { border-color: #587464; background: #e8eee7; }
+.brew-option-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; min-width: 0; }
+.brew-option-heading .brew-option-name { min-width: 0; }
+.brew-option-favorite { display: inline-flex; flex: 0 0 22px; align-items: center; justify-content: center; width: 22px; height: 22px; color: #737373; }
+.brew-option-favorite .favorite-icon { width: 22px; height: 22px; fill: currentColor; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .brew-option-name { font-size: 0.98rem; line-height: 1.4; overflow-wrap: anywhere; }
 .brew-option-details, .brew-option-status { font-size: 0.8rem; overflow-wrap: anywhere; }
-.brew-option-action { margin-top: auto; padding-top: 10px; font-size: 0.8rem; font-weight: 650; }
+.brew-option-action { margin-top: auto; padding-top: 10px; font-weight: 650; }
 .brew-selected-label { color: #224b3c; font-size: 0.875rem; font-weight: 700; }
 .brew-condition-section, .brew-pour-section, .brew-guide-section { display: grid; gap: 10px; min-width: 0; }
 .brew-condition-section > h2, .brew-pour-section > h2, .brew-guide-section > h2 { margin: 0; }
@@ -1388,7 +1405,7 @@ footer {
 .star-rating:has(.rating-slider-input:disabled) .rating-options { opacity: 0.5; cursor: default; }
 .rating-value-row { display: flex; align-items: center; gap: 7px; margin-top: 3px; }
 .rating-value { min-width: 4.5em; color: #203d32; font-size: 0.9rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-.rating-clear { min-height: 30px; padding: 4px 8px; color: #62685f; border: 0; background: transparent; font-size: 0.75rem; text-decoration: underline; text-underline-offset: 2px; }
+.rating-clear { min-height: 30px; padding: 4px 8px; color: #62685f; border: 0; background: transparent; text-decoration: underline; text-underline-offset: 2px; }
 .rating-clear:disabled { color: #8a8e86; cursor: default; opacity: 0.55; }
 
 /* Match the approved records demo while keeping the application chrome shared. */
@@ -1461,3 +1478,27 @@ footer {
 .entity-favorite[aria-pressed="true"] .favorite-icon { fill: currentColor; }
 .entity-card-header > .entity-favorite { margin-right: -12px; }
 .entity-card-header > h3 { flex: 1; min-width: 0; }
+
+
+/* Approved unbleached paper texture on cards; keep interaction colors underneath. */
+:is(.bean-card, .bean-detail-card, .bag-group, .recipe-card, .record-card,
+    .resolution-card, .skeleton-card, .brew-option-card,
+    .record-insight-bean-card, .record-insight-comparison-card),
+.bean-records > .record-card {
+  background-color: #f5ead6;
+  background-image: url('./icons/unbleached-paper.png');
+  background-size: 627px 627px;
+  background-repeat: repeat;
+}
+@media (hover: hover) {
+  :is(.recipe-summary-card, .bean-card):hover {
+    background-image: url('./icons/unbleached-paper.png');
+  }
+}
+.brew-option-card:hover:not(:disabled),
+.brew-option-card[aria-pressed="true"],
+.record-insight-bean-card:hover,
+.record-insight-bean-card.is-selected {
+  background-image: url('./icons/unbleached-paper.png');
+  background-blend-mode: multiply;
+}

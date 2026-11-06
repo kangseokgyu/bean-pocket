@@ -1,0 +1,21 @@
+{
+  "candidate": "babd18a",
+  "publishedCommit": "129f6a86248f8b65fc579d8210870536b6b593df",
+  "version": "2616ef7791c8",
+  "checks": [
+    {"command": "npm test", "exitCode": 0, "passed": 770, "failed": 0, "log": "/tmp/ax-button-polish-main-test.log"},
+    {"command": "npm run build:pages", "exitCode": 0},
+    {"command": "npm run check:pages", "exitCode": 0}
+  ],
+  "browser": {"engine": "Chromium", "viewportWidths": [320, 390, 600, 601, 1280], "actionLabelSamplesAt14px": 565, "unchangedDataTextSamples": 230, "unchangedSvgSamples": 258},
+  "independentReview": {"model": "gpt-6.1-sol", "reasoningEffort": "medium", "targetedTestsPassed": 15, "blockingFindings": 0},
+  "deployment": {
+    "run": "https://github.com/kangseokgyu/bean-pocket/actions/runs/42214182860",
+    "conclusion": "success",
+    "probes": false,
+    "publicUrl": "https://kangseokgyu.github.io/bean-pocket/",
+    "matchingFiles": 53,
+    "fileEvidence": "public-files.json"
+  },
+  "notVerified": ["Physical iPhone", "Live Notion writes"]
+}

@@ -1,0 +1,79 @@
+✔ createCommands prepares an isolated bean draft and saves optional origin through the shared field (7.554971ms)
+✔ a saved brew uses its edited actual conditions without changing the shared recipe (2.538511ms)
+✔ a bean best record can only point to a current record for the same bean (2.874853ms)
+✔ an uncertain best update journals its before/after target for readback resolution (1.852767ms)
+✔ bean name is required before any operation is submitted (0.26097ms)
+✔ bean name alone is sufficient and absent optional fields stay empty (1.394292ms)
+▶ bean writes distinguish a clear rejection from an uncertain response
+  ✔ rejected (1.418078ms)
+  ✔ unknown (0.787906ms)
+✔ bean writes distinguish a clear rejection from an uncertain response (2.671819ms)
+✔ legacy bag relation writes are rejected before creating a journal entry (0.374549ms)
+✔ old connection revision blocks a prepared record before any Notion write (0.496652ms)
+✔ recipe saves parent then all stages in reverse order after full preflight (2.441966ms)
+✔ legacy recipe schema blocks a nonempty guide before journal creation for create and copy (0.594959ms)
+✔ any recipe payload over a Notion transport limit is rejected before the parent write (2.778619ms)
+✔ known stage rejection archives the confirmed parent before known stages in reverse order (1.886466ms)
+✔ unknown stage response stops immediately without further create or cleanup writes (1.634691ms)
+✔ failed parent archive prevents child cleanup and preserves the partial recipe (1.321823ms)
+✔ a rejected child archive leaves only that child active and still cleans later known children (1.979615ms)
+✔ copy creates a new independent recipe with changed values and rejects a stale source snapshot (1.870743ms)
+✔ copy blocks when only the source extraction guide changes after preparation (0.60296ms)
+✔ copy treats legacy undefined and empty extraction guides as equivalent (4.571867ms)
+✖ recipe edits keep page identity and favorites, update stable steps, add and archive steps, and preserve record snapshots (0.498524ms)
+✖ recipe edits reject stale parent or step membership before any write (0.379036ms)
+✖ unchanged recipe edits complete without an operation or Notion writes (0.302992ms)
+✔ copied recipes stay independent of the legacy bean relation (2.530328ms)
+✔ a recipe can be created without selecting or storing a bean (3.002614ms)
+✔ record stores a fresh complete recipe snapshot and permits repeated same-day intent (1.575683ms)
+✔ legacy bagId record payloads are rejected before journaling or writes (0.296533ms)
+✔ record requires a valid date and a tenth-point rating from 0.1 to 5 (0.44871ms)
+✔ old record drafts without a bean and unresolved journal entries cannot be resent (2.288367ms)
+✔ records writes fail before journal creation when the connected legacy schema lacks records.bean (0.348059ms)
+✔ T20 rereads the real T15 repository under lock and the saved record round-trips its snapshot (4.698255ms)
+✔ T18 partial recipe remains hidden by the real T15 completeness check (3.09409ms)
+✔ bag operations are unavailable and a legacy bagId record payload is rejected before journal creation (0.282361ms)
+✔ favorite commands save an explicit value under the lock and reject missing latest targets (1.956802ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 32
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 67.565408
+
+✖ failing tests:
+
+test at test/pwa-commands.test.mjs:481:1
+✖ recipe edits keep page identity and favorites, update stable steps, add and archive steps, and preserve record snapshots (0.498524ms)
+  TypeError: env.commands.prepareEditRecipe is not a function
+      at TestContext.<anonymous> (file:///workspace/bean-pocket-recipe-edit/test/pwa-commands.test.mjs:499:36)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at test/pwa-commands.test.mjs:517:1
+✖ recipe edits reject stale parent or step membership before any write (0.379036ms)
+  TypeError: env.commands.prepareEditRecipe is not a function
+      at TestContext.<anonymous> (file:///workspace/bean-pocket-recipe-edit/test/pwa-commands.test.mjs:525:36)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at test/pwa-commands.test.mjs:538:1
+✖ unchanged recipe edits complete without an operation or Notion writes (0.302992ms)
+  TypeError: env.commands.prepareEditRecipe is not a function
+      at TestContext.<anonymous> (file:///workspace/bean-pocket-recipe-edit/test/pwa-commands.test.mjs:550:36)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)

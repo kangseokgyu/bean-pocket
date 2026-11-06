@@ -103,7 +103,7 @@ function blankRows() { return { beans: [], bags: [], recipes: [], records: [] };
 
 function harness({ rows = blankRows(), revision = REVISION } = {}) {
   const state = stateHarness();
-  const calls = [], archives = [];
+  const calls = [], archives = [], updates = [];
   const failures = new Map();
   let sequence = 0;
   const nextId = () => `dddddddd-dddd-4ddd-8ddd-${String(++sequence).padStart(12, '0')}`;
@@ -151,8 +151,34 @@ function harness({ rows = blankRows(), revision = REVISION } = {}) {
       for (const recipe of rows.recipes) recipe.steps = recipe.steps.filter(item => item.id !== id);
       return { id, in_trash: true };
     },
+    async updatePage(kind, id, data) {
+      assert.equal(state.isLocked(), true, 'Notion page updates must run under the write lock');
+      const operation = state.journal().operations.at(-1);
+      assert.equal(operation?.status, 'processing', 'journal processing must be durable before a page update');
+      const call = { kind, id, data: structuredClone(data) };
+      updates.push(call);
+      const failure = failures.get(`update:${id}`) ?? failures.get(`update:${updates.length}`);
+      if (failure) throw failure;
+      const row = kind === 'recipes' ? rows.recipes.find(item => item.id === id)
+        : rows.recipes.flatMap(item => item.steps).find(item => item.id === id);
+      if (!row) throw rejected();
+      Object.assign(row, structuredClone(data));
+      return { id };
+    },
+    async archivePage(kind, id) {
+      assert.equal(state.isLocked(), true, 'Notion page archiving must run under the write lock');
+      archives.push(id);
+      const failure = failures.get(`archive:${id}`);
+      if (failure) throw failure;
+      if (kind === 'steps') {
+        for (const recipe of rows.recipes) recipe.steps = recipe.steps.filter(item => item.id !== id);
+      } else {
+        rows[kind] = rows[kind].filter(item => item.id !== id);
+      }
+      return { id, in_trash: true };
+    },
   };
-  return { ...state, rows, calls, archives, failures, repository, client, commands: createCommands({ client, repository, submissionState: state.submissionState }) };
+  return { ...state, rows, calls, archives, updates, failures, repository, client, commands: createCommands({ client, repository, submissionState: state.submissionState }) };
 }
 
 const rejected = writeState => Object.freeze({ code: 'http-rejected', writeState: writeState ?? 'rejected' });
@@ -450,6 +476,83 @@ test('copy treats legacy undefined and empty extraction guides as equivalent', a
     assert.equal(env.calls.filter(call => call.kind === 'recipes').length, 1);
     assert.equal(env.calls.find(call => call.kind === 'recipes').data.extractionGuide, '');
   }
+});
+
+test('recipe edits keep page identity and favorites, update stable steps, add and archive steps, and preserve record snapshots', async () => {
+  const source = storedRecipe(IDS.recipe, { beanId: IDS.bean, favorite: true });
+  source.steps = source.steps.map((step, index) => ({
+    ...step,
+    id: `eeeeeeee-eeee-4eee-8eee-${String(index + 1).padStart(12, '0')}`,
+    recipeId: IDS.recipe,
+  }));
+  const snapshot = { version: 2, bean: bean(), recipe: { name: source.name, steps: structuredClone(source.steps) } };
+  const record = { id: 'eeeeeeee-5555-4555-8555-111111111111', recipeId: IDS.recipe, snapshot };
+  const env = harness({ rows: { ...blankRows(), beans: [bean()], recipes: [source], records: [record] } });
+  const baseline = structuredClone(source);
+  const updated = {
+    ...recipeInput(IDS.bean, { name: 'V60 편집', temperature: 91 }),
+    steps: [
+      { id: source.steps[0].id, name: '뜸', time: '0:00', water: 45 },
+      { id: source.steps[2].id, name: '붓기', time: '0:35', water: 205 },
+    ],
+  };
+  const draft = await env.commands.prepareEditRecipe(IDS.recipe, baseline, updated);
+  const result = await env.commands.execute(draft);
+
+  assert.equal(result.status, 'succeeded');
+  assert.equal(env.rows.recipes[0].id, IDS.recipe, 'the recipe keeps its Notion page ID');
+  assert.equal(env.rows.recipes[0].name, 'V60 편집');
+  assert.equal(env.rows.recipes[0].temperature, 91);
+  assert.equal(env.rows.recipes[0].favorite, true, 'the favorite checkbox is preserved');
+  assert.equal(env.rows.recipes[0].beanId, IDS.bean, 'the legacy bean relation is preserved');
+  assert.deepEqual(env.rows.recipes[0].steps.map(step => [step.id, step.order, step.seconds, step.water]), [
+    [source.steps[0].id, 1, 0, 45], [source.steps[2].id, 2, 35, 205],
+  ]);
+  assert.deepEqual(env.rows.records[0], record, 'historical record snapshots remain unchanged');
+  assert.equal(env.calls.filter(call => call.kind === 'recipes').length, 0, 'editing never creates a replacement recipe');
+  assert.equal(env.journal().operations[0].kind, 'edit-recipe');
+  assert.equal(env.journal().operations[0].editTarget.recipeId, IDS.recipe);
+});
+
+test('recipe edits reject stale parent or step membership before any write', async () => {
+  const source = storedRecipe(IDS.recipe);
+  source.steps = source.steps.map((step, index) => ({
+    ...step,
+    id: `eeeeeeee-eeee-4eee-8eee-${String(index + 1).padStart(12, '0')}`,
+    recipeId: IDS.recipe,
+  }));
+  const env = harness({ rows: { ...blankRows(), recipes: [source] } });
+  const draft = await env.commands.prepareEditRecipe(IDS.recipe, structuredClone(source), {
+    ...recipeInput(), temperature: 90,
+    steps: source.steps.map(step => ({ id: step.id, name: step.name, time: `${Math.floor(step.seconds / 60)}:${String(step.seconds % 60).padStart(2, '0')}`, water: step.water })),
+  });
+  env.rows.recipes[0].steps.pop();
+
+  const result = await env.commands.execute(draft);
+
+  assert.equal(result.status, 'failed');
+  assert.equal(env.calls.length, 0, 'a stale or incomplete latest recipe is rejected before Notion writes');
+  assert.equal(env.journal().operations[0].status, 'failed');
+});
+
+test('unchanged recipe edits complete without an operation or Notion writes', async () => {
+  const source = storedRecipe(IDS.recipe);
+  source.steps = source.steps.map((step, index) => ({
+    ...step,
+    id: `eeeeeeee-eeee-4eee-8eee-${String(index + 1).padStart(12, '0')}`,
+    recipeId: IDS.recipe,
+  }));
+  const env = harness({ rows: { ...blankRows(), recipes: [source] } });
+  const payload = {
+    ...recipeInput(),
+    steps: source.steps.map(step => ({ id: step.id, name: step.name, time: `${Math.floor(step.seconds / 60)}:${String(step.seconds % 60).padStart(2, '0')}`, water: step.water })),
+  };
+  const draft = await env.commands.prepareEditRecipe(IDS.recipe, structuredClone(source), payload);
+  const result = await env.commands.execute(draft);
+
+  assert.equal(result.status, 'succeeded');
+  assert.equal(env.calls.length, 0);
+  assert.equal(env.journal().operations.length, 0);
 });
 
 test('copied recipes stay independent of the legacy bean relation', async () => {

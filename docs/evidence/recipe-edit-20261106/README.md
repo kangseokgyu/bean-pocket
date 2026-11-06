@@ -15,6 +15,10 @@ Validation completed on 2026-11-06: `npm test` passed 791/791; `npm run build:pa
 
 After integrating latest main (`3e7f901`) as `20bb4c5`, all 750 remaining tests passed (legacy server tests were removed upstream), followed sequentially by Pages build `c9be31d14d6f` and artifact validation. Independent Critic review approved this integrated source, including Chromium mobile/desktop editing and injected lost-response recovery. See [Critic evidence](../recipe-edit-critic-20261106/README.md). Worker used `gpt-6-luna` / `max`; Critic used `gpt-6.1-sol` / `medium`. Live Notion writes and physical iPhone Safari were not tested.
 
+## Publication
+
+After the final main integration (`482bc70`, number shortcuts), the resolved source `3e0a2f2` passed 751 tests, Pages build `d1e2c5b717d2`, and artifact checks. Independent Chromium mobile/desktop reruns approved both edit behavior and shortcut dirty tracking. The docs-only review commit `72a67ce` was pushed to main and [Pages run 42242728761](https://github.com/kangseokgyu/bean-pocket/actions/runs/42242728761) succeeded with `probes=false`. [Public file verification](public-files.json) confirms every published file matches the validated local artifact at https://kangseokgyu.github.io/bean-pocket/. [Deployment result](deployment.json) records the CI test, build, artifact check, and deploy results. Live Notion, native OPFS persistence, and physical iPhone Safari were not tested.
+
 ## Test-first evidence
 
 The first command-level regression test was added before production changes. `node test/pwa-commands.test.mjs` failed because `prepareEditRecipe` was not present. The failure and the other two intended missing-command cases are captured in `red-command-test.txt`.

@@ -1,0 +1,337 @@
+{
+  "url": "https://kangseokgyu.github.io/bean-pocket/",
+  "version": "d1e2c5b717d2",
+  "verifiedAt": "2026-11-06T15:30:16.160Z",
+  "files": [
+    {
+      "file": "app.mjs",
+      "status": 200,
+      "bytes": 1587,
+      "sha256": "b4358f655166c169a5a8d3d98637593ad3ce1b5da5a65662d1919397db8c34ef"
+    },
+    {
+      "file": "brew-picker-demo.css",
+      "status": 200,
+      "bytes": 5320,
+      "sha256": "d8f9a43038d7ba81a5ff397b3c3d8b896e7283972835c76aae65fa4002558608"
+    },
+    {
+      "file": "brew-picker-demo.html",
+      "status": 200,
+      "bytes": 2629,
+      "sha256": "53ea01b115a81169b7ae9e985c17d29c0caf16305b33065f47938bdc2bce0b6a"
+    },
+    {
+      "file": "brew-picker-demo.mjs",
+      "status": 200,
+      "bytes": 5267,
+      "sha256": "863edc25d45322b052290328f0d17a406ddbad4646c8ee590c9593059dc7eac8"
+    },
+    {
+      "file": "commands/index.mjs",
+      "status": 200,
+      "bytes": 28914,
+      "sha256": "cc0af75e8fa9eb5402c0020d4cd382d8e88b7bd2b9017addcbd51da469801298"
+    },
+    {
+      "file": "data/notion-client.mjs",
+      "status": 200,
+      "bytes": 29376,
+      "sha256": "21e45073bceb7908f9a09719eeb6c9481255a22333b46f772ff373f172791c04"
+    },
+    {
+      "file": "data/notion-properties.mjs",
+      "status": 200,
+      "bytes": 5160,
+      "sha256": "01a7b5a2496cfb6ab309761caab00c578dde5d71ea1d5899a433ef7225a9de3a"
+    },
+    {
+      "file": "data/read-repository.mjs",
+      "status": 200,
+      "bytes": 45254,
+      "sha256": "8c7253805425c73f5658516f38e286b7a70ee184b12fa82833fc2bfa9e66a1d9"
+    },
+    {
+      "file": "domain.mjs",
+      "status": 200,
+      "bytes": 10004,
+      "sha256": "a6823fc842d798eed3bbdd0e511e5e71602731f81c10004af35dd6d43d0fedc3"
+    },
+    {
+      "file": "icons/bp-logo.png",
+      "status": 200,
+      "bytes": 37954,
+      "sha256": "c96f9250074f8f84d9585267bcc5d41fe663a1b90cffa4765e3acf184baadaf7"
+    },
+    {
+      "file": "icons/favicon-bp-ivory.png",
+      "status": 200,
+      "bytes": 1886,
+      "sha256": "1f0378cc66162d82ca61a427e277f28e2160df29c9963a205cf999be6e6caa1f"
+    },
+    {
+      "file": "icons/home-brew.png",
+      "status": 200,
+      "bytes": 896607,
+      "sha256": "5ca4eba24ca3a37de5d8363f08bb982f4ea2adea2e95daccd395a05a5ff4d8b2"
+    },
+    {
+      "file": "icons/icon-192.png",
+      "status": 200,
+      "bytes": 1942,
+      "sha256": "fed6a73c7549eae8cb25324bab6e5d9f831120b8db329cfa7a66e3bda4296761"
+    },
+    {
+      "file": "icons/icon-512.png",
+      "status": 200,
+      "bytes": 6181,
+      "sha256": "0b0197281031a51957ae1c3a43037dcef08eb8d8d187f4b6df5eb212d0303316"
+    },
+    {
+      "file": "icons/unbleached-paper.png",
+      "status": 200,
+      "bytes": 2914245,
+      "sha256": "9eaeeb0e174fe758b55b716d27b91efc2888dd86c3e35212e7f1e7b6819a0066"
+    },
+    {
+      "file": "index.html",
+      "status": 200,
+      "bytes": 1338,
+      "sha256": "d9c16ea98366bb489a7504c5d4be06d0e74388c7165c2411068d3389d7031417"
+    },
+    {
+      "file": "manifest.webmanifest",
+      "status": 200,
+      "bytes": 402,
+      "sha256": "4c8243c961e1d16321a6c2e1e162eaf785e4acf0ad471e96b57e92d2f0724437"
+    },
+    {
+      "file": "platform/app-lifecycle.mjs",
+      "status": 200,
+      "bytes": 7354,
+      "sha256": "ca5b6d7fc53f473000945a14c6951f39a74c8ba829571cdc2c236e463d77c09b"
+    },
+    {
+      "file": "platform/connection-file.mjs",
+      "status": 200,
+      "bytes": 6732,
+      "sha256": "8389b0d1554c0948a6b66a1dcbf82d581f7c9c67889cecb6523afe70034af210"
+    },
+    {
+      "file": "platform/update-coordinator.mjs",
+      "status": 200,
+      "bytes": 9346,
+      "sha256": "56015c1ff7738219e963bd29e9b5c77b73d043cf76b6f1698c692b9f4d32bbe7"
+    },
+    {
+      "file": "recipe-edit.mjs",
+      "status": 200,
+      "bytes": 2002,
+      "sha256": "58d41061bed109a046db0196731599b6a4727a82941934b4af657aeb06682641"
+    },
+    {
+      "file": "state/submission-state.mjs",
+      "status": 200,
+      "bytes": 44113,
+      "sha256": "9656ddb80230bd2799ecedc5a840001d7ece7c60143f288258e6f08417f15437"
+    },
+    {
+      "file": "styles.css",
+      "status": 200,
+      "bytes": 64203,
+      "sha256": "452aeb1d04a8e28a3c6093a7deb3080afc9b5cb19ed8bf178c6df06c107cb9ec"
+    },
+    {
+      "file": "sw.js",
+      "status": 200,
+      "bytes": 9221,
+      "sha256": "6d45dbce22ad12809fe6b6494c08ed631eb5c757a16e725f7a8fb90b24f010f3"
+    },
+    {
+      "file": "ui/controller.mjs",
+      "status": 200,
+      "bytes": 62775,
+      "sha256": "7afaba91b6c75d28e6464430b1ae8e4929816eaffae6fb1785c88c757f31292b"
+    },
+    {
+      "file": "ui/controller/cache.mjs",
+      "status": 200,
+      "bytes": 2423,
+      "sha256": "c565d8a6e4758727adc08204a435dd938dcc39a7b2d7078b86ead619f9fdfcbf"
+    },
+    {
+      "file": "ui/controller/loader.mjs",
+      "status": 200,
+      "bytes": 12010,
+      "sha256": "292ea3a0f72e18828be9273ab11d2ea43f47537a9848efc9e879279de6487d66"
+    },
+    {
+      "file": "ui/controller/record-insights.mjs",
+      "status": 200,
+      "bytes": 2916,
+      "sha256": "45ccb8f14b403e5992af10dcc554c959908afe32f556364cf9267da51b02c0c4"
+    },
+    {
+      "file": "ui/controller/search.mjs",
+      "status": 200,
+      "bytes": 2466,
+      "sha256": "6963f3d572827703a5a5d3d08d3f4e685e97c44d9384c16608083da0893c2fb7"
+    },
+    {
+      "file": "ui/forms/bean-form.mjs",
+      "status": 200,
+      "bytes": 635,
+      "sha256": "7cdcd683947b99f98845246e26dc7a67c43e682bd7f43b6e1bd37cedd3488349"
+    },
+    {
+      "file": "ui/forms/recipe-form.mjs",
+      "status": 200,
+      "bytes": 7484,
+      "sha256": "55d0b3a7cf81d5a383241913397ec409acd2b5af7dd9b1c035cd1edaf629c3a9"
+    },
+    {
+      "file": "ui/forms/record-form.mjs",
+      "status": 200,
+      "bytes": 3282,
+      "sha256": "3e4899825836fdd1742d331cae2d5dadf8c07087ecddc7f60138b02429af35f7"
+    },
+    {
+      "file": "ui/interactions/events.mjs",
+      "status": 200,
+      "bytes": 26641,
+      "sha256": "a3eae85539d1c68643077453199d6e48dd875caa32c48f325ac6af9ec3747a3b"
+    },
+    {
+      "file": "ui/interactions/pull-to-refresh.mjs",
+      "status": 200,
+      "bytes": 8082,
+      "sha256": "47c69e431496a7e7f762ab84afb4d38f3ba4ab60497721d213efab4dc37a63df"
+    },
+    {
+      "file": "ui/interactions/search-picker.mjs",
+      "status": 200,
+      "bytes": 17814,
+      "sha256": "dd3939e700004293826f68686c539e72da00a3a0fe1686df213725ad0c2fc9a9"
+    },
+    {
+      "file": "ui/interactions/status-toast.mjs",
+      "status": 200,
+      "bytes": 6660,
+      "sha256": "64619aea438c7949901b06011199538d28235cfe604c145a2f80c6fbc8696132"
+    },
+    {
+      "file": "ui/records-insights-view.mjs",
+      "status": 200,
+      "bytes": 36243,
+      "sha256": "cc23ac3bd8e82f43c78fe6e1d900ff3fdf777c7db280bc6671c09f9c8f2cd9d0"
+    },
+    {
+      "file": "ui/records-insights.mjs",
+      "status": 200,
+      "bytes": 10845,
+      "sha256": "e3537053f357ab4289b0bca58f9eb722ae13e2569068dcb5573f377c00fe7234"
+    },
+    {
+      "file": "ui/screens/beans.mjs",
+      "status": 200,
+      "bytes": 6351,
+      "sha256": "d74d66c41ed0dade43133942ea21cdc14790fbca3f67fe19e19673bb882ab4d4"
+    },
+    {
+      "file": "ui/screens/brew.mjs",
+      "status": 200,
+      "bytes": 20805,
+      "sha256": "5435b0ff4567866281683071d055214e655c31c40d0dfca3e76afcab15c18745"
+    },
+    {
+      "file": "ui/screens/home.mjs",
+      "status": 200,
+      "bytes": 1818,
+      "sha256": "02690418cd0ad76ea7d3b427b4523889d6aeb9cdc2b3fab3ba0c2576060c8a31"
+    },
+    {
+      "file": "ui/screens/recipes.mjs",
+      "status": 200,
+      "bytes": 9816,
+      "sha256": "1062f4f544114429c78c10c0f965b857dc1a65543cb3209f247dcaf1d1f773b6"
+    },
+    {
+      "file": "ui/screens/records.mjs",
+      "status": 200,
+      "bytes": 4989,
+      "sha256": "55f413608944471a55f19c8e9bd4b429f27309575d6b28d04357d2dbe955c0ee"
+    },
+    {
+      "file": "ui/shared/buttons.mjs",
+      "status": 200,
+      "bytes": 2599,
+      "sha256": "6017fe3a9670546c5455950718616106c3929d5c3c505e3974b3a0bdf6ac6c57"
+    },
+    {
+      "file": "ui/shared/date.mjs",
+      "status": 200,
+      "bytes": 506,
+      "sha256": "241acc0b6ab7ce250956ab446d72b78640e8c83a52b4900cc431288f796de665"
+    },
+    {
+      "file": "ui/shared/dialogs.mjs",
+      "status": 200,
+      "bytes": 572,
+      "sha256": "584d80ff1e70150fe7de7ecf32badefc196e925af32cb2d3f0ba28793944ea65"
+    },
+    {
+      "file": "ui/shared/dom.mjs",
+      "status": 200,
+      "bytes": 664,
+      "sha256": "e0baf7428cdc42ff75c429dc903d24f9d9250aa02d5e89c5ec6f40c3610c98fb"
+    },
+    {
+      "file": "ui/shared/favorite-button.mjs",
+      "status": 200,
+      "bytes": 926,
+      "sha256": "32cd88dd452c96ee270d3c6739764714272ed7fb36e5dc832e265c3a64fa219e"
+    },
+    {
+      "file": "ui/shared/form-fields.mjs",
+      "status": 200,
+      "bytes": 1688,
+      "sha256": "deacfdd5bf80c5258dad7d685ae7940ce6688ffa07dafb7d0b3f7173368deb7a"
+    },
+    {
+      "file": "ui/shared/icons.mjs",
+      "status": 200,
+      "bytes": 4078,
+      "sha256": "f1c3ba991ac6ee614590117958de297db39dabb0ce326ba7e816378a14413541"
+    },
+    {
+      "file": "ui/shared/recipe-presentation.mjs",
+      "status": 200,
+      "bytes": 5017,
+      "sha256": "c9d73ebd41fac31598aa706fc338af40e5df1b3e5820585d9d2619aa02961eb1"
+    },
+    {
+      "file": "ui/shared/record-card.mjs",
+      "status": 200,
+      "bytes": 5882,
+      "sha256": "d67d3b06691399093ea6cff73b2c9f3ab1edac7a88cc4a60bcc7bedfa4b6afa2"
+    },
+    {
+      "file": "ui/shared/route.mjs",
+      "status": 200,
+      "bytes": 675,
+      "sha256": "a26dd061a17736fa125b0f908b91d80cac2e515fbaa944bdfa6ac382029cc7f7"
+    },
+    {
+      "file": "ui/star-rating.mjs",
+      "status": 200,
+      "bytes": 7047,
+      "sha256": "6520379674649054184697a829f52c5bcd02d50d94454034f0223e6f4f1406c4"
+    },
+    {
+      "file": "ui/view.mjs",
+      "status": 200,
+      "bytes": 69366,
+      "sha256": "2315a77a2e3de4a70cba27eec5b80404a5c963097e1e0893bb697252c267931b"
+    }
+  ]
+}

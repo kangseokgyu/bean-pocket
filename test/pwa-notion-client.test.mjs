@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { NotionClient, validateCreatePayload, validateNotionToken } from '../pwa/data/notion-client.mjs';
 import { schemas, encodeProperties, decodePage } from '../pwa/data/notion-properties.mjs';
-import { encodeProperties as serverEncode, decodePage as serverDecode } from '../lib/notion.mjs';
 
 // 전부 합성 값이다. 환경 파일·비공개 설정·실제 API를 사용하지 않는다.
 const uuid = n => n.toString(16).padStart(8, '0') + '-1111-4111-8111-111111111111';
@@ -463,9 +462,8 @@ test('배열·UTF-8 500000byte 한도와 stringify 오류는 fetch 전 안전하
   assert.equal(calls.length, 0);
 });
 
-test('canonical 34속성·긴 snapshot 왕복과 기존 decode 의미·서버 함수 동일성을 유지한다', () => {
+test('canonical 34속성과 긴 snapshot codec 왕복을 유지한다', () => {
   assert.equal(Object.values(schemas).reduce((sum, fields) => sum + Object.keys(fields).length, 0), 34);
-  assert.equal(serverEncode, encodeProperties); assert.equal(serverDecode, decodePage);
   const snapshot = { version: 1, name: '원본', steps: [{ order: 1, seconds: 0, water: 50 }], note: '가'.repeat(5000) };
   const properties = encodeProperties('records', { name: '기록', recipeId: PAGE, snapshot });
   assert.ok(properties['당시 레시피 스냅샷'].rich_text.length > 1);

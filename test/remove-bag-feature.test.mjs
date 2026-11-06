@@ -1,6 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { NotionClient as ServerNotionClient, NotionRepository as ServerNotionRepository, readDataSources } from '../lib/notion.mjs';
 import { encodeProperties, schemas, relationTargets } from '../pwa/data/notion-properties.mjs';
 import { NotionClient as PwaNotionClient } from '../pwa/data/notion-client.mjs';
 import { createReadRepository } from '../pwa/data/read-repository.mjs';
@@ -105,29 +104,6 @@ function memoryConnectionStorage(content) {
   return { storage, state };
 }
 
-test('server environment exposes only four required data sources and ignores the old bags variable', () => {
-  const env = Object.fromEntries(Object.entries(SOURCES).map(([kind, id]) => [`NOTION_${kind.toUpperCase()}_DATA_SOURCE_ID`, id]));
-  env.NOTION_BAGS_DATA_SOURCE_ID = LEGACY_BAGS_SOURCE;
-  assert.deepEqual(readDataSources(env), SOURCES);
-  assert.deepEqual(Object.keys(readDataSources({})).sort(), ['beans', 'recipes', 'records', 'steps']);
-});
-
-test('server Notion adapter ignores an extra legacy bags source key', async () => {
-  const calls = [];
-  const client = new ServerNotionClient(TOKEN, {
-    dataSources: LEGACY_SOURCES,
-    fetchImpl: async (url, options) => {
-      const parsed = new URL(url);
-      calls.push({ url: parsed, method: options.method });
-      return parsed.pathname.includes('/query')
-        ? Response.json({ object: 'list', results: [], has_more: false })
-        : Response.json({ object: 'data_source', id: parsed.pathname.split('/').at(-1), properties: {} });
-    },
-  });
-  await client.verify();
-  assert.deepEqual(calls.map(call => call.url.pathname.split('/').at(-1)), Object.values(SOURCES));
-});
-
 test('PWA Notion client ignores an extra legacy bags source key during verification', async () => {
   const calls = [];
   const client = new PwaNotionClient(TOKEN, {
@@ -202,26 +178,6 @@ test('bag-only legacy evidence does not resolve a bean in the PWA repository', a
   assert.deepEqual(queriedKinds, ['beans', 'recipes', 'steps', 'records']);
 });
 
-test('bag-only legacy evidence does not resolve a bean in the server repository', async () => {
-  const pages = historyPages('valid');
-  const queries = [];
-  const serverRepository = new ServerNotionRepository({
-    dataSources: LEGACY_SOURCES,
-    async queryAll(id) {
-      const kind = Object.keys(LEGACY_SOURCES).find(key => LEGACY_SOURCES[key] === id);
-      queries.push(kind);
-      return pages[kind];
-    },
-  });
-  const data = await serverRepository.all();
-  assert.equal(data.records[0].beanId, null);
-  assert.equal(data.records[0].beanResolution, 'needs-confirmation');
-  assert.equal(data.records[0].rating, 4);
-  assert.equal(Object.hasOwn(data.records[0], 'bagId'), false);
-  assert.deepEqual(queries, ['beans', 'recipes', 'steps', 'records']);
-  assert.equal(Object.hasOwn(data, 'bags'), false);
-});
-
 test('missing or malformed legacy bag properties do not exclude PWA history', async () => {
   for (const bagRelation of ['missing', 'damaged']) {
     const pages = historyPages(bagRelation);
@@ -231,24 +187,6 @@ test('missing or malformed legacy bag properties do not exclude PWA history', as
       async getPage(id) { return pages.recipes.find(item => item.id === id); },
     });
     const data = await repository.readAll();
-    assert.equal(data.records.length, 1);
-    assert.equal(data.records[0].beanId, null);
-    assert.equal(data.records[0].beanResolution, 'needs-confirmation');
-    assert.equal(data.records[0].rating, 4);
-  }
-});
-
-test('missing or malformed legacy bag properties do not exclude server history', async () => {
-  for (const bagRelation of ['missing', 'damaged']) {
-    const pages = historyPages(bagRelation);
-    const repository = new ServerNotionRepository({
-      dataSources: LEGACY_SOURCES,
-      async queryAll(id) {
-        const kind = Object.keys(LEGACY_SOURCES).find(key => LEGACY_SOURCES[key] === id);
-        return pages[kind];
-      },
-    });
-    const data = await repository.all();
     assert.equal(data.records.length, 1);
     assert.equal(data.records[0].beanId, null);
     assert.equal(data.records[0].beanResolution, 'needs-confirmation');

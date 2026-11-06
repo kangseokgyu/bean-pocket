@@ -1,6 +1,8 @@
-# PWA 브라우저 구현 계약 — T10 확정
+# PWA 브라우저 구현 계약
 
-2026-10-18. 기준 커밋 `ac93b61`, [PLAN](../PLAN.md)·[SPEC](../SPEC.md)와 [T09/M2 판정](technical-gates.md)을 따른다. 부모 결정사항을 반영한 **독립 critic 재검토 PASS로 확정한 계약**이다. 이는 T10 완료이며 후속 코드 구현 완료를 의미하지 않는다. 아래 API·형식은 후속 구현 계약이며 구현·실기기 지원 완료를 뜻하지 않는다.
+> 현재 구조(2026-11-06): 브라우저 PWA가 `pwa/data/notion-client.mjs`로 Notion API에 직접 요청한다. `pwa/data/notion-properties.mjs`는 Notion 속성 코덱의 단일 원본이며 `lib/domain.mjs`는 순수 도메인 원본이다. Node.js는 테스트·빌드 도구에 쓰고, Node 웹 서버나 프로젝트 소유 `/api/*` endpoint는 제공하지 않는다. 기기 연결 저장은 OPFS 파일과 제출 journal을 사용한다.
+
+아래 T10 계약은 2026-10-18의 설계 이력이다. 이후 구현에서 바뀐 snapshot·화면·상태 계약은 [제품 스펙](../SPEC.md), [PWA 사용 안내](pwa-usage.md), 현재 소스와 [구현 상태](implementation-status.md)를 따른다.
 
 ## 1. 순수 로직·입력·연결 경계
 
@@ -12,7 +14,7 @@
 
 ## 11. 2026-10-25 레시피 추출 가이드
 
-- `validateRecipe`는 선택 자유 텍스트 `extractionGuide`를 정규화한다. 공용 코덱의 Notion 속성명은 `추출 가이드`, 타입은 `rich_text`이며 서버·PWA가 같은 코덱을 사용한다. Notion rich_text 분할·복원은 기존 2,000자 조각 규칙을 따른다.
+- `validateRecipe`는 선택 자유 텍스트 `extractionGuide`를 정규화한다. Notion 속성명은 `추출 가이드`, 타입은 `rich_text`이며 PWA에서 공용 코덱을 사용한다. Notion rich_text 분할·복원은 2,000자 조각 규칙을 따른다.
 - 레시피 등록·복사 폼은 textarea로 입력하고 복사할 때 가이드를 보존한다. 상세 화면에서는 물 붓기 단계 표 아래, 추출 기록 위에 표시한다. 기존 저장 레시피의 편집 기능은 제공하지 않는다.
 - 새 version 2 snapshot은 당시 `extractionGuide` 문자열을 포함한다. 이전 recipe 및 version 1/2 snapshot에 필드가 없어도 검증을 통과하며, 데이터 소스에서 속성이 빠진 구버전 페이지는 빈 문자열로 읽는다.
 - `verify()`는 `recipes.추출 가이드`가 없으면 구버전 호환 상태로 연결·조회를 허용한다. 그 상태에서 가이드가 빈 새 레시피는 해당 속성을 제외해 저장하고, 값이 있는 새 레시피·복사는 journal 및 Notion 쓰기 전에 `not-sent`로 거부한다. 속성이 존재하면 `rich_text` 타입이어야 한다.
@@ -21,9 +23,9 @@
 
 ## 2. 속성 코덱의 단일 원본 — T12 소유
 
-`pwa/data/notion-properties.mjs`를 canonical 원본으로 정한다. T12 worker가 기존 `lib/notion.mjs`의 `schemas`, `encodeProperties(kind, data)`, `decodePage(kind, page)` 및 내부 rich_text 처리만 **동작 변경 없이 추출**한다. 서버는 `../pwa/data/notion-properties.mjs`를 import하고 기존 공개 encode/decode를 re-export한다. 브라우저 client는 같은 폴더의 `./notion-properties.mjs`를 import한다. 스키마·직렬화 코드의 수동 사본은 두지 않는다.
+`pwa/data/notion-properties.mjs`는 `schemas`, `encodeProperties(kind, data)`, `decodePage(kind, page)`와 rich_text 처리를 소유한다. 브라우저 client와 테스트는 이 파일을 import한다. 서버용 사본이나 수동으로 복제한 스키마는 두지 않는다.
 
-기존 한국어 속성명·타입, 빈값, 단일 관계 변환, snapshot JSON 직렬화·rich_text 분할/복원 및 파싱 실패 시 기존 반환 의미를 보존한다. 코덱은 순수 함수이며 통신·파일·Node 의존성이 없다. 도메인의 `createSnapshot`과 코덱의 속성 직렬화는 별도 책임이다. 새 브라우저 client의 전송 한도 검증은 코덱 추출이나 기존 서버·도메인 입력 규칙 변경과 분리한다. 순수 코덱의 서버/브라우저 공통 회귀 검증은 T12가 담당한다.
+기존 한국어 속성명·타입, 빈값, 단일 관계 변환, snapshot JSON 직렬화·rich_text 분할/복원 및 파싱 실패 시 반환 의미를 보존한다. 코덱은 통신·파일 의존성이 없는 순수 함수다. 도메인의 `createSnapshot`과 코덱의 속성 직렬화는 별도 책임이다. 전송 한도 검증은 코덱과 도메인 입력 규칙에서 분리한다.
 
 ## 3. Notion 통신 API와 안전 오류 — T12
 
@@ -120,7 +122,7 @@ PWA 화면과 이벤트의 시작 파일은 [파일 안내](ui-refactoring.md#wh
 | 소유 | 파일 / 범위 |
 |---|---|
 | T11 | `lib/domain.mjs` 단일 원본과 정적 공급, 도메인 의미 보존 |
-| T12 | `pwa/data/notion-properties.mjs` 추출·공유 코덱, `pwa/data/notion-client.mjs`, 관련 Node 테스트와 `lib/notion.mjs`의 최소 import/re-export 변경 |
+| T12 | 당시 계획은 `pwa/data/notion-properties.mjs` 코덱 추출, `pwa/data/notion-client.mjs`, Node 테스트와 서버용 re-export 변경이었다. 현재 서버용 re-export 단계는 제거됐다. |
 | T13 | `pwa/platform/connection-file.mjs`, Connection 형식·native staging·재읽기 검증 |
 | T14 | `pwa/state/submission-state.mjs`, journal·Web Locks·재실행 복구 |
 | T15 | `pwa/data/read-repository.mjs`, 전체 조회·관계·완전성 판정 |
@@ -129,7 +131,7 @@ PWA 화면과 이벤트의 시작 파일은 [파일 안내](ui-refactoring.md#wh
 | T27 | 앱 수명·SW 세대별 모든 창 핸드셰이크 |
 | 부모 | 빌드 허용 목록·공유 코덱 정적 공급·hash·캐시·검사기·workflow·package.json 통합. 다른 worker가 동시에 수정하지 않음 |
 
-Node 내장 테스트에 fetch·OPFS·locks를 주입해 페이지 잘림·커서 순환·모든 쓰기/취소 실패 지점·close/readback 불확실·동시 창·종료 복구·구버전 응답을 검증한다. 후속 회귀 항목에는 다른 창의 연결 교체 후 오래된 client/초안의 쓰기 차단과 파일 한쪽 부재 복구, 부모 조회 뒤 archive·극소량 자식 삭제가 끼어든 조립 결과 거부를 포함한다. T27은 clean ACK 뒤 입력 시도·동결 실패·apply 직전 재확인·중단 시 해제·창 집합 변경을 자동화와 실제 브라우저에서 검증한다. CUA 실제 브라우저의 공개 흐름 결과는 Node 모의 결과와 별도로 기록한다. T28은 연결→원두/레시피→복사→반복 기록→재조회 흐름과 릴리스 산출물을 검증하고, T29는 실제 Pages·Notion·지정 iPhone·PC·셀룰러와 **최종 실제 연결 파일 수명**을 재검증한다. 모의 검증을 실제 Notion·실기기 통과로 보고하지 않는다.
+Node.js 내장 `node:test`로 fetch·OPFS·locks를 주입해 페이지 잘림·커서 순환·쓰기/취소 실패·close/readback 불확실·동시 창·종료 복구·구버전 응답을 검증한다. 실제 브라우저의 공개 흐름 결과는 모의 요청 결과와 별도로 기록한다. 테스트 통과만으로 실제 Notion·실기기 통과를 뜻하지 않는다.
 
 공식 근거와 결정 재현은 [T10 근거 확인](evidence/T10/source-check.md), [최소 재현](evidence/T10/completeness-probe.txt)을 따른다. 계약 작성 증거와 검토 상태는 [T10 기록](evidence/T10/README.md)에 남긴다.
 

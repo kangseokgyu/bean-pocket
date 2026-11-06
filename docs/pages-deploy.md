@@ -16,7 +16,7 @@ npm run build:pages
 npm run check:pages
 ```
 
-정적 앱만 `dist/`에 생성한다. 저장소 루트, 기존 서버의 `public/`, `.env.local`, 실제 Notion 연결 설정을 업로드하지 않는다. 앱의 빌드 표시는 PWA 소스·도메인 원본 `lib/domain.mjs`·빌더 코드의 내용 해시를 사용한다. 배포 증거에 이 값과 Git 커밋을 함께 기록한다.
+`dist/`에는 허용 목록에 든 정적 PWA 파일만 생성한다. 소스 트리, 기기별 Notion 연결 파일, 토큰, 실제 연결 설정은 업로드하지 않는다. 프로젝트에는 별도 Node 웹 서버나 `/api/*` 백엔드가 없다. 앱의 빌드 표시는 PWA 소스·도메인 원본 `lib/domain.mjs`·빌더 코드의 내용 해시를 사용한다. 배포 증거에 이 값과 Git 커밋을 함께 기록한다.
 
 프로젝트 경로 확인 시 임시 정적 서버에서 `dist/`를 `/bean-pocket/`에 배치한다. `index.html`, 모듈·CSS·manifest·아이콘·SW가 모두 같은 하위 경로에서 HTTP 200으로 로드되는지 확인한다. `file://`로 연 결과는 SW나 HTTPS 설치 검증을 대신하지 않는다.
 

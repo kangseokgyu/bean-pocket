@@ -1,13 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  InputError,
   copyRecipe,
   createSnapshot,
   validateRecipe,
   validateStoredSnapshot,
 } from '../lib/domain.mjs';
-import { NotionClient as ServerNotionClient, NotionRepository } from '../lib/notion.mjs';
 import { NotionClient as PwaNotionClient } from '../pwa/data/notion-client.mjs';
 import { decodePage, encodeProperties, relationTargets, schemas } from '../pwa/data/notion-properties.mjs';
 
@@ -156,41 +154,4 @@ test('PWA는 지원 schema에 rich_text 가이드를 저장하고 구버전에�
   await old.client.createPage('recipes', { name: '구버전', extractionGuide: '' });
   assert.equal(JSON.parse(old.calls.at(-1).init.body).properties['추출 가이드'], undefined);
   assert.equal(old.calls.filter(call => call.url.endsWith('/pages')).length, 1);
-});
-
-test('서버 schema 검증도 구버전 속성을 허용하고 잘못된 guide 타입을 거부한다', async () => {
-  const makeClient = options => new ServerNotionClient('synthetic-token', {
-    dataSources: DATA_SOURCES,
-    fetchImpl: async url => {
-      const kind = Object.keys(DATA_SOURCES).find(key => url.endsWith('/data_sources/' + DATA_SOURCES[key]));
-      return Response.json(source(kind, options));
-    },
-    timeoutMs: 100,
-  });
-  const old = makeClient({ guide: false });
-  await old.verify();
-  assert.equal(old.recipeExtractionGuideSupported, false);
-
-  const wrong = makeClient({ wrongGuideType: true });
-  await assert.rejects(wrong.verify(), error => error instanceof InputError);
-});
-
-test('서버는 구버전 schema에서 빈 guide를 생략하고 비어 있지 않은 guide 쓰기를 거부한다', async () => {
-  const writes = [];
-  const repository = new NotionRepository({
-    dataSources: DATA_SOURCES,
-    recipeExtractionGuideSupported: false,
-    async createPage(_source, properties) {
-      writes.push(properties);
-      return { id: PAGE_ID };
-    },
-  });
-  await repository.create('recipes', { name: '호환 레시피', extractionGuide: '' });
-  assert.equal(writes.length, 1);
-  assert.equal(writes[0]['추출 가이드'], undefined);
-  await assert.rejects(repository.create('recipes', { name: '보존 필요', extractionGuide: GUIDE }), error => {
-    assert.ok(error instanceof InputError);
-    return true;
-  });
-  assert.equal(writes.length, 1);
 });

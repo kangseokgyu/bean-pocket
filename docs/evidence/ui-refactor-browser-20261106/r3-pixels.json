@@ -1,0 +1,154 @@
+[
+  {
+    "file": "bean-detail-1280.png",
+    "sameDimensions": true,
+    "pixelsChanged": 0,
+    "rows": []
+  },
+  {
+    "file": "bean-detail-390.png",
+    "sameDimensions": true,
+    "pixelsChanged": 0,
+    "rows": []
+  },
+  {
+    "file": "beans-1280.png",
+    "sameDimensions": true,
+    "pixelsChanged": 0,
+    "rows": []
+  },
+  {
+    "file": "beans-390.png",
+    "sameDimensions": true,
+    "pixelsChanged": 0,
+    "rows": []
+  },
+  {
+    "file": "brew-bean-1280.png",
+    "sameDimensions": true,
+    "pixelsChanged": 0,
+    "rows": []
+  },
+  {
+    "file": "brew-bean-390.png",
+    "sameDimensions": true,
+    "pixelsChanged": 0,
+    "rows": []
+  },
+  {
+    "file": "brew-recipe-1280.png",
+    "sameDimensions": true,
+    "pixelsChanged": 0,
+    "rows": []
+  },
+  {
+    "file": "brew-recipe-390.png",
+    "sameDimensions": true,
+    "pixelsChanged": 0,
+    "rows": []
+  },
+  {
+    "file": "brew-run-1280.png",
+    "sameDimensions": true,
+    "pixelsChanged": 0,
+    "rows": []
+  },
+  {
+    "file": "brew-run-390.png",
+    "sameDimensions": true,
+    "pixelsChanged": 0,
+    "rows": []
+  },
+  {
+    "file": "home-1280.png",
+    "sameDimensions": true,
+    "pixelsChanged": 0,
+    "rows": []
+  },
+  {
+    "file": "home-390.png",
+    "sameDimensions": true,
+    "pixelsChanged": 0,
+    "rows": []
+  },
+  {
+    "file": "recipe-detail-1280.png",
+    "sameDimensions": true,
+    "pixelsChanged": 0,
+    "rows": []
+  },
+  {
+    "file": "recipe-detail-390.png",
+    "sameDimensions": true,
+    "pixelsChanged": 0,
+    "rows": []
+  },
+  {
+    "file": "recipes-1280.png",
+    "sameDimensions": true,
+    "pixelsChanged": 0,
+    "rows": []
+  },
+  {
+    "file": "recipes-390.png",
+    "sameDimensions": true,
+    "pixelsChanged": 0,
+    "rows": []
+  },
+  {
+    "file": "records-1280.png",
+    "sameDimensions": true,
+    "pixelsChanged": 190,
+    "rows": [
+      {
+        "top": 1296,
+        "bottom": 1301,
+        "left": 614,
+        "right": 1240
+      },
+      {
+        "top": 1408,
+        "bottom": 1413,
+        "left": 1229,
+        "right": 1240
+      },
+      {
+        "top": 1466,
+        "bottom": 1471,
+        "left": 1229,
+        "right": 1240
+      }
+    ]
+  },
+  {
+    "file": "records-390.png",
+    "sameDimensions": true,
+    "pixelsChanged": 190,
+    "rows": [
+      {
+        "top": 1697,
+        "bottom": 1702,
+        "left": 177,
+        "right": 361
+      },
+      {
+        "top": 1763,
+        "bottom": 1768,
+        "left": 177,
+        "right": 188
+      },
+      {
+        "top": 1875,
+        "bottom": 1880,
+        "left": 350,
+        "right": 361
+      },
+      {
+        "top": 1933,
+        "bottom": 1938,
+        "left": 350,
+        "right": 361
+      }
+    ]
+  }
+]

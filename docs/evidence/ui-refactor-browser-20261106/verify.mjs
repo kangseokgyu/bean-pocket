@@ -35,8 +35,24 @@ try {
    await writeFile(`${out}/${file}.html`,dom);
    const screenshot=await page.screenshot({path:`${out}/${file}.png`,fullPage:true,animations:'disabled'});
    const hash=createHash('sha256').update(screenshot).digest('hex');
-   if(mode==='candidate')assert.equal(dom,await readFile(`${resultRoot}/baseline/${file}.html`,'utf8'),`${file} DOM parity`);
-   results.push({name,width,domParity:mode==='candidate'?true:null,screenshotSha256:hash});
+   let rawDomMatch=null;
+   if(mode==='candidate'){
+    const expected=await readFile(`${resultRoot}/baseline/${file}.html`,'utf8');
+    rawDomMatch=dom===expected;
+    if(!rawDomMatch){
+     const [actualTree,expectedTree]=await page.evaluate(sources=>sources.map(source=>{
+      const template=document.createElement('template');template.innerHTML=source;
+      for(const node of template.content.querySelectorAll('*')){
+       const attributes=[...node.attributes].sort((a,b)=>a.name.localeCompare(b.name));
+       for(const attr of attributes)node.removeAttributeNode(attr);
+       for(const attr of attributes)node.setAttributeNodeNS(attr);
+      }
+      return template.innerHTML;
+     }),[dom,expected]);
+     assert.equal(actualTree,expectedTree,`${file} DOM parity (attribute order ignored)`);
+    }
+   }
+   results.push({name,width,domParity:mode==='candidate'?true:null,rawDomMatch,screenshotSha256:hash});
   }
  }
  await page.setViewportSize({width:390,height:844});
@@ -60,6 +76,28 @@ try {
  await navigate('/beans');
  const favorite=page.locator('.entity-favorite').first();const pressed=await favorite.getAttribute('aria-pressed');await favorite.click();await page.waitForFunction(old=>document.querySelector('.entity-favorite')?.getAttribute('aria-pressed')!==old,pressed);
  results.push({favoriteToggle:true});
+ await page.waitForFunction(()=>!harness.app.getState().pending);
+ await page.locator('[data-action="show-bean-form"]').click();
+ const saveDialog=page.locator('dialog[data-entry-dialog="beans"]');
+ await saveDialog.locator('[name="name"]').fill('브라우저 저장 검증');
+ const postCount=()=>page.evaluate(()=>harness.fake.calls.filter(c=>c.method==='POST'&&c.pathname==='/v1/pages').length);
+ const beforeSave=await postCount();
+ await page.evaluate(()=>{
+   const gate=new Promise(resolve=>{window.releaseSave=resolve;});
+   harness.fake.intercept=async call=>{if(call.method==='POST'&&call.pathname==='/v1/pages')await gate;};
+ });
+ const save=saveDialog.locator('[data-entry-submit]');
+ await save.click();
+ await page.waitForFunction(previous=>harness.fake.calls.filter(c=>c.method==='POST'&&c.pathname==='/v1/pages').length===previous+1,beforeSave);
+ assert.equal(await save.getAttribute('aria-busy'),'true');
+ assert.equal(await page.locator('.app-status').evaluate(node=>node.hidden),true);
+ await saveDialog.locator('form').evaluate(form=>form.requestSubmit());
+ assert.equal(await postCount(),beforeSave+1);
+ await page.evaluate(()=>window.releaseSave());
+ await saveDialog.waitFor({state:'hidden',timeout:6000});
+ assert.equal(await postCount(),beforeSave+1);
+ await page.getByRole('link',{name:'브라우저 저장 검증 추출 기록 보기',exact:true}).waitFor();
+ results.push({saveSpinner:true,duplicateProgressToastHidden:true,duplicateSubmitBlocked:true,saveVisible:true});
  assert.deepEqual(errors,[]);assert.deepEqual(responses,[]);
  await writeFile(`${out}/results.json`,JSON.stringify({mode,interfaces,results,errors,responses,scope:'Chromium real View+Controller; memory storage/fake Notion; no SW lifecycle or real iPhone'},null,2));
  console.log(JSON.stringify({mode,passed:true,cases:results.length}));

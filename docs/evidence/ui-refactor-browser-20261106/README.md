@@ -34,3 +34,15 @@ node verify.mjs candidate
 ## 확인 범위
 
 이 검증은 Chromium의 모의 데이터 UI 결과다. 실제 Notion 저장, iPhone Safari, 홈 화면 PWA, 다중 탭 Service Worker 업데이트를 실행했다는 의미가 아니다. Node 테스트 및 공개 배포 파일 검증은 별도 기록으로 확인한다.
+
+## R1 및 R2/R3-A 비교 결과
+
+R1 커밋 `7c87aad`의 [비교 결과](r1-results.json)는 21개 시나리오가 통과했다. 화면 18개의 DOM과 스크린샷 해시가 같았고 View 메서드 30개와 Controller 메서드 16개의 목록이 일치했다.
+
+R2/R3-A 비교에는 원두 저장 응답을 모의 API에서 지연시키는 시나리오를 추가했다. 버튼의 `aria-busy` 표시, 진행 토스트 중복 억제, 재제출의 쓰기 방지와 저장한 원두의 목록 표시를 확인한다. 이 검증을 추가한 [기준](baseline/results.json)과 `ae53081`의 [후보](r2a-verified-results.json) 모두 22개 시나리오가 통과했다. HTML 속성 순서만 제외한 화면 DOM은 18개 모두 일치했다. [픽셀 비교](r2a-pixels.json)에서 16개 스크린샷은 같았다. 기록 화면의 두 스크린샷은 각각 드롭다운 화살표 다섯 곳의 190픽셀이 달랐다. 화면 크기와 DOM은 같았다.
+
+공개 기준 버전 `214f2f1363ed`에서 [Chromium 오프라인 재실행](public-browser-baseline.json)을 확인했다. Service Worker 캐시의 정적 파일 26개가 공개 파일과 일치했다. 이는 리팩터링 후보의 배포 결과가 아니다.
+
+픽셀 비교는 `node compare-pixels.mjs /absolute/baseline/screenshots /absolute/candidate/screenshots`로 실행한다. 필요하면 `PNGJS_MODULE`에 설치 경로를 지정한다.
+
+R3 커밋 `44d1e78`에서 [브라우저 비교 22개](r3-results.json)가 통과했다. 화면 DOM은 18개 모두 일치했다. [픽셀 비교](r3-pixels.json)는 R2/R3-A와 같은 두 기록 화면의 드롭다운 화살표 차이만 기록했다.

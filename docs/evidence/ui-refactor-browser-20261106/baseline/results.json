@@ -175,6 +175,12 @@
     },
     {
       "favoriteToggle": true
+    },
+    {
+      "saveSpinner": true,
+      "duplicateProgressToastHidden": true,
+      "duplicateSubmitBlocked": true,
+      "saveVisible": true
     }
   ],
   "errors": [],

@@ -2,10 +2,16 @@ import { make } from './dom.mjs';
 import { actionIcon, trashIcon } from './icons.mjs';
 
 export const button = (document, text, type = 'submit', action, variant = 'secondary') => {
-  const node = make(document, 'button', text, `button button--${variant}`);
+  const back = variant === 'back';
+  const node = make(document, 'button', back ? undefined : text, `button button--${variant}`);
   node.type = type;
   if (action) node.dataset.action = action;
-  if (variant === 'back' && text !== undefined) node.setAttribute('aria-label', String(text));
+  if (back) {
+    node.setAttribute('aria-label', text);
+    const arrow = make(document, 'span', '←', 'back-arrow');
+    arrow.setAttribute('aria-hidden', 'true');
+    node.append(arrow);
+  }
   return node;
 };
 

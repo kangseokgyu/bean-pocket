@@ -423,6 +423,7 @@ test('saved connection opens settings modally and closing discards unsaved secre
   const icon = tools.querySelector('button');
   assert.ok(icon, 'settings icon belongs in the header slot before build information');
   assert.equal(icon.getAttribute('aria-label'), 'Notion 연결 설정');
+  assert.equal(icon.getAttribute('aria-controls'), 'connection-settings');
   const panel = document.root.querySelector('.connection-panel');
   assert.equal(icon.disabled, true);
   view.showConnection({ connected: true });
@@ -4177,6 +4178,26 @@ test('home is the default and root route, with the requested hero and four menu 
   assert.ok(document.root.querySelector('.home-hero'));
 });
 
+test('back buttons show an arrow and keep their accessible destination and route', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+
+  for (const [route, destination, target] of [
+    [`/beans/${BEAN}`, '원두 목록으로', '/beans'],
+    [`/recipes/${RECIPE}`, '레시피 목록으로 돌아가기', '/recipes'],
+  ]) {
+    view.renderRoute(route);
+    const back = document.root.querySelector('.button--back');
+    assert.ok(back);
+    assert.equal(back.type, 'button');
+    assert.equal(back.getAttribute('aria-label'), destination);
+    assert.equal(back.dataset.route, target);
+    assert.equal(back.textContent, '←');
+    assert.equal(back.querySelector('.back-arrow').getAttribute('aria-hidden'), 'true');
+  }
+});
+
 test('brew routes preserve selected parents and show the saved recipe guide without an automatic timer', () => {
   const document = new TestDocument();
   const view = createBeanView(document);
@@ -5458,7 +5479,7 @@ test('explicit comparison selects an older fourth bean despite a previous differ
 });
 
 for (const kind of ['beans', 'recipes']) {
-  test(`brew ${kind} show favorites first with a visible label and preserve source order`, () => {
+  test(`brew ${kind} show favorites first and preserve source order`, () => {
     const document = new TestDocument();
     const view = createBeanView(document);
     const current = data();
@@ -5476,7 +5497,12 @@ for (const kind of ['beans', 'recipes']) {
     const cards = document.root.querySelector('.brew-option-list').children;
     const key = kind === 'beans' ? 'beanId' : 'recipeId';
     assert.deepEqual(cards.map(card => card.dataset[key]), ['favorite-1', 'favorite-2', 'ordinary-1', 'ordinary-2']);
-    assert.equal(cards[0].querySelector('.brew-option-favorite').textContent, '★ 즐겨찾기');
+    const badge = cards[0].querySelector('.brew-option-favorite');
+    assert.equal(cards[0].tagName, 'button');
+    assert.equal(badge?.getAttribute('role'), 'img');
+    assert.equal(badge?.getAttribute('aria-label'), '즐겨찾기');
+    assert.equal(badge?.textContent, '');
+    assert.equal(badge?.querySelector('svg.favorite-icon')?.getAttribute('aria-hidden'), 'true');
     assert.equal(cards[2].querySelector('.brew-option-favorite'), null);
     assert.deepEqual(current[kind].map(item => item.id), sourceOrder);
   });

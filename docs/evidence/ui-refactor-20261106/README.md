@@ -100,3 +100,7 @@ Integrated `250198d` into the feature branch after R4-R5 passed. The three-way c
 | `npm run build:pages` | Exit 0. Integrated Pages build `9b8bf554b507`. | [main-integration/build-pages.log](main-integration/build-pages.log) |
 | `npm run check:pages` | Exit 0. Artifact and security checks passed. | [main-integration/check-pages.log](main-integration/check-pages.log) |
 | Built view DOM checks with the Node fixture | Exit 0. Checked five connection fields, two compact fieldsets, and the home wordmark. The first check used a descendant selector the fixture does not support. | [Pass](main-integration/merge-contract.log), [fixture failure](main-integration/merge-contract-selector-failure.log) |
+
+## R6 source map and verification notes
+
+The [source map](../../ui-refactoring.md#where-to-start) links the entry points for forms, screens, events, and controller reads. The README, usage guide, contracts, implementation status, and verification notes point to the map or the logs. R6 changes documentation only. The integrated build and test results above apply to the last product edit. Final Chromium comparison and publication remain with main.

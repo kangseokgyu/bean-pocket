@@ -115,6 +115,8 @@ SW 자동 safe apply는 현재 활성 창만이 아니라 **같은 scope의 모�
 
 ## 9. 파일 소유와 검증 인계
 
+PWA 화면과 이벤트의 시작 파일은 [파일 안내](ui-refactoring.md#where-to-start)에 있다. [컨트롤러](../pwa/ui/controller.mjs)의 `createAppController`는 옵션과 반환 메서드 16개를 유지한다. 연결 세대, 쓰기 잠금, journal 복구, 입력 상태와 저장 후 재조회 순서는 컨트롤러가 맡는다. [조회 모듈](../pwa/ui/controller/)은 캐시 정책, 경로별 조회, 검색 옵션, 인사이트 변환을 맡는다. 라우트·검색·인사이트 요청은 각자 유효성을 확인한 뒤 화면에 반영한다.
+
 | 소유 | 파일 / 범위 |
 |---|---|
 | T11 | `lib/domain.mjs` 단일 원본과 정적 공급, 도메인 의미 보존 |

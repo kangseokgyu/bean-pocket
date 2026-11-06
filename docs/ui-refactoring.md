@@ -1,18 +1,33 @@
 # Bean Pocket UI/controller refactoring
 
-Status: R0-R3 implementation and Node verification are complete. Main owns independent review and browser comparison. R4-R6 are pending, including the release checks for modules still to be added. See the [verification logs](evidence/ui-refactor-20261106/README.md).
+Status: R0-R6 implementation, documentation, and local verification are complete. Main owns final review, Chromium comparison against `250198d`, and publication. See the [verification logs](evidence/ui-refactor-20261106/README.md).
 
 ## Goal
 
 Move UI rendering, form construction, event interactions, and safe controller read coordination into small modules. Preserve all user-visible behavior, the current DOM and selectors, and the public createAppView and createAppController interfaces.
 
-The implementation stays in the feature worktree based on 0e0c2f3. It does not change domain, data, submission, or platform behavior. It does not change CSS, add a framework, or write to a live Notion workspace. Main owns browser baseline and candidate comparison. Worker owns Node tests and implementation.
+The feature worktree started at `0e0c2f3` and later took `250198d` from `main`. The refactor preserves domain, data, submission, and platform behavior. The incoming wordmark and stylesheet are part of the `250198d` integration. Main owns browser baseline and candidate comparison. Worker owns Node tests and implementation.
+
+## Where to start
+
+| Change | Start here |
+| --- | --- |
+| Bean form fields | [Bean form](../pwa/ui/forms/bean-form.mjs). The [view](../pwa/ui/view.mjs) composes the dialog and owns the draft. |
+| Brew bean or recipe picker | [Brew screen](../pwa/ui/screens/brew.mjs) for cards and result markup. [Events](../pwa/ui/interactions/events.mjs) handles input and selection. [Loader](../pwa/ui/controller/loader.mjs) reads the route and first page. |
+| Record form and record filters | [Record form](../pwa/ui/forms/record-form.mjs) and [records screen](../pwa/ui/screens/records.mjs) use the [search picker](../pwa/ui/interactions/search-picker.mjs). |
+| Event bindings | [Events](../pwa/ui/interactions/events.mjs) starts at `bindEvents`. [Pull to refresh](../pwa/ui/interactions/pull-to-refresh.mjs) and [status toast](../pwa/ui/interactions/status-toast.mjs) have their own entry points. |
+| Read cache keys, expiry, and eviction | [Controller cache](../pwa/ui/controller/cache.mjs). The [controller](../pwa/ui/controller.mjs) owns both cache instances and decides when to invalidate them. |
+| Search and record insights | [Controller search](../pwa/ui/controller/search.mjs) handles option reads. [Controller record insights](../pwa/ui/controller/record-insights.mjs) reads comparison pairs and projects the model; [records insights view](../pwa/ui/records-insights-view.mjs) renders it. |
+
+Run `npm test`, `npm run build:pages`, and `npm run check:pages` after product edits. Use `node --test test/pwa-controller-reads.test.mjs test/pwa-screen-loading.test.mjs` for focused read checks. The [verification logs](evidence/ui-refactor-20261106/README.md) distinguish the refactor build from the build after merging `250198d`.
 
 ## Pinned interfaces
 
 createAppView(document = globalThis.document, { schedule, cancelSchedule, validateToken } = {}) remains exported. Its returned methods remain showStatus, clearStatus, showConnection, clearSecret, beginConnectionSave, finishConnectionSave, editConnection, cancelConnection, showConnectionSuccess, finishStartup, setState, setFrozen, clearForm, clearDraft, setRouteReadState, renderData, currentRoute, onRouteChange, renderRoute, resolveRecordDraft, showBeanForm, showRecipeForm, showRecordForm, setSearchOptions, setSearchOptionsState, clearSearchOptions, showEntrySuccess, showDeleteResult, showUnresolved, and bind.
 
 createAppController retains its current options object and its returned methods: initialize, connect, confirmCurrent, resolveOperation, refresh, submit, setDirty, setFrozen, getState, bind, loadRoute, loadMore, loadMoreInsights, loadSearchOptions, setRecordFilters, and setRecordInsightsBean.
+
+The controller keeps separate route, search, and insight generations. It owns aborts, the connection revision, stale response checks, and the order of the initial render, deferred reads, and post-save refresh. Read modules receive only the inputs and callbacks they need. Connection-session extraction was left out because the active connection, write lock, journal recovery, and pending state must advance together. Moving them separately would split ownership of the write and recovery sequence.
 
 ## Behavior contracts to preserve
 
@@ -45,7 +60,7 @@ Candidate B is selected. It matches the requested module groups and the existing
 | R3 | Move bean, recipe, and record form builders, then event bindings, picker, pull-to-refresh, and status toast behavior. | Form, event, draft, cancel, focus, picker, spinner, and toast tests pass through the facade. |
 | R4 | Extract safe screen cache, loader, search-option, and insight logic into pwa/ui/controller/. Keep each abort, route generation, search generation, and connection revision distinct. Leave connection-session logic in controller.mjs unless it can move without splitting lock, journal, and active-connection ownership. | Controller unit and facade tests pass, including pagination, cache TTL/invalidation, stale responses, favorite writes, and connection-boundary cases. |
 | R5 | Extend the PWA build/check, source scanning, app cache, version/hash, fixture, SVG, and nested-directory symlink contracts for screen, form, interaction, and controller modules as they are extracted. | Every added module is included and checked. Security-negative tests still reject unsafe sources and symlink ancestors. |
-| R6 | Review all retained and additive tests, update docs/pwa-contracts.md, docs/verification.md, root README.md, docs/implementation-status.md, and docs/pwa-usage.md. Record final limits and verification evidence. | npm test, npm run build:pages, and npm run check:pages pass after the last edit. Main completes browser comparison separately. |
+| R6 | Review retained and new tests. Update the source map and verification notes. | npm test, npm run build:pages, and npm run check:pages pass after the last product edit. Main completes browser comparison separately. |
 
 Every implementation phase writes tests first. A focused test for a new module must fail because the module or required behavior check is absent, then pass after the move. After each phase, run all three required commands and save the original command output in docs/evidence/ui-refactor-20261106/. Do not start the next phase until the current phase is green. Commit each verified phase separately.
 
@@ -56,3 +71,5 @@ For every new file, update both build and check file lists, allowed directory se
 ## Browser evidence ownership
 
 Main reported that the baseline harness in docs/evidence/ui-refactor-browser-20261106/ passed 21 cases. The run covered nine screens at 390px and 1280px, two form cancel/no-write cases, dialog identity/input/focus through rerender, and a favorite toggle. It used createAppView, createAppController, memoryPlatform, and fakePwaNotion, with no live Notion access. Recipe-list statistics may remain in the lazy loading state until detail is opened; the comparison must not require that the entire recipe object omit loading status. Main owns the candidate replay and exact DOM comparison. Worker does not run or modify the browser scripts or their artifacts.
+
+Main recorded 22 passing Chromium cases through R3 in `482f2d7`. That run predates R4 and the `250198d` integration. The final browser comparison uses a new baseline at `250198d`.

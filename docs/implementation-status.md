@@ -6,6 +6,8 @@
 
 # PLAN 실행 상태
 
+2026-11-06 UI 리팩터링 후보: R0–R6 구현과 문서 정리를 완료했다. 기능 브랜치에 `250198d`를 통합한 후보의 Node 테스트 769개와 Pages 빌드 `9b8bf554b507` 검사가 통과했다. 최종 Chromium 비교와 게시는 별도다. [파일 안내](ui-refactoring.md#where-to-start) · [후보 검증 기록](evidence/ui-refactor-20261106/README.md).
+
 갱신일: 2026-10-21 (Asia/Seoul). 최종 인계는 [T30](evidence/T30/README.md), 실기기 판정은 [T29](evidence/T29/README.md)를 따른다. 아래 표는 최신 상태이며 초기 실험과 최종 제품의 확인 범위를 구분한다.
 
 | 작업 | 상태 | 근거 / 다음 조건 |

@@ -15,6 +15,8 @@ npm run check:pages
 
 PWA는 재실행할 때 기기에 저장된 연결을 검증해 복원하며, 확인에 실패하면 재입력 대신 재시도를 안내한다. 기기별 연결·입력·불확실 저장 복구는 [PWA 사용 안내](docs/pwa-usage.md)를 참고한다. 기존 운영 연결·읽기는 사용자 확인을 완료했으며, [최종 인계](docs/evidence/T30/README.md)에 범위와 검증 근거를 기록했다. 아래 환경변수와 서버 메모리 토큰 설명은 기존 Node 서버에만 해당한다.
 
+PWA 코드를 수정할 때는 [파일 안내](docs/ui-refactoring.md#where-to-start)에서 원두 폼, 브루 선택 화면, 이벤트와 조회 캐시의 시작 파일을 찾을 수 있다. 변경 후 `npm test`, `npm run build:pages`, `npm run check:pages`를 실행한다.
+
 ## 기존 Node 서버 로컬 실행
 
 Node.js 22.9 이상에서 실행한다. 외부 패키지 설치 없이 실행하도록 구성한다.

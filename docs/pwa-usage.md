@@ -2,6 +2,8 @@
 
 이 안내는 GitHub Pages용 브라우저 앱을 대상으로 한다. 앱 주소는 [bean-pocket](https://kangseokgyu.github.io/bean-pocket/)이며, 2026-10-22 최신 게시 빌드는 `d456a8e837a4`이다. 실제 게시 버전과 검증 상태는 [실행 상태](implementation-status.md)를 확인한다. 로컬 모의 검증과 실제 Notion·실기기 검증을 구분한다.
 
+원두 폼, 브루 선택 화면, 검색 이벤트 또는 조회 캐시를 수정하려면 [PWA 파일 안내](ui-refactoring.md#where-to-start)의 시작 파일과 검증 명령을 참고한다.
+
 ## 연결과 사용
 
 1. 기기에서 앱을 열고 Notion 통합 토큰과 원두·레시피·물 붓기 단계·추출 기록의 **데이터 소스 ID 4개**를 입력한다. 데이터베이스 ID와 구분한다. 채팅의 Notion 연결은 앱에 전달되지 않는다.

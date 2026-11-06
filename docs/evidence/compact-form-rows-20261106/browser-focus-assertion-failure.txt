@@ -1,0 +1,18 @@
+node:internal/modules/run_main:104
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Notion 320: token focus does not duplicate the outer outline
+
+'3px' !== '0px'
+
+    at testNotion (file:///private/tmp/ax-compact-form-rows-20261106/docs/evidence/compact-form-rows-20261106/verify-layout.mjs:164:10)
+    at async file:///private/tmp/ax-compact-form-rows-20261106/docs/evidence/compact-form-rows-20261106/verify-layout.mjs:212:5 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: '3px',
+  expected: '0px',
+  operator: 'strictEqual'
+}
+
+Node.js v23.4.0

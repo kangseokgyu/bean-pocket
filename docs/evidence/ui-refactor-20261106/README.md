@@ -89,3 +89,14 @@ Moved cache keys, expiry and eviction, option reads, route loaders, and insight 
 | `npm run check:pages` | Exit 0. Artifact and security checks passed. | [r4-r5/check-pages.log](r4-r5/check-pages.log) |
 
 The release tests check the four modules for byte equality, version hash changes, URL scanning, precache coverage, and imports without cycles. The builder and checker reject symlinks to populated controller directories.
+
+## Feature branch integration with `250198d`
+
+Integrated `250198d` into the feature branch after R4-R5 passed. The three-way comparison showed that `main` added two compact fieldset classes to code that the feature branch had moved. The merge applies those classes in `forms/bean-form.mjs` and `forms/recipe-form.mjs`. The five connection fields keep the incoming class. The source `index.html` and `styles.css` match `250198d` byte for byte.
+
+| Command | Result | Log |
+| --- | --- | --- |
+| `npm test` with loopback access | Exit 0. 769 passed, 0 failed. | [main-integration/npm-test.log](main-integration/npm-test.log) |
+| `npm run build:pages` | Exit 0. Integrated Pages build `9b8bf554b507`. | [main-integration/build-pages.log](main-integration/build-pages.log) |
+| `npm run check:pages` | Exit 0. Artifact and security checks passed. | [main-integration/check-pages.log](main-integration/check-pages.log) |
+| Built view DOM checks with the Node fixture | Exit 0. Checked five connection fields, two compact fieldsets, and the home wordmark. The first check used a descendant selector the fixture does not support. | [Pass](main-integration/merge-contract.log), [fixture failure](main-integration/merge-contract-selector-failure.log) |

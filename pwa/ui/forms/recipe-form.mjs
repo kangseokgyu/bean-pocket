@@ -15,7 +15,7 @@ export function buildRecipeForm(document, data) {
     ['분쇄 입자 (μm, 선택)', 'microns', 'number', false, { step: 'any', min: 0 }],
     ['물 온도 (℃)', 'temperature', 'number', true, { step: 'any', min: 0, max: 100 }],
     ['총 물 양 (g)', 'totalWater', 'number', true, { step: 'any', min: 0 }],
-  ]);
+  ], 'form-fieldset--compact');
   form.append(label(document, '추출 가이드 (선택)', 'extractionGuide', 'textarea', false, {
     rows: 4,
     placeholder: '예: 교반 없음, 목표 2분 30초 완성',

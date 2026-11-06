@@ -1,0 +1,2318 @@
+[
+  {
+    "width": 320,
+    "kind": "recipes",
+    "before": {
+      "dialog": {
+        "width": 318,
+        "scrollWidth": 318,
+        "scrollHeight": 1355
+      },
+      "fields": [
+        {
+          "label": "레시피 이름",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 268,
+          "labelScroll": 268,
+          "inputWidth": 268,
+          "inputHeight": 38
+        },
+        {
+          "label": "드리퍼",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 268,
+          "labelScroll": 268,
+          "inputWidth": 268,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 사용량 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 268,
+          "labelScroll": 268,
+          "inputWidth": 268,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄도",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 268,
+          "labelScroll": 268,
+          "inputWidth": 268,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 268,
+          "labelScroll": 268,
+          "inputWidth": 268,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더 설정",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 268,
+          "labelScroll": 268,
+          "inputWidth": 268,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄 입자 (μm, 선택)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 268,
+          "labelScroll": 268,
+          "inputWidth": 268,
+          "inputHeight": 38
+        },
+        {
+          "label": "물 온도 (℃)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 268,
+          "labelScroll": 268,
+          "inputWidth": 268,
+          "inputHeight": 38
+        },
+        {
+          "label": "총 물 양 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 268,
+          "labelScroll": 268,
+          "inputWidth": 268,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 가이드 (선택)",
+          "height": 98.625,
+          "labelHeight": 16.625,
+          "labelWidth": 290,
+          "labelScroll": 290,
+          "inputWidth": 290,
+          "inputHeight": 78
+        },
+        {
+          "label": "단계 이름 (선택)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 268,
+          "labelScroll": 268,
+          "inputWidth": 268,
+          "inputHeight": 38
+        },
+        {
+          "label": "누적 시간 (분:초)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 268,
+          "labelScroll": 268,
+          "inputWidth": 268,
+          "inputHeight": 38
+        },
+        {
+          "label": "이번 물 양 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 268,
+          "labelScroll": 268,
+          "inputWidth": 268,
+          "inputHeight": 38
+        }
+      ]
+    },
+    "after": {
+      "dialog": {
+        "width": 318,
+        "scrollWidth": 318,
+        "scrollHeight": 1169
+      },
+      "fields": [
+        {
+          "label": "레시피 이름",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 102,
+          "labelScroll": 102,
+          "inputWidth": 158.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "드리퍼",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 102,
+          "labelScroll": 102,
+          "inputWidth": 158.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 사용량 (g)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 102,
+          "labelScroll": 102,
+          "inputWidth": 158.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄도",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 102,
+          "labelScroll": 102,
+          "inputWidth": 158.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 102,
+          "labelScroll": 102,
+          "inputWidth": 158.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더 설정",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 102,
+          "labelScroll": 102,
+          "inputWidth": 158.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄 입자 (μm, 선택)",
+          "height": 38,
+          "labelHeight": 33.25,
+          "labelWidth": 102,
+          "labelScroll": 102,
+          "inputWidth": 158.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "물 온도 (℃)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 102,
+          "labelScroll": 102,
+          "inputWidth": 158.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "총 물 양 (g)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 102,
+          "labelScroll": 102,
+          "inputWidth": 158.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 가이드 (선택)",
+          "height": 98.625,
+          "labelHeight": 16.625,
+          "labelWidth": 290,
+          "labelScroll": 290,
+          "inputWidth": 290,
+          "inputHeight": 78
+        },
+        {
+          "label": "단계 이름 (선택)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 268,
+          "labelScroll": 268,
+          "inputWidth": 268,
+          "inputHeight": 38
+        },
+        {
+          "label": "누적 시간 (분:초)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 268,
+          "labelScroll": 268,
+          "inputWidth": 268,
+          "inputHeight": 38
+        },
+        {
+          "label": "이번 물 양 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 268,
+          "labelScroll": 268,
+          "inputWidth": 268,
+          "inputHeight": 38
+        }
+      ]
+    }
+  },
+  {
+    "width": 320,
+    "kind": "notion",
+    "before": {
+      "dialog": {
+        "width": 318,
+        "scrollWidth": 318,
+        "scrollHeight": 541
+      },
+      "fields": [
+        {
+          "label": "원본 연결 파일의 현재 내용을 직접 확인했습니다.",
+          "height": 0,
+          "labelHeight": 0,
+          "labelWidth": 0,
+          "labelScroll": 0,
+          "inputWidth": 0,
+          "inputHeight": 0
+        },
+        {
+          "label": "통합 토큰",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 290,
+          "labelScroll": 290,
+          "inputWidth": 290,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 290,
+          "labelScroll": 290,
+          "inputWidth": 290,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 290,
+          "labelScroll": 290,
+          "inputWidth": 290,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 단계 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 290,
+          "labelScroll": 290,
+          "inputWidth": 290,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 기록 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 290,
+          "labelScroll": 290,
+          "inputWidth": 290,
+          "inputHeight": 38
+        }
+      ]
+    },
+    "after": {
+      "dialog": {
+        "width": 318,
+        "scrollWidth": 318,
+        "scrollHeight": 641
+      },
+      "fields": [
+        {
+          "label": "원본 연결 파일의 현재 내용을 직접 확인했습니다.",
+          "height": 0,
+          "labelHeight": 0,
+          "labelWidth": 0,
+          "labelScroll": 0,
+          "inputWidth": 0,
+          "inputHeight": 0
+        },
+        {
+          "label": "통합 토큰",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 268,
+          "labelScroll": 268,
+          "inputWidth": 268,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 268,
+          "labelScroll": 268,
+          "inputWidth": 268,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 268,
+          "labelScroll": 268,
+          "inputWidth": 268,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 단계 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 268,
+          "labelScroll": 268,
+          "inputWidth": 268,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 기록 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 268,
+          "labelScroll": 268,
+          "inputWidth": 268,
+          "inputHeight": 38
+        }
+      ]
+    }
+  },
+  {
+    "width": 390,
+    "kind": "recipes",
+    "before": {
+      "dialog": {
+        "width": 388,
+        "scrollWidth": 388,
+        "scrollHeight": 1355
+      },
+      "fields": [
+        {
+          "label": "레시피 이름",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 338,
+          "labelScroll": 338,
+          "inputWidth": 338,
+          "inputHeight": 38
+        },
+        {
+          "label": "드리퍼",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 338,
+          "labelScroll": 338,
+          "inputWidth": 338,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 사용량 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 338,
+          "labelScroll": 338,
+          "inputWidth": 338,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄도",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 338,
+          "labelScroll": 338,
+          "inputWidth": 338,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 338,
+          "labelScroll": 338,
+          "inputWidth": 338,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더 설정",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 338,
+          "labelScroll": 338,
+          "inputWidth": 338,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄 입자 (μm, 선택)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 338,
+          "labelScroll": 338,
+          "inputWidth": 338,
+          "inputHeight": 38
+        },
+        {
+          "label": "물 온도 (℃)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 338,
+          "labelScroll": 338,
+          "inputWidth": 338,
+          "inputHeight": 38
+        },
+        {
+          "label": "총 물 양 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 338,
+          "labelScroll": 338,
+          "inputWidth": 338,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 가이드 (선택)",
+          "height": 98.625,
+          "labelHeight": 16.625,
+          "labelWidth": 360,
+          "labelScroll": 360,
+          "inputWidth": 360,
+          "inputHeight": 78
+        },
+        {
+          "label": "단계 이름 (선택)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 338,
+          "labelScroll": 338,
+          "inputWidth": 338,
+          "inputHeight": 38
+        },
+        {
+          "label": "누적 시간 (분:초)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 338,
+          "labelScroll": 338,
+          "inputWidth": 338,
+          "inputHeight": 38
+        },
+        {
+          "label": "이번 물 양 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 338,
+          "labelScroll": 338,
+          "inputWidth": 338,
+          "inputHeight": 38
+        }
+      ]
+    },
+    "after": {
+      "dialog": {
+        "width": 388,
+        "scrollWidth": 388,
+        "scrollHeight": 1169
+      },
+      "fields": [
+        {
+          "label": "레시피 이름",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 128,
+          "labelScroll": 128,
+          "inputWidth": 201.5625,
+          "inputHeight": 38
+        },
+        {
+          "label": "드리퍼",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 128,
+          "labelScroll": 128,
+          "inputWidth": 201.5625,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 사용량 (g)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 128,
+          "labelScroll": 128,
+          "inputWidth": 201.5625,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄도",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 128,
+          "labelScroll": 128,
+          "inputWidth": 201.5625,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 128,
+          "labelScroll": 128,
+          "inputWidth": 201.5625,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더 설정",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 128,
+          "labelScroll": 128,
+          "inputWidth": 201.5625,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄 입자 (μm, 선택)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 128,
+          "labelScroll": 128,
+          "inputWidth": 201.5625,
+          "inputHeight": 38
+        },
+        {
+          "label": "물 온도 (℃)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 128,
+          "labelScroll": 128,
+          "inputWidth": 201.5625,
+          "inputHeight": 38
+        },
+        {
+          "label": "총 물 양 (g)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 128,
+          "labelScroll": 128,
+          "inputWidth": 201.5625,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 가이드 (선택)",
+          "height": 98.625,
+          "labelHeight": 16.625,
+          "labelWidth": 360,
+          "labelScroll": 360,
+          "inputWidth": 360,
+          "inputHeight": 78
+        },
+        {
+          "label": "단계 이름 (선택)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 338,
+          "labelScroll": 338,
+          "inputWidth": 338,
+          "inputHeight": 38
+        },
+        {
+          "label": "누적 시간 (분:초)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 338,
+          "labelScroll": 338,
+          "inputWidth": 338,
+          "inputHeight": 38
+        },
+        {
+          "label": "이번 물 양 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 338,
+          "labelScroll": 338,
+          "inputWidth": 338,
+          "inputHeight": 38
+        }
+      ]
+    }
+  },
+  {
+    "width": 390,
+    "kind": "notion",
+    "before": {
+      "dialog": {
+        "width": 388,
+        "scrollWidth": 388,
+        "scrollHeight": 516
+      },
+      "fields": [
+        {
+          "label": "원본 연결 파일의 현재 내용을 직접 확인했습니다.",
+          "height": 0,
+          "labelHeight": 0,
+          "labelWidth": 0,
+          "labelScroll": 0,
+          "inputWidth": 0,
+          "inputHeight": 0
+        },
+        {
+          "label": "통합 토큰",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 360,
+          "labelScroll": 360,
+          "inputWidth": 360,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 360,
+          "labelScroll": 360,
+          "inputWidth": 360,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 360,
+          "labelScroll": 360,
+          "inputWidth": 360,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 단계 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 360,
+          "labelScroll": 360,
+          "inputWidth": 360,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 기록 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 360,
+          "labelScroll": 360,
+          "inputWidth": 360,
+          "inputHeight": 38
+        }
+      ]
+    },
+    "after": {
+      "dialog": {
+        "width": 388,
+        "scrollWidth": 388,
+        "scrollHeight": 616
+      },
+      "fields": [
+        {
+          "label": "원본 연결 파일의 현재 내용을 직접 확인했습니다.",
+          "height": 0,
+          "labelHeight": 0,
+          "labelWidth": 0,
+          "labelScroll": 0,
+          "inputWidth": 0,
+          "inputHeight": 0
+        },
+        {
+          "label": "통합 토큰",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 338,
+          "labelScroll": 338,
+          "inputWidth": 338,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 338,
+          "labelScroll": 338,
+          "inputWidth": 338,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 338,
+          "labelScroll": 338,
+          "inputWidth": 338,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 단계 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 338,
+          "labelScroll": 338,
+          "inputWidth": 338,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 기록 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 338,
+          "labelScroll": 338,
+          "inputWidth": 338,
+          "inputHeight": 38
+        }
+      ]
+    }
+  },
+  {
+    "width": 601,
+    "kind": "recipes",
+    "before": {
+      "dialog": {
+        "width": 567,
+        "scrollWidth": 567,
+        "scrollHeight": 1106
+      },
+      "fields": [
+        {
+          "label": "레시피 이름",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 243,
+          "labelScroll": 243,
+          "inputWidth": 242.5,
+          "inputHeight": 38
+        },
+        {
+          "label": "드리퍼",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 243,
+          "labelScroll": 243,
+          "inputWidth": 242.5,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 사용량 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 243,
+          "labelScroll": 243,
+          "inputWidth": 242.5,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄도",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 243,
+          "labelScroll": 243,
+          "inputWidth": 242.5,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 243,
+          "labelScroll": 243,
+          "inputWidth": 242.5,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더 설정",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 243,
+          "labelScroll": 243,
+          "inputWidth": 242.5,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄 입자 (μm, 선택)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 243,
+          "labelScroll": 243,
+          "inputWidth": 242.5,
+          "inputHeight": 38
+        },
+        {
+          "label": "물 온도 (℃)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 243,
+          "labelScroll": 243,
+          "inputWidth": 242.5,
+          "inputHeight": 38
+        },
+        {
+          "label": "총 물 양 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 243,
+          "labelScroll": 243,
+          "inputWidth": 242.5,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 가이드 (선택)",
+          "height": 98.625,
+          "labelHeight": 16.625,
+          "labelWidth": 523,
+          "labelScroll": 523,
+          "inputWidth": 523,
+          "inputHeight": 78
+        },
+        {
+          "label": "단계 이름 (선택)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 501,
+          "labelScroll": 501,
+          "inputWidth": 501,
+          "inputHeight": 38
+        },
+        {
+          "label": "누적 시간 (분:초)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 501,
+          "labelScroll": 501,
+          "inputWidth": 501,
+          "inputHeight": 38
+        },
+        {
+          "label": "이번 물 양 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 501,
+          "labelScroll": 501,
+          "inputWidth": 501,
+          "inputHeight": 38
+        }
+      ]
+    },
+    "after": {
+      "dialog": {
+        "width": 567,
+        "scrollWidth": 567,
+        "scrollHeight": 1003
+      },
+      "fields": [
+        {
+          "label": "레시피 이름",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 92,
+          "labelScroll": 92,
+          "inputWidth": 142.359375,
+          "inputHeight": 38
+        },
+        {
+          "label": "드리퍼",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 92,
+          "labelScroll": 92,
+          "inputWidth": 142.359375,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 사용량 (g)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 92,
+          "labelScroll": 92,
+          "inputWidth": 142.359375,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄도",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 92,
+          "labelScroll": 92,
+          "inputWidth": 142.359375,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 92,
+          "labelScroll": 92,
+          "inputWidth": 142.359375,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더 설정",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 92,
+          "labelScroll": 92,
+          "inputWidth": 142.359375,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄 입자 (μm, 선택)",
+          "height": 38,
+          "labelHeight": 33.25,
+          "labelWidth": 92,
+          "labelScroll": 92,
+          "inputWidth": 142.359375,
+          "inputHeight": 38
+        },
+        {
+          "label": "물 온도 (℃)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 92,
+          "labelScroll": 92,
+          "inputWidth": 142.359375,
+          "inputHeight": 38
+        },
+        {
+          "label": "총 물 양 (g)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 92,
+          "labelScroll": 92,
+          "inputWidth": 142.359375,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 가이드 (선택)",
+          "height": 98.625,
+          "labelHeight": 16.625,
+          "labelWidth": 523,
+          "labelScroll": 523,
+          "inputWidth": 523,
+          "inputHeight": 78
+        },
+        {
+          "label": "단계 이름 (선택)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 501,
+          "labelScroll": 501,
+          "inputWidth": 501,
+          "inputHeight": 38
+        },
+        {
+          "label": "누적 시간 (분:초)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 501,
+          "labelScroll": 501,
+          "inputWidth": 501,
+          "inputHeight": 38
+        },
+        {
+          "label": "이번 물 양 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 501,
+          "labelScroll": 501,
+          "inputWidth": 501,
+          "inputHeight": 38
+        }
+      ]
+    }
+  },
+  {
+    "width": 601,
+    "kind": "notion",
+    "before": {
+      "dialog": {
+        "width": 567,
+        "scrollWidth": 567,
+        "scrollHeight": 522
+      },
+      "fields": [
+        {
+          "label": "원본 연결 파일의 현재 내용을 직접 확인했습니다.",
+          "height": 0,
+          "labelHeight": 0,
+          "labelWidth": 0,
+          "labelScroll": 0,
+          "inputWidth": 0,
+          "inputHeight": 0
+        },
+        {
+          "label": "통합 토큰",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 523,
+          "labelScroll": 523,
+          "inputWidth": 523,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 523,
+          "labelScroll": 523,
+          "inputWidth": 523,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 523,
+          "labelScroll": 523,
+          "inputWidth": 523,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 단계 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 523,
+          "labelScroll": 523,
+          "inputWidth": 523,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 기록 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 523,
+          "labelScroll": 523,
+          "inputWidth": 523,
+          "inputHeight": 38
+        }
+      ]
+    },
+    "after": {
+      "dialog": {
+        "width": 567,
+        "scrollWidth": 567,
+        "scrollHeight": 622
+      },
+      "fields": [
+        {
+          "label": "원본 연결 파일의 현재 내용을 직접 확인했습니다.",
+          "height": 0,
+          "labelHeight": 0,
+          "labelWidth": 0,
+          "labelScroll": 0,
+          "inputWidth": 0,
+          "inputHeight": 0
+        },
+        {
+          "label": "통합 토큰",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 501,
+          "labelScroll": 501,
+          "inputWidth": 501,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 501,
+          "labelScroll": 501,
+          "inputWidth": 501,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 501,
+          "labelScroll": 501,
+          "inputWidth": 501,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 단계 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 501,
+          "labelScroll": 501,
+          "inputWidth": 501,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 기록 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 501,
+          "labelScroll": 501,
+          "inputWidth": 501,
+          "inputHeight": 38
+        }
+      ]
+    }
+  },
+  {
+    "width": 640,
+    "kind": "recipes",
+    "before": {
+      "dialog": {
+        "width": 606,
+        "scrollWidth": 606,
+        "scrollHeight": 1106
+      },
+      "fields": [
+        {
+          "label": "레시피 이름",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 262,
+          "labelScroll": 262,
+          "inputWidth": 262,
+          "inputHeight": 38
+        },
+        {
+          "label": "드리퍼",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 262,
+          "labelScroll": 262,
+          "inputWidth": 262,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 사용량 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 262,
+          "labelScroll": 262,
+          "inputWidth": 262,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄도",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 262,
+          "labelScroll": 262,
+          "inputWidth": 262,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 262,
+          "labelScroll": 262,
+          "inputWidth": 262,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더 설정",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 262,
+          "labelScroll": 262,
+          "inputWidth": 262,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄 입자 (μm, 선택)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 262,
+          "labelScroll": 262,
+          "inputWidth": 262,
+          "inputHeight": 38
+        },
+        {
+          "label": "물 온도 (℃)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 262,
+          "labelScroll": 262,
+          "inputWidth": 262,
+          "inputHeight": 38
+        },
+        {
+          "label": "총 물 양 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 262,
+          "labelScroll": 262,
+          "inputWidth": 262,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 가이드 (선택)",
+          "height": 98.625,
+          "labelHeight": 16.625,
+          "labelWidth": 562,
+          "labelScroll": 562,
+          "inputWidth": 562,
+          "inputHeight": 78
+        },
+        {
+          "label": "단계 이름 (선택)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 540,
+          "labelScroll": 540,
+          "inputWidth": 540,
+          "inputHeight": 38
+        },
+        {
+          "label": "누적 시간 (분:초)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 540,
+          "labelScroll": 540,
+          "inputWidth": 540,
+          "inputHeight": 38
+        },
+        {
+          "label": "이번 물 양 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 540,
+          "labelScroll": 540,
+          "inputWidth": 540,
+          "inputHeight": 38
+        }
+      ]
+    },
+    "after": {
+      "dialog": {
+        "width": 606,
+        "scrollWidth": 606,
+        "scrollHeight": 1003
+      },
+      "fields": [
+        {
+          "label": "레시피 이름",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 100,
+          "labelScroll": 100,
+          "inputWidth": 154.453125,
+          "inputHeight": 38
+        },
+        {
+          "label": "드리퍼",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 100,
+          "labelScroll": 100,
+          "inputWidth": 154.453125,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 사용량 (g)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 100,
+          "labelScroll": 100,
+          "inputWidth": 154.453125,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄도",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 100,
+          "labelScroll": 100,
+          "inputWidth": 154.453125,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 100,
+          "labelScroll": 100,
+          "inputWidth": 154.453125,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더 설정",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 100,
+          "labelScroll": 100,
+          "inputWidth": 154.453125,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄 입자 (μm, 선택)",
+          "height": 38,
+          "labelHeight": 33.25,
+          "labelWidth": 100,
+          "labelScroll": 100,
+          "inputWidth": 154.453125,
+          "inputHeight": 38
+        },
+        {
+          "label": "물 온도 (℃)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 100,
+          "labelScroll": 100,
+          "inputWidth": 154.453125,
+          "inputHeight": 38
+        },
+        {
+          "label": "총 물 양 (g)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 100,
+          "labelScroll": 100,
+          "inputWidth": 154.453125,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 가이드 (선택)",
+          "height": 98.625,
+          "labelHeight": 16.625,
+          "labelWidth": 562,
+          "labelScroll": 562,
+          "inputWidth": 562,
+          "inputHeight": 78
+        },
+        {
+          "label": "단계 이름 (선택)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 540,
+          "labelScroll": 540,
+          "inputWidth": 540,
+          "inputHeight": 38
+        },
+        {
+          "label": "누적 시간 (분:초)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 540,
+          "labelScroll": 540,
+          "inputWidth": 540,
+          "inputHeight": 38
+        },
+        {
+          "label": "이번 물 양 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 540,
+          "labelScroll": 540,
+          "inputWidth": 540,
+          "inputHeight": 38
+        }
+      ]
+    }
+  },
+  {
+    "width": 640,
+    "kind": "notion",
+    "before": {
+      "dialog": {
+        "width": 606,
+        "scrollWidth": 606,
+        "scrollHeight": 522
+      },
+      "fields": [
+        {
+          "label": "원본 연결 파일의 현재 내용을 직접 확인했습니다.",
+          "height": 0,
+          "labelHeight": 0,
+          "labelWidth": 0,
+          "labelScroll": 0,
+          "inputWidth": 0,
+          "inputHeight": 0
+        },
+        {
+          "label": "통합 토큰",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 562,
+          "labelScroll": 562,
+          "inputWidth": 562,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 562,
+          "labelScroll": 562,
+          "inputWidth": 562,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 562,
+          "labelScroll": 562,
+          "inputWidth": 562,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 단계 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 562,
+          "labelScroll": 562,
+          "inputWidth": 562,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 기록 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 562,
+          "labelScroll": 562,
+          "inputWidth": 562,
+          "inputHeight": 38
+        }
+      ]
+    },
+    "after": {
+      "dialog": {
+        "width": 606,
+        "scrollWidth": 606,
+        "scrollHeight": 622
+      },
+      "fields": [
+        {
+          "label": "원본 연결 파일의 현재 내용을 직접 확인했습니다.",
+          "height": 0,
+          "labelHeight": 0,
+          "labelWidth": 0,
+          "labelScroll": 0,
+          "inputWidth": 0,
+          "inputHeight": 0
+        },
+        {
+          "label": "통합 토큰",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 540,
+          "labelScroll": 540,
+          "inputWidth": 540,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 540,
+          "labelScroll": 540,
+          "inputWidth": 540,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 540,
+          "labelScroll": 540,
+          "inputWidth": 540,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 단계 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 540,
+          "labelScroll": 540,
+          "inputWidth": 540,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 기록 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 540,
+          "labelScroll": 540,
+          "inputWidth": 540,
+          "inputHeight": 38
+        }
+      ]
+    }
+  },
+  {
+    "width": 768,
+    "kind": "recipes",
+    "before": {
+      "dialog": {
+        "width": 718,
+        "scrollWidth": 718,
+        "scrollHeight": 1106
+      },
+      "fields": [
+        {
+          "label": "레시피 이름",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 318,
+          "labelScroll": 318,
+          "inputWidth": 318,
+          "inputHeight": 38
+        },
+        {
+          "label": "드리퍼",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 318,
+          "labelScroll": 318,
+          "inputWidth": 318,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 사용량 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 318,
+          "labelScroll": 318,
+          "inputWidth": 318,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄도",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 318,
+          "labelScroll": 318,
+          "inputWidth": 318,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 318,
+          "labelScroll": 318,
+          "inputWidth": 318,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더 설정",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 318,
+          "labelScroll": 318,
+          "inputWidth": 318,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄 입자 (μm, 선택)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 318,
+          "labelScroll": 318,
+          "inputWidth": 318,
+          "inputHeight": 38
+        },
+        {
+          "label": "물 온도 (℃)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 318,
+          "labelScroll": 318,
+          "inputWidth": 318,
+          "inputHeight": 38
+        },
+        {
+          "label": "총 물 양 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 318,
+          "labelScroll": 318,
+          "inputWidth": 318,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 가이드 (선택)",
+          "height": 98.625,
+          "labelHeight": 16.625,
+          "labelWidth": 674,
+          "labelScroll": 674,
+          "inputWidth": 674,
+          "inputHeight": 78
+        },
+        {
+          "label": "단계 이름 (선택)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        },
+        {
+          "label": "누적 시간 (분:초)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        },
+        {
+          "label": "이번 물 양 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        }
+      ]
+    },
+    "after": {
+      "dialog": {
+        "width": 718,
+        "scrollWidth": 718,
+        "scrollHeight": 1003
+      },
+      "fields": [
+        {
+          "label": "레시피 이름",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 121,
+          "labelScroll": 121,
+          "inputWidth": 189.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "드리퍼",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 121,
+          "labelScroll": 121,
+          "inputWidth": 189.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 사용량 (g)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 121,
+          "labelScroll": 121,
+          "inputWidth": 189.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄도",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 121,
+          "labelScroll": 121,
+          "inputWidth": 189.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 121,
+          "labelScroll": 121,
+          "inputWidth": 189.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더 설정",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 121,
+          "labelScroll": 121,
+          "inputWidth": 189.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄 입자 (μm, 선택)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 121,
+          "labelScroll": 121,
+          "inputWidth": 189.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "물 온도 (℃)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 121,
+          "labelScroll": 121,
+          "inputWidth": 189.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "총 물 양 (g)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 121,
+          "labelScroll": 121,
+          "inputWidth": 189.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 가이드 (선택)",
+          "height": 98.625,
+          "labelHeight": 16.625,
+          "labelWidth": 674,
+          "labelScroll": 674,
+          "inputWidth": 674,
+          "inputHeight": 78
+        },
+        {
+          "label": "단계 이름 (선택)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        },
+        {
+          "label": "누적 시간 (분:초)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        },
+        {
+          "label": "이번 물 양 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        }
+      ]
+    }
+  },
+  {
+    "width": 768,
+    "kind": "notion",
+    "before": {
+      "dialog": {
+        "width": 718,
+        "scrollWidth": 718,
+        "scrollHeight": 522
+      },
+      "fields": [
+        {
+          "label": "원본 연결 파일의 현재 내용을 직접 확인했습니다.",
+          "height": 0,
+          "labelHeight": 0,
+          "labelWidth": 0,
+          "labelScroll": 0,
+          "inputWidth": 0,
+          "inputHeight": 0
+        },
+        {
+          "label": "통합 토큰",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 674,
+          "labelScroll": 674,
+          "inputWidth": 674,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 674,
+          "labelScroll": 674,
+          "inputWidth": 674,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 674,
+          "labelScroll": 674,
+          "inputWidth": 674,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 단계 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 674,
+          "labelScroll": 674,
+          "inputWidth": 674,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 기록 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 674,
+          "labelScroll": 674,
+          "inputWidth": 674,
+          "inputHeight": 38
+        }
+      ]
+    },
+    "after": {
+      "dialog": {
+        "width": 718,
+        "scrollWidth": 718,
+        "scrollHeight": 622
+      },
+      "fields": [
+        {
+          "label": "원본 연결 파일의 현재 내용을 직접 확인했습니다.",
+          "height": 0,
+          "labelHeight": 0,
+          "labelWidth": 0,
+          "labelScroll": 0,
+          "inputWidth": 0,
+          "inputHeight": 0
+        },
+        {
+          "label": "통합 토큰",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 단계 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 기록 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        }
+      ]
+    }
+  },
+  {
+    "width": 1280,
+    "kind": "recipes",
+    "before": {
+      "dialog": {
+        "width": 718,
+        "scrollWidth": 718,
+        "scrollHeight": 1106
+      },
+      "fields": [
+        {
+          "label": "레시피 이름",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 318,
+          "labelScroll": 318,
+          "inputWidth": 318,
+          "inputHeight": 38
+        },
+        {
+          "label": "드리퍼",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 318,
+          "labelScroll": 318,
+          "inputWidth": 318,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 사용량 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 318,
+          "labelScroll": 318,
+          "inputWidth": 318,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄도",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 318,
+          "labelScroll": 318,
+          "inputWidth": 318,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 318,
+          "labelScroll": 318,
+          "inputWidth": 318,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더 설정",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 318,
+          "labelScroll": 318,
+          "inputWidth": 318,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄 입자 (μm, 선택)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 318,
+          "labelScroll": 318,
+          "inputWidth": 318,
+          "inputHeight": 38
+        },
+        {
+          "label": "물 온도 (℃)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 318,
+          "labelScroll": 318,
+          "inputWidth": 318,
+          "inputHeight": 38
+        },
+        {
+          "label": "총 물 양 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 318,
+          "labelScroll": 318,
+          "inputWidth": 318,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 가이드 (선택)",
+          "height": 98.625,
+          "labelHeight": 16.625,
+          "labelWidth": 674,
+          "labelScroll": 674,
+          "inputWidth": 674,
+          "inputHeight": 78
+        },
+        {
+          "label": "단계 이름 (선택)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        },
+        {
+          "label": "누적 시간 (분:초)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        },
+        {
+          "label": "이번 물 양 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        }
+      ]
+    },
+    "after": {
+      "dialog": {
+        "width": 718,
+        "scrollWidth": 718,
+        "scrollHeight": 1003
+      },
+      "fields": [
+        {
+          "label": "레시피 이름",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 121,
+          "labelScroll": 121,
+          "inputWidth": 189.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "드리퍼",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 121,
+          "labelScroll": 121,
+          "inputWidth": 189.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 사용량 (g)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 121,
+          "labelScroll": 121,
+          "inputWidth": 189.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄도",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 121,
+          "labelScroll": 121,
+          "inputWidth": 189.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 121,
+          "labelScroll": 121,
+          "inputWidth": 189.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "그라인더 설정",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 121,
+          "labelScroll": 121,
+          "inputWidth": 189.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "분쇄 입자 (μm, 선택)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 121,
+          "labelScroll": 121,
+          "inputWidth": 189.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "물 온도 (℃)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 121,
+          "labelScroll": 121,
+          "inputWidth": 189.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "총 물 양 (g)",
+          "height": 38,
+          "labelHeight": 16.625,
+          "labelWidth": 121,
+          "labelScroll": 121,
+          "inputWidth": 189.171875,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 가이드 (선택)",
+          "height": 98.625,
+          "labelHeight": 16.625,
+          "labelWidth": 674,
+          "labelScroll": 674,
+          "inputWidth": 674,
+          "inputHeight": 78
+        },
+        {
+          "label": "단계 이름 (선택)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        },
+        {
+          "label": "누적 시간 (분:초)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        },
+        {
+          "label": "이번 물 양 (g)",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        }
+      ]
+    }
+  },
+  {
+    "width": 1280,
+    "kind": "notion",
+    "before": {
+      "dialog": {
+        "width": 718,
+        "scrollWidth": 718,
+        "scrollHeight": 522
+      },
+      "fields": [
+        {
+          "label": "원본 연결 파일의 현재 내용을 직접 확인했습니다.",
+          "height": 0,
+          "labelHeight": 0,
+          "labelWidth": 0,
+          "labelScroll": 0,
+          "inputWidth": 0,
+          "inputHeight": 0
+        },
+        {
+          "label": "통합 토큰",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 674,
+          "labelScroll": 674,
+          "inputWidth": 674,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 674,
+          "labelScroll": 674,
+          "inputWidth": 674,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 674,
+          "labelScroll": 674,
+          "inputWidth": 674,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 단계 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 674,
+          "labelScroll": 674,
+          "inputWidth": 674,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 기록 데이터 소스 ID",
+          "height": 58.625,
+          "labelHeight": 16.625,
+          "labelWidth": 674,
+          "labelScroll": 674,
+          "inputWidth": 674,
+          "inputHeight": 38
+        }
+      ]
+    },
+    "after": {
+      "dialog": {
+        "width": 718,
+        "scrollWidth": 718,
+        "scrollHeight": 622
+      },
+      "fields": [
+        {
+          "label": "원본 연결 파일의 현재 내용을 직접 확인했습니다.",
+          "height": 0,
+          "labelHeight": 0,
+          "labelWidth": 0,
+          "labelScroll": 0,
+          "inputWidth": 0,
+          "inputHeight": 0
+        },
+        {
+          "label": "통합 토큰",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        },
+        {
+          "label": "원두 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        },
+        {
+          "label": "레시피 단계 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        },
+        {
+          "label": "추출 기록 데이터 소스 ID",
+          "height": 78.59375,
+          "labelHeight": 15.59375,
+          "labelWidth": 652,
+          "labelScroll": 652,
+          "inputWidth": 652,
+          "inputHeight": 38
+        }
+      ]
+    }
+  }
+]

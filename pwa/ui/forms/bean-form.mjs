@@ -9,7 +9,7 @@ export function buildBeanForm(document) {
     ['품종', 'variety', 'text', false],
     ['가공 방식', 'process', 'text', false],
     ['향미 노트', 'tastingNotes', 'textarea', false],
-  ]);
+  ], 'form-fieldset--compact');
   addFormActions(document, form);
   return form;
 }

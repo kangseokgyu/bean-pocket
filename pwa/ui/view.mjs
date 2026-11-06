@@ -154,6 +154,7 @@ export function createAppView(document = globalThis.document, {
   const connectionForm = make(document, 'form', undefined, 'form-grid');
   connectionForm.dataset.form = 'connection';
   const tokenField = label(document, '통합 토큰', 'token', 'password', true, { autocomplete: 'off' });
+  tokenField.className += ' form-field--connection';
   const tokenInput = tokenField.querySelector('input');
   const tokenLabel = tokenField.querySelector('.form-field-label');
   const tokenControl = make(document, 'div', undefined, 'token-input-control');
@@ -177,8 +178,10 @@ export function createAppView(document = globalThis.document, {
   tokenField.replaceChildren(tokenLabel, tokenControl, tokenValidationText);
   connectionForm.append(tokenField);
   for (const [key, title] of SOURCE_FIELDS) {
-    connectionForm.append(label(document, title + ' 데이터 소스 ID', key, 'text', true,
-      { autocomplete: 'off', spellcheck: false, autocapitalize: 'off' }));
+    const sourceField = label(document, title + ' 데이터 소스 ID', key, 'text', true,
+      { autocomplete: 'off', spellcheck: false, autocapitalize: 'off' });
+    sourceField.className += ' form-field--connection';
+    connectionForm.append(sourceField);
   }
   const connectionActions = make(document, 'div', undefined, 'form-actions');
   const connectionCancel = actionButton(document, '취소', 'button', 'x', 'cancel-connection');

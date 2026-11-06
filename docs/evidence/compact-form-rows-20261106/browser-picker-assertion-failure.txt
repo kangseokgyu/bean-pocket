@@ -1,0 +1,19 @@
+node:internal/modules/run_main:104
+    triggerUncaughtException(
+    ^
+
+locator.focus: Error: strict mode violation: locator('.option-picker-dialog [data-option-picker-search]') resolved to 2 elements:
+    1) <input type="search" autocomplete="off" data-option-query="" placeholder="이름으로 검색" aria-label="원두 선택 이름 검색" data-option-target="form" data-option-loaded="true" data-option-picker-search="" data-option-search-kind="beans"/> aka getByRole('searchbox', { name: '원두 선택 이름 검색' })
+    2) <input type="search" autocomplete="off" data-option-query="" placeholder="이름으로 검색" aria-label="레시피 선택 이름 검색" data-option-target="form" data-option-loaded="true" data-option-picker-search="" data-option-search-kind="recipes"/> aka getByLabel('레시피 선택 이름 검색')
+
+Call log:
+[2m  - waiting for locator('.option-picker-dialog [data-option-picker-search]')[22m
+
+    at testPicker (/private/tmp/ax-compact-form-rows-20261106/docs/evidence/compact-form-rows-20261106/verify-layout.mjs:180:16)
+    at async file:///private/tmp/ax-compact-form-rows-20261106/docs/evidence/compact-form-rows-20261106/verify-layout.mjs:213:5 {
+  log: [
+    "  - waiting for locator('.option-picker-dialog [data-option-picker-search]')"
+  ]
+}
+
+Node.js v23.4.0

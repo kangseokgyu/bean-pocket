@@ -136,7 +136,10 @@ function harness({ rows = blankRows(), revision = REVISION } = {}) {
       if (kind === 'recipes') rows.recipes.push({ ...structuredClone(data), id, steps: [], stats: { count: 0, average: null } });
       if (kind === 'steps') {
         const recipe = rows.recipes.find(item => item.id === data.recipeId);
-        if (recipe) recipe.steps.unshift({ ...structuredClone(data), id });
+        if (recipe) {
+          recipe.steps.push({ ...structuredClone(data), id });
+          recipe.steps.sort((first, second) => first.order - second.order);
+        }
       }
       return { id };
     },
@@ -176,6 +179,11 @@ function harness({ rows = blankRows(), revision = REVISION } = {}) {
         rows[kind] = rows[kind].filter(item => item.id !== id);
       }
       return { id, in_trash: true };
+    },
+    async archiveRecipeStep(recipeId, id, expected) {
+      const step = rows.recipes.flatMap(item => item.steps).find(item => item.id === id);
+      if (!step || step.recipeId !== recipeId || Object.keys(expected).some(key => step[key] !== expected[key])) throw rejected();
+      return client.archivePage('steps', id);
     },
   };
   return { ...state, rows, calls, archives, updates, failures, repository, client, commands: createCommands({ client, repository, submissionState: state.submissionState }) };
@@ -485,6 +493,7 @@ test('recipe edits keep page identity and favorites, update stable steps, add an
     id: `eeeeeeee-eeee-4eee-8eee-${String(index + 1).padStart(12, '0')}`,
     recipeId: IDS.recipe,
   }));
+  const stepIds = source.steps.map(step => step.id);
   const snapshot = { version: 2, bean: bean(), recipe: { name: source.name, steps: structuredClone(source.steps) } };
   const record = { id: 'eeeeeeee-5555-4555-8555-111111111111', recipeId: IDS.recipe, snapshot };
   const env = harness({ rows: { ...blankRows(), beans: [bean()], recipes: [source], records: [record] } });
@@ -493,7 +502,7 @@ test('recipe edits keep page identity and favorites, update stable steps, add an
     ...recipeInput(IDS.bean, { name: 'V60 편집', temperature: 91 }),
     steps: [
       { id: source.steps[0].id, name: '뜸', time: '0:00', water: 45 },
-      { id: source.steps[2].id, name: '붓기', time: '0:35', water: 205 },
+      { name: '붓기', time: '0:35', water: 205 },
     ],
   };
   const draft = await env.commands.prepareEditRecipe(IDS.recipe, baseline, updated);
@@ -506,10 +515,12 @@ test('recipe edits keep page identity and favorites, update stable steps, add an
   assert.equal(env.rows.recipes[0].favorite, true, 'the favorite checkbox is preserved');
   assert.equal(env.rows.recipes[0].beanId, IDS.bean, 'the legacy bean relation is preserved');
   assert.deepEqual(env.rows.recipes[0].steps.map(step => [step.id, step.order, step.seconds, step.water]), [
-    [source.steps[0].id, 1, 0, 45], [source.steps[2].id, 2, 35, 205],
+    [stepIds[0], 1, 0, 45], [env.calls.find(call => call.kind === 'steps').id, 2, 35, 205],
   ]);
   assert.deepEqual(env.rows.records[0], record, 'historical record snapshots remain unchanged');
   assert.equal(env.calls.filter(call => call.kind === 'recipes').length, 0, 'editing never creates a replacement recipe');
+  assert.equal(env.calls.filter(call => call.kind === 'steps').length, 1, 'the appended stage is a new step page');
+  assert.deepEqual(env.archives, [stepIds[1], stepIds[2]], 'removed stage pages move to the Notion trash');
   assert.equal(env.journal().operations[0].kind, 'edit-recipe');
   assert.equal(env.journal().operations[0].editTarget.recipeId, IDS.recipe);
 });

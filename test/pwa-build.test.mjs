@@ -31,6 +31,7 @@ const expectedFiles = [
   'platform/app-lifecycle.mjs',
   'platform/connection-file.mjs',
   'platform/update-coordinator.mjs',
+  'recipe-edit.mjs',
   'state/submission-state.mjs',
   'styles.css',
   'sw.js',
@@ -102,6 +103,7 @@ async function writeSourceFixture(sourceDir) {
     'brew-picker-demo.css': 'body { color: #203d32; }',
     'brew-picker-demo.mjs': 'export const demo = true;',
     'commands/index.mjs': 'export const commands = {};',
+    'recipe-edit.mjs': 'export const recipeEdit = true;',
     'ui/controller.mjs': 'export const controller = {};',
     'ui/controller/cache.mjs': 'export const fixture = true;',
     'ui/controller/loader.mjs': 'export const fixture = true;',
@@ -543,7 +545,7 @@ test('Service Worker install·activate·fetch는 scope를 격리하고 앱 파�
 
   const appFiles = [
     './', './index.html', './app.mjs', './brew-picker-demo.html', './brew-picker-demo.css',
-    './brew-picker-demo.mjs', './commands/index.mjs', './ui/controller.mjs',
+    './brew-picker-demo.mjs', './commands/index.mjs', './recipe-edit.mjs', './ui/controller.mjs',
     './ui/controller/cache.mjs', './ui/controller/loader.mjs',
     './ui/controller/record-insights.mjs', './ui/controller/search.mjs',
     './ui/interactions/events.mjs', './ui/interactions/pull-to-refresh.mjs',

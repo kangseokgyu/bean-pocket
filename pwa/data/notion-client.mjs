@@ -2,6 +2,10 @@ import { CURRENT_RECORD_GENERATION } from '../domain.mjs';
 import { schemas, relationTargets, optionalProperties, encodeProperties, decodePage } from './notion-properties.mjs';
 
 const KINDS = Object.freeze(['beans', 'recipes', 'steps', 'records']);
+const EDITABLE_PAGE_FIELDS = Object.freeze({
+  recipes: Object.freeze(['name', 'dripper', 'dose', 'grind', 'grinder', 'grinderSetting', 'extractionGuide', 'microns', 'temperature', 'totalWater']),
+  steps: Object.freeze(['name', 'order', 'seconds', 'interval', 'water', 'cumulativeWater']),
+});
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const REJECTED = new Set([400, 401, 403, 404, 409, 413, 415, 422, 429]);
 const NOTION_VERSION = '2025-09-03';
@@ -500,6 +504,73 @@ export class NotionClient {
       method: 'PATCH', writing: true, body: { in_trash: true },
       validate: data => validPage(data, id, sourceId) && data.in_trash === true,
     });
+  }
+
+  async updatePage(kind, value, domainData, options = {}) {
+    if (!Object.hasOwn(EDITABLE_PAGE_FIELDS, kind) || !record(domainData) || !record(options) || !record(options.expected)) {
+      throw failure('invalid-input', 'not-sent');
+    }
+    const id = this.#pageId(value);
+    const fields = Object.keys(domainData);
+    const expectedFields = Object.keys(options.expected);
+    if (!fields.length || fields.some(field => !EDITABLE_PAGE_FIELDS[kind].includes(field)) ||
+        fields.length !== expectedFields.length || fields.some(field => !expectedFields.includes(field)) ||
+        (kind === 'steps' && !uuid(options.recipeId))) throw failure('invalid-input', 'not-sent');
+    serialize({ domainData, expected: options.expected });
+    if (kind === 'recipes' && this.#recipeExtractionGuideSupported === false && domainData.extractionGuide) {
+      throw failure('recipe-guide-unsupported', 'not-sent');
+    }
+    const sourceId = this.#source(kind);
+    const currentPage = await this.getPage(id);
+    if (!validPage(currentPage, id, sourceId) || currentPage.in_trash !== false || currentPage.archived !== false) {
+      throw failure('invalid-target', 'not-sent');
+    }
+    const current = decodePage(kind, currentPage);
+    if (kind === 'steps') {
+      const relation = currentPage.properties?.[schemas.steps.recipeId[0]];
+      const recipeId = uuid(options.recipeId);
+      if (relation?.type !== 'relation' || relation.has_more !== false || !Array.isArray(relation.relation) ||
+          relation.relation.length !== 1 || uuid(relation.relation[0]?.id) !== recipeId) {
+        throw failure('invalid-target', 'not-sent');
+      }
+    }
+    if (fields.some(field => current[field] !== options.expected[field])) throw failure('stale-read', 'not-sent');
+
+    const allProperties = encodeProperties(kind, domainData);
+    const selectedNames = new Set(fields.map(field => schemas[kind][field][0]));
+    if (kind === 'recipes' && this.#recipeExtractionGuideSupported === false) selectedNames.delete(schemas.recipes.extractionGuide[0]);
+    const properties = Object.fromEntries(Object.entries(allProperties).filter(([name]) => selectedNames.has(name)));
+    const updated = await this.#request('/pages/' + id, {
+      method: 'PATCH', writing: true, body: { properties },
+      validate: data => {
+        if (!validPage(data, id, sourceId) || data.in_trash !== false || data.archived !== false) return false;
+        const decoded = decodePage(kind, data);
+        return fields.every(field => decoded[field] === domainData[field]);
+      },
+    });
+    return decodePage(kind, updated);
+  }
+
+  async archiveRecipeStep(recipeValue, stepValue, expected) {
+    const recipeId = this.#pageId(recipeValue);
+    const stepId = this.#pageId(stepValue);
+    if (!record(expected) || Object.keys(expected).length !== EDITABLE_PAGE_FIELDS.steps.length ||
+        EDITABLE_PAGE_FIELDS.steps.some(field => !Object.hasOwn(expected, field))) throw failure('invalid-input', 'not-sent');
+    serialize(expected);
+    const sourceId = this.#source('steps');
+    const page = await this.getPage(stepId);
+    const relation = page?.properties?.[schemas.steps.recipeId[0]];
+    if (!validPage(page, stepId, sourceId) || page.in_trash !== false || page.archived !== false ||
+        relation?.type !== 'relation' || relation.has_more !== false || !Array.isArray(relation.relation) ||
+        relation.relation.length !== 1 || uuid(relation.relation[0]?.id) !== recipeId) {
+      throw failure('invalid-target', 'not-sent');
+    }
+    const current = decodePage('steps', page);
+    if (EDITABLE_PAGE_FIELDS.steps.some(field => current[field] !== expected[field])) throw failure('stale-read', 'not-sent');
+    return this.#request('/pages/' + stepId, {
+      method: 'PATCH', writing: true, body: { in_trash: true },
+      validate: data => validPage(data, stepId, sourceId) && data.in_trash === true,
+    }).then(() => ({ id: stepId, in_trash: true }));
   }
 
   async setBeanBestRecord(beanValue, recordValue, { signal } = {}) {

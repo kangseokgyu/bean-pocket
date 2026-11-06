@@ -36,8 +36,8 @@ export function invalidateReadCaches(screenCache, optionCache, kind) {
   if (kind === 'beans') {
     for (const key of screenCache.keys()) if (key.includes('|/beans')) screenCache.delete(key);
     for (const key of optionCache.keys()) if (key.includes('|beans|')) optionCache.delete(key);
-  } else if (kind === 'recipes' || kind === 'copy' || kind === 'delete-recipe') {
-    for (const key of screenCache.keys()) if (key.includes('|/recipes') || key.includes('|/records')) screenCache.delete(key);
+  } else if (kind === 'recipes' || kind === 'copy' || kind === 'delete-recipe' || kind === 'edit-recipe') {
+    for (const key of screenCache.keys()) if (key.includes('|/recipes') || key.includes('|/records') || key.includes('|/brew')) screenCache.delete(key);
     for (const key of optionCache.keys()) if (key.includes('|recipes|')) optionCache.delete(key);
   } else if (kind === 'records' || kind === 'delete-record') {
     for (const key of screenCache.keys()) if (key.includes('|/records') || key.includes('|/beans') || key.includes('|/recipes/')) screenCache.delete(key);

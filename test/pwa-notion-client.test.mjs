@@ -577,6 +577,92 @@ test('favorite checkbox encodes, decodes with boolean, and supports updateFavori
   assert.deepEqual(patchBody.properties['즐겨찾기'], { checkbox: true });
 });
 
+test('recipe page edits patch only editable fields after a fresh comparison', async () => {
+  const before = { name: '기존 레시피', dripper: 'V60', dose: 15, grind: '중간', grinder: '그라인더',
+    grinderSetting: '20', extractionGuide: '', microns: null, temperature: 93, totalWater: 250,
+    beanId: OTHER, favorite: true };
+  const after = { ...before, name: '수정한 레시피', temperature: 91 };
+  const propertiesFor = (kind, values) => Object.fromEntries(Object.entries(encodeProperties(kind, values)).map(([name, typed]) => {
+    const [type, value] = Object.entries(typed)[0];
+    return [name, { id: 'property-id', type, [type]: structuredClone(value), ...(type === 'relation' ? { has_more: false } : {}) }];
+  }));
+  let current = { ...propertiesFor('recipes', before), '원두': {
+    id: 'legacy-relation', type: 'relation', relation: [{ id: OTHER }], has_more: false,
+  } };
+  const { client, calls } = harness((url, init) => {
+    if (url.endsWith('/data_sources/' + SOURCES.recipes)) return response(200, source('recipes'));
+    if (url.endsWith('/pages/' + PAGE) && init.method === 'GET') return response(200, page(PAGE, 'recipes', { properties: current }));
+    if (url.endsWith('/pages/' + PAGE) && init.method === 'PATCH') {
+      const body = JSON.parse(init.body);
+      current = { ...current, ...Object.fromEntries(Object.entries(body.properties).map(([name, typed]) => {
+        const [type, value] = Object.entries(typed)[0];
+        return [name, { id: 'property-id', type, [type]: structuredClone(value), ...(type === 'relation' ? { has_more: false } : {}) }];
+      })) };
+      return response(200, page(PAGE, 'recipes', { properties: current }));
+    }
+    return response(404, {});
+  });
+
+  await client.verify(['recipes']);
+  const updated = await client.updatePage('recipes', PAGE, {
+    name: after.name, dripper: after.dripper, dose: after.dose, grind: after.grind, grinder: after.grinder,
+    grinderSetting: after.grinderSetting, extractionGuide: after.extractionGuide, microns: after.microns,
+    temperature: after.temperature, totalWater: after.totalWater,
+  }, { expected: {
+    name: before.name, dripper: before.dripper, dose: before.dose, grind: before.grind, grinder: before.grinder,
+    grinderSetting: before.grinderSetting, extractionGuide: before.extractionGuide, microns: before.microns,
+    temperature: before.temperature, totalWater: before.totalWater,
+  } });
+
+  assert.equal(updated.id, PAGE);
+  assert.equal(decodePage('recipes', { id: PAGE, properties: current }).favorite, true);
+  assert.equal(decodePage('recipes', { id: PAGE, properties: current }).beanId, OTHER);
+  const patch = calls.find(call => call.init.method === 'PATCH');
+  assert.deepEqual(Object.keys(JSON.parse(patch.init.body).properties).sort(), Object.values(schemas.recipes)
+    .filter(([name]) => name !== '원두' && name !== '즐겨찾기').map(([name]) => name).sort());
+  assert.deepEqual(calls.map(call => call.init.method), ['GET', 'GET', 'PATCH']);
+});
+
+test('recipe page edit refuses a stale before-value without a PATCH', async () => {
+  const { client, calls } = harness((url, init) => {
+    if (url.endsWith('/pages/' + PAGE)) return response(200, page(PAGE, 'recipes', { properties: {
+      '레시피 이름': { type: 'title', title: [{ plain_text: '외부 수정' }] },
+    } }));
+    return response(404, {});
+  });
+  await assert.rejects(client.updatePage('recipes', PAGE, { name: '새 이름' }, { expected: { name: '기존 이름' } }),
+    error => error.code === 'stale-read' && error.writeState === 'not-sent');
+  assert.deepEqual(calls.map(call => call.init.method), ['GET']);
+});
+
+test('recipe step archival checks its recipe relation and every stored value first', async () => {
+  const values = { name: '1차', recipeId: OTHER, order: 2, seconds: 30, interval: 30, water: 100, cumulativeWater: 150 };
+  const properties = Object.fromEntries(Object.entries(encodeProperties('steps', values)).map(([name, typed]) => {
+    const [type, value] = Object.entries(typed)[0];
+    return [name, { id: 'step-property', type, [type]: structuredClone(value), ...(type === 'relation' ? { has_more: false } : {}) }];
+  }));
+  const { client, calls } = harness((url, init) => response(200, page(PAGE, 'steps', {
+    properties, in_trash: init.method === 'PATCH',
+  })));
+
+  const archived = await client.archiveRecipeStep(OTHER, PAGE, {
+    name: '1차', order: 2, seconds: 30, interval: 30, water: 100, cumulativeWater: 150,
+  });
+
+  assert.deepEqual(archived, { id: PAGE, in_trash: true });
+  assert.deepEqual(calls.map(call => call.init.method), ['GET', 'PATCH']);
+  assert.deepEqual(JSON.parse(calls[1].init.body), { in_trash: true });
+});
+
+test('recipe step archival refuses a changed relation before moving a page to trash', async () => {
+  const properties = { '레시피': { type: 'relation', relation: [{ id: OTHER }], has_more: false } };
+  const { client, calls } = harness(() => response(200, page(PAGE, 'steps', { properties })));
+  await assert.rejects(client.archiveRecipeStep(PAGE, PAGE, {
+    name: '1차', order: 2, seconds: 30, interval: 30, water: 100, cumulativeWater: 150,
+  }), error => error.code === 'invalid-target' && error.writeState === 'not-sent');
+  assert.deepEqual(calls.map(call => call.init.method), ['GET']);
+});
+
 test('a favorite save verifies one schema, reads its target page, and patches only the checkbox', async () => {
   const { client, calls } = harness((url, init) => {
     if (url.endsWith('/data_sources/' + SOURCES.beans)) return response(200, source('beans'));

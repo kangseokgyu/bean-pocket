@@ -11,6 +11,7 @@ const sourceFiles = [
   'brew-picker-demo.css',
   'brew-picker-demo.mjs',
   'commands/index.mjs',
+  'recipe-edit.mjs',
   'ui/controller.mjs',
   'ui/controller/cache.mjs',
   'ui/controller/loader.mjs',

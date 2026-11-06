@@ -29,12 +29,12 @@ export function formBase(document, kind, title) {
   return form;
 }
 
-export function addFormActions(document, form) {
+export function addFormActions(document, form, { cancelLabel = '취소', submitLabel = '저장' } = {}) {
   const actions = make(document, 'div', undefined, 'form-actions');
-  const cancel = actionButton(document, '취소', 'button', 'x', 'cancel-form');
-  const submit = actionButton(document, '저장', 'submit', 'save');
+  const cancel = actionButton(document, cancelLabel, 'button', 'x', 'cancel-form');
+  const submit = actionButton(document, submitLabel, 'submit', 'save');
   submit.dataset.entrySubmit = '';
-  submit.dataset.idleLabel = '저장';
+  submit.dataset.idleLabel = submitLabel;
   actions.append(cancel, submit);
   form.append(actions);
 }

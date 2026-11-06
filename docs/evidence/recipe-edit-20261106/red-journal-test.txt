@@ -1,0 +1,68 @@
+✔ draft canonical hash, isolated deep freeze, new intent key and ordered arrays (4.128731ms)
+✔ draft rejects non-JSON/getters/cycles and invalid target/revision without exposing input (0.906242ms)
+✔ processing and known ID durable before subsequent dispatch, exact secret-free journal, success (3.411966ms)
+✖ recipe edit journal records a per-page outcome before dispatch and after confirmation (1.865855ms)
+✔ same succeeded key never reruns, fresh intent same payload allowed (2.823595ms)
+✔ failed key never reruns; altered or forged same-key payload rejected (0.875625ms)
+✔ native contention, unsupported locks, lock failure, reentry and expired context fail closed (0.399005ms)
+✔ distinct state instances contend through the shared native lock (0.287074ms)
+✔ callback return closes context admission and drains admitted work before native unlock (0.56833ms)
+✔ runOperation drains an in-flight hook and expires escaped hooks before releasing the lock (1.232666ms)
+✔ storage failure at root prevents network and fails closed (0.87185ms)
+✔ storage failure at directory prevents network and fails closed (0.314166ms)
+✔ storage failure at handle prevents network and fails closed (0.359495ms)
+✔ storage failure at createWritable prevents network and fails closed (0.332273ms)
+✔ storage failure at write prevents network and fails closed (0.331161ms)
+✔ storage failure at close prevents network and fails closed (0.317811ms)
+✔ storage failure at afterClose prevents network and fails closed (0.329158ms)
+✔ storage failure at getFile prevents network and fails closed (0.234876ms)
+✔ storage failure at text prevents network and fails closed (0.326004ms)
+✔ result persistence failure latches memory and restart processing becomes unknown (0.757998ms)
+✔ successful close with altered readback blocks dispatch and latches uncertainty (0.438904ms)
+✔ unknown and partial globally block new keys and connection changes, no auto retry (2.748982ms)
+✔ caught write errors retain unknown or rejected outcome instead of succeeding (1.034116ms)
+✔ connection and journal revision reread before every write blocks stale client/draft (0.655192ms)
+✔ one file missing refuses first connection and mutation: connection.json (0.806782ms)
+✔ one file missing refuses first connection and mutation: submission-journal.json (0.364552ms)
+✔ first connection guard, commit readback, replacement, stale old client and interrupted guard (1.24157ms)
+✔ connection recovery requires a persisted guard and both files (0.454038ms)
+✔ confirmConnection adopts the original active revision after an interrupted replacement (0.962998ms)
+✔ close/readback uncertainty in connection change retains blocking guard (1.17568ms)
+✔ resolution requires original confirmation, concrete decision and fresh same-target read callback (1.663269ms)
+✔ resolution compares the original durable connection snapshot after fresh read (4.243325ms)
+✔ journal UUID identity is canonical and returned snapshots are deeply immutable (0.766701ms)
+✔ raw Error returned from a dispatched callback is redacted and marked unknown (1.206217ms)
+✔ clock and crypto feature failures use fixed safe errors (0.749825ms)
+✔ archive only current-operation known pages; rejected archive preserves partial and unknown archive blocks (0.907924ms)
+✔ uncertain archive callback durably changes the page archive state to unknown (0.727762ms)
+✔ corrupt/extra-field journal never overwritten or exposed (0.906943ms)
+✔ unknown favorite journal retains target and intended value and resolves only matching fresh evidence (2.520336ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 38
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 51.43222
+
+✖ failing tests:
+
+test at test/pwa-submission-state.test.mjs:120:1
+✖ recipe edit journal records a per-page outcome before dispatch and after confirmation (1.865855ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'failed'
+  - 'succeeded'
+  
+      at TestContext.<anonymous> (file:///workspace/bean-pocket-recipe-edit/test/pwa-submission-state.test.mjs:142:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'failed',
+    expected: 'succeeded',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

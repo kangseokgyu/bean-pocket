@@ -3,8 +3,9 @@ import { make } from '../shared/dom.mjs';
 import { addFieldset, addFormActions, formBase, label } from '../shared/form-fields.mjs';
 import { formatTime, parseInputTime } from '../shared/recipe-presentation.mjs';
 
-export function buildRecipeForm(document, data) {
-  const form = formBase(document, 'recipes', '새 레시피');
+export function buildRecipeForm(document, data, editRecipe = null) {
+  const form = formBase(document, 'recipes', editRecipe ? '레시피 수정' : '새 레시피');
+  if (editRecipe) form.dataset.editId = editRecipe.id;
   addFieldset(document, form, '기본 조건', [
     ['레시피 이름', 'name', 'text', true],
     ['드리퍼', 'dripper', 'text', false],
@@ -28,12 +29,19 @@ export function buildRecipeForm(document, data) {
   preview.setAttribute('aria-live', 'polite');
   preview.setAttribute('aria-label', '단계 입력 미리보기');
   form.append(preview);
-  addFormActions(document, form);
+  addFormActions(document, form, editRecipe
+    ? { cancelLabel: '수정 취소', submitLabel: '수정 저장' } : undefined);
+  if (editRecipe) {
+    for (const key of ['name', 'dripper', 'dose', 'grind', 'grinder', 'grinderSetting', 'extractionGuide', 'microns', 'temperature', 'totalWater']) {
+      if (form.elements[key]) form.elements[key].value = editRecipe[key] == null ? '' : String(editRecipe[key]);
+    }
+  }
   return form;
 }
 
 export function addStep(content, document) {
-  const form = content.querySelector('form[data-form="recipes"]');
+  const form = content.matches?.('form[data-form="recipes"]')
+    ? content : content.querySelector('form[data-form="recipes"]');
   if (!form) return;
   const wrap = form.querySelector('[data-steps]');
   const index = wrap.children.length + 1;
@@ -48,12 +56,13 @@ export function addStep(content, document) {
 }
 
 export function setSteps(form, steps) {
-  const panel = form.closest('.data-panel');
+  const panel = form.closest('.data-panel') ?? form;
   const wrap = form.querySelector('[data-steps]');
   wrap.replaceChildren();
   for (const step of steps) {
     addStep(panel, form.ownerDocument);
     const row = wrap.lastElementChild;
+    if (step.id) row.dataset.stepId = step.id;
     row.querySelector('[name="stepName"]').value = step.name;
     row.querySelector('[name="time"]').value = formatTime(step.seconds);
     row.querySelector('[name="water"]').value = step.water;
@@ -66,6 +75,7 @@ export function recipePayload(form) {
   for (const key of ['dose', 'temperature', 'totalWater']) values[key] = Number(values[key]);
   values.microns = values.microns === '' ? '' : Number(values.microns);
   values.steps = [...form.querySelectorAll('.step-row')].map(row => ({
+    ...(row.dataset.stepId ? { id: row.dataset.stepId } : {}),
     name: row.querySelector('[name="stepName"]').value,
     time: row.querySelector('[name="time"]').value,
     water: Number(row.querySelector('[name="water"]').value),
@@ -74,7 +84,8 @@ export function recipePayload(form) {
 }
 
 export function updatePreview(content) {
-  const form = content.querySelector('form[data-form="recipes"]');
+  const form = content.matches?.('form[data-form="recipes"]')
+    ? content : content.querySelector('form[data-form="recipes"]');
   if (!form) return;
   const preview = form.querySelector('.recipe-preview');
   const rows = [...form.querySelectorAll('.step-row')];

@@ -63,6 +63,8 @@ export function bindEvents({ page, nav, connectionForm, tokenInput, scheduleToke
     if (!picker || state.pending || state.frozen || state.unresolved) return;
     openSearchPicker(picker, content);
   };
+  const formDirtyKey = form => form?.dataset.editId
+    ? `recipe-edit:${form.dataset.editId}` : form?.dataset.form;
   const updateRecordFilters = () => {
     if (!windowData) return;
     const beanId = content.querySelector('[data-record-filter="beanId"]')?.value ?? '';
@@ -348,14 +350,22 @@ export function bindEvents({ page, nav, connectionForm, tokenInput, scheduleToke
       return;
     }
     if (action === 'cancel-form') {
-      const kind = target.closest('form')?.dataset.form;
+      const form = target.closest('form');
+      const kind = form?.dataset.form;
+      const editId = form?.dataset.editId;
+      const dirtyKey = formDirtyKey(form);
       const state = actions.getState?.() ?? {};
       if (state.pending || state.frozen || target.closest('dialog')?.dataset.saveState === 'success') return;
       if (kind && FORM_KINDS.has(kind)) {
-        view.clearDraft(kind);
-        actions.setDirty(false, kind);
+        if (editId && actions.isDirty?.(dirtyKey)) {
+          const discard = await view.confirmDiscardEdit?.();
+          if (!discard) return;
+        }
+        view.clearDraft(kind, editId);
+        actions.setDirty(false, dirtyKey);
         view.showStatus({ type: 'cancelled', message: '입력을 취소했습니다.' });
-        if (kind === 'brews') navigateTo('/records');
+        if (editId) navigateTo(`/recipes/${encodeURIComponent(editId)}`);
+        else if (kind === 'brews') navigateTo('/records');
       }
       return;
     }
@@ -376,8 +386,8 @@ export function bindEvents({ page, nav, connectionForm, tokenInput, scheduleToke
     }
     if (action === 'edit-recipe') {
       const recipe = windowData?.recipes.find(item => item.id === target.dataset.id);
-      if (!recipe) return;
-      view.showStatus({ type: 'info', message: '레시피 수정 기능을 준비 중입니다.' });
+      if (!recipe || !Array.isArray(recipe.steps) || recipe.status === 'error' || recipe.validationStatus === 'error') return;
+      navigateTo(`/recipes/${encodeURIComponent(recipe.id)}/edit`);
       return;
     }
     if (action === 'confirm-connection') {
@@ -391,14 +401,15 @@ export function bindEvents({ page, nav, connectionForm, tokenInput, scheduleToke
     if (action === 'add-step') {
       addStep(content, document);
       updatePreview(content);
-      actions.setDirty(true, 'recipes');
+      actions.setDirty(true, formDirtyKey(target.closest('form')));
       return;
     }
     if (action === 'remove-step') {
+      const form = target.closest('form');
       target.closest('.step-row')?.remove();
       renumberSteps(content);
       updatePreview(content);
-      actions.setDirty(true, 'recipes');
+      actions.setDirty(true, formDirtyKey(form));
       return;
     }
     if (action === 'copy-recipe') {
@@ -448,7 +459,7 @@ export function bindEvents({ page, nav, connectionForm, tokenInput, scheduleToke
       return;
     }
     const form = event.target.form;
-    if (FORM_KINDS.has(form?.dataset.form)) actions.setDirty(true, form.dataset.form);
+    if (FORM_KINDS.has(form?.dataset.form)) actions.setDirty(true, formDirtyKey(form));
     if (form?.dataset.form === 'brews') updateBrewConditions(form);
     updatePreview(content);
     event.target.removeAttribute('aria-invalid');
@@ -503,7 +514,15 @@ export function bindEvents({ page, nav, connectionForm, tokenInput, scheduleToke
       return;
     }
     try {
-      if (kind === 'recipes' && form.dataset.copyId) {
+      if (kind === 'recipes' && form.dataset.editId) {
+        let baseline;
+        try { baseline = JSON.parse(form.dataset.editBaseline); }
+        catch { throw new Error('edit-baseline-unavailable'); }
+        const result = await actions.submit('edit-recipe', {
+          recipeId: form.dataset.editId, baseline, changes: payload,
+        });
+        if (result?.status === 'succeeded') navigateTo(`/recipes/${encodeURIComponent(form.dataset.editId)}`);
+      } else if (kind === 'recipes' && form.dataset.copyId) {
         await actions.submit('copy', { recipeId: form.dataset.copyId, changes: payload });
       } else {
         const result = await actions.submit(kind, payload);

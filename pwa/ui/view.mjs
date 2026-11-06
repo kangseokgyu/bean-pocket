@@ -7,7 +7,7 @@ import { renderHome } from './screens/home.mjs';
 import { renderBeans, renderBeanDetail } from './screens/beans.mjs';
 import { renderRecipes, renderRecipeDetail } from './screens/recipes.mjs';
 import { buildBeanForm } from './forms/bean-form.mjs';
-import { addStep, buildRecipeForm, updatePreview } from './forms/recipe-form.mjs';
+import { addStep, buildRecipeForm, setSteps, updatePreview } from './forms/recipe-form.mjs';
 import { parseInputTime } from './shared/recipe-presentation.mjs';
 import { addBrewStage, brewOptionScope, cachedBrewOptionPage,
   renderBrewFlow, renderBrewOptionResults, renderUnavailableRoute, updateBrewConditions } from './screens/brew.mjs';
@@ -389,6 +389,34 @@ export function createAppView(document = globalThis.document, {
   deleteActions.append(cancelDeleteButton, confirmDeleteButton);
   deleteDialog.append(deleteHeading, deleteTarget, deleteDescription, deleteFeedback, deleteActions);
   page.append(deleteDialog);
+  const discardEditDialog = make(document, 'dialog', undefined, 'entry-dialog edit-discard-dialog');
+  discardEditDialog.setAttribute('role', 'dialog');
+  discardEditDialog.setAttribute('aria-modal', 'true');
+  discardEditDialog.setAttribute('aria-labelledby', 'edit-discard-title');
+  const discardEditTitle = make(document, 'h2', '수정 내용을 버릴까요?');
+  discardEditTitle.id = 'edit-discard-title';
+  discardEditDialog.append(discardEditTitle);
+  discardEditDialog.append(make(document, 'p', '저장하지 않은 레시피 수정 내용이 사라집니다.'));
+  const discardEditActions = make(document, 'div', undefined, 'form-actions');
+  const keepEditButton = button(document, '계속 수정', 'button', 'keep-recipe-edit', 'utility');
+  const discardEditButton = button(document, '수정 내용 버리기', 'button', 'discard-recipe-edit', 'primary');
+  discardEditActions.append(keepEditButton, discardEditButton);
+  discardEditDialog.append(discardEditActions);
+  page.append(discardEditDialog);
+  let resolveDiscardEdit = null;
+  const finishDiscardEdit = discard => {
+    const resolve = resolveDiscardEdit;
+    resolveDiscardEdit = null;
+    if (discardEditDialog.open && typeof discardEditDialog.close === 'function') discardEditDialog.close();
+    else discardEditDialog.open = false;
+    resolve?.(discard);
+  };
+  keepEditButton.addEventListener('click', () => finishDiscardEdit(false));
+  discardEditButton.addEventListener('click', () => finishDiscardEdit(true));
+  discardEditDialog.addEventListener('cancel', event => {
+    event.preventDefault();
+    finishDiscardEdit(false);
+  });
   page.tabIndex = -1;
   let activeDelete = null;
   let deleteRequestPending = false;
@@ -796,12 +824,12 @@ export function createAppView(document = globalThis.document, {
       const form = content.querySelector(`form[data-form="${kind}"]`);
       form?.reset();
     },
-    clearDraft(kind) {
-      drafts.delete(kind);
-      const wasOpen = activeEntryKind === kind;
+    clearDraft(kind, recipeId = null) {
+      drafts.delete(recipeId && kind === 'recipes' ? `recipe-edit:${recipeId}` : kind);
+      const wasOpen = !recipeId && activeEntryKind === kind;
       if (entryDialogFor(kind)?.open) entryDialogFor(kind).close();
       if (kind === 'beans') beanFormOpen = false;
-      if (kind === 'recipes') recipeFormOpen = false;
+      if (kind === 'recipes' && !recipeId) recipeFormOpen = false;
       if (kind === 'records') recordFormOpen = false;
       if (wasOpen) activeEntryKind = null;
       if (currentData) renderCurrentContent();
@@ -810,6 +838,14 @@ export function createAppView(document = globalThis.document, {
         renderStatus({ promoteToast: true });
         restoreEntryFocus(kind);
       }
+    },
+    confirmDiscardEdit() {
+      if (resolveDiscardEdit) return Promise.resolve(false);
+      return new Promise(resolve => {
+        resolveDiscardEdit = resolve;
+        showNativeDialog(discardEditDialog);
+        keepEditButton.focus?.();
+      });
     },
     setRouteReadState(nextStatus) {
       if (!['loading', 'ready', 'error', 'cancelled'].includes(nextStatus)) return;
@@ -1121,6 +1157,26 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
 
   if (section === 'beans' && parts[1]) {
     renderBeanDetail(pane, data, document, parts[1]);
+  } else if (section === 'recipes' && parts[1] && parts[1] !== 'new' && parts[2] === 'edit') {
+    const recipe = data.recipes?.find(row => row.id === parts[1]);
+    if (data.screen?.error || !recipe || !Array.isArray(recipe.steps)) {
+      pane.append(make(document, 'h1', '레시피를 수정할 수 없습니다.'));
+      pane.append(make(document, 'p', '최신 레시피와 모든 단계를 확인하지 못했습니다. 레시피 목록을 새로고침한 뒤 다시 열어 주세요.', 'record-warning'));
+      const back = button(document, '레시피 목록으로', 'button', 'navigate', 'back');
+      back.dataset.route = '/recipes';
+      pane.append(back);
+    } else {
+      const back = button(document, '레시피로 돌아가기', 'button', 'navigate', 'back');
+      back.dataset.route = `/recipes/${encodeURIComponent(recipe.id)}`;
+      pane.append(back);
+      const form = buildRecipeForm(document, data, recipe);
+      form.id = `edit-recipe-form-${recipe.id}`;
+      form.dataset.draftRoute = route;
+      form.dataset.editBaseline = JSON.stringify(recipe);
+      pane.append(form);
+      setSteps(form, recipe.steps);
+      updatePreview(pane);
+    }
   } else if (section === 'recipes' && parts[1] && parts[1] !== 'new') {
     renderRecipeDetail(pane, data, document, parts[1]);
   } else if (section === 'beans') {
@@ -1174,21 +1230,23 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
   parent.dataset.section = section;
   parent.replaceChildren(pane);
   const form = pane.querySelector('form[data-form]');
-  if (form) restoreDraft(form, drafts.get(form.dataset.form), data);
+  if (form) restoreDraft(form, drafts.get(draftKey(form)), data);
   updateNavigationCurrent(parent.ownerDocument, route);
 }
 
 function buildResolutionForm(document, operation) {
   const deleting = operation.kind.startsWith('delete-');
   const favoriting = operation.kind.startsWith('favorite-');
+  const editing = operation.kind === 'edit-recipe';
   const deleteNames = { beans: '원두', recipes: '레시피', records: '추출 기록' };
   const names = { beans: '원두', recipes: '레시피', records: '추출 기록' };
   const targetName = deleteNames[operation.targetKind] ?? '항목';
-  const hasKnownPages = deleting || favoriting || operation.knownPageCount > 0;
+  const hasKnownPages = deleting || favoriting || editing || operation.knownPageCount > 0;
   const card = make(document, 'article', undefined, 'resolution-card');
-  const status = deleting ? '삭제 여부 확인 필요' : operation.status === 'partial' ? '일부 저장' : '저장 여부 확인 필요';
-  card.append(make(document, 'h3', `${deleting ? `${targetName} 삭제` : names[operation.kind] ?? '저장'} · ${status}`));
-  card.append(make(document, 'p', favoriting ? 'Notion 원본의 즐겨찾기 체크 상태를 확인해 주세요. 확인 과정에서는 저장을 다시 요청하지 않습니다.' : deleting ? `Notion 원본에서 삭제 대상(${targetName})의 휴지통 이동 여부를 직접 확인해 주세요. 확인 과정에서는 삭제를 다시 요청하지 않습니다.` : hasKnownPages
+  const status = deleting ? '삭제 여부 확인 필요' : editing ? '수정 결과 확인 필요' : operation.status === 'partial' ? '일부 저장' : '저장 여부 확인 필요';
+  card.append(make(document, 'h3', `${deleting ? `${targetName} 삭제` : editing ? '레시피 수정' : names[operation.kind] ?? '저장'} · ${status}`));
+  card.append(make(document, 'p', favoriting ? 'Notion 원본의 즐겨찾기 체크 상태를 확인해 주세요. 확인 과정에서는 저장을 다시 요청하지 않습니다.' : deleting ? `Notion 원본에서 삭제 대상(${targetName})의 휴지통 이동 여부를 직접 확인해 주세요. 확인 과정에서는 삭제를 다시 요청하지 않습니다.` : editing
+    ? '레시피와 모든 단계가 수정 전 상태 또는 수정 후 상태와 정확히 일치하는지 확인해 주세요. 일부만 반영되었거나 다른 내용이면 이 화면을 닫지 말고 Notion에서 레시피와 단계를 한쪽 상태로 맞춰 주세요. 저장을 다시 요청하지 마세요.' : hasKnownPages
     ? `확인된 항목 ${operation.knownPageCount}개. 원본에서 이 항목의 상태를 확인해 저장됨 또는 모두 보관 취소됨을 선택해 주세요.`
     : 'Notion 원본을 직접 확인하고, 이번 작업의 결과에 맞는 선택을 해 주세요.'));
   if (!hasKnownPages) card.append(make(document, 'p', '저장됨을 선택할 때는 이번 작업으로 새로 만들어진 모든 페이지의 ID를 입력해 주세요. ID는 상태 메시지에 표시하지 않습니다.', 'muted-note'));
@@ -1198,7 +1256,7 @@ function buildResolutionForm(document, operation) {
   form.append(confirmed);
   const decision = label(document, '확인 결과', 'decision', 'select', true);
   const select = decision.querySelector('select');
-  const decisions = favoriting ? [['saved', `즐겨찾기가 요청한 상태(${operation.favorite ? '추가' : '해제'})임을 확인함`], ['not-saved', '즐겨찾기가 요청한 상태와 다름을 확인함']] : deleting ? [
+  const decisions = editing ? [['saved', '레시피와 모든 단계가 수정 후 상태와 일치함'], ['not-saved', '레시피와 모든 단계가 수정 전 상태와 일치함']] : favoriting ? [['saved', `즐겨찾기가 요청한 상태(${operation.favorite ? '추가' : '해제'})임을 확인함`], ['not-saved', '즐겨찾기가 요청한 상태와 다름을 확인함']] : deleting ? [
     ['saved', `${targetName}: 휴지통에 있음을 확인함`],
     ['not-saved', `${targetName}: 삭제되지 않고 남아 있음을 확인함`],
   ] : [
@@ -1263,14 +1321,23 @@ function saveActiveDraft(content, drafts) {
       return;
     }
   }
-  const steps = [...form.querySelectorAll('.step-row, .brew-stage-row')].map(row =>
-    Object.fromEntries([...row.querySelectorAll('[name]')].map(field => [field.name, field.value])));
-  drafts.set(form.dataset.form, { values, steps, copyId: form.dataset.copyId || null,
-    route: form.dataset.draftRoute, flowKey: form.dataset.draftFlow });
+  const steps = [...form.querySelectorAll('.step-row, .brew-stage-row')].map(row => ({
+    ...(row.dataset.stepId ? { id: row.dataset.stepId } : {}),
+    ...Object.fromEntries([...row.querySelectorAll('[name]')].map(field => [field.name, field.value])),
+  }));
+  const draft = { values, steps, copyId: form.dataset.copyId || null,
+    route: form.dataset.draftRoute, flowKey: form.dataset.draftFlow };
+  if (form.dataset.editId) draft.baseline = form.dataset.editBaseline;
+  drafts.set(draftKey(form), draft);
+}
+
+function draftKey(form) {
+  return form.dataset.editId ? `recipe-edit:${form.dataset.editId}` : form.dataset.form;
 }
 
 function restoreDraft(form, draft, data) {
   if (!draft) return;
+  if (form.dataset.editId && draft.baseline) form.dataset.editBaseline = draft.baseline;
   for (const [name, value] of Object.entries(draft.values)) {
     const field = form.elements[name];
     if (field?.tagName?.toLowerCase() === 'select' && value &&
@@ -1297,6 +1364,7 @@ function restoreDraft(form, draft, data) {
     for (const values of draft.steps) {
       addStep(panel, form.ownerDocument);
       const row = wrap.lastElementChild;
+      if (values.id) row.dataset.stepId = values.id;
       for (const [name, value] of Object.entries(values)) {
         const field = row.querySelector(`[name="${name}"]`);
         if (field) field.value = value;

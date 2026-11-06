@@ -9,6 +9,8 @@ const HASH = /^[0-9a-f]{64}$/;
 const KIND = /^[a-z][a-z0-9-]{0,63}$/;
 const STATUSES = ['not-submitted', 'processing', 'succeeded', 'failed', 'unknown', 'partial'];
 const ARCHIVE_STATES = ['active', 'archived', 'unknown'];
+const EDIT_PAGE_ACTIONS = ['update', 'archive', 'create'];
+const EDIT_PAGE_STATES = ['pending', 'processing', 'confirmed', 'unknown', 'rejected'];
 const DELETE_TARGET_KIND = Object.freeze({
   // Read old unresolved journal targets so they keep blocking all new writes.
   'delete-bag': 'bags',
@@ -94,6 +96,36 @@ function normalizedConnection(value) {
   return frozen({ schemaVersion: 1, revision: uuid(copy.revision), token: copy.token, dataSources: normalizedSources(copy.dataSources) });
 }
 
+function editTarget(value, { initial = false } = {}) {
+  if (!exact(value, ['recipeId', 'beforeFingerprint', 'afterFingerprint', 'beforeStepIds', 'pages']) ||
+      !Array.isArray(value.beforeStepIds) || !Array.isArray(value.pages) || !value.pages.length ||
+      !HASH.test(value.beforeFingerprint) || !HASH.test(value.afterFingerprint)) throw fail('invalid-edit-target');
+  const recipeId = uuid(value.recipeId);
+  const beforeStepIds = value.beforeStepIds.map(uuid);
+  if (new Set(beforeStepIds).size !== beforeStepIds.length || !beforeStepIds.length) throw fail('invalid-edit-target');
+  const pageIds = new Set();
+  const pages = value.pages.map(page => {
+    if (!exact(page, ['kind', 'id', 'action', 'beforeFingerprint', 'afterFingerprint', 'state']) ||
+        !['recipes', 'steps'].includes(page.kind) || !EDIT_PAGE_ACTIONS.includes(page.action) ||
+        !EDIT_PAGE_STATES.includes(page.state)) throw fail('invalid-edit-target');
+    const id = page.id === null ? null : uuid(page.id);
+    if ((page.action === 'update' && (!id || !HASH.test(page.beforeFingerprint) || !HASH.test(page.afterFingerprint))) ||
+        (page.action === 'archive' && (page.kind !== 'steps' || !id || !HASH.test(page.beforeFingerprint) || page.afterFingerprint !== null)) ||
+        (page.action === 'create' && (page.kind !== 'steps' || page.beforeFingerprint !== null || !HASH.test(page.afterFingerprint))) ||
+        (page.action !== 'create' && id && pageIds.has(id)) ||
+        (page.kind === 'recipes' && (id !== recipeId || page.action !== 'update')) ||
+        (initial && (page.state !== 'pending' || page.action === 'create' && id !== null))) throw fail('invalid-edit-target');
+    if (id) pageIds.add(id);
+    if (page.action === 'archive' && !beforeStepIds.includes(id)) throw fail('invalid-edit-target');
+    if (page.kind === 'steps' && page.action === 'update' && !beforeStepIds.includes(id)) throw fail('invalid-edit-target');
+    if (page.action === 'create' && page.state === 'confirmed' && !id) throw fail('invalid-edit-target');
+    return { kind: page.kind, id, action: page.action, beforeFingerprint: page.beforeFingerprint,
+      afterFingerprint: page.afterFingerprint, state: page.state };
+  });
+  return { recipeId, beforeFingerprint: value.beforeFingerprint, afterFingerprint: value.afterFingerprint,
+    beforeStepIds, pages };
+}
+
 export async function createSubmissionDraft(kind, validatedPayload, { connectionRevision, dataSources, cryptoImpl = globalThis.crypto } = {}) {
   try {
     if (typeof kind !== 'string' || !KIND.test(kind)) throw fail('invalid-draft');
@@ -121,7 +153,8 @@ function parseJournal(text) {
     const keys = new Set();
     for (const op of value.operations) {
       if (!exact(op, ['key', 'kind', 'connectionRevision', 'targetFingerprint', 'payloadFingerprint', 'status', 'createdPages', 'updatedAt',
-        ...(Object.hasOwn(op, 'deleteTarget') ? ['deleteTarget'] : []), ...(Object.hasOwn(op, 'updateTarget') ? ['updateTarget'] : []), ...(Object.hasOwn(op, 'favoriteTarget') ? ['favoriteTarget'] : [])]) ||
+        ...(Object.hasOwn(op, 'deleteTarget') ? ['deleteTarget'] : []), ...(Object.hasOwn(op, 'updateTarget') ? ['updateTarget'] : []),
+        ...(Object.hasOwn(op, 'favoriteTarget') ? ['favoriteTarget'] : []), ...(Object.hasOwn(op, 'editTarget') ? ['editTarget'] : [])]) ||
           !KIND.test(op.kind) || !HASH.test(op.targetFingerprint) || !HASH.test(op.payloadFingerprint) ||
           !STATUSES.includes(op.status) || !Array.isArray(op.createdPages) || typeof op.updatedAt !== 'string' ||
           !Number.isFinite(Date.parse(op.updatedAt))) throw 0;
@@ -154,6 +187,11 @@ function parseJournal(text) {
         if (!exact(target, ['kind', 'id', 'favorite']) || target.kind !== favoriteKind || typeof target.favorite !== 'boolean' || op.createdPages.length) throw 0;
         target.id = uuid(target.id);
       } else if (Object.hasOwn(op, 'favoriteTarget')) throw 0;
+      if (op.kind === 'edit-recipe') {
+        op.editTarget = editTarget(op.editTarget);
+        if (Object.hasOwn(op, 'deleteTarget') || Object.hasOwn(op, 'updateTarget') || Object.hasOwn(op, 'favoriteTarget') ||
+            op.createdPages.some(page => page.kind !== 'steps')) throw 0;
+      } else if (Object.hasOwn(op, 'editTarget')) throw 0;
       const ids = new Set();
       for (const page of op.createdPages) {
         if (!exact(page, ['kind', 'id', 'archiveState']) || (!SOURCES.includes(page.kind) && page.kind !== 'bags') || !ARCHIVE_STATES.includes(page.archiveState)) throw 0;
@@ -252,6 +290,9 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
               if (operation.status === 'processing' && !ownedKeys.has(operation.key)) {
                 operation.status = 'unknown'; operation.updatedAt = timestamp(); changed = true;
               }
+              for (const page of operation.editTarget?.pages ?? []) {
+                if (page.state === 'processing') { page.state = 'unknown'; changed = true; }
+              }
             }
             if (journal.connectionGuard?.phase === 'processing' && !guardOwned) {
               journal.connectionGuard.phase = 'unknown'; changed = true;
@@ -301,13 +342,19 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
             return task;
           };
         }
-        async function runOperation(draft, clientRevision, execute) {
+        async function runOperation(draft, clientRevision, execute, editTargetValue) {
           if (!drafts.has(draft) || typeof execute !== 'function') throw fail('invalid-draft');
+          let target = null;
+          if (draft.kind === 'edit-recipe') {
+            try { target = editTarget(editTargetValue, { initial: true }); }
+            catch { throw fail('invalid-edit-target'); }
+          } else if (editTargetValue !== undefined) throw fail('invalid-edit-target');
           const initial = await check(draft, clientRevision);
           if (initial.operation) throw fail('duplicate-operation');
           const operation = { key: draft.key, kind: draft.kind, connectionRevision: draft.connectionRevision,
             targetFingerprint: draft.targetFingerprint, payloadFingerprint: draft.payloadFingerprint, status: 'processing',
             createdPages: [], updatedAt: timestamp() };
+          if (target) operation.editTarget = target;
           const deleteKind = DELETE_TARGET_KIND[draft.kind];
           if (deleteKind) {
             operation.deleteTarget = { kind: deleteKind, id: uuid(draft.payload.id), archiveState: 'active' };
@@ -326,12 +373,12 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
             if (!running) throw fail('operation-expired');
             if (writing) throw fail('write-busy');
             writing = true;
-            let sent = false, journal, current;
+            let sent = false, journal, current, editPage = null;
             let archivedPage = null;
             try {
               if (uncertain) throw fail('unresolved-operation');
               if (typeof callback !== 'function' || !exact(options, Object.keys(options)) ||
-                  Object.keys(options).some(key => !['createdKind', 'archiveId', 'deleteId', 'deleteKind', 'updateTarget'].includes(key)) ||
+                  Object.keys(options).some(key => !['createdKind', 'archiveId', 'deleteId', 'deleteKind', 'updateTarget', 'editPage'].includes(key)) ||
                   ([options.createdKind, options.archiveId, options.deleteId].filter(Boolean).length > 1) ||
                   (options.updateTarget && (options.createdKind || options.archiveId || options.deleteId || options.deleteKind)) ||
                   (options.createdKind && !SOURCES.includes(options.createdKind)) ||
@@ -339,6 +386,15 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
               const checked = await check(draft, clientRevision);
               journal = checked.journal; current = checked.operation;
               if (!current || current.status !== 'processing') throw fail('unresolved-operation');
+              if (current.editTarget) {
+                if (!Number.isInteger(options.editPage) || options.editPage < 0 || options.editPage >= current.editTarget.pages.length) throw fail('invalid-edit-write');
+                editPage = current.editTarget.pages[options.editPage];
+                if (editPage.state !== 'pending' ||
+                    (editPage.action === 'create' && (options.createdKind !== 'steps' || options.archiveId || options.deleteId)) ||
+                    (editPage.action === 'archive' && (options.createdKind || options.archiveId || options.deleteId || editPage.kind !== 'steps')) ||
+                    (editPage.action === 'update' && (options.createdKind || options.archiveId || options.deleteId))) throw fail('invalid-edit-write');
+                editPage.state = 'processing';
+              } else if (options.editPage !== undefined) throw fail('invalid-edit-write');
               const deleteId = options.deleteId === undefined ? null : uuid(options.deleteId);
               if (current.deleteTarget) {
                 const target = current.deleteTarget;
@@ -369,6 +425,18 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
                 try { id = uuid(result?.id); } catch { throw fail('invalid-write-response', 'unknown'); }
                 if (current.createdPages.some(item => item.id === id)) throw fail('invalid-write-response', 'unknown');
                 current.createdPages.push({ kind: options.createdKind, id, archiveState: 'active' });
+              }
+              if (editPage) {
+                const id = uuid(result?.id);
+                if (editPage.action === 'create') {
+                  if (editPage.id !== null || current.editTarget.beforeStepIds.includes(id) ||
+                      current.editTarget.pages.some((page, index) => index !== options.editPage && page.id === id)) {
+                    throw fail('invalid-write-response', 'unknown');
+                  }
+                  editPage.id = id;
+                } else if (id !== editPage.id) throw fail('invalid-write-response', 'unknown');
+                if (editPage.action === 'archive' && result?.in_trash !== true) throw fail('invalid-write-response', 'unknown');
+                editPage.state = 'confirmed';
               }
               if (archiveId) {
                 if (result?.id?.toLowerCase() !== archiveId || result?.in_trash !== true) throw fail('invalid-write-response', 'unknown');
@@ -410,8 +478,20 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
                     current.updatedAt = timestamp();
                     await persist(journal);
                   }
+                  if (editPage && !poisoned) {
+                    editPage.state = 'unknown';
+                    current.updatedAt = timestamp();
+                    await persist(journal);
+                  }
                 }
-                else rejected = true;
+                else {
+                  rejected = true;
+                  if (editPage && !poisoned) {
+                    editPage.state = 'rejected';
+                    current.updatedAt = timestamp();
+                    await persist(journal);
+                  }
+                }
               }
               throw safe(error, sent ? 'write-error' : 'write-blocked', Boolean(current?.favoriteTarget));
             } finally { writing = false; }
@@ -440,7 +520,9 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
             if (!current || current.status !== 'processing') throw fail('state-blocked');
             const incomplete = callbackFailed || rejected;
             current.status = uncertain ? 'unknown' : incomplete ?
-              (current.createdPages.some(page => page.archiveState !== 'archived') || (confirmed > 0 && !current.createdPages.length) ? 'partial' : 'failed') : 'succeeded';
+              (current.kind === 'edit-recipe'
+                ? current.editTarget.pages.some(page => page.state === 'confirmed') ? 'partial' : 'failed'
+                : current.createdPages.some(page => page.archiveState !== 'archived') || (confirmed > 0 && !current.createdPages.length) ? 'partial' : 'failed') : 'succeeded';
             if (!dispatched && !callbackFailed) current.status = 'failed';
             current.updatedAt = timestamp();
             await persist(journal);
@@ -502,13 +584,44 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
           const connectionSnapshot = JSON.stringify(connection);
           const decision = options.decision;
           let evidence;
-          try { evidence = await options.freshRead(frozen(canonical(op))); } catch { throw fail('resolution-read-failed'); }
+          try { evidence = await options.freshRead(frozen(canonical(op))); }
+          catch (error) {
+            if (error?.code === 'edit-state-mixed') throw fail('edit-state-mixed');
+            throw fail('resolution-read-failed');
+          }
           if (!evidence || evidence.connectionRevision !== op.connectionRevision || evidence.targetFingerprint !== op.targetFingerprint || evidence.outcome !== decision) throw fail('invalid-resolution');
 
           let resolvedPages;
           let resolvedDeleteTarget;
           let resolvedUpdateTarget;
-          if (FAVORITE_TARGET_KIND[op.kind]) {
+          let resolvedEditTarget;
+          if (op.kind === 'edit-recipe') {
+            const observed = evidence.editTarget;
+            if (!exact(observed, ['recipeId', 'state', 'createdStepIds', 'createdPages']) ||
+                observed.recipeId !== op.editTarget.recipeId || !['before', 'after'].includes(observed.state) ||
+                !Array.isArray(observed.createdStepIds) || decision === 'cancelled' ||
+                observed.state !== (decision === 'saved' ? 'after' : 'before')) throw fail('invalid-resolution');
+            const createPlan = op.editTarget.pages.filter(page => page.action === 'create');
+            const createdStepIds = observed.createdStepIds.map(uuid);
+            if (new Set(createdStepIds).size !== createdStepIds.length ||
+                createdStepIds.some(id => op.editTarget.beforeStepIds.includes(id)) ||
+                (decision === 'saved' && createdStepIds.length !== createPlan.length) ||
+                (decision === 'not-saved' && createdStepIds.length !== 0)) throw fail('invalid-resolution');
+            resolvedPages = resolutionPages(observed.createdPages);
+            const expectedPageCount = decision === 'saved' ? createdStepIds.length : op.createdPages.length;
+            if (resolvedPages.length !== expectedPageCount ||
+                resolvedPages.some(page => page.kind !== 'steps' || page.archiveState !== (decision === 'saved' ? 'active' : 'archived') ||
+                  !(decision === 'saved' ? createdStepIds : op.createdPages.map(item => item.id)).includes(page.id))) throw fail('invalid-resolution');
+            if (decision === 'saved' && op.createdPages.some(page => !resolvedPages.some(fresh => fresh.id === page.id && fresh.kind === page.kind))) {
+              throw fail('invalid-resolution');
+            }
+            resolvedEditTarget = editTarget(op.editTarget);
+            const createIds = [...createdStepIds];
+            for (const page of resolvedEditTarget.pages) {
+              if (page.action === 'create' && decision === 'saved') page.id = createIds.shift();
+              page.state = decision === 'saved' ? 'confirmed' : 'rejected';
+            }
+          } else if (FAVORITE_TARGET_KIND[op.kind]) {
             const target = evidence.favoriteTarget;
             if (!exact(target, ['kind', 'id', 'favorite']) || target.kind !== op.favoriteTarget.kind || target.id !== op.favoriteTarget.id ||
                 typeof target.favorite !== 'boolean' || decision === 'cancelled' ||
@@ -551,6 +664,7 @@ export function createSubmissionState({ storage = globalThis.navigator?.storage,
           if (resolvedPages) resolvedOperation.createdPages = resolvedPages;
           if (resolvedDeleteTarget) resolvedOperation.deleteTarget = resolvedDeleteTarget;
           if (resolvedUpdateTarget) resolvedOperation.updateTarget = resolvedUpdateTarget;
+          if (resolvedEditTarget) resolvedOperation.editTarget = resolvedEditTarget;
           resolvedOperation.status = decision === 'saved' ? 'succeeded' : 'failed';
           resolvedOperation.updatedAt = timestamp();
           await persist(latest.journal); poisoned = false;

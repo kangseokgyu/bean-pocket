@@ -13,6 +13,7 @@ import {
 } from '../domain.mjs';
 import { validateCreatePayload } from '../data/notion-client.mjs';
 import { createSubmissionDraft } from '../state/submission-state.mjs';
+import { recipeEditState, recipeFingerprint, recipePageValues, stepPageValues } from '../recipe-edit.mjs';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DELETE_TARGET_BY_OPERATION = Object.freeze({
@@ -131,20 +132,10 @@ function recipeSourceValue(recipe) {
   return {
     id: normalizedId(recipe.id, '원본 레시피'),
     beanId: recipe.beanId ? normalizedId(recipe.beanId, '원두') : null,
-    name: recipe.name,
-    dripper: recipe.dripper,
-    dose: recipe.dose,
-    grind: recipe.grind,
-    grinder: recipe.grinder,
-    grinderSetting: recipe.grinderSetting,
-    extractionGuide: recipe.extractionGuide ?? '',
-    microns: recipe.microns,
-    temperature: recipe.temperature,
-    totalWater: recipe.totalWater,
-    steps: recipe.steps.map(step => ({
-      name: step.name, order: step.order, seconds: step.seconds, interval: step.interval,
-      water: step.water, cumulativeWater: step.cumulativeWater,
-    })),
+    favorite: typeof recipe.favorite === 'boolean' ? recipe.favorite : null,
+    ...recipePageValues(recipe),
+    steps: recipe.steps.map(step => ({ id: step.id ? normalizedId(step.id, '레시피 단계') : null,
+      recipeId: step.recipeId ? normalizedId(step.recipeId, '레시피') : null, ...stepPageValues(step) })),
   };
 }
 
@@ -201,6 +192,9 @@ export function createCommands({ client, repository, submissionState } = {}) {
     if (kind === 'recipes' && client.recipeExtractionGuideSupported === false && payload.extractionGuide) {
       throw Object.freeze({ code: 'recipe-guide-unsupported', writeState: 'not-sent' });
     }
+    if (kind === 'edit-recipe' && client.recipeExtractionGuideSupported === false && metadata.edit?.desired?.extractionGuide) {
+      throw Object.freeze({ code: 'recipe-guide-unsupported', writeState: 'not-sent' });
+    }
     const draft = await createSubmissionDraft(kind, payload, {
       connectionRevision: client.connectionRevision,
       dataSources: client.dataSources,
@@ -242,6 +236,72 @@ export function createCommands({ client, repository, submissionState } = {}) {
 
   async function prepareRecipe(payload) {
     return prepare('recipes', normalizedRecipeInput(payload));
+  }
+
+  async function prepareEditRecipe(recipeIdValue, baselineValue, changesValue) {
+    const recipeId = normalizedId(recipeIdValue, '수정할 레시피');
+    const baseline = inputObject(baselineValue, '최신 레시피');
+    if (normalizedId(baseline.id, '최신 레시피') !== recipeId) throw new InputError('수정할 레시피가 바뀌었습니다. 다시 조회해 주세요.');
+    try { validateStoredRecipe(baseline); }
+    catch { throw new InputError('최신 레시피 단계가 완전하지 않습니다. 다시 조회해 주세요.'); }
+    const originalSteps = baseline.steps.map(step => ({ ...step,
+      id: normalizedId(step.id, '레시피 단계'), recipeId: step.recipeId == null ? recipeId : normalizedId(step.recipeId, '레시피'),
+    }));
+    if (originalSteps.some(step => step.recipeId !== recipeId) ||
+        new Set(originalSteps.map(step => step.id)).size !== originalSteps.length) {
+      throw new InputError('최신 레시피 단계 관계가 올바르지 않습니다. 다시 조회해 주세요.');
+    }
+    const changes = inputObject(changesValue, '레시피');
+    const requestedStepIds = Array.isArray(changes.steps) ? changes.steps.map(step =>
+      step && Object.hasOwn(step, 'id') && step.id !== '' ? normalizedId(step.id, '레시피 단계') : null) : null;
+    delete changes.beanId;
+    delete changes.id;
+    const validated = validateRecipe(changes);
+    if (!requestedStepIds || requestedStepIds.length !== validated.steps.length) throw new InputError('레시피 단계를 확인해 주세요.');
+    const knownStepIds = new Set(originalSteps.map(step => step.id));
+    const reusedStepIds = requestedStepIds.filter(Boolean);
+    if (reusedStepIds.some(id => !knownStepIds.has(id)) || new Set(reusedStepIds).size !== reusedStepIds.length) {
+      throw new InputError('수정할 레시피 단계를 다시 불러와 주세요.');
+    }
+    const desired = {
+      ...baseline, ...validated, id: recipeId,
+      beanId: baseline.beanId == null ? null : normalizedId(baseline.beanId, '원두'),
+      favorite: typeof baseline.favorite === 'boolean' ? baseline.favorite : undefined,
+      steps: validated.steps.map((step, index) => ({ ...step, id: requestedStepIds[index], recipeId: recipeId })),
+    };
+    const beforeState = recipeEditState({ ...baseline, steps: originalSteps }, originalSteps.map(step => step.id));
+    const afterState = recipeEditState(desired, originalSteps.map(step => step.id));
+    const beforeFingerprint = await recipeFingerprint(beforeState);
+    const afterFingerprint = await recipeFingerprint(afterState);
+    const noop = beforeFingerprint === afterFingerprint;
+    const pages = [];
+    const pushPage = async (kind, id, action, before, after) => {
+      pages.push({ kind, id, action,
+        beforeFingerprint: before === null ? null : await recipeFingerprint(before),
+        afterFingerprint: after === null ? null : await recipeFingerprint(after), state: 'pending' });
+    };
+    if (!noop) {
+      for (const step of desired.steps) {
+        const previous = step.id ? originalSteps.find(item => item.id === step.id) : null;
+        if (previous && JSON.stringify(stepPageValues(previous)) !== JSON.stringify(stepPageValues(step))) {
+          await pushPage('steps', step.id, 'update', stepPageValues(previous), stepPageValues(step));
+        }
+      }
+      const retained = new Set(reusedStepIds);
+      for (const step of originalSteps) {
+        if (!retained.has(step.id)) await pushPage('steps', step.id, 'archive', stepPageValues(step), null);
+      }
+      for (const step of desired.steps) {
+        if (!step.id) await pushPage('steps', null, 'create', null, stepPageValues(step));
+      }
+      if (JSON.stringify(recipePageValues(baseline)) !== JSON.stringify(recipePageValues(desired))) {
+        await pushPage('recipes', recipeId, 'update', recipePageValues(baseline), recipePageValues(desired));
+      }
+    }
+    const editTarget = { recipeId, beforeFingerprint, afterFingerprint,
+      beforeStepIds: originalSteps.map(step => step.id), pages };
+    return prepare('edit-recipe', { recipeId, before: beforeState, after: afterState },
+      { edit: { recipeId, baseline: { ...baseline, steps: originalSteps }, desired, editTarget, noop } });
   }
 
   async function prepareCopy(recipeIdValue, changesValue = {}) {
@@ -349,6 +409,9 @@ export function createCommands({ client, repository, submissionState } = {}) {
   async function execute(draft) {
     const metadata = draft && commandsByDraft.get(draft);
     if (!metadata) throw Object.freeze({ code: 'invalid-draft', writeState: 'not-sent' });
+    if (metadata.kind === 'edit-recipe' && metadata.edit.noop) {
+      return Object.freeze({ status: 'succeeded', value: metadata.edit.desired });
+    }
 
     return submissionState.withWriteLock(context => context.runOperation(
       draft,
@@ -369,6 +432,49 @@ export function createCommands({ client, repository, submissionState } = {}) {
         }
 
         const latest = await repository.readAll();
+
+        if (metadata.kind === 'edit-recipe') {
+          const edit = metadata.edit;
+          const current = requireRecipe(latest, edit.recipeId);
+          const latestFingerprint = await recipeFingerprint(recipeEditState(current, edit.editTarget.beforeStepIds));
+          if (latestFingerprint !== edit.editTarget.beforeFingerprint) {
+            throw new InputError('레시피가 수정 중 바뀌었습니다. 최신 레시피를 다시 불러와 주세요.');
+          }
+          const newSteps = edit.desired.steps.filter(step => !step.id);
+          let newStepIndex = 0;
+          for (const [index, page] of edit.editTarget.pages.entries()) {
+            if (page.action === 'update') {
+              const before = page.kind === 'recipes'
+                ? recipePageValues(edit.baseline)
+                : stepPageValues(edit.baseline.steps.find(step => step.id === page.id));
+              const after = page.kind === 'recipes'
+                ? recipePageValues(edit.desired)
+                : stepPageValues(edit.desired.steps.find(step => step.id === page.id));
+              if (typeof client.updatePage !== 'function') throw Object.freeze({ code: 'edit-unavailable', writeState: 'not-sent' });
+              await operation.write(() => client.updatePage.call(client, page.kind, page.id, after,
+                { expected: before, ...(page.kind === 'steps' ? { recipeId: edit.recipeId } : {}) }),
+                { editPage: index });
+            } else if (page.action === 'archive') {
+              if (typeof client.archiveRecipeStep !== 'function') throw Object.freeze({ code: 'edit-unavailable', writeState: 'not-sent' });
+              const expected = stepPageValues(edit.baseline.steps.find(step => step.id === page.id));
+              await operation.write(() => client.archiveRecipeStep(edit.recipeId, page.id, expected), { editPage: index });
+            } else {
+              const step = newSteps[newStepIndex++];
+              if (!step) throw Object.freeze({ code: 'invalid-edit-plan', writeState: 'not-sent' });
+              const data = { ...stepPageValues(step), recipeId: edit.recipeId };
+              validateCreatePayload('steps', data, client.dataSources);
+              await operation.write(() => client.createPage.call(client, 'steps', data),
+                { createdKind: 'steps', editPage: index });
+            }
+          }
+          if (newStepIndex !== newSteps.length) throw Object.freeze({ code: 'invalid-edit-plan', writeState: 'not-sent' });
+          const verified = await repository.readAll();
+          const saved = requireRecipe(verified, edit.recipeId);
+          if (await recipeFingerprint(recipeEditState(saved, edit.editTarget.beforeStepIds)) !== edit.editTarget.afterFingerprint) {
+            throw Object.freeze({ code: 'edit-verification-failed', writeState: 'unknown' });
+          }
+          return saved;
+        }
 
         if (metadata.kind === 'delete-bean') {
           requireBean(latest, payload.id);
@@ -456,10 +562,9 @@ export function createCommands({ client, repository, submissionState } = {}) {
         }
 
         throw Object.freeze({ code: 'invalid-draft', writeState: 'not-sent' });
-      },
-    ));
+      }, metadata.edit?.editTarget));
   }
 
   return Object.freeze({ prepareFavoriteBean, prepareFavoriteRecipe, prepareBean, prepareDeleteBean, prepareDeleteRecipe, prepareDeleteRecord,
-    prepareRecipe, prepareRecord, prepareBrew, prepareBestRecord, prepareCopy, execute });
+    prepareRecipe, prepareEditRecipe, prepareRecord, prepareBrew, prepareBestRecord, prepareCopy, execute });
 }

@@ -3,6 +3,8 @@ import { fetchScreen, mergeScreenData, reusableBrewSelection, routeLocation, rou
 import { cachedFilterOptions, loadSearchOptions as loadOptionSearch, readOptionPage } from './controller/search.mjs';
 import { emptyRecordInsights, hasRecordInsightBean, includeComparisonPair, mergeRecordInsightsPage,
   projectRecordInsights } from './controller/record-insights.mjs';
+import { recipeEditState, recipeFingerprint, recipePageValues, stepPageValues } from '../recipe-edit.mjs';
+import { decodePage } from '../data/notion-properties.mjs';
 
 const SOURCE_KEYS = Object.freeze(['beans', 'recipes', 'steps', 'records']);
 const SOURCE_BY_OPERATION = Object.freeze({
@@ -37,6 +39,9 @@ const SAFE_MESSAGES = Object.freeze({
   'stale-read': '조회 중 데이터가 바뀌었습니다. 다시 조회해 주세요.',
   'resolution-read-failed': '확인 중 최신 데이터를 읽지 못했습니다. 원본을 확인한 뒤 다시 시도해 주세요.',
   'invalid-resolution': '확인 입력을 처리하지 못했습니다. 원본 상태와 입력한 페이지를 확인해 주세요.',
+  'edit-state-mixed': '레시피의 일부만 수정되었습니다. Notion에서 레시피와 모든 단계를 원하는 내용으로 맞춘 뒤 다시 확인해 주세요.',
+  'edit-verification-failed': '레시피 수정 결과를 확인하지 못했습니다. 다시 제출하지 말고 Notion 원본에서 레시피와 단계를 확인해 주세요.',
+  'edit-unavailable': '레시피 수정을 사용할 수 없습니다. 연결을 다시 확인해 주세요.',
   input: '입력 내용을 확인해 주세요.',
   'delete-failed': '삭제하지 못했습니다. 연결된 추출 기록이나 확인할 수 없는 관계가 있는지 확인하고 목록을 새로고침해 주세요.',
   'delete-in-use': '이 레시피를 사용하는 추출 기록이 있습니다. 먼저 해당 추출 기록을 삭제한 뒤 다시 시도해 주세요.',
@@ -74,10 +79,10 @@ export function createAppController({
   const dirtyKinds = new Set();
   let unresolvedOperations = [];
 
-  function isDirty() { return dirtyKinds.size > 0; }
+  function hasDirtyWork() { return dirtyKinds.size > 0; }
 
   function stateChanged() {
-    view.setState?.({ dirty: isDirty(), pending, frozen, unresolved: unresolvedOperations.length > 0,
+    view.setState?.({ dirty: hasDirtyWork(), pending, frozen, unresolved: unresolvedOperations.length > 0,
       connectionRevision: activeConnection?.revision ?? null });
     try { onStateChange(); } catch { /* Lifecycle notification must not change app behavior. */ }
   }
@@ -100,6 +105,8 @@ export function createAppController({
       kind: operation.kind,
       targetKind: operation.deleteTarget?.kind ?? operation.favoriteTarget?.kind,
       favorite: operation.favoriteTarget?.favorite,
+      editTarget: operation.editTarget ? { recipeId: operation.editTarget.recipeId,
+        createdStepCount: operation.editTarget.pages.filter(page => page.action === 'create').length } : null,
       status: operation.status,
       knownPageCount: operation.createdPages.length,
       resolve: resolution => resolveOperation(operation.key, resolution),
@@ -503,9 +510,9 @@ export function createAppController({
       return;
     }
     if (kind === 'beans' || kind === 'delete-bean') repository?.invalidateRecordParentCache?.('beans');
-    if (['recipes', 'copy', 'delete-recipe'].includes(kind)) repository?.invalidateRecordParentCache?.('recipes');
+    if (['recipes', 'copy', 'delete-recipe', 'edit-recipe'].includes(kind)) repository?.invalidateRecordParentCache?.('recipes');
     if (kind === 'beans' || kind === 'delete-bean') view.clearSearchOptions?.('beans');
-    else if (kind === 'recipes' || kind === 'copy' || kind === 'delete-recipe') view.clearSearchOptions?.('recipes');
+    else if (kind === 'recipes' || kind === 'copy' || kind === 'delete-recipe' || kind === 'edit-recipe') view.clearSearchOptions?.('recipes');
     else if (kind === 'records' || kind === 'delete-record') resetRecordInsights(activeConnection?.revision);
     invalidateReadCaches(screenCache, optionCache, kind);
   }
@@ -742,6 +749,117 @@ export function createAppController({
           }
           const freshStack = makeStack(current);
           await freshStack.nextClient.verify();
+          if (operation.kind === 'edit-recipe' && operation.editTarget) {
+            if (pageIds.length || !['saved', 'not-saved'].includes(resolution.decision) ||
+                await fingerprint(current.dataSources) !== operation.targetFingerprint) throw Object.freeze({ code: 'invalid-resolution' });
+            const target = operation.editTarget;
+            const freshData = await freshStack.nextRepository.readAll();
+            const recipe = freshData.recipes?.find(item => item.id === target.recipeId);
+            if (!recipe) throw Object.assign(new Error(), { code: 'edit-state-mixed' });
+            const observedFingerprint = await recipeFingerprint(recipeEditState(recipe, target.beforeStepIds));
+            const expectedFingerprint = resolution.decision === 'saved' ? target.afterFingerprint : target.beforeFingerprint;
+            const otherFingerprint = resolution.decision === 'saved' ? target.beforeFingerprint : target.afterFingerprint;
+            if (observedFingerprint !== expectedFingerprint) {
+              if (observedFingerprint !== otherFingerprint) throw Object.assign(new Error(), { code: 'edit-state-mixed' });
+              throw Object.freeze({ code: 'invalid-resolution' });
+            }
+            const originalIds = new Set(target.beforeStepIds);
+            const createdStepIds = resolution.decision === 'saved'
+              ? recipe.steps.map(step => step.id).filter(id => !originalIds.has(id)) : [];
+            const plannedCreates = target.pages.filter(page => page.action === 'create');
+            if (createdStepIds.length !== (resolution.decision === 'saved' ? plannedCreates.length : 0) ||
+                new Set(createdStepIds).size !== createdStepIds.length ||
+                target.pages.some(page => page.action === 'create' && page.id &&
+                  (resolution.decision !== 'saved' || !createdStepIds.includes(page.id)))) {
+              throw Object.assign(new Error(), { code: 'edit-state-mixed' });
+            }
+
+            const rawSteps = await freshStack.nextClient.queryAll('steps');
+            if (!Array.isArray(rawSteps)) throw Object.freeze({ code: 'resolution-read-failed' });
+            const activeRelatedIds = [];
+            for (const page of rawSteps) {
+              if (!UUID.test(page?.id ?? '') || page.parent?.type !== 'data_source_id' ||
+                  page.parent.data_source_id !== current.dataSources.steps) continue;
+              const relation = page.properties?.['레시피'];
+              const relationIds = Array.isArray(relation?.relation)
+                ? relation.relation.map(item => typeof item?.id === 'string' && UUID.test(item.id) ? item.id.toLowerCase() : null)
+                : null;
+              const pageId = page.id.toLowerCase();
+              if (relationIds?.includes(target.recipeId)) {
+                if (relation?.has_more !== false || relationIds.length !== 1 || relationIds[0] !== target.recipeId) {
+                  throw Object.assign(new Error(), { code: 'edit-state-mixed' });
+                }
+                if (page.in_trash === false && page.archived === false) activeRelatedIds.push(pageId);
+                else if (page.in_trash !== true && page.archived !== true) throw Object.assign(new Error(), { code: 'edit-state-mixed' });
+              } else if (plannedCreates.length && !originalIds.has(pageId) &&
+                  (relation?.has_more !== false || !relationIds)) {
+                throw Object.assign(new Error(), { code: 'edit-state-mixed' });
+              }
+            }
+            const actualCreated = activeRelatedIds.filter(id => !originalIds.has(id)).sort();
+            if (JSON.stringify(actualCreated) !== JSON.stringify([...createdStepIds].sort())) {
+              throw Object.assign(new Error(), { code: 'edit-state-mixed' });
+            }
+            const createdPages = [];
+            const knownCreatedIds = operation.createdPages.filter(page => page.kind === 'steps').map(page => page.id);
+            let createIndex = 0;
+            for (const plannedPage of target.pages) {
+              const isCreate = plannedPage.action === 'create';
+              const createId = isCreate ? (plannedPage.id ?? (resolution.decision === 'saved'
+                ? createdStepIds[createIndex] : knownCreatedIds[createIndex])) : plannedPage.id;
+              if (isCreate) {
+                if (plannedPage.id && knownCreatedIds[createIndex] && plannedPage.id !== knownCreatedIds[createIndex]) {
+                  throw Object.assign(new Error(), { code: 'edit-state-mixed' });
+                }
+                createIndex++;
+              }
+              if (!createId) continue;
+              const page = await freshStack.nextClient.getPage(createId);
+              const kind = plannedPage.kind;
+              const sourceId = current.dataSources[kind];
+              const archived = page.in_trash === true || page.archived === true;
+              const shouldBeArchived = plannedPage.action === 'archive' ? resolution.decision === 'saved'
+                : plannedPage.action === 'create' ? resolution.decision === 'not-saved' : false;
+              const expectedFingerprint = plannedPage.action === 'create' ||
+                (plannedPage.action === 'update' && resolution.decision === 'saved')
+                ? plannedPage.afterFingerprint : plannedPage.beforeFingerprint;
+              let valuesFingerprint;
+              try {
+                if (page.parent?.type !== 'data_source_id' || page.parent.data_source_id !== sourceId ||
+                    page.id?.toLowerCase() !== createId || typeof page.in_trash !== 'boolean' ||
+                    typeof page.archived !== 'boolean' || archived !== shouldBeArchived) {
+                  throw new Error();
+                }
+                if (kind === 'steps') {
+                  const relation = page.properties?.['레시피'];
+                  const relationIds = Array.isArray(relation?.relation)
+                    ? relation.relation.map(item => typeof item?.id === 'string' && UUID.test(item.id) ? item.id.toLowerCase() : null)
+                    : null;
+                  if (relation?.type !== 'relation' || relation.has_more !== false ||
+                      !relationIds || relationIds.length !== 1 || relationIds[0] !== target.recipeId) throw new Error();
+                }
+                const decoded = decodePage(kind, page);
+                valuesFingerprint = await recipeFingerprint(kind === 'steps'
+                  ? stepPageValues(decoded) : recipePageValues(decoded));
+              } catch {
+                throw Object.assign(new Error(), { code: 'edit-state-mixed' });
+              }
+              if (valuesFingerprint !== expectedFingerprint) {
+                throw Object.assign(new Error(), { code: 'edit-state-mixed' });
+              }
+              if (isCreate) createdPages.push({ kind: 'steps', id: createId, archiveState: archived ? 'archived' : 'active' });
+            }
+            const expectedCreatedIds = resolution.decision === 'saved' ? createdStepIds
+              : operation.createdPages.filter(page => page.kind === 'steps').map(page => page.id);
+            if (createIndex !== plannedCreates.length || createdPages.length !== expectedCreatedIds.length ||
+                [...createdPages.map(page => page.id)].sort().join('|') !== [...expectedCreatedIds].sort().join('|')) {
+              throw Object.assign(new Error(), { code: 'edit-state-mixed' });
+            }
+            return { connectionRevision: operation.connectionRevision, targetFingerprint: operation.targetFingerprint,
+              outcome: resolution.decision,
+              editTarget: { recipeId: target.recipeId, state: resolution.decision === 'saved' ? 'after' : 'before',
+                createdStepIds, createdPages } };
+          }
           if (operation.updateTarget) {
             if (pageIds.length || !['saved', 'not-saved', 'cancelled'].includes(resolution.decision) ||
                 freshStack.nextClient.beanBestRecordRelationSupported !== true) {
@@ -886,19 +1004,23 @@ export function createAppController({
           'delete-record': 'prepareDeleteRecord', 'set-best-record': 'prepareBestRecord',
           beans: 'prepareBean', recipes: 'prepareRecipe', records: 'prepareRecord', brews: 'prepareBrew',
           'favorite-bean': 'prepareFavoriteBean', 'favorite-recipe': 'prepareFavoriteRecipe',
+          'edit-recipe': 'prepareEditRecipe',
         }[kind];
       if (kind !== 'copy' && !prepare) throw Object.freeze({ code: 'input' });
       const draft = kind === 'copy'
         ? await commands.prepareCopy(payload.recipeId, payload.changes)
+        : kind === 'edit-recipe'
+          ? await commands.prepareEditRecipe(payload.recipeId, payload.baseline, payload.changes)
         : await commands[prepare](payload);
       const result = await commands.execute(draft);
       if (result.status === 'succeeded') {
         if (!deleting && !kind.startsWith('favorite-')) {
-          const formKind = kind === 'copy' ? 'recipes' : kind;
-          dirtyKinds.delete(formKind);
+          const formKind = kind === 'copy' || kind === 'edit-recipe' ? 'recipes' : kind;
+          const dirtyKey = kind === 'edit-recipe' ? `recipe-edit:${payload.recipeId}` : formKind;
+          dirtyKinds.delete(dirtyKey);
           if (view.showEntrySuccess?.(formKind) !== true) {
             view.clearForm?.(formKind);
-            view.clearDraft?.(formKind);
+            view.clearDraft?.(formKind, kind === 'edit-recipe' ? payload.recipeId : null);
           }
         }
         view.clearStatus?.();
@@ -942,7 +1064,7 @@ export function createAppController({
   }
 
   function setFrozen(value, details = {}) {
-    if (value && (isDirty() || pending)) return false;
+    if (value && (hasDirtyWork() || pending)) return false;
     frozen = !!value;
     view.setFrozen?.(frozen, details);
     stateChanged();
@@ -950,18 +1072,20 @@ export function createAppController({
   }
 
   function getState() {
-    return Object.freeze({ dirty: isDirty(), pending, frozen, connected: !!activeConnection,
+    return Object.freeze({ dirty: hasDirtyWork(), pending, frozen, connected: !!activeConnection,
       unresolved: unresolvedOperations.length > 0 });
   }
 
+  function isDirty(kind) { return dirtyKinds.has(kind); }
+
   function bind() {
     view.onRouteChange?.(route => client && repository ? loadRoute(route).catch(() => {}) : null);
-    view.bind?.({ initialize, connect, refresh, submit, confirmCurrent, resolveOperation, setDirty, setFrozen, getState,
+    view.bind?.({ initialize, connect, refresh, submit, confirmCurrent, resolveOperation, setDirty, setFrozen, getState, isDirty,
       loadMore, loadMoreInsights, loadSearchOptions, setRecordFilters, setRecordInsightsBean });
   }
 
   return Object.freeze({
-    initialize, connect, confirmCurrent, resolveOperation, refresh, submit, setDirty, setFrozen, getState, bind,
+    initialize, connect, confirmCurrent, resolveOperation, refresh, submit, setDirty, setFrozen, getState, isDirty, bind,
     loadRoute, loadMore, loadMoreInsights, loadSearchOptions, setRecordFilters, setRecordInsightsBean,
   });
 }

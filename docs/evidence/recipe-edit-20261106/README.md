@@ -9,7 +9,9 @@ The implementation is split into four verifiable units:
 3. Edit-mode form state keyed by recipe ID, with dirty cancel confirmation.
 4. Cache invalidation for recipe detail, recipe lists, and brew choices.
 
-The full completion predicate is `npm test`, `npm run build:pages`, and `npm run check:pages` passing after the complete feature is implemented. Browser behavior is independently checked by the parent agent.
+The feature keeps the recipe ID, favorite checkbox, legacy bean relation and historical record snapshots unchanged. Edit writes compare the latest full recipe before dispatch and verify every write afterward. Because Notion updates span multiple pages, the journal records each update/archive/create separately; it does not claim atomic writes. Recovery accepts only an exact full before or after recipe plus independent verification of every affected page and the active step set. Mixed state stays blocked for manual repair.
+
+Validation completed on 2026-11-06: `npm test` passed 791/791; `npm run build:pages` produced build `259d7eb22723`; `npm run check:pages` passed. The focused suites cover command/client/journal behavior, edit form drafts and cancel confirmation, successful controller write/readback, and unknown/partial recovery including stray-step and per-page status checks. Initial red evidence is retained in `red-command-test.txt` and `red-journal-test.txt`. Browser behavior is independently checked by the parent agent.
 
 ## Test-first evidence
 

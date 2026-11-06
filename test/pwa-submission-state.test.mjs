@@ -117,6 +117,60 @@ test('processing and known ID durable before subsequent dispatch, exact secret-f
   assert.deepEqual(env.calls[0], { name: 'bean-pocket-write-v1', options: { mode: 'exclusive', ifAvailable: true } });
 });
 
+test('recipe edit journal records a per-page outcome before dispatch and after confirmation', async () => {
+  const env = environment();
+  const d = await createSubmissionDraft('edit-recipe', { temperature: 90 }, {
+    connectionRevision: REV, dataSources: sources, cryptoImpl: webcrypto,
+  });
+  const pages = [
+    { kind: 'recipes', id: ID, action: 'update', beforeFingerprint: 'a'.repeat(64), afterFingerprint: 'b'.repeat(64), state: 'pending' },
+    { kind: 'steps', id: NEXT, action: 'archive', beforeFingerprint: 'c'.repeat(64), afterFingerprint: null, state: 'pending' },
+    { kind: 'steps', id: null, action: 'create', beforeFingerprint: null, afterFingerprint: 'd'.repeat(64), state: 'pending' },
+  ];
+  const editTarget = { recipeId: ID, beforeFingerprint: 'e'.repeat(64), afterFingerprint: 'f'.repeat(64),
+    beforeStepIds: [NEXT], pages };
+  const result = await env.make().withWriteLock(context => context.runOperation(d, REV, async operation => {
+    assert.deepEqual(env.journal().operations[0].editTarget, editTarget);
+    for (const [index, page] of pages.entries()) {
+      await operation.write(async () => {
+        assert.equal(env.journal().operations[0].editTarget.pages[index].state, 'processing');
+        return { id: page.id ?? ID.replace(/c/g, 'd'), ...(page.action === 'archive' ? { in_trash: true } : {}) };
+      }, { editPage: index, ...(page.action === 'create' ? { createdKind: 'steps' } : {}) });
+      assert.equal(env.journal().operations[0].editTarget.pages[index].state, 'confirmed');
+    }
+  }, editTarget));
+
+  assert.equal(result.status, 'succeeded');
+  assert.equal(env.journal().operations[0].editTarget.pages[2].id, ID.replace(/c/g, 'd'));
+});
+
+test('unknown recipe edit resolves only from an exact fresh after-state', async () => {
+  const env = environment();
+  const d = await createSubmissionDraft('edit-recipe', { temperature: 90 }, {
+    connectionRevision: REV, dataSources: sources, cryptoImpl: webcrypto,
+  });
+  const editTarget = { recipeId: ID, beforeFingerprint: 'a'.repeat(64), afterFingerprint: 'b'.repeat(64),
+    beforeStepIds: [NEXT], pages: [{ kind: 'recipes', id: ID, action: 'update',
+      beforeFingerprint: 'c'.repeat(64), afterFingerprint: 'd'.repeat(64), state: 'pending' }] };
+  const result = await env.make().withWriteLock(context => context.runOperation(d, REV, async operation => {
+    await operation.write(async () => { throw Object.freeze({ code: 'network-unconfirmed', writeState: 'unknown' }); }, { editPage: 0 });
+  }, editTarget));
+  assert.equal(result.status, 'unknown');
+  assert.equal(env.journal().operations[0].editTarget.pages[0].state, 'unknown');
+
+  await env.make().withWriteLock(context => context.confirmResolution(d.key, {
+    originalConfirmed: true,
+    decision: 'saved',
+    async freshRead(operation) {
+      return { connectionRevision: operation.connectionRevision, targetFingerprint: operation.targetFingerprint,
+        outcome: 'saved', editTarget: { recipeId: ID, state: 'after', createdStepIds: [], createdPages: [] } };
+    },
+  }));
+
+  assert.equal(env.journal().operations[0].status, 'succeeded');
+  assert.equal(env.journal().operations[0].editTarget.pages[0].state, 'confirmed');
+});
+
 test('same succeeded key never reruns, fresh intent same payload allowed', async () => {
   const env = environment(); const d = await draft(); let count = 0;
   const action = op => op.write(async () => { count++; });

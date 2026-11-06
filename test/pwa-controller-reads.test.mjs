@@ -34,6 +34,22 @@ test('controller read caches separate revision, filter, cursor, and favorite sco
   assert.equal(screens.has(records), false, 'an expired page is discarded');
 });
 
+test('recipe edit invalidates detail, list, brew, record, and recipe option caches', () => {
+  const screens = new Map();
+  const options = new Map();
+  for (const route of ['/recipes', '/recipes/recipe-id', '/brew/recipe', '/records']) {
+    const key = routeCacheKey('revision', route, {});
+    saveCache(screens, key, { route });
+  }
+  const recipeOptions = optionCacheKey('revision', 'form', 'recipes', '', false, null);
+  saveCache(options, recipeOptions, { items: [] });
+
+  invalidateReadCaches(screens, options, 'edit-recipe');
+
+  assert.equal(screens.size, 0, 'recipe detail/list, brew options, and history views are refreshed');
+  assert.equal(options.size, 0, 'recipe selectors are refreshed');
+});
+
 test('screen loader forwards brew search and pagination and preserves the first copy on append', async () => {
   const route = '/brew/bean?q=%20kenya%20&favorite=true';
   const signal = new AbortController().signal;

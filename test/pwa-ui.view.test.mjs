@@ -1022,6 +1022,20 @@ test('resolution controls follow the native journal page-list contract', () => {
   assert.equal(unknownForm.elements.decision.querySelectorAll('option').some(option => option.value === 'not-saved'), true);
 });
 
+test('uncertain recipe edits offer exact before or after verification and block blind retry', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.showUnresolved([{ kind: 'edit-recipe', status: 'partial', knownPageCount: 0,
+    editTarget: { recipeId: RECIPE, createdStepCount: 1 }, resolve() {} }]);
+
+  const card = document.root.querySelector('.resolution-card');
+  const form = card.querySelector('.resolution-form');
+  assert.match(card.textContent, /레시피와 모든 단계/);
+  assert.match(card.textContent, /저장을 다시 요청하지 마세요/);
+  assert.equal(form.elements.pageIds, undefined, 'edit verification is based on the complete recipe state, not user-entered IDs');
+  assert.deepEqual(form.elements.decision.querySelectorAll('option').map(option => option.value), ['saved', 'not-saved']);
+});
+
 test('recipe step time permits a keyboard with colon while retaining minute-second validation', () => {
   const document = new TestDocument();
   const view = createBeanView(document);
@@ -1350,7 +1364,7 @@ test('recipe detail groups conditions, pour steps, guide, and records in reading
   assert.equal(detail.querySelector('.recipe-card-actions').querySelectorAll('button').length, 2);
 });
 
-test('recipe detail edit action announces the placeholder without changing the selected recipe', async () => {
+test('recipe detail edit action opens a full prefilled edit form with stable step IDs', async () => {
   const document = new TestDocument();
   const view = createBeanView(document);
   view.bind({ setDirty() {} });
@@ -1374,12 +1388,63 @@ test('recipe detail edit action announces the placeholder without changing the s
   const beforeClick = structuredClone(current);
   await clickViewTarget(document, edit);
 
-  const status = document.root.querySelector('.app-status');
-  assert.equal(status.textContent, '레시피 수정 기능을 준비 중입니다.');
-  assert.equal(status.getAttribute('role'), 'status');
+  assert.equal(view.currentRoute(), `/recipes/${RECIPE}/edit`);
+  const form = document.root.querySelector('form[data-form="recipes"]');
+  assert.ok(form);
+  assert.equal(form.dataset.editId, RECIPE);
+  assert.equal(form.elements.name.value, beforeClick.recipes[0].name);
+  assert.equal(form.elements.dose.value, String(beforeClick.recipes[0].dose));
+  assert.deepEqual(form.querySelectorAll('.step-row').map(row => row.dataset.stepId),
+    beforeClick.recipes[0].steps.map(step => step.id));
+  assert.deepEqual(current, beforeClick, 'editing starts from the selected recipe without mutating loaded data');
+});
+
+test('recipe edit drafts stay separate from create drafts and preserve the captured baseline', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+  view.renderRoute(`/recipes/${RECIPE}/edit`);
+  let edit = document.root.querySelector('form[data-form="recipes"]');
+  const capturedBaseline = edit.dataset.editBaseline;
+  edit.elements.name.value = '수정 중인 레시피';
+  edit.querySelector('.step-row [name="stepName"]').value = '수정 중인 단계';
+  view.renderRoute('/recipes');
+  view.renderRoute('/recipes/new');
+  const create = document.root.querySelector('form[data-form="recipes"]');
+  assert.notEqual(create.elements.name.value, '수정 중인 레시피');
+  assert.equal(create.querySelector('.step-row').dataset.stepId, undefined);
+  view.renderRoute(`/recipes/${RECIPE}/edit`);
+  edit = document.root.querySelector('form[data-form="recipes"]');
+  assert.equal(edit.elements.name.value, '수정 중인 레시피');
+  assert.equal(edit.dataset.editBaseline, capturedBaseline, 'a refreshed edit view retains its original compare baseline');
+  assert.equal(edit.querySelector('.step-row [name="stepName"]').value, '수정 중인 단계');
+  assert.deepEqual(edit.querySelectorAll('.step-row').map(row => row.dataset.stepId),
+    ['44444444-4444-4444-8444-444444444444', '55555555-5555-4555-8555-555555555555']);
+});
+
+test('dirty recipe edit cancellation asks before discarding and then returns to details', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const dirty = new Set();
+  view.bind({ setDirty(value, kind) { value ? dirty.add(kind) : dirty.delete(kind); }, isDirty: kind => dirty.has(kind) });
+  view.renderData(data());
+  view.renderRoute(`/recipes/${RECIPE}/edit`);
+  const form = document.root.querySelector('form[data-form="recipes"]');
+  form.elements.name.value = '수정 내용';
+  fireBubbling(form.elements.name, 'input');
+  const cancel = form.querySelector('[data-action="cancel-form"]');
+  const cancelTask = clickViewTarget(document, cancel);
+  const dialog = document.root.querySelector('.edit-discard-dialog');
+  assert.equal(dialog.open, true);
+  await dialog.querySelector('[data-action="keep-recipe-edit"]').listeners.get('click')[0]();
+  await cancelTask;
+  assert.equal(view.currentRoute(), `/recipes/${RECIPE}/edit`);
+  assert.equal(form.elements.name.value, '수정 내용');
+
+  const discardTask = clickViewTarget(document, cancel);
+  await dialog.querySelector('[data-action="discard-recipe-edit"]').listeners.get('click')[0]();
+  await discardTask;
   assert.equal(view.currentRoute(), `/recipes/${RECIPE}`);
-  assert.deepEqual(current, beforeClick, 'the placeholder action does not mutate recipe data');
-  assert.equal(document.root.querySelector('form[data-form="recipes"]'), null);
 });
 
 test('recipe detail places the guide below the pour table and copy preserves its text', async () => {

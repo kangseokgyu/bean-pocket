@@ -1,3 +1,4 @@
 ts	phase	decision	why	evidence	result
 2026-11-06T14:18:00Z	frame	set completion to the edit lifecycle tests and Pages checks passing	that covers recipe identity, safe partial writes, and the published build inputs	docs/evidence/recipe-edit-20261106/README.md	open
 2026-11-06T14:18:00Z	harness	added command tests before production code	stable page identity and stale edit rejection are visible through command results and stored rows	docs/evidence/recipe-edit-20261106/red-command-test.txt	red: prepareEditRecipe is absent
+2026-11-06T15:11:33Z	verify	complete recipe edit through journaled Notion writes and exact-state recovery	per-page confirmation, stale preflight, favorite/relation preservation, historical snapshot isolation, and mixed-state blocking verified	docs/evidence/recipe-edit-20261106/README.md	green: 791 tests; build 259d7eb22723; check:pages passed

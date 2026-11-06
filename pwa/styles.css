@@ -140,18 +140,28 @@ footer .build-version { margin-top: 8px; letter-spacing: normal; font-weight: 40
 .header-tools { margin-left: auto; flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
 #connection-tools { display: flex; }
 .button.connection-toggle {
-  flex: 0 0 35px;
-  width: 35px;
-  min-width: 35px;
-  height: 35px;
-  min-height: 35px;
+  flex: 0 0 44px;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
   padding: 0;
-  background: transparent;
-  border-color: transparent;
-  color: #737373;
-  font-size: 1.25rem;
+  background: #fffefa;
+  border-color: #d8d1c3;
+  border-radius: 50%;
+  color: #31443a;
 }
-.connection-toggle[aria-expanded="true"] { background: #e8eee7; }
+.connection-toggle svg {
+  display: block;
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.connection-toggle[aria-expanded="true"] { background: #e8eee7; border-color: #aab8aa; color: #224b3c; }
 
 .bean-section {
   flex: 1;
@@ -1078,7 +1088,6 @@ footer {
   .record-insight-recipe-conditions dd { margin-bottom: 5px; }
   .site-header { gap: 4px; }
   .brand-logo { width: 52px; height: 32px; }
-  .button.connection-toggle { font-size: 1rem; }
   .tabs {
     position: fixed;
     top: auto;

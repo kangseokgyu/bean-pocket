@@ -48,6 +48,19 @@ The first focused run after extraction found two failures. The bean detail rende
 | `npm run build:pages` | Exit 0. Pages build `5393fb41e8b6`. | [r2a/build-pages.log](r2a/build-pages.log) |
 | `npm run check:pages` | Exit 0. Pages artifact check passed. | [r2a/check-pages.log](r2a/check-pages.log) |
 
+## R2/R3-B brew and records
+
+Moved the brew and records screens and the record form. `records-insights-view.mjs` still renders the charts and comparisons. The view facade still owns drafts and refreshes the contents of the existing dialog without replacing it. The record form and records screen receive the existing picker builder and trigger updater until R3-C moves the picker.
+
+| Command | Result | Log |
+| --- | --- | --- |
+| Pre-extraction behavior and release checks | Exit 1. Five behavior checks passed. The release check could not find `ui/forms/record-form.mjs`. | [r2b/before.log](r2b/before.log) |
+| Focused view, insights integration, and Pages tests | Exit 1. 229 passed. The exact output file list had two filenames out of order. | [r2b/focused-before-fixture-fix.log](r2b/focused-before-fixture-fix.log) |
+| Focused rerun of the exact output file list test | Exit 0. 1 passed. | [r2b/focused.log](r2b/focused.log) |
+| `npm test` with loopback access | Exit 0. 763 passed, 0 failed. | [r2b/npm-test.log](r2b/npm-test.log) |
+| `npm run build:pages` | Exit 0. Pages build `a22109eb9b98`. | [r2b/build-pages.log](r2b/build-pages.log) |
+| `npm run check:pages` | Exit 0. Pages artifact check passed. | [r2b/check-pages.log](r2b/check-pages.log) |
+
 ## Remaining phases
 
-R2 still has the records and brew screens. R3 still has the record form and interaction extraction. R4-R6 remain pending. Main owns independent review and browser comparison.
+R3 still has the picker, event binding, pull-to-refresh, and status toast extraction. R4-R6 remain pending. Main owns independent review and browser comparison.

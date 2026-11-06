@@ -1,0 +1,30 @@
+✖ product commands, UI and lifecycle ship byte-for-byte and all affect the release version (216.281417ms)
+✔ records page defaults to the brew source pair and lets the user compare any two records for that bean (39.360792ms)
+✔ record form uses accessible searchable picker dialogs and restores focus without closing its parent (13.158167ms)
+✔ brew overview marks the active step and aligns selection, conditions, and pour amounts (17.821083ms)
+✔ brew completion immediately shows selected names and defaults without loaded record options (8.406583ms)
+✔ same brew record draft survives leaving and returning to its URL (9.0365ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 5
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 263.435542
+
+✖ failing tests:
+
+test at test/pwa-product-build.test.mjs:63:1
+✖ product commands, UI and lifecycle ship byte-for-byte and all affect the release version (216.281417ms)
+  Error: ENOENT: no such file or directory, open '/var/folders/5m/5sdskqts1vg88sqkvbq3t0sw0000gn/T/bean-pocket-release-build-65Atro/dist/ui/forms/record-form.mjs'
+      at async open (node:internal/fs/promises:639:25)
+      at async readFile (node:internal/fs/promises:1243:14)
+      at async TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/bean-pocket-ui-refactor/AX-1day/test/pwa-product-build.test.mjs:67:22)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: '/var/folders/5m/5sdskqts1vg88sqkvbq3t0sw0000gn/T/bean-pocket-release-build-65Atro/dist/ui/forms/record-form.mjs'
+  }

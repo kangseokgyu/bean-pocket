@@ -61,6 +61,20 @@ Moved the brew and records screens and the record form. `records-insights-view.m
 | `npm run build:pages` | Exit 0. Pages build `a22109eb9b98`. | [r2b/build-pages.log](r2b/build-pages.log) |
 | `npm run check:pages` | Exit 0. Pages artifact check passed. | [r2b/check-pages.log](r2b/check-pages.log) |
 
+## R3-C interactions
+
+Moved the search picker DOM and actions, delegated event binding, pull-to-refresh gesture, and status toast into `pwa/ui/interactions/`. The view retains drafts, dialog ownership, save phases, and the decision to suppress the toast when an inline spinner already shows progress. Event listeners retain their existing app lifetime. The public view methods are unchanged.
+
+| Command | Result | Log |
+| --- | --- | --- |
+| Pre-extraction behavior and release checks | Exit 1. Seven behavior checks passed. The release module was absent and the builder did not reject the new directory symlink. | [r3c/before.log](r3c/before.log) |
+| Focused view, UI integration, screen loading, and Pages tests | Exit 0. 273 passed, 0 failed. | [r3c/focused.log](r3c/focused.log) |
+| Focused output symlink check | Exit 0. The checker rejected a populated `ui/interactions` directory reached through a symlink. | [r3c/output-symlink.log](r3c/output-symlink.log) |
+| `npm test` with loopback access | Exit 0. 765 passed, 0 failed. | [r3c/npm-test.log](r3c/npm-test.log) |
+| `npm run build:pages` | Exit 0. Pages build `dbf1cd99429b`. | [r3c/build-pages.log](r3c/build-pages.log) |
+| `npm run check:pages` | Exit 0. Pages artifact check passed. | [r3c/check-pages.log](r3c/check-pages.log) |
+| Published view import cycle check | Exit 0. No cycles in 27 modules. | [r3c/import-cycles.log](r3c/import-cycles.log) |
+
 ## Remaining phases
 
-R3 still has the picker, event binding, pull-to-refresh, and status toast extraction. R4-R6 remain pending. Main owns independent review and browser comparison.
+R4-R6 remain pending. Main owns independent review and browser comparison.

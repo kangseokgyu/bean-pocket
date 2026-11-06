@@ -1,6 +1,6 @@
 # Bean Pocket UI/controller refactoring
 
-Status: R0-R2 are complete. R3 has moved the bean, recipe, and record forms. The R3 interaction extraction and R4-R6 are pending. See the [verification logs](evidence/ui-refactor-20261106/README.md).
+Status: R0-R3 implementation and Node verification are complete. Main owns independent review and browser comparison. R4-R6 are pending, including the release checks for modules still to be added. See the [verification logs](evidence/ui-refactor-20261106/README.md).
 
 ## Goal
 

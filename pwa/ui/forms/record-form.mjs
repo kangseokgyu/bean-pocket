@@ -3,8 +3,9 @@ import { make } from '../shared/dom.mjs';
 import { label, formBase, addFormActions } from '../shared/form-fields.mjs';
 import { routePath, routeParams } from '../shared/route.mjs';
 import { isIsoDate, localDate } from '../shared/date.mjs';
+import { preferredOptionPage, searchPicker, syncSearchPickerTrigger } from '../interactions/search-picker.mjs';
 
-export function buildRecordForm(document, data, optionPages, route, optionStates, connectionRevision, { searchPicker, syncSearchPickerTrigger }) {
+export function buildRecordForm(document, data, optionPages, route, optionStates, connectionRevision) {
   const form = formBase(document, 'records', '추출 후 빠른 기록');
   const fields = make(document, 'fieldset', undefined, 'form-fieldset');
   const params = routeParams(route);
@@ -44,10 +45,6 @@ export function buildRecordForm(document, data, optionPages, route, optionStates
   form.dataset.initialValues = JSON.stringify(Object.fromEntries(
     ['beanId', 'recipeId', 'date', 'rating', 'cupNote'].map(name => [name, form.elements[name].value])));
   return form;
-}
-
-export function preferredOptionPage(serverPage, cachedPage) {
-  return cachedPage && Date.now() - cachedPage.savedAt < 60000 ? cachedPage : serverPage;
 }
 
 export function recordFlowKey(route) {

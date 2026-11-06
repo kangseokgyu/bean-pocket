@@ -37,6 +37,10 @@ const expectedFiles = [
   'ui/forms/bean-form.mjs',
   'ui/forms/recipe-form.mjs',
   'ui/forms/record-form.mjs',
+  'ui/interactions/events.mjs',
+  'ui/interactions/pull-to-refresh.mjs',
+  'ui/interactions/search-picker.mjs',
+  'ui/interactions/status-toast.mjs',
   'ui/records-insights-view.mjs',
   'ui/records-insights.mjs',
   'ui/screens/beans.mjs',
@@ -84,6 +88,7 @@ async function writeSourceFixture(sourceDir) {
   await mkdir(path.join(sourceDir, 'commands'), { recursive: true });
   await mkdir(path.join(sourceDir, 'ui'), { recursive: true });
   await mkdir(path.join(sourceDir, 'ui/shared'), { recursive: true });
+  await mkdir(path.join(sourceDir, 'ui/interactions'), { recursive: true });
   await mkdir(path.join(sourceDir, 'ui/forms'), { recursive: true });
   await mkdir(path.join(sourceDir, 'ui/screens'), { recursive: true });
   const files = {
@@ -95,6 +100,10 @@ async function writeSourceFixture(sourceDir) {
     'ui/forms/bean-form.mjs': 'export const buildBeanForm = () => {};',
     'ui/forms/recipe-form.mjs': 'export const buildRecipeForm = () => {};',
     'ui/forms/record-form.mjs': 'export const buildRecordForm = () => {};',
+    'ui/interactions/events.mjs': 'export const bindEvents = () => {};',
+    'ui/interactions/pull-to-refresh.mjs': 'export const bindPullToRefresh = () => {};',
+    'ui/interactions/search-picker.mjs': 'export const searchPicker = () => {};',
+    'ui/interactions/status-toast.mjs': 'export const createStatusToast = () => {};',
     'ui/records-insights.mjs': 'export const insights = {};',
     'ui/records-insights-view.mjs': 'export const renderInsights = () => {};',
     'ui/screens/beans.mjs': 'export const renderBeans = () => {};',
@@ -404,6 +413,27 @@ test('builder rejects nested screen and form source directory symlinks', async t
   }
 });
 
+test('builder rejects a populated interactions source directory symlink', async t => {
+  const { root, sourceDir } = await buildFixture(t);
+  const nested = path.join(sourceDir, 'ui/interactions');
+  const outside = path.join(root, 'outside-interactions');
+  await rename(nested, outside);
+  await symlink(outside, nested, 'dir');
+  await assert.rejects(
+    buildPages({ sourceDir, outputDir: path.join(root, 'interactions-symlink-dist') }),
+    /심볼릭 링크|symlink/i,
+  );
+});
+
+test('checker rejects a populated interactions output directory symlink', async t => {
+  const { root, outputDir } = await buildProductionFixture(t);
+  const nested = path.join(outputDir, 'ui/interactions');
+  const outside = path.join(root, 'outside-interactions');
+  await rename(nested, outside);
+  await symlink(outside, nested, 'dir');
+  await assert.rejects(checkPages(outputDir), /심볼릭 링크.*ui\/interactions/);
+});
+
 test('빌더는 symlink 부모 경로로 소스를 출력 경로로 지정해도 원본을 보존한다', async t => {
   const root = await makeTempDirectory(t);
   const sourceDir = path.join(root, 'pwa');
@@ -481,7 +511,10 @@ test('Service Worker install·activate·fetch는 scope를 격리하고 앱 파�
 
   const appFiles = [
     './', './index.html', './app.mjs', './brew-picker-demo.html', './brew-picker-demo.css',
-    './brew-picker-demo.mjs', './commands/index.mjs', './ui/controller.mjs', './ui/records-insights.mjs',
+    './brew-picker-demo.mjs', './commands/index.mjs', './ui/controller.mjs',
+    './ui/interactions/events.mjs', './ui/interactions/pull-to-refresh.mjs',
+    './ui/interactions/search-picker.mjs', './ui/interactions/status-toast.mjs',
+    './ui/records-insights.mjs',
     './ui/records-insights-view.mjs', './ui/star-rating.mjs', './ui/view.mjs',
     './ui/forms/bean-form.mjs', './ui/forms/recipe-form.mjs', './ui/forms/record-form.mjs', './ui/screens/beans.mjs', './ui/screens/brew.mjs',
     './ui/screens/home.mjs', './ui/screens/records.mjs', './ui/screens/recipes.mjs', './ui/shared/buttons.mjs', './ui/shared/date.mjs',

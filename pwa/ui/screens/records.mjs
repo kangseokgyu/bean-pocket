@@ -3,10 +3,9 @@ import { make } from '../shared/dom.mjs';
 import { button } from '../shared/buttons.mjs';
 import { makeEntryDialog } from '../shared/dialogs.mjs';
 import { currentRecords, recordCard } from '../shared/record-card.mjs';
-import { preferredOptionPage } from '../forms/record-form.mjs';
+import { preferredOptionPage, searchPicker, syncSearchPickerTrigger } from '../interactions/search-picker.mjs';
 
 export function renderRecords(pane, data, document, form, formOpen, optionPages, optionStates,
-  { searchPicker, syncSearchPickerTrigger },
   insightRecipeFilter = '', insightRatingFilter = '', insightComparisonSort = 'date-desc',
   comparisonLeftId = '', comparisonRightId = '', managementOpen = false,
   setManagementOpen = () => {}) {

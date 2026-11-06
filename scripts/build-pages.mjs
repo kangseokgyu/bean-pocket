@@ -12,6 +12,10 @@ const sourceFiles = [
   'brew-picker-demo.mjs',
   'commands/index.mjs',
   'ui/controller.mjs',
+  'ui/interactions/events.mjs',
+  'ui/interactions/pull-to-refresh.mjs',
+  'ui/interactions/search-picker.mjs',
+  'ui/interactions/status-toast.mjs',
   'ui/records-insights.mjs',
   'ui/records-insights-view.mjs',
   'ui/star-rating.mjs',
@@ -116,7 +120,7 @@ async function readSourceFiles(sourceDir, includeProbes) {
     if (info.isSymbolicLink() || !info.isDirectory()) throw new Error(`PWA 모듈 디렉터리는 심볼릭 링크일 수 없습니다: ${directory}`);
   }
 
-  for (const directory of ['ui/forms', 'ui/screens']) {
+  for (const directory of ['ui/forms', 'ui/screens', 'ui/interactions']) {
     const info = await lstat(path.join(sourceDir, directory));
     if (info.isSymbolicLink() || !info.isDirectory()) throw new Error(`PWA UI 모듈 디렉터리는 심볼릭 링크일 수 없습니다: ${directory}`);
   }

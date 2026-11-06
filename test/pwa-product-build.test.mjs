@@ -7,6 +7,8 @@ import { buildPages } from '../scripts/build-pages.mjs';
 import { checkPages } from '../scripts/check-pages.mjs';
 
 const modules = ['commands/index.mjs', 'ui/controller.mjs', 'ui/records-insights.mjs', 'ui/records-insights-view.mjs',
+  'ui/interactions/events.mjs', 'ui/interactions/pull-to-refresh.mjs',
+  'ui/interactions/search-picker.mjs', 'ui/interactions/status-toast.mjs',
   'ui/forms/record-form.mjs', 'ui/screens/brew.mjs', 'ui/screens/records.mjs',
   'ui/shared/date.mjs', 'ui/shared/route.mjs',
   'ui/view.mjs', 'ui/forms/bean-form.mjs', 'ui/forms/recipe-form.mjs', 'ui/screens/beans.mjs',
@@ -95,7 +97,9 @@ test('PWA view import closure is present in the published precache', async t => 
       pending.push(dependency);
     }
   }
-  for (const file of ['ui/forms/bean-form.mjs', 'ui/forms/recipe-form.mjs', 'ui/forms/record-form.mjs',
+  for (const file of ['ui/interactions/events.mjs', 'ui/interactions/pull-to-refresh.mjs',
+    'ui/interactions/search-picker.mjs', 'ui/interactions/status-toast.mjs',
+    'ui/forms/bean-form.mjs', 'ui/forms/recipe-form.mjs', 'ui/forms/record-form.mjs',
     'ui/screens/beans.mjs', 'ui/screens/brew.mjs', 'ui/screens/home.mjs', 'ui/screens/records.mjs', 'ui/screens/recipes.mjs',
     'ui/shared/buttons.mjs', 'ui/shared/date.mjs', 'ui/shared/dialogs.mjs', 'ui/shared/dom.mjs',
     'ui/shared/favorite-button.mjs', 'ui/shared/form-fields.mjs', 'ui/shared/icons.mjs',

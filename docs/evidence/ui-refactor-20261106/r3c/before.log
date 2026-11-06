@@ -1,0 +1,46 @@
+✖ builder rejects a populated interactions source directory symlink (90.616666ms)
+✖ product commands, UI and lifecycle ship byte-for-byte and all affect the release version (219.537584ms)
+✔ an open dialog blocks pull-to-refresh from its backdrop and refresh resumes after dismissal (9.052ms)
+✔ entry save spinners replace only saving toasts across beans, recipes, records, and recipe copies (35.442458ms)
+✔ persistent error toast follows the settings modal opened and closed without a new status (1.080208ms)
+✔ record form uses accessible searchable picker dialogs and restores focus without closing its parent (6.210917ms)
+✔ brew beans same-route refresh and option results keep the focused search subtree (3.871417ms)
+✔ brew recipes same-route refresh and option results keep the focused search subtree (3.345042ms)
+✔ same brew record draft survives leaving and returning to its URL (9.444917ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 7
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1117.6775
+
+✖ failing tests:
+
+test at test/pwa-build.test.mjs:412:1
+✖ builder rejects a populated interactions source directory symlink (90.616666ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/bean-pocket-ui-refactor/AX-1day/test/pwa-build.test.mjs:418:3)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /심볼릭 링크|symlink/i,
+    operator: 'rejects'
+  }
+
+test at test/pwa-product-build.test.mjs:65:1
+✖ product commands, UI and lifecycle ship byte-for-byte and all affect the release version (219.537584ms)
+  Error: ENOENT: no such file or directory, open '/var/folders/5m/5sdskqts1vg88sqkvbq3t0sw0000gn/T/bean-pocket-release-build-ysDVIS/dist/ui/interactions/events.mjs'
+      at async open (node:internal/fs/promises:639:25)
+      at async readFile (node:internal/fs/promises:1243:14)
+      at async TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/bean-pocket-ui-refactor/AX-1day/test/pwa-product-build.test.mjs:69:22)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: '/var/folders/5m/5sdskqts1vg88sqkvbq3t0sw0000gn/T/bean-pocket-release-build-ysDVIS/dist/ui/interactions/events.mjs'
+  }

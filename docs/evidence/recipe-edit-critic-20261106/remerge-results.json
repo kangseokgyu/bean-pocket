@@ -1,0 +1,26 @@
+[
+  {
+    "viewport": "mobile",
+    "save": "succeeded",
+    "confirmedPages": 4,
+    "shortcuts": "dose/temperature/water and edit dirty tracking verified",
+    "cancel": "keep and discard verified",
+    "draft": "route preserved",
+    "stale": "zero write rejection",
+    "historicalRecord": "unchanged",
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "viewport": "desktop",
+    "save": "succeeded",
+    "confirmedPages": 4,
+    "shortcuts": "dose/temperature/water and edit dirty tracking verified",
+    "cancel": "keep and discard verified",
+    "draft": "route preserved",
+    "stale": "zero write rejection",
+    "historicalRecord": "unchanged",
+    "overflow": false,
+    "errors": []
+  }
+]

@@ -27,3 +27,11 @@ node docs/evidence/recipe-edit-critic-20261106/recovery.mjs
 The server binds localhost port4216 only. Browser scripts use `/opt/codex/cua_node/lib/node_modules/playwright-core/index.mjs`. `results.json`, `recovery-results.json`, and screenshots retain independent observations. Scripts write only evidence files.
 
 Limits: no live Notion workspace was modified. Native OPFS/locks are in-memory fixture implementations in this harness. Recovery through controller/state/client is browser-tested; recovery form wording and per-page/mixed-state checks were independently source-reviewed. Service-worker installation/offline update was not rerun; module supply was reviewed and root separately ran the integrated 750-test suite, build (`c9be31d14d6f`), and Pages checker. No redundant full-suite run by Critic.
+
+## Number-shortcut merge re-review
+
+Approved `3e0a2f2fcda06da7337837861f4b671a5bbfc25e`, merging remote main `482bc70` with recipe number shortcuts. No blockers. The narrow conflict-resolution review confirmed shortcut generation and bubbling input events coexist with edit identity, prefill, labels and step IDs. No product files were changed by Critic.
+
+Reran the mobile and desktop Chromium workflows using `browser-remerge.mjs`. Both passed all prior save/cancel/draft/stale/snapshot checks, plus real clicks on dose, temperature and water shortcuts. Clicking a shortcut set the corresponding input and marked the recipe-specific edit dirty. Each save had four confirmed ledger pages; no JavaScript errors or horizontal overflow occurred. New screenshots (`*-remerge-*.png`) were inspected; `remerge-results.json` records results.
+
+Root separately reported 751 integrated tests passed, Pages build `d1e2c5b717d2`, and Pages checker passed. No full-suite or unchanged recovery rerun was needed for this narrow form/style merge.

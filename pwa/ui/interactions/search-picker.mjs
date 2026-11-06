@@ -209,6 +209,7 @@ export function syncSearchPickerTrigger(picker, data) {
   const value = trigger.querySelector('.search-picker-value');
   const details = trigger.querySelector('.search-picker-selection-details');
   const optionData = data?.[picker.dataset.optionKind]?.find(entry => entry.id === select.value);
+  trigger.dataset.hasSelection = String(Boolean(select.value));
   value.textContent = current;
   details.textContent = select.value ? optionDetails(optionData ?? { id: select.value }, picker.dataset.optionKind, data) : '';
   trigger.setAttribute('aria-label', select.value ? `${current}${details.textContent ? `, ${details.textContent}` : ''}` : picker.dataset.emptyLabel);

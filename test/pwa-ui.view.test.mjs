@@ -4675,6 +4675,27 @@ test('bean form preserves field names, required markers, and submit actions', ()
   assert.equal(form.querySelector('[data-entry-submit]') !== null, true);
 });
 
+test('recipe number shortcuts set the editable fields and report input', () => {
+  const document = new TestDocument();
+  const form = buildRecipeForm(document, data());
+  const inputs = [];
+  form.addEventListener('input', event => inputs.push([event.target.name, event.target.value]));
+
+  for (const [name, caption, expected] of [
+    ['dose', '18g', '18'],
+    ['temperature', '92°C', '92'],
+    ['totalWater', '250g', '250'],
+  ]) {
+    const shortcut = form.querySelectorAll('button').find(control => control.textContent === caption);
+    assert.ok(shortcut, `missing shortcut: ${caption}`);
+    assert.equal(shortcut.type, 'button');
+    shortcut.dispatchEvent({ type: 'click', bubbles: true });
+    assert.equal(form.elements[name].value, expected);
+    assert.equal(form.elements[name].step, 'any');
+    assert.deepEqual(inputs.at(-1), [name, expected]);
+  }
+});
+
 test('recipe form step editor, preview, and payload preserve entered recipe values', () => {
   const document = new TestDocument();
   const form = buildRecipeForm(document, data());

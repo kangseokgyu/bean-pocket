@@ -7,8 +7,10 @@ import { buildPages } from '../scripts/build-pages.mjs';
 import { checkPages } from '../scripts/check-pages.mjs';
 
 const modules = ['commands/index.mjs', 'ui/controller.mjs', 'ui/records-insights.mjs', 'ui/records-insights-view.mjs',
-  'ui/view.mjs', 'ui/shared/buttons.mjs', 'ui/shared/dialogs.mjs', 'ui/shared/dom.mjs',
-  'ui/shared/form-fields.mjs', 'ui/shared/icons.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs'];
+  'ui/view.mjs', 'ui/forms/bean-form.mjs', 'ui/forms/recipe-form.mjs', 'ui/screens/beans.mjs',
+  'ui/screens/home.mjs', 'ui/screens/recipes.mjs', 'ui/shared/buttons.mjs', 'ui/shared/dialogs.mjs', 'ui/shared/dom.mjs',
+  'ui/shared/favorite-button.mjs', 'ui/shared/form-fields.mjs', 'ui/shared/icons.mjs',
+  'ui/shared/recipe-presentation.mjs', 'ui/shared/record-card.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs'];
 
 test('server-page demo records mark their generated v2 snapshot valid', async () => {
   const app = await readFile(new URL('../public/app.js', import.meta.url), 'utf8');
@@ -91,8 +93,11 @@ test('PWA view import closure is present in the published precache', async t => 
       pending.push(dependency);
     }
   }
-  for (const file of ['ui/shared/buttons.mjs', 'ui/shared/dialogs.mjs', 'ui/shared/dom.mjs',
-    'ui/shared/form-fields.mjs', 'ui/shared/icons.mjs']) {
+  for (const file of ['ui/forms/bean-form.mjs', 'ui/forms/recipe-form.mjs',
+    'ui/screens/beans.mjs', 'ui/screens/home.mjs', 'ui/screens/recipes.mjs',
+    'ui/shared/buttons.mjs', 'ui/shared/dialogs.mjs', 'ui/shared/dom.mjs',
+    'ui/shared/favorite-button.mjs', 'ui/shared/form-fields.mjs', 'ui/shared/icons.mjs',
+    'ui/shared/recipe-presentation.mjs', 'ui/shared/record-card.mjs']) {
     assert.ok(visited.has(file), `${file} must be reachable from the view facade`);
   }
 });

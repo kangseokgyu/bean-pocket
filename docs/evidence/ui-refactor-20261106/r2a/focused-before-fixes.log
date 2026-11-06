@@ -1,0 +1,427 @@
+✔ Pages 빌드는 삭제된 추출 기록 데모와 링크·캐시를 다시 공급하지 않는다 (122.602959ms)
+✔ Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록을 만든다 (38.491375ms)
+✔ 검사기는 공개 데모 자산의 외부 URL과 루트 절대 경로를 거부한다 (71.751ms)
+✔ 검사기는 누락 파일과 허용 목록 밖 산출물을 거부한다 (60.385958ms)
+✔ 검사기는 루트 절대 경로와 허용 파일 안의 비밀값을 거부한다 (73.216583ms)
+✔ 검사기는 Service Worker가 API 경로를 앱 캐시에 넣는 변경을 거부한다 (37.864542ms)
+✔ 검사기는 scope별 캐시 namespace가 빠진 Service Worker를 거부한다 (39.317959ms)
+✔ 검사기는 HTTP 캐시를 우회하지 않는 Service Worker precache를 거부한다 (54.593958ms)
+✔ 빌더는 필수 소스 누락과 소스 심볼릭 링크를 거부한다 (57.001458ms)
+✔ builder rejects a nested UI source directory symlink (28.824958ms)
+✔ builder rejects nested screen and form source directory symlinks (29.832791ms)
+✔ 빌더는 symlink 부모 경로로 소스를 출력 경로로 지정해도 원본을 보존한다 (10.268333ms)
+✔ 검사기는 산출물 심볼릭 링크와 잘못된 dist 루트를 거부한다 (34.066166ms)
+✔ 실제 PWA 소스에는 API 호출이나 외부 요청이 없고 하위 경로 자원만 쓴다 (28.515416ms)
+✖ Service Worker install·activate·fetch는 scope를 격리하고 앱 파일만 다룬다 (30.538167ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    [
+      [
+        'https://example.test/repo/a/',
+        'reload'
+      ],
+  ...
+      [
+  +     'https://example.test/repo/a/ui/forms/bean-form.mjs',
+  +     'reload'
+  +   ],
+  +   [
+  +     'https://example.test/repo/a/ui/forms/recipe-form.mjs',
+  +     'reload'
+  +   ],
+  +   [
+  +     'https://example.test/repo/a/ui/screens/beans.mjs',
+  +     'reload'
+  +   ],
+  +   [
+  +     'https://example.test/repo/a/ui/screens/home.mjs',
+  +     'reload'
+  +   ],
+  +   [
+  +     'https://example.test/repo/a/ui/screens/recipes.mjs',
+  +     'reload'
+  +   ],
+  +   [
+        'https://example.test/repo/a/ui/shared/buttons.mjs',
+        'reload'
+      ],
+      [
+        'https://example.test/repo/a/ui/shared/dialogs.mjs',
+  ...
+      [
+  +     'https://example.test/repo/a/ui/shared/favorite-button.mjs',
+  +     'reload'
+  +   ],
+  +   [
+        'https://example.test/repo/a/ui/shared/form-fields.mjs',
+        'reload'
+      ],
+      [
+        'https://example.test/repo/a/ui/shared/icons.mjs',
+  ...
+      [
+  +     'https://example.test/repo/a/ui/shared/recipe-presentation.mjs',
+  +     'reload'
+  +   ],
+  +   [
+  +     'https://example.test/repo/a/ui/shared/record-card.mjs',
+  +     'reload'
+  +   ],
+  +   [
+        'https://example.test/repo/a/data/notion-client.mjs',
+        'reload'
+      ],
+      [
+        'https://example.test/repo/a/data/notion-properties.mjs',
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/bean-pocket-ui-refactor/AX-1day/test/pwa-build.test.mjs:473:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 'https://example.test/repo/a/', 'reload' ], [ 'https://example.test/repo/a/index.html', 'reload' ], [ 'https://example.test/repo/a/app.mjs', 'reload' ], [ 'https://example.test/repo/a/brew-picker-demo.html', 'reload' ], [ 'https://example.test/repo/a/brew-picker-demo.css', 'reload' ], [ 'https://example.test/repo/a/brew-picker-demo.mjs', 'reload' ], [ 'https://example.test/repo/a/commands/index.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/controller.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/records-insights.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/records-insights-view.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/star-rating.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/view.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/forms/bean-form.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/forms/recipe-form.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/screens/beans.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/screens/home.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/screens/recipes.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/buttons.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/dialogs.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/dom.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/favorite-button.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/form-fields.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/icons.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/recipe-presentation.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/record-card.mjs', 'reload' ], [ 'https://example.test/repo/a/data/notion-client.mjs', 'reload' ], [ 'https://example.test/repo/a/data/notion-properties.mjs', 'reload' ], [ 'https://example.test/repo/a/data/read-repository.mjs', 'reload' ], [ 'https://example.test/repo/a/domain.mjs', 'reload' ], [ 'https://example.test/repo/a/platform/app-lifecycle.mjs', 'reload' ], [ 'https://example.test/repo/a/platform/connection-file.mjs', 'reload' ], [ 'https://example.test/repo/a/platform/update-coordinator.mjs', 'reload' ], [ 'https://example.test/repo/a/state/submission-state.mjs', 'reload' ], [ 'https://example.test/repo/a/styles.css', 'reload' ], [ 'https://example.test/repo/a/manifest.webmanifest', 'reload' ], [ 'https://example.test/repo/a/icons/icon-192.png', 'reload' ], [ 'https://example.test/repo/a/icons/icon-512.png', 'reload' ], [ 'https://example.test/repo/a/icons/bp-logo.png', 'reload' ], [ 'https://example.test/repo/a/icons/favicon-bp-ivory.png', 'reload' ], [ 'https://example.test/repo/a/icons/home-brew.png', 'reload' ] ],
+    expected: [ [ 'https://example.test/repo/a/', 'reload' ], [ 'https://example.test/repo/a/index.html', 'reload' ], [ 'https://example.test/repo/a/app.mjs', 'reload' ], [ 'https://example.test/repo/a/brew-picker-demo.html', 'reload' ], [ 'https://example.test/repo/a/brew-picker-demo.css', 'reload' ], [ 'https://example.test/repo/a/brew-picker-demo.mjs', 'reload' ], [ 'https://example.test/repo/a/commands/index.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/controller.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/records-insights.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/records-insights-view.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/star-rating.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/view.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/buttons.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/dialogs.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/dom.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/form-fields.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/icons.mjs', 'reload' ], [ 'https://example.test/repo/a/data/notion-client.mjs', 'reload' ], [ 'https://example.test/repo/a/data/notion-properties.mjs', 'reload' ], [ 'https://example.test/repo/a/data/read-repository.mjs', 'reload' ], [ 'https://example.test/repo/a/domain.mjs', 'reload' ], [ 'https://example.test/repo/a/platform/app-lifecycle.mjs', 'reload' ], [ 'https://example.test/repo/a/platform/connection-file.mjs', 'reload' ], [ 'https://example.test/repo/a/platform/update-coordinator.mjs', 'reload' ], [ 'https://example.test/repo/a/state/submission-state.mjs', 'reload' ], [ 'https://example.test/repo/a/styles.css', 'reload' ], [ 'https://example.test/repo/a/manifest.webmanifest', 'reload' ], [ 'https://example.test/repo/a/icons/icon-192.png', 'reload' ], [ 'https://example.test/repo/a/icons/icon-512.png', 'reload' ], [ 'https://example.test/repo/a/icons/bp-logo.png', 'reload' ], [ 'https://example.test/repo/a/icons/favicon-bp-ivory.png', 'reload' ], [ 'https://example.test/repo/a/icons/home-brew.png', 'reload' ] ],
+    operator: 'deepStrictEqual'
+  }
+
+✔ 빌드 hash는 같은 소스에서 재현되고 소스 변경 시 바뀐다 (73.825ms)
+✔ BP logo is supplied byte-for-byte, cached offline, and changes the build version (47.665125ms)
+✔ homepage brew illustration ships byte-for-byte, is cached offline, and changes the build version (61.040166ms)
+✔ server-page demo records mark their generated v2 snapshot valid (4.237833ms)
+✔ public save updates the spinner icon with pending, success, and restored states (0.851666ms)
+✔ public save keeps actual success feedback visible before closing the dialog (0.614916ms)
+✔ product commands, UI and lifecycle ship byte-for-byte and all affect the release version (767.823542ms)
+✔ PWA view import closure is present in the published precache (78.95525ms)
+✔ production records insights resolve domain logic inside the Pages bundle (54.984292ms)
+✔ commands/UI directory symlinks cannot bypass the source boundary (58.455125ms)
+✔ release checker rejects activation moved outside the handshake, aliases and removed guards (98.356958ms)
+✔ SVG namespace is allowed only in UI element creation, never as a request URL (96.693208ms)
+✔ connection settings open only after no saved connection is found (5.4435ms)
+✔ startup checking shows the status toast outside the locked page until retry is needed (6.144708ms)
+✔ initialization toast reaches the saved outcome and releases startup lock (7.258583ms)
+✔ initialization toast reaches the missing outcome and releases startup lock (4.038583ms)
+✔ initialization toast reaches the error outcome and releases startup lock (2.54725ms)
+✔ initialization toast reaches the recovery outcome and releases startup lock (3.436583ms)
+✔ initialization toast reaches the busy outcome and releases startup lock (2.106792ms)
+✔ initialization toast reaches the read-error outcome and releases startup lock (3.103375ms)
+✔ pending work keeps its toast and startup lock through ready completion (1.302917ms)
+✔ saved connection opens settings modally and closing discards unsaved secrets (1.86775ms)
+✔ controller screen loading toast reaches the navigation outcome (9.404333ms)
+✔ controller screen loading toast reaches the refresh outcome (5.940209ms)
+✔ controller screen loading toast reaches the error outcome (5.997833ms)
+✔ controller screen loading toast reaches the cancelled outcome (6.061875ms)
+✔ toast trailing icon changes from loading to completion without replacing its message (2.594167ms)
+✔ toast loading fallback resets on errors and neutral messages (1.1465ms)
+✔ successful status messages stay visible for one second then hide (0.577333ms)
+✔ errors and recovery notices hide one second after replacing success (1.84325ms)
+✔ checking and saving feedback stays visible while work is in progress (0.529875ms)
+✔ status messages share one bottom safe-area toast above native modal dialogs (4.093709ms)
+✔ toast clears the actual action row of a centered modal (2.756334ms)
+✔ native form validation marks its field and reports the error in the shared toast (2.259667ms)
+✔ pending operations use the existing toast and retain the top pull-to-refresh spinner (1.282084ms)
+✔ pending toast stays visible through success, ready and timeout, then clears after completion or failure (2.501084ms)
+✔ clearing successful operation progress does not restore it after pending work or modal close (1.362917ms)
+✔ a new success gets a full display interval and empty messages hide immediately (0.536333ms)
+✔ draft values survive tab navigation and a fresh data render (4.068583ms)
+✔ bean, recipe, and record detail text is rendered as text and retains brew details (3.541458ms)
+✔ pour tables group cumulative values before interval and current water in three columns (2.92975ms)
+✔ damaged historical records are excluded from bagless recipe views (1.825792ms)
+✔ invalid stored date and rating remain visible with field-specific warnings (6.011292ms)
+✔ recipes have no bean selector and records require both bean and shared recipe with browse filters (10.19525ms)
+✔ resolution controls follow the native journal page-list contract (1.134791ms)
+✔ recipe step time permits a keyboard with colon while retaining minute-second validation (2.411459ms)
+✔ the bean origin label uses user-facing wording rather than the storage field name (1.129334ms)
+✔ the record date default follows the device calendar across the KST UTC boundary (4.403708ms)
+✔ checked connection-recovery checkbox reaches the current-connection verifier (1.012166ms)
+✔ startup lock contention hides connection entry and retries the saved connection read (0.974292ms)
+✔ successful connection replacement preserves the active product draft (7.637417ms)
+✔ successful connection replacement preserves hidden drafts and their dirty signal (7.547583ms)
+✔ recipe input minimums allow every positive sub-cent value accepted by the domain (4.202833ms)
+✔ recipe history never displays legacy bag relations (10.165834ms)
+✔ bean creation starts hidden, opens from the plus button, and closes on cancel (5.070167ms)
+✔ bag route has no entry, delete or relation selection surface (3.801125ms)
+✔ recipe creation opens from plus, preserves drafts, and closes on cancel (19.144209ms)
+✔ recipe validation state remains visible in list and detail views (7.6205ms)
+✔ recipe summaries separate the primary values, ratio, step count, and guide preview (2.368875ms)
+✔ recipe screens show zero and missing values distinctly and omit an invalid ratio (3.565958ms)
+✔ recipe detail groups conditions, pour steps, guide, and records in reading order (2.164917ms)
+✔ recipe detail edit action announces the placeholder without changing the selected recipe (3.21825ms)
+✔ recipe detail places the guide below the pour table and copy preserves its text (6.846958ms)
+✔ record creation opens from plus, preserves drafts, and closes on cancel or save (36.98425ms)
+✔ background data updates defer pane replacement while an entry dialog is open (14.677917ms)
+✔ collection headers omit refresh and retain their add buttons (11.434583ms)
+✔ an open dialog blocks pull-to-refresh from its backdrop and refresh resumes after dismissal (5.997084ms)
+✔ modal scroll boundaries block page refresh while available modal scrolling stays native (2.250584ms)
+✔ modal scroll direction reversal uses the latest touch movement (1.241583ms)
+✔ opening and dismissing a dialog during a pull cancels that gesture (4.896459ms)
+✔ opening a dialog before the refresh timer fires cancels the queued reload (1.972333ms)
+✔ pulling from the top reloads the entire page once on release (1.907292ms)
+✔ pulling progressively reveals a twelve-spoke spinner and moves the page down (1.431583ms)
+✔ work starting while the released spinner paints cancels the scheduled reload (3.797792ms)
+✔ short pulls, retracted pulls and cancelled gestures do not reload (5.952208ms)
+✔ normal scrolling and horizontal or upward swipes do not trigger reload (5.394958ms)
+✔ multitouch never reloads and a later single finger gesture can refresh (1.681167ms)
+✔ downward pulls from controls and their child elements reload the whole page (11.990208ms)
+✔ control taps keep their normal action and short drags suppress accidental taps (2.077375ms)
+✔ horizontal gestures and scrollable controls away from their top keep native scrolling (5.49ms)
+✔ saving and update freeze prevent a reload even when they begin during a pull (7.06075ms)
+✔ refresh requires a 240px downward pull and checks the release position (8.413375ms)
+✔ navigation exposes a guarded center action beside its four accessible routes (2.975666ms)
+✔ brewing routes select only the center action and restore route selection on exit (13.163167ms)
+✔ narrow-screen navigation stays outside the page pull transform (0.33425ms)
+✔ bean deletion opens a safe native dialog and restores focus after cancel or Escape (3.986375ms)
+▶ dismissing a deletion result preserves its notice for button and Escape
+  ✔ unknown result dismissed with button (1.814083ms)
+  ✔ unknown result dismissed with Escape (1.503958ms)
+  ✔ partial result dismissed with button (1.624375ms)
+  ✔ partial result dismissed with Escape (2.485291ms)
+  ✔ succeeded result dismissed with button (1.559458ms)
+  ✔ succeeded result dismissed with Escape (1.478375ms)
+✔ dismissing a deletion result preserves its notice for button and Escape (10.941458ms)
+✔ bean, recipe, and record deletes submit only after the custom dialog is confirmed (8.217375ms)
+✔ recipe deletion omits its success message and preserves warnings and errors (13.755625ms)
+✔ bean delete button spinner replaces its progress toast, locks duplicates, and renders failures (2.498792ms)
+✔ recipe and record delete spinners replace only their progress toast (10.770208ms)
+✔ bean cards lead with origin and roastery, then retain every labeled metadata value (0.921583ms)
+✔ bean details group all bean metadata and records inside the recipe card hierarchy (1.652541ms)
+✖ bean details keep empty, loading, and incomplete record states distinct (1.937292ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '기록을 더 확인 중입니다. 더 보기를 눌러 계속 확인해 주세요.'
+  - '기록을 더 확인 중입니다. 더 보기로 계속 확인해 주세요.'
+                        ^
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/bean-pocket-ui-refactor/AX-1day/test/pwa-ui.view.test.mjs:2235:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '기록을 더 확인 중입니다. 더 보기를 눌러 계속 확인해 주세요.',
+    expected: '기록을 더 확인 중입니다. 더 보기로 계속 확인해 주세요.',
+    operator: 'strictEqual'
+  }
+
+✔ bean cards keep missing metadata explicit and render values as text (0.84225ms)
+✔ header navigation changes routes and remains locked while work is pending (4.273125ms)
+✔ bean entry opens and closes as a native modal without saving on cancel (3.552834ms)
+✔ available entry forms open as native dialogs and cancel without submitting (20.64725ms)
+✔ save and cancel actions use the compact save and close icons across product forms (3.524125ms)
+✔ save buttons show loading and success only when their async operation changes state (4.200417ms)
+✔ inline entry and delete success stay in their dialogs without completion toasts after close (3.608666ms)
+✔ entry save spinners replace only saving toasts across beans, recipes, records, and recipe copies (25.226167ms)
+✔ saving progress remains visible when no matching modal spinner is active (1.395541ms)
+✔ confirmation-result save disables duplicate submits and reflects its resolved result (0.62ms)
+✔ pending entry saves lock controls and Escape; success stays visible until the 1000ms close (4.671125ms)
+✔ a failed modal save preserves its fields and enables a retry (24.795042ms)
+✔ success delay locks every entry field and recipe step after refresh finishes (18.849041ms)
+✔ success delay ignores late input events and closes without a dirty draft (4.243292ms)
+✔ reduced motion overrides modal entrance and the pull-to-refresh spinner (0.40325ms)
+✔ first route data keeps an open recipe modal node and focus while updating its list (9.873584ms)
+✔ route loading-ready restores only list siblings hidden for the open modal (3.88525ms)
+✔ initial card load shows decorative skeletons until real data replaces them (2.988292ms)
+✔ route transition skeleton hides stale data and exposes an error until a fresh page arrives (3.089375ms)
+✔ route loading preserves an open modal, draft DOM, and focus (3.947667ms)
+✔ card skeleton clears after disconnected (0.774333ms)
+✔ card skeleton clears after startup-busy (0.652166ms)
+✔ card skeleton clears after connection-error (0.645334ms)
+✔ card skeleton clears after read-error (0.646875ms)
+✔ persistent error toast follows the settings modal opened and closed without a new status (0.71825ms)
+✔ connection modal opens from settings and Escape clears secrets, draft and restores focus (1.695833ms)
+✔ connection modal protects pending and success phases across product rerenders (3.332084ms)
+✔ token field waits one second, trims pasted tokens, and announces results without exposing the token (0.867958ms)
+✔ each token edit restarts the one-second wait without checking a guessed token length (0.569084ms)
+✔ token validation ignores stale responses and resets on edit, save, and modal close (0.904542ms)
+✔ connection success closes at 1000ms and defers focus until settings is enabled (2.555542ms)
+✔ connection modal preserves failed inputs for retry and exposes safe errors inside the dialog (4.107875ms)
+✔ startup retry and recovery remain reachable after dismissing and reopening connection settings (1.032291ms)
+✔ saved connection retry keeps the form closed and exposes editing only when allowed (0.72625ms)
+✔ bean cards open their records through a full-card native link without a records button (1.828917ms)
+✔ bean card deletion never opens records, including clicks on its icon (1.831625ms)
+✔ legacy extraction records remain in raw input but are hidden from current lists and details (4.594833ms)
+✔ PWA removes bag navigation, entry and record selection or display surfaces (5.095792ms)
+✔ recipe list cards link their entire surface to details without a details button (5.093125ms)
+✔ recipe list card delete icon stays independent of detail navigation (2.546834ms)
+✔ view notifies the controller when the current route changes (0.143458ms)
+✔ record page shows continuation state instead of claiming the database is empty (2.493833ms)
+✔ records view keeps unfiltered bean insights separate from the filtered table and uses snapshot conditions (16.060875ms)
+✔ records page follows the demo hierarchy and keeps full record management collapsed below comparisons (7.009209ms)
+✔ records page defaults to the brew source pair and lets the user compare any two records for that bean (19.029625ms)
+✔ bean detail distinguishes the manually selected best from highest rating and offers record actions (1.5915ms)
+✔ record actions replay the source snapshot and create separate shared-recipe and best operations (8.480125ms)
+✔ missing best relation explains the schema requirement and blocks only best selection (3.110667ms)
+✔ bean detail names invalid and inaccessible persisted best relations separately (2.758625ms)
+✔ top-three trend spans the records page before the sidebar and keeps each bean in its own series (6.850375ms)
+✔ legacy record management remains available when bounded insights have not loaded (4.181792ms)
+✔ insight bean cards expose visible summaries and selected state; empty or unrated trends have explicit text (12.886167ms)
+✔ record input star fill uses the visible SVG path bounds for tenths (3.120041ms)
+✔ insight decimal rating fills use the same visible SVG bounds at tenths (19.734709ms)
+✔ insight bean cards, comparison filter, and sort controls update the production view through delegated events (41.049709ms)
+✔ changing the selected bean clears a recipe filter that does not belong to the new bean (25.172125ms)
+✔ removing the last record for the filtered recipe resets comparison controls and rows together (15.547958ms)
+✔ production records insight DOM refreshes after a real controller save and confirmed delete (46.166583ms)
+✔ record cards show snapshot names while current parent names are loading (2.506833ms)
+✔ record name pickers load on focus and preserve filter selection across option pages (7.80875ms)
+✔ record form uses accessible searchable picker dialogs and restores focus without closing its parent (4.749542ms)
+✔ record filters share the picker, reset both selections, and expose search loading, errors, empty states, and paging (7.033875ms)
+✔ record picker validation focuses the first required selector without native hidden-select errors (2.99ms)
+✔ home is the default and root route, with the requested hero and four menu destinations (1.092916ms)
+✔ brew routes preserve selected parents and show the saved recipe guide without an automatic timer (7.418791ms)
+✔ brew bean and recipe option cards are full-area buttons and preserve selection and readiness (2.890875ms)
+✔ brew overview marks the active step and aligns selection, conditions, and pour amounts (18.004667ms)
+✔ brew preparation submits edited conditions, stages, decimal rating, date, and cup note together (8.231291ms)
+✔ bean selection omits the home button with populated and empty lists (2.727083ms)
+✔ empty bean selection explains registration and provides routes to register or return (1.229416ms)
+✔ brew search pages render validated options and keep pagination controls (4.04225ms)
+✔ brew beans same-route refresh and option results keep the focused search subtree (2.987667ms)
+✔ brew recipes same-route refresh and option results keep the focused search subtree (2.871541ms)
+✔ home screen keeps its hero action and decorative artwork contract (0.115208ms)
+✔ bean screen renders list fields, favorite/delete actions, and record count (0.159916ms)
+✔ bean detail keeps best and history record cards with missing-route fallback (0.135416ms)
+✔ recipe screens preserve summary actions, details, steps, and recorded snapshots (0.426375ms)
+✔ bean form preserves field names, required markers, and submit actions (0.117125ms)
+✔ recipe form step editor, preview, and payload preserve entered recipe values (1.256791ms)
+✔ brew beans same-route refresh ignores expired search option pages (2.86325ms)
+✔ brew recipes same-route refresh ignores expired search option pages (2.556292ms)
+✔ brew search ignores a response for the previous query during the next debounce (281.297708ms)
+✔ brew search defers composition results and scopes the ended composition to its route (836.944042ms)
+✔ brew selection navigation and connection changes still replace the route content (13.949334ms)
+✔ brew name search is visibly labeled and a no-result query can return to the full list (7.6225ms)
+✔ brew completion preselects bean and recipe and defaults the record date to today (4.834ms)
+✔ brew completion immediately shows selected names and defaults without loaded record options (10.267833ms)
+✔ a new connection does not prefill the record form from the previous connection selection (9.672125ms)
+✔ brew clicks preserve bean and recipe in browser history and open actual-condition evaluation (8.611459ms)
+✔ critic: shared recipes remain selectable and usable with an explicitly selected bean (5.758417ms)
+✔ critic: visiting the record list does not overwrite later brew prefill with an empty form (6.710041ms)
+✔ record draft conflicts require an explicit resume or new-record choice (13.144042ms)
+✔ same brew record draft survives leaving and returning to its URL (7.124666ms)
+✔ critic: initial and later brew pages append uniquely without leaking into a search (4.443167ms)
+✔ record draft keeps selected IDs while its option pages reload after navigation (10.500209ms)
+✔ integration: first record response hydrates prefills without replacing the live modal (edited=false) (9.372208ms)
+✔ integration: first record response hydrates prefills without replacing the live modal (edited=true) (6.847625ms)
+✔ integration: invalid record prefill closes the initial modal and exposes the validated error (2.845458ms)
+✔ record rating supports tenth-point pointer, keyboard, cancellation, and draft interaction (9.450208ms)
+✔ critic regression: initial server option page remains visible after loading the next picker page (2.925541ms)
+✔ critic regression: restored draft and route-prefilled IDs update visible picker labels (12.140209ms)
+✔ critic regression: selected filter options survive a search and unrelated rerender (5.510792ms)
+✔ bean and recipe lists expose accessible star toggles without favorite-only controls (1.968542ms)
+✔ star submits a desired boolean and restores keyboard focus (1.744958ms)
+✔ star ignores a repeated click while its save is pending (1.86925ms)
+✔ critic focus leaves no detached toggle after page-boundary reorder (1.660208ms)
+✔ explicit comparison selects an older fourth bean despite a previous different selection and renders both actual snapshots (120.160333ms)
+✔ brew beans show favorites first with a visible label and preserve source order (1.608875ms)
+✔ brew recipes show favorites first with a visible label and preserve source order (1.145417ms)
+ℹ tests 224
+ℹ suites 0
+ℹ pass 222
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3446.928666
+
+✖ failing tests:
+
+test at test/pwa-build.test.mjs:443:1
+✖ Service Worker install·activate·fetch는 scope를 격리하고 앱 파일만 다룬다 (30.538167ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    [
+      [
+        'https://example.test/repo/a/',
+        'reload'
+      ],
+  ...
+      [
+  +     'https://example.test/repo/a/ui/forms/bean-form.mjs',
+  +     'reload'
+  +   ],
+  +   [
+  +     'https://example.test/repo/a/ui/forms/recipe-form.mjs',
+  +     'reload'
+  +   ],
+  +   [
+  +     'https://example.test/repo/a/ui/screens/beans.mjs',
+  +     'reload'
+  +   ],
+  +   [
+  +     'https://example.test/repo/a/ui/screens/home.mjs',
+  +     'reload'
+  +   ],
+  +   [
+  +     'https://example.test/repo/a/ui/screens/recipes.mjs',
+  +     'reload'
+  +   ],
+  +   [
+        'https://example.test/repo/a/ui/shared/buttons.mjs',
+        'reload'
+      ],
+      [
+        'https://example.test/repo/a/ui/shared/dialogs.mjs',
+  ...
+      [
+  +     'https://example.test/repo/a/ui/shared/favorite-button.mjs',
+  +     'reload'
+  +   ],
+  +   [
+        'https://example.test/repo/a/ui/shared/form-fields.mjs',
+        'reload'
+      ],
+      [
+        'https://example.test/repo/a/ui/shared/icons.mjs',
+  ...
+      [
+  +     'https://example.test/repo/a/ui/shared/recipe-presentation.mjs',
+  +     'reload'
+  +   ],
+  +   [
+  +     'https://example.test/repo/a/ui/shared/record-card.mjs',
+  +     'reload'
+  +   ],
+  +   [
+        'https://example.test/repo/a/data/notion-client.mjs',
+        'reload'
+      ],
+      [
+        'https://example.test/repo/a/data/notion-properties.mjs',
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/bean-pocket-ui-refactor/AX-1day/test/pwa-build.test.mjs:473:10)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 'https://example.test/repo/a/', 'reload' ], [ 'https://example.test/repo/a/index.html', 'reload' ], [ 'https://example.test/repo/a/app.mjs', 'reload' ], [ 'https://example.test/repo/a/brew-picker-demo.html', 'reload' ], [ 'https://example.test/repo/a/brew-picker-demo.css', 'reload' ], [ 'https://example.test/repo/a/brew-picker-demo.mjs', 'reload' ], [ 'https://example.test/repo/a/commands/index.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/controller.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/records-insights.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/records-insights-view.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/star-rating.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/view.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/forms/bean-form.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/forms/recipe-form.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/screens/beans.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/screens/home.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/screens/recipes.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/buttons.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/dialogs.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/dom.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/favorite-button.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/form-fields.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/icons.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/recipe-presentation.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/record-card.mjs', 'reload' ], [ 'https://example.test/repo/a/data/notion-client.mjs', 'reload' ], [ 'https://example.test/repo/a/data/notion-properties.mjs', 'reload' ], [ 'https://example.test/repo/a/data/read-repository.mjs', 'reload' ], [ 'https://example.test/repo/a/domain.mjs', 'reload' ], [ 'https://example.test/repo/a/platform/app-lifecycle.mjs', 'reload' ], [ 'https://example.test/repo/a/platform/connection-file.mjs', 'reload' ], [ 'https://example.test/repo/a/platform/update-coordinator.mjs', 'reload' ], [ 'https://example.test/repo/a/state/submission-state.mjs', 'reload' ], [ 'https://example.test/repo/a/styles.css', 'reload' ], [ 'https://example.test/repo/a/manifest.webmanifest', 'reload' ], [ 'https://example.test/repo/a/icons/icon-192.png', 'reload' ], [ 'https://example.test/repo/a/icons/icon-512.png', 'reload' ], [ 'https://example.test/repo/a/icons/bp-logo.png', 'reload' ], [ 'https://example.test/repo/a/icons/favicon-bp-ivory.png', 'reload' ], [ 'https://example.test/repo/a/icons/home-brew.png', 'reload' ] ],
+    expected: [ [ 'https://example.test/repo/a/', 'reload' ], [ 'https://example.test/repo/a/index.html', 'reload' ], [ 'https://example.test/repo/a/app.mjs', 'reload' ], [ 'https://example.test/repo/a/brew-picker-demo.html', 'reload' ], [ 'https://example.test/repo/a/brew-picker-demo.css', 'reload' ], [ 'https://example.test/repo/a/brew-picker-demo.mjs', 'reload' ], [ 'https://example.test/repo/a/commands/index.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/controller.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/records-insights.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/records-insights-view.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/star-rating.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/view.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/buttons.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/dialogs.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/dom.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/form-fields.mjs', 'reload' ], [ 'https://example.test/repo/a/ui/shared/icons.mjs', 'reload' ], [ 'https://example.test/repo/a/data/notion-client.mjs', 'reload' ], [ 'https://example.test/repo/a/data/notion-properties.mjs', 'reload' ], [ 'https://example.test/repo/a/data/read-repository.mjs', 'reload' ], [ 'https://example.test/repo/a/domain.mjs', 'reload' ], [ 'https://example.test/repo/a/platform/app-lifecycle.mjs', 'reload' ], [ 'https://example.test/repo/a/platform/connection-file.mjs', 'reload' ], [ 'https://example.test/repo/a/platform/update-coordinator.mjs', 'reload' ], [ 'https://example.test/repo/a/state/submission-state.mjs', 'reload' ], [ 'https://example.test/repo/a/styles.css', 'reload' ], [ 'https://example.test/repo/a/manifest.webmanifest', 'reload' ], [ 'https://example.test/repo/a/icons/icon-192.png', 'reload' ], [ 'https://example.test/repo/a/icons/icon-512.png', 'reload' ], [ 'https://example.test/repo/a/icons/bp-logo.png', 'reload' ], [ 'https://example.test/repo/a/icons/favicon-bp-ivory.png', 'reload' ], [ 'https://example.test/repo/a/icons/home-brew.png', 'reload' ] ],
+    operator: 'deepStrictEqual'
+  }
+
+test at test/pwa-ui.view.test.mjs:2225:1
+✖ bean details keep empty, loading, and incomplete record states distinct (1.937292ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '기록을 더 확인 중입니다. 더 보기를 눌러 계속 확인해 주세요.'
+  - '기록을 더 확인 중입니다. 더 보기로 계속 확인해 주세요.'
+                        ^
+  
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/bean-pocket-ui-refactor/AX-1day/test/pwa-ui.view.test.mjs:2235:12)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '기록을 더 확인 중입니다. 더 보기를 눌러 계속 확인해 주세요.',
+    expected: '기록을 더 확인 중입니다. 더 보기로 계속 확인해 주세요.',
+    operator: 'strictEqual'
+  }

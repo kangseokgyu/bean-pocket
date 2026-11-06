@@ -16,11 +16,19 @@ const sourceFiles = [
   'ui/records-insights-view.mjs',
   'ui/star-rating.mjs',
   'ui/view.mjs',
+  'ui/forms/bean-form.mjs',
+  'ui/forms/recipe-form.mjs',
+  'ui/screens/beans.mjs',
+  'ui/screens/home.mjs',
+  'ui/screens/recipes.mjs',
   'ui/shared/buttons.mjs',
   'ui/shared/dialogs.mjs',
   'ui/shared/dom.mjs',
+  'ui/shared/favorite-button.mjs',
   'ui/shared/form-fields.mjs',
   'ui/shared/icons.mjs',
+  'ui/shared/recipe-presentation.mjs',
+  'ui/shared/record-card.mjs',
   'data/notion-client.mjs',
   'data/notion-properties.mjs',
   'data/read-repository.mjs',
@@ -101,6 +109,11 @@ async function readSourceFiles(sourceDir, includeProbes) {
   for (const directory of ['commands', 'ui']) {
     const info = await lstat(path.join(sourceDir, directory));
     if (info.isSymbolicLink() || !info.isDirectory()) throw new Error(`PWA 모듈 디렉터리는 심볼릭 링크일 수 없습니다: ${directory}`);
+  }
+
+  for (const directory of ['ui/forms', 'ui/screens']) {
+    const info = await lstat(path.join(sourceDir, directory));
+    if (info.isSymbolicLink() || !info.isDirectory()) throw new Error(`PWA UI 모듈 디렉터리는 심볼릭 링크일 수 없습니다: ${directory}`);
   }
 
   const sharedUiInfo = await lstat(path.join(sourceDir, 'ui/shared'));

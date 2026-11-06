@@ -34,6 +34,20 @@ The helper DOM tests initially failed because `pwa/ui/shared/dom.mjs` did not ex
 
 R1 also updates the module allowlist, text scan, byte/hash coverage, service-worker cache and expected app-file list, SVG exception scope, and import-closure check. `ui/shared/icons.mjs` is the only new helper module exempted for direct SVG element constructors. The view facade and button modules remain subject to external-URL rejection. The main-owned browser baseline and artifacts were not changed.
 
+## R2/R3-A screens and forms
+
+Moved the home, bean, and recipe renderers into `pwa/ui/screens/`. Moved the bean and recipe form builders into `pwa/ui/forms/`. `view.mjs` still owns route state, drafts, dialog composition, and event bindings. The build and checker cover the eight added modules, including the shared UI helpers. Source symlink tests move the populated screen and form directories outside the source tree before linking to them.
+
+The first focused run after extraction found two failures. The bean detail renderer used the record list's pending message instead of its original message. The service worker test expected the previous cache file list. The fixes restore the bean detail message and add all eight paths to the independent cache expectation.
+
+| Command | Result | Log |
+| --- | --- | --- |
+| Focused suite after initial extraction | Exit 1. 222 passed, 2 failed. | [r2a/focused-before-fixes.log](r2a/focused-before-fixes.log) |
+| `node --test --test-reporter=spec test/pwa-build.test.mjs test/pwa-product-build.test.mjs test/pwa-ui.view.test.mjs` | Exit 0. 224 passed, 0 failed. | [r2a/focused.log](r2a/focused.log) |
+| `npm test` with loopback access | Exit 0. 763 passed, 0 failed. | [r2a/npm-test.log](r2a/npm-test.log) |
+| `npm run build:pages` | Exit 0. Pages build `5393fb41e8b6`. | [r2a/build-pages.log](r2a/build-pages.log) |
+| `npm run check:pages` | Exit 0. Pages artifact check passed. | [r2a/check-pages.log](r2a/check-pages.log) |
+
 ## Remaining phases
 
-R2-R6 remain pending. Each phase records its commands, exit codes, test counts, and logs here before the next phase starts.
+R2 still has the records and brew screens. R3 still has the record form and interaction extraction. R4-R6 remain pending. Main owns independent review and browser comparison.

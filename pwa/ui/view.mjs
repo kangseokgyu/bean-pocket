@@ -1,4 +1,3 @@
-import { isCurrentRecord, isValidRating } from '../domain.mjs';
 import { renderRecordsInsights } from './records-insights-view.mjs';
 import { createStarRating } from './star-rating.mjs';
 import { make, makeSpinner } from './shared/dom.mjs';
@@ -6,6 +5,13 @@ import { actionIcon, navigationIcon, decorativeSvg } from './shared/icons.mjs';
 import { button, actionButton, setActionButton, iconButton, trashButton } from './shared/buttons.mjs';
 import { label, addFieldset, formBase, addFormActions } from './shared/form-fields.mjs';
 import { showNativeDialog, makeEntryDialog } from './shared/dialogs.mjs';
+import { renderHome } from './screens/home.mjs';
+import { renderBeans, renderBeanDetail } from './screens/beans.mjs';
+import { renderRecipes, renderRecipeDetail } from './screens/recipes.mjs';
+import { buildBeanForm } from './forms/bean-form.mjs';
+import { addStep, buildRecipeForm, recipePayload, renumberSteps, setSteps, updatePreview } from './forms/recipe-form.mjs';
+import { currentRecords, recordCard } from './shared/record-card.mjs';
+import { formatTime, parseInputTime } from './shared/recipe-presentation.mjs';
 
 const NAVIGATION_ITEMS = Object.freeze([
   { kind: 'route', route: '/home', label: '홈', icon: 'home' },
@@ -14,10 +20,6 @@ const NAVIGATION_ITEMS = Object.freeze([
   { kind: 'route', route: '/recipes', label: '레시피', icon: 'recipes' },
   { kind: 'route', route: '/records', label: '추출 기록', icon: 'records' },
 ]);
-
-function recordName(record, recipe, snapshotRecipe) {
-  return `${record.date || '추출 기록'} · ${recipe?.name || snapshotRecipe?.name || '추출 기록'}`;
-}
 
 const idOf = value => String(value ?? '');
 const FORM_KINDS = new Set(['beans', 'recipes', 'records', 'brews']);
@@ -1414,40 +1416,6 @@ function applyState(page, state) {
   });
 }
 
-function renderHome(pane, document) {
-  pane.className = 'list-view home-view';
-  const hero = make(document, 'section', undefined, 'home-hero');
-  hero.setAttribute('aria-labelledby', 'home-hero-title');
-  const content = make(document, 'div', undefined, 'home-hero-content');
-  const eyebrow = make(document, 'p', undefined, 'home-hero-eyebrow');
-  eyebrow.append(make(document, 'span', 'GOOD COFFEE'), make(document, 'span', 'BRIGHTER DAYS'));
-  const title = make(document, 'h1', '오늘의 한 잔을 시작해 보세요.');
-  title.id = 'home-hero-title';
-  content.append(eyebrow, title,
-    make(document, 'p', '좋아하는 원두로, 나만의 방식으로. 기록할수록 더 맛있는 커피가 됩니다.', 'home-hero-copy'));
-  const start = button(document, '추출 시작', 'button', 'start-brew', 'primary');
-  start.className = 'button button--primary primary-button home-start-button';
-  start.textContent = '';
-  start.append(
-    decorativeSvg(document, '0 0 24 24', 'home-start-cup', [
-      'M3 7h14v7a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5V7Zm14 2h2a3 3 0 1 1 0 6h-3M3 22h18',
-    ]),
-    make(document, 'span', '추출 시작'),
-    decorativeSvg(document, '0 0 24 24', 'home-start-arrow', ['M5 12h13m-6-6 6 6-6 6']),
-  );
-  content.append(start);
-  const artwork = make(document, 'img', undefined, 'home-hero-art');
-  artwork.setAttribute('src', './icons/home-brew.png');
-  artwork.setAttribute('alt', '');
-  artwork.setAttribute('width', '1254');
-  artwork.setAttribute('height', '1254');
-  artwork.alt = '';
-  artwork.dataset.heroArt = 'true';
-  artwork.setAttribute('aria-hidden', 'true');
-  hero.append(content, artwork);
-  pane.append(hero);
-}
-
 function routeButton(document, title, route, action = 'navigate', variant = 'secondary') {
   const control = button(document, title, 'button', action, variant);
   control.dataset.route = route;
@@ -1890,40 +1858,17 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
   } else if (section === 'recipes' && parts[1] && parts[1] !== 'new') {
     renderRecipeDetail(pane, data, document, parts[1]);
   } else if (section === 'beans') {
-    renderBeans(pane, data, document, beanFormOpen);
+    const form = buildBeanForm(document);
+    form.id = 'new-bean-form';
+    pane.append(makeEntryDialog(document, 'beans', form, beanFormOpen));
+    renderBeans(pane, data, document);
   } else if (section === 'recipes') {
     const form = buildRecipeForm(document, data);
     form.id = 'new-recipe-form';
     pane.append(makeEntryDialog(document, 'recipes', form, recipeFormOpen));
     addStep(pane, document);
     updatePreview(pane);
-    if (!data.recipes.length) pane.append(make(document, 'p', data.screen?.hasMore
-      ? '레시피를 더 확인 중입니다. 더 보기로 계속 확인해 주세요.'
-      : data.screen?.complete === false ? '레시피 목록을 끝까지 확인하지 못했습니다. 새로고침해 주세요.'
-        : '등록된 레시피가 없습니다.', 'empty-state'));
-    for (const recipe of data.recipes) {
-      const card = make(document, 'article', undefined, 'recipe-card recipe-summary-card');
-      const recipeHeader = make(document, 'div', undefined, 'entity-card-header');
-      const title = make(document, 'h3');
-      const link = make(document, 'a', recipe.name, 'recipe-card-link');
-      link.setAttribute('href', `#/recipes/${recipe.id}`);
-      link.setAttribute('aria-label', `${recipe.name} 상세 보기`);
-      link.dataset.action = 'navigate';
-      link.dataset.route = `/recipes/${recipe.id}`;
-      title.append(link);
-      recipeHeader.append(title, favoriteButton(document, data, 'recipes', recipe), trashButton(document, 'recipes', recipe.id, recipe.name));
-      card.append(recipeHeader, recipeOverview(document, recipe));
-
-      const summary = make(document, 'div', undefined, 'recipe-summary-meta');
-      summary.append(make(document, 'span', recipeStepCount(recipe), 'recipe-step-count'));
-      if (typeof recipe.extractionGuide === 'string' && recipe.extractionGuide.trim()) {
-        summary.append(make(document, 'p', recipe.extractionGuide, 'recipe-guide-preview'));
-      }
-      card.append(summary);
-      const validation = recipeValidationMessage(recipe);
-      if (validation) card.append(make(document, 'p', validation.text, validation.className));
-      pane.append(card);
-    }
+    renderRecipes(pane, data, document);
   } else if (section === 'records') {
     const draft = drafts.get('records');
     if (parts[1] === 'new' && draft && draft.flowKey !== recordFlowKey(route)) {
@@ -1964,398 +1909,6 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
   const form = pane.querySelector('form[data-form]');
   if (form) restoreDraft(form, drafts.get(form.dataset.form), data);
   updateNavigationCurrent(parent.ownerDocument, route);
-}
-
-function favoriteButton(document, data, kind, item) {
-  const control = button(document, undefined, 'button', 'favorite-item', 'utility');
-  control.className = 'button icon-button entity-favorite';
-  control.dataset.kind = kind;
-  control.dataset.id = item.id;
-  control.dataset.favorite = String(item.favorite === true);
-  control.setAttribute('aria-pressed', String(item.favorite === true));
-  control.setAttribute('aria-label', `${item.name} 즐겨찾기 ${item.favorite ? '해제' : '추가'}`);
-  control.disabled = data.favoriteSupport?.[kind] === false;
-  control.append(decorativeSvg(document, '0 0 24 24', 'favorite-icon', ['M12 2.5 14.9 8.4 21.4 9.3 16.7 13.9 17.8 20.4 12 17.3 6.2 20.4 7.3 13.9 2.6 9.3 9.1 8.4 12 2.5Z']));
-  return control;
-}
-
-function renderBeans(pane, data, document, formOpen) {
-  const form = formBase(document, 'beans', '새 원두');
-  form.id = 'new-bean-form';
-  addFieldset(document, form, '원두 정보', [
-    ['원두 이름', 'name', 'text', true, { autocomplete: 'off' }],
-    ['로스터리', 'roaster', 'text', false],
-    ['원산지·농장', 'origin', 'text', false],
-    ['품종', 'variety', 'text', false],
-    ['가공 방식', 'process', 'text', false],
-    ['향미 노트', 'tastingNotes', 'textarea', false],
-  ]);
-  addFormActions(document, form);
-  pane.append(makeEntryDialog(document, 'beans', form, formOpen));
-
-  if (!data.beans.length) pane.append(make(document, 'p', data.screen?.hasMore
-    ? '원두를 더 확인 중입니다. 더 보기로 계속 확인해 주세요.'
-    : data.screen?.complete === false ? '원두 목록을 끝까지 확인하지 못했습니다. 새로고침해 주세요.'
-      : '등록된 원두가 없습니다.', 'empty-state'));
-  for (const bean of data.beans) {
-    const card = make(document, 'article', undefined, 'bean-card');
-    const header = make(document, 'div', undefined, 'entity-card-header');
-    const title = make(document, 'h3');
-    const link = make(document, 'a', bean.name, 'bean-card-link');
-    link.setAttribute('href', `#/beans/${bean.id}`);
-    link.setAttribute('aria-label', `${bean.name} 추출 기록 보기`);
-    link.dataset.action = 'navigate';
-    link.dataset.route = `/beans/${bean.id}`;
-    title.append(link);
-    header.append(title, favoriteButton(document, data, 'beans', bean), trashButton(document, 'beans', bean.id, bean.name));
-    card.append(header);
-    card.append(beanOverview(document, bean));
-    const records = currentRecords(data).filter(record => record.beanId === bean.id);
-    const count = bean.recordCount;
-    const countLabel = count?.status === 'ready' ? `${count.count}개`
-      : count?.status === 'error' ? '확인하지 못함'
-        : count?.status === 'loading' ? '확인 중' : `${records.length}개`;
-    card.append(make(document, 'p', `추출 기록 ${countLabel}`, 'bean-summary-meta'));
-    pane.append(card);
-  }
-}
-
-function beanOverview(document, bean) {
-  const overview = make(document, 'div', undefined, 'bean-overview');
-  const primary = make(document, 'dl', undefined, 'bean-primary-metadata');
-  for (const [label, value] of [
-    ['산지·농장', bean.origin],
-    ['로스터리', bean.roaster],
-  ]) {
-    const field = make(document, 'div', undefined, 'bean-primary-field');
-    field.append(make(document, 'dt', label), make(document, 'dd', value || '기록 없음'));
-    primary.append(field);
-  }
-  const secondary = make(document, 'section', undefined, 'bean-secondary-info');
-  const heading = make(document, 'div', undefined, 'bean-section-heading');
-  heading.append(make(document, 'h4', '원두 특징'));
-  const metadata = make(document, 'dl', undefined, 'bean-metadata');
-  for (const [label, value] of [
-    ['품종', bean.variety],
-    ['프로세싱', bean.process],
-    ['향미 노트', bean.tastingNotes],
-  ]) {
-    metadata.append(make(document, 'dt', label), make(document, 'dd', value || '기록 없음'));
-  }
-  secondary.append(heading, metadata);
-  overview.append(primary, secondary);
-  return overview;
-}
-
-function beanDetailSection(document, title, className = '') {
-  const section = make(document, 'section', undefined, `bean-detail-section ${className}`.trim());
-  const heading = make(document, 'div', undefined, 'bean-section-heading');
-  heading.append(make(document, 'h4', title));
-  section.append(heading);
-  return section;
-}
-
-function renderBeanDetail(pane, data, document, beanId) {
-  const bean = data.beans.find(row => row.id === beanId);
-  const back = button(document, '원두 목록으로', 'button', 'navigate', 'back');
-  back.dataset.route = '/beans';
-  pane.append(back);
-  if (!bean) {
-    pane.append(make(document, 'p', '원두를 찾을 수 없습니다. 최신 목록을 새로고침해 주세요.'));
-    return;
-  }
-  const detail = make(document, 'article', undefined, 'bean-detail-card');
-  const header = make(document, 'div', undefined, 'entity-card-header');
-  header.append(make(document, 'h3', bean.name));
-  detail.append(header);
-  const information = beanDetailSection(document, '원두 정보');
-  information.append(beanOverview(document, bean));
-  detail.append(information);
-  const bestSection = beanDetailSection(document, '사용자 베스트 추출', 'bean-user-best');
-  if (bean.bestRecordStatus === 'ready' && bean.bestRecord) {
-    bestSection.append(make(document, 'p', '이 원두에서 직접 베스트로 지정한 추출입니다.', 'bean-best-description'));
-    bestSection.append(recordCard(document, bean.bestRecord, data));
-  } else {
-    const message = bean.bestRecordStatus === 'none' ? '아직 사용자 베스트 추출을 지정하지 않았습니다.'
-      : bean.bestRecordStatus === 'unsupported'
-        ? '베스트 추출을 쓰려면 원두 데이터베이스에 ‘베스트 추출’ 관계 속성을 추가해야 합니다. 기록 조회와 추출 저장은 계속 사용할 수 있습니다.'
-        : bean.bestRecordStatus === 'invalid'
-          ? '베스트 추출 관계가 여러 개이거나 형식이 올바르지 않습니다. Notion 관계를 확인해 주세요.'
-          : bean.bestRecordStatus === 'inaccessible'
-            ? '지정한 기록을 읽을 수 없습니다. 삭제되었거나 접근할 수 없는 상태일 수 있습니다.'
-            : bean.bestRecordStatus === 'error'
-              ? '베스트 추출 상태를 확인하지 못했습니다. 다시 불러와 주세요.'
-              : '베스트 추출 상태를 확인할 수 없습니다. 다시 불러와 주세요.';
-    bestSection.append(make(document, 'p', message,
-      ['invalid', 'inaccessible', 'error'].includes(bean.bestRecordStatus) ? 'record-warning' : 'muted-note'));
-  }
-  detail.append(bestSection);
-  const records = currentRecords(data).filter(record => record.beanId === bean.id).sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
-  const history = beanDetailSection(document, '이 원두의 추출 기록', 'bean-records');
-  if (!records.length) history.append(make(document, 'p', data.screen?.hasMore
-    ? '기록을 더 확인 중입니다. 더 보기로 계속 확인해 주세요.'
-    : data.screen?.complete === false ? '전체 기록을 확인하지 못했습니다. 새로고침해 주세요.'
-      : '등록된 추출 기록이 없습니다.'));
-  for (const record of records) history.append(recordCard(document, record, data));
-  detail.append(history);
-  pane.append(detail);
-}
-
-function renderRecipeDetail(pane, data, document, recipeId) {
-  const recipe = data.recipes.find(row => row.id === recipeId);
-  const back = button(document, '레시피 목록으로 돌아가기', 'button', 'navigate', 'back');
-  back.dataset.route = '/recipes';
-  pane.append(back);
-  if (!recipe) {
-    pane.append(make(document, 'p', '레시피를 찾을 수 없습니다. 최신 목록을 새로고침해 주세요.'));
-    return;
-  }
-  pane.append(recipeCard(document, recipe, data, true));
-}
-
-function recipeCard(document, recipe, data, detailed = false) {
-  const article = make(document, 'article', undefined, 'recipe-card');
-  const header = make(document, 'div', undefined, 'entity-card-header');
-  header.append(make(document, 'h3', recipe.name));
-  const headerActions = make(document, 'div', undefined, 'recipe-header-actions');
-  if (detailed) {
-    const edit = iconButton(document, '', `${recipe.name} 수정`, 'edit-recipe');
-    edit.className += ' entity-edit';
-    edit.dataset.id = recipe.id;
-    edit.replaceChildren(actionIcon(document, 'edit'));
-    headerActions.append(edit);
-  }
-  headerActions.append(trashButton(document, 'recipes', recipe.id, recipe.name));
-  header.append(headerActions);
-  article.append(header, recipeOverview(document, recipe));
-
-  const validation = recipeValidationMessage(recipe);
-  if (validation) article.append(make(document, 'p', validation.text, validation.className));
-
-  const conditionDetails = [
-    ['분쇄도', recipe.grind, ''], ['그라인더', recipe.grinder, ''],
-    ['그라인더 설정', recipe.grinderSetting, ''], ['분쇄 입자', recipe.microns, 'μm'],
-  ].filter(([, value]) => hasRecipeValue(value));
-  if (conditionDetails.length) {
-    const conditions = make(document, 'section', undefined, 'recipe-detail-section recipe-conditions');
-    conditions.append(recipeSectionHeading(document, '추출 조건'));
-    const list = make(document, 'dl', undefined, 'recipe-condition-list');
-    for (const [label, value, unit] of conditionDetails) {
-      const item = make(document, 'div', undefined, 'recipe-condition');
-      item.append(make(document, 'dt', label), make(document, 'dd', `${value}${unit}`));
-      list.append(item);
-    }
-    conditions.append(list);
-    article.append(conditions);
-  }
-
-  const stats = recipe.stats ?? { count: 0, average: null };
-  article.append(make(document, 'p', stats.status === 'loading' ? '출처 추출 평가 통계를 확인 중입니다.'
-    : stats.status === 'error' ? '출처 추출 평가 통계를 확인하지 못했습니다.'
-      : stats.count ? `이 레시피에서 시작한 추출 평가 ${stats.count}회 · 평균 ${Number(stats.average).toFixed(1)}점`
-        : '이 레시피에서 시작한 추출 평가 없음 · 0회', 'recipe-rating'));
-
-  const steps = Array.isArray(recipe.steps) ? recipe.steps : [];
-  const stepsSection = make(document, 'section', undefined, 'recipe-detail-section recipe-steps-section');
-  const stepLabel = Array.isArray(recipe.steps) ? `${steps.length}단계`
-    : recipe.validationStatus === 'checking' ? '확인 중'
-      : recipe.validationStatus === 'error' ? '확인 실패' : '단계 미기록';
-  stepsSection.append(recipeSectionHeading(document, '붓기 단계', stepLabel));
-  if (steps.length) stepsSection.append(makeStepTable(document, steps));
-  else stepsSection.append(make(document, 'p', recipe.validationStatus === 'checking' ? '레시피 단계를 확인 중입니다.'
-    : recipe.validationStatus === 'error' ? '레시피 단계 확인에 실패했습니다.' : '등록된 붓기 단계가 없습니다.', 'muted-note'));
-  article.append(stepsSection);
-
-  if (typeof recipe.extractionGuide === 'string' && recipe.extractionGuide.trim()) {
-    const guide = make(document, 'section', undefined, 'recipe-detail-section recipe-extraction-guide');
-    guide.append(recipeSectionHeading(document, '추출 가이드'), make(document, 'p', recipe.extractionGuide));
-    article.append(guide);
-  }
-
-  const records = currentRecords(data).filter(record => record.recipeId === recipe.id)
-    .sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
-  const recordsSection = make(document, 'section', undefined, 'recipe-detail-section recipe-records');
-  recordsSection.append(recipeSectionHeading(document, '추출 기록'));
-  if (!records.length) recordsSection.append(make(document, 'p', data.screen?.hasMore
-    ? '기록을 더 확인 중입니다.'
-    : data.screen?.complete === false ? '전체 기록을 확인하지 못했습니다.' : '기록 없음'));
-  for (const record of records) {
-    const recordItem = make(document, 'div', undefined, 'recipe-record-item');
-    const bean = data.beans.find(item => item.id === record.beanId);
-    const validRating = isValidRating(record.rating);
-    const validSnapshot = record.snapshotStatus === 'valid' ? record.snapshot : null;
-    const snapshot = validSnapshot?.version >= 2 ? validSnapshot.recipe : validSnapshot;
-    const recordHeader = make(document, 'div', undefined, 'entity-card-header record-summary-header');
-    recordHeader.append(make(document, 'p', `${record.date || '날짜 확인 필요'} · 원두: ${bean?.name || '원두 확인 필요'} · ${record.rating ?? '별점 확인 필요'}/5 ${validRating ? '★'.repeat(record.rating) : ''}`),
-      trashButton(document, 'records', record.id, recordName(record, data.recipes.find(item => item.id === record.recipeId), snapshot)));
-    recordItem.append(recordHeader);
-    const invalidLabels = [
-      ...(record.invalidFields?.includes('date') ? ['날짜'] : []),
-      ...(record.invalidFields?.includes('rating') ? ['별점(0.1~5.0, 0.1점 단위)'] : []),
-    ];
-    if (invalidLabels.length) recordItem.append(make(document, 'p', `기록 오류: ${invalidLabels.join(', ')}`, 'record-warning'));
-    if (record.snapshotStatus === 'damaged') recordItem.append(make(document, 'p', '스냅샷이 손상되어 당시 조건을 표시할 수 없습니다.', 'record-warning'));
-    if (record.cupNote) recordItem.append(make(document, 'p', `컵노트: ${record.cupNote}`));
-    if (Array.isArray(snapshot?.steps)) {
-      const dripper = hasRecipeValue(snapshot.dripper) ? snapshot.dripper : '드리퍼 미기록';
-      const conditions = `기록 당시 조건: ${dripper} · ${recipeMeasure(snapshot.dose, 'g')} · ${recipeMeasure(snapshot.temperature, '℃')} · 물 ${recipeMeasure(snapshot.totalWater, 'g')}`;
-      recordItem.append(make(document, 'p', conditions, 'record-snapshot-conditions'));
-      recordItem.append(make(document, 'h5', '당시 단계'));
-      recordItem.append(makeStepTable(document, snapshot.steps));
-      if (typeof snapshot.extractionGuide === 'string' && snapshot.extractionGuide.trim()) {
-        recordItem.append(make(document, 'p', `기록 당시 추출 가이드: ${snapshot.extractionGuide}`, 'record-extraction-guide'));
-      }
-    }
-    recordsSection.append(recordItem);
-  }
-  article.append(recordsSection);
-
-  const actions = make(document, 'div', undefined, 'recipe-card-actions');
-  if (detailed) {
-    const record = button(document, '이 레시피로 추출 기록', 'button', 'new-record', 'primary');
-    record.dataset.id = recipe.id;
-    record.disabled = !recipeReady(recipe);
-    actions.append(record);
-  }
-  const copy = button(document, '이 레시피 복사', 'button', 'copy-recipe');
-  copy.dataset.id = recipe.id;
-  copy.disabled = !recipeReady(recipe);
-  actions.append(copy);
-  article.append(actions);
-  return article;
-}
-
-function recipeOverview(document, recipe) {
-  const overview = make(document, 'section', undefined, 'recipe-overview');
-  overview.setAttribute('aria-label', '주요 추출 조건');
-  const dripper = make(document, 'p', undefined, 'recipe-dripper');
-  dripper.append(make(document, 'span', '드리퍼'),
-    make(document, 'strong', hasRecipeValue(recipe.dripper) ? recipe.dripper : '미기록'));
-  overview.append(dripper);
-
-  const metrics = make(document, 'dl', undefined, 'recipe-primary-metrics');
-  metrics.append(recipeMetric(document, 'dose', '원두량', recipe.dose, 'g'));
-  metrics.append(recipeMetric(document, 'water', '물 양', recipe.totalWater, 'g'));
-  metrics.append(recipeMetric(document, 'temperature', '물 온도', recipe.temperature, '℃'));
-  const ratio = recipeRatio(recipe.dose, recipe.totalWater);
-  if (ratio !== null) metrics.append(recipeMetric(document, 'ratio', '추출 비율', `1 : ${ratio}`, ''));
-  overview.append(metrics);
-  return overview;
-}
-
-function recipeMetric(document, key, label, value, unit) {
-  const metric = make(document, 'div', undefined, 'recipe-metric');
-  metric.dataset.metric = key;
-  const display = make(document, 'dd');
-  if (hasRecipeValue(value)) {
-    display.append(make(document, 'span', String(value)));
-    if (unit) display.append(make(document, 'small', unit));
-  } else {
-    display.append(make(document, 'span', '—'));
-  }
-  metric.append(make(document, 'dt', label), display);
-  return metric;
-}
-
-function recipeRatio(dose, water) {
-  const doseValue = positiveRecipeNumber(dose);
-  const waterValue = positiveRecipeNumber(water);
-  if (doseValue === null || waterValue === null) return null;
-  const ratio = waterValue / doseValue;
-  if (!Number.isFinite(ratio)) return null;
-  return Number(ratio.toFixed(1)).toString();
-}
-
-function positiveRecipeNumber(value) {
-  if (!hasRecipeValue(value) || typeof value === 'boolean') return null;
-  const number = Number(value);
-  return Number.isFinite(number) && number > 0 ? number : null;
-}
-
-function hasRecipeValue(value) {
-  return value !== undefined && value !== null && !(typeof value === 'string' && value.trim() === '');
-}
-
-function recipeMeasure(value, unit) {
-  return hasRecipeValue(value) ? `${value}${unit}` : '—';
-}
-
-function recipeStepCount(recipe) {
-  return Array.isArray(recipe.steps) ? `${recipe.steps.length}단계` : '단계 미기록';
-}
-
-function recipeValidationMessage(recipe) {
-  if (recipe.validationStatus === 'checking') return { text: '레시피 단계를 확인 중입니다.', className: 'muted-note' };
-  if (recipe.validationStatus === 'error') return { text: '레시피 단계 확인에 실패했습니다.', className: 'record-warning' };
-  return null;
-}
-
-function recipeSectionHeading(document, title, detail = '') {
-  const heading = make(document, 'div', undefined, 'recipe-section-heading');
-  heading.append(make(document, 'h4', title));
-  if (detail) heading.append(make(document, 'span', detail));
-  return heading;
-}
-
-function makeStepTable(document, steps) {
-  const wrap = make(document, 'div', undefined, 'table-scroll');
-  wrap.setAttribute('role', 'region');
-  wrap.setAttribute('aria-label', '레시피 단계 표');
-  const table = make(document, 'table', undefined, 'steps-table');
-  const head = make(document, 'thead');
-  const header = make(document, 'tr');
-  for (const [title, detail] of [['단계'], ['누적 시간', '간격'], ['누적 물', '이번 물']]) {
-    const cell = make(document, 'th', title);
-    if (detail) cell.append(make(document, 'span', ` (${detail})`, 'step-current'));
-    cell.setAttribute('scope', 'col');
-    header.append(cell);
-  }
-  head.append(header);
-  table.append(head);
-  const body = make(document, 'tbody');
-  for (const [index, step] of steps.entries()) {
-    const row = make(document, 'tr');
-    row.append(make(document, 'td', step.name));
-    const interval = step.interval ?? (index === 0 ? 0 : step.seconds - steps[index - 1].seconds);
-    for (const [total, current] of [[formatTime(step.seconds), `${interval}초`], [`${step.cumulativeWater}g`, `${step.water}g`]]) {
-      const cell = make(document, 'td');
-      cell.append(make(document, 'span', total, 'step-total'), make(document, 'span', ` (${current})`, 'step-current'));
-      row.append(cell);
-    }
-    body.append(row);
-  }
-  table.append(body);
-  wrap.append(table);
-  return wrap;
-}
-
-function buildRecipeForm(document, data) {
-  const form = formBase(document, 'recipes', '새 레시피');
-  addFieldset(document, form, '기본 조건', [
-    ['레시피 이름', 'name', 'text', true],
-    ['드리퍼', 'dripper', 'text', false],
-    ['원두 사용량 (g)', 'dose', 'number', true, { step: 'any', min: 0 }],
-    ['분쇄도', 'grind', 'text', false],
-    ['그라인더', 'grinder', 'text', false],
-    ['그라인더 설정', 'grinderSetting', 'text', false],
-    ['분쇄 입자 (μm, 선택)', 'microns', 'number', false, { step: 'any', min: 0 }],
-    ['물 온도 (℃)', 'temperature', 'number', true, { step: 'any', min: 0, max: 100 }],
-    ['총 물 양 (g)', 'totalWater', 'number', true, { step: 'any', min: 0 }],
-  ]);
-  form.append(label(document, '추출 가이드 (선택)', 'extractionGuide', 'textarea', false, {
-    rows: 4,
-    placeholder: '예: 교반 없음, 목표 2분 30초 완성',
-  }));
-  const steps = make(document, 'div', undefined, 'recipe-steps');
-  steps.dataset.steps = '';
-  form.append(steps);
-  form.append(button(document, '단계 추가', 'button', 'add-step', 'utility'));
-  const preview = make(document, 'div', undefined, 'recipe-preview');
-  preview.setAttribute('aria-live', 'polite');
-  preview.setAttribute('aria-label', '단계 입력 미리보기');
-  form.append(preview);
-  addFormActions(document, form);
-  return form;
 }
 
 function hydrateRecordPickers(form, freshForm, data, optionPages, optionStates, document) {
@@ -2650,11 +2203,6 @@ function renderSearchPicker(picker, page, state, data, document) {
   else status.hidden = true;
 }
 
-function recipeReady(recipe) {
-  if (recipe.validationStatus !== undefined) return recipe.validationStatus === 'ready';
-  return Array.isArray(recipe.steps) && recipe.steps.length > 0;
-}
-
 function preferredOptionPage(serverPage, cachedPage) {
   return cachedPage && Date.now() - cachedPage.savedAt < 60000 ? cachedPage : serverPage;
 }
@@ -2716,10 +2264,6 @@ function renderRecords(pane, data, document, formOpen, optionPages, optionStates
   renderRecordRows(list, data, selectedFilters.beanId ?? '', selectedFilters.recipeId ?? '');
 }
 
-function currentRecords(data) {
-  return Array.isArray(data?.records) ? data.records.filter(isCurrentRecord) : [];
-}
-
 function renderRecordRows(list, data, beanId, recipeId) {
   const visibleRecords = currentRecords(data);
   const records = visibleRecords
@@ -2733,69 +2277,6 @@ function renderRecordRows(list, data, beanId, recipeId) {
     return;
   }
   for (const record of records) list.append(recordCard(list.ownerDocument, record, data));
-}
-
-function recordCard(document, record, data) {
-  const card = make(document, 'article', undefined, 'record-card');
-  const bean = (data.beans ?? []).find(item => item.id === record.beanId);
-  const recipe = (data.recipes ?? []).find(item => item.id === record.recipeId);
-  const validSnapshot = record.snapshotStatus === 'valid' ? record.snapshot : null;
-  const snapshotBean = validSnapshot?.version >= 2 ? validSnapshot.bean : null;
-  const snapshotRecipe = validSnapshot?.version >= 2 ? validSnapshot.recipe : validSnapshot;
-  const validRating = isValidRating(record.rating);
-  const beanName = bean?.name || snapshotBean?.name || (record.beanNameStatus === 'loading'
-    ? '원두 이름 확인 중' : record.beanNameStatus === 'error' ? '원두 이름 불러오기 실패' : '원두 확인 필요');
-  const recipeName = recipe?.name || snapshotRecipe?.name || (record.recipeNameStatus === 'loading'
-    ? '레시피 이름 확인 중' : record.recipeNameStatus === 'error' ? '레시피 이름 불러오기 실패' : '확인할 수 없는 레시피');
-  const header = make(document, 'div', undefined, 'entity-card-header');
-  header.append(make(document, 'h3', `${record.date || '날짜 확인 필요'} · ${beanName}`),
-    trashButton(document, 'records', record.id, recordName(record, recipe, snapshotRecipe)));
-  card.append(header);
-  card.append(make(document, 'p', `레시피: ${recipeName} · ${record.rating ?? '별점 확인 필요'}/5 ${validRating ? '★'.repeat(record.rating) : ''}`));
-  const nameNotes = [
-    recordParentNameNote('beans', record.beanNameStatus, snapshotBean?.name),
-    recordParentNameNote('recipes', record.recipeNameStatus, snapshotRecipe?.name),
-  ].filter(Boolean);
-  for (const note of nameNotes) card.append(make(document, 'p', note, 'muted-note'));
-  if (record.beanResolution === 'needs-confirmation') card.append(make(document, 'p', '과거 원두 관계를 확인해야 합니다.', 'record-warning'));
-  const invalidLabels = [
-    ...(record.invalidFields?.includes('date') ? ['날짜'] : []),
-    ...(record.invalidFields?.includes('rating') ? ['별점(0.1~5.0, 0.1점 단위)'] : []),
-  ];
-  if (invalidLabels.length) card.append(make(document, 'p', `기록 오류: ${invalidLabels.join(', ')}`, 'record-warning'));
-  if (record.snapshotStatus === 'damaged') card.append(make(document, 'p', '스냅샷이 손상되어 당시 조건을 표시할 수 없습니다.', 'record-warning'));
-  if (record.cupNote) card.append(make(document, 'p', `컵노트: ${record.cupNote}`));
-  const actions = make(document, 'div', undefined, 'record-card-actions');
-  const replay = button(document, '이 조건으로 다시 추출', 'button', 'replay-record', 'secondary');
-  replay.dataset.recordId = record.id;
-  replay.dataset.beanId = record.beanId ?? '';
-  replay.disabled = !isCurrentRecord(record) || record.beanResolution === 'needs-confirmation' ||
-    !Array.isArray(snapshotRecipe?.steps) || !snapshotRecipe.steps.length;
-  replay.dataset.actionDisabled = String(replay.disabled);
-  const saveRecipe = button(document, '공용 레시피로 저장', 'button', 'save-shared-recipe', 'secondary');
-  saveRecipe.dataset.recordId = record.id;
-  saveRecipe.disabled = !isCurrentRecord(record) || !Array.isArray(snapshotRecipe?.steps) || !snapshotRecipe.steps.length;
-  saveRecipe.dataset.actionDisabled = String(saveRecipe.disabled);
-  const selectedBest = bean?.bestRecordId === record.id && ['checking', 'ready'].includes(bean.bestRecordStatus);
-  const setBest = button(document, selectedBest ? '현재 사용자 베스트' : '이 원두의 베스트로 지정',
-    'button', 'set-best-record', 'secondary');
-  setBest.dataset.recordId = record.id;
-  setBest.dataset.beanId = record.beanId ?? '';
-  setBest.disabled = selectedBest || bean?.bestRecordStatus === 'unsupported' || !bean ||
-    !isCurrentRecord(record) || record.beanResolution === 'needs-confirmation' || !validRating ||
-    !!record.invalidFields?.length;
-  setBest.dataset.actionDisabled = String(setBest.disabled);
-  actions.append(replay, saveRecipe, setBest);
-  if (bean?.bestRecordStatus === 'unsupported') {
-    actions.append(make(document, 'p', 'Notion 원두 데이터베이스에 ‘베스트 추출’ 관계 속성을 추가하면 지정할 수 있습니다.',
-      'record-best-unavailable'));
-  } else if (!bean) {
-    actions.append(make(document, 'p', '원두 정보를 확인할 수 없어 베스트를 지정할 수 없습니다.', 'record-best-unavailable'));
-  } else if (!validRating) {
-    actions.append(make(document, 'p', '유효한 별점 기록만 사용자 베스트로 지정할 수 있습니다.', 'record-best-unavailable'));
-  }
-  card.append(actions);
-  return card;
 }
 
 function recordFromDisplayedData(data, recordId) {
@@ -2812,19 +2293,6 @@ function actualRecipeForSharedLibrary(record) {
     temperature: recipe.temperature, totalWater: recipe.totalWater, extractionGuide: recipe.extractionGuide,
     steps: recipe.steps.map(step => ({ name: step.name, seconds: step.seconds ?? step.time, water: step.water })),
   };
-}
-
-function recordParentNameNote(kind, status, snapshotName) {
-  const name = kind === 'beans' ? '원두' : '레시피';
-  if (status === 'loading') return snapshotName
-    ? `기록 당시 ${name} 이름을 표시하며 현재 이름을 확인 중입니다.`
-    : `현재 ${name} 이름을 확인 중입니다.`;
-  if (status === 'snapshot') return `기록 당시 ${name} 이름을 표시합니다.`;
-  if (status === 'unavailable') return `${name} 이름을 확인할 수 없습니다.`;
-  if (status === 'error') return snapshotName
-    ? `현재 ${name} 이름을 불러오지 못해 기록 당시 이름을 표시합니다.`
-    : `현재 ${name} 이름을 불러오지 못했습니다.`;
-  return '';
 }
 
 function fillSelect(select, rows, placeholder, optional = false) {
@@ -3467,47 +2935,6 @@ function navigateAndGetForm(view, content, nextRoute, kind) {
   return content.querySelector(`form[data-form="${kind}"]`);
 }
 
-function addStep(content, document) {
-  const form = content.querySelector('form[data-form="recipes"]');
-  if (!form) return;
-  const wrap = form.querySelector('[data-steps]');
-  const index = wrap.children.length + 1;
-  const row = make(document, 'fieldset', undefined, 'step-row');
-  row.append(make(document, 'legend', `단계 ${index}`));
-  row.append(label(document, '단계 이름 (선택)', 'stepName', 'text', false));
-  row.append(label(document, '누적 시간 (분:초)', 'time', 'text', true,
-    { placeholder: index === 1 ? '0:00' : '0:30', inputMode: 'text', pattern: '\\d+:[0-5]\\d' }));
-  row.append(label(document, '이번 물 양 (g)', 'water', 'number', true, { min: 0, step: 'any' }));
-  row.append(button(document, '단계 제거', 'button', 'remove-step', 'utility'));
-  wrap.append(row);
-}
-
-function setSteps(form, steps) {
-  const panel = form.closest('.data-panel');
-  const wrap = form.querySelector('[data-steps]');
-  wrap.replaceChildren();
-  for (const step of steps) {
-    addStep(panel, form.ownerDocument);
-    const row = wrap.lastElementChild;
-    row.querySelector('[name="stepName"]').value = step.name;
-    row.querySelector('[name="time"]').value = formatTime(step.seconds);
-    row.querySelector('[name="water"]').value = step.water;
-  }
-  updatePreview(panel);
-}
-
-function recipePayload(form) {
-  const values = Object.fromEntries(new FormData(form));
-  for (const key of ['dose', 'temperature', 'totalWater']) values[key] = Number(values[key]);
-  values.microns = values.microns === '' ? '' : Number(values.microns);
-  values.steps = [...form.querySelectorAll('.step-row')].map(row => ({
-    name: row.querySelector('[name="stepName"]').value,
-    time: row.querySelector('[name="time"]').value,
-    water: Number(row.querySelector('[name="water"]').value),
-  }));
-  return values;
-}
-
 function brewPayload(form) {
   return {
     beanId: form.elements.beanId.value,
@@ -3518,45 +2945,6 @@ function brewPayload(form) {
     rating: form.elements.rating.value,
     cupNote: form.elements.cupNote.value,
   };
-}
-
-function updatePreview(content) {
-  const form = content.querySelector('form[data-form="recipes"]');
-  if (!form) return;
-  const preview = form.querySelector('.recipe-preview');
-  const rows = [...form.querySelectorAll('.step-row')];
-  if (!rows.length) {
-    preview.textContent = '단계를 추가해 주세요.';
-    return;
-  }
-  const table = make(content.ownerDocument, 'table', undefined, 'steps-preview-table');
-  const head = make(content.ownerDocument, 'thead');
-  const heading = make(content.ownerDocument, 'tr');
-  for (const title of ['누적 시간', '간격', '이번 물 양', '누적 물 양']) heading.append(make(content.ownerDocument, 'th', title));
-  head.append(heading);
-  table.append(head);
-  const body = make(content.ownerDocument, 'tbody');
-  let previous = null;
-  let cumulative = 0;
-  for (const [index, row] of rows.entries()) {
-    const seconds = parseInputTime(row.querySelector('[name="time"]').value);
-    const waterText = row.querySelector('[name="water"]').value;
-    const water = Number(waterText);
-    if (Number.isFinite(water) && water > 0) cumulative += water;
-    const tr = make(content.ownerDocument, 'tr');
-    const values = [
-      seconds === null ? '시간 확인' : formatTime(seconds),
-      seconds === null ? '—' : `${index === 0 ? 0 : seconds - (previous ?? seconds)}초`,
-      waterText ? `${waterText}g` : '—',
-      `${Number(cumulative.toFixed(6))}g`,
-    ];
-    for (const value of values) tr.append(make(content.ownerDocument, 'td', value));
-    body.append(tr);
-    if (seconds !== null) previous = seconds;
-  }
-  table.append(body);
-  preview.replaceChildren(table);
-  preview.append(make(content.ownerDocument, 'p', `단계 물 합계 ${Number(cumulative.toFixed(6))}g`, 'preview-total'));
 }
 
 function recordFlowKey(route) {
@@ -3639,13 +3027,6 @@ function restoreDraft(form, draft, data) {
   if (draft.copyId) form.dataset.copyId = draft.copyId;
 }
 
-function renumberSteps(content) {
-  [...content.querySelectorAll('.step-row')].forEach((row, index) => {
-    row.querySelector('legend').textContent = `단계 ${index + 1}`;
-    row.querySelector('[name="time"]').placeholder = index === 0 ? '0:00' : '0:30';
-  });
-}
-
 function clearInvalidFields(form) {
   form.querySelectorAll('[aria-invalid="true"]').forEach(item => item.removeAttribute('aria-invalid'));
 }
@@ -3663,17 +3044,6 @@ function updateNavigationCurrent(document, route) {
     if (key === section) item.setAttribute('aria-current', 'page');
     else item.removeAttribute('aria-current');
   });
-}
-
-function parseInputTime(value) {
-  const match = /^(\d+):([0-5]\d)$/.exec(value);
-  if (!match) return null;
-  const seconds = Number(match[1]) * 60 + Number(match[2]);
-  return Number.isSafeInteger(seconds) ? seconds : null;
-}
-
-function formatTime(seconds) {
-  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 }
 
 function isIsoDate(value) {

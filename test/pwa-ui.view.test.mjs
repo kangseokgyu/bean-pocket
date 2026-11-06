@@ -5,6 +5,11 @@ import { createAppView } from '../pwa/ui/view.mjs';
 import { createAppController } from '../pwa/ui/controller.mjs';
 import { validateRecipe } from '../lib/domain.mjs';
 import { buildRecordsInsights } from '../pwa/ui/records-insights.mjs';
+import { renderHome } from '../pwa/ui/screens/home.mjs';
+import { renderBeans, renderBeanDetail } from '../pwa/ui/screens/beans.mjs';
+import { renderRecipes, renderRecipeDetail } from '../pwa/ui/screens/recipes.mjs';
+import { buildBeanForm } from '../pwa/ui/forms/bean-form.mjs';
+import { addStep, buildRecipeForm, recipePayload, setSteps, updatePreview } from '../pwa/ui/forms/recipe-form.mjs';
 
 const BEAN = '11111111-1111-4111-8111-111111111111';
 const RECIPE = '33333333-3333-4333-8333-333333333333';
@@ -4472,6 +4477,121 @@ for (const kind of ['beans', 'recipes']) {
       kind === 'beans' ? /일치 원두/ : /일치 레시피/);
   });
 }
+
+test('home screen keeps its hero action and decorative artwork contract', () => {
+  const document = new TestDocument();
+  const pane = document.createElement('div');
+  renderHome(pane, document);
+  assert.equal(pane.className, 'list-view home-view');
+  assert.equal(pane.querySelector('.home-hero').getAttribute('aria-labelledby'), 'home-hero-title');
+  assert.equal(pane.querySelector('.home-hero').querySelector('h1').textContent, '오늘의 한 잔을 시작해 보세요.');
+  assert.equal(pane.querySelector('[data-action="start-brew"]').querySelector('.home-start-cup') !== null, true);
+  assert.equal(pane.querySelector('.home-hero-art').getAttribute('src'), './icons/home-brew.png');
+});
+
+test('bean screen renders list fields, favorite/delete actions, and record count', () => {
+  const document = new TestDocument();
+  const pane = document.createElement('div');
+  const current = data();
+  current.beans[0].recordCount = { status: 'ready', count: 2 };
+  renderBeans(pane, current, document);
+  const card = pane.querySelector('.bean-card');
+  assert.equal(card.querySelector('.bean-card-link').dataset.route, `/beans/${BEAN}`);
+  assert.equal(card.querySelector('[data-action="favorite-item"]').dataset.kind, 'beans');
+  assert.equal(card.querySelector('[data-action="delete-bean"]').dataset.id, BEAN);
+  assert.equal(card.querySelector('.bean-overview').querySelector('.bean-metadata').textContent.includes('복숭아'), true);
+  assert.equal(card.querySelector('.bean-summary-meta').textContent, '추출 기록 2개');
+});
+
+test('bean detail keeps best and history record cards with missing-route fallback', () => {
+  const document = new TestDocument();
+  const pane = document.createElement('div');
+  const current = data();
+  current.beans[0].bestRecordStatus = 'ready';
+  current.beans[0].bestRecord = current.records[0];
+  renderBeanDetail(pane, current, document, BEAN);
+  assert.equal(pane.querySelector('.bean-detail-card').querySelectorAll('.record-card').length, 2);
+  const missing = document.createElement('div');
+  renderBeanDetail(missing, current, document, 'missing-bean');
+  assert.equal(missing.textContent.includes('원두를 찾을 수 없습니다.'), true);
+});
+
+test('recipe screens preserve summary actions, details, steps, and recorded snapshots', () => {
+  const document = new TestDocument();
+  const current = data();
+  current.recipes[0].favorite = true;
+  const list = document.createElement('div');
+  renderRecipes(list, current, document);
+  const card = list.querySelector('.recipe-summary-card');
+  assert.equal(card.querySelector('.recipe-card-link').dataset.route, `/recipes/${RECIPE}`);
+  assert.equal(card.querySelector('[data-action="favorite-item"]').dataset.favorite, 'true');
+  assert.equal(card.querySelector('.recipe-step-count').textContent, '2단계');
+
+  const detail = document.createElement('div');
+  renderRecipeDetail(detail, current, document, RECIPE);
+  assert.equal(detail.querySelector('.recipe-card').querySelector('.steps-table').querySelector('tbody').children.length, 2);
+  assert.equal(detail.querySelector('.recipe-records').querySelector('.record-snapshot-conditions') !== null, true);
+  assert.equal(detail.querySelector('[data-action="copy-recipe"]').disabled, false);
+});
+
+test('bean form preserves field names, required markers, and submit actions', () => {
+  const document = new TestDocument();
+  const form = buildBeanForm(document);
+  assert.equal(form.dataset.form, 'beans');
+  assert.equal(form.querySelector('[name="name"]').required, true);
+  assert.equal(form.querySelector('[name="name"]').autocomplete, 'off');
+  assert.equal(form.querySelector('[name="tastingNotes"]').tagName, 'textarea');
+  assert.equal(form.querySelector('[data-action="cancel-form"]') !== null, true);
+  assert.equal(form.querySelector('[data-entry-submit]') !== null, true);
+});
+
+test('recipe form step editor, preview, and payload preserve entered recipe values', () => {
+  const document = new TestDocument();
+  const form = buildRecipeForm(document, data());
+  const panel = document.createElement('section');
+  panel.className = 'data-panel';
+  panel.append(form);
+  form.elements.name.value = 'V60 복사';
+  form.elements.dose.value = '15';
+  form.elements.temperature.value = '93';
+  form.elements.totalWater.value = '250';
+  form.elements.microns.value = '450';
+  addStep(panel, document);
+  const firstRow = form.querySelector('.step-row');
+  firstRow.querySelector('[name="stepName"]').value = '뜸';
+  firstRow.querySelector('[name="time"]').value = '0:00';
+  firstRow.querySelector('[name="water"]').value = '50';
+  addStep(panel, document);
+  const secondRow = form.querySelectorAll('.step-row')[1];
+  secondRow.querySelector('[name="stepName"]').value = '붓기';
+  secondRow.querySelector('[name="time"]').value = '1:10';
+  secondRow.querySelector('[name="water"]').value = '200';
+  updatePreview(panel);
+  assert.equal(form.querySelector('.steps-preview-table').querySelector('tbody').children.length, 2);
+  assert.equal(form.querySelector('.preview-total').textContent, '단계 물 합계 250g');
+
+  const originalFormData = globalThis.FormData;
+  globalThis.FormData = class { constructor(element) {
+    return element.querySelectorAll('input[name],textarea[name],select[name]').map(field => [field.name, field.value]);
+  } };
+  try {
+    const payload = recipePayload(form);
+    assert.equal(payload.name, 'V60 복사');
+    assert.equal(payload.dose, 15);
+    assert.equal(payload.microns, 450);
+    assert.deepEqual(payload.steps, [
+      { name: '뜸', time: '0:00', water: 50 },
+      { name: '붓기', time: '1:10', water: 200 },
+    ]);
+  } finally {
+    if (originalFormData === undefined) delete globalThis.FormData;
+    else globalThis.FormData = originalFormData;
+  }
+
+  setSteps(form, [{ name: '뜸', seconds: 0, water: 50 }, { name: '붓기', seconds: 70, water: 200 }]);
+  assert.deepEqual(form.querySelectorAll('.step-row').map(row => row.querySelector('[name="time"]').value), ['0:00', '1:10']);
+  assert.equal(form.querySelector('.preview-total').textContent, '단계 물 합계 250g');
+});
 
 for (const kind of ['beans', 'recipes']) {
   test(`brew ${kind} same-route refresh ignores expired search option pages`, () => {

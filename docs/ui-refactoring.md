@@ -1,6 +1,6 @@
 # Bean Pocket UI/controller refactoring
 
-Status: R0 baseline and R1 shared-helper extraction are complete. R2-R6 are pending.
+Status: R0 and R1 are complete. R2/R3-A moved the home, bean, and recipe screens and the bean and recipe forms. The records and brew screens, record form, and remaining R3-R6 work are pending. See the [verification logs](evidence/ui-refactor-20261106/README.md#r2r3-a-screens-and-forms).
 
 ## Goal
 

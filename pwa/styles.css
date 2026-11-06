@@ -1480,25 +1480,15 @@ footer {
 .entity-card-header > h3 { flex: 1; min-width: 0; }
 
 
-/* Approved unbleached paper texture on cards; keep interaction colors underneath. */
+/* White cards retain their existing borders and focus/selection indicators. */
 :is(.bean-card, .bean-detail-card, .bag-group, .recipe-card, .record-card,
     .resolution-card, .skeleton-card, .brew-option-card,
     .record-insight-bean-card, .record-insight-comparison-card),
-.bean-records > .record-card {
-  background-color: #f5ead6;
-  background-image: url('./icons/unbleached-paper.png');
-  background-size: 627px 627px;
-  background-repeat: repeat;
-}
-@media (hover: hover) {
-  :is(.recipe-summary-card, .bean-card):hover {
-    background-image: url('./icons/unbleached-paper.png');
-  }
-}
+.bean-records > .record-card,
+.recipe-summary-card:hover, .bean-card:hover,
 .brew-option-card:hover:not(:disabled),
 .brew-option-card[aria-pressed="true"],
 .record-insight-bean-card:hover,
 .record-insight-bean-card.is-selected {
-  background-image: url('./icons/unbleached-paper.png');
-  background-blend-mode: multiply;
+  background: #ffffff;
 }

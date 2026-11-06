@@ -2,6 +2,7 @@ import { createStarRating } from '../star-rating.mjs';
 import { make } from '../shared/dom.mjs';
 import { decorativeSvg } from '../shared/icons.mjs';
 import { button, setActionButton } from '../shared/buttons.mjs';
+import { favoriteIcon } from '../shared/favorite-button.mjs';
 import { label, addFieldset, formBase, addFormActions } from '../shared/form-fields.mjs';
 import { formatTime } from '../shared/recipe-presentation.mjs';
 import { routePath, routeParams } from '../shared/route.mjs';
@@ -72,8 +73,16 @@ export function renderBrewOptionResults(document, kind, selectedBean, selectedId
       (item.status === undefined && item.validationStatus === undefined && Array.isArray(item.steps) && item.steps.length > 0);
     card.disabled = !ready;
     if (!isBeans) card.dataset.optionReady = String(ready);
-    card.append(make(document, 'strong', item.name, 'brew-option-name'));
-    if (item.favorite === true) card.append(make(document, 'span', '★ 즐겨찾기', 'muted-note brew-option-favorite'));
+    const heading = make(document, 'span', undefined, 'brew-option-heading');
+    heading.append(make(document, 'strong', item.name, 'brew-option-name'));
+    if (item.favorite === true) {
+      const badge = make(document, 'span', undefined, 'brew-option-favorite');
+      badge.setAttribute('role', 'img');
+      badge.setAttribute('aria-label', '즐겨찾기');
+      badge.append(favoriteIcon(document));
+      heading.append(badge);
+    }
+    card.append(heading);
     if (isBeans) {
       const details = [item.origin, item.roaster].filter(Boolean).join(' · ');
       if (details) card.append(make(document, 'span', details, 'muted-note brew-option-details'));

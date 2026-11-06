@@ -136,12 +136,15 @@ footer .build-version { margin-top: 8px; letter-spacing: normal; font-weight: 40
 .header-tools { margin-left: auto; flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
 #connection-tools { display: flex; }
 .button.connection-toggle {
-  min-width: 44px;
-  min-height: 44px;
-  padding: 6px;
+  flex: 0 0 35px;
+  width: 35px;
+  min-width: 35px;
+  height: 35px;
+  min-height: 35px;
+  padding: 0;
   background: transparent;
   border-color: transparent;
-  color: #587464;
+  color: #737373;
   font-size: 1.25rem;
 }
 .connection-toggle[aria-expanded="true"] { background: #e8eee7; }
@@ -462,22 +465,22 @@ button:focus-visible, .table-scroll:focus-visible {
 .button.button--back {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 0;
   justify-self: start;
-  width: fit-content;
-  min-height: 46px;
-  padding: 8px 14px;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
   border-color: #d4c9b8;
   border-radius: 999px;
   background: transparent;
   color: #52695b;
-  font-size: 0.9rem;
   font-weight: 600;
   box-shadow: none;
 }
-.button.button--back::before {
-  content: "←";
-  flex: 0 0 auto;
+.back-arrow {
   font-size: 1.05rem;
   line-height: 1;
 }
@@ -837,7 +840,8 @@ button:focus-visible, .table-scroll:focus-visible {
 .entity-delete, .entity-favorite, .entity-edit { flex: 0 0 46px; width: 46px; height: 46px; margin: -14px -8px -14px 0; color: #737373; background: transparent; border-color: transparent; }
 .entity-delete, .entity-favorite, .entity-edit { flex-basis: 35px; width: 35px; height: 35px; min-height: 35px; padding: 0; }
 .entity-delete svg, .entity-favorite svg, .entity-edit svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.entity-delete:hover:not(:disabled), .entity-favorite:hover:not(:disabled), .entity-edit:hover:not(:disabled) { background: #f0f0ed; border-color: #b7b7af; }
+.entity-delete:hover:not(:disabled), .entity-favorite:hover:not(:disabled), .entity-edit:hover:not(:disabled),
+.connection-toggle:hover:not(:disabled) { background: #f0f0ed; border-color: #b7b7af; }
 .bag-card { padding-top: 10px; border-top: 1px solid #e0dbcf; }
 .bag-card + .bag-card { margin-top: 10px; }
 .bag-card > :last-child, .bean-card > :last-child, .bean-detail-card > :last-child,
@@ -1072,7 +1076,7 @@ footer {
   .record-insight-recipe-conditions dd { margin-bottom: 5px; }
   .site-header { gap: 4px; }
   .brand-logo { width: 52px; height: 32px; }
-  .button.connection-toggle { min-width: 28px; padding-inline: 2px; font-size: 1rem; }
+  .button.connection-toggle { font-size: 1rem; }
   .tabs {
     position: fixed;
     top: auto;
@@ -1333,6 +1337,10 @@ footer {
 .brew-option-card { display: flex; flex-direction: column; align-items: stretch; gap: 4px; width: 100%; min-width: 0; min-height: 128px; padding: 16px; border-color: #d8d1c3; border-radius: 12px; background: #fffefa; color: #203d32; text-align: left; font-size: 0.875rem; line-height: 1.5; }
 .brew-option-card:hover:not(:disabled) { border-color: #8ab59a; background: #f6f8f0; }
 .brew-option-card[aria-pressed="true"] { border-color: #587464; background: #e8eee7; }
+.brew-option-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; min-width: 0; }
+.brew-option-heading .brew-option-name { min-width: 0; }
+.brew-option-favorite { display: inline-flex; flex: 0 0 22px; align-items: center; justify-content: center; width: 22px; height: 22px; color: #737373; }
+.brew-option-favorite .favorite-icon { width: 22px; height: 22px; fill: currentColor; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .brew-option-name { font-size: 0.98rem; line-height: 1.4; overflow-wrap: anywhere; }
 .brew-option-details, .brew-option-status { font-size: 0.8rem; overflow-wrap: anywhere; }
 .brew-option-action { margin-top: auto; padding-top: 10px; font-size: 0.8rem; font-weight: 650; }

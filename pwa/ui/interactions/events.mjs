@@ -1,16 +1,72 @@
 import { addStep, recipePayload, renumberSteps, setSteps, updatePreview } from '../forms/recipe-form.mjs';
 import { addBrewStage, brewPayload, recipeFromRecord, updateBrewConditions } from '../screens/brew.mjs';
 import { localDate } from '../shared/date.mjs';
-import { parseInputTime } from '../shared/recipe-presentation.mjs';
+import { formatTime, parseInputTime } from '../shared/recipe-presentation.mjs';
 import { routePath, routeParams } from '../shared/route.mjs';
 import { closeSearchPicker, openSearchPicker, selectSearchOption, syncSearchPickerTrigger } from './search-picker.mjs';
 
 const FORM_KINDS = new Set(['beans', 'recipes', 'records', 'brews']);
+const WHEEL_STEP_DISTANCE = 100;
+const WHEEL_PAUSE_MS = 250;
+
+function readWheelValue(input) {
+  if (input.type === 'number' && !input.validity?.badInput) {
+    return {
+      value: Number(input.value),
+      step: input.name === 'microns' ? 1 : Number(input.step) || 0.1,
+      min: String(input.min ?? '') === '' ? -Infinity : Number(input.min),
+      max: String(input.max ?? '') === '' ? Infinity : Number(input.max),
+      format: String,
+    };
+  }
+  if (input.name === 'time') {
+    const value = input.value === '' ? 0 : parseInputTime(input.value);
+    if (value !== null) return { value, step: 1, min: 0, max: Number.MAX_SAFE_INTEGER, format: formatTime };
+  }
+  if ((input.name === 'grind' || input.name === 'grinderSetting') && /^-?(?:\d+(?:\.\d+)?|\.\d+)$/.test(input.value)) {
+    return { value: Number(input.value), step: 0.1, min: -Infinity, max: Infinity, format: String };
+  }
+  return null;
+}
+
+function bindFineNumberWheel(content, document) {
+  let distance = 0;
+  let lastEventTime = 0;
+  content.addEventListener('focusin', () => { distance = 0; });
+  content.addEventListener('wheel', event => {
+    const input = event.target;
+    if (input !== document.activeElement || !input.matches('input') || !FORM_KINDS.has(input.form?.dataset.form) ||
+      input.disabled || input.readOnly || !event.cancelable || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    const mode = event.deltaMode;
+    const { deltaX, deltaY } = event;
+    if (!deltaY || Math.abs(deltaX) >= Math.abs(deltaY)) return;
+    const settings = readWheelValue(input);
+    if (!settings || !Number.isFinite(settings.value)) return;
+
+    event.preventDefault();
+    const pixels = deltaY * (mode === 1 ? 34 : mode === 2 ? WHEEL_STEP_DISTANCE : 1);
+    if (event.timeStamp - lastEventTime > WHEEL_PAUSE_MS || Math.sign(pixels) !== Math.sign(distance)) distance = 0;
+    lastEventTime = event.timeStamp;
+    distance += pixels;
+    if (Math.abs(distance) < WHEEL_STEP_DISTANCE) return;
+    const direction = -Math.sign(distance);
+    distance = 0;
+
+    const { value, step, min, max, format } = settings;
+    const adjusted = value + direction * step;
+    const next = Math.max(min, Math.min(max, step < 1 ? Number(adjusted.toPrecision(15)) : adjusted));
+    if (next === value && input.value !== '') return;
+    input.value = format(next);
+    const EventConstructor = document.defaultView?.Event ?? globalThis.Event;
+    input.dispatchEvent(new EventConstructor('input', { bubbles: true }));
+  }, { passive: false });
+}
 
 export function bindEvents({ page, nav, connectionForm, tokenInput, scheduleTokenValidation,
   resetTokenValidation, originalConnectionCheck, sourceFields, content, actions, document, view,
   openDeleteDialog, closeDeleteDialog, submitDelete, setInsightRecipeFilter, setInsightRatingFilter,
   setInsightComparisonSort, setInsightCompareLeft, setInsightCompareRight }) {
+  bindFineNumberWheel(content, document);
   connectionForm.addEventListener('input', event => {
     if (event.target === tokenInput && !event.target.disabled) {
       const rawToken = String(tokenInput.value ?? '');

@@ -4675,6 +4675,70 @@ test('bean form preserves field names, required markers, and submit actions', ()
   assert.equal(form.querySelector('[data-entry-submit]') !== null, true);
 });
 
+test('focused recipe and brew values adjust slowly without blocking ordinary scrolling', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const changes = [];
+  view.bind({ setDirty: (dirty, kind) => changes.push([dirty, kind]) });
+  view.renderData(data());
+  const content = document.root.querySelector('.data-panel');
+  const wheel = (field, deltaY, options = {}) => fire(content, 'wheel', {
+    target: field, deltaMode: 0, deltaX: 0, deltaY, cancelable: true, ...options,
+  });
+
+  view.renderRoute('/recipes');
+  view.showRecipeForm();
+  const recipe = content.querySelector('form[data-form="recipes"]');
+  const dose = recipe.elements.dose;
+  dose.value = '18.55';
+  assert.equal(wheel(dose, -200).defaultPrevented, false);
+  assert.equal(dose.value, '18.55');
+  dose.focus();
+  assert.equal(wheel(dose, -40).defaultPrevented, true);
+  assert.equal(dose.value, '18.55');
+  wheel(dose, -60);
+  assert.equal(dose.value, '18.65');
+  assert.deepEqual(changes.at(-1), [true, 'recipes']);
+  assert.equal(wheel(dose, -100, { ctrlKey: true }).defaultPrevented, false);
+  assert.equal(wheel(dose, -100, { deltaX: 130 }).defaultPrevented, false);
+  assert.equal(dose.value, '18.65');
+  wheel(dose, 500);
+  assert.equal(dose.value, '18.55', 'large wheel events still move by just one increment');
+  dose.disabled = true;
+  assert.equal(wheel(dose, -100).defaultPrevented, false);
+  assert.equal(dose.value, '18.55');
+
+  for (const [name, initial, expected] of [
+    ['microns', '450', '451'], ['temperature', '99.95', '100'],
+    ['totalWater', '250', '250.1'], ['grind', '5', '5.1'], ['grinderSetting', '24.25', '24.35'],
+  ]) {
+    const field = recipe.elements[name];
+    field.value = initial;
+    field.focus();
+    wheel(field, -3, { deltaMode: 1 });
+    assert.equal(field.value, expected, name);
+  }
+  recipe.elements.grinderSetting.value = '24 clicks';
+  assert.equal(wheel(recipe.elements.grinderSetting, -100).defaultPrevented, false);
+  assert.equal(recipe.elements.grinderSetting.value, '24 clicks');
+
+  view.renderRoute(`/brew/run?beanId=${BEAN}&recipeId=${RECIPE}`);
+  const brew = content.querySelector('form[data-form="brews"]');
+  const stage = brew.querySelector('.brew-stage-row');
+  for (const [field, initial, expected] of [
+    [stage.querySelector('[name="time"]'), '0:59', '1:00'],
+    [stage.querySelector('[name="water"]'), '50', '50.1'],
+    [brew.elements.rating, '4.9', '5'],
+  ]) {
+    field.value = initial;
+    field.focus();
+    wheel(field, -100);
+    assert.equal(field.value, expected);
+  }
+  assert.equal(brew.querySelector('[data-rating-output]').textContent, '5.0점');
+  assert.deepEqual(changes.at(-1), [true, 'brews']);
+});
+
 test('recipe number shortcuts set the editable fields and report input', () => {
   const document = new TestDocument();
   const form = buildRecipeForm(document, data());

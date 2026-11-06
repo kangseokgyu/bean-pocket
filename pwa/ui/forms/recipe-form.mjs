@@ -1,21 +1,47 @@
 import { button } from '../shared/buttons.mjs';
 import { make } from '../shared/dom.mjs';
-import { addFieldset, addFormActions, formBase, label } from '../shared/form-fields.mjs';
+import { addFormActions, formBase, label } from '../shared/form-fields.mjs';
 import { formatTime, parseInputTime } from '../shared/recipe-presentation.mjs';
 
 export function buildRecipeForm(document, data) {
   const form = formBase(document, 'recipes', '새 레시피');
-  addFieldset(document, form, '기본 조건', [
+  const basic = make(document, 'fieldset', undefined, 'form-fieldset form-fieldset--compact');
+  basic.append(make(document, 'legend', '기본 조건'));
+  const fields = [
     ['레시피 이름', 'name', 'text', true],
     ['드리퍼', 'dripper', 'text', false],
-    ['원두 사용량 (g)', 'dose', 'number', true, { step: 'any', min: 0 }],
+    ['원두 사용량 (g)', 'dose', 'number', true, { step: 'any', min: 0 }, { unit: 'g', values: [15, 18, 20] }],
     ['분쇄도', 'grind', 'text', false],
     ['그라인더', 'grinder', 'text', false],
     ['그라인더 설정', 'grinderSetting', 'text', false],
     ['분쇄 입자 (μm, 선택)', 'microns', 'number', false, { step: 'any', min: 0 }],
-    ['물 온도 (℃)', 'temperature', 'number', true, { step: 'any', min: 0, max: 100 }],
-    ['총 물 양 (g)', 'totalWater', 'number', true, { step: 'any', min: 0 }],
-  ], 'form-fieldset--compact');
+    ['물 온도 (℃)', 'temperature', 'number', true, { step: 'any', min: 0, max: 100 }, { unit: '°C', values: [88, 90, 92, 94] }],
+    ['총 물 양 (g)', 'totalWater', 'number', true, { step: 'any', min: 0 }, { unit: 'g', values: [200, 250, 300] }],
+  ];
+  for (const [title, name, type, required, attrs, shortcuts] of fields) {
+    const field = label(document, title, name, type, required, attrs);
+    if (!shortcuts) {
+      basic.append(field);
+      continue;
+    }
+    const wrap = make(document, 'div', undefined, 'recipe-number-field');
+    const input = field.querySelector('input');
+    const group = make(document, 'div', undefined, 'recipe-number-shortcuts');
+    group.setAttribute('role', 'group');
+    group.setAttribute('aria-label', `${title} 빠른 입력`);
+    for (const value of shortcuts.values) {
+      const control = button(document, `${value}${shortcuts.unit}`, 'button');
+      control.addEventListener('click', () => {
+        if (input.disabled) return;
+        input.value = String(value);
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+      group.append(control);
+    }
+    wrap.append(field, group);
+    basic.append(wrap);
+  }
+  form.append(basic);
   form.append(label(document, '추출 가이드 (선택)', 'extractionGuide', 'textarea', false, {
     rows: 4,
     placeholder: '예: 교반 없음, 목표 2분 30초 완성',

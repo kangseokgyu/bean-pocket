@@ -274,11 +274,21 @@ html:has(dialog[open]), body:has(dialog[open]) { overflow: hidden; overscroll-be
 .form-fieldset legend { padding: 0 6px; font-size: 0.8rem; font-weight: 700; line-height: 1.3; }
 .form-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .form-field-label { color: #3d5147; font-size: 0.8rem; font-weight: 650; line-height: 1.3; }
-.form-fieldset--compact > .form-field {
+.form-fieldset--compact > .form-field,
+.recipe-number-field > .form-field {
   display: grid;
   grid-template-columns: minmax(0, 38%) minmax(0, 1fr);
   align-items: center;
   gap: 8px;
+}
+.recipe-number-field { display: grid; align-content: start; gap: 4px; min-width: 0; }
+.recipe-number-shortcuts { display: flex; flex-wrap: wrap; gap: 4px; }
+.recipe-number-shortcuts > .button {
+  flex: 1 0 auto;
+  min-height: 32px;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  white-space: nowrap;
 }
 .form-fieldset--compact > .form-field:has(textarea) {
   grid-column: 1 / -1;

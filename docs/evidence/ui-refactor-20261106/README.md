@@ -103,4 +103,4 @@ Integrated `250198d` into the feature branch after R4-R5 passed. The three-way c
 
 ## R6 source map and verification notes
 
-The [source map](../../ui-refactoring.md#where-to-start) links the entry points for forms, screens, events, and controller reads. The README, usage guide, contracts, implementation status, and verification notes point to the map or the logs. R6 changes documentation only. The integrated build and test results above apply to the last product edit. Final Chromium comparison and publication remain with main.
+The [source map](../../ui-refactoring.md#where-to-start) links the entry points for forms, screens, events, and controller reads. The README, usage guide, contracts, implementation status, and verification notes point to the map or the logs. R6 changes documentation only. The integrated build and test results above apply to the last product edit. See the [final Chromium comparison and publication record](../ui-refactor-browser-20261106/README.md).

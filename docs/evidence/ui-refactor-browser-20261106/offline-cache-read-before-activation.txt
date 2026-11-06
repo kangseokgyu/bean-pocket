@@ -1,0 +1,12 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.evaluate: Error: cache file missing app.mjs {"url":"https://kangseokgyu.github.io/bean-pocket/","name":"bean-pocket-shell-%2Fbean-pocket%2F-9b8bf554b507","keys":[]}
+    at eval (eval at evaluate (:311:30), <anonymous>:4:142)
+    at async <anonymous>:337:30
+    at /Users/kangseokgyu/.codex/worktrees/bean-pocket-ui-refactor/AX-1day/docs/evidence/ui-refactor-browser-20261106/public-browser.mjs:18:32 {
+  log: []
+}
+
+Node.js v22.17.0

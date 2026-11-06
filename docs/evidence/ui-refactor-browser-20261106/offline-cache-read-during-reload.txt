@@ -1,0 +1,11 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.evaluate: Execution context was destroyed, most likely because of a navigation
+    at /Users/kangseokgyu/.codex/worktrees/bean-pocket-ui-refactor/AX-1day/docs/evidence/ui-refactor-browser-20261106/public-browser.mjs:28:32 {
+  log: [],
+  name: 'Error'
+}
+
+Node.js v22.17.0

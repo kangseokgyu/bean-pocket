@@ -50,3 +50,13 @@ R3 커밋 `44d1e78`에서 [브라우저 비교 22개](r3-results.json)가 통과
 ## 최신 main 통합 후보
 
 `main`이 `250198d`로 전진한 뒤 같은 스크립트로 [최신 기준](latest-main-baseline.json)을 다시 기록했다. 통합 커밋 `4f3d9bf`의 [후보 비교](final-results.json)에서 22개 시나리오와 공개 메서드 비교가 통과했다. 화면 DOM 18개가 같았으며, [PNG 픽셀 비교](final-pixels.json)에서도 18개가 모두 같았다. 공개 배포 검증과 iPhone 실기기 결과는 이 비교의 범위에 포함하지 않는다.
+
+## 일반판 게시
+
+[GitHub Pages](https://kangseokgyu.github.io/bean-pocket/)의 빌드 `9b8bf554b507`을 확인했다. [게시 실행](https://github.com/kangseokgyu/bean-pocket/actions/runs/42159182464)은 `8853e83cbff5eab1bfc01c441e539660a49c047a`에서 `probes=false`로 실행됐다. [실행 결과](deployment.json)의 테스트·빌드·산출물 검사·배포 단계는 모두 성공했다.
+
+[공개 파일 대조](public-files.json)는 정적 파일 53개의 바이트가 로컬 검증 산출물과 일치했음을 기록한다. [Chromium 오프라인 검증](public-offline.json)은 새 Service Worker가 제어하는 탭에서 캐시 파일 52개를 공개 파일 해시와 비교하고, 네트워크를 끈 뒤 같은 버전으로 앱 셸이 다시 열리는 것을 확인했다. `sw.js`는 공개 파일 대조에 포함되고 앱 셸 캐시에는 포함되지 않는다.
+
+처음에는 [캐시를 활성화 전에 읽었고](offline-cache-read-before-activation.txt), 다음에는 [첫 탭의 자동 새로고침 중에 읽었다](offline-cache-read-during-reload.txt). 검증 스크립트는 활성 등록을 기다리고, 그 Worker가 제어하는 별도 탭에서 캐시를 확인한다. 두 수정 모두 검증 스크립트에만 적용됐다.
+
+실제 Notion 저장, iPhone Safari, 홈 화면 설치와 실기기 다중 탭 업데이트는 확인하지 않았다.

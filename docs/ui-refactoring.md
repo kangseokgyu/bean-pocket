@@ -2,7 +2,7 @@
 
 [검색할 수 있는 UI 모듈 지도](ui-module-map.html)에서 각 파일과 직접 import를 확인할 수 있다.
 
-Status: R0-R6 implementation, documentation, and local verification are complete. Main owns final review, Chromium comparison against `250198d`, and publication. See the [verification logs](evidence/ui-refactor-20261106/README.md).
+Status: R0-R6 are complete. The [general Pages build](https://kangseokgyu.github.io/bean-pocket/) is `9b8bf554b507`. See the [test and build logs](evidence/ui-refactor-20261106/README.md) and the [browser and publication checks](evidence/ui-refactor-browser-20261106/README.md).
 
 ## Goal
 

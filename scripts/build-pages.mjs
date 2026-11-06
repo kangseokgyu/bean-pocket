@@ -48,6 +48,7 @@ const sourceFiles = [
   'icons/bp-logo.png',
   'icons/favicon-bp-ivory.png',
   'icons/home-brew.png',
+  'icons/unbleached-paper.png',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'index.html',

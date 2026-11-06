@@ -3,7 +3,7 @@
   color-scheme: light;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: #203d32;
-  background: #f3efe6;
+  background: #ffffff;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-text-size-adjust: 100%;
@@ -98,7 +98,7 @@ button, .button, .record-management > summary, .record-insight-chart-values > su
   position: sticky;
   top: 0;
   z-index: 5;
-  background: #f3efe6;
+  background: #ffffff;
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
@@ -1478,3 +1478,27 @@ footer {
 .entity-favorite[aria-pressed="true"] .favorite-icon { fill: currentColor; }
 .entity-card-header > .entity-favorite { margin-right: -12px; }
 .entity-card-header > h3 { flex: 1; min-width: 0; }
+
+
+/* Approved unbleached paper texture on cards; keep interaction colors underneath. */
+:is(.bean-card, .bean-detail-card, .bag-group, .recipe-card, .record-card,
+    .resolution-card, .skeleton-card, .brew-option-card,
+    .record-insight-bean-card, .record-insight-comparison-card),
+.bean-records > .record-card {
+  background-color: #f5ead6;
+  background-image: url('./icons/unbleached-paper.png');
+  background-size: 627px 627px;
+  background-repeat: repeat;
+}
+@media (hover: hover) {
+  :is(.recipe-summary-card, .bean-card):hover {
+    background-image: url('./icons/unbleached-paper.png');
+  }
+}
+.brew-option-card:hover:not(:disabled),
+.brew-option-card[aria-pressed="true"],
+.record-insight-bean-card:hover,
+.record-insight-bean-card.is-selected {
+  background-image: url('./icons/unbleached-paper.png');
+  background-blend-mode: multiply;
+}

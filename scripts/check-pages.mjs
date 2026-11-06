@@ -54,6 +54,7 @@ const allowedFiles = new Set([
   'icons/bp-logo.png',
   'icons/favicon-bp-ivory.png',
   'icons/home-brew.png',
+  'icons/unbleached-paper.png',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'index.html',
@@ -119,6 +120,7 @@ const requiredCacheFiles = [
   './icons/bp-logo.png',
   './icons/favicon-bp-ivory.png',
   './icons/home-brew.png',
+  './icons/unbleached-paper.png',
 ];
 
 async function collectFiles(directory, allowIncomplete, includeProbes) {

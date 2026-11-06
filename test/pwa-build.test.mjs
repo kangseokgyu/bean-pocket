@@ -25,6 +25,7 @@ const expectedFiles = [
   'icons/home-brew.png',
   'icons/icon-192.png',
   'icons/icon-512.png',
+  'icons/unbleached-paper.png',
   'index.html',
   'manifest.webmanifest',
   'platform/app-lifecycle.mjs',
@@ -156,6 +157,7 @@ async function writeSourceFixture(sourceDir) {
   await writeFile(path.join(sourceDir, 'icons/bp-logo.png'), pngHeader(256));
   await writeFile(path.join(sourceDir, 'icons/favicon-bp-ivory.png'), pngHeader(32));
   await writeFile(path.join(sourceDir, 'icons/home-brew.png'), pngHeader(1254));
+  await writeFile(path.join(sourceDir, 'icons/unbleached-paper.png'), pngHeader(1254));
   await writeFile(path.join(sourceDir, 'icons/icon-192.png'), pngHeader(192));
   await writeFile(path.join(sourceDir, 'icons/icon-512.png'), pngHeader(512));
 }
@@ -556,7 +558,7 @@ test('Service Worker install·activate·fetch는 scope를 격리하고 앱 파�
     './data/read-repository.mjs', './domain.mjs', './platform/app-lifecycle.mjs',
     './platform/connection-file.mjs', './platform/update-coordinator.mjs', './state/submission-state.mjs',
     './styles.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png',
-    './icons/bp-logo.png', './icons/favicon-bp-ivory.png', './icons/home-brew.png',
+    './icons/bp-logo.png', './icons/favicon-bp-ivory.png', './icons/home-brew.png', './icons/unbleached-paper.png',
   ];
   assert.deepEqual(cacheStorage.stores.get(cacheA).files.map(request => [request.url, request.cache]),
     appFiles.map(file => [new URL(file, scopeA).href, 'reload']));
@@ -606,5 +608,16 @@ test('homepage brew illustration ships byte-for-byte, is cached offline, and cha
   const worker = await readFile(path.join(outputDir, 'sw.js'), 'utf8');
   assert.ok(worker.includes('./icons/home-brew.png'));
   await writeFile(path.join(sourceDir, imagePath), pngHeader(512));
+  assert.notEqual(await buildPages({ sourceDir, outputDir }), version);
+});
+
+
+test('paper card texture ships unchanged, is cached offline, and invalidates the build when replaced', async t => {
+  const { sourceDir, outputDir, version } = await buildFixture(t);
+  const texturePath = 'icons/unbleached-paper.png';
+  assert.deepEqual(await readFile(path.join(outputDir, texturePath)), await readFile(path.join(sourceDir, texturePath)));
+  const worker = await readFile(path.join(outputDir, 'sw.js'), 'utf8');
+  assert.ok(worker.includes('./icons/unbleached-paper.png'));
+  await writeFile(path.join(sourceDir, texturePath), pngHeader(512));
   assert.notEqual(await buildPages({ sourceDir, outputDir }), version);
 });

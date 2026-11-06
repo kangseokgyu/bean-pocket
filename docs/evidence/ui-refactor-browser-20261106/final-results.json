@@ -1,0 +1,207 @@
+{
+  "mode": "candidate",
+  "interfaces": {
+    "view": [
+      "beginConnectionSave",
+      "bind",
+      "cancelConnection",
+      "clearDraft",
+      "clearForm",
+      "clearSearchOptions",
+      "clearSecret",
+      "clearStatus",
+      "currentRoute",
+      "editConnection",
+      "finishConnectionSave",
+      "finishStartup",
+      "onRouteChange",
+      "renderData",
+      "renderRoute",
+      "resolveRecordDraft",
+      "setFrozen",
+      "setRouteReadState",
+      "setSearchOptions",
+      "setSearchOptionsState",
+      "setState",
+      "showBeanForm",
+      "showConnection",
+      "showConnectionSuccess",
+      "showDeleteResult",
+      "showEntrySuccess",
+      "showRecipeForm",
+      "showRecordForm",
+      "showStatus",
+      "showUnresolved"
+    ],
+    "controller": [
+      "bind",
+      "confirmCurrent",
+      "connect",
+      "getState",
+      "initialize",
+      "loadMore",
+      "loadMoreInsights",
+      "loadRoute",
+      "loadSearchOptions",
+      "refresh",
+      "resolveOperation",
+      "setDirty",
+      "setFrozen",
+      "setRecordFilters",
+      "setRecordInsightsBean",
+      "submit"
+    ]
+  },
+  "results": [
+    {
+      "name": "home",
+      "width": 390,
+      "domParity": true,
+      "rawDomMatch": true,
+      "screenshotSha256": "d666a356201846634e7157457fbfa6b57a883586fb54d8730d26b2e0482709c3"
+    },
+    {
+      "name": "beans",
+      "width": 390,
+      "domParity": true,
+      "rawDomMatch": true,
+      "screenshotSha256": "2fa7c9d780af7b12ad29302f4a3a3e0d75f2e97db48583be7d14e1955e82b2d4"
+    },
+    {
+      "name": "bean-detail",
+      "width": 390,
+      "domParity": true,
+      "rawDomMatch": true,
+      "screenshotSha256": "67ad85e808cc8c091a4e93f34c331b192ffb424307dd4500d20fe51b7419d073"
+    },
+    {
+      "name": "recipes",
+      "width": 390,
+      "domParity": true,
+      "rawDomMatch": true,
+      "screenshotSha256": "ed10201c2d150bb78c0f1f3ff306d0852e5875715bcc1a5a3000b44f7e3cb32d"
+    },
+    {
+      "name": "recipe-detail",
+      "width": 390,
+      "domParity": true,
+      "rawDomMatch": true,
+      "screenshotSha256": "dd30ff5d4c6350320af337711454b8c61081298c7216bcb15ac4ab52c0507352"
+    },
+    {
+      "name": "records",
+      "width": 390,
+      "domParity": true,
+      "rawDomMatch": true,
+      "screenshotSha256": "0f208266408cb2b2fa0a0f9e1867bb3a4b442f0279b64a383907bffa92ef9685"
+    },
+    {
+      "name": "brew-bean",
+      "width": 390,
+      "domParity": true,
+      "rawDomMatch": true,
+      "screenshotSha256": "231498f35ad239378f0850c85ee4ddfb3342ee80e3ac765e9467b44f39db0e93"
+    },
+    {
+      "name": "brew-recipe",
+      "width": 390,
+      "domParity": true,
+      "rawDomMatch": true,
+      "screenshotSha256": "a0a83ebb8be02416b120ecb4b403d705ebea2d29d18b557cd0ebe92373a051d5"
+    },
+    {
+      "name": "brew-run",
+      "width": 390,
+      "domParity": true,
+      "rawDomMatch": true,
+      "screenshotSha256": "d53f89f6ceaa8750a7a9385121f533ee45d52cf6042d58ce18a678c2def6f6b5"
+    },
+    {
+      "name": "home",
+      "width": 1280,
+      "domParity": true,
+      "rawDomMatch": true,
+      "screenshotSha256": "508ea883e7d196328d4414bb7f2404f93aa7df721b704aaac8f229da08dc0aff"
+    },
+    {
+      "name": "beans",
+      "width": 1280,
+      "domParity": true,
+      "rawDomMatch": true,
+      "screenshotSha256": "854d2faeb828c8732e0f51457bf4f31c7621e645269ba64825b98b9e24f8adbb"
+    },
+    {
+      "name": "bean-detail",
+      "width": 1280,
+      "domParity": true,
+      "rawDomMatch": true,
+      "screenshotSha256": "4de8fbadd227c81e8faafd2c4c8fe231a2b3575a09bc6319c9b1d87873a57195"
+    },
+    {
+      "name": "recipes",
+      "width": 1280,
+      "domParity": true,
+      "rawDomMatch": true,
+      "screenshotSha256": "5f068cca3e0c9dd5ef44b4e790ff2fc82134ba890b423718311a23bc2e114d30"
+    },
+    {
+      "name": "recipe-detail",
+      "width": 1280,
+      "domParity": true,
+      "rawDomMatch": true,
+      "screenshotSha256": "be72637b85458f0cdef2169986ce01153afb19ceac229c0b4a1aed0142ae6834"
+    },
+    {
+      "name": "records",
+      "width": 1280,
+      "domParity": true,
+      "rawDomMatch": true,
+      "screenshotSha256": "ffcd5e4875455237345bc3c9b7086c83a3749af9f24c49b70c03e42c536126ad"
+    },
+    {
+      "name": "brew-bean",
+      "width": 1280,
+      "domParity": true,
+      "rawDomMatch": true,
+      "screenshotSha256": "b83e2fc30495c140096a8e4179b470c8628ee6b3f5577de89279c97b0f0c5eea"
+    },
+    {
+      "name": "brew-recipe",
+      "width": 1280,
+      "domParity": true,
+      "rawDomMatch": true,
+      "screenshotSha256": "4a7e89acaf5b44b9341dd720f0340d9d9ab0dd46aad9cdd2cda4d3adc4602899"
+    },
+    {
+      "name": "brew-run",
+      "width": 1280,
+      "domParity": true,
+      "rawDomMatch": true,
+      "screenshotSha256": "41c5bf9d866e1b5f1e73e9fdbd0d697950e49b74aa5079d442cd5fc08bd2d4fb"
+    },
+    {
+      "kind": "beans",
+      "cancelNoWrite": true,
+      "dialogIdentity": true,
+      "draftAndFocusPreserved": true
+    },
+    {
+      "kind": "recipes",
+      "cancelNoWrite": true,
+      "dialogIdentity": true,
+      "draftAndFocusPreserved": true
+    },
+    {
+      "favoriteToggle": true
+    },
+    {
+      "saveSpinner": true,
+      "duplicateProgressToastHidden": true,
+      "duplicateSubmitBlocked": true,
+      "saveVisible": true
+    }
+  ],
+  "errors": [],
+  "responses": [],
+  "scope": "Chromium real View+Controller; memory storage/fake Notion; no SW lifecycle or real iPhone"
+}

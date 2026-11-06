@@ -46,3 +46,7 @@ R2/R3-A 비교에는 원두 저장 응답을 모의 API에서 지연시키는 �
 픽셀 비교는 `node compare-pixels.mjs /absolute/baseline/screenshots /absolute/candidate/screenshots`로 실행한다. 필요하면 `PNGJS_MODULE`에 설치 경로를 지정한다.
 
 R3 커밋 `44d1e78`에서 [브라우저 비교 22개](r3-results.json)가 통과했다. 화면 DOM은 18개 모두 일치했다. [픽셀 비교](r3-pixels.json)는 R2/R3-A와 같은 두 기록 화면의 드롭다운 화살표 차이만 기록했다.
+
+## 최신 main 통합 후보
+
+`main`이 `250198d`로 전진한 뒤 같은 스크립트로 [최신 기준](latest-main-baseline.json)을 다시 기록했다. 통합 커밋 `4f3d9bf`의 [후보 비교](final-results.json)에서 22개 시나리오와 공개 메서드 비교가 통과했다. 화면 DOM 18개가 같았으며, [PNG 픽셀 비교](final-pixels.json)에서도 18개가 모두 같았다. 공개 배포 검증과 iPhone 실기기 결과는 이 비교의 범위에 포함하지 않는다.

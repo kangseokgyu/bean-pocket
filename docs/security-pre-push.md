@@ -1,5 +1,7 @@
 # GitHub 업로드 전 보안 점검
 
+> 과거 보고서(2026-10-17)다. 이 점검은 이후 제거된 Node 서버와 `public/` 앱을 대상으로 했다. 현재 PWA 구조의 보안 검토로 사용하지 않는다. 현재 구조는 [PWA 계약](pwa-contracts.md)과 [게시 절차](pages-deploy.md)에 기록한다.
+
 점검일: 2026-10-17 (Asia/Seoul). 대상: bean-pocket의 최초 GitHub 업로드 파일 및 기존 로컬 Git 이력.
 
 ## 범위와 방법

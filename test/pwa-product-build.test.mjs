@@ -17,43 +17,6 @@ const modules = [...controllerModules, 'commands/index.mjs', 'ui/controller.mjs'
   'ui/shared/favorite-button.mjs', 'ui/shared/form-fields.mjs', 'ui/shared/icons.mjs',
   'ui/shared/recipe-presentation.mjs', 'ui/shared/record-card.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs'];
 
-test('server-page demo records mark their generated v2 snapshot valid', async () => {
-  const app = await readFile(new URL('../public/app.js', import.meta.url), 'utf8');
-  const recordBranch = app.match(/if \(kind === 'records'\) \{([\s\S]*?)\n    \}\n    item\.id/);
-  assert.ok(recordBranch, 'the demo record creation branch must remain identifiable');
-  assert.match(recordBranch[1], /snapshot:\s*createSnapshot\(bean,\s*recipe\)/);
-  assert.match(recordBranch[1], /snapshotStatus:\s*'valid'/);
-});
-
-test('public save updates the spinner icon with pending, success, and restored states', async () => {
-  const app = await readFile(new URL('../public/app.js', import.meta.url), 'utf8');
-  const setter = app.match(/function setActionButton\(button, state, label\) \{[\s\S]*?\n\}/);
-  assert.ok(setter, 'public save feedback uses one action-state setter');
-  assert.match(setter[0], /button\.dataset\.state\s*=\s*state/);
-  assert.match(setter[0], /icon\.dataset\.state\s*=\s*state/);
-
-  const submit = app.match(/function bindForm\([\s\S]*?\n\}\n\nasync function saveData/);
-  assert.ok(submit);
-  assert.match(submit[0], /setActionButton\(submitButton,\s*'saving'/);
-  assert.match(submit[0], /setActionButton\(submitButton,\s*'success'/);
-  assert.match(submit[0], /setActionButton\(submitButton,\s*'idle'/);
-});
-
-test('public save keeps actual success feedback visible before closing the dialog', async () => {
-  const app = await readFile(new URL('../public/app.js', import.meta.url), 'utf8');
-  const submit = app.match(/function bindForm\([\s\S]*?\n\}\n\nasync function saveData/);
-  assert.ok(submit);
-  const successIndex = submit[0].indexOf("setActionButton(submitButton, 'success'");
-  const holdIndex = submit[0].indexOf('await new Promise(resolve => setTimeout(resolve, FORM_SUCCESS_HOLD_MS));', successIndex);
-  const closeIndex = submit[0].indexOf('dialog.close()', successIndex);
-  const unlockIndex = submit[0].indexOf('saving = false;', holdIndex);
-
-  assert.ok(successIndex >= 0, 'success follows a resolved save');
-  assert.ok(holdIndex > successIndex && holdIndex < closeIndex, 'the success state paints before the dialog closes');
-  assert.ok(unlockIndex > holdIndex, 'submit and cancel stay locked through visible success feedback');
-  assert.match(app, /const FORM_SUCCESS_HOLD_MS = 1000;/);
-});
-
 async function fixture(t) {
   const root = await mkdtemp(path.join(os.tmpdir(), 'bean-pocket-release-build-'));
   t.after(() => rm(root, { recursive: true, force: true }));

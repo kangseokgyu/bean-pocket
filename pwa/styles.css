@@ -104,12 +104,24 @@ button { touch-action: manipulation; }
   border-bottom: 1px solid #d8d1c3;
 }
 
+.site-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .brand-logo {
   display: block;
   flex: 0 0 auto;
   width: 60px;
   height: 36px;
   object-fit: contain;
+}
+
+.brand-wordmark {
+  font: 700 clamp(1.25rem, 4vw, 1.5rem)/1.1 Georgia, serif;
+  letter-spacing: -0.025em;
+  white-space: nowrap;
 }
 
 .build-version {

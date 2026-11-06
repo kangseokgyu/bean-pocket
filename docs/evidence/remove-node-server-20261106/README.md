@@ -27,3 +27,13 @@
 ## 독립 검토
 
 Critic (`gpt-6.1-sol` / `medium`)은 삭제 범위, 코덱 테스트 이전, 활성 import·문서 참조를 검토했고 차단 사항 없이 승인했다. Python Playwright와 시스템 Chromium으로 기존 일반판 산출물을 `/bean-pocket/`에서 제공해 390×844 화면을 확인했다. 빌드 `08f4208dfe64`의 설정 화면·도메인 모듈·서비스 워커 scope가 정상이며 92개 응답에 HTTP 오류, JavaScript 오류, `/api/`·외부 요청이 없었다. 실제 Notion 쓰기와 iPhone 검증은 포함하지 않았다.
+
+## 최신 main 통합 검증
+
+카드 질감 UI 변경을 포함한 `bac66d8`과 통합한 커밋은 `46bda0694d449e80e590e96e812de88ca54d6e70`이다. 통합 후 `npm test`는 731/731 통과(실패·취소·생략 0, 111524.546238 ms), 일반판 빌드·검사와 `git diff --check`가 통과했다. 일반판 빌드는 `4ec4ba7dda41`이다. 독립 Critic의 모바일 Chromium 정적 확인에서도 화면과 자원 94개, 도메인, 서비스 워커가 정상이고 HTTP/JavaScript 오류 및 `/api/` 요청이 없었다.
+
+## 게시 결과
+
+[일반판 게시 실행](https://github.com/kangseokgyu/bean-pocket/actions/runs/42233009528)은 통합 커밋 `46bda0694d449e80e590e96e812de88ca54d6e70`에서 `probes=false`로 실행되어 테스트·빌드·검사·배포 모두 성공했다. [실행 결과](deployment.json)에 최종 상태를 보관했다. [공개 PWA](https://kangseokgyu.github.io/bean-pocket/)의 일반판 빌드 `4ec4ba7dda41`을 확인했으며, 배포 성공 후 공개 파일 54개가 로컬 산출물과 바이트 단위로 전부 일치했다([파일 비교](public-files.json)). 통합 전체 테스트 원문은 [main-test.txt](main-test.txt)에 있다.
+
+최초 Worker `gpt-6-luna` / `max`는 사용 한도로 중단됐으며 프로젝트에서 허용한 대체 Worker `gpt-6.1-sol` / `medium`이 정리·검증을 완료했다. Critic은 `gpt-6.1-sol` / `medium`으로 독립 검토했다. 실제 Notion 연결·쓰기 및 iPhone 실기기 확인은 수행하지 않았다.

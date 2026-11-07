@@ -182,6 +182,16 @@ class TestDocument {
     this.root.id = 'app-root';
     this.topLayerOrder = 0;
     this.mutationObservers = new Set();
+    this.listeners = new Map();
+  }
+  addEventListener(type, listener) {
+    const listeners = this.listeners.get(type) ?? [];
+    listeners.push(listener);
+    this.listeners.set(type, listeners);
+  }
+  removeEventListener(type, listener) {
+    const listeners = this.listeners.get(type) ?? [];
+    this.listeners.set(type, listeners.filter(candidate => candidate !== listener));
   }
   notifyAttributeMutation(target, name) {
     for (const observer of this.mutationObservers) {
@@ -1608,6 +1618,7 @@ function pullHarness() {
   const visualViewport = {
     height: 844,
     offsetTop: 0,
+    scale: 1,
     addEventListener(type, listener) {
       const listeners = viewportListeners.get(type) ?? [];
       listeners.push(listener);
@@ -1616,7 +1627,7 @@ function pullHarness() {
     dispatch(type) { for (const listener of viewportListeners.get(type) ?? []) listener(); },
   };
   const state = { pending: false, frozen: false, dirty: false };
-  document.defaultView = { location: { reload() { reloads++; } },
+  document.defaultView = { innerHeight: 844, location: { reload() { reloads++; } },
     requestAnimationFrame(callback) { frames.push(callback); },
     setTimeout(callback, delay) { timers.push({ callback, delay }); },
     MutationObserver: TestMutationObserver, visualViewport };
@@ -1727,6 +1738,27 @@ test('open dialogs track visible viewport size and offset while nested modals re
   outer.close();
   assert.equal(env.document.documentElement.style['--modal-viewport-height'], undefined);
   assert.equal(env.document.documentElement.style['--modal-viewport-top'], undefined);
+});
+
+test('wide dialogs treat only an unzoomed viewport shrink as keyboard geometry', () => {
+  const env = pullHarness();
+  const dialog = env.document.createElement('dialog');
+  env.document.root.append(dialog);
+  env.document.defaultView.innerHeight = 390;
+  env.visualViewport.height = 390;
+  dialog.showModal();
+
+  assert.equal(env.document.documentElement.getAttribute('data-modal-viewport-shrunk'), null);
+  env.visualViewport.height = 200;
+  env.visualViewport.dispatch('resize');
+  assert.equal(env.document.documentElement.getAttribute('data-modal-viewport-shrunk'), 'true');
+
+  env.visualViewport.scale = 1.42;
+  env.visualViewport.dispatch('resize');
+  assert.equal(env.document.documentElement.getAttribute('data-modal-viewport-shrunk'), null,
+    'pinch zoom does not activate keyboard sizing');
+  dialog.close();
+  assert.equal(env.document.documentElement.getAttribute('data-modal-viewport-shrunk'), null);
 });
 
 test('opening and dismissing a dialog during a pull cancels that gesture', () => {
@@ -5427,10 +5459,80 @@ test('record rating lets vertical swipes scroll and commits taps and horizontal 
   assert.equal(document.activeElement, slider, 'a rating tap remains keyboard accessible');
 
   slider.value = '';
+  previousFocus.focus();
   fire(slider, 'pointerdown', { button: 0, pointerId: 93, pointerType: 'touch', clientX: 110, clientY: 24 });
   fire(slider, 'pointermove', { pointerId: 93, pointerType: 'touch', clientX: 500, clientY: 25 });
+  assert.ok(document.activeElement === previousFocus, 'a touch drag keeps focus until it commits');
   fire(slider, 'pointerup', { pointerId: 93, pointerType: 'touch', clientX: 500, clientY: 25 });
+  assert.equal(document.activeElement, slider);
   assert.equal(slider.value, tappedRating, 'a horizontal drag and tap at the same position choose the same tenth');
+});
+
+test('a second touch outside the stars cancels rating changes and restores focus', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+  view.renderRoute('/records/new');
+  const form = document.root.querySelector('form[data-form="records"]');
+  const slider = form.elements.rating;
+  const previousFocus = form.elements.cupNote;
+  slider.rect = { left: 10, width: 1000, right: 1010, top: 0, bottom: 48, height: 48 };
+  previousFocus.focus();
+
+  fire(slider, 'pointerdown', { button: 0, pointerId: 101, pointerType: 'touch', isPrimary: true, clientX: 110, clientY: 24 });
+  fire(slider, 'pointermove', { pointerId: 101, pointerType: 'touch', isPrimary: true, clientX: 500, clientY: 24 });
+  assert.equal(slider.value, '2.5');
+  assert.ok(document.activeElement === previousFocus, 'a touch drag defers focus until release');
+
+  fire(document, 'pointerdown', { target: previousFocus, button: 0, pointerId: 102, pointerType: 'touch', isPrimary: false });
+  assert.equal(slider.value, '', 'the pending drag restores the rating from before the gesture');
+  assert.ok(document.activeElement === previousFocus, 'the second touch preserves the original focus');
+  assert.equal(slider.hasPointerCapture(101), false);
+  fire(slider, 'pointerup', { pointerId: 101, pointerType: 'touch', isPrimary: true, clientX: 1010, clientY: 24 });
+  assert.equal(slider.value, '', 'the cancelled primary pointer cannot commit on release');
+  assert.equal(document.listeners.get('pointerdown')?.length, 0, 'the document listener ends with the active gesture');
+});
+
+test('a non-primary touch cannot start or finish a rating gesture', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+  view.renderRoute('/records/new');
+  const form = document.root.querySelector('form[data-form="records"]');
+  const slider = form.elements.rating;
+  const previousFocus = form.elements.cupNote;
+  slider.rect = { left: 10, width: 1000, right: 1010, top: 0, bottom: 48, height: 48 };
+  previousFocus.focus();
+
+  fire(slider, 'pointerdown', { button: 0, pointerId: 111, pointerType: 'touch', isPrimary: false, clientX: 500, clientY: 24 });
+  fire(slider, 'pointerup', { pointerId: 111, pointerType: 'touch', isPrimary: false, clientX: 500, clientY: 24 });
+  assert.equal(slider.value, '');
+  assert.equal(document.activeElement, previousFocus);
+  assert.equal(slider.hasPointerCapture(111), false);
+});
+
+test('detaching a rating widget releases its document gesture listener', () => {
+  const document = new TestDocument();
+  document.defaultView = { MutationObserver: TestMutationObserver };
+  const view = createBeanView(document);
+  view.renderData(data());
+  view.renderRoute('/records/new');
+  const slider = document.root.querySelector('form[data-form="records"]').elements.rating;
+  const widget = slider.closest('.star-rating');
+  Object.defineProperty(slider, 'isConnected', { get() {
+    for (let current = slider; current; current = current.parentElement) if (current === document.root) return true;
+    return false;
+  } });
+
+  fire(slider, 'pointerdown', { button: 0, pointerId: 121, pointerType: 'touch', isPrimary: true, clientX: 100, clientY: 24 });
+  assert.equal(document.listeners.get('pointerdown')?.length, 1);
+  assert.equal(document.mutationObservers.size, 1, 'an active touch observes for widget removal');
+  const observer = [...document.mutationObservers][0];
+  widget.remove();
+  observer.callback([{ type: 'childList', target: document.root }], observer);
+
+  assert.equal(document.listeners.get('pointerdown')?.length, 0);
+  assert.equal(document.mutationObservers.size, 0, 'the removal observer ends with the gesture');
 });
 
 test('record rating supports tenth-point pointer, keyboard, cancellation, and draft interaction', () => {

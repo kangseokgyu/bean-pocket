@@ -1132,7 +1132,17 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
   }
   const titles = { beans: '원두', recipes: '레시피', records: '추출 기록' };
   const header = make(document, 'div', undefined, 'list-header');
-  header.append(make(document, 'h2', titles[section] ?? '커피 기록'));
+  const beanDetail = section === 'beans' && parts[1];
+  const recipeDetail = section === 'recipes' && parts[1] && parts[1] !== 'new' && parts[2] !== 'edit';
+  if (beanDetail || recipeDetail) {
+    const label = `${titles[section]} 목록`;
+    const back = button(document, label, 'button', 'navigate', 'back');
+    back.dataset.route = `/${section}`;
+    back.append(make(document, 'span', label));
+    header.append(back);
+  } else {
+    header.append(make(document, 'h2', titles[section] ?? '커피 기록'));
+  }
   const actions = make(document, 'div', undefined, 'list-actions');
   if (section === 'beans' && !parts[1]) {
     const add = iconButton(document, '+', '새 원두 추가', 'show-bean-form');
@@ -1155,7 +1165,7 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
   header.append(actions);
   pane.append(header);
 
-  if (section === 'beans' && parts[1]) {
+  if (beanDetail) {
     renderBeanDetail(pane, data, document, parts[1]);
   } else if (section === 'recipes' && parts[1] && parts[1] !== 'new' && parts[2] === 'edit') {
     const recipe = data.recipes?.find(row => row.id === parts[1]);
@@ -1177,7 +1187,7 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
       setSteps(form, recipe.steps);
       updatePreview(pane);
     }
-  } else if (section === 'recipes' && parts[1] && parts[1] !== 'new') {
+  } else if (recipeDetail) {
     renderRecipeDetail(pane, data, document, parts[1]);
   } else if (section === 'beans') {
     const form = buildBeanForm(document);

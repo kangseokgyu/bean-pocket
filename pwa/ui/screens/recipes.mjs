@@ -41,9 +41,6 @@ export function renderRecipes(pane, data, document) {
 
 export function renderRecipeDetail(pane, data, document, recipeId) {
   const recipe = data.recipes.find(row => row.id === recipeId);
-  const back = button(document, '레시피 목록으로 돌아가기', 'button', 'navigate', 'back');
-  back.dataset.route = '/recipes';
-  pane.append(back);
   if (!recipe) {
     pane.append(make(document, 'p', '레시피를 찾을 수 없습니다. 최신 목록을 새로고침해 주세요.'));
     return;
@@ -54,7 +51,7 @@ export function renderRecipeDetail(pane, data, document, recipeId) {
 function recipeCard(document, recipe, data, detailed = false) {
   const article = make(document, 'article', undefined, 'recipe-card');
   const header = make(document, 'div', undefined, 'entity-card-header');
-  header.append(make(document, 'h3', recipe.name));
+  header.append(make(document, 'h2', recipe.name));
   const headerActions = make(document, 'div', undefined, 'recipe-header-actions');
   if (detailed) {
     const edit = iconButton(document, '', `${recipe.name} 수정`, 'edit-recipe');

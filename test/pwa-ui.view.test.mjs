@@ -2319,7 +2319,7 @@ test('bean details group all bean metadata and records inside the recipe card hi
 
   const detail = document.root.querySelector('.bean-detail-card');
   assert.ok(detail);
-  assert.equal(detail.querySelector('h3').textContent, '원두 <안전>');
+  assert.equal(detail.querySelector('h2').textContent, '원두 <안전>');
   assert.deepEqual(detail.querySelectorAll('.bean-detail-section')
     .map(section => section.querySelector('h4').textContent), ['원두 정보', '사용자 베스트 추출', '이 원두의 추출 기록']);
   assert.deepEqual(detail.querySelector('.bean-primary-metadata').querySelectorAll('dt').map(node => node.textContent),
@@ -4287,23 +4287,32 @@ test('home is the default and root route, with the requested hero and four menu 
   assert.ok(document.root.querySelector('.home-hero'));
 });
 
-test('back buttons show an arrow and keep their accessible destination and route', () => {
+test('catalog details put a visible list return in the header and navigate back to the list', async () => {
   const document = new TestDocument();
   const view = createBeanView(document);
+  view.bind({});
   view.renderData(data());
 
-  for (const [route, destination, target] of [
-    [`/beans/${BEAN}`, '원두 목록으로', '/beans'],
-    [`/recipes/${RECIPE}`, '레시피 목록으로 돌아가기', '/recipes'],
+  for (const [route, destination, target, name] of [
+    [`/beans/${BEAN}`, '원두 목록', '/beans', '원두 <안전>'],
+    [`/recipes/${RECIPE}`, '레시피 목록', '/recipes', 'V60'],
   ]) {
     view.renderRoute(route);
-    const back = document.root.querySelector('.button--back');
-    assert.ok(back);
+    const pane = document.root.querySelector('.list-view');
+    const header = pane.querySelector('.list-header');
+    const back = header.querySelector('button');
+    assert.ok(back, `${route} should show the list return in the header`);
+    assert.equal(pane.querySelectorAll('.button--back').length, 1);
+    assert.equal(header.querySelector('h2'), null);
+    assert.equal(pane.querySelector('h2').textContent, name);
     assert.equal(back.type, 'button');
     assert.equal(back.getAttribute('aria-label'), destination);
-    assert.equal(back.dataset.route, target);
-    assert.equal(back.textContent, '←');
+    assert.equal(back.textContent, `←${destination}`);
     assert.equal(back.querySelector('.back-arrow').getAttribute('aria-hidden'), 'true');
+    await clickViewTarget(document, back);
+    assert.equal(view.currentRoute(), target);
+    const listHeader = document.root.querySelector('.list-view').querySelector('.list-header');
+    assert.equal(listHeader.querySelector('h2').textContent, destination.replace(' 목록', ''));
   }
 });
 

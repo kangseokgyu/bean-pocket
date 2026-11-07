@@ -708,6 +708,7 @@ button:focus-visible, .table-scroll:focus-visible {
 .list-view { display: grid; gap: 8px; min-width: 0; }
 .list-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .list-header h2 { margin: 0; font-size: 1.0625rem; line-height: 1.4; }
+.list-header .button--back { width: auto; gap: 6px; padding: 0 8px; }
 .list-actions { display: flex; gap: 8px; flex-shrink: 0; }
 .icon-button { display: inline-flex; align-items: center; justify-content: center; width: 46px; padding: 8px; font-size: 1.5rem; }
 .list-actions .icon-button { flex: 0 0 32px; width: 32px; height: 32px; min-height: 32px; padding: 0; border: 0; background: transparent; color: var(--text-muted); }
@@ -873,7 +874,7 @@ button:focus-visible, .table-scroll:focus-visible {
 .entity-card-header h3, .entity-card-header h4 { min-width: 0; overflow-wrap: anywhere; margin: 0 0 12px; }
 .recipe-header-actions { display: flex; flex: 0 0 auto; gap: 0; margin: -14px -8px -14px 0; }
 .recipe-header-actions > .button { margin: 0; }
-.entity-card-header h3 { margin-bottom: 0; font-size: 0.9375rem; line-height: 1.5; }
+.entity-card-header h2, .entity-card-header h3 { margin: 0; font-size: 0.9375rem; line-height: 1.5; }
 .entity-delete, .entity-favorite, .entity-edit { flex: 0 0 46px; width: 46px; height: 46px; margin: -14px -8px -14px 0; color: var(--text-muted); background: transparent; border-color: transparent; }
 .entity-delete, .entity-favorite, .entity-edit { flex-basis: 35px; width: 35px; height: 35px; min-height: 35px; padding: 0; }
 .entity-delete svg, .entity-favorite svg, .entity-edit svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
@@ -1498,4 +1499,4 @@ footer {
 
 .entity-favorite[aria-pressed="true"] .favorite-icon { fill: currentColor; }
 .entity-card-header > .entity-favorite { margin-right: -12px; }
-.entity-card-header > h3 { flex: 1; min-width: 0; }
+.entity-card-header > h2, .entity-card-header > h3 { flex: 1; min-width: 0; }

@@ -1,5 +1,5 @@
 import { make } from '../shared/dom.mjs';
-import { button, trashButton } from '../shared/buttons.mjs';
+import { trashButton } from '../shared/buttons.mjs';
 import { favoriteButton } from '../shared/favorite-button.mjs';
 import { currentRecords, recordCard } from '../shared/record-card.mjs';
 
@@ -68,16 +68,13 @@ function beanDetailSection(document, title, className = '') {
 
 export function renderBeanDetail(pane, data, document, beanId) {
   const bean = data.beans.find(row => row.id === beanId);
-  const back = button(document, '원두 목록으로', 'button', 'navigate', 'back');
-  back.dataset.route = '/beans';
-  pane.append(back);
   if (!bean) {
     pane.append(make(document, 'p', '원두를 찾을 수 없습니다. 최신 목록을 새로고침해 주세요.'));
     return;
   }
   const detail = make(document, 'article', undefined, 'bean-detail-card');
   const header = make(document, 'div', undefined, 'entity-card-header');
-  header.append(make(document, 'h3', bean.name));
+  header.append(make(document, 'h2', bean.name));
   detail.append(header);
   const information = beanDetailSection(document, '원두 정보');
   information.append(beanOverview(document, bean));

@@ -311,7 +311,7 @@ test('connection settings header control uses an accessible outlined gear button
     /min-height:\s*44px/,
     /border:\s*0;/,
     /background:\s*transparent;/,
-    /color:\s*#31443a/,
+    /color:\s*var\(--text\)/,
   ]) assert.match(buttonRule[1], declaration);
   for (const declaration of [
     /width:\s*22px/,
@@ -322,8 +322,8 @@ test('connection settings header control uses an accessible outlined gear button
     /stroke-linecap:\s*round/,
     /stroke-linejoin:\s*round/,
   ]) assert.match(iconRule[1], declaration);
-  assert.match(stylesheet, /\.connection-toggle:hover:not\(:disabled\)[^{]*\{[^}]*background:\s*#f0f0ed/s);
-  assert.match(stylesheet, /\.connection-toggle\[aria-expanded="true"\]\s*\{[^}]*background:\s*#e8eee7[^}]*color:\s*#224b3c/s);
+  assert.match(stylesheet, /\.connection-toggle:hover:not\(:disabled\)[^{]*\{[^}]*background:\s*var\(--surface-hover\)/s);
+  assert.match(stylesheet, /\.connection-toggle\[aria-expanded="true"\]\s*\{[^}]*background:\s*var\(--selection\)[^}]*color:\s*var\(--accent\)/s);
 });
 
 test('startup checking shows the status toast outside the locked page until retry is needed', () => {

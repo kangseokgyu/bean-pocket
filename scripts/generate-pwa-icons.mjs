@@ -33,7 +33,7 @@ function mix(colors) {
 }
 
 export function createPngIcon(size) {
-  const background = [34, 75, 60, 255];
+  const background = [150, 63, 45, 255];
   const bean = [244, 234, 213, 255];
   const seam = [156, 116, 82, 255];
   const samples = [-0.375, -0.125, 0.125, 0.375];

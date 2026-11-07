@@ -4737,7 +4737,7 @@ test('bean form preserves field names, required markers, and submit actions', ()
   assert.equal(form.querySelector('[data-entry-submit]') !== null, true);
 });
 
-test('focused recipe and brew values adjust slowly without blocking ordinary scrolling', () => {
+test('wheel adjusts focused values by one unit and ratings by a tenth', () => {
   const document = new TestDocument();
   const view = createBeanView(document);
   const changes = [];
@@ -4759,20 +4759,26 @@ test('focused recipe and brew values adjust slowly without blocking ordinary scr
   assert.equal(wheel(dose, -40).defaultPrevented, true);
   assert.equal(dose.value, '18.55');
   wheel(dose, -60);
-  assert.equal(dose.value, '18.65');
+  assert.equal(dose.value, '19.55');
   assert.deepEqual(changes.at(-1), [true, 'recipes']);
   assert.equal(wheel(dose, -100, { ctrlKey: true }).defaultPrevented, false);
   assert.equal(wheel(dose, -100, { deltaX: 130 }).defaultPrevented, false);
-  assert.equal(dose.value, '18.65');
+  assert.equal(dose.value, '19.55');
   wheel(dose, 500);
   assert.equal(dose.value, '18.55', 'large wheel events still move by just one increment');
   dose.disabled = true;
   assert.equal(wheel(dose, -100).defaultPrevented, false);
   assert.equal(dose.value, '18.55');
+  dose.disabled = false;
+  dose.value = '0.1';
+  wheel(dose, -100);
+  assert.equal(dose.value, '1.1');
+  wheel(dose, 100);
+  assert.equal(dose.value, '0.1');
 
   for (const [name, initial, expected] of [
-    ['microns', '450', '451'], ['temperature', '99.95', '100'],
-    ['totalWater', '250', '250.1'], ['grind', '5', '5.1'], ['grinderSetting', '24.25', '24.35'],
+    ['microns', '450', '451'], ['temperature', '92.5', '93.5'], ['temperature', '99.95', '100'],
+    ['totalWater', '250', '251'], ['grind', '5', '6'], ['grinderSetting', '24.25', '25.25'],
   ]) {
     const field = recipe.elements[name];
     field.value = initial;
@@ -4789,15 +4795,15 @@ test('focused recipe and brew values adjust slowly without blocking ordinary scr
   const stage = brew.querySelector('.brew-stage-row');
   for (const [field, initial, expected] of [
     [stage.querySelector('[name="time"]'), '0:59', '1:00'],
-    [stage.querySelector('[name="water"]'), '50', '50.1'],
-    [brew.elements.rating, '4.9', '5'],
+    [stage.querySelector('[name="water"]'), '50', '51'],
+    [brew.elements.rating, '4.8', '4.9'],
   ]) {
     field.value = initial;
     field.focus();
     wheel(field, -100);
     assert.equal(field.value, expected);
   }
-  assert.equal(brew.querySelector('[data-rating-output]').textContent, '5.0점');
+  assert.equal(brew.querySelector('[data-rating-output]').textContent, '4.9점');
   assert.deepEqual(changes.at(-1), [true, 'brews']);
 });
 

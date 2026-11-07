@@ -13,7 +13,7 @@ function readWheelValue(input) {
   if (input.type === 'number' && !input.validity?.badInput) {
     return {
       value: Number(input.value),
-      step: input.name === 'microns' ? 1 : Number(input.step) || 0.1,
+      step: input.name === 'rating' ? Number(input.step) : 1,
       min: String(input.min ?? '') === '' ? -Infinity : Number(input.min),
       max: String(input.max ?? '') === '' ? Infinity : Number(input.max),
       format: String,
@@ -24,7 +24,7 @@ function readWheelValue(input) {
     if (value !== null) return { value, step: 1, min: 0, max: Number.MAX_SAFE_INTEGER, format: formatTime };
   }
   if ((input.name === 'grind' || input.name === 'grinderSetting') && /^-?(?:\d+(?:\.\d+)?|\.\d+)$/.test(input.value)) {
-    return { value: Number(input.value), step: 0.1, min: -Infinity, max: Infinity, format: String };
+    return { value: Number(input.value), step: 1, min: -Infinity, max: Infinity, format: String };
   }
   return null;
 }
@@ -54,7 +54,7 @@ function bindFineNumberWheel(content, document) {
 
     const { value, step, min, max, format } = settings;
     const adjusted = value + direction * step;
-    const next = Math.max(min, Math.min(max, step < 1 ? Number(adjusted.toPrecision(15)) : adjusted));
+    const next = Math.max(min, Math.min(max, Number.isInteger(adjusted) ? adjusted : Number(adjusted.toPrecision(15))));
     if (next === value && input.value !== '') return;
     input.value = format(next);
     const EventConstructor = document.defaultView?.Event ?? globalThis.Event;

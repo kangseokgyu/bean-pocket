@@ -119,11 +119,24 @@ export function createStarRating(document, { label = '별점' } = {}) {
   }
 
   function releasePointer(pointerId) {
-    if (activePointer?.id !== pointerId) return;
+    const pointer = activePointer;
+    if (pointer?.id !== pointerId) return;
     activePointer = null;
+    pointer.detachObserver?.disconnect();
+    if (pointer.pointerType === 'touch') document.removeEventListener('pointerdown', cancelForAdditionalTouch, true);
     try {
       if (input.hasPointerCapture(pointerId)) input.releasePointerCapture(pointerId);
     } catch {}
+  }
+
+  function cancelForAdditionalTouch(event) {
+    const pointer = activePointer;
+    if (pointer?.pointerType !== 'touch' || event.pointerType !== 'touch' || event.isPrimary !== false) return;
+    releasePointer(pointer.id);
+    changeValue(pointer.startValue);
+    if (pointer.focusBefore && pointer.focusBefore.isConnected !== false && document.activeElement !== pointer.focusBefore) {
+      pointer.focusBefore.focus?.({ preventScroll: true });
+    }
   }
 
   function pointerPosition(event) {
@@ -133,12 +146,27 @@ export function createStarRating(document, { label = '별점' } = {}) {
     };
   }
 
+  function watchForDetach(pointer) {
+    const MutationObserver = document.defaultView?.MutationObserver;
+    const root = document.documentElement ?? document.body ?? document.root;
+    if (typeof MutationObserver !== 'function' || !root) return;
+    pointer.detachObserver = new MutationObserver(() => {
+      if (input.isConnected === false) releasePointer(pointer.id);
+    });
+    pointer.detachObserver.observe(root, { childList: true, subtree: true });
+  }
+
   function beginPointer(event) {
-    if (input.disabled || activePointer || event.button !== undefined && event.button !== 0) return;
+    if (input.disabled || activePointer || event.pointerType === 'touch' && event.isPrimary === false ||
+        event.button !== undefined && event.button !== 0) return;
     const pointer = {
       id: event.pointerId,
+      pointerType: event.pointerType ?? 'mouse',
       startX: Number.isFinite(event.clientX) ? event.clientX : 0,
       startY: Number.isFinite(event.clientY) ? event.clientY : 0,
+      startValue: input.value,
+      focusBefore: document.activeElement,
+      detachObserver: null,
       dragging: false,
     };
     try {
@@ -147,6 +175,10 @@ export function createStarRating(document, { label = '별점' } = {}) {
       return;
     }
     activePointer = pointer;
+    if (pointer.pointerType === 'touch') {
+      document.addEventListener('pointerdown', cancelForAdditionalTouch, true);
+      watchForDetach(pointer);
+    }
   }
 
   function movePointer(event) {
@@ -159,12 +191,12 @@ export function createStarRating(document, { label = '별점' } = {}) {
       if (Math.abs(dy) > 8 && Math.abs(dy) >= Math.abs(dx)) return releasePointer(event.pointerId);
       if (Math.abs(dx) <= 8 || Math.abs(dx) < Math.abs(dy)) return;
       activePointer.dragging = true;
-      input.focus({ preventScroll: true });
     }
     updateFromPointer({ ...event, clientX: x });
   }
 
   function finishPointer(event) {
+    if (event.pointerType === 'touch' && event.isPrimary === false) return;
     if (activePointer?.id !== event.pointerId) return;
     if (input.disabled) return releasePointer(event.pointerId);
     const { x, y } = pointerPosition(event);
@@ -184,7 +216,7 @@ export function createStarRating(document, { label = '별점' } = {}) {
   input.addEventListener('pointerup', finishPointer);
   input.addEventListener('pointercancel', event => releasePointer(event.pointerId));
   input.addEventListener('lostpointercapture', event => {
-    if (event.pointerId === activePointer?.id) activePointer = null;
+    if (event.pointerId === activePointer?.id) releasePointer(event.pointerId);
   });
   input.addEventListener('keydown', event => {
     if (input.disabled) return;

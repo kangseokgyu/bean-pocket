@@ -25,8 +25,12 @@ export function bindPullToRefresh({ page, document, actions }) {
     const visualViewport = open ? document.defaultView?.visualViewport : null;
     const height = visualViewport?.height;
     const offsetTop = visualViewport?.offsetTop ?? 0;
+    const scale = visualViewport?.scale ?? 1;
+    const layoutHeight = document.defaultView?.innerHeight;
+    const keyboardLikeShrink = Number.isFinite(height) && Number.isFinite(layoutHeight) && layoutHeight > 0 &&
+      Math.abs(scale - 1) < 0.01 && height < layoutHeight * 0.85;
     const viewport = Number.isFinite(height) && height > 0 && Number.isFinite(offsetTop)
-      ? { height, offsetTop } : null;
+      ? { height, offsetTop, keyboardLikeShrink } : null;
     const previousViewport = modalState.viewport;
     modalState.open = open;
     modalState.viewport = viewport;
@@ -36,6 +40,12 @@ export function bindPullToRefresh({ page, document, actions }) {
     } else if (!viewport && previousViewport) {
       surface.style.removeProperty?.('--modal-viewport-height');
       surface.style.removeProperty?.('--modal-viewport-top');
+    }
+    const shrunk = viewport?.keyboardLikeShrink === true;
+    if (shrunk && surface.getAttribute('data-modal-viewport-shrunk') !== 'true') {
+      surface.setAttribute('data-modal-viewport-shrunk', 'true');
+    } else if (!shrunk && surface.getAttribute('data-modal-viewport-shrunk') === 'true') {
+      surface.removeAttribute('data-modal-viewport-shrunk');
     }
     return modalState;
   };

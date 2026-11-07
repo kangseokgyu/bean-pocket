@@ -1625,18 +1625,20 @@ function pullHarness() {
     indicator: () => document.root.querySelector('.pull-refresh') };
 }
 
-test('an open dialog blocks pull-to-refresh from its backdrop and refresh resumes after dismissal', () => {
+test('an open native dialog blocks page refresh without cancelling its touch gesture', () => {
   const env = pullHarness();
   const dialog = env.document.createElement('dialog');
   env.document.root.append(dialog);
   dialog.showModal();
 
-  env.fire('touchstart', 20, 100, { target: dialog });
+  const start = env.fire('touchstart', 20, 100, { target: dialog });
   const move = env.fire('touchmove', 20, 350, { target: dialog });
-  env.fire('touchend', 20, 350, { target: dialog });
+  const end = env.fire('touchend', 20, 350, { target: dialog });
   env.finishReload();
 
-  assert.equal(move.defaultPrevented, true, 'a pull at a non-scrollable dialog edge must not chain to the page');
+  assert.equal(start.defaultPrevented, false);
+  assert.equal(move.defaultPrevented, false, 'native modal scrolling is never cancelled by the page gesture handler');
+  assert.equal(end.defaultPrevented, false);
   assert.equal(env.reloads, 0);
   assert.equal(env.indicator().hidden, true);
 
@@ -1645,67 +1647,50 @@ test('an open dialog blocks pull-to-refresh from its backdrop and refresh resume
   assert.equal(env.reloads, 1);
 });
 
-test('modal scroll boundaries block page refresh while available modal scrolling stays native', () => {
+test('touches in a nested native dialog stay native at every scroll boundary', () => {
   const env = pullHarness();
-  const dialog = env.document.createElement('dialog');
-  dialog.scrollHeight = 500;
-  dialog.clientHeight = 400;
-  dialog.getBoundingClientRect = () => ({ left: 0, right: 390, top: 20, bottom: 844 });
-  env.document.root.append(dialog);
-  dialog.showModal();
+  const outer = env.document.createElement('dialog');
+  const content = env.document.createElement('section');
+  const picker = env.document.createElement('dialog');
+  const results = env.document.createElement('ul');
+  outer.scrollHeight = 500;
+  outer.clientHeight = 400;
+  outer.getBoundingClientRect = () => ({ left: 0, right: 390, top: 20, bottom: 844 });
+  content.scrollHeight = 400;
+  content.clientHeight = 300;
+  picker.scrollHeight = 500;
+  picker.clientHeight = 400;
+  results.scrollHeight = 500;
+  results.clientHeight = 400;
+  outer.append(content);
+  content.append(picker);
+  picker.append(results);
+  env.document.root.append(outer);
+  outer.showModal();
+  picker.showModal();
 
-  dialog.scrollTop = 50;
-  env.fire('touchstart', 20, 10, { target: dialog });
-  const backdrop = env.fire('touchmove', 20, 350, { target: dialog });
-  assert.equal(backdrop.defaultPrevented, true, 'a drag that starts on the backdrop must stay outside the page');
-  env.fire('touchcancel', 20, 350, { target: dialog });
-
-  dialog.scrollTop = 0;
-  env.fire('touchstart', 20, 100, { target: dialog });
-  const topBoundary = env.fire('touchmove', 20, 350, { target: dialog });
-  assert.equal(topBoundary.defaultPrevented, true, 'a downward drag at the dialog top must not chain to the page');
-  env.fire('touchcancel', 20, 350, { target: dialog });
-
-  dialog.scrollTop = 50;
-  env.fire('touchstart', 20, 350, { target: dialog });
-  const availableScroll = env.fire('touchmove', 20, 200, { target: dialog });
-  assert.equal(availableScroll.defaultPrevented, false, 'scrolling within the dialog must remain native');
-  env.fire('touchcancel', 20, 200, { target: dialog });
-
-  dialog.scrollTop = 100;
-  env.fire('touchstart', 20, 350, { target: dialog });
-  const bottomBoundary = env.fire('touchmove', 20, 200, { target: dialog });
-  assert.equal(bottomBoundary.defaultPrevented, true, 'an upward drag at the dialog bottom must not chain to the page');
-  env.fire('touchcancel', 20, 200, { target: dialog });
-
-  env.fire('touchstart', 20, 100, { target: dialog });
-  const horizontal = env.fire('touchmove', 200, 110, { target: dialog });
-  assert.equal(horizontal.defaultPrevented, false, 'horizontal gestures must stay native');
-  env.fire('touchcancel', 200, 110, { target: dialog });
-
-  env.fire('touchstart', 20, 100, { target: dialog, touches: [{ identifier: 1 }, { identifier: 2 }] });
-  const multiTouch = env.fire('touchmove', 20, 350, { target: dialog, touches: [{ identifier: 1 }, { identifier: 2 }] });
-  assert.equal(multiTouch.defaultPrevented, false, 'multi-touch gestures must not be intercepted');
-  env.fire('touchcancel', 20, 350, { target: dialog, touches: [] });
+  const cases = [
+    { target: outer, x: 20, startY: 10, endY: 350, scrollTop: 0 },
+    { target: content, x: 20, startY: 100, endY: 350, scrollTop: 0 },
+    { target: results, x: 20, startY: 350, endY: 200, scrollTop: 100 },
+  ];
+  for (const { target, x, startY, endY, scrollTop } of cases) {
+    outer.scrollTop = scrollTop;
+    picker.scrollTop = scrollTop;
+    results.scrollTop = scrollTop;
+    const start = env.fire('touchstart', x, startY, { target });
+    const move = env.fire('touchmove', x, endY, { target });
+    const end = env.fire('touchend', x, endY, { target });
+    assert.equal(start.defaultPrevented, false);
+    assert.equal(move.defaultPrevented, false, 'native dialog and picker scroll boundaries do not cancel a touch');
+    assert.equal(end.defaultPrevented, false);
+  }
   assert.equal(env.reloads, 0);
-});
-
-test('modal scroll direction reversal uses the latest touch movement', () => {
-  const env = pullHarness();
-  const dialog = env.document.createElement('dialog');
-  dialog.scrollHeight = 500;
-  dialog.clientHeight = 400;
-  dialog.scrollTop = 100;
-  dialog.getBoundingClientRect = () => ({ left: 0, right: 390, top: 20, bottom: 844 });
-  env.document.root.append(dialog);
-  dialog.showModal();
-
-  env.fire('touchstart', 20, 350, { target: dialog });
-  const atBottom = env.fire('touchmove', 20, 200, { target: dialog });
-  const reversed = env.fire('touchmove', 20, 250, { target: dialog });
-
-  assert.equal(atBottom.defaultPrevented, true, 'upward movement at the bottom must not chain to the page');
-  assert.equal(reversed.defaultPrevented, false, 'downward reversal at the bottom must scroll back toward the top');
+  assert.equal(env.indicator().hidden, true);
+  picker.close();
+  outer.close();
+  env.pull();
+  assert.equal(env.reloads, 1, 'page refresh resumes after every modal closes');
 });
 
 test('opening and dismissing a dialog during a pull cancels that gesture', () => {
@@ -5379,6 +5364,39 @@ test('integration: invalid record prefill closes the initial modal and exposes t
 });
 
 
+test('record rating lets vertical swipes scroll and commits taps and horizontal drags at the same precision', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+  view.renderRoute('/records/new');
+  const form = document.root.querySelector('form[data-form="records"]');
+  const slider = form.elements.rating;
+  const previousFocus = form.elements.cupNote;
+  slider.rect = { left: 10, width: 1000, right: 1010, top: 0, bottom: 48, height: 48 };
+  slider.value = '1.4';
+  previousFocus.focus();
+
+  fire(slider, 'pointerdown', { button: 0, pointerId: 91, pointerType: 'touch', clientX: 500, clientY: 24 });
+  fire(slider, 'pointermove', { pointerId: 91, pointerType: 'touch', clientX: 502, clientY: 60 });
+  assert.equal(slider.value, '1.4', 'a vertical swipe does not change the rating');
+  assert.equal(document.activeElement, previousFocus, 'a vertical swipe does not move focus to the rating');
+  fire(slider, 'pointercancel', { pointerId: 91, pointerType: 'touch', clientX: 502, clientY: 60 });
+  assert.equal(slider.hasPointerCapture(91), false);
+
+  fire(slider, 'pointerdown', { button: 0, pointerId: 92, pointerType: 'touch', clientX: 500, clientY: 24 });
+  assert.equal(slider.value, '1.4', 'a tap is committed on release');
+  fire(slider, 'pointerup', { pointerId: 92, pointerType: 'touch', clientX: 500, clientY: 24 });
+  const tappedRating = slider.value;
+  assert.equal(tappedRating, '2.5');
+  assert.equal(document.activeElement, slider, 'a rating tap remains keyboard accessible');
+
+  slider.value = '';
+  fire(slider, 'pointerdown', { button: 0, pointerId: 93, pointerType: 'touch', clientX: 110, clientY: 24 });
+  fire(slider, 'pointermove', { pointerId: 93, pointerType: 'touch', clientX: 500, clientY: 25 });
+  fire(slider, 'pointerup', { pointerId: 93, pointerType: 'touch', clientX: 500, clientY: 25 });
+  assert.equal(slider.value, tappedRating, 'a horizontal drag and tap at the same position choose the same tenth');
+});
+
 test('record rating supports tenth-point pointer, keyboard, cancellation, and draft interaction', () => {
   const document = new TestDocument();
   const view = createBeanView(document);
@@ -5402,7 +5420,7 @@ test('record rating supports tenth-point pointer, keyboard, cancellation, and dr
 
   slider.rect = { left: 10, width: 1000, right: 1010, top: 0, bottom: 48, height: 48 };
   fire(slider, 'pointerdown', { button: 0, pointerId: 1, clientX: -50 });
-  assert.equal(slider.value, '0.1', 'the left boundary clamps to the minimum score');
+  assert.equal(slider.value, '', 'pointerdown waits to commit a tap until release');
   assert.equal(slider.hasPointerCapture(1), true);
   fire(slider, 'pointerdown', { button: 0, pointerId: 2, clientX: 910 });
   fire(slider, 'pointermove', { pointerId: 2, clientX: 910 });
@@ -5416,15 +5434,16 @@ test('record rating supports tenth-point pointer, keyboard, cancellation, and dr
   fire(slider, 'pointermove', { pointerId: 1, clientX: 1010 });
   assert.equal(slider.value, '2.5', 'moves after pointer cancellation cannot change the value');
   fire(slider, 'pointerdown', { button: 0, pointerId: 3, clientX: 1200 });
-  assert.equal(slider.value, '5.0', 'the right edge clamps to the maximum score');
+  assert.equal(slider.value, '2.5', 'pointerdown waits to commit a tap until release');
   fire(slider, 'pointerup', { pointerId: 3, clientX: 1200 });
+  assert.equal(slider.value, '5.0', 'the right edge clamps to the maximum score on release');
   assert.equal(slider.hasPointerCapture(3), false);
   fire(slider, 'pointerdown', { button: 0, pointerId: 4, clientX: 810 });
   slider.disabled = true;
   fire(slider, 'pointermove', { pointerId: 4, clientX: 910 });
   slider.disabled = false;
   fire(slider, 'pointermove', { pointerId: 4, clientX: 1010 });
-  assert.equal(slider.value, '4.0', 'a disabled or cancelled drag cannot resume');
+  assert.equal(slider.value, '5.0', 'a disabled or cancelled drag cannot resume');
 
   slider.value = '';
   fire(slider, 'keydown', { key: 'ArrowRight', preventDefault() {} });

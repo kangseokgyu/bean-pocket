@@ -1200,8 +1200,8 @@ footer {
     }
   }
   .form-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .entry-dialog { position: fixed; inset: calc(env(safe-area-inset-top, 0px) + 20px) 0 0; width: 100%; max-width: none; max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 20px); margin: 0; padding: 18px 14px max(14px, env(safe-area-inset-bottom, 0px)); border-radius: 18px 18px 0 0; }
-  .option-picker-dialog { position: fixed; inset: calc(env(safe-area-inset-top, 0px) + 20px) 0 0; width: 100%; max-width: none; max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 20px); margin: 0; padding: 18px 14px max(14px, env(safe-area-inset-bottom, 0px)); border-radius: 18px 18px 0 0; }
+  .entry-dialog:not(.delete-confirm-dialog) { position: fixed; top: calc(var(--modal-viewport-top, 0px) + max(8px, env(safe-area-inset-top, 0px) + 20px)); right: 0; bottom: auto; left: 0; width: 100%; max-width: none; height: max(0px, calc(var(--modal-viewport-height, 100dvh) - max(8px, env(safe-area-inset-top, 0px) + 20px) - 8px)); max-height: none; margin: 0; padding: 18px 14px max(14px, env(safe-area-inset-bottom, 0px)); border-radius: 18px 18px 0 0; }
+  .option-picker-dialog { position: fixed; top: calc(var(--modal-viewport-top, 0px) + max(8px, env(safe-area-inset-top, 0px) + 20px)); right: 0; bottom: auto; left: 0; width: 100%; max-width: none; max-height: max(0px, calc(var(--modal-viewport-height, 100dvh) - max(8px, env(safe-area-inset-top, 0px) + 20px) - 8px)); margin: 0; padding: 18px 14px max(14px, env(safe-area-inset-bottom, 0px)); border-radius: 18px 18px 0 0; }
   .search-picker-results { max-height: min(44dvh, 420px); }
   .search-picker-result > button { min-height: 58px; }
   .entry-dialog .form-actions { bottom: calc(-1 * max(14px, env(safe-area-inset-bottom, 0px))); margin: 0 -14px calc(-1 * max(14px, env(safe-area-inset-bottom, 0px))); padding: 12px 14px max(14px, env(safe-area-inset-bottom, 0px)); }
@@ -1210,6 +1210,21 @@ footer {
   .delete-confirm-dialog { position: fixed; inset: 0; width: calc(100% - 32px); max-width: 460px; max-height: calc(100dvh - 32px); margin: auto; padding: 20px; border-radius: 16px; }
   .delete-confirm-actions { display: flex; }
   .delete-confirm-actions .button { width: auto; }
+}
+
+@media (min-width: 601px) {
+  html[data-modal-viewport-shrunk="true"] .entry-dialog:not(.delete-confirm-dialog),
+  html[data-modal-viewport-shrunk="true"] .option-picker-dialog {
+    position: fixed;
+    top: calc(var(--modal-viewport-top, 0px) + 8px);
+    right: 0;
+    bottom: auto;
+    left: 0;
+    max-height: max(0px, calc(var(--modal-viewport-height, 100dvh) - 16px));
+    margin: 0 auto;
+  }
+  html[data-modal-viewport-shrunk="true"] .entry-dialog:not(.delete-confirm-dialog) { width: min(720px, calc(100% - 32px)); }
+  html[data-modal-viewport-shrunk="true"] .option-picker-dialog { width: min(520px, calc(100% - 32px)); }
 }
 
 @media (max-width: 360px) {
@@ -1417,12 +1432,12 @@ footer {
 
 .star-rating { min-width: 0; margin: 0; padding: 0; border: 0; }
 .star-rating legend { margin-bottom: 7px; padding: 0; }
-.rating-options { position: relative; display: flex; width: max-content; flex-wrap: nowrap; gap: 2px; touch-action: none; }
+.rating-options { position: relative; display: flex; width: max-content; flex-wrap: nowrap; gap: 2px; touch-action: pan-y pinch-zoom; }
 .rating-option { position: relative; display: grid; place-items: center; width: 44px; height: 48px; flex-shrink: 0; cursor: pointer; }
 .rating-option svg { width: 34px; height: 34px; fill: none; stroke: var(--text-muted); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
 .rating-star-outline { fill: none; }
 .rating-star-fill { fill: #f5ad16; stroke: none; }
-.rating-slider-input { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; opacity: 0; cursor: pointer; touch-action: none; appearance: none; }
+.rating-slider-input { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; opacity: 0; cursor: pointer; touch-action: pan-y pinch-zoom; appearance: none; }
 .rating-options:has(.rating-slider-input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
 .star-rating:has(.rating-slider-input:disabled) .rating-options { opacity: 0.5; cursor: default; }
 .rating-value-row { display: flex; align-items: center; gap: 7px; margin-top: 3px; }

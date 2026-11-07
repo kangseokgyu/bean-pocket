@@ -14,16 +14,44 @@ export function bindPullToRefresh({ page, document, actions }) {
   (document.body ?? page).append(indicator);
   const threshold = 240;
   let start;
-  let modalGesture;
   let distance = 0;
   let dragging = false;
   let reloading = false;
   let reloadGeneration = 0;
+  const modalState = { open: false, viewport: null };
   const atTop = () => (document.scrollingElement?.scrollTop ?? 0) <= 0;
-  const activeDialog = () => document.querySelector('dialog[open]');
+  const syncModalState = () => {
+    const open = document.querySelectorAll('dialog[open]').length > 0;
+    const visualViewport = open ? document.defaultView?.visualViewport : null;
+    const height = visualViewport?.height;
+    const offsetTop = visualViewport?.offsetTop ?? 0;
+    const scale = visualViewport?.scale ?? 1;
+    const layoutHeight = document.defaultView?.innerHeight;
+    const keyboardLikeShrink = Number.isFinite(height) && Number.isFinite(layoutHeight) && layoutHeight > 0 &&
+      Math.abs(scale - 1) < 0.01 && height < layoutHeight * 0.85;
+    const viewport = Number.isFinite(height) && height > 0 && Number.isFinite(offsetTop)
+      ? { height, offsetTop, keyboardLikeShrink } : null;
+    const previousViewport = modalState.viewport;
+    modalState.open = open;
+    modalState.viewport = viewport;
+    if (viewport && (previousViewport?.height !== height || previousViewport?.offsetTop !== offsetTop)) {
+      surface.style.setProperty('--modal-viewport-height', `${height}px`);
+      surface.style.setProperty('--modal-viewport-top', `${offsetTop}px`);
+    } else if (!viewport && previousViewport) {
+      surface.style.removeProperty?.('--modal-viewport-height');
+      surface.style.removeProperty?.('--modal-viewport-top');
+    }
+    const shrunk = viewport?.keyboardLikeShrink === true;
+    if (shrunk && surface.getAttribute('data-modal-viewport-shrunk') !== 'true') {
+      surface.setAttribute('data-modal-viewport-shrunk', 'true');
+    } else if (!shrunk && surface.getAttribute('data-modal-viewport-shrunk') === 'true') {
+      surface.removeAttribute('data-modal-viewport-shrunk');
+    }
+    return modalState;
+  };
   const blocked = () => {
     const state = actions.getState?.();
-    return Boolean(activeDialog()) || state?.pending || state?.frozen;
+    return syncModalState().open || state?.pending || state?.frozen;
   };
   const available = () => !reloading && !blocked();
   const showPull = distance => {
@@ -40,7 +68,6 @@ export function bindPullToRefresh({ page, document, actions }) {
   };
   const reset = () => {
     start = undefined;
-    modalGesture = undefined;
     distance = 0;
     dragging = false;
     resetPull();
@@ -55,82 +82,43 @@ export function bindPullToRefresh({ page, document, actions }) {
     }
   };
   const cancelForDialog = () => {
-    const gesture = start;
     start = undefined;
-    modalGesture = activeDialog() && gesture ? { ...gesture, lastY: gesture.lastY ?? gesture.y } : undefined;
     reloadGeneration++;
     reloading = false;
     resetPull();
   };
   const MutationObserver = document.defaultView?.MutationObserver;
+  syncModalState();
   if (typeof MutationObserver === 'function') {
     const dialogObserver = new MutationObserver(records => {
       if (records.some(record => record.attributeName === 'open' && record.target.tagName?.toLowerCase() === 'dialog')) {
+        syncModalState();
         cancelForDialog();
       }
     });
     dialogObserver.observe(surface, { attributes: true, attributeFilter: ['open'], subtree: true });
   }
+  const visualViewport = document.defaultView?.visualViewport;
+  visualViewport?.addEventListener?.('resize', syncModalState);
+  visualViewport?.addEventListener?.('scroll', syncModalState);
   const scrolledInside = target => {
     for (let node = target; node && node !== document.body && node !== surface; node = node.parentElement) {
       if (node.scrollHeight > node.clientHeight && node.scrollTop > 0) return true;
     }
     return false;
   };
-  const dialogCanScroll = (dialog, target, touch, deltaY, gesture) => {
-    let withinDialog = false;
-    for (let node = target; node; node = node.parentElement) {
-      if (node === dialog) {
-        withinDialog = true;
-        break;
-      }
-    }
-    if (!withinDialog) return false;
-    const bounds = dialog.getBoundingClientRect?.();
-    if (target === dialog && bounds && (gesture.x < bounds.left || gesture.x > bounds.right ||
-      gesture.y < bounds.top || gesture.y > bounds.bottom || touch.clientX < bounds.left ||
-      touch.clientX > bounds.right || touch.clientY < bounds.top || touch.clientY > bounds.bottom)) return false;
-    for (let node = target; node && node !== dialog; node = node.parentElement) {
-      if (node.scrollHeight > node.clientHeight) {
-        const maxScroll = node.scrollHeight - node.clientHeight;
-        if ((deltaY > 0 && node.scrollTop > 0) || (deltaY < 0 && node.scrollTop < maxScroll)) return true;
-      }
-    }
-    const maxScroll = dialog.scrollHeight - dialog.clientHeight;
-    return (deltaY > 0 && dialog.scrollTop > 0) || (deltaY < 0 && dialog.scrollTop < maxScroll);
-  };
 
   surface.addEventListener('touchstart', event => {
     reset();
-    const dialog = activeDialog();
-    if (dialog) {
-      if (event.touches.length === 1) {
-        const touch = event.touches[0];
-        modalGesture = { id: touch.identifier, x: touch.clientX, y: touch.clientY, lastY: touch.clientY };
-      }
-      return;
-    }
+    if (syncModalState().open) return;
     if (!available() || !atTop() || event.touches.length !== 1 || scrolledInside(event.target)) return;
     const touch = event.touches[0];
     start = { id: touch.identifier, x: touch.clientX, y: touch.clientY, lastY: touch.clientY };
   }, { passive: true });
 
   surface.addEventListener('touchmove', event => {
-    const dialog = activeDialog();
-    if (dialog) {
+    if (syncModalState().open) {
       if (start) cancelForDialog();
-      if (!modalGesture || event.touches.length !== 1 || !event.cancelable) return;
-      const touch = event.touches[0];
-      if (touch.identifier !== modalGesture.id) {
-        modalGesture = undefined;
-        return;
-      }
-      const dx = Math.abs(touch.clientX - modalGesture.x);
-      const dy = touch.clientY - modalGesture.y;
-      const deltaY = touch.clientY - modalGesture.lastY;
-      modalGesture.lastY = touch.clientY;
-      if (Math.abs(dy) <= 8 || dx >= Math.abs(dy)) return;
-      if (!dialogCanScroll(dialog, event.target, touch, deltaY, modalGesture)) event.preventDefault();
       return;
     }
     if (!start) return;

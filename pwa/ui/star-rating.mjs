@@ -109,7 +109,7 @@ export function createStarRating(document, { label = '별점' } = {}) {
     emitRatingInput(input);
   }
 
-  let activePointerId = null;
+  let activePointer = null;
   function updateFromPointer(event) {
     const bounds = input.getBoundingClientRect();
     if (bounds.width <= 0) return;
@@ -119,41 +119,104 @@ export function createStarRating(document, { label = '별점' } = {}) {
   }
 
   function releasePointer(pointerId) {
-    if (activePointerId !== pointerId) return;
-    activePointerId = null;
+    const pointer = activePointer;
+    if (pointer?.id !== pointerId) return;
+    activePointer = null;
+    pointer.detachObserver?.disconnect();
+    if (pointer.pointerType === 'touch') document.removeEventListener('pointerdown', cancelForAdditionalTouch, true);
     try {
       if (input.hasPointerCapture(pointerId)) input.releasePointerCapture(pointerId);
-    } catch {
-      activePointerId = null;
+    } catch {}
+  }
+
+  function cancelForAdditionalTouch(event) {
+    const pointer = activePointer;
+    if (pointer?.pointerType !== 'touch' || event.pointerType !== 'touch' || event.isPrimary !== false) return;
+    releasePointer(pointer.id);
+    changeValue(pointer.startValue);
+    if (pointer.focusBefore && pointer.focusBefore.isConnected !== false && document.activeElement !== pointer.focusBefore) {
+      pointer.focusBefore.focus?.({ preventScroll: true });
     }
   }
 
-  input.addEventListener('input', updatePresentation);
-  input.addEventListener('pointerdown', event => {
-    if (input.disabled || activePointerId !== null || event.button !== undefined && event.button !== 0) return;
-    input.focus({ preventScroll: true });
+  function pointerPosition(event) {
+    return {
+      x: Number.isFinite(event.clientX) ? event.clientX : activePointer.startX,
+      y: Number.isFinite(event.clientY) ? event.clientY : activePointer.startY,
+    };
+  }
+
+  function watchForDetach(pointer) {
+    const MutationObserver = document.defaultView?.MutationObserver;
+    const root = document.documentElement ?? document.body ?? document.root;
+    if (typeof MutationObserver !== 'function' || !root) return;
+    pointer.detachObserver = new MutationObserver(() => {
+      if (input.isConnected === false) releasePointer(pointer.id);
+    });
+    pointer.detachObserver.observe(root, { childList: true, subtree: true });
+  }
+
+  function beginPointer(event) {
+    if (input.disabled || activePointer || event.pointerType === 'touch' && event.isPrimary === false ||
+        event.button !== undefined && event.button !== 0) return;
+    const pointer = {
+      id: event.pointerId,
+      pointerType: event.pointerType ?? 'mouse',
+      startX: Number.isFinite(event.clientX) ? event.clientX : 0,
+      startY: Number.isFinite(event.clientY) ? event.clientY : 0,
+      startValue: input.value,
+      focusBefore: document.activeElement,
+      detachObserver: null,
+      dragging: false,
+    };
     try {
       input.setPointerCapture(event.pointerId);
     } catch {
       return;
     }
-    activePointerId = event.pointerId;
-    updateFromPointer(event);
-    event.preventDefault();
-  });
-  input.addEventListener('pointermove', event => {
-    if (event.pointerId !== activePointerId) return;
+    activePointer = pointer;
+    if (pointer.pointerType === 'touch') {
+      document.addEventListener('pointerdown', cancelForAdditionalTouch, true);
+      watchForDetach(pointer);
+    }
+  }
+
+  function movePointer(event) {
+    if (activePointer?.id !== event.pointerId) return;
     if (input.disabled) return releasePointer(event.pointerId);
-    updateFromPointer(event);
-  });
-  input.addEventListener('pointerup', event => {
-    if (event.pointerId !== activePointerId) return;
-    updateFromPointer(event);
+    const { x, y } = pointerPosition(event);
+    const dx = x - activePointer.startX;
+    const dy = y - activePointer.startY;
+    if (!activePointer.dragging) {
+      if (Math.abs(dy) > 8 && Math.abs(dy) >= Math.abs(dx)) return releasePointer(event.pointerId);
+      if (Math.abs(dx) <= 8 || Math.abs(dx) < Math.abs(dy)) return;
+      activePointer.dragging = true;
+    }
+    updateFromPointer({ ...event, clientX: x });
+  }
+
+  function finishPointer(event) {
+    if (event.pointerType === 'touch' && event.isPrimary === false) return;
+    if (activePointer?.id !== event.pointerId) return;
+    if (input.disabled) return releasePointer(event.pointerId);
+    const { x, y } = pointerPosition(event);
+    const dx = x - activePointer.startX;
+    const dy = y - activePointer.startY;
+    if (!activePointer.dragging && Math.abs(dy) > 8 && Math.abs(dy) >= Math.abs(dx)) {
+      return releasePointer(event.pointerId);
+    }
+    input.focus({ preventScroll: true });
+    updateFromPointer({ ...event, clientX: x });
     releasePointer(event.pointerId);
-  });
+  }
+
+  input.addEventListener('input', updatePresentation);
+  input.addEventListener('pointerdown', beginPointer);
+  input.addEventListener('pointermove', movePointer);
+  input.addEventListener('pointerup', finishPointer);
   input.addEventListener('pointercancel', event => releasePointer(event.pointerId));
   input.addEventListener('lostpointercapture', event => {
-    if (event.pointerId === activePointerId) activePointerId = null;
+    if (event.pointerId === activePointer?.id) releasePointer(event.pointerId);
   });
   input.addEventListener('keydown', event => {
     if (input.disabled) return;

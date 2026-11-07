@@ -1200,7 +1200,7 @@ footer {
     }
   }
   .form-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .entry-dialog:not(.delete-confirm-dialog) { position: fixed; top: calc(var(--modal-viewport-top, 0px) + max(8px, env(safe-area-inset-top, 0px) + 20px)); right: 0; bottom: auto; left: 0; width: 100%; max-width: none; height: max(0px, calc(var(--modal-viewport-height, 100dvh) - max(8px, env(safe-area-inset-top, 0px) + 20px) - 8px)); max-height: none; margin: 0; padding: 18px 14px max(14px, env(safe-area-inset-bottom, 0px)); border-radius: 18px 18px 0 0; }
+  .entry-dialog:not(.delete-confirm-dialog) { position: fixed; top: calc(var(--modal-viewport-top, 0px) + max(8px, env(safe-area-inset-top, 0px) + 20px)); right: 0; bottom: auto; left: 0; width: 100%; max-width: none; max-height: max(0px, calc(var(--modal-viewport-height, 100dvh) - max(8px, env(safe-area-inset-top, 0px) + 20px) - 8px)); margin: 0; padding: 18px 14px max(14px, env(safe-area-inset-bottom, 0px)); border-radius: 18px; }
   .option-picker-dialog { position: fixed; top: calc(var(--modal-viewport-top, 0px) + max(8px, env(safe-area-inset-top, 0px) + 20px)); right: 0; bottom: auto; left: 0; width: 100%; max-width: none; max-height: max(0px, calc(var(--modal-viewport-height, 100dvh) - max(8px, env(safe-area-inset-top, 0px) + 20px) - 8px)); margin: 0; padding: 18px 14px max(14px, env(safe-area-inset-bottom, 0px)); border-radius: 18px 18px 0 0; }
   .search-picker-results { max-height: min(44dvh, 420px); }
   .search-picker-result > button { min-height: 58px; }

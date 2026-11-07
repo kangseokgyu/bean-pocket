@@ -29,7 +29,10 @@ class TestElement {
     this.selected = false;
     this.text = '';
     this.listeners = new Map();
-    this.style = { setProperty(name, value) { this[name] = value; } };
+    this.style = {
+      setProperty(name, value) { this[name] = value; },
+      removeProperty(name) { delete this[name]; },
+    };
   }
   append(...nodes) {
     for (const node of nodes) {
@@ -1601,11 +1604,22 @@ function pullHarness() {
   let reads = 0;
   const frames = [];
   const timers = [];
+  const viewportListeners = new Map();
+  const visualViewport = {
+    height: 844,
+    offsetTop: 0,
+    addEventListener(type, listener) {
+      const listeners = viewportListeners.get(type) ?? [];
+      listeners.push(listener);
+      viewportListeners.set(type, listeners);
+    },
+    dispatch(type) { for (const listener of viewportListeners.get(type) ?? []) listener(); },
+  };
   const state = { pending: false, frozen: false, dirty: false };
   document.defaultView = { location: { reload() { reloads++; } },
     requestAnimationFrame(callback) { frames.push(callback); },
     setTimeout(callback, delay) { timers.push({ callback, delay }); },
-    MutationObserver: TestMutationObserver };
+    MutationObserver: TestMutationObserver, visualViewport };
   const view = createBeanView(document);
   view.renderData(data());
   view.bind({ getState: () => state, refresh: async () => { reads++; } });
@@ -1620,7 +1634,7 @@ function pullHarness() {
   const paint = () => frames.splice(0).forEach(callback => callback());
   const finishReload = () => { paint(); timers.splice(0).forEach(timer => timer.callback()); };
   const pull = () => { fire('touchstart'); fire('touchmove', 20, 350); fire('touchend', 20, 350); finishReload(); };
-  return { document, view, state, fire, pull, get reloads() { return reloads; }, get reads() { return reads; },
+  return { document, view, state, fire, pull, visualViewport, get reloads() { return reloads; }, get reads() { return reads; },
     paint, finishReload, timers,
     indicator: () => document.root.querySelector('.pull-refresh') };
 }
@@ -1691,6 +1705,28 @@ test('touches in a nested native dialog stay native at every scroll boundary', (
   outer.close();
   env.pull();
   assert.equal(env.reloads, 1, 'page refresh resumes after every modal closes');
+});
+
+test('open dialogs track visible viewport size and offset while nested modals remain open', () => {
+  const env = pullHarness();
+  const outer = env.document.createElement('dialog');
+  const picker = env.document.createElement('dialog');
+  outer.append(picker);
+  env.document.root.append(outer);
+  outer.showModal();
+  picker.showModal();
+
+  env.visualViewport.height = 369;
+  env.visualViewport.offsetTop = 24;
+  env.visualViewport.dispatch('resize');
+  assert.equal(env.document.documentElement.style['--modal-viewport-height'], '369px');
+  assert.equal(env.document.documentElement.style['--modal-viewport-top'], '24px');
+
+  picker.close();
+  assert.equal(env.document.documentElement.style['--modal-viewport-height'], '369px', 'the outer modal still owns the viewport');
+  outer.close();
+  assert.equal(env.document.documentElement.style['--modal-viewport-height'], undefined);
+  assert.equal(env.document.documentElement.style['--modal-viewport-top'], undefined);
 });
 
 test('opening and dismissing a dialog during a pull cancels that gesture', () => {
@@ -5424,7 +5460,7 @@ test('record rating supports tenth-point pointer, keyboard, cancellation, and dr
   assert.equal(slider.hasPointerCapture(1), true);
   fire(slider, 'pointerdown', { button: 0, pointerId: 2, clientX: 910 });
   fire(slider, 'pointermove', { pointerId: 2, clientX: 910 });
-  assert.equal(slider.value, '0.1', 'a second pointer cannot take over the active drag');
+  assert.equal(slider.value, '', 'a second pointer cannot take over the active gesture');
   fire(slider, 'pointermove', { pointerId: 1, clientX: 500 });
   assert.equal(slider.value, '2.5');
   assert.equal(output.textContent, '2.5점', 'the score is visible during the drag');

@@ -306,6 +306,17 @@ html:has(dialog[open]), body:has(dialog[open]) { overflow: hidden; overscroll-be
   font-size: 0.75rem;
   white-space: nowrap;
 }
+.recipe-number-field--inline {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+.recipe-number-field--inline > .recipe-number-shortcuts { flex-wrap: nowrap; }
+.recipe-number-field--inline .recipe-number-shortcuts > .button {
+  min-width: 40px;
+  min-height: 38px;
+}
 .form-fieldset--compact > .form-field:has(textarea) {
   grid-column: 1 / -1;
   grid-template-columns: minmax(0, 1fr);

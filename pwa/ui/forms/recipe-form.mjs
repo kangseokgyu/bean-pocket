@@ -12,7 +12,7 @@ export function buildRecipeForm(document, data, editRecipe = null) {
   const fields = [
     ['레시피 이름', 'name', 'text', true],
     ['드리퍼', 'dripper', 'text', false],
-    ['원두 사용량 (g)', 'dose', 'number', true, { step: 'any', min: 0 }, { unit: 'g', values: [15, 18, 20] }],
+    ['원두 사용량 (g)', 'dose', 'number', true, { step: 'any', min: 0 }, { unit: 'g', values: [10, 15, 20], inline: true }],
     ['분쇄도 (레퍼런스 설정)', 'grind', 'text', false, { placeholder: '예: EK43 9, Comandante 24클릭' }],
     ['그라인더', 'grinder', 'text', false],
     ['그라인더 설정', 'grinderSetting', 'text', false],
@@ -27,7 +27,8 @@ export function buildRecipeForm(document, data, editRecipe = null) {
       basic.append(field);
       continue;
     }
-    const wrap = make(document, 'div', undefined, 'recipe-number-field');
+    const wrap = make(document, 'div', undefined, shortcuts.inline
+      ? 'recipe-number-field recipe-number-field--inline' : 'recipe-number-field');
     const input = field.querySelector('input');
     const group = make(document, 'div', undefined, 'recipe-number-shortcuts');
     group.setAttribute('role', 'group');

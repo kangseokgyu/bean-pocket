@@ -1411,6 +1411,10 @@ test('recipe detail edit action opens a full prefilled edit form with stable ste
   assert.equal(view.currentRoute(), `/recipes/${RECIPE}/edit`);
   const form = document.root.querySelector('form[data-form="recipes"]');
   assert.ok(form);
+  assert.deepEqual(document.root.querySelector('.list-view').querySelectorAll('h2').map(node => node.textContent),
+    ['레시피 수정']);
+  const back = form.querySelector('[aria-label="레시피로 돌아가기"]');
+  assert.equal(back?.type, 'button');
   assert.equal(form.dataset.editId, RECIPE);
   assert.equal(form.elements.name.value, beforeClick.recipes[0].name);
   assert.equal(form.elements.grind.value, 'EK43 9, Comandante 24클릭');
@@ -1421,6 +1425,8 @@ test('recipe detail edit action opens a full prefilled edit form with stable ste
   assert.deepEqual(form.querySelectorAll('.step-row').map(row => row.dataset.stepId),
     beforeClick.recipes[0].steps.map(step => step.id));
   assert.deepEqual(current, beforeClick, 'editing starts from the selected recipe without mutating loaded data');
+  await clickViewTarget(document, back);
+  assert.equal(view.currentRoute(), `/recipes/${RECIPE}`);
 });
 
 test('recipe edit drafts stay separate from create drafts and preserve the captured baseline', () => {

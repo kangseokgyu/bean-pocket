@@ -1133,7 +1133,9 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
   const titles = { beans: '원두', recipes: '레시피', records: '추출 기록' };
   const header = make(document, 'div', undefined, 'list-header');
   const beanDetail = section === 'beans' && parts[1];
-  const recipeDetail = section === 'recipes' && parts[1] && parts[1] !== 'new' && parts[2] !== 'edit';
+  const recipePage = section === 'recipes' && parts[1] && parts[1] !== 'new';
+  const recipeEdit = recipePage && parts[2] === 'edit';
+  const recipeDetail = recipePage && !recipeEdit;
   if (beanDetail || recipeDetail) {
     const label = `${titles[section]} 목록`;
     const back = button(document, label, 'button', 'navigate', 'back');
@@ -1163,11 +1165,11 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
     actions.append(add);
   }
   header.append(actions);
-  pane.append(header);
+  if (!recipeEdit) pane.append(header);
 
   if (beanDetail) {
     renderBeanDetail(pane, data, document, parts[1]);
-  } else if (section === 'recipes' && parts[1] && parts[1] !== 'new' && parts[2] === 'edit') {
+  } else if (recipeEdit) {
     const recipe = data.recipes?.find(row => row.id === parts[1]);
     if (data.screen?.error || !recipe || !Array.isArray(recipe.steps)) {
       pane.append(make(document, 'h1', '레시피를 수정할 수 없습니다.'));
@@ -1176,9 +1178,6 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
       back.dataset.route = '/recipes';
       pane.append(back);
     } else {
-      const back = button(document, '레시피로 돌아가기', 'button', 'navigate', 'back');
-      back.dataset.route = `/recipes/${encodeURIComponent(recipe.id)}`;
-      pane.append(back);
       const form = buildRecipeForm(document, data, recipe);
       form.id = `edit-recipe-form-${recipe.id}`;
       form.dataset.draftRoute = route;

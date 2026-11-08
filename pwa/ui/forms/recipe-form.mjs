@@ -8,7 +8,16 @@ import { parseMicronValue } from '../../domain.mjs';
 
 export function buildRecipeForm(document, data, editRecipe = null) {
   const form = formBase(document, 'recipes', editRecipe ? '레시피 수정' : '새 레시피');
-  if (editRecipe) form.dataset.editId = editRecipe.id;
+  const title = form.firstElementChild;
+  const header = make(document, 'div', undefined, 'recipe-form-header');
+  form.replaceChildren(header);
+  if (editRecipe) {
+    form.dataset.editId = editRecipe.id;
+    const back = button(document, '레시피로 돌아가기', 'button', 'navigate', 'back');
+    back.dataset.route = `/recipes/${encodeURIComponent(editRecipe.id)}`;
+    header.append(back);
+  }
+  header.append(title);
   const basic = make(document, 'fieldset', undefined, 'form-fieldset form-fieldset--compact');
   basic.append(make(document, 'legend', '기본 조건'));
   const fields = [

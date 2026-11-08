@@ -276,6 +276,8 @@ p { line-height: 1.6; }
 .entry-dialog .form-actions .button { min-height: 48px; }
 html:has(dialog[open]), body:has(dialog[open]) { overflow: hidden; overscroll-behavior: none; }
 .form-grid { display: grid; gap: 10px; min-width: 0; }
+.recipe-form-header { display: flex; align-items: center; gap: 4px; min-height: 44px; }
+.recipe-form-header h2 { margin: 0; }
 .form-fieldset {
   --form-fieldset-column-gap: 12px;
   display: grid;

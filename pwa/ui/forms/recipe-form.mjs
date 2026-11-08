@@ -18,7 +18,7 @@ export function buildRecipeForm(document, data, editRecipe = null) {
     ['그라인더 설정', 'grinderSetting', 'text', false],
     ['분쇄 입자 (μm 또는 범위, 선택)', 'microns', 'text', false,
       { inputMode: 'text', placeholder: '예: 900 또는 900~1000' }],
-    ['물 온도 (℃)', 'temperature', 'number', true, { step: 'any', min: 0, max: 100 }, { unit: '°C', values: [88, 90, 92, 94] }],
+    ['물 온도 (℃)', 'temperature', 'number', true, { step: 'any', min: 0, max: 100 }, { unit: '°C', values: [88, 92, 96], inline: true }],
     ['총 물 양 (g)', 'totalWater', 'number', true, { step: 'any', min: 0 }, { unit: 'g', values: [200, 250, 300] }],
   ];
   for (const [title, name, type, required, attrs, shortcuts] of fields) {

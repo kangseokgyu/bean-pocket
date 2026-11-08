@@ -4833,12 +4833,16 @@ test('recipe number shortcuts set the editable fields and report input', () => {
 
   const doseShortcuts = form.querySelector('[aria-label="원두 사용량 (g) 빠른 입력"]');
   assert.deepEqual(doseShortcuts.querySelectorAll('button').map(control => control.textContent), ['10g', '15g', '20g']);
+  const temperatureShortcuts = form.querySelector('[aria-label="물 온도 (℃) 빠른 입력"]');
+  assert.deepEqual(temperatureShortcuts.querySelectorAll('button').map(control => control.textContent), ['88°C', '92°C', '96°C']);
 
   for (const [name, caption, expected] of [
     ['dose', '10g', '10'],
     ['dose', '15g', '15'],
     ['dose', '20g', '20'],
+    ['temperature', '88°C', '88'],
     ['temperature', '92°C', '92'],
+    ['temperature', '96°C', '96'],
     ['totalWater', '250g', '250'],
   ]) {
     const shortcut = form.querySelectorAll('button').find(control => control.textContent === caption);

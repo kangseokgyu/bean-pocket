@@ -1171,10 +1171,11 @@ test('recipe input minimums allow every positive sub-cent value accepted by the 
     steps: [{ time: '0:00', water: 0.005 }] });
   assert.equal(valid.dose, 0.005);
 
-  for (const name of ['dose', 'temperature', 'totalWater', 'microns', 'water']) {
+  for (const name of ['dose', 'temperature', 'totalWater', 'water']) {
     assert.ok(Number(form.elements[name].min) <= 0.005,
       `${name} must not use a native minimum above the domain's positive-number boundary`);
   }
+  assert.equal(form.elements.microns.type, 'text', 'micron input accepts both a value and a range');
 });
 
 test('recipe history never displays legacy bag relations', () => {
@@ -1364,7 +1365,9 @@ test('recipe screens show zero and missing values distinctly and omit an invalid
 test('recipe detail groups conditions, pour steps, guide, and records in reading order', () => {
   const document = new TestDocument();
   const view = createBeanView(document);
-  view.renderData(data());
+  const current = data();
+  current.recipes[0] = { ...current.recipes[0], microns: '900~1000', grinder: '', grinderSetting: '' };
+  view.renderData(current);
   view.renderRoute(`/recipes/${RECIPE}`);
 
   const detail = document.root.querySelector('.recipe-card');
@@ -1374,6 +1377,8 @@ test('recipe detail groups conditions, pour steps, guide, and records in reading
   assert.ok(detail.querySelector('.recipe-steps-section').querySelector('.steps-table'));
   assert.ok(detail.querySelector('.recipe-records').querySelector('.record-summary-header'));
   assert.equal(detail.querySelector('.recipe-card-actions').querySelectorAll('button').length, 2);
+  assert.match(detail.querySelector('.recipe-conditions').textContent, /900~1000μm/);
+  assert.doesNotMatch(detail.querySelector('.recipe-conditions').textContent, /그라인더 설정/);
 });
 
 test('recipe detail edit action opens a full prefilled edit form with stable step IDs', async () => {
@@ -1381,6 +1386,8 @@ test('recipe detail edit action opens a full prefilled edit form with stable ste
   const view = createBeanView(document);
   view.bind({ setDirty() {} });
   const current = data();
+  current.recipes[0] = { ...current.recipes[0], grind: 'EK43 9, Comandante 24클릭',
+    grinder: '', grinderSetting: '', microns: '900~1000' };
   view.renderData(current);
   view.renderRoute(`/recipes/${RECIPE}`);
 
@@ -1405,6 +1412,10 @@ test('recipe detail edit action opens a full prefilled edit form with stable ste
   assert.ok(form);
   assert.equal(form.dataset.editId, RECIPE);
   assert.equal(form.elements.name.value, beforeClick.recipes[0].name);
+  assert.equal(form.elements.grind.value, 'EK43 9, Comandante 24클릭');
+  assert.equal(form.elements.grinder.value, '');
+  assert.equal(form.elements.grinderSetting.value, '');
+  assert.equal(form.elements.microns.value, '900~1000');
   assert.equal(form.elements.dose.value, String(beforeClick.recipes[0].dose));
   assert.deepEqual(form.querySelectorAll('.step-row').map(row => row.dataset.stepId),
     beforeClick.recipes[0].steps.map(step => step.id));
@@ -3629,18 +3640,18 @@ test('records page follows the demo hierarchy and keeps full record management c
 test('records page defaults to the brew source pair and lets the user compare any two records for that bean', () => {
   const document = new TestDocument();
   const view = createBeanView(document);
-  const actual = ({ id, date, rating, dose, cupNote }) => ({
+  const actual = ({ id, date, rating, dose, cupNote, microns = 700 }) => ({
     id, beanId: BEAN, beanResolution: 'relation', recipeId: RECIPE, date, rating, cupNote,
     snapshotStatus: 'valid', snapshot: { version: 3, recordGeneration: 'bagless-v1',
       bean: { id: BEAN, name: '원두 A' },
       recipe: { id: RECIPE, name: 'V60', dripper: 'V60', dose, grind: '중간', grinder: 'C40',
-        grinderSetting: '24', microns: 700, temperature: 92, totalWater: 250, extractionGuide: '',
+        grinderSetting: '24', microns, temperature: 92, totalWater: 250, extractionGuide: '',
         steps: [{ name: '뜸', order: 1, seconds: 0, interval: 0, water: 50, cumulativeWater: 50 },
           { name: '붓기', order: 2, seconds: 30, interval: 30, water: 200, cumulativeWater: 250 }] },
       source: { recipeId: RECIPE, recordId: null } },
   });
   const first = actual({ id: 'pair-first', date: '2026-10-01', rating: 4.2, dose: 15, cupNote: '살구' });
-  const source = actual({ id: 'pair-source', date: '2026-10-05', rating: 4.7, dose: 16, cupNote: '복숭아' });
+  const source = actual({ id: 'pair-source', date: '2026-10-05', rating: 4.7, dose: 16, cupNote: '복숭아', microns: '900~1000' });
   const third = actual({ id: 'pair-third', date: '2026-10-09', rating: 4.5, dose: 17, cupNote: '꿀' });
   const otherBean = { ...third, id: 'pair-other-bean', beanId: 'other-bean', snapshot: {
     ...third.snapshot, bean: { id: 'other-bean', name: '다른 원두' } } };
@@ -3659,6 +3670,7 @@ test('records page defaults to the brew source pair and lets the user compare an
   assert.deepEqual(right.querySelectorAll('option').map(option => option.value).filter(Boolean),
     [third.id, source.id, first.id], 'both selectors offer any loaded record for the selected bean only');
   assert.match(comparison.textContent, /17 g/);
+  assert.match(comparison.textContent, /900~1000 μm/);
   assert.match(comparison.textContent, /4\.5\/5/);
   assert.match(comparison.textContent, /꿀/);
 
@@ -4493,6 +4505,7 @@ test('brew overview marks the active step and aligns selection, conditions, and 
   assert.equal(form.elements.grind.value, '중간보다 가늘게');
   assert.equal(form.elements.grinder.value, 'Comandante');
   assert.equal(form.elements.grinderSetting.value, '24클릭');
+  assert.equal(form.elements.microns.type, 'text');
   const rows = form.querySelectorAll('.brew-stage-row');
   assert.equal(rows.length, 2);
   assert.equal(rows[1].querySelector('[name="stepName"]').value, '붓기');
@@ -4500,13 +4513,15 @@ test('brew overview marks the active step and aligns selection, conditions, and 
   assert.equal(rows[1].querySelector('[name="water"]').value, 200);
   assert.match(form.querySelector('[data-brew-stage-total]').textContent, /250g/);
   const sparse = data();
-  sparse.recipes[0] = { ...sparse.recipes[0], grind: '', grinder: '', grinderSetting: '', microns: null };
+  sparse.recipes[0] = { ...sparse.recipes[0], grind: 'EK43 9, Comandante 24클릭', grinder: '',
+    grinderSetting: '', microns: '900~1000' };
   view.renderData(sparse);
   view.renderRoute(`/brew/run?beanId=${BEAN}&recipeId=${RECIPE}`);
   const sparseForm = document.root.querySelector('form[data-form="brews"]');
-  assert.equal(sparseForm.elements.grind.value, '');
+  assert.equal(sparseForm.elements.grind.value, 'EK43 9, Comandante 24클릭');
   assert.equal(sparseForm.elements.grinder.value, '');
-  assert.equal(sparseForm.elements.microns.value, '');
+  assert.equal(sparseForm.elements.grinderSetting.value, '');
+  assert.equal(sparseForm.elements.microns.value, '900~1000');
 });
 
 test('brew preparation submits edited conditions, stages, decimal rating, date, and cup note together', async () => {
@@ -4529,11 +4544,13 @@ test('brew preparation submits edited conditions, stages, decimal rating, date, 
     assert.equal(form.elements.sourceRecipeId.value, RECIPE);
     assert.equal(form.elements.dose.value, 15);
     assert.equal(form.elements.temperature.value, 93);
+    assert.equal(form.elements.microns.type, 'text');
     assert.equal(form.querySelectorAll('.brew-stage-row').length, 2);
     form.elements.dose.value = '16';
     form.elements.temperature.value = '91';
     form.querySelectorAll('.brew-stage-row')[1].querySelector('[name="water"]').value = '205';
     form.elements.totalWater.value = '250';
+    form.elements.microns.value = '900~1000';
     form.elements.date.value = '2026-11-04';
     form.elements.rating.value = '4.7';
     form.elements.cupNote.value = '복숭아와 단맛';
@@ -4548,6 +4565,7 @@ test('brew preparation submits edited conditions, stages, decimal rating, date, 
     assert.deepEqual(calls[0][1].actualRecipe.steps.map(step => [step.time, step.water]), [['0:00', 50], ['1:10', '205']]);
     assert.equal(calls[0][1].actualRecipe.dose, '16');
     assert.equal(calls[0][1].actualRecipe.temperature, '91');
+    assert.equal(calls[0][1].actualRecipe.microns, '900~1000');
     assert.equal(calls[0][1].rating, '4.7');
     assert.equal(calls[0][1].date, '2026-11-04');
     assert.equal(calls[0][1].cupNote, '복숭아와 단맛');
@@ -4838,7 +4856,8 @@ test('recipe form step editor, preview, and payload preserve entered recipe valu
   form.elements.dose.value = '15';
   form.elements.temperature.value = '93';
   form.elements.totalWater.value = '250';
-  form.elements.microns.value = '450';
+  assert.equal(form.elements.microns.type, 'text');
+  form.elements.microns.value = ' 900 ~ 1000 ';
   addStep(panel, document);
   const firstRow = form.querySelector('.step-row');
   firstRow.querySelector('[name="stepName"]').value = '뜸';
@@ -4861,7 +4880,7 @@ test('recipe form step editor, preview, and payload preserve entered recipe valu
     const payload = recipePayload(form);
     assert.equal(payload.name, 'V60 복사');
     assert.equal(payload.dose, 15);
-    assert.equal(payload.microns, 450);
+    assert.equal(payload.microns, '900~1000');
     assert.deepEqual(payload.steps, [
       { name: '뜸', time: '0:00', water: 50 },
       { name: '붓기', time: '1:10', water: 200 },

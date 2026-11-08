@@ -238,10 +238,11 @@ function renderBrewRun(pane, data, document, route, params) {
     ['조건 이름', 'name', 'text', true],
     ['드리퍼', 'dripper', 'text', false],
     ['원두량 (g)', 'dose', 'number', true, { min: 0, step: 'any' }],
-    ['분쇄도', 'grind', 'text', false],
+    ['분쇄도 (레퍼런스 설정)', 'grind', 'text', false, { placeholder: '예: EK43 9, Comandante 24클릭' }],
     ['그라인더', 'grinder', 'text', false],
     ['그라인더 설정', 'grinderSetting', 'text', false],
-    ['분쇄 입자 (μm)', 'microns', 'number', false, { min: 0, step: 'any' }],
+    ['분쇄 입자 (μm 또는 범위)', 'microns', 'text', false,
+      { inputMode: 'text', placeholder: '예: 900 또는 900~1000' }],
     ['물 온도 (℃)', 'temperature', 'number', true, { min: 0, max: 100, step: 'any' }],
     ['총 물 양 (g)', 'totalWater', 'number', true, { min: 0, step: 'any' }],
   ], 'brew-condition-fields');

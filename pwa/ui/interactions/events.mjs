@@ -23,7 +23,8 @@ function readWheelValue(input) {
     const value = input.value === '' ? 0 : parseInputTime(input.value);
     if (value !== null) return { value, step: 1, min: 0, max: Number.MAX_SAFE_INTEGER, format: formatTime };
   }
-  if ((input.name === 'grind' || input.name === 'grinderSetting') && /^-?(?:\d+(?:\.\d+)?|\.\d+)$/.test(input.value)) {
+  if ((input.name === 'grind' || input.name === 'grinderSetting' || input.name === 'microns') &&
+      /^-?(?:\d+(?:\.\d+)?|\.\d+)$/.test(input.value)) {
     return { value: Number(input.value), step: 1, min: -Infinity, max: Infinity, format: String };
   }
   return null;

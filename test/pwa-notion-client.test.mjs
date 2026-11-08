@@ -462,8 +462,8 @@ test('배열·UTF-8 500000byte 한도와 stringify 오류는 fetch 전 안전하
   assert.equal(calls.length, 0);
 });
 
-test('canonical 34속성과 긴 snapshot codec 왕복을 유지한다', () => {
-  assert.equal(Object.values(schemas).reduce((sum, fields) => sum + Object.keys(fields).length, 0), 34);
+test('canonical 35속성과 긴 snapshot codec 왕복을 유지한다', () => {
+  assert.equal(Object.values(schemas).reduce((sum, fields) => sum + Object.keys(fields).length, 0), 35);
   const snapshot = { version: 1, name: '원본', steps: [{ order: 1, seconds: 0, water: 50 }], note: '가'.repeat(5000) };
   const properties = encodeProperties('records', { name: '기록', recipeId: PAGE, snapshot });
   assert.ok(properties['당시 레시피 스냅샷'].rich_text.length > 1);
@@ -738,6 +738,82 @@ test('schemas without favorite keep bean and recipe creation available and omit 
   assert.equal(creates.length, 2);
   assert.ok(creates.every(call => !Object.hasOwn(JSON.parse(call.init.body).properties, '즐겨찾기')));
   await assert.rejects(client.updateFavorite('beans', PAGE, true), error => error.code === 'favorite-unsupported' && error.writeState === 'not-sent');
+});
+
+test('optional range schema gates range writes but leaves numeric writes compatible with older databases', async () => {
+  const { client, calls } = harness((url, init) => {
+    if (url.endsWith('/data_sources/' + SOURCES.recipes)) {
+      const schema = source('recipes');
+      delete schema.properties['분쇄 입자 범위(μm)'];
+      return response(200, schema);
+    }
+    return response(200, page(PAGE, 'recipes', { properties: JSON.parse(init.body).properties }));
+  });
+  await client.verify(['recipes']);
+  assert.equal(client.recipeMicronRangeSupported, false);
+  const callsBeforeRange = calls.length;
+  await rejected(client.createPage('recipes', { name: '범위 레시피', microns: '900~1000' }),
+    'not-sent', 'micron-range-unsupported');
+  await rejected(client.updatePage('recipes', PAGE, { microns: '900~1000' }, { expected: { microns: null } }),
+    'not-sent', 'micron-range-unsupported');
+  assert.equal(calls.length, callsBeforeRange, 'unsupported range is rejected before a request');
+
+  await client.createPage('recipes', { name: '기존 숫자 레시피', microns: 700 });
+  const sent = JSON.parse(calls.at(-1).init.body).properties;
+  assert.deepEqual(sent['분쇄 입자 굵기(μm)'], { number: 700 });
+  assert.equal(Object.hasOwn(sent, '분쇄 입자 범위(μm)'), false);
+});
+
+test('range writes encode the optional text property and edits clear the stale alternative column', async () => {
+  const before = { name: '기존 레시피', dripper: 'V60', dose: 15, grind: '중간', grinder: '',
+    grinderSetting: '', extractionGuide: '', microns: 700, temperature: 93, totalWater: 250 };
+  const toRawProperties = values => Object.fromEntries(Object.entries(encodeProperties('recipes', values)).map(([name, typed]) => {
+    const [type, value] = Object.entries(typed)[0];
+    return [name, { id: 'property-id', type, [type]: structuredClone(value) }];
+  }));
+  let current = toRawProperties(before);
+  const { client, calls } = harness((url, init) => {
+    if (url.endsWith('/data_sources/' + SOURCES.recipes)) return response(200, source('recipes'));
+    if (url.endsWith('/pages') && init.method === 'POST') {
+      return response(200, page(PAGE, 'recipes', { properties: JSON.parse(init.body).properties }));
+    }
+    if (url.endsWith('/pages/' + PAGE) && init.method === 'GET') {
+      return response(200, page(PAGE, 'recipes', { properties: current }));
+    }
+    if (url.endsWith('/pages/' + PAGE) && init.method === 'PATCH') {
+      const patch = JSON.parse(init.body).properties;
+      const rawPatch = Object.fromEntries(Object.entries(patch).map(([name, typed]) => {
+        const [type, value] = Object.entries(typed)[0];
+        return [name, { id: 'property-id', type, [type]: structuredClone(value) }];
+      }));
+      current = { ...current, ...rawPatch };
+      return response(200, page(PAGE, 'recipes', { properties: current }));
+    }
+    return response(404, {});
+  });
+
+  await client.verify(['recipes']);
+  assert.equal(client.recipeMicronRangeSupported, true);
+  await client.createPage('recipes', { name: '범위 레시피', microns: '900~1000' });
+  const createProperties = JSON.parse(calls.find(call => call.init.method === 'POST').init.body).properties;
+  assert.deepEqual(createProperties['분쇄 입자 굵기(μm)'], { number: null });
+  assert.deepEqual(createProperties['분쇄 입자 범위(μm)'], {
+    rich_text: [{ type: 'text', text: { content: '900~1000' } }],
+  });
+
+  const updatedRange = await client.updatePage('recipes', PAGE, { microns: '900~1000' }, { expected: { microns: 700 } });
+  assert.equal(updatedRange.microns, '900~1000');
+  const rangePatch = JSON.parse(calls.filter(call => call.init.method === 'PATCH').at(-1).init.body).properties;
+  assert.deepEqual(rangePatch['분쇄 입자 굵기(μm)'], { number: null });
+  assert.deepEqual(rangePatch['분쇄 입자 범위(μm)'], {
+    rich_text: [{ type: 'text', text: { content: '900~1000' } }],
+  });
+
+  const updatedNumber = await client.updatePage('recipes', PAGE, { microns: 650 }, { expected: { microns: '900~1000' } });
+  assert.equal(updatedNumber.microns, 650);
+  const numberPatch = JSON.parse(calls.filter(call => call.init.method === 'PATCH').at(-1).init.body).properties;
+  assert.deepEqual(numberPatch['분쇄 입자 굵기(μm)'], { number: 650 });
+  assert.deepEqual(numberPatch['분쇄 입자 범위(μm)'], { rich_text: [] });
 });
 
 

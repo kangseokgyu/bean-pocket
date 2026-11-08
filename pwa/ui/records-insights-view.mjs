@@ -358,6 +358,8 @@ function renderComparisonConditions(document, recipe) {
     ['분쇄', recipe.grind], ['온도', Number.isFinite(recipe.temperature) ? `${recipe.temperature}℃` : ''],
     ['도징', Number.isFinite(recipe.dose) ? `${recipe.dose}g` : ''],
     ['물', Number.isFinite(recipe.totalWater) ? `${recipe.totalWater}g` : ''], ['드리퍼', recipe.dripper],
+    ['분쇄 입자', Number.isFinite(recipe.microns) ? `${recipe.microns}μm`
+      : typeof recipe.microns === 'string' && recipe.microns.trim() ? `${recipe.microns}μm` : ''],
   ].filter(([, value]) => value !== undefined && value !== null && value !== '');
   for (const [label, value] of values) {
     const pair = make(document, 'div');
@@ -633,7 +635,8 @@ function renderRecipeConditions(document, recipe) {
     ['물 양', Number.isFinite(recipe.totalWater) ? `${recipe.totalWater}g` : ''],
     ['물 온도', Number.isFinite(recipe.temperature) ? `${recipe.temperature}℃` : ''],
     ['분쇄도', recipe.grind], ['그라인더', recipe.grinder], ['그라인더 설정', recipe.grinderSetting],
-    ['분쇄 입자', Number.isFinite(recipe.microns) ? `${recipe.microns}μm` : ''],
+    ['분쇄 입자', Number.isFinite(recipe.microns) ? `${recipe.microns}μm`
+      : typeof recipe.microns === 'string' && recipe.microns.trim() ? `${recipe.microns}μm` : ''],
   ].filter(([, value]) => value !== undefined && value !== null && value !== '');
   for (const [name, value] of values) {
     const pair = make(document, 'div');

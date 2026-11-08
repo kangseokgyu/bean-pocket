@@ -2,6 +2,7 @@ import { button } from '../shared/buttons.mjs';
 import { make } from '../shared/dom.mjs';
 import { addFormActions, formBase, label } from '../shared/form-fields.mjs';
 import { formatTime, parseInputTime } from '../shared/recipe-presentation.mjs';
+import { parseMicronValue } from '../../domain.mjs';
 
 export function buildRecipeForm(document, data, editRecipe = null) {
   const form = formBase(document, 'recipes', editRecipe ? '레시피 수정' : '새 레시피');
@@ -12,10 +13,11 @@ export function buildRecipeForm(document, data, editRecipe = null) {
     ['레시피 이름', 'name', 'text', true],
     ['드리퍼', 'dripper', 'text', false],
     ['원두 사용량 (g)', 'dose', 'number', true, { step: 'any', min: 0 }, { unit: 'g', values: [15, 18, 20] }],
-    ['분쇄도', 'grind', 'text', false],
+    ['분쇄도 (레퍼런스 설정)', 'grind', 'text', false, { placeholder: '예: EK43 9, Comandante 24클릭' }],
     ['그라인더', 'grinder', 'text', false],
     ['그라인더 설정', 'grinderSetting', 'text', false],
-    ['분쇄 입자 (μm, 선택)', 'microns', 'number', false, { step: 'any', min: 0 }],
+    ['분쇄 입자 (μm 또는 범위, 선택)', 'microns', 'text', false,
+      { inputMode: 'text', placeholder: '예: 900 또는 900~1000' }],
     ['물 온도 (℃)', 'temperature', 'number', true, { step: 'any', min: 0, max: 100 }, { unit: '°C', values: [88, 90, 92, 94] }],
     ['총 물 양 (g)', 'totalWater', 'number', true, { step: 'any', min: 0 }, { unit: 'g', values: [200, 250, 300] }],
   ];
@@ -99,7 +101,7 @@ export function setSteps(form, steps) {
 export function recipePayload(form) {
   const values = Object.fromEntries(new FormData(form));
   for (const key of ['dose', 'temperature', 'totalWater']) values[key] = Number(values[key]);
-  values.microns = values.microns === '' ? '' : Number(values.microns);
+  values.microns = parseMicronValue(values.microns);
   values.steps = [...form.querySelectorAll('.step-row')].map(row => ({
     ...(row.dataset.stepId ? { id: row.dataset.stepId } : {}),
     name: row.querySelector('[name="stepName"]').value,

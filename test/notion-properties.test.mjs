@@ -25,3 +25,26 @@ test('기록 codec은 bagless schema를 유지하고 legacy bag 입력을 wire�
   assert.equal(Object.hasOwn(schemas.records, 'bagId'), false);
   assert.equal(Object.hasOwn(properties, '원두 봉지'), false);
 });
+
+test('레시피 codec은 단일 μm 숫자와 선택적 범위 rich_text를 상호 배타적으로 저장한다', () => {
+  assert.deepEqual(schemas.recipes.micronRange, ['분쇄 입자 범위(μm)', 'rich_text']);
+
+  const range = encodeProperties('recipes', { microns: '900~1000' });
+  assert.deepEqual(range['분쇄 입자 굵기(μm)'], { number: null });
+  assert.deepEqual(range['분쇄 입자 범위(μm)'], {
+    rich_text: [{ type: 'text', text: { content: '900~1000' } }],
+  });
+  const both = decodePage('recipes', { id: 'range', properties: {
+    '분쇄 입자 굵기(μm)': { number: 700 },
+    '분쇄 입자 범위(μm)': { rich_text: [{ plain_text: '900~1000' }] },
+  } });
+  assert.equal(both.microns, '900~1000');
+  assert.deepEqual(both.micronStorage, { number: 700, range: '900~1000' });
+
+  const numeric = encodeProperties('recipes', { microns: 700 });
+  assert.deepEqual(numeric['분쇄 입자 굵기(μm)'], { number: 700 });
+  assert.deepEqual(numeric['분쇄 입자 범위(μm)'], { rich_text: [] });
+  assert.equal(decodePage('recipes', { id: 'legacy', properties: {
+    '분쇄 입자 굵기(μm)': { number: 700 },
+  } }).microns, 700);
+});

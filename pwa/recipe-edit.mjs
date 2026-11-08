@@ -15,6 +15,11 @@ export function recipePageValues(recipe) {
         : recipe[field] ?? null]));
 }
 
+export function micronStorageFor(value) {
+  return { number: typeof value === 'number' ? value : null,
+    range: typeof value === 'string' ? value : '' };
+}
+
 export function stepPageValues(step) {
   return Object.fromEntries(STEP_FIELDS.map(field => [field, field === 'name' ? step[field] ?? '' : step[field]]));
 }

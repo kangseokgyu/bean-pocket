@@ -191,6 +191,18 @@ test('brew comparison uses actual snapshots and includes changed conditions, sta
   });
 });
 
+test('brew comparison renders and compares a μm range from actual snapshots', () => {
+  const make = (id, microns) => record({ id, beanId: 'bean-a', date: '2026-10-01', rating: 4,
+    snapshot: { version: 3, recordGeneration: generation, bean: { id: 'bean-a', name: '원두 A' },
+      recipe: { id: `recipe-${id}`, name: 'V60', microns, steps: [] },
+      source: { recipeId: `recipe-${id}`, recordId: null } } });
+  const comparison = compareBrewRecords(make('range-a', '900~1000'), make('range-b', '950~1050'));
+  const field = comparison.values.find(value => value.key === 'microns');
+  assert.deepEqual(field, {
+    key: 'microns', label: '분쇄 입자', left: '900~1000 μm', right: '950~1050 μm', changed: true,
+  });
+});
+
 test('brew comparison refuses records from different beans and damaged snapshots', () => {
   const left = record({ id: 'left', beanId: 'bean-a', date: '2026-10-01', rating: 4 });
   const right = record({ id: 'right', beanId: 'bean-b', date: '2026-10-02', rating: 3 });

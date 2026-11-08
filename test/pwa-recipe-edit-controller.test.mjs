@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createAppController } from '../pwa/ui/controller.mjs';
 import { encodeProperties } from '../pwa/data/notion-properties.mjs';
-import { recipeEditState, recipeFingerprint, stepPageValues } from '../pwa/recipe-edit.mjs';
+import { recipeEditState, recipeFingerprint, recipePageValues, stepPageValues } from '../pwa/recipe-edit.mjs';
 
 const RECIPE = '33333333-3333-4333-8333-333333333333';
 const REVISION = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
@@ -16,14 +16,14 @@ const recipe = () => ({
     { id: '55555555-5555-4555-8555-555555555555', name: 'Pour', order: 2, seconds: 60, interval: 60, water: 200, cumulativeWater: 250 }],
 });
 
-function harness(executeStatus = 'succeeded') {
+function harness(executeStatus = 'succeeded', prepareError = null) {
   let currentRoute = `/recipes/${RECIPE}/edit`;
   let currentRecipe = recipe();
   let journal = { operations: [], activeConnectionRevision: REVISION, connectionGuard: null };
   let rawSteps = [];
   const pageMap = new Map();
   let currentData = null;
-  const calls = { prepare: [], execute: 0, detailReads: 0, invalidatedParents: [], clearedOptions: [], clearedDrafts: [], pageReads: [] };
+  const calls = { prepare: [], execute: 0, detailReads: 0, invalidatedParents: [], clearedOptions: [], clearedDrafts: [], pageReads: [], statuses: [] };
   const connection = { schemaVersion: 1, revision: REVISION, token: 'test-only-token', dataSources };
   const context = {
     async inspect() { return { initialized: true, blocked: false }; },
@@ -40,7 +40,7 @@ function harness(executeStatus = 'succeeded') {
   };
   const view = {
     currentRoute: () => currentRoute,
-    setState() {}, showStatus() {}, clearStatus() {}, showConnection() {}, setRouteReadState() {},
+    setState() {}, showStatus(status) { calls.statuses.push(status); }, clearStatus() {}, showConnection() {}, setRouteReadState() {},
     renderData(value) { currentData = value; },
     clearSearchOptions(kind) { calls.clearedOptions.push(kind); },
     clearForm(kind) { calls.clearedForm = kind; },
@@ -64,7 +64,11 @@ function harness(executeStatus = 'succeeded') {
       invalidateRecordParentCache(kind) { calls.invalidatedParents.push(kind); },
     }),
     makeCommands: () => ({
-      async prepareEditRecipe(...args) { calls.prepare.push(args); return { args }; },
+      async prepareEditRecipe(...args) {
+        if (prepareError) throw prepareError;
+        calls.prepare.push(args);
+        return { args };
+      },
       async execute(draft) {
         calls.execute++;
         if (executeStatus === 'succeeded') {
@@ -97,6 +101,13 @@ function rawStep(step, archived = false) {
     in_trash: archived, archived, properties };
 }
 
+function rawRecipe(values, number = null) {
+  const properties = encodeProperties('recipes', values);
+  properties['분쇄 입자 굵기(μm)'] = { number };
+  return { id: RECIPE, parent: { type: 'data_source_id', data_source_id: dataSources.recipes },
+    in_trash: false, archived: false, properties };
+}
+
 test('successful recipe edit reaches the controller and reloads the latest full recipe', async () => {
   const h = harness();
   await h.app.initialize();
@@ -116,6 +127,15 @@ test('successful recipe edit reaches the controller and reloads the latest full 
   assert.ok(h.calls.clearedOptions.includes('recipes'));
   assert.equal(h.calls.clearedForm, 'recipes');
   assert.deepEqual(h.calls.clearedDrafts, [['recipes', RECIPE]]);
+});
+
+test('unsupported range reports the missing Notion rich_text property', async () => {
+  const h = harness('succeeded', Object.freeze({ code: 'micron-range-unsupported', writeState: 'not-sent' }));
+  await h.app.initialize();
+  const baseline = recipe();
+  await assert.rejects(h.app.submit('edit-recipe', { recipeId: RECIPE, baseline,
+    changes: { ...baseline, microns: '900~1000' } }), error => error.code === 'micron-range-unsupported');
+  assert.match(h.calls.statuses.at(-1).message, /분쇄 입자 범위\(μm\).*rich_text/);
 });
 
 for (const status of ['unknown', 'partial']) {
@@ -223,4 +243,73 @@ test('edit recovery rejects an archived step that remains active outside the ful
   await assert.rejects(h.app.resolveOperation(operation.key, { originalConfirmed: true, decision: 'saved' }),
     error => error.code === 'edit-state-mixed');
   assert.deepEqual(h.calls.pageReads, before.steps.map(step => step.id), 'the archived ledger page status is checked directly');
+});
+
+test('pre-upgrade edit journals still recognize the exact saved recipe fingerprint', async () => {
+  const h = harness();
+  await h.app.initialize();
+  const before = recipe();
+  const after = { ...before, microns: '900~1000', micronStorage: { number: null, range: '900~1000' } };
+  const legacyFingerprint = async value => {
+    const state = recipeEditState(value, value.steps.map(step => step.id));
+    delete state.micronStorage;
+    return recipeFingerprint(state);
+  };
+  const target = { recipeId: RECIPE,
+    beforeFingerprint: await legacyFingerprint(before),
+    afterFingerprint: await legacyFingerprint(after),
+    beforeStepIds: before.steps.map(step => step.id),
+    pages: [{ kind: 'recipes', id: RECIPE, action: 'update',
+      beforeFingerprint: await recipeFingerprint(recipePageValues(before)),
+      afterFingerprint: await recipeFingerprint(recipePageValues(after)), state: 'unknown' }] };
+  const operation = { key: 'edit-operation', kind: 'edit-recipe', status: 'unknown', connectionRevision: REVISION,
+    targetFingerprint: await recipeFingerprint(dataSources), createdPages: [], editTarget: target };
+  h.setRecovery(operation, after, [rawRecipe(after)], []);
+
+  await h.app.resolveOperation(operation.key, { originalConfirmed: true, decision: 'saved' });
+  assert.deepEqual(h.calls.pageReads, [RECIPE]);
+});
+
+test('particle edit recovery rejects a stale numeric alternate on the first parent read', async () => {
+  const h = harness();
+  await h.app.initialize();
+  const before = { ...recipe(), microns: 700 };
+  const after = { ...before, microns: '900~1000', micronStorage: { number: null, range: '900~1000' } };
+  const target = { recipeId: RECIPE,
+    beforeFingerprint: await recipeFingerprint(recipeEditState(before, before.steps.map(step => step.id))),
+    afterFingerprint: await recipeFingerprint(recipeEditState(after, before.steps.map(step => step.id))),
+    beforeStepIds: before.steps.map(step => step.id),
+    pages: [{ kind: 'recipes', id: RECIPE, action: 'update',
+      beforeFingerprint: await recipeFingerprint(recipePageValues(before)),
+      afterFingerprint: await recipeFingerprint(recipePageValues(after)), state: 'unknown' }],
+    micronAssertion: { before: { number: 700, range: '' }, after: { number: null, range: '900~1000' } } };
+  const operation = { key: 'edit-operation', kind: 'edit-recipe', status: 'unknown', connectionRevision: REVISION,
+    targetFingerprint: await recipeFingerprint(dataSources), createdPages: [], editTarget: target };
+  h.setRecovery(operation, { ...after, micronStorage: { number: 700, range: '900~1000' } }, [rawRecipe(after, 700)], []);
+
+  await assert.rejects(h.app.resolveOperation(operation.key, { originalConfirmed: true, decision: 'saved' }),
+    error => error.code === 'edit-state-mixed');
+  assert.deepEqual(h.calls.pageReads, [], 'the first parent read rejects the stale alternate before direct page reads');
+});
+
+test('particle edit recovery rejects a stale numeric alternate on the direct parent GET', async () => {
+  const h = harness();
+  await h.app.initialize();
+  const before = { ...recipe(), microns: 700 };
+  const after = { ...before, microns: '900~1000', micronStorage: { number: null, range: '900~1000' } };
+  const target = { recipeId: RECIPE,
+    beforeFingerprint: await recipeFingerprint(recipeEditState(before, before.steps.map(step => step.id))),
+    afterFingerprint: await recipeFingerprint(recipeEditState(after, before.steps.map(step => step.id))),
+    beforeStepIds: before.steps.map(step => step.id),
+    micronAssertion: { before: { number: 700, range: '' }, after: { number: null, range: '900~1000' } },
+    pages: [{ kind: 'recipes', id: RECIPE, action: 'update',
+      beforeFingerprint: await recipeFingerprint(recipePageValues(before)),
+      afterFingerprint: await recipeFingerprint(recipePageValues(after)), state: 'unknown' }] };
+  const operation = { key: 'edit-operation', kind: 'edit-recipe', status: 'unknown', connectionRevision: REVISION,
+    targetFingerprint: await recipeFingerprint(dataSources), createdPages: [], editTarget: target };
+  h.setRecovery(operation, after, [rawRecipe(after, 700)], before.steps.map(step => rawStep(step)));
+
+  await assert.rejects(h.app.resolveOperation(operation.key, { originalConfirmed: true, decision: 'saved' }),
+    error => error.code === 'edit-state-mixed');
+  assert.deepEqual(h.calls.pageReads, [RECIPE], 'the fresh collection is clean; the direct GET exposes the stale alternate');
 });

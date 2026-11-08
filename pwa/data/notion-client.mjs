@@ -183,6 +183,7 @@ export class NotionClient {
   #fetch;
   #timeoutMs;
   #recipeExtractionGuideSupported = null;
+  #recipeMicronRangeSupported = null;
   #recordBeanRelationSupported = null;
   #beanBestRecordRelationSupported = null;
   #beanFavoriteSupported = null;
@@ -212,6 +213,7 @@ export class NotionClient {
   get dataSources() { return this.#dataSources; }
   get connectionRevision() { return this.#connectionRevision; }
   get recipeExtractionGuideSupported() { return this.#recipeExtractionGuideSupported; }
+  get recipeMicronRangeSupported() { return this.#recipeMicronRangeSupported; }
   get recordBeanRelationSupported() { return this.#recordBeanRelationSupported; }
   get beanBestRecordRelationSupported() { return this.#beanBestRecordRelationSupported; }
   get beanFavoriteSupported() { return this.#beanFavoriteSupported; }
@@ -307,6 +309,7 @@ export class NotionClient {
     for (const kind of requested) {
       const sourceId = this.#dataSources[kind];
       let recipeExtractionGuideSupported = false;
+      let recipeMicronRangeSupported = false;
       let recordBeanRelationSupported = false;
       let beanBestRecordRelationSupported = false;
       let beanFavoriteSupported = false;
@@ -326,6 +329,7 @@ export class NotionClient {
             if (property === undefined && optionalProperties[kind]?.includes(field)) return true;
             if (!record(property) || property.type !== type) return false;
             if (kind === 'recipes' && field === 'extractionGuide') recipeExtractionGuideSupported = true;
+            if (kind === 'recipes' && field === 'micronRange') recipeMicronRangeSupported = true;
             if (kind === 'records' && field === 'beanId') recordBeanRelationSupported = true;
             if (kind === 'beans' && field === 'favorite') beanFavoriteSupported = true;
             if (kind === 'recipes' && field === 'favorite') recipeFavoriteSupported = true;
@@ -338,6 +342,7 @@ export class NotionClient {
       this.#verifiedQueryProperties.set(kind, new Set(Object.entries(verifiedSource.properties)
         .flatMap(([name, property]) => typeof property.id === 'string' ? [name, property.id] : [name])));
       if (kind === 'recipes') this.#recipeExtractionGuideSupported = recipeExtractionGuideSupported;
+      if (kind === 'recipes') this.#recipeMicronRangeSupported = recipeMicronRangeSupported;
       if (kind === 'records') this.#recordBeanRelationSupported = recordBeanRelationSupported;
       if (kind === 'beans') this.#beanBestRecordRelationSupported = beanBestRecordRelationSupported;
       if (kind === 'beans') this.#beanFavoriteSupported = beanFavoriteSupported;
@@ -464,12 +469,19 @@ export class NotionClient {
         String(domainData?.extractionGuide ?? '').trim()) {
       throw failure('recipe-guide-unsupported', 'not-sent');
     }
+    if (kind === 'recipes' && typeof domainData?.microns === 'string' && domainData.microns.trim() &&
+        this.#recipeMicronRangeSupported !== true) {
+      throw failure('micron-range-unsupported', 'not-sent');
+    }
     let payload;
     try {
       payload = createPayload(kind, domainData, this.#dataSources);
     } catch { throw failure('invalid-input', 'not-sent'); }
     if (kind === 'recipes' && this.#recipeExtractionGuideSupported === false) {
       delete payload.properties['추출 가이드'];
+    }
+    if (kind === 'recipes' && this.#recipeMicronRangeSupported !== true) {
+      delete payload.properties['분쇄 입자 범위(μm)'];
     }
     if (kind === 'beans' && this.#beanFavoriteSupported === false) {
       delete payload.properties['즐겨찾기'];
@@ -520,6 +532,10 @@ export class NotionClient {
     if (kind === 'recipes' && this.#recipeExtractionGuideSupported === false && domainData.extractionGuide) {
       throw failure('recipe-guide-unsupported', 'not-sent');
     }
+    if (kind === 'recipes' && typeof domainData.microns === 'string' && domainData.microns.trim() &&
+        this.#recipeMicronRangeSupported !== true) {
+      throw failure('micron-range-unsupported', 'not-sent');
+    }
     const sourceId = this.#source(kind);
     const currentPage = await this.getPage(id);
     if (!validPage(currentPage, id, sourceId) || currentPage.in_trash !== false || currentPage.archived !== false) {
@@ -539,13 +555,32 @@ export class NotionClient {
     const allProperties = encodeProperties(kind, domainData);
     const selectedNames = new Set(fields.map(field => schemas[kind][field][0]));
     if (kind === 'recipes' && this.#recipeExtractionGuideSupported === false) selectedNames.delete(schemas.recipes.extractionGuide[0]);
+    if (kind === 'recipes' && fields.includes('microns')) {
+      const rangeName = schemas.recipes.micronRange[0];
+      if (this.#recipeMicronRangeSupported === true ||
+          (this.#recipeMicronRangeSupported === null && Object.hasOwn(currentPage.properties, rangeName))) {
+        selectedNames.add(rangeName);
+      }
+    }
     const properties = Object.fromEntries(Object.entries(allProperties).filter(([name]) => selectedNames.has(name)));
     const updated = await this.#request('/pages/' + id, {
       method: 'PATCH', writing: true, body: { properties },
       validate: data => {
         if (!validPage(data, id, sourceId) || data.in_trash !== false || data.archived !== false) return false;
         const decoded = decodePage(kind, data);
-        return fields.every(field => decoded[field] === domainData[field]);
+        if (!fields.every(field => decoded[field] === domainData[field])) return false;
+        if (kind === 'recipes' && fields.includes('microns') &&
+            (this.#recipeMicronRangeSupported === true ||
+              (this.#recipeMicronRangeSupported === null && Object.hasOwn(currentPage.properties, schemas.recipes.micronRange[0])))) {
+          const expectedStorage = typeof domainData.microns === 'number'
+            ? { number: domainData.microns, range: '' }
+            : typeof domainData.microns === 'string'
+              ? { number: null, range: domainData.microns }
+              : { number: null, range: '' };
+          if (decoded.micronStorage?.number !== expectedStorage.number ||
+              decoded.micronStorage?.range !== expectedStorage.range) return false;
+        }
+        return true;
       },
     });
     return decodePage(kind, updated);

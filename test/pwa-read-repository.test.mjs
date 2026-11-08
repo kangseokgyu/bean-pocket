@@ -232,6 +232,15 @@ test('factory는 네 source ID를 검증하고 생성 시점 값을 복사한다
   });
 });
 
+test('레시피 조회는 선택적 μm 범위 속성을 숫자 대체 필드로 읽는다', async () => {
+  const rows = baselineRows();
+  rows.recipes[0].properties['분쇄 입자 범위(μm)'].rich_text = [
+    { type: 'text', text: { content: '900~1000' }, plain_text: '900~1000' },
+  ];
+  const result = await fixture({ rows }).repository.readAll();
+  assert.equal(result.recipes[0].microns, '900~1000');
+});
+
 test('listBeans reads one metadata page without touching other sources or re-reading recipe parents', async () => {
   const calls = [];
   const client = {

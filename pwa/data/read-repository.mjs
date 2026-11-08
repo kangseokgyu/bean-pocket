@@ -214,6 +214,7 @@ export function createReadRepository(client) {
   function propertyNames(kind) {
     return Object.entries(schemas[kind]).filter(([field]) => {
       if (kind === 'beans' && field === 'bestRecordIds') return client.beanBestRecordRelationSupported !== false;
+      if (kind === 'recipes' && field === 'micronRange') return client.recipeMicronRangeSupported !== false;
       return true;
     }).map(([, [name]]) => name);
   }

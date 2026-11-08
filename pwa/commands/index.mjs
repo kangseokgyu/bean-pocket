@@ -13,7 +13,7 @@ import {
 } from '../domain.mjs';
 import { validateCreatePayload } from '../data/notion-client.mjs';
 import { createSubmissionDraft } from '../state/submission-state.mjs';
-import { recipeEditState, recipeFingerprint, recipePageValues, stepPageValues } from '../recipe-edit.mjs';
+import { micronStorageFor, recipeEditState, recipeFingerprint, recipePageValues, stepPageValues } from '../recipe-edit.mjs';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DELETE_TARGET_BY_OPERATION = Object.freeze({
@@ -188,7 +188,16 @@ export function createCommands({ client, repository, submissionState } = {}) {
   const uncertainWrites = new WeakSet();
   const isUnknown = error => uncertainWrites.has(error) || safeState(error) === 'unknown';
 
+  function preflightMicronRange(kind, payload, metadata = {}) {
+    const recipe = kind === 'edit-recipe' ? metadata.edit?.desired : payload;
+    if (['recipes', 'edit-recipe'].includes(kind) && typeof recipe?.microns === 'string' &&
+        recipe.microns.trim() && client.recipeMicronRangeSupported !== true) {
+      throw Object.freeze({ code: 'micron-range-unsupported', writeState: 'not-sent' });
+    }
+  }
+
   async function prepare(kind, payload, metadata = {}) {
+    preflightMicronRange(kind, payload, metadata);
     if (kind === 'recipes' && client.recipeExtractionGuideSupported === false && payload.extractionGuide) {
       throw Object.freeze({ code: 'recipe-guide-unsupported', writeState: 'not-sent' });
     }
@@ -269,6 +278,11 @@ export function createCommands({ client, repository, submissionState } = {}) {
       favorite: typeof baseline.favorite === 'boolean' ? baseline.favorite : undefined,
       steps: validated.steps.map((step, index) => ({ ...step, id: requestedStepIds[index], recipeId: recipeId })),
     };
+    if (validated.microns !== baseline.microns) desired.micronStorage = micronStorageFor(validated.microns);
+    const micronAssertion = validated.microns !== baseline.microns ? {
+      before: baseline.micronStorage ?? micronStorageFor(baseline.microns),
+      after: desired.micronStorage,
+    } : null;
     const beforeState = recipeEditState({ ...baseline, steps: originalSteps }, originalSteps.map(step => step.id));
     const afterState = recipeEditState(desired, originalSteps.map(step => step.id));
     const beforeFingerprint = await recipeFingerprint(beforeState);
@@ -299,7 +313,8 @@ export function createCommands({ client, repository, submissionState } = {}) {
       }
     }
     const editTarget = { recipeId, beforeFingerprint, afterFingerprint,
-      beforeStepIds: originalSteps.map(step => step.id), pages };
+      beforeStepIds: originalSteps.map(step => step.id), pages,
+      ...(micronAssertion ? { micronAssertion } : {}) };
     return prepare('edit-recipe', { recipeId, before: beforeState, after: afterState },
       { edit: { recipeId, baseline: { ...baseline, steps: originalSteps }, desired, editTarget, noop } });
   }
@@ -409,6 +424,7 @@ export function createCommands({ client, repository, submissionState } = {}) {
   async function execute(draft) {
     const metadata = draft && commandsByDraft.get(draft);
     if (!metadata) throw Object.freeze({ code: 'invalid-draft', writeState: 'not-sent' });
+    preflightMicronRange(metadata.kind, draft.payload, metadata);
     if (metadata.kind === 'edit-recipe' && metadata.edit.noop) {
       return Object.freeze({ status: 'succeeded', value: metadata.edit.desired });
     }
@@ -444,12 +460,15 @@ export function createCommands({ client, repository, submissionState } = {}) {
           let newStepIndex = 0;
           for (const [index, page] of edit.editTarget.pages.entries()) {
             if (page.action === 'update') {
-              const before = page.kind === 'recipes'
+              const fullBefore = page.kind === 'recipes'
                 ? recipePageValues(edit.baseline)
                 : stepPageValues(edit.baseline.steps.find(step => step.id === page.id));
-              const after = page.kind === 'recipes'
+              const fullAfter = page.kind === 'recipes'
                 ? recipePageValues(edit.desired)
                 : stepPageValues(edit.desired.steps.find(step => step.id === page.id));
+              const changedFields = Object.keys(fullAfter).filter(field => fullBefore[field] !== fullAfter[field]);
+              const before = Object.fromEntries(changedFields.map(field => [field, fullBefore[field]]));
+              const after = Object.fromEntries(changedFields.map(field => [field, fullAfter[field]]));
               if (typeof client.updatePage !== 'function') throw Object.freeze({ code: 'edit-unavailable', writeState: 'not-sent' });
               await operation.write(() => client.updatePage.call(client, page.kind, page.id, after,
                 { expected: before, ...(page.kind === 'steps' ? { recipeId: edit.recipeId } : {}) }),

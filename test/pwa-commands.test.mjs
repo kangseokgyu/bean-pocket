@@ -122,6 +122,7 @@ function harness({ rows = blankRows(), revision = REVISION } = {}) {
     connectionRevision: revision,
     dataSources: DATA_SOURCES,
     recordBeanRelationSupported: true,
+    recipeMicronRangeSupported: true,
     async createPage(kind, data) {
       assert.equal(state.isLocked(), true, 'Notion create must run under the write lock');
       const operation = state.journal().operations.at(-1);
@@ -360,6 +361,67 @@ test('legacy recipe schema blocks a nonempty guide before journal creation for c
   }
   assert.equal(env.calls.length, 0);
   assert.equal(env.journal().operations.length, 0);
+});
+
+test('range schema is preflighted before command writes for create, copy, and edits with step patches', async () => {
+  const source = storedRecipe(IDS.recipe);
+  source.steps = source.steps.map((step, index) => ({ ...step,
+    id: `eeeeeeee-eeee-4eee-8eee-${String(index + 1).padStart(12, '0')}`, recipeId: IDS.recipe }));
+  const env = harness({ rows: { ...blankRows(), recipes: [source] } });
+  const created = await env.commands.prepareRecipe(recipeInput(IDS.bean, { microns: '900~1000' }));
+  const copied = await env.commands.prepareCopy(IDS.recipe, { microns: '900~1000' });
+  const edited = await env.commands.prepareEditRecipe(IDS.recipe, structuredClone(source), {
+    ...recipeInput(IDS.bean, { microns: '900~1000' }),
+    steps: source.steps.map((step, index) => ({ id: step.id, name: index ? step.name : '변경 단계',
+      time: `${Math.floor(step.seconds / 60)}:${String(step.seconds % 60).padStart(2, '0')}`, water: step.water })),
+  });
+  env.client.recipeMicronRangeSupported = false;
+
+  for (const draft of [created, copied, edited]) {
+    await assert.rejects(env.commands.execute(draft), error =>
+      error.code === 'micron-range-unsupported' && error.writeState === 'not-sent');
+  }
+  assert.equal(env.calls.length, 0, 'no create or step PATCH is sent before the schema check');
+  assert.equal(env.updates.length, 0);
+  assert.equal(env.archives.length, 0);
+  assert.equal(env.journal().operations.length, 0, 'preflight happens before journaling writes');
+});
+
+test('an unrelated recipe edit omits both micron columns from its parent PATCH', async () => {
+  const source = storedRecipe(IDS.recipe, {
+    microns: '900~1000', micronStorage: { number: 700, range: '900~1000' },
+  });
+  source.steps = source.steps.map((step, index) => ({ ...step,
+    id: `eeeeeeee-eeee-4eee-8eee-${String(index + 1).padStart(12, '0')}`, recipeId: IDS.recipe }));
+  const env = harness({ rows: { ...blankRows(), recipes: [source] } });
+  const draft = await env.commands.prepareEditRecipe(IDS.recipe, structuredClone(source), {
+    ...recipeInput(IDS.bean, { name: '이름만 변경', microns: '900~1000' }),
+    steps: source.steps.map(step => ({ id: step.id, name: step.name,
+      time: `${Math.floor(step.seconds / 60)}:${String(step.seconds % 60).padStart(2, '0')}`, water: step.water })),
+  });
+
+  const result = await env.commands.execute(draft);
+  assert.equal(result.status, 'succeeded');
+  assert.deepEqual(env.updates.filter(update => update.kind === 'recipes').map(update => update.data), [{ name: '이름만 변경' }]);
+  assert.deepEqual(env.rows.recipes[0].micronStorage, { number: 700, range: '900~1000' });
+});
+
+test('particle-changing recipe edits persist the raw before and after micron assertion', async () => {
+  const source = storedRecipe(IDS.recipe, { microns: 700 });
+  source.steps = source.steps.map((step, index) => ({ ...step,
+    id: `eeeeeeee-eeee-4eee-8eee-${String(index + 1).padStart(12, '0')}`, recipeId: IDS.recipe }));
+  const env = harness({ rows: { ...blankRows(), recipes: [source] } });
+  const draft = await env.commands.prepareEditRecipe(IDS.recipe, structuredClone(source), {
+    ...recipeInput(IDS.bean, { microns: '900~1000' }),
+    steps: source.steps.map(step => ({ id: step.id, name: step.name,
+      time: `${Math.floor(step.seconds / 60)}:${String(step.seconds % 60).padStart(2, '0')}`, water: step.water })),
+  });
+
+  const result = await env.commands.execute(draft);
+  assert.equal(result.status, 'succeeded');
+  assert.deepEqual(env.journal().operations[0].editTarget.micronAssertion, {
+    before: { number: 700, range: '' }, after: { number: null, range: '900~1000' },
+  });
 });
 
 test('any recipe payload over a Notion transport limit is rejected before the parent write', async () => {

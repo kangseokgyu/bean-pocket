@@ -35,6 +35,7 @@ const SAFE_MESSAGES = Object.freeze({
   'schema-unsupported': '새 추출 기록을 저장하려면 Notion records 데이터베이스에 ‘원두’ 관계가 필요합니다. 기존 기록 조회는 계속할 수 있습니다.',
   'favorite-unsupported': '즐겨찾기를 사용하려면 Notion 원두·레시피 데이터베이스에 즐겨찾기 checkbox 속성을 추가하고 연결을 다시 확인해 주세요.',
   'recipe-guide-unsupported': '추출 가이드를 저장하려면 Notion recipes 데이터베이스에 rich_text 속성을 추가해 주세요. 기존 레시피 조회는 계속할 수 있습니다.',
+  'micron-range-unsupported': '범위 분쇄 입자를 저장하려면 Notion recipes 데이터베이스에 ‘분쇄 입자 범위(μm)’ rich_text 속성을 추가하고 연결을 다시 확인해 주세요.',
   'best-record-unsupported': '베스트 추출 기능을 쓰려면 Notion beans 데이터베이스에 records를 대상으로 하는 ‘베스트 추출’ 관계를 추가해 주세요. 일반 추출 기록 저장은 계속할 수 있습니다.',
   'stale-read': '조회 중 데이터가 바뀌었습니다. 다시 조회해 주세요.',
   'resolution-read-failed': '확인 중 최신 데이터를 읽지 못했습니다. 원본을 확인한 뒤 다시 시도해 주세요.',
@@ -47,6 +48,16 @@ const SAFE_MESSAGES = Object.freeze({
   'delete-in-use': '이 레시피를 사용하는 추출 기록이 있습니다. 먼저 해당 추출 기록을 삭제한 뒤 다시 시도해 주세요.',
   'delete-dependency-unknown': '연결 관계나 제외된 기록을 확인할 수 없어 안전을 위해 삭제를 막았습니다. 최신 목록을 새로고침해 주세요.',
 });
+
+function matchesMicronAssertion(recipe, assertion, decision) {
+  if (!assertion) return true;
+  const expected = assertion[decision === 'saved' ? 'after' : 'before'];
+  const observed = recipe.micronStorage ?? {
+    number: typeof recipe.microns === 'number' ? recipe.microns : null,
+    range: typeof recipe.microns === 'string' ? recipe.microns : '',
+  };
+  return observed.number === expected.number && observed.range === expected.range;
+}
 
 const messageFor = error => ({
   401: SAFE_MESSAGES.unauthorized,
@@ -755,7 +766,9 @@ export function createAppController({
             const target = operation.editTarget;
             const freshData = await freshStack.nextRepository.readAll();
             const recipe = freshData.recipes?.find(item => item.id === target.recipeId);
-            if (!recipe) throw Object.assign(new Error(), { code: 'edit-state-mixed' });
+            if (!recipe || !matchesMicronAssertion(recipe, target.micronAssertion, resolution.decision)) {
+              throw Object.assign(new Error(), { code: 'edit-state-mixed' });
+            }
             const observedFingerprint = await recipeFingerprint(recipeEditState(recipe, target.beforeStepIds));
             const expectedFingerprint = resolution.decision === 'saved' ? target.afterFingerprint : target.beforeFingerprint;
             const otherFingerprint = resolution.decision === 'saved' ? target.beforeFingerprint : target.afterFingerprint;
@@ -839,6 +852,9 @@ export function createAppController({
                       !relationIds || relationIds.length !== 1 || relationIds[0] !== target.recipeId) throw new Error();
                 }
                 const decoded = decodePage(kind, page);
+                if (kind === 'recipes' && !matchesMicronAssertion(decoded, target.micronAssertion, resolution.decision)) {
+                  throw new Error();
+                }
                 valuesFingerprint = await recipeFingerprint(kind === 'steps'
                   ? stepPageValues(decoded) : recipePageValues(decoded));
               } catch {

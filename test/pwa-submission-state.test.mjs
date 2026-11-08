@@ -128,7 +128,8 @@ test('recipe edit journal records a per-page outcome before dispatch and after c
     { kind: 'steps', id: null, action: 'create', beforeFingerprint: null, afterFingerprint: 'd'.repeat(64), state: 'pending' },
   ];
   const editTarget = { recipeId: ID, beforeFingerprint: 'e'.repeat(64), afterFingerprint: 'f'.repeat(64),
-    beforeStepIds: [NEXT], pages };
+    beforeStepIds: [NEXT], pages,
+    micronAssertion: { before: { number: 700, range: '' }, after: { number: null, range: '900~1000' } } };
   const result = await env.make().withWriteLock(context => context.runOperation(d, REV, async operation => {
     assert.deepEqual(env.journal().operations[0].editTarget, editTarget);
     for (const [index, page] of pages.entries()) {

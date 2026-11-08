@@ -96,8 +96,17 @@ function normalizedConnection(value) {
   return frozen({ schemaVersion: 1, revision: uuid(copy.revision), token: copy.token, dataSources: normalizedSources(copy.dataSources) });
 }
 
+function micronStorage(value) {
+  if (!exact(value, ['number', 'range']) ||
+      !(value.number === null || (typeof value.number === 'number' && Number.isFinite(value.number) && value.number > 0)) ||
+      typeof value.range !== 'string') throw fail('invalid-edit-target');
+  return { number: value.number, range: value.range };
+}
+
 function editTarget(value, { initial = false } = {}) {
-  if (!exact(value, ['recipeId', 'beforeFingerprint', 'afterFingerprint', 'beforeStepIds', 'pages']) ||
+  const keys = ['recipeId', 'beforeFingerprint', 'afterFingerprint', 'beforeStepIds', 'pages',
+    ...(Object.hasOwn(value ?? {}, 'micronAssertion') ? ['micronAssertion'] : [])];
+  if (!exact(value, keys) ||
       !Array.isArray(value.beforeStepIds) || !Array.isArray(value.pages) || !value.pages.length ||
       !HASH.test(value.beforeFingerprint) || !HASH.test(value.afterFingerprint)) throw fail('invalid-edit-target');
   const recipeId = uuid(value.recipeId);
@@ -122,8 +131,17 @@ function editTarget(value, { initial = false } = {}) {
     return { kind: page.kind, id, action: page.action, beforeFingerprint: page.beforeFingerprint,
       afterFingerprint: page.afterFingerprint, state: page.state };
   });
+  let assertion;
+  if (Object.hasOwn(value, 'micronAssertion')) {
+    const item = value.micronAssertion;
+    if (!exact(item, ['before', 'after'])) throw fail('invalid-edit-target');
+    assertion = { before: micronStorage(item.before), after: micronStorage(item.after) };
+    if (!pages.some(page => page.kind === 'recipes' && page.id === recipeId && page.action === 'update')) {
+      throw fail('invalid-edit-target');
+    }
+  }
   return { recipeId, beforeFingerprint: value.beforeFingerprint, afterFingerprint: value.afterFingerprint,
-    beforeStepIds, pages };
+    beforeStepIds, pages, ...(assertion ? { micronAssertion: assertion } : {}) };
 }
 
 export async function createSubmissionDraft(kind, validatedPayload, { connectionRevision, dataSources, cryptoImpl = globalThis.crypto } = {}) {

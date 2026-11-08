@@ -20,6 +20,7 @@ export const schemas = {
     grinderSetting: ['그라인더 설정값', 'rich_text'],
     extractionGuide: ['추출 가이드', 'rich_text'],
     microns: ['분쇄 입자 굵기(μm)', 'number'],
+    micronRange: ['분쇄 입자 범위(μm)', 'rich_text'],
     temperature: ['물 온도(℃)', 'number'],
     totalWater: ['총 물 양(g)', 'number'],
     favorite: ['즐겨찾기', 'checkbox'],
@@ -59,7 +60,11 @@ export function encodeProperties(kind, data) {
     // New recipes are independent of beans; omit the legacy relation so its
     // stored values remain untouched and old schemas need not expose it.
     if (kind === 'recipes' && key === 'beanId') continue;
-    const value = data[key];
+    const value = kind === 'recipes' && key === 'microns'
+      ? (typeof data.microns === 'number' ? data.microns : null)
+      : kind === 'recipes' && key === 'micronRange'
+        ? (typeof data.microns === 'string' ? data.microns : '')
+        : data[key];
     if (kind === 'beans' && key === 'bestRecordIds' && value === undefined) continue;
     let encoded;
     if (type === 'title' || type === 'rich_text') {
@@ -112,6 +117,13 @@ export function decodePage(kind, page) {
       result[key] = typeof property.number === 'number' && Number.isFinite(property.number) ? property.number : null;
     }
   }
+  if (kind === 'recipes') {
+    const rangeText = typeof result.micronRange === 'string' ? result.micronRange : '';
+    const range = rangeText.trim();
+    result.micronStorage = { number: result.microns, range: rangeText };
+    result.microns = range || result.microns;
+    delete result.micronRange;
+  }
   return result;
 }
 
@@ -126,6 +138,6 @@ export const relationTargets = {
 // creation requires records.beanId support and is gated by client.verify().
 export const optionalProperties = {
   beans: ['bestRecordIds', 'favorite'],
-  recipes: ['beanId', 'extractionGuide', 'favorite'],
+  recipes: ['beanId', 'extractionGuide', 'favorite', 'micronRange'],
   records: ['beanId'],
 };

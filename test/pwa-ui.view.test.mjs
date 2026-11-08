@@ -8,6 +8,7 @@ import { buildRecordsInsights } from '../pwa/ui/records-insights.mjs';
 import { renderHome } from '../pwa/ui/screens/home.mjs';
 import { renderBeans, renderBeanDetail } from '../pwa/ui/screens/beans.mjs';
 import { renderRecipes, renderRecipeDetail } from '../pwa/ui/screens/recipes.mjs';
+import { updateBrewConditions } from '../pwa/ui/screens/brew.mjs';
 import { buildBeanForm } from '../pwa/ui/forms/bean-form.mjs';
 import { addStep, buildRecipeForm, recipePayload, setSteps, updatePreview } from '../pwa/ui/forms/recipe-form.mjs';
 
@@ -4879,7 +4880,7 @@ test('recipe form step editor, preview, and payload preserve entered recipe valu
   secondRow.querySelector('[name="water"]').value = '200';
   updatePreview(panel);
   assert.equal(form.querySelector('.steps-preview-table').querySelector('tbody').children.length, 2);
-  assert.equal(form.querySelector('.preview-total').textContent, '단계 물 합계 250g');
+  assert.equal(form.querySelector('.preview-total').textContent, '단계 물 합 250g / 목표 250g');
 
   const originalFormData = globalThis.FormData;
   globalThis.FormData = class { constructor(element) {
@@ -4901,7 +4902,173 @@ test('recipe form step editor, preview, and payload preserve entered recipe valu
 
   setSteps(form, [{ name: '뜸', seconds: 0, water: 50 }, { name: '붓기', seconds: 70, water: 200 }]);
   assert.deepEqual(form.querySelectorAll('.step-row').map(row => row.querySelector('[name="time"]').value), ['0:00', '1:10']);
-  assert.equal(form.querySelector('.preview-total').textContent, '단계 물 합계 250g');
+  assert.equal(form.querySelector('.preview-total').textContent, '단계 물 합 250g / 목표 250g');
+});
+
+test('recipe stage editor keeps its breakdown open and its focused input while totals update', () => {
+  const document = new TestDocument();
+  const form = buildRecipeForm(document, data());
+  form.elements.totalWater.value = '250';
+  setSteps(form, [{ id: 'step-id', name: '뜸', seconds: 0, water: 50 }]);
+
+  const editor = form.querySelector('[data-stage-editor="recipe"]');
+  assert.ok(editor, 'recipe form exposes the shared stage editor');
+  const row = editor.querySelector('.step-row');
+  const details = editor.querySelector('details');
+  const total = editor.querySelector('.preview-total');
+  const water = row.querySelector('[name="water"]');
+  assert.equal(details.open, false);
+  assert.equal(row.dataset.stepId, 'step-id');
+  assert.equal(row.querySelector('[data-action="remove-step"]').getAttribute('aria-label'), '단계 1 제거');
+  assert.match(total.textContent, /50g.*250g/);
+  assert.equal(total.getAttribute('aria-live'), 'polite');
+
+  details.open = true;
+  water.focus();
+  water.value = '75';
+  updatePreview(form);
+
+  assert.equal(editor.querySelector('details'), details);
+  assert.equal(details.open, true);
+  assert.equal(document.activeElement, water);
+  assert.match(total.textContent, /75g.*250g/);
+  assert.deepEqual(editor.querySelector('.steps-preview-table').querySelector('tbody').children.map(line =>
+    line.children.map(cell => cell.textContent)), [['0:00', '0초', '75g', '75g']]);
+});
+
+test('stage breakdown hides intervals with invalid adjacent times or decreasing time', () => {
+  const document = new TestDocument();
+  const form = buildRecipeForm(document, data());
+  form.elements.totalWater.value = '200';
+  setSteps(form, [
+    { name: '뜸', seconds: 0, water: 40 },
+    { name: '1차', seconds: 30, water: 80 },
+    { name: '2차', seconds: 100, water: 80 },
+  ]);
+  const rows = form.querySelectorAll('.step-row');
+  const times = rows.map(row => row.querySelector('[name="time"]'));
+  const intervals = () => form.querySelector('.steps-preview-table').querySelector('tbody').children
+    .map(line => line.children[1].textContent);
+
+  times[1].value = '';
+  times[2].value = '1:40';
+  updatePreview(form);
+  assert.deepEqual(intervals(), ['0초', '—', '—']);
+
+  times[1].value = '2:00';
+  times[2].value = '1:40';
+  updatePreview(form);
+  assert.deepEqual(intervals(), ['0초', '120초', '—']);
+
+  times[2].value = '2:30';
+  updatePreview(form);
+  assert.deepEqual(intervals(), ['0초', '120초', '30초']);
+});
+
+test('brew stage editor keeps the first row protected and updates its persistent breakdown', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+  view.renderRoute(`/brew/run?beanId=${BEAN}&recipeId=${RECIPE}`);
+  const form = document.root.querySelector('form[data-form="brews"]');
+  const editor = form.querySelector('[data-stage-editor="brew"]');
+  assert.ok(editor, 'brew preparation exposes the shared stage editor');
+  const rows = editor.querySelectorAll('.brew-stage-row');
+  const details = editor.querySelector('details');
+  const total = editor.querySelector('[data-brew-stage-total]');
+  const water = rows[1].querySelector('[name="water"]');
+  assert.equal(details.open, false);
+  assert.equal(rows[0].querySelector('[data-action="remove-brew-stage"]').disabled, true,
+    `first-stage removal state: ${rows.map(row => row.querySelector('[data-action="remove-brew-stage"]').disabled)}`);
+  assert.equal(rows[1].querySelector('[data-action="remove-brew-stage"]').disabled, false);
+  assert.match(total.textContent, /250g.*250g/);
+
+  details.open = true;
+  water.focus();
+  water.value = '205';
+  updateBrewConditions(form);
+
+  assert.equal(editor.querySelector('details'), details);
+  assert.equal(details.open, true);
+  assert.equal(document.activeElement, water);
+  assert.match(total.textContent, /255g.*250g/);
+  assert.deepEqual(editor.querySelector('.steps-preview-table').querySelector('tbody').children.map(line =>
+    line.children.map(cell => cell.textContent)), [
+    ['0:00', '0초', '50g', '50g'],
+    ['1:10', '70초', '205g', '255g'],
+  ]);
+});
+
+test('recipe and brew stage add and remove actions keep their different defaults and rules', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.bind({ setDirty() {}, getState: () => ({ pending: false, frozen: false, unresolved: false }) });
+  view.renderData(data());
+  view.renderRoute('/recipes');
+
+  let recipe = document.root.querySelector('form[data-form="recipes"]');
+  const recipeDetails = recipe.querySelector('details');
+  recipeDetails.open = true;
+  const addRecipeStep = recipe.querySelector('[data-action="add-step"]');
+  addRecipeStep.focus();
+  await clickViewTarget(document, addRecipeStep);
+  let recipeRows = recipe.querySelectorAll('.step-row');
+  assert.equal(recipeRows.length, 2);
+  assert.equal(document.activeElement === recipeRows[1].querySelector('[name="stepName"]'), true,
+    'adding a recipe stage focuses its name');
+  assert.equal(recipe.querySelector('details'), recipeDetails);
+  assert.equal(recipeDetails.open, true);
+  assert.equal(recipeRows[1].querySelector('[name="time"]').value, '');
+  assert.equal(recipeRows[1].querySelector('[name="time"]').placeholder, '0:30');
+  assert.equal(recipeRows[1].querySelector('[name="water"]').value, '');
+  const removeFirstRecipeStep = recipeRows[0].querySelector('[data-action="remove-step"]');
+  removeFirstRecipeStep.focus();
+  await clickViewTarget(document, removeFirstRecipeStep);
+  assert.equal(recipe.querySelectorAll('.step-row').length, 1, 'recipe rows are all removable');
+  recipeRows = recipe.querySelectorAll('.step-row');
+  assert.equal(document.activeElement === recipeRows[0].querySelector('[name="stepName"]'), true,
+    'removing a recipe stage focuses the adjacent stage name');
+  assert.equal(recipe.querySelector('details'), recipeDetails);
+  assert.equal(recipeDetails.open, true);
+  const removeLastRecipeStep = recipeRows[0].querySelector('[data-action="remove-step"]');
+  removeLastRecipeStep.focus();
+  await clickViewTarget(document, removeLastRecipeStep);
+  assert.equal(recipe.querySelectorAll('.step-row').length, 0);
+  assert.equal(document.activeElement === recipe.querySelector('[data-action="add-step"]'), true,
+    'removing the last recipe stage focuses add stage');
+  assert.equal(recipe.querySelector('details'), recipeDetails);
+  assert.equal(recipeDetails.open, true);
+
+  view.renderRoute(`/brew/run?beanId=${BEAN}&recipeId=${RECIPE}`);
+  const brew = document.root.querySelector('form[data-form="brews"]');
+  const brewDetails = brew.querySelector('details');
+  brewDetails.open = true;
+  let brewRows = brew.querySelectorAll('.brew-stage-row');
+  assert.equal(brewRows[0].querySelector('[data-action="remove-brew-stage"]').disabled, true);
+  const addBrewStage = brew.querySelector('[data-action="add-brew-stage"]');
+  addBrewStage.focus();
+  await clickViewTarget(document, addBrewStage);
+  brewRows = brew.querySelectorAll('.brew-stage-row');
+  assert.equal(brewRows.length, 3);
+  assert.equal(document.activeElement === brewRows[2].querySelector('[name="stepName"]'), true,
+    'adding a brew stage focuses its name');
+  assert.equal(brew.querySelector('details'), brewDetails);
+  assert.equal(brewDetails.open, true);
+  assert.equal(brewRows[2].querySelector('[name="time"]').value, '1:40');
+  assert.equal(brewRows[2].querySelector('[name="water"]').value, 10);
+  assert.equal(brewRows[2].querySelector('[data-action="remove-brew-stage"]').getAttribute('aria-label'), '단계 3 제거');
+  await clickViewTarget(document, brewRows[0].querySelector('[data-action="remove-brew-stage"]'));
+  assert.equal(brew.querySelectorAll('.brew-stage-row').length, 3, 'the first brew row cannot be removed');
+  const removeSecondBrewStage = brewRows[1].querySelector('[data-action="remove-brew-stage"]');
+  removeSecondBrewStage.focus();
+  await clickViewTarget(document, removeSecondBrewStage);
+  brewRows = brew.querySelectorAll('.brew-stage-row');
+  assert.equal(brewRows.length, 2);
+  assert.equal(document.activeElement === brewRows[1].querySelector('[name="stepName"]'), true,
+    'removing a brew stage focuses the next stage name');
+  assert.equal(brew.querySelector('details'), brewDetails);
+  assert.equal(brewDetails.open, true);
+  assert.equal(brewRows[1].querySelector('[data-action="remove-brew-stage"]').getAttribute('aria-label'), '단계 2 제거');
 });
 
 for (const kind of ['beans', 'recipes']) {

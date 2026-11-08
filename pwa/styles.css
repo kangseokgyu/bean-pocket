@@ -474,9 +474,37 @@ html:has(dialog[open]), body:has(dialog[open]) { overflow: hidden; overscroll-be
 }
 
 .form-field textarea { height: 78px; min-height: 78px; resize: vertical; }
-.recipe-steps { display: grid; gap: 8px; min-width: 0; }
-.step-row { display: grid; gap: 8px; min-width: 0; margin: 0; padding: 10px; border: 1px solid var(--line); border-radius: 10px; }
-.step-row legend { padding: 0 4px; font-size: 0.8rem; font-weight: 700; line-height: 1.3; }
+.recipe-steps, .brew-edit-stages { display: grid; gap: 8px; min-width: 0; }
+.stage-editor { container-type: inline-size; min-width: 0; }
+.stage-editor-list { display: grid; gap: 8px; min-width: 0; }
+.stage-editor-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 8px; min-width: 0; margin: 0; padding: 10px; border: 1px solid var(--line); border-radius: 10px; }
+.stage-editor-fields { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 0.85fr); align-items: end; gap: 8px; min-width: 0; }
+.stage-editor-measurements { display: contents; }
+.stage-editor-row input { box-sizing: border-box; min-height: 42px; font-size: 16px; }
+.stage-editor-row > .button { min-height: 42px; padding: 8px 10px; white-space: nowrap; }
+.stage-editor-summary { display: grid; gap: 8px; min-width: 0; }
+.stage-editor-summary > p { margin: 0; color: var(--text-muted); font-size: 0.92rem; font-variant-numeric: tabular-nums; }
+.stage-editor-details { min-width: 0; }
+.stage-editor-details > summary { width: fit-content; color: var(--text-muted); font-size: 0.88rem; cursor: pointer; }
+.stage-editor-details .steps-preview-table { width: 100%; min-width: 0; table-layout: fixed; }
+.stage-editor-details .steps-preview-table th, .stage-editor-details .steps-preview-table td { padding: 8px 5px; white-space: normal; overflow-wrap: anywhere; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+.stage-editor-details .steps-preview-table th:first-child { width: 26%; }
+@container (max-width: 520px) {
+  .stage-editor-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px; }
+  .stage-editor-fields, .stage-editor-measurements { display: contents; }
+  .stage-editor-name { grid-column: 1 / -1; }
+  .stage-editor-row > .button {
+    grid-column: 3;
+    grid-row: 2;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+    font-size: 0;
+  }
+  .stage-editor-row > .button::after { content: "×"; font-size: 1.25rem; line-height: 1; }
+}
 .recipe-extraction-guide p, .record-extraction-guide { white-space: pre-wrap; }
 .form-field input:focus, .form-field select:focus, .form-field textarea:focus,
 button:focus-visible, .table-scroll:focus-visible {
@@ -1107,8 +1135,8 @@ button:focus-visible, .table-scroll:focus-visible {
 .steps-table th { font-size: 0.75rem; }
 .steps-table th .step-current { font-size: inherit; }
 .steps-table tr:last-child td, .steps-preview-table tr:last-child td { border-bottom: 0; }
-.recipe-preview { max-width: 100%; min-width: 0; overflow-x: auto; }
-.preview-total { margin: 8px 2px 0; color: var(--text-muted); font-size: 0.92rem; }
+.recipe-preview { max-width: 100%; min-width: 0; }
+.preview-total { margin: 0; }
 .snapshot-steps { overflow-wrap: anywhere; }
 
 footer {

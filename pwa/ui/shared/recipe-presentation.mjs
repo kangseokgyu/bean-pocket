@@ -1,4 +1,6 @@
 import { make } from './dom.mjs';
+import { button } from './buttons.mjs';
+import { label } from './form-fields.mjs';
 
 export function recipeOverview(document, recipe) {
   const overview = make(document, 'section', undefined, 'recipe-overview');
@@ -118,4 +120,102 @@ export function parseInputTime(value) {
 
 export function formatTime(seconds) {
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+}
+
+export function createStageEditorRow(document, {
+  number, name = '', time = '', water = '', rowClass = '', id = null,
+  removeAction, removeDisabled = false,
+}) {
+  const row = make(document, 'fieldset', undefined, `stage-editor-row ${rowClass}`.trim());
+  row.dataset.stageEditorRow = '';
+  if (id) row.dataset.stepId = id;
+  row.append(make(document, 'legend', `단계 ${number}`, 'visually-hidden'));
+
+  const fields = make(document, 'div', undefined, 'stage-editor-fields');
+  const nameField = label(document, '단계 이름 (선택)', 'stepName', 'text', false);
+  nameField.className += ' stage-editor-name';
+  nameField.querySelector('input').value = name;
+  const measurements = make(document, 'div', undefined, 'stage-editor-measurements');
+  const timeField = label(document, '시작 시간 (분:초)', 'time', 'text', true, {
+    placeholder: number === 1 ? '0:00' : '0:30', inputMode: 'text', pattern: '\\d+:[0-5]\\d',
+  });
+  timeField.querySelector('input').value = time;
+  const waterField = label(document, '붓는 양 (g)', 'water', 'number', true, { min: 0, step: 'any' });
+  waterField.querySelector('input').value = water;
+  measurements.append(timeField, waterField);
+  fields.append(nameField, measurements);
+
+  const remove = button(document, '단계 제거', 'button', removeAction, 'utility');
+  remove.setAttribute('aria-label', `단계 ${number} 제거`);
+  remove.dataset.actionDisabled = String(removeDisabled);
+  remove.disabled = removeDisabled;
+  row.append(fields, remove);
+  return row;
+}
+
+export function createStageEditorSummary(document, { totalClassName = 'stage-editor-total', totalDataset = null } = {}) {
+  const summary = make(document, 'div', undefined, 'stage-editor-summary');
+  const total = make(document, 'p', '', `stage-editor-total ${totalClassName}`);
+  if (totalDataset) total.dataset[totalDataset] = '';
+  total.setAttribute('aria-live', 'polite');
+  const details = make(document, 'details', undefined, 'stage-editor-details');
+  details.dataset.stageBreakdown = '';
+  details.append(make(document, 'summary', '단계별 간격과 누적 물 보기'));
+  const table = make(document, 'table', undefined, 'steps-preview-table');
+  table.append(make(document, 'caption', '단계별 시작 시간, 간격, 붓는 양과 누적 물', 'visually-hidden'));
+  const head = make(document, 'thead');
+  const heading = make(document, 'tr');
+  for (const title of ['시작 시간', '간격', '붓는 양', '누적 물']) {
+    const cell = make(document, 'th', title);
+    cell.setAttribute('scope', 'col');
+    heading.append(cell);
+  }
+  head.append(heading);
+  const body = make(document, 'tbody');
+  table.append(head, body);
+  details.append(table);
+  summary.append(total, details);
+  return summary;
+}
+
+export function updateStageEditorSummary(editor, targetWater) {
+  const rows = [...editor.querySelectorAll('[data-stage-editor-row]')];
+  const total = editor.querySelector('.stage-editor-total');
+  const body = editor.querySelector('.steps-preview-table')?.querySelector('tbody');
+  if (!total || !body) return;
+
+  let cumulative = 0;
+  let previousSeconds = null;
+  for (const [index, row] of rows.entries()) {
+    const seconds = parseInputTime(row.querySelector('[name="time"]').value);
+    const waterText = row.querySelector('[name="water"]').value;
+    const water = Number(waterText);
+    if (Number.isFinite(water) && water > 0) cumulative += water;
+
+    let line = body.children[index];
+    if (!line) {
+      line = make(editor.ownerDocument, 'tr');
+      for (let cell = 0; cell < 4; cell += 1) line.append(make(editor.ownerDocument, 'td'));
+      body.append(line);
+    }
+    const interval = seconds === null || (index > 0 &&
+      (previousSeconds === null || seconds < previousSeconds))
+      ? '—' : `${index === 0 ? 0 : seconds - previousSeconds}초`;
+    const values = [
+      seconds === null ? '시간 확인' : formatTime(seconds),
+      interval,
+      waterText ? `${waterText}g` : '—',
+      `${formatStageWater(cumulative)}g`,
+    ];
+    [...line.children].forEach((cell, cellIndex) => { cell.textContent = values[cellIndex]; });
+    previousSeconds = seconds;
+  }
+  while (body.children.length > rows.length) body.lastElementChild.remove();
+
+  const target = String(targetWater ?? '').trim();
+  total.textContent = `단계 물 합 ${formatStageWater(cumulative)}g / 목표 ${target ? `${formatStageWater(Number(target))}g` : '—'}`;
+}
+
+function formatStageWater(value) {
+  return Number.isFinite(value) ? String(Number(value.toFixed(6))) : '—';
 }

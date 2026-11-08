@@ -14,10 +14,10 @@ export function buildRecipeForm(document, data, editRecipe = null) {
     ['드리퍼', 'dripper', 'text', false],
     ['원두 사용량 (g)', 'dose', 'number', true, { step: 'any', min: 0 }, { unit: 'g', values: [10, 15, 20], inline: true }],
     ['분쇄도 (레퍼런스 설정)', 'grind', 'text', false, { placeholder: '예: EK43 9, Comandante 24클릭' }],
+    ['분쇄 입자 (um)', 'microns', 'text', false,
+      { inputMode: 'text', placeholder: '예: 900 또는 900~1000' }],
     ['그라인더', 'grinder', 'text', false],
     ['그라인더 설정', 'grinderSetting', 'text', false],
-    ['분쇄 입자 (μm 또는 범위, 선택)', 'microns', 'text', false,
-      { inputMode: 'text', placeholder: '예: 900 또는 900~1000' }],
     ['물 온도 (℃)', 'temperature', 'number', true, { step: 'any', min: 0, max: 100 }, { unit: '°C', values: [88, 92, 96], inline: true }],
     ['총 물 양 (g)', 'totalWater', 'number', true, { step: 'any', min: 0 }, { unit: 'g', values: [200, 250, 300] }],
   ];

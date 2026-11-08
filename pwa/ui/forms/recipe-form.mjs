@@ -14,7 +14,7 @@ export function buildRecipeForm(document, data, editRecipe = null) {
     ['드리퍼', 'dripper', 'text', false],
     ['원두 사용량 (g)', 'dose', 'number', true, { step: 'any', min: 0 }, { unit: 'g', values: [10, 15, 20], inline: true }],
     ['분쇄도 (레퍼런스 설정)', 'grind', 'text', false, { placeholder: '예: EK43 9, Comandante 24클릭' }],
-    ['분쇄 입자 (um)', 'microns', 'text', false,
+    ['분쇄 입자 (μm)', 'microns', 'text', false,
       { inputMode: 'text', placeholder: '예: 900 또는 900~1000' }],
     ['그라인더', 'grinder', 'text', false],
     ['그라인더 설정', 'grinderSetting', 'text', false],

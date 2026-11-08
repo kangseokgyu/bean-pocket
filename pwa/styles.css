@@ -277,9 +277,10 @@ p { line-height: 1.6; }
 html:has(dialog[open]), body:has(dialog[open]) { overflow: hidden; overscroll-behavior: none; }
 .form-grid { display: grid; gap: 10px; min-width: 0; }
 .form-fieldset {
+  --form-fieldset-column-gap: 12px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 12px;
+  gap: 10px var(--form-fieldset-column-gap);
   min-width: 0;
   margin: 0;
   padding: 12px;
@@ -293,7 +294,7 @@ html:has(dialog[open]), body:has(dialog[open]) { overflow: hidden; overscroll-be
 .form-fieldset--compact > .form-field,
 .recipe-number-field > .form-field {
   display: grid;
-  grid-template-columns: minmax(0, 38%) minmax(0, 1fr);
+  grid-template-columns: minmax(0, var(--compact-label-width, 38%)) minmax(0, 1fr);
   align-items: center;
   gap: 8px;
 }
@@ -308,9 +309,13 @@ html:has(dialog[open]), body:has(dialog[open]) { overflow: hidden; overscroll-be
 }
 .recipe-number-field--inline {
   grid-column: 1 / -1;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, var(--compact-label-width, calc((100% - var(--form-fieldset-column-gap)) * 0.19))) minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
+}
+.recipe-number-field--inline > .form-field {
+  grid-column: span 2;
+  grid-template-columns: subgrid;
 }
 .recipe-number-field--inline > .recipe-number-shortcuts { flex-wrap: nowrap; }
 .recipe-number-field--inline .recipe-number-shortcuts > .button {
@@ -1122,6 +1127,17 @@ footer {
   .bean-section { padding: 12px 0; }
   .panel, .data-panel, .unresolved-panel, .card-skeletons { padding: 13px; border-radius: 13px; }
   .form-fieldset { grid-template-columns: minmax(0, 1fr); gap: 8px; padding: 10px; }
+  [data-form="recipes"] > .form-fieldset--compact {
+    --recipe-inline-controls-width: 208px;
+    --compact-label-width: clamp(0px, 100% - var(--recipe-inline-controls-width), 38%);
+  }
+  @media (max-width: 360px) {
+    [data-form="recipes"] > .form-fieldset--compact { --recipe-inline-controls-width: 190px; }
+    .recipe-number-field--inline .recipe-number-shortcuts > .button {
+      min-width: 34px;
+      padding-inline: 4px;
+    }
+  }
   .record-filters { grid-template-columns: minmax(0, 1fr); gap: 10px; }
   .record-filters legend { grid-column: auto; }
   .record-insights { padding: 12px; }

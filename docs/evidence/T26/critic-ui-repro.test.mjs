@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createAppView } from '../../../pwa/ui/view.mjs';
+import { addStep, buildRecipeForm, recipePayload } from '../../../pwa/ui/forms/recipe-form.mjs';
 
 const BEAN = '11111111-1111-4111-8111-111111111111';
 const RECIPE = '33333333-3333-4333-8333-333333333333';
@@ -175,15 +176,31 @@ test('C3-R2b hidden drafts must still prevent update freezing after token replac
 
 test('C3-R3 positive sub-cent values accepted by domain remain valid UI input', () => {
   const document = new TestDocument();
-  const view = createAppView(document);
-  view.renderData(data());
-  view.renderRoute('/recipes/new');
-  const form = document.root.querySelector('form[data-form="recipes"]');
-  const valid = validateRecipe({ name: 'small-positive', beanId: BEAN, dose: 0.005,
-    totalWater: 0.005, temperature: 0.005, microns: 0.005,
-    steps: [{ time: '0:00', water: 0.005 }] });
-  assert.equal(valid.dose, 0.005);
-  for (const name of ['dose', 'temperature', 'totalWater', 'microns', 'water']) {
+  const form = buildRecipeForm(document, data());
+  addStep(form, document);
+  for (const [name, value] of Object.entries({ name: 'small-positive', dose: '0.005', temperature: '0.005',
+    totalWater: '0.005', microns: '0.005' })) form.elements[name].value = value;
+  const step = form.querySelector('.step-row');
+  step.querySelector('[name="time"]').value = '0:00';
+  step.querySelector('[name="water"]').value = '0.005';
+
+  const originalFormData = globalThis.FormData;
+  globalThis.FormData = class {
+    constructor(target) { this.values = Object.values(target.elements).map(input => [input.name, input.value]); }
+    [Symbol.iterator]() { return this.values[Symbol.iterator](); }
+  };
+  try {
+    const payload = recipePayload(form);
+    assert.equal(form.elements.microns.type, 'text');
+    assert.equal(payload.microns, 0.005, 'the actual text-form payload parses the entered micron value');
+    const valid = validateRecipe(payload);
+    assert.equal(valid.microns, 0.005, 'domain validation accepts the payload value');
+  } finally {
+    if (originalFormData === undefined) delete globalThis.FormData;
+    else globalThis.FormData = originalFormData;
+  }
+
+  for (const name of ['dose', 'temperature', 'totalWater', 'water']) {
     assert.ok(Number(form.elements[name].min) <= 0.005,
       `${name}: native rangeUnderflow blocks a contract-valid positive decimal`);
   }

@@ -321,6 +321,7 @@ html:has(dialog[open]), body:has(dialog[open]) { overflow: hidden; overscroll-be
 .recipe-number-field--inline .recipe-number-shortcuts > .button {
   min-width: 40px;
   min-height: 38px;
+  padding-inline: 1px;
 }
 .form-fieldset--compact > .form-field:has(textarea) {
   grid-column: 1 / -1;
@@ -1132,10 +1133,9 @@ footer {
     --compact-label-width: clamp(0px, 100% - var(--recipe-inline-controls-width), 38%);
   }
   @media (max-width: 360px) {
-    [data-form="recipes"] > .form-fieldset--compact { --recipe-inline-controls-width: 190px; }
+    [data-form="recipes"] > .form-fieldset--compact { --recipe-inline-controls-width: 196px; }
     .recipe-number-field--inline .recipe-number-shortcuts > .button {
-      min-width: 34px;
-      padding-inline: 4px;
+      min-width: 36px;
     }
   }
   .record-filters { grid-template-columns: minmax(0, 1fr); gap: 10px; }

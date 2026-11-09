@@ -161,7 +161,8 @@ footer .build-version { margin-top: 8px; letter-spacing: normal; font-weight: 40
   min-height: 44px;
   padding: 0;
   background: transparent;
-  border: 0;
+  border: 1px solid var(--control-line);
+  border-radius: 50%;
   color: var(--text);
 }
 .connection-toggle svg {

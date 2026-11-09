@@ -323,7 +323,8 @@ test('connection settings header control uses an accessible outlined gear button
     /min-width:\s*44px/,
     /height:\s*44px/,
     /min-height:\s*44px/,
-    /border:\s*0;/,
+    /border:\s*1px solid var\(--control-line\);/,
+    /border-radius:\s*50%;/,
     /background:\s*transparent;/,
     /color:\s*var\(--text\)/,
   ]) assert.match(buttonRule[1], declaration);

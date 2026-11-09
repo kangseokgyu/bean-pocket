@@ -89,7 +89,8 @@ export function addStep(content, document) {
   const wrap = form.querySelector('[data-steps]');
   const index = wrap.children.length + 1;
   const row = createStageEditorRow(document, {
-    number: index, rowClass: 'step-row', removeAction: 'remove-step', timeLabel: '시작 시간',
+    number: index, rowClass: 'step-row', removeAction: 'remove-step',
+    nameLabel: '단계 이름', timeLabel: '시작 시간',
   });
   wrap.append(row);
   return row;

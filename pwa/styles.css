@@ -887,8 +887,6 @@ button:focus-visible, .table-scroll:focus-visible {
 .recipe-record-item .entity-delete { margin: -8px -6px -8px 0; }
 .recipe-record-item > p { margin: 8px 0 0; overflow-wrap: anywhere; }
 .recipe-record-item > h5 { margin: 10px 0 6px; }
-.recipe-card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 17px; }
-.recipe-card-actions .button { flex: 0 1 auto; }
 
 .recipe-summary-card, .bean-card { position: relative; }
 .recipe-card-link, .bean-card-link { color: inherit; text-decoration: none; cursor: pointer; }
@@ -928,7 +926,8 @@ button:focus-visible, .table-scroll:focus-visible {
 .entity-card-header h3, .entity-card-header h4 { min-width: 0; overflow-wrap: anywhere; margin: 0 0 12px; }
 .recipe-detail-header { flex-wrap: wrap; align-items: center; gap: 8px 12px; }
 .recipe-card .recipe-detail-header > h2 { flex: 1 1 8rem; overflow-wrap: anywhere; }
-.recipe-header-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 4px; margin-left: auto; }
+.recipe-detail-header > .recipe-record-button { margin-inline-start: auto; }
+.list-actions.recipe-header-actions { gap: 4px; }
 .recipe-header-actions > .button { margin: 0; }
 .recipe-header-actions > .icon-button {
   flex-basis: 44px;
@@ -937,7 +936,7 @@ button:focus-visible, .table-scroll:focus-visible {
   min-height: 44px;
   padding: 0;
   color: var(--text-muted);
-  border-color: var(--control-line);
+  border: 1px solid var(--control-line);
   background: var(--surface-soft);
 }
 .entity-card-header h2, .entity-card-header h3 { margin: 0; line-height: 1.5; }

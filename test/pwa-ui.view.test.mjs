@@ -1383,8 +1383,10 @@ test('recipe detail groups conditions, pour steps, guide, and records in reading
     ['추출 조건', '물 붓기 단계', '추출 가이드', '추출 기록']);
   assert.ok(detail.querySelector('.recipe-steps-section').querySelector('.steps-table'));
   assert.ok(detail.querySelector('.recipe-records').querySelector('.record-summary-header'));
-  const record = detail.querySelector('.recipe-card-actions [data-action="new-record"]');
-  assert.deepEqual(detail.querySelector('.recipe-card-actions').querySelectorAll('button').map(node => node.dataset.action), ['new-record']);
+  const titleRow = detail.querySelector('.recipe-detail-header');
+  assert.deepEqual(titleRow.querySelectorAll('button').map(node => node.dataset.action), ['new-record']);
+  assert.equal(detail.querySelectorAll('[data-action="new-record"]').length, 1);
+  const record = titleRow.querySelector('[data-action="new-record"]');
   assert.equal(record.textContent, '추출 기록');
   assert.equal(record.querySelector('svg')?.getAttribute('aria-hidden'), 'true');
   assert.match(detail.querySelector('.recipe-conditions').textContent, /900~1000μm/);
@@ -1401,11 +1403,12 @@ test('recipe detail edit action opens a full prefilled edit form with stable ste
   view.renderData(current);
   view.renderRoute(`/recipes/${RECIPE}`);
 
-  const header = document.root.querySelector('.recipe-card .entity-card-header');
+  const header = document.root.querySelector('.list-view .list-header');
+  assert.equal(header.querySelector('.button--back').getAttribute('aria-label'), '레시피 목록');
   const group = header.querySelector('.recipe-header-actions');
-  assert.ok(group, 'detail header groups edit, copy, and delete');
+  assert.ok(group, 'edit, copy, and delete share the list return row');
   assert.deepEqual(group.querySelectorAll('button').map(node => node.dataset.action), ['edit-recipe', 'copy-recipe', 'delete-recipe']);
-  assert.equal(document.root.querySelector('.recipe-card-actions [data-action="edit-recipe"]'), null);
+  assert.equal(document.root.querySelector('.recipe-card [data-action="edit-recipe"]'), null);
   const edit = group.querySelector('[data-action="edit-recipe"]');
   assert.ok(edit, 'recipe detail exposes an edit button');
   assert.equal(edit.textContent, '');
@@ -1507,7 +1510,7 @@ test('recipe detail places the guide below the pour table and copy preserves its
   const click = async target => {
     for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target });
   };
-  const copy = detail.querySelector('.recipe-header-actions [data-action="copy-recipe"]');
+  const copy = document.root.querySelector('.list-header [data-action="copy-recipe"]');
   assert.equal(copy?.textContent, '');
   assert.equal(copy.getAttribute('aria-label'), '이 레시피 복사');
   assert.equal(copy.querySelector('svg')?.getAttribute('aria-hidden'), 'true');
@@ -4758,10 +4761,11 @@ test('recipe screens preserve summary actions, details, steps, and recorded snap
   assert.equal(card.querySelector('.recipe-step-count').textContent, '2단계');
 
   const detail = document.createElement('div');
-  renderRecipeDetail(detail, current, document, RECIPE);
+  const listActions = document.createElement('div');
+  renderRecipeDetail(detail, listActions, current, document, RECIPE);
   assert.equal(detail.querySelector('.recipe-card').querySelector('.steps-table').querySelector('tbody').children.length, 2);
   assert.equal(detail.querySelector('.recipe-records').querySelector('.record-snapshot-conditions') !== null, true);
-  assert.equal(detail.querySelector('[data-action="copy-recipe"]').disabled, false);
+  assert.equal(listActions.querySelector('[data-action="copy-recipe"]').disabled, false);
 });
 
 test('bean form preserves field names, required markers, and submit actions', () => {

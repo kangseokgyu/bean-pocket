@@ -1187,7 +1187,7 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
       updatePreview(pane);
     }
   } else if (recipeDetail) {
-    renderRecipeDetail(pane, data, document, parts[1]);
+    renderRecipeDetail(pane, actions, data, document, parts[1]);
   } else if (section === 'beans') {
     const form = buildBeanForm(document);
     form.id = 'new-bean-form';

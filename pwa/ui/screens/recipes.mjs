@@ -39,21 +39,14 @@ export function renderRecipes(pane, data, document) {
   }
 }
 
-export function renderRecipeDetail(pane, data, document, recipeId) {
+export function renderRecipeDetail(pane, listActions, data, document, recipeId) {
   const recipe = data.recipes.find(row => row.id === recipeId);
   if (!recipe) {
     pane.append(make(document, 'p', '레시피를 찾을 수 없습니다. 최신 목록을 새로고침해 주세요.'));
     return;
   }
-  pane.append(recipeCard(document, recipe, data));
-}
-
-function recipeCard(document, recipe, data) {
-  const article = make(document, 'article', undefined, 'recipe-card');
-  const header = make(document, 'div', undefined, 'entity-card-header recipe-detail-header');
-  header.append(make(document, 'h2', recipe.name));
-  const headerActions = make(document, 'div', undefined, 'recipe-header-actions');
   const ready = recipeReady(recipe);
+  listActions.className += ' recipe-header-actions';
   const edit = iconButton(document, '', `${recipe.name} 수정`, 'edit-recipe');
   edit.className += ' entity-edit';
   edit.dataset.id = recipe.id;
@@ -63,8 +56,21 @@ function recipeCard(document, recipe, data) {
   copy.replaceChildren(actionIcon(document, 'copy'));
   copy.dataset.id = recipe.id;
   copy.disabled = !ready;
-  headerActions.append(edit, copy, trashButton(document, 'recipes', recipe.id, recipe.name));
-  header.append(headerActions);
+  listActions.append(edit, copy, trashButton(document, 'recipes', recipe.id, recipe.name));
+  pane.append(recipeCard(document, recipe, data, ready));
+}
+
+function recipeCard(document, recipe, data, ready) {
+  const article = make(document, 'article', undefined, 'recipe-card');
+  const header = make(document, 'div', undefined, 'entity-card-header recipe-detail-header');
+  const record = button(document, '', 'button', 'new-record', 'primary');
+  record.className += ' recipe-record-button';
+  record.dataset.id = recipe.id;
+  record.disabled = !ready;
+  const recordFace = make(document, 'span', undefined, 'recipe-record-button-face');
+  recordFace.append(actionIcon(document, 'brew'), make(document, 'span', '추출 기록'));
+  record.append(recordFace);
+  header.append(make(document, 'h2', recipe.name), record);
   article.append(header, recipeOverview(document, recipe));
 
   const validation = recipeValidationMessage(recipe);
@@ -148,15 +154,5 @@ function recipeCard(document, recipe, data) {
   }
   article.append(recordsSection);
 
-  const actions = make(document, 'div', undefined, 'recipe-card-actions');
-  const record = button(document, '', 'button', 'new-record', 'primary');
-  record.className += ' recipe-record-button';
-  record.dataset.id = recipe.id;
-  record.disabled = !ready;
-  const recordFace = make(document, 'span', undefined, 'recipe-record-button-face');
-  recordFace.append(actionIcon(document, 'brew'), make(document, 'span', '추출 기록'));
-  record.append(recordFace);
-  actions.append(record);
-  article.append(actions);
   return article;
 }

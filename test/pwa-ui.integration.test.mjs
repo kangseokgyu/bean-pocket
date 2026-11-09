@@ -27,6 +27,7 @@ function startupApp({ native = memoryPlatform(), fake = fakePwaNotion(), route =
   });
   const app = createAppController({ view: {
     currentRoute() { return currentRoute; },
+    renderRoute(value) { currentRoute = value; },
     showConnection(value) { connectionStates.push(value); },
     showStatus(value) { statuses.push(value); },
     renderData(value) { rendered.push(value); }, setSearchOptions(...args) { searchOptions.push(args); }, setState() {}, showUnresolved(items) { unresolvedOperations = items; },
@@ -181,11 +182,20 @@ test('successful entity writes keep inline completion and omit saved or post-wri
 
   setRoute('/records');
   await submitSuccessfully('record deletion', 'delete-record', { id: record.value.id });
-  setRoute('/recipes');
-  await submitSuccessfully('copied recipe deletion', 'delete-recipe', { id: copied.value.id });
-  await submitSuccessfully('recipe deletion', 'delete-recipe', { id: recipe.value.id });
-  setRoute('/beans');
-  await submitSuccessfully('bean deletion', 'delete-bean', { id: bean.value.id });
+  for (const [section, operation, id] of [
+    ['recipes', 'delete-recipe', copied.value.id],
+    ['recipes', 'delete-recipe', recipe.value.id],
+    ['beans', 'delete-bean', bean.value.id],
+  ]) {
+    const detail = `/${section}/${id}`;
+    setRoute(detail);
+    await app.loadRoute(detail, { force: true });
+    await submitSuccessfully(`${operation} from detail`, operation, { id });
+    const refreshed = setup.rendered.at(-1);
+    assert.equal(refreshed.screen.route, `/${section}`, 'successful detail deletion returns to its list');
+    assert.equal(refreshed[section].some(row => row.id === id), false, 'the deleted card is absent');
+    assert.equal(deleteResults.at(-1).message, '삭제했습니다.');
+  }
 
   assert.deepEqual(entrySuccesses, ['beans', 'recipes', 'recipes', 'records'],
     'inline success feedback remains active for entry saves and recipe copies');

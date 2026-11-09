@@ -934,8 +934,12 @@ export function createAppView(document = globalThis.document, {
     },
     currentRoute() { return route; },
     onRouteChange(handler) { routeChangeListener = typeof handler === 'function' ? handler : null; },
-    renderRoute(nextRoute) {
+    renderRoute(nextRoute, { replaceHistory = false, notify = true } = {}) {
       const next = normalizeRoute(nextRoute || '/home');
+      const { history, location } = globalThis.window ?? {};
+      if (replaceHistory && history?.replaceState && location) {
+        history.replaceState(null, '', `${location.pathname}${location.search}#${next}`);
+      }
       if (next !== route) routeNeedsDataRender = true;
       route = next;
       if (routePath(route) === '/recipes/new') recipeFormOpen = true;
@@ -944,7 +948,7 @@ export function createAppView(document = globalThis.document, {
         saveActiveDraft(content, drafts);
         renderCurrentContent();
       }
-      routeChangeListener?.(route);
+      if (notify) routeChangeListener?.(route);
     },
     resolveRecordDraft(startNew = false) {
       const previousRoute = drafts.get('records')?.route ?? '/records';

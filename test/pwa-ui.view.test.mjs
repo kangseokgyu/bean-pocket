@@ -2153,6 +2153,7 @@ test('bean deletion opens a safe native dialog and restores focus after cancel o
   const document = new TestDocument(), view = createBeanView(document);
   view.showConnection({ connected: true });
   view.renderData(data());
+  view.renderRoute(`/beans/${BEAN}`);
   const calls = [];
   view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }), submit: async (...args) => calls.push(args) });
   const trash = document.root.querySelector('[data-action="delete-bean"]');
@@ -2210,6 +2211,7 @@ test('dismissing a deletion result preserves its notice for button and Escape', 
         const document = new TestDocument();
         const view = createBeanView(document, { schedule: callback => scheduled.push(callback) });
         view.renderData(data());
+        view.renderRoute(`/beans/${BEAN}`);
         view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }),
           submit: async () => {
             view.showStatus({ type: result.toastType, message: result.message });
@@ -2246,8 +2248,8 @@ test('bean, recipe, and record deletes submit only after the custom dialog is co
     submit: async (...args) => { calls.push(args); return { status: 'succeeded' }; } });
   assert.equal(Boolean(document.root.querySelector('[data-action="delete-bag"]')), false);
   const cases = [
-    ['/beans', 'delete-bean', '원두 <안전>', BEAN, '원두를 삭제할까요?'],
-    ['/recipes', 'delete-recipe', 'V60', RECIPE, '레시피를 삭제할까요?'],
+    [`/beans/${BEAN}`, 'delete-bean', '원두 <안전>', BEAN, '원두를 삭제할까요?'],
+    [`/recipes/${RECIPE}`, 'delete-recipe', 'V60', RECIPE, '레시피를 삭제할까요?'],
     ['/records', 'delete-record', '2026-06-15 · V60', '66666666-6666-4666-8666-666666666666', '추출 기록을 삭제할까요?'],
   ];
   for (const [route, action, name, id, heading] of cases) {
@@ -2258,7 +2260,7 @@ test('bean, recipe, and record deletes submit only after the custom dialog is co
     assert.equal(trash.getAttribute('aria-label'), `${name} 삭제`);
     assert.ok(trash.querySelector('svg'));
     assert.equal(trash.dataset.name, name);
-    assert.match(trash.parentElement.className, /entity-card-header/);
+    assert.match(trash.parentElement.className, action === 'delete-record' ? /entity-card-header/ : /detail-header-actions/);
 
     const dialog = document.root.querySelector('.delete-confirm-dialog');
     await clickViewTarget(document, trash.querySelector('svg'));
@@ -2294,7 +2296,7 @@ test('recipe deletion omits its success message and preserves warnings and error
     const document = new TestDocument();
     const view = createAppView(document, { schedule: () => 1 });
     view.renderData(data());
-    view.renderRoute('/recipes');
+    view.renderRoute(`/recipes/${RECIPE}`);
     view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }) });
     await clickViewTarget(document, document.root.querySelector('[data-action="delete-recipe"]'));
     assert.equal(view.showDeleteResult(result), true);
@@ -2313,6 +2315,7 @@ test('recipe deletion omits its success message and preserves warnings and error
 test('bean delete button spinner replaces its progress toast, locks duplicates, and renders failures', async () => {
   const document = new TestDocument(), view = createBeanView(document);
   view.renderData(data());
+  view.renderRoute(`/beans/${BEAN}`);
   let release;
   const pending = new Promise(resolve => { release = resolve; });
   const calls = [];
@@ -2352,7 +2355,7 @@ test('bean delete button spinner replaces its progress toast, locks duplicates, 
 });
 
 test('recipe and record delete spinners replace only their progress toast', async () => {
-  for (const [route, action] of [['/recipes', 'delete-recipe'], ['/records', 'delete-record']]) {
+  for (const [route, action] of [[`/recipes/${RECIPE}`, 'delete-recipe'], ['/records', 'delete-record']]) {
     const document = new TestDocument(), view = createBeanView(document);
     view.showConnection({ connected: true });
     view.renderData(data());
@@ -2659,6 +2662,7 @@ test('inline entry and delete success stay in their dialogs without completion t
   assert.equal(entryDialog.open, false, 'the entry success dialog closes after its normal delay');
   assert.equal(status.hidden, true, 'closing the entry dialog does not restore a completion toast');
 
+  view.renderRoute(`/beans/${BEAN}`);
   for (const dismissal of ['automatic', 'manual']) {
     const trash = document.root.querySelector('[data-action="delete-bean"]');
     await clickViewTarget(document, trash);
@@ -3482,8 +3486,8 @@ test('bean cards open their records through a full-card native link without a re
   assert.ok(link, 'the bean title is a keyboard-accessible native link');
   assert.equal(link.getAttribute('href'), `#/beans/${BEAN}`);
   assert.equal(link.getAttribute('aria-label'), '원두 <안전> 추출 기록 보기');
-  assert.equal(card.querySelectorAll('button').length, 2, 'bookmark and delete remain independent of the card link');
-  assert.ok(card.querySelector('[data-action="delete-bean"]'));
+  assert.equal(card.querySelectorAll('button').length, 1, 'favorite is the only list card button');
+  assert.ok(card.querySelector('[data-action="favorite-item"]'));
   assert.ok(card.textContent.includes('추출 기록 1개'));
   const css = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
   assert.match(css, /\.bean-card-link::after\s*\{[^}]*inset:\s*0/s);
@@ -3492,16 +3496,21 @@ test('bean cards open their records through a full-card native link without a re
   assert.ok(document.root.textContent.includes('꿀, 살구'));
 });
 
-test('bean card deletion never opens records, including clicks on its icon', async () => {
-  const document = new TestDocument();
-  const view = createBeanView(document);
-  view.renderData(data());
-  view.bind({});
-  const trash = document.root.querySelector('[data-action="delete-bean"]');
-  await clickViewTarget(document, trash.querySelector('svg'));
-  assert.ok(document.root.querySelector('.bean-card'));
-  assert.equal(document.root.querySelectorAll('h4').some(node => node.textContent === '이 원두의 추출 기록'), false);
-  assert.equal(document.root.querySelector('.delete-confirm-dialog').open, true);
+test('list card stars toggle favorites without following the card link', async () => {
+  for (const [section, id, operation] of [['beans', BEAN, 'favorite-bean'], ['recipes', RECIPE, 'favorite-recipe']]) {
+    const document = new TestDocument();
+    const view = createBeanView(document);
+    view.renderData(data());
+    view.renderRoute(`/${section}`);
+    const calls = [];
+    view.bind({ submit: async (...args) => calls.push(args) });
+
+    await clickViewTarget(document, document.root.querySelector('[data-action="favorite-item"] svg'));
+
+    assert.equal(view.currentRoute(), `/${section}`);
+    assert.deepEqual(calls, [[operation, { id, favorite: true }]]);
+    assert.equal(document.root.querySelector('.delete-confirm-dialog').open, false);
+  }
 });
 
 test('legacy extraction records remain in raw input but are hidden from current lists and details', () => {
@@ -3555,8 +3564,8 @@ test('recipe list cards link their entire surface to details without a details b
   assert.ok(link, 'recipe title is a native keyboard-accessible link');
   assert.equal(link.getAttribute('href'), `#/recipes/${RECIPE}`);
   assert.equal(link.getAttribute('aria-label'), 'V60 상세 보기');
-  assert.equal(card.querySelectorAll('button').length, 2, 'bookmark and delete remain independent of the card link');
-  assert.ok(card.querySelector('[data-action="delete-recipe"]'));
+  assert.equal(card.querySelectorAll('button').length, 1, 'favorite is the only list card button');
+  assert.ok(card.querySelector('[data-action="favorite-item"]'));
   assert.deepEqual(Object.fromEntries(card.querySelectorAll('.recipe-metric').map(metric => [
     metric.dataset.metric, metric.querySelector('dd').textContent,
   ])), { dose: '15g', water: '250g', temperature: '93℃', ratio: '1 : 16.7' });
@@ -3565,23 +3574,6 @@ test('recipe list cards link their entire surface to details without a details b
   assert.ok(document.root.textContent.includes('교반 없음'));
   assert.equal(document.root.querySelector('.recipe-card-link'), null, 'detail card has no full-card overlay');
   assert.equal(document.root.querySelector('.recipe-summary-card'), null);
-});
-
-test('recipe list card delete icon stays independent of detail navigation', async () => {
-  const document = new TestDocument();
-  const view = createBeanView(document);
-  view.renderData(data());
-  view.renderRoute('/recipes');
-  const calls = [];
-  view.bind({ submit: async (...args) => { calls.push(args); return { status: 'succeeded' }; } });
-  const trash = document.root.querySelector('[data-action="delete-recipe"]');
-  await clickViewTarget(document, trash.querySelector('svg'));
-  assert.equal(document.root.querySelector('[data-action="copy-recipe"]'), null);
-  const dialog = document.root.querySelector('.delete-confirm-dialog');
-  assert.equal(dialog.open, true);
-  await clickViewTarget(document, dialog.querySelector('[data-action="confirm-delete"]'));
-  assert.equal(document.root.querySelector('[data-action="copy-recipe"]'), null);
-  assert.deepEqual(calls, [['delete-recipe', { id: RECIPE }]]);
 });
 
 test('view notifies the controller when the current route changes', () => {
@@ -4760,19 +4752,19 @@ test('home screen keeps its hero action and decorative artwork contract', () => 
   assert.equal(pane.querySelector('.home-hero-art').getAttribute('src'), './icons/home-brew.png');
 });
 
-test('bean screen renders list fields, favorite/delete actions, and record count', () => {
+test('bean screen renders list fields, a favorite action, and record count', () => {
   const document = new TestDocument();
   const pane = document.createElement('div');
   const current = data();
   current.beans[0].recordCount = { status: 'ready', count: 2 };
   renderBeans(pane, current, document);
   const card = pane.querySelector('.bean-card');
-  const [favorite, title] = card.querySelector('.entity-card-header').children;
+  const [title, favorite] = card.querySelector('.entity-card-header').children;
   assert.equal(favorite.dataset.action, 'favorite-item');
   assert.equal(title.tagName, 'h3');
   assert.equal(card.querySelector('.bean-card-link').dataset.route, `/beans/${BEAN}`);
   assert.equal(card.querySelector('[data-action="favorite-item"]').dataset.kind, 'beans');
-  assert.equal(card.querySelector('[data-action="delete-bean"]').dataset.id, BEAN);
+  assert.equal(card.querySelector('[data-action="delete-bean"]'), null);
   assert.equal(card.querySelector('.bean-overview').querySelector('.bean-metadata').textContent.includes('복숭아'), true);
   assert.equal(card.querySelector('.bean-summary-meta').textContent, '추출 기록 2개');
 });
@@ -4800,11 +4792,12 @@ test('recipe screens preserve summary actions, details, steps, and recorded snap
   const list = document.createElement('div');
   renderRecipes(list, current, document);
   const card = list.querySelector('.recipe-summary-card');
-  const [favorite, title] = card.querySelector('.entity-card-header').children;
+  const [title, favorite] = card.querySelector('.entity-card-header').children;
   assert.equal(favorite.dataset.action, 'favorite-item');
   assert.equal(title.tagName, 'h3');
   assert.equal(card.querySelector('.recipe-card-link').dataset.route, `/recipes/${RECIPE}`);
   assert.equal(card.querySelector('[data-action="favorite-item"]').dataset.favorite, 'true');
+  assert.equal(card.querySelector('[data-action="delete-recipe"]'), null);
   assert.equal(card.querySelector('.recipe-step-count').textContent, '2단계');
 
   const detail = document.createElement('div');

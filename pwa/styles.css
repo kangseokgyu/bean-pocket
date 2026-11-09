@@ -894,7 +894,6 @@ button:focus-visible, .table-scroll:focus-visible {
 .recipe-card-link::after, .bean-card-link::after { content: ''; position: absolute; inset: 0; border-radius: 12px; }
 .recipe-card-link:focus-visible, .bean-card-link:focus-visible { outline: none; }
 .recipe-card-link:focus-visible::after, .bean-card-link:focus-visible::after { outline: 3px solid var(--focus); outline-offset: 2px; }
-.recipe-summary-card .entity-delete, .bean-card .entity-delete, .entity-favorite { position: relative; z-index: 1; }
 @media (hover: hover) and (pointer: fine) {
   .recipe-summary-card, .bean-card { transition: background-color 150ms ease, border-color 150ms ease; }
   .recipe-summary-card:hover, .bean-card:hover { background: var(--surface-hover); border-color: var(--focus); }
@@ -1612,5 +1611,13 @@ footer {
 }
 
 .entity-favorite[aria-pressed="true"] .favorite-icon { fill: currentColor; }
-.entity-card-header > .entity-favorite { margin: -7px -8px -7px 0; }
+.entity-card-header > .entity-favorite {
+  position: relative;
+  z-index: 1;
+  flex-basis: 44px;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  margin: -11px -8px -11px 0;
+}
 .entity-card-header > h2, .entity-card-header > h3 { flex: 1; min-width: 0; }

@@ -18,7 +18,7 @@ export function renderBeans(pane, data, document) {
     link.dataset.action = 'navigate';
     link.dataset.route = `/beans/${bean.id}`;
     title.append(link);
-    header.append(favoriteButton(document, data, 'beans', bean), title, trashButton(document, 'beans', bean.id, bean.name));
+    header.append(title, favoriteButton(document, data, 'beans', bean));
     card.append(header);
     card.append(beanOverview(document, bean));
     const records = currentRecords(data).filter(record => record.beanId === bean.id);

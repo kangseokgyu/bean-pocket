@@ -4730,6 +4730,9 @@ test('bean screen renders list fields, favorite/delete actions, and record count
   current.beans[0].recordCount = { status: 'ready', count: 2 };
   renderBeans(pane, current, document);
   const card = pane.querySelector('.bean-card');
+  const [favorite, title] = card.querySelector('.entity-card-header').children;
+  assert.equal(favorite.dataset.action, 'favorite-item');
+  assert.equal(title.tagName, 'h3');
   assert.equal(card.querySelector('.bean-card-link').dataset.route, `/beans/${BEAN}`);
   assert.equal(card.querySelector('[data-action="favorite-item"]').dataset.kind, 'beans');
   assert.equal(card.querySelector('[data-action="delete-bean"]').dataset.id, BEAN);
@@ -4757,6 +4760,9 @@ test('recipe screens preserve summary actions, details, steps, and recorded snap
   const list = document.createElement('div');
   renderRecipes(list, current, document);
   const card = list.querySelector('.recipe-summary-card');
+  const [favorite, title] = card.querySelector('.entity-card-header').children;
+  assert.equal(favorite.dataset.action, 'favorite-item');
+  assert.equal(title.tagName, 'h3');
   assert.equal(card.querySelector('.recipe-card-link').dataset.route, `/recipes/${RECIPE}`);
   assert.equal(card.querySelector('[data-action="favorite-item"]').dataset.favorite, 'true');
   assert.equal(card.querySelector('.recipe-step-count').textContent, '2단계');

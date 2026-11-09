@@ -24,7 +24,7 @@ export function renderRecipes(pane, data, document) {
     link.dataset.action = 'navigate';
     link.dataset.route = `/recipes/${recipe.id}`;
     title.append(link);
-    recipeHeader.append(title, favoriteButton(document, data, 'recipes', recipe), trashButton(document, 'recipes', recipe.id, recipe.name));
+    recipeHeader.append(favoriteButton(document, data, 'recipes', recipe), title, trashButton(document, 'recipes', recipe.id, recipe.name));
     card.append(recipeHeader, recipeOverview(document, recipe));
 
     const summary = make(document, 'div', undefined, 'recipe-summary-meta');

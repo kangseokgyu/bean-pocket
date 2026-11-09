@@ -124,7 +124,7 @@ export function formatTime(seconds) {
 
 export function createStageEditorRow(document, {
   number, name = '', time = '', water = '', rowClass = '', id = null,
-  removeAction, removeDisabled = false,
+  removeAction, removeDisabled = false, timeLabel = '시작 시간 (분:초)',
 }) {
   const row = make(document, 'fieldset', undefined, `stage-editor-row ${rowClass}`.trim());
   row.dataset.stageEditorRow = '';
@@ -136,7 +136,7 @@ export function createStageEditorRow(document, {
   nameField.className += ' stage-editor-name';
   nameField.querySelector('input').value = name;
   const measurements = make(document, 'div', undefined, 'stage-editor-measurements');
-  const timeField = label(document, '시작 시간 (분:초)', 'time', 'text', true, {
+  const timeField = label(document, timeLabel, 'time', 'text', true, {
     placeholder: number === 1 ? '0:00' : '0:30', inputMode: 'text', pattern: '\\d+:[0-5]\\d',
   });
   timeField.querySelector('input').value = time;

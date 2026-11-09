@@ -4912,6 +4912,31 @@ test('recipe form step editor, preview, and payload preserve entered recipe valu
   assert.equal(form.querySelector('.preview-total').textContent, '총 물 양 250g');
 });
 
+test('new and edited recipes group the pour steps under a title and an accessible plus button', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+
+  for (const route of ['/recipes/new', `/recipes/${RECIPE}/edit`]) {
+    view.renderRoute(route);
+    const form = document.root.querySelector('form[data-form="recipes"]');
+    const card = form.querySelector('[data-stage-editor="recipe"]');
+    const heading = card.querySelector('h3');
+    assert.equal(heading?.textContent, '물 붓기 단계', route);
+    assert.equal(card.getAttribute('aria-labelledby'), heading.id);
+    const add = card.querySelector('[data-action="add-step"]');
+    assert.equal(add.parentElement, heading.parentElement);
+    assert.equal(add.type, 'button');
+    assert.equal(add.getAttribute('aria-label'), '단계 추가');
+    assert.equal(add.textContent, '+');
+    const time = card.querySelector('.step-row [name="time"]');
+    assert.equal(time.parentElement.querySelector('.form-field-label').textContent, '시작 시간');
+    assert.equal(time.placeholder, '0:00');
+    assert.ok(card.querySelector('.preview-total'));
+    assert.ok(card.querySelector('details'));
+  }
+});
+
 test('recipe stage editor keeps its breakdown open and its focused input while totals update', () => {
   const document = new TestDocument();
   const form = buildRecipeForm(document, data(), data().recipes[0]);

@@ -1,4 +1,4 @@
-import { button } from '../shared/buttons.mjs';
+import { button, iconButton } from '../shared/buttons.mjs';
 import { make } from '../shared/dom.mjs';
 import { addFormActions, formBase, label } from '../shared/form-fields.mjs';
 import {
@@ -62,10 +62,14 @@ export function buildRecipeForm(document, data, editRecipe = null) {
   }));
   const stageEditor = make(document, 'section', undefined, 'recipe-steps recipe-preview stage-editor');
   stageEditor.dataset.stageEditor = 'recipe';
-  stageEditor.setAttribute('aria-label', '레시피 추출 단계 입력');
+  const stepsHeader = make(document, 'div', undefined, 'recipe-steps-header');
+  const stepsTitle = make(document, 'h3', '물 붓기 단계');
+  stepsTitle.id = 'recipe-steps-title';
+  stageEditor.setAttribute('aria-labelledby', stepsTitle.id);
+  stepsHeader.append(stepsTitle, iconButton(document, '+', '단계 추가', 'add-step'));
   const steps = make(document, 'div', undefined, 'stage-editor-list');
   steps.dataset.steps = '';
-  stageEditor.append(steps, button(document, '단계 추가', 'button', 'add-step', 'utility'),
+  stageEditor.append(stepsHeader, steps,
     createStageEditorSummary(document, { totalClassName: 'preview-total' }));
   form.append(stageEditor);
   addFormActions(document, form, editRecipe
@@ -84,7 +88,9 @@ export function addStep(content, document) {
   if (!form) return;
   const wrap = form.querySelector('[data-steps]');
   const index = wrap.children.length + 1;
-  const row = createStageEditorRow(document, { number: index, rowClass: 'step-row', removeAction: 'remove-step' });
+  const row = createStageEditorRow(document, {
+    number: index, rowClass: 'step-row', removeAction: 'remove-step', timeLabel: '시작 시간',
+  });
   wrap.append(row);
   return row;
 }

@@ -2,7 +2,7 @@ import { button, iconButton } from '../shared/buttons.mjs';
 import { make } from '../shared/dom.mjs';
 import { addFormActions, formBase, label } from '../shared/form-fields.mjs';
 import {
-  createStageEditorRow, createStageEditorSummary, formatTime, updateStageEditorSummary,
+  RECIPE_POUR_LABELS, createStageEditorRow, createStageEditorSummary, formatTime, updateStageEditorSummary,
 } from '../shared/recipe-presentation.mjs';
 import { parseMicronValue } from '../../domain.mjs';
 
@@ -63,7 +63,7 @@ export function buildRecipeForm(document, data, editRecipe = null) {
   const stageEditor = make(document, 'section', undefined, 'recipe-steps recipe-preview stage-editor');
   stageEditor.dataset.stageEditor = 'recipe';
   const stepsHeader = make(document, 'div', undefined, 'recipe-steps-header');
-  const stepsTitle = make(document, 'h3', '물 붓기 단계');
+  const stepsTitle = make(document, 'h3', RECIPE_POUR_LABELS.title);
   stepsTitle.id = 'recipe-steps-title';
   stageEditor.setAttribute('aria-labelledby', stepsTitle.id);
   stepsHeader.append(stepsTitle, iconButton(document, '+', '단계 추가', 'add-step'));
@@ -90,7 +90,7 @@ export function addStep(content, document) {
   const index = wrap.children.length + 1;
   const row = createStageEditorRow(document, {
     number: index, rowClass: 'step-row', removeAction: 'remove-step',
-    nameLabel: '단계 이름', timeLabel: '시작 시간',
+    nameLabel: RECIPE_POUR_LABELS.name, timeLabel: RECIPE_POUR_LABELS.time,
   });
   wrap.append(row);
   return row;

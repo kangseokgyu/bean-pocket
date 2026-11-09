@@ -5,7 +5,7 @@ import { button, iconButton, trashButton } from '../shared/buttons.mjs';
 import { favoriteButton } from '../shared/favorite-button.mjs';
 import { currentRecords, recordName } from '../shared/record-card.mjs';
 import {
-  hasRecipeValue, makeStepTable, recipeMeasure, recipeOverview, recipeReady,
+  RECIPE_POUR_LABELS, hasRecipeValue, makeStepTable, recipeMeasure, recipeOverview, recipeReady,
   recipeSectionHeading, recipeStepCount, recipeValidationMessage,
 } from '../shared/recipe-presentation.mjs';
 
@@ -95,10 +95,10 @@ function recipeCard(document, recipe, data, detailed = false) {
   const stepLabel = Array.isArray(recipe.steps) ? `${steps.length}단계`
     : recipe.validationStatus === 'checking' ? '확인 중'
       : recipe.validationStatus === 'error' ? '확인 실패' : '단계 미기록';
-  stepsSection.append(recipeSectionHeading(document, '붓기 단계', stepLabel));
+  stepsSection.append(recipeSectionHeading(document, RECIPE_POUR_LABELS.title, stepLabel));
   if (steps.length) stepsSection.append(makeStepTable(document, steps));
   else stepsSection.append(make(document, 'p', recipe.validationStatus === 'checking' ? '레시피 단계를 확인 중입니다.'
-    : recipe.validationStatus === 'error' ? '레시피 단계 확인에 실패했습니다.' : '등록된 붓기 단계가 없습니다.', 'muted-note'));
+    : recipe.validationStatus === 'error' ? '레시피 단계 확인에 실패했습니다.' : `등록된 ${RECIPE_POUR_LABELS.title}가 없습니다.`, 'muted-note'));
   article.append(stepsSection);
 
   if (typeof recipe.extractionGuide === 'string' && recipe.extractionGuide.trim()) {
@@ -135,7 +135,7 @@ function recipeCard(document, recipe, data, detailed = false) {
       const dripper = hasRecipeValue(snapshot.dripper) ? snapshot.dripper : '드리퍼 미기록';
       const conditions = `기록 당시 조건: ${dripper} · ${recipeMeasure(snapshot.dose, 'g')} · ${recipeMeasure(snapshot.temperature, '℃')} · 물 ${recipeMeasure(snapshot.totalWater, 'g')}`;
       recordItem.append(make(document, 'p', conditions, 'record-snapshot-conditions'));
-      recordItem.append(make(document, 'h5', '당시 단계'));
+      recordItem.append(make(document, 'h5', `당시 ${RECIPE_POUR_LABELS.title}`));
       recordItem.append(makeStepTable(document, snapshot.steps));
       if (typeof snapshot.extractionGuide === 'string' && snapshot.extractionGuide.trim()) {
         recordItem.append(make(document, 'p', `기록 당시 추출 가이드: ${snapshot.extractionGuide}`, 'record-extraction-guide'));

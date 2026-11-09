@@ -2,6 +2,13 @@ import { make } from './dom.mjs';
 import { button } from './buttons.mjs';
 import { label } from './form-fields.mjs';
 
+export const RECIPE_POUR_LABELS = {
+  title: '물 붓기 단계',
+  name: '단계 이름',
+  time: '시작 시간',
+  water: '붓는 양 (g)',
+};
+
 export function recipeOverview(document, recipe) {
   const overview = make(document, 'section', undefined, 'recipe-overview');
   overview.setAttribute('aria-label', '주요 추출 조건');
@@ -81,9 +88,11 @@ export function makeStepTable(document, steps) {
   const table = make(document, 'table', undefined, 'steps-table');
   const head = make(document, 'thead');
   const header = make(document, 'tr');
-  for (const [title, detail] of [['단계'], ['누적 시간', '간격'], ['누적 물', '이번 물']]) {
+  for (const [title, detail] of [
+    [RECIPE_POUR_LABELS.name], [RECIPE_POUR_LABELS.time, '간격'], [RECIPE_POUR_LABELS.water, '누적 물'],
+  ]) {
     const cell = make(document, 'th', title);
-    if (detail) cell.append(make(document, 'span', ` (${detail})`, 'step-current'));
+    if (detail) cell.append(make(document, 'span', ` (${detail})`, 'step-secondary'));
     cell.setAttribute('scope', 'col');
     header.append(cell);
   }
@@ -94,9 +103,9 @@ export function makeStepTable(document, steps) {
     const row = make(document, 'tr');
     row.append(make(document, 'td', step.name));
     const interval = step.interval ?? (index === 0 ? 0 : step.seconds - steps[index - 1].seconds);
-    for (const [total, current] of [[formatTime(step.seconds), `${interval}초`], [`${step.cumulativeWater}g`, `${step.water}g`]]) {
+    for (const [value, detail] of [[formatTime(step.seconds), `${interval}초`], [`${step.water}g`, `${step.cumulativeWater}g`]]) {
       const cell = make(document, 'td');
-      cell.append(make(document, 'span', total, 'step-total'), make(document, 'span', ` (${current})`, 'step-current'));
+      cell.append(make(document, 'span', value, 'step-value'), make(document, 'span', ` (${detail})`, 'step-secondary'));
       row.append(cell);
     }
     body.append(row);
@@ -141,7 +150,7 @@ export function createStageEditorRow(document, {
     placeholder: number === 1 ? '0:00' : '0:30', inputMode: 'text', pattern: '\\d+:[0-5]\\d',
   });
   timeField.querySelector('input').value = time;
-  const waterField = label(document, '붓는 양 (g)', 'water', 'number', true, { min: 0, step: 'any' });
+  const waterField = label(document, RECIPE_POUR_LABELS.water, 'water', 'number', true, { min: 0, step: 'any' });
   waterField.querySelector('input').value = water;
   measurements.append(timeField, waterField);
   fields.append(nameField, measurements);

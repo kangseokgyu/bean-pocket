@@ -470,8 +470,8 @@ html:has(dialog[open]), body:has(dialog[open]) { overflow: hidden; overscroll-be
 }
 
 .form-field textarea { height: 78px; min-height: 78px; resize: vertical; }
-.recipe-steps, .brew-edit-stages { display: grid; gap: 8px; min-width: 0; }
-.recipe-steps {
+.recipe-steps, .recipe-steps-section, .brew-edit-stages { display: grid; gap: 8px; min-width: 0; }
+.recipe-steps, .recipe-steps-section {
   padding: 8px;
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -871,7 +871,7 @@ button:focus-visible, .table-scroll:focus-visible {
 .recipe-condition dt { color: var(--text-muted); }
 .recipe-condition dd { margin: 2px 0 0; overflow-wrap: anywhere; }
 .recipe-rating { margin: 11px 0 0; color: var(--text-muted); }
-.recipe-steps-section > .table-scroll { margin-top: 0; }
+.recipe-steps-section > .recipe-section-heading { margin: 0; padding: 0; border: 0; }
 .recipe-extraction-guide > p {
   margin: 0;
   padding: 11px 12px;
@@ -1129,9 +1129,12 @@ button:focus-visible, .table-scroll:focus-visible {
   white-space: normal;
   overflow-wrap: anywhere;
 }
-.steps-table th:first-child { width: 24%; }
-.step-total { font-weight: 650; font-variant-numeric: tabular-nums; }
-.step-current { display: inline-block; margin-inline-start: 0.25em; color: var(--text-muted); }
+.steps-table th, .steps-table td:first-child { word-break: keep-all; }
+.steps-table th:first-child { width: 32%; }
+.steps-table th:last-child { width: 37%; }
+.step-value { font-weight: 650; font-variant-numeric: tabular-nums; }
+.step-secondary { display: inline-block; margin-inline-start: 0.25em; color: var(--text-muted); }
+.steps-table th .step-secondary { display: block; margin-inline-start: 0; font-weight: 400; }
 .steps-table th, .steps-preview-table th { background: var(--surface-soft); }
 .steps-table tr:last-child td, .steps-preview-table tr:last-child td { border-bottom: 0; }
 .recipe-preview { max-width: 100%; min-width: 0; }

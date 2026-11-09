@@ -933,7 +933,7 @@ test('bean, recipe, and record detail text is rendered as text and retains brew 
   assert.match(detail.textContent, /꿀, 살구/);
 });
 
-test('pour tables group cumulative values before interval and current water in three columns', () => {
+test('recipe detail and historical pour tables lead with the same fields as the recipe form', () => {
   const document = new TestDocument();
   const view = createBeanView(document);
   const current = data();
@@ -943,22 +943,28 @@ test('pour tables group cumulative values before interval and current water in t
     { name: '2차', seconds: 70, interval: 40, water: 90.5, cumulativeWater: 150.5 },
   ];
   view.renderData(current);
-  for (const route of [`/recipes/${RECIPE}`]) {
-    view.renderRoute(route);
-    const tables = document.root.querySelectorAll('.steps-table');
-    const table = tables[0];
-    assert.deepEqual(table.querySelectorAll('th').map(cell => cell.textContent), ['단계', '누적 시간 (간격)', '누적 물 (이번 물)']);
-    assert.ok(table.querySelectorAll('th').every(cell => cell.getAttribute('scope') === 'col'));
-    assert.equal(tables.length, 2, 'live recipe and historical snapshot share the compact table');
-    const rows = table.querySelector('tbody').querySelectorAll('tr');
-    assert.deepEqual(rows.map(row => row.querySelectorAll('td').map(cell => cell.textContent)), [
-      ['뜸 <안전>', '0:00 (0초)', '30g (30g)'],
-      ['1차', '0:30 (30초)', '60g (30g)'],
-      ['2차', '1:10 (40초)', '150.5g (90.5g)'],
-    ]);
-    assert.equal(table.querySelector('img'), null);
-    assert.equal(tables[1].querySelector('tbody').textContent, '뜸0:00 (0초)50g (50g)');
+  view.renderRoute(`/recipes/${RECIPE}/edit`);
+  const labels = document.root.querySelector('.step-row').querySelectorAll('.form-field-label')
+    .map(label => label.textContent);
+  assert.deepEqual(labels, ['단계 이름', '시작 시간', '붓는 양 (g)']);
+
+  view.renderRoute(`/recipes/${RECIPE}`);
+  const tables = document.root.querySelectorAll('.steps-table');
+  assert.equal(tables.length, 2, 'live recipe and historical snapshot share the compact table');
+  for (const table of tables) {
+    const headers = table.querySelectorAll('th');
+    assert.deepEqual(headers.map(cell => cell.textContent), [labels[0], `${labels[1]} (간격)`, `${labels[2]} (누적 물)`]);
+    assert.ok(headers.every(cell => cell.getAttribute('scope') === 'col'));
   }
+  const rows = tables[0].querySelector('tbody').querySelectorAll('tr');
+  assert.deepEqual(rows.map(row => row.querySelectorAll('td').map(cell => cell.textContent)), [
+    ['뜸 <안전>', '0:00 (0초)', '30g (30g)'],
+    ['1차', '0:30 (30초)', '30g (60g)'],
+    ['2차', '1:10 (40초)', '90.5g (150.5g)'],
+  ]);
+  assert.equal(tables[0].querySelector('img'), null);
+  assert.equal(tables[1].querySelector('tbody').textContent, '뜸0:00 (0초)50g (50g)');
+  assert.equal(document.root.querySelector('.recipe-record-item').querySelector('h5').textContent, '당시 물 붓기 단계');
 });
 
 test('damaged historical records are excluded from bagless recipe views', () => {
@@ -1374,7 +1380,7 @@ test('recipe detail groups conditions, pour steps, guide, and records in reading
   const detail = document.root.querySelector('.recipe-card');
   const sections = detail.querySelectorAll('.recipe-detail-section');
   assert.deepEqual(sections.map(section => section.querySelector('h4')?.textContent),
-    ['추출 조건', '붓기 단계', '추출 가이드', '추출 기록']);
+    ['추출 조건', '물 붓기 단계', '추출 가이드', '추출 기록']);
   assert.ok(detail.querySelector('.recipe-steps-section').querySelector('.steps-table'));
   assert.ok(detail.querySelector('.recipe-records').querySelector('.record-summary-header'));
   assert.equal(detail.querySelector('.recipe-card-actions').querySelectorAll('button').length, 2);

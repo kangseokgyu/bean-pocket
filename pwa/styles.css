@@ -103,7 +103,7 @@ button { touch-action: manipulation; }
   width: min(100% - 32px, 760px);
   min-height: 100vh;
   margin: 0 auto;
-  padding: 20px 0 18px;
+  padding: 0 0 18px;
   display: flex;
   flex-direction: column;
 }
@@ -118,7 +118,7 @@ button { touch-action: manipulation; }
   align-items: center;
   justify-content: flex-start;
   gap: 12px;
-  padding: calc(env(safe-area-inset-top, 0px) + 8px) 0 0;
+  padding: env(safe-area-inset-top, 0px) 0 0;
   border-bottom: 1px solid var(--line);
 }
 
@@ -1163,7 +1163,7 @@ footer {
 @media (max-width: 600px) {
   .page {
     width: min(100% - 24px, 760px);
-    padding: 14px 0 calc(88px + env(safe-area-inset-bottom, 0px));
+    padding: 0 0 calc(88px + env(safe-area-inset-bottom, 0px));
   }
   .bean-section { padding: 12px 0; }
   .panel, .data-panel, .unresolved-panel, .card-skeletons { padding: 13px; border-radius: 13px; }

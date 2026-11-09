@@ -436,16 +436,20 @@ export function bindEvents({ page, nav, connectionForm, tokenInput, scheduleToke
       return;
     }
     if (action === 'new-record') {
-      const recipeId = target.dataset.id;
+      const { kind, id } = target.dataset;
       const form = navigateAndGetForm(view, content, '/records/new', 'records');
       if (form) {
-        const option = document.createElement('option');
-        const recipe = windowData?.recipes.find(item => item.id === recipeId);
-        option.value = recipeId;
-        option.textContent = recipe?.name ?? '선택한 레시피';
-        if (!Array.from(form.elements.recipeId.options).some(item => item.value === recipeId)) form.elements.recipeId.append(option);
-        form.elements.recipeId.value = recipeId;
-        syncSearchPickerTrigger(form.elements.recipeId.closest('[data-search-picker]'), windowData);
+        const isBean = kind === 'beans';
+        const select = form.elements[isBean ? 'beanId' : 'recipeId'];
+        if (!Array.from(select.options).some(option => option.value === id)) {
+          const item = windowData?.[kind]?.find(entry => entry.id === id);
+          const option = document.createElement('option');
+          option.value = id;
+          option.textContent = item?.name ?? (isBean ? '선택한 원두' : '선택한 레시피');
+          select.append(option);
+        }
+        select.value = id;
+        syncSearchPickerTrigger(select.closest('[data-search-picker]'), windowData);
         actions.setDirty(true, 'records');
       }
       return;

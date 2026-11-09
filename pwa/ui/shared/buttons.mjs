@@ -56,6 +56,17 @@ export const iconButton = (document, icon, title, action) => {
   return node;
 };
 
+export function detailRecordButton(document, kind, id) {
+  const record = button(document, '', 'button', 'new-record', 'primary');
+  record.className += ' detail-record-button';
+  record.dataset.kind = kind;
+  record.dataset.id = id;
+  const face = make(document, 'span', undefined, 'detail-record-button-face');
+  face.append(actionIcon(document, 'brew'), make(document, 'span', '추출 기록'));
+  record.append(face);
+  return record;
+}
+
 export function trashButton(document, kind, id, name) {
   const action = { beans: 'delete-bean', recipes: 'delete-recipe', records: 'delete-record' }[kind];
   const remove = iconButton(document, '', `${name} 삭제`, action);

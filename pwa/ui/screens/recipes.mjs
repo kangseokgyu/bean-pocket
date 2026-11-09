@@ -1,7 +1,7 @@
 import { isValidRating } from '../../domain.mjs';
 import { actionIcon } from '../shared/icons.mjs';
 import { make } from '../shared/dom.mjs';
-import { button, iconButton, trashButton } from '../shared/buttons.mjs';
+import { detailRecordButton, iconButton, trashButton } from '../shared/buttons.mjs';
 import { favoriteButton } from '../shared/favorite-button.mjs';
 import { currentRecords, recordName } from '../shared/record-card.mjs';
 import {
@@ -46,7 +46,7 @@ export function renderRecipeDetail(pane, listActions, data, document, recipeId) 
     return;
   }
   const ready = recipeReady(recipe);
-  listActions.className += ' recipe-header-actions';
+  listActions.className += ' detail-header-actions';
   const edit = iconButton(document, '', `${recipe.name} 수정`, 'edit-recipe');
   edit.className += ' entity-edit';
   edit.dataset.id = recipe.id;
@@ -62,14 +62,9 @@ export function renderRecipeDetail(pane, listActions, data, document, recipeId) 
 
 function recipeCard(document, recipe, data, ready) {
   const article = make(document, 'article', undefined, 'recipe-card');
-  const header = make(document, 'div', undefined, 'entity-card-header recipe-detail-header');
-  const record = button(document, '', 'button', 'new-record', 'primary');
-  record.className += ' recipe-record-button';
-  record.dataset.id = recipe.id;
+  const header = make(document, 'div', undefined, 'entity-card-header detail-header');
+  const record = detailRecordButton(document, 'recipes', recipe.id);
   record.disabled = !ready;
-  const recordFace = make(document, 'span', undefined, 'recipe-record-button-face');
-  recordFace.append(actionIcon(document, 'brew'), make(document, 'span', '추출 기록'));
-  record.append(recordFace);
   header.append(make(document, 'h2', recipe.name), record);
   article.append(header, recipeOverview(document, recipe));
 

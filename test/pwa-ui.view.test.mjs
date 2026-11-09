@@ -1384,7 +1384,7 @@ test('recipe detail groups conditions, pour steps, guide, and records in reading
     ['추출 조건', '물 붓기 단계', '추출 가이드', '추출 기록']);
   assert.ok(detail.querySelector('.recipe-steps-section').querySelector('.steps-table'));
   assert.ok(detail.querySelector('.recipe-records').querySelector('.record-summary-header'));
-  const titleRow = detail.querySelector('.recipe-detail-header');
+  const titleRow = detail.querySelector('.detail-header');
   assert.deepEqual(titleRow.querySelectorAll('button').map(node => node.dataset.action), ['new-record']);
   assert.equal(detail.querySelectorAll('[data-action="new-record"]').length, 1);
   const record = titleRow.querySelector('[data-action="new-record"]');
@@ -1406,7 +1406,7 @@ test('recipe detail edit action opens a full prefilled edit form with stable ste
 
   const header = document.root.querySelector('.list-view .list-header');
   assert.equal(header.querySelector('.button--back').getAttribute('aria-label'), '레시피 목록');
-  const group = header.querySelector('.recipe-header-actions');
+  const group = header.querySelector('.detail-header-actions');
   assert.ok(group, 'edit, copy, and delete share the list return row');
   assert.deepEqual(group.querySelectorAll('button').map(node => node.dataset.action), ['edit-recipe', 'copy-recipe', 'delete-recipe']);
   assert.equal(document.root.querySelector('.recipe-card [data-action="edit-recipe"]'), null);
@@ -2418,6 +2418,43 @@ test('bean details group all bean metadata and records inside the recipe card hi
     ['2026-06-20 · 원두 <안전>', '2026-06-15 · 원두 <안전>']);
   assert.equal(detail.querySelector('[data-action="delete-bean"]'), null);
   assert.equal(detail.querySelector('[data-action="copy-recipe"]'), null);
+});
+
+test('bean detail shows management beside the list return and records with the bean selected', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const submitted = [];
+  view.bind({ setDirty() {}, submit: async (...args) => {
+    submitted.push(args);
+    return { status: 'succeeded' };
+  } });
+  view.renderData(data());
+  view.renderRoute(`/beans/${BEAN}`);
+
+  const header = document.root.querySelector('.list-view .list-header');
+  assert.equal(header.querySelector('.button--back').getAttribute('aria-label'), '원두 목록');
+  assert.deepEqual(header.querySelectorAll('button').map(button => button.dataset.action),
+    ['navigate', 'favorite-item', 'delete-bean']);
+  const favorite = header.querySelector('[data-action="favorite-item"]');
+  assert.equal(favorite.getAttribute('aria-pressed'), 'false');
+  await clickViewTarget(document, favorite);
+  assert.deepEqual(submitted, [['favorite-bean', { id: BEAN, favorite: true }]]);
+
+  await clickViewTarget(document, header.querySelector('[data-action="delete-bean"]'));
+  const confirm = document.root.querySelector('.delete-confirm-dialog');
+  assert.equal(confirm.open, true);
+  await clickViewTarget(document, confirm.querySelector('[data-action="cancel-delete"]'));
+  assert.equal(submitted.length, 1, 'cancelling deletion does not submit it');
+
+  const detail = document.root.querySelector('.bean-detail-card');
+  const record = detail.querySelector('.entity-card-header [data-action="new-record"]');
+  assert.equal(record?.textContent, '추출 기록');
+  await clickViewTarget(document, record);
+  const form = document.root.querySelector('form[data-form="records"]');
+  assert.equal(view.currentRoute(), '/records/new');
+  assert.equal(form.elements.beanId.value, BEAN);
+  assert.equal(form.elements.recipeId.value, '');
+  assert.match(form.querySelectorAll('[data-action="open-search-picker"]')[0].textContent, /원두 <안전>/);
 });
 
 test('bean details keep empty, loading, and incomplete record states distinct', () => {
@@ -4746,10 +4783,13 @@ test('bean detail keeps best and history record cards with missing-route fallbac
   const current = data();
   current.beans[0].bestRecordStatus = 'ready';
   current.beans[0].bestRecord = current.records[0];
-  renderBeanDetail(pane, current, document, BEAN);
+  const actions = document.createElement('div');
+  renderBeanDetail(pane, actions, current, document, BEAN);
   assert.equal(pane.querySelector('.bean-detail-card').querySelectorAll('.record-card').length, 2);
   const missing = document.createElement('div');
-  renderBeanDetail(missing, current, document, 'missing-bean');
+  const missingActions = document.createElement('div');
+  renderBeanDetail(missing, missingActions, current, document, 'missing-bean');
+  assert.equal(missingActions.children.length, 0);
   assert.equal(missing.textContent.includes('원두를 찾을 수 없습니다.'), true);
 });
 

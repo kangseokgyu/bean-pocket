@@ -925,12 +925,12 @@ button:focus-visible, .table-scroll:focus-visible {
 
 .entity-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
 .entity-card-header h3, .entity-card-header h4 { min-width: 0; overflow-wrap: anywhere; margin: 0 0 12px; }
-.recipe-detail-header { flex-wrap: wrap; align-items: center; gap: 8px 12px; }
-.recipe-card .recipe-detail-header > h2 { flex: 1 1 8rem; overflow-wrap: anywhere; }
-.recipe-detail-header > .recipe-record-button { margin-inline-start: auto; }
-.list-actions.recipe-header-actions { gap: 4px; }
-.recipe-header-actions > .button { margin: 0; }
-.recipe-header-actions > .icon-button {
+.detail-header { flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.entity-card-header.detail-header > h2 { flex: 1 1 8rem; overflow-wrap: anywhere; }
+.detail-header > .detail-record-button { margin-inline-start: auto; }
+.list-actions.detail-header-actions { gap: 4px; }
+.detail-header-actions > .button { margin: 0; }
+.detail-header-actions > .icon-button {
   flex-basis: 44px;
   width: 44px;
   height: 44px;
@@ -943,8 +943,8 @@ button:focus-visible, .table-scroll:focus-visible {
 .entity-card-header h2, .entity-card-header h3 { margin: 0; line-height: 1.5; }
 .entity-delete, .entity-favorite, .entity-edit { flex: 0 0 46px; width: 46px; height: 46px; margin: -14px -8px -14px 0; color: var(--text-muted); background: transparent; border-color: transparent; }
 .entity-delete, .entity-favorite, .entity-edit { flex-basis: 35px; width: 35px; height: 35px; min-height: 35px; padding: 0; }
-.entity-delete svg, .entity-favorite svg, .recipe-header-actions > .icon-button svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.entity-delete:hover:not(:disabled), .entity-favorite:hover:not(:disabled), .recipe-header-actions > .icon-button:hover:not(:disabled) { background: var(--surface-hover); border-color: var(--control-line); }
+.entity-delete svg, .entity-favorite svg, .detail-header-actions > .icon-button svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.entity-delete:hover:not(:disabled), .entity-favorite:hover:not(:disabled), .detail-header-actions > .icon-button:hover:not(:disabled) { background: var(--surface-hover); border-color: var(--control-line); }
 .connection-toggle:hover:not(:disabled) { background: var(--surface-hover); }
 .bag-card { padding-top: 10px; border-top: 1px solid var(--line); }
 .bag-card + .bag-card { margin-top: 10px; }
@@ -1429,7 +1429,7 @@ footer {
   box-shadow: none;
 }
 .button.button--primary:hover:not(:disabled), .primary-button:hover:not(:disabled) { background: var(--accent-hover); }
-.button.button--primary.recipe-record-button {
+.button.button--primary.detail-record-button {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
@@ -1437,7 +1437,7 @@ footer {
   border: 0;
   background: transparent;
 }
-.recipe-record-button-face {
+.detail-record-button-face {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1446,8 +1446,8 @@ footer {
   border-radius: 8px;
   background: var(--accent);
 }
-.recipe-record-button:hover:not(:disabled) .recipe-record-button-face { background: var(--accent-hover); }
-.recipe-record-button-face svg {
+.detail-record-button:hover:not(:disabled) .detail-record-button-face { background: var(--accent-hover); }
+.detail-record-button-face svg {
   flex: 0 0 18px;
   width: 18px;
   height: 18px;

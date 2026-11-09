@@ -1168,7 +1168,7 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
   if (!recipeEdit) pane.append(header);
 
   if (beanDetail) {
-    renderBeanDetail(pane, data, document, parts[1]);
+    renderBeanDetail(pane, actions, data, document, parts[1]);
   } else if (recipeEdit) {
     const recipe = data.recipes?.find(row => row.id === parts[1]);
     if (data.screen?.error || !recipe || !Array.isArray(recipe.steps)) {

@@ -1236,6 +1236,7 @@ footer {
     font-weight: 700;
     text-decoration: none;
   }
+  .tabs .nav-label { font-size: calc(1em - 2px); }
   .tabs .nav-icon {
     display: block;
     width: 22px;

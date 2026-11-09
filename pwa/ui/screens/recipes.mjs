@@ -59,7 +59,8 @@ function recipeCard(document, recipe, data) {
   edit.dataset.id = recipe.id;
   edit.replaceChildren(actionIcon(document, 'edit'));
 
-  const copy = button(document, '이 레시피 복사', 'button', 'copy-recipe');
+  const copy = iconButton(document, '', '이 레시피 복사', 'copy-recipe');
+  copy.replaceChildren(actionIcon(document, 'copy'));
   copy.dataset.id = recipe.id;
   copy.disabled = !ready;
   headerActions.append(edit, copy, trashButton(document, 'recipes', recipe.id, recipe.name));

@@ -935,14 +935,16 @@ button:focus-visible, .table-scroll:focus-visible {
   width: 44px;
   height: 44px;
   min-height: 44px;
+  padding: 0;
+  color: var(--text-muted);
   border-color: var(--control-line);
   background: var(--surface-soft);
 }
 .entity-card-header h2, .entity-card-header h3 { margin: 0; line-height: 1.5; }
 .entity-delete, .entity-favorite, .entity-edit { flex: 0 0 46px; width: 46px; height: 46px; margin: -14px -8px -14px 0; color: var(--text-muted); background: transparent; border-color: transparent; }
 .entity-delete, .entity-favorite, .entity-edit { flex-basis: 35px; width: 35px; height: 35px; min-height: 35px; padding: 0; }
-.entity-delete svg, .entity-favorite svg, .entity-edit svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.entity-delete:hover:not(:disabled), .entity-favorite:hover:not(:disabled), .entity-edit:hover:not(:disabled) { background: var(--surface-hover); border-color: var(--control-line); }
+.entity-delete svg, .entity-favorite svg, .recipe-header-actions > .icon-button svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.entity-delete:hover:not(:disabled), .entity-favorite:hover:not(:disabled), .recipe-header-actions > .icon-button:hover:not(:disabled) { background: var(--surface-hover); border-color: var(--control-line); }
 .connection-toggle:hover:not(:disabled) { background: var(--surface-hover); }
 .bag-card { padding-top: 10px; border-top: 1px solid var(--line); }
 .bag-card + .bag-card { margin-top: 10px; }

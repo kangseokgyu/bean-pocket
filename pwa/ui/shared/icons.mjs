@@ -2,6 +2,7 @@ const BREW_ICON_PATH = 'M4 8h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8Zm12 2h2a3 3 0 
 
 const ACTION_ICON_PATHS = Object.freeze({
   brew: BREW_ICON_PATH,
+  copy: 'M11 8h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2ZM15 5V4a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h1',
   save: 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2ZM17 21v-8H7v8ZM7 3v5h8',
   x: 'M18 6 6 18M6 6l12 12',
   check: 'M4 12l5 5 11-11',

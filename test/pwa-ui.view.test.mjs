@@ -1508,7 +1508,9 @@ test('recipe detail places the guide below the pour table and copy preserves its
     for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target });
   };
   const copy = detail.querySelector('.recipe-header-actions [data-action="copy-recipe"]');
-  assert.equal(copy?.textContent, '이 레시피 복사');
+  assert.equal(copy?.textContent, '');
+  assert.equal(copy.getAttribute('aria-label'), '이 레시피 복사');
+  assert.equal(copy.querySelector('svg')?.getAttribute('aria-hidden'), 'true');
   await click(copy);
   const copyForm = document.root.querySelector('form[data-form="recipes"]');
   assert.equal(copyForm.elements.extractionGuide.value, data().recipes[0].extractionGuide);

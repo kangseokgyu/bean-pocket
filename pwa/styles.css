@@ -493,12 +493,15 @@ form[data-form="recipes"] .form-field-label { font-size: 16px; }
 .stage-editor-details .steps-preview-table th, .stage-editor-details .steps-preview-table td { padding: 8px 5px; white-space: normal; overflow-wrap: anywhere; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
 .stage-editor-details .steps-preview-table th:first-child { width: 26%; }
 @container (max-width: 520px) {
-  .stage-editor-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px; }
-  .stage-editor-fields, .stage-editor-measurements { display: contents; }
-  .stage-editor-name { grid-column: 1 / -1; }
+  .brew-stage-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px; }
+  .brew-stage-row .stage-editor-fields { display: contents; }
+  .brew-stage-row .stage-editor-name { grid-column: 1 / -1; }
+  .brew-stage-row > .button { grid-column: 3; grid-row: 2; }
+  .step-row .form-field-label { word-break: keep-all; }
+  .step-row input { padding-inline: 6px; }
+  .step-row input[type="number"] { appearance: textfield; }
+  .step-row input::-webkit-inner-spin-button { appearance: none; }
   .stage-editor-row > .button {
-    grid-column: 3;
-    grid-row: 2;
     width: 44px;
     min-width: 44px;
     height: 44px;

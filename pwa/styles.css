@@ -118,7 +118,7 @@ button { touch-action: manipulation; }
   align-items: center;
   justify-content: flex-start;
   gap: 12px;
-  padding: calc(env(safe-area-inset-top, 0px) + 8px) 0 12px;
+  padding: calc(env(safe-area-inset-top, 0px) + 8px) 0 0;
   border-bottom: 1px solid var(--line);
 }
 

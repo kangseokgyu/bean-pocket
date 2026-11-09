@@ -30,7 +30,6 @@ export function buildRecipeForm(document, data, editRecipe = null) {
     ['그라인더', 'grinder', 'text', false],
     ['그라인더 설정', 'grinderSetting', 'text', false],
     ['물 온도 (℃)', 'temperature', 'number', true, { step: 'any', min: 0, max: 100 }, { unit: '°C', values: [88, 92, 96], inline: true }],
-    ['총 물 양 (g)', 'totalWater', 'number', true, { step: 'any', min: 0 }, { unit: 'g', values: [200, 250, 300] }],
   ];
   for (const [title, name, type, required, attrs, shortcuts] of fields) {
     const field = label(document, title, name, type, required, attrs);
@@ -72,7 +71,7 @@ export function buildRecipeForm(document, data, editRecipe = null) {
   addFormActions(document, form, editRecipe
     ? { cancelLabel: '수정 취소', submitLabel: '수정 저장' } : undefined);
   if (editRecipe) {
-    for (const key of ['name', 'dripper', 'dose', 'grind', 'grinder', 'grinderSetting', 'extractionGuide', 'microns', 'temperature', 'totalWater']) {
+    for (const key of ['name', 'dripper', 'dose', 'grind', 'grinder', 'grinderSetting', 'extractionGuide', 'microns', 'temperature']) {
       if (form.elements[key]) form.elements[key].value = editRecipe[key] == null ? '' : String(editRecipe[key]);
     }
   }
@@ -107,7 +106,7 @@ export function setSteps(form, steps) {
 
 export function recipePayload(form) {
   const values = Object.fromEntries(new FormData(form));
-  for (const key of ['dose', 'temperature', 'totalWater']) values[key] = Number(values[key]);
+  for (const key of ['dose', 'temperature']) values[key] = Number(values[key]);
   values.microns = parseMicronValue(values.microns);
   values.steps = [...form.querySelectorAll('.step-row')].map(row => ({
     ...(row.dataset.stepId ? { id: row.dataset.stepId } : {}),
@@ -123,7 +122,7 @@ export function updatePreview(content) {
     ? content : content.querySelector('form[data-form="recipes"]');
   if (!form) return;
   const editor = form.querySelector('[data-stage-editor="recipe"]');
-  updateStageEditorSummary(editor, form.elements.totalWater.value);
+  updateStageEditorSummary(editor);
 }
 
 export function renumberSteps(content) {

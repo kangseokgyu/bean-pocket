@@ -1172,7 +1172,7 @@ test('recipe input minimums allow every positive sub-cent value accepted by the 
     steps: [{ time: '0:00', water: 0.005 }] });
   assert.equal(valid.dose, 0.005);
 
-  for (const name of ['dose', 'temperature', 'totalWater', 'water']) {
+  for (const name of ['dose', 'temperature', 'water']) {
     assert.ok(Number(form.elements[name].min) <= 0.005,
       `${name} must not use a native minimum above the domain's positive-number boundary`);
   }
@@ -4803,7 +4803,7 @@ test('wheel adjusts focused values by one unit and ratings by a tenth', () => {
 
   for (const [name, initial, expected] of [
     ['microns', '450', '451'], ['temperature', '92.5', '93.5'], ['temperature', '99.95', '100'],
-    ['totalWater', '250', '251'], ['grind', '5', '6'], ['grinderSetting', '24.25', '25.25'],
+    ['grind', '5', '6'], ['grinderSetting', '24.25', '25.25'],
   ]) {
     const field = recipe.elements[name];
     field.value = initial;
@@ -4821,6 +4821,7 @@ test('wheel adjusts focused values by one unit and ratings by a tenth', () => {
   for (const [field, initial, expected] of [
     [stage.querySelector('[name="time"]'), '0:59', '1:00'],
     [stage.querySelector('[name="water"]'), '50', '51'],
+    [brew.elements.totalWater, '250', '251'],
     [brew.elements.rating, '4.8', '4.9'],
   ]) {
     field.value = initial;
@@ -4850,7 +4851,6 @@ test('recipe number shortcuts set the editable fields and report input', () => {
     ['temperature', '88°C', '88'],
     ['temperature', '92°C', '92'],
     ['temperature', '96°C', '96'],
-    ['totalWater', '250g', '250'],
   ]) {
     const shortcut = form.querySelectorAll('button').find(control => control.textContent === caption);
     assert.ok(shortcut, `missing shortcut: ${caption}`);
@@ -4871,7 +4871,7 @@ test('recipe form step editor, preview, and payload preserve entered recipe valu
   form.elements.name.value = 'V60 복사';
   form.elements.dose.value = '15';
   form.elements.temperature.value = '93';
-  form.elements.totalWater.value = '250';
+  assert.equal(form.elements.totalWater, undefined);
   assert.equal(form.elements.microns.type, 'text');
   form.elements.microns.value = ' 900 ~ 1000 ';
   addStep(panel, document);
@@ -4886,7 +4886,7 @@ test('recipe form step editor, preview, and payload preserve entered recipe valu
   secondRow.querySelector('[name="water"]').value = '200';
   updatePreview(panel);
   assert.equal(form.querySelector('.steps-preview-table').querySelector('tbody').children.length, 2);
-  assert.equal(form.querySelector('.preview-total').textContent, '단계 물 합 250g / 목표 250g');
+  assert.equal(form.querySelector('.preview-total').textContent, '총 물 양 250g');
 
   const originalFormData = globalThis.FormData;
   globalThis.FormData = class { constructor(element) {
@@ -4896,6 +4896,7 @@ test('recipe form step editor, preview, and payload preserve entered recipe valu
     const payload = recipePayload(form);
     assert.equal(payload.name, 'V60 복사');
     assert.equal(payload.dose, 15);
+    assert.equal(Object.hasOwn(payload, 'totalWater'), false);
     assert.equal(payload.microns, '900~1000');
     assert.deepEqual(payload.steps, [
       { name: '뜸', time: '0:00', water: 50 },
@@ -4908,13 +4909,13 @@ test('recipe form step editor, preview, and payload preserve entered recipe valu
 
   setSteps(form, [{ name: '뜸', seconds: 0, water: 50 }, { name: '붓기', seconds: 70, water: 200 }]);
   assert.deepEqual(form.querySelectorAll('.step-row').map(row => row.querySelector('[name="time"]').value), ['0:00', '1:10']);
-  assert.equal(form.querySelector('.preview-total').textContent, '단계 물 합 250g / 목표 250g');
+  assert.equal(form.querySelector('.preview-total').textContent, '총 물 양 250g');
 });
 
 test('recipe stage editor keeps its breakdown open and its focused input while totals update', () => {
   const document = new TestDocument();
-  const form = buildRecipeForm(document, data());
-  form.elements.totalWater.value = '250';
+  const form = buildRecipeForm(document, data(), data().recipes[0]);
+  assert.equal(form.elements.totalWater, undefined);
   setSteps(form, [{ id: 'step-id', name: '뜸', seconds: 0, water: 50 }]);
 
   const editor = form.querySelector('[data-stage-editor="recipe"]');
@@ -4926,7 +4927,7 @@ test('recipe stage editor keeps its breakdown open and its focused input while t
   assert.equal(details.open, false);
   assert.equal(row.dataset.stepId, 'step-id');
   assert.equal(row.querySelector('[data-action="remove-step"]').getAttribute('aria-label'), '단계 1 제거');
-  assert.match(total.textContent, /50g.*250g/);
+  assert.equal(total.textContent, '총 물 양 50g');
   assert.equal(total.getAttribute('aria-live'), 'polite');
 
   details.open = true;
@@ -4937,7 +4938,7 @@ test('recipe stage editor keeps its breakdown open and its focused input while t
   assert.equal(editor.querySelector('details'), details);
   assert.equal(details.open, true);
   assert.equal(document.activeElement, water);
-  assert.match(total.textContent, /75g.*250g/);
+  assert.equal(total.textContent, '총 물 양 75g');
   assert.deepEqual(editor.querySelector('.steps-preview-table').querySelector('tbody').children.map(line =>
     line.children.map(cell => cell.textContent)), [['0:00', '0초', '75g', '75g']]);
 });
@@ -4945,7 +4946,6 @@ test('recipe stage editor keeps its breakdown open and its focused input while t
 test('stage breakdown hides intervals with invalid adjacent times or decreasing time', () => {
   const document = new TestDocument();
   const form = buildRecipeForm(document, data());
-  form.elements.totalWater.value = '200';
   setSteps(form, [
     { name: '뜸', seconds: 0, water: 40 },
     { name: '1차', seconds: 30, water: 80 },

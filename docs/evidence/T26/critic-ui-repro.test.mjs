@@ -179,7 +179,7 @@ test('C3-R3 positive sub-cent values accepted by domain remain valid UI input', 
   const form = buildRecipeForm(document, data());
   addStep(form, document);
   for (const [name, value] of Object.entries({ name: 'small-positive', dose: '0.005', temperature: '0.005',
-    totalWater: '0.005', microns: '0.005' })) form.elements[name].value = value;
+    microns: '0.005' })) form.elements[name].value = value;
   const step = form.querySelector('.step-row');
   step.querySelector('[name="time"]').value = '0:00';
   step.querySelector('[name="water"]').value = '0.005';
@@ -193,14 +193,15 @@ test('C3-R3 positive sub-cent values accepted by domain remain valid UI input', 
     const payload = recipePayload(form);
     assert.equal(form.elements.microns.type, 'text');
     assert.equal(payload.microns, 0.005, 'the actual text-form payload parses the entered micron value');
-    const valid = validateRecipe(payload);
+    const valid = validateRecipe(payload, { deriveTotalWater: true });
+    assert.equal(valid.totalWater, 0.005);
     assert.equal(valid.microns, 0.005, 'domain validation accepts the payload value');
   } finally {
     if (originalFormData === undefined) delete globalThis.FormData;
     else globalThis.FormData = originalFormData;
   }
 
-  for (const name of ['dose', 'temperature', 'totalWater', 'water']) {
+  for (const name of ['dose', 'temperature', 'water']) {
     assert.ok(Number(form.elements[name].min) <= 0.005,
       `${name}: native rangeUnderflow blocks a contract-valid positive decimal`);
   }

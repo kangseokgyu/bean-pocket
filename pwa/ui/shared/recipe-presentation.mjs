@@ -212,8 +212,13 @@ export function updateStageEditorSummary(editor, targetWater) {
   }
   while (body.children.length > rows.length) body.lastElementChild.remove();
 
+  const sum = `${formatStageWater(cumulative)}g`;
+  if (targetWater === undefined) {
+    total.textContent = `총 물 양 ${sum}`;
+    return;
+  }
   const target = String(targetWater ?? '').trim();
-  total.textContent = `단계 물 합 ${formatStageWater(cumulative)}g / 목표 ${target ? `${formatStageWater(Number(target))}g` : '—'}`;
+  total.textContent = `단계 물 합 ${sum} / 목표 ${target ? `${formatStageWater(Number(target))}g` : '—'}`;
 }
 
 function formatStageWater(value) {

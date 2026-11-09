@@ -492,7 +492,7 @@ export function bindEvents({ page, nav, connectionForm, tokenInput, scheduleToke
       if (!source) return;
       const form = navigateAndGetForm(view, content, '/recipes/new', 'recipes');
       if (!form) return;
-      for (const key of ['name', 'dripper', 'dose', 'grind', 'grinder', 'grinderSetting', 'extractionGuide', 'microns', 'temperature', 'totalWater']) {
+      for (const key of ['name', 'dripper', 'dose', 'grind', 'grinder', 'grinderSetting', 'extractionGuide', 'microns', 'temperature']) {
         if (form.elements[key]) form.elements[key].value = source[key] ?? '';
       }
       form.elements.name.value = `${source.name} 복사`;

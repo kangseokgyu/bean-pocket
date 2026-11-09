@@ -1383,7 +1383,10 @@ test('recipe detail groups conditions, pour steps, guide, and records in reading
     ['추출 조건', '물 붓기 단계', '추출 가이드', '추출 기록']);
   assert.ok(detail.querySelector('.recipe-steps-section').querySelector('.steps-table'));
   assert.ok(detail.querySelector('.recipe-records').querySelector('.record-summary-header'));
-  assert.equal(detail.querySelector('.recipe-card-actions').querySelectorAll('button').length, 2);
+  const record = detail.querySelector('.recipe-card-actions [data-action="new-record"]');
+  assert.deepEqual(detail.querySelector('.recipe-card-actions').querySelectorAll('button').map(node => node.dataset.action), ['new-record']);
+  assert.equal(record.textContent, '추출 기록');
+  assert.equal(record.querySelector('svg')?.getAttribute('aria-hidden'), 'true');
   assert.match(detail.querySelector('.recipe-conditions').textContent, /900~1000μm/);
   assert.doesNotMatch(detail.querySelector('.recipe-conditions').textContent, /그라인더 설정/);
 });
@@ -1400,8 +1403,8 @@ test('recipe detail edit action opens a full prefilled edit form with stable ste
 
   const header = document.root.querySelector('.recipe-card .entity-card-header');
   const group = header.querySelector('.recipe-header-actions');
-  assert.ok(group, 'detail header groups edit and delete');
-  assert.deepEqual(group.querySelectorAll('button').map(node => node.dataset.action), ['edit-recipe', 'delete-recipe']);
+  assert.ok(group, 'detail header groups edit, copy, and delete');
+  assert.deepEqual(group.querySelectorAll('button').map(node => node.dataset.action), ['edit-recipe', 'copy-recipe', 'delete-recipe']);
   assert.equal(document.root.querySelector('.recipe-card-actions [data-action="edit-recipe"]'), null);
   const edit = group.querySelector('[data-action="edit-recipe"]');
   assert.ok(edit, 'recipe detail exposes an edit button');
@@ -1504,7 +1507,9 @@ test('recipe detail places the guide below the pour table and copy preserves its
   const click = async target => {
     for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target });
   };
-  await click(detail.querySelector('[data-action="copy-recipe"]'));
+  const copy = detail.querySelector('.recipe-header-actions [data-action="copy-recipe"]');
+  assert.equal(copy?.textContent, '이 레시피 복사');
+  await click(copy);
   const copyForm = document.root.querySelector('form[data-form="recipes"]');
   assert.equal(copyForm.elements.extractionGuide.value, data().recipes[0].extractionGuide);
 });

@@ -45,22 +45,24 @@ export function renderRecipeDetail(pane, data, document, recipeId) {
     pane.append(make(document, 'p', '레시피를 찾을 수 없습니다. 최신 목록을 새로고침해 주세요.'));
     return;
   }
-  pane.append(recipeCard(document, recipe, data, true));
+  pane.append(recipeCard(document, recipe, data));
 }
 
-function recipeCard(document, recipe, data, detailed = false) {
+function recipeCard(document, recipe, data) {
   const article = make(document, 'article', undefined, 'recipe-card');
-  const header = make(document, 'div', undefined, 'entity-card-header');
+  const header = make(document, 'div', undefined, 'entity-card-header recipe-detail-header');
   header.append(make(document, 'h2', recipe.name));
   const headerActions = make(document, 'div', undefined, 'recipe-header-actions');
-  if (detailed) {
-    const edit = iconButton(document, '', `${recipe.name} 수정`, 'edit-recipe');
-    edit.className += ' entity-edit';
-    edit.dataset.id = recipe.id;
-    edit.replaceChildren(actionIcon(document, 'edit'));
-    headerActions.append(edit);
-  }
-  headerActions.append(trashButton(document, 'recipes', recipe.id, recipe.name));
+  const ready = recipeReady(recipe);
+  const edit = iconButton(document, '', `${recipe.name} 수정`, 'edit-recipe');
+  edit.className += ' entity-edit';
+  edit.dataset.id = recipe.id;
+  edit.replaceChildren(actionIcon(document, 'edit'));
+
+  const copy = button(document, '이 레시피 복사', 'button', 'copy-recipe');
+  copy.dataset.id = recipe.id;
+  copy.disabled = !ready;
+  headerActions.append(edit, copy, trashButton(document, 'recipes', recipe.id, recipe.name));
   header.append(headerActions);
   article.append(header, recipeOverview(document, recipe));
 
@@ -146,16 +148,14 @@ function recipeCard(document, recipe, data, detailed = false) {
   article.append(recordsSection);
 
   const actions = make(document, 'div', undefined, 'recipe-card-actions');
-  if (detailed) {
-    const record = button(document, '이 레시피로 추출 기록', 'button', 'new-record', 'primary');
-    record.dataset.id = recipe.id;
-    record.disabled = !recipeReady(recipe);
-    actions.append(record);
-  }
-  const copy = button(document, '이 레시피 복사', 'button', 'copy-recipe');
-  copy.dataset.id = recipe.id;
-  copy.disabled = !recipeReady(recipe);
-  actions.append(copy);
+  const record = button(document, '', 'button', 'new-record', 'primary');
+  record.className += ' recipe-record-button';
+  record.dataset.id = recipe.id;
+  record.disabled = !ready;
+  const recordFace = make(document, 'span', undefined, 'recipe-record-button-face');
+  recordFace.append(actionIcon(document, 'brew'), make(document, 'span', '추출 기록'));
+  record.append(recordFace);
+  actions.append(record);
   article.append(actions);
   return article;
 }

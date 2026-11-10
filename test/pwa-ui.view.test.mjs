@@ -3654,38 +3654,44 @@ test('records view keeps unfiltered bean insights separate from the filtered tab
     .find(label => label.textContent === '5점');
   assert.ok(Number(ratingFiveLabel.getAttribute('y')) > 10, 'top-axis rating labels stay inside the chart viewBox');
   assert.match(insightSection.textContent, /날짜별 별점 추이/);
-  assert.deepEqual(document.root.querySelectorAll('.record-card').map(card => card.textContent.includes('다른 원두')),
-    [true], 'only the table respects the active recipe filter');
+  const overview = document.root.querySelector('.record-overview-table');
+  assert.deepEqual(overview.querySelector('tbody').querySelectorAll('tr').map(row => row.querySelectorAll('td')[1].textContent),
+    ['다른 원두'], 'the table uses the filtered records while the graph uses unfiltered insights');
 });
 
-test('records page follows the demo hierarchy and keeps full record management collapsed below comparisons', () => {
+test('records page shows a four-column table below the trend and keeps details available on demand', () => {
   const document = new TestDocument();
   const view = createBeanView(document);
-  const older = { ...data().records[0], id: 'demo-align-older', date: '2026-10-01', rating: 3 };
-  const newer = { ...data().records[0], id: 'demo-align-newer', date: '2026-10-05', rating: 5 };
+  const current = data();
+  const older = { ...current.records[0], id: 'overview-older', date: '2026-10-01', rating: null,
+    beanId: 'archived-bean', recipeId: 'archived-recipe',
+    snapshot: { version: 2, recordGeneration: 'bagless-v1',
+      bean: { name: '기록 당시 원두' }, recipe: { name: '기록 당시 레시피' } } };
+  const newer = { ...current.records[0], id: 'overview-newer', date: '2026-10-05', rating: 4.3 };
   const records = [older, newer];
-  const insights = { ...buildRecordsInsights(records, data().beans, BEAN, data().recipes), status: 'ready',
-    loading: false, hasMore: true };
-  view.renderData({ ...data(), recordInsights: insights, screen: { route: '/records', complete: true, hasMore: true } });
+  const insights = { ...buildRecordsInsights(records, current.beans, BEAN, current.recipes), status: 'ready' };
+  view.renderData({ ...current, records, recordInsights: insights,
+    screen: { route: '/records', complete: false, hasMore: true } });
   view.renderRoute('/records');
 
   const layout = document.root.querySelector('.records-demo-layout');
-  assert.ok(layout);
-  assert.equal(layout.children[0].className, 'record-insight-trend-section');
-  assert.equal(layout.children[1].className, 'record-insight-sidebar');
-  assert.equal(layout.children[2].className, 'record-insights-content');
-  assert.deepEqual(layout.children[2].children.map(child => child.className), [
-    'record-insight-selected-bean', 'record-insight-best-section record-insight-best',
-    'record-insight-comparisons', 'record-management',
-  ]);
-  const table = layout.querySelector('.record-insight-comparison-table');
-  assert.ok(table);
-  assert.deepEqual(table.querySelector('tbody').querySelectorAll('tr')
-    .map(row => row.dataset.insightRecordId), ['demo-align-newer', 'demo-align-older']);
+  assert.ok(layout.children[0].querySelector('circle'));
+  const overview = layout.children[1];
+  const table = overview.querySelector('table');
+  assert.ok(table, 'the records table follows the graph');
   assert.deepEqual(table.querySelector('thead').querySelectorAll('th').map(cell => cell.textContent),
-    ['추출일', '레시피', '기록 당시 조건 · 분쇄 · 온도 · 도징 · 물', '평가', '컵노트']);
-  const management = layout.querySelector('.record-management');
+    ['날짜', '원두', '레시피', '별점']);
+  assert.deepEqual(table.querySelector('tbody').querySelectorAll('tr')
+    .map(row => row.querySelectorAll('td').map(cell => cell.textContent)), [
+    ['2026-10-05', '원두 <안전>', 'V60', '4.3/5'],
+    ['2026-10-01', '기록 당시 원두', '기록 당시 레시피', '—'],
+  ]);
+  assert.ok(overview.querySelector('[data-action="load-more"]'));
+
+  const management = layout.children[2];
+  assert.equal(management.tagName, 'details');
   assert.equal(management.open, false);
+  assert.ok(management.querySelector('.record-insight-comparison-table'));
   assert.ok(management.querySelector('[data-record-filter="recipeId"]'));
   assert.ok(management.querySelector('[data-action="delete-record"]'));
 });
@@ -3824,7 +3830,7 @@ test('bean detail names invalid and inaccessible persisted best relations separa
   }
 });
 
-test('top-three trend spans the records page before the sidebar and keeps each bean in its own series', () => {
+test('top-three trend stays at the top of the records page and keeps each bean in its own series', () => {
   const document = new TestDocument();
   const view = createBeanView(document);
   const source = data().records[0];
@@ -3845,10 +3851,7 @@ test('top-three trend spans the records page before the sidebar and keeps each b
   view.renderRoute('/records');
 
   const layout = document.root.querySelector('.records-demo-layout');
-  assert.equal(layout.children[0].className, 'record-insight-trend-section',
-    'the graph is the first DOM section across the sidebar and content columns');
-  assert.equal(layout.children[1].className, 'record-insight-sidebar');
-  const chart = layout.querySelector('.rating-trend-chart');
+  const chart = layout.children[0].querySelector('.rating-trend-chart');
   assert.match(chart.querySelector('title').textContent, /Top 3/);
   const points = chart.querySelectorAll('circle');
   assert.equal(points.length, 3, 'the graph includes the two rated beans and preserves same-date points');
@@ -3879,6 +3882,9 @@ test('legacy record management remains available when bounded insights have not 
   const management = document.root.querySelector('.record-management');
   assert.ok(management);
   assert.equal(management.open, false);
+  const table = document.root.querySelector('.record-overview-table');
+  assert.match(table.querySelector('tbody').textContent, /2026-06-15/);
+  assert.equal(table.closest('details'), null);
   assert.ok(management.querySelector('[data-record-filter="beanId"]'));
   assert.ok(management.querySelector('[data-record-filter="recipeId"]'));
   assert.ok(management.querySelector('.record-card'));

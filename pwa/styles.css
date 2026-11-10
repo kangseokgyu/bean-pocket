@@ -956,13 +956,17 @@ button:focus-visible, .table-scroll:focus-visible {
 .record-filters legend { grid-column: 1 / -1; padding: 0; color: var(--text-muted); font-weight: 700; }
 .record-filter-reset { grid-column: 1 / -1; justify-self: start; }
 .page-load-more { width: 100%; margin-top: 12px; }
-.records-demo-layout {
+.records-demo-layout, .record-insight-details {
   display: grid;
-  grid-template-columns: minmax(238px, 272px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
   gap: 20px;
   min-width: 0;
   color: var(--text);
+}
+.record-insight-details {
+  grid-template-columns: minmax(238px, 272px) minmax(0, 1fr);
+  margin-top: 12px;
 }
 .record-insight-sidebar, .record-insight-selected-bean, .record-insight-trend-section,
 .record-insight-best-record, .record-insight-comparisons, .record-management {
@@ -1029,7 +1033,6 @@ button:focus-visible, .table-scroll:focus-visible {
 .record-insight-scope { margin: 0; padding: 8px 10px; color: var(--text-muted); background: var(--hero-bg); line-height: 1.45; }
 .record-insights-content { display: grid; gap: 16px; min-width: 0; }
 .record-insight-trend-section { grid-column: 1 / -1; min-width: 0; }
-.record-insight-filter-note { margin: 8px 0 0; color: var(--text-muted); line-height: 1.45; }
 .record-insight-chart { min-width: 0; max-width: 100%; margin: 10px 0 0; overflow: hidden; }
 .rating-trend-chart { display: block; width: 100%; max-width: 720px; height: 250px; margin: 0 auto; overflow: visible; }
 .rating-chart-grid { stroke: var(--line); stroke-width: 1; }
@@ -1099,7 +1102,21 @@ button:focus-visible, .table-scroll:focus-visible {
 .record-management > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; color: #76543a; cursor: pointer; }
 .record-management > summary span { color: var(--text-muted); text-align: right; }
 .record-management-body { display: grid; gap: 8px; margin-top: 12px; }
-.record-management-page-more { min-width: 0; }
+.record-overview { min-width: 0; }
+.record-overview-table { width: 100%; border-collapse: collapse; }
+.record-overview-table th, .record-overview-table td {
+  padding: 9px clamp(5px, 1.5vw, 12px);
+  border-bottom: 1px solid var(--line-soft);
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.record-overview-table th { color: var(--text-muted); white-space: nowrap; }
+.record-overview-table tbody tr:last-child td { border-bottom: 0; }
+.record-overview-table td:not([colspan]):is(:first-child, :last-child) {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
 .record-insights-table-note { margin: 0; color: var(--text-muted); }
 .record-table-heading { margin: 8px 0 0; }
 .record-insights-more { width: 100%; }
@@ -1568,7 +1585,7 @@ footer {
 .record-insight-comparisons, .record-management { border-radius: 8px; }
 
 @media (max-width: 920px) {
-  .records-demo-layout { grid-template-columns: minmax(0, 1fr); }
+  .record-insight-details { grid-template-columns: minmax(0, 1fr); }
   .record-insight-sidebar { padding: 14px; }
   .record-insight-bean-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .record-insight-bean-card { min-height: 116px; }

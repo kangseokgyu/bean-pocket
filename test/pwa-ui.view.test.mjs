@@ -296,7 +296,7 @@ test('connection settings open only after no saved connection is found', () => {
   assert.equal(panel.open, true);
 });
 
-test('connection settings header control uses an accessible outlined gear button', () => {
+test('connection settings header control uses an accessible borderless gear button', () => {
   const document = new TestDocument();
   createBeanView(document);
   const toggle = document.root.querySelector('.connection-toggle');
@@ -323,7 +323,7 @@ test('connection settings header control uses an accessible outlined gear button
     /min-width:\s*44px/,
     /height:\s*44px/,
     /min-height:\s*44px/,
-    /border:\s*1px solid var\(--control-line\);/,
+    /border:\s*0;/,
     /border-radius:\s*50%;/,
     /background:\s*transparent;/,
     /color:\s*var\(--text\)/,

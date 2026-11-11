@@ -1,0 +1,350 @@
+{
+  "site": "https://kangseokgyu.github.io/bean-pocket/",
+  "build": "5627dbe9659f",
+  "files": 57,
+  "allMatch": true,
+  "results": [
+    {
+      "path": "app.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "b4358f655166c169a5a8d3d98637593ad3ce1b5da5a65662d1919397db8c34ef"
+    },
+    {
+      "path": "brew-picker-demo.css",
+      "status": 200,
+      "match": true,
+      "sha256": "e4ac783b776600279d77cc5dee19ad22ff79d5de138509837c10f71c94cad488"
+    },
+    {
+      "path": "brew-picker-demo.html",
+      "status": 200,
+      "match": true,
+      "sha256": "8b59e3a50f2f9b32cd65bc384ed0c2f8f6d503385bd07b2151ea0d67046a58c1"
+    },
+    {
+      "path": "brew-picker-demo.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "863edc25d45322b052290328f0d17a406ddbad4646c8ee590c9593059dc7eac8"
+    },
+    {
+      "path": "commands/index.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "16150864e17e7caae80ae2807ba06fda7dfec95d21d65e0a62eacdcf7b2ba0e9"
+    },
+    {
+      "path": "data/notion-client.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "7e441fef68a1033bb30732494f4843089021a02bef1e5b0da369ff022d021008"
+    },
+    {
+      "path": "data/notion-properties.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "636274d3dc321856167c0fe6b3bfb2c9e83b346885006869295fe5362bb232c9"
+    },
+    {
+      "path": "data/read-repository.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "3c8308b16027a0b264e13af9e6297ead11953a439dbe6af94e92be3c620e1cc6"
+    },
+    {
+      "path": "domain.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "7e1f7c0bd5a2d12a9b6ae14390b6424c45c15b72bb46bc320df2890b974b15d9"
+    },
+    {
+      "path": "icons/bp-logo.png",
+      "status": 200,
+      "match": true,
+      "sha256": "c96f9250074f8f84d9585267bcc5d41fe663a1b90cffa4765e3acf184baadaf7"
+    },
+    {
+      "path": "icons/favicon-bp-ivory.png",
+      "status": 200,
+      "match": true,
+      "sha256": "1f0378cc66162d82ca61a427e277f28e2160df29c9963a205cf999be6e6caa1f"
+    },
+    {
+      "path": "icons/home-brew.png",
+      "status": 200,
+      "match": true,
+      "sha256": "5ca4eba24ca3a37de5d8363f08bb982f4ea2adea2e95daccd395a05a5ff4d8b2"
+    },
+    {
+      "path": "icons/icon-192.png",
+      "status": 200,
+      "match": true,
+      "sha256": "4efff361ecd3a0345c2a87200b35c5daedaaf2a271cf50b745f5356f66db3868"
+    },
+    {
+      "path": "icons/icon-512.png",
+      "status": 200,
+      "match": true,
+      "sha256": "b4463f17d028663ae11a09aa1e570f00ea48045e850c0ea48439c5cb1d0f5a49"
+    },
+    {
+      "path": "icons/unbleached-paper.png",
+      "status": 200,
+      "match": true,
+      "sha256": "9eaeeb0e174fe758b55b716d27b91efc2888dd86c3e35212e7f1e7b6819a0066"
+    },
+    {
+      "path": "index.html",
+      "status": 200,
+      "match": true,
+      "sha256": "7ef543e9c8b137f55f364937d95750e812f77763cc8689acc51d2901bc6f1cc3"
+    },
+    {
+      "path": "manifest.webmanifest",
+      "status": 200,
+      "match": true,
+      "sha256": "93f57e9d238e940df46cb5b4bd6dcc6d14caff63bb0a6d3a3ae61c1257906bf4"
+    },
+    {
+      "path": "platform/app-lifecycle.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "ca5b6d7fc53f473000945a14c6951f39a74c8ba829571cdc2c236e463d77c09b"
+    },
+    {
+      "path": "platform/connection-file.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "8389b0d1554c0948a6b66a1dcbf82d581f7c9c67889cecb6523afe70034af210"
+    },
+    {
+      "path": "platform/update-coordinator.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "56015c1ff7738219e963bd29e9b5c77b73d043cf76b6f1698c692b9f4d32bbe7"
+    },
+    {
+      "path": "recipe-edit.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "c23e8d15809d6f6a90a32f82561bad9ac61266d6a065f1a7c0db744c6269a212"
+    },
+    {
+      "path": "state/form-drafts.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "d0d422821867879174b775c42ed2c9c289b085f58d4aa4793fce05321a6b4916"
+    },
+    {
+      "path": "state/submission-state.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "eba82dd74c7ea05d9184b9d207b730ddc5323138f425fd3d17c8e6f6b7a53e6c"
+    },
+    {
+      "path": "styles.css",
+      "status": 200,
+      "match": true,
+      "sha256": "38256f35c5f5de070ac6e360ac0abfea747a27a295fc73fed3b364f7875dfb70"
+    },
+    {
+      "path": "sw.js",
+      "status": 200,
+      "match": true,
+      "sha256": "64155841761b2c735811d156b250520257e34d994c694f8622aa973145bd255d"
+    },
+    {
+      "path": "ui/controller/cache.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "c565d8a6e4758727adc08204a435dd938dcc39a7b2d7078b86ead619f9fdfcbf"
+    },
+    {
+      "path": "ui/controller/loader.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "292ea3a0f72e18828be9273ab11d2ea43f47537a9848efc9e879279de6487d66"
+    },
+    {
+      "path": "ui/controller/record-insights.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "45ccb8f14b403e5992af10dcc554c959908afe32f556364cf9267da51b02c0c4"
+    },
+    {
+      "path": "ui/controller/search.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "6963f3d572827703a5a5d3d08d3f4e685e97c44d9384c16608083da0893c2fb7"
+    },
+    {
+      "path": "ui/controller.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "3083ac87a516c874fe9db3fb0579deee234fb6a7f9a6678fee38352968b48f69"
+    },
+    {
+      "path": "ui/forms/bean-form.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "7cdcd683947b99f98845246e26dc7a67c43e682bd7f43b6e1bd37cedd3488349"
+    },
+    {
+      "path": "ui/forms/recipe-form.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "5e4c765195716a57f15084994a815143379f390156a73fa1528001b56b9089fe"
+    },
+    {
+      "path": "ui/forms/record-form.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "3e4899825836fdd1742d331cae2d5dadf8c07087ecddc7f60138b02429af35f7"
+    },
+    {
+      "path": "ui/interactions/events.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "3974908e6c7d116d093ed57fa5fc4ecb235aa000a098f10f9b418c59ddd68c33"
+    },
+    {
+      "path": "ui/interactions/pull-to-refresh.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "5d8d96d5de673c40b2913e0903a668b131ba2c6edda32d37a02f3d5cfea7bf92"
+    },
+    {
+      "path": "ui/interactions/search-picker.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "dd3939e700004293826f68686c539e72da00a3a0fe1686df213725ad0c2fc9a9"
+    },
+    {
+      "path": "ui/interactions/status-toast.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "64619aea438c7949901b06011199538d28235cfe604c145a2f80c6fbc8696132"
+    },
+    {
+      "path": "ui/records-insights-view.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "0a3eb17c6faaa04e32ad9ef336c1a6257f6676dcd46cb2ed18d5bbf34c29be37"
+    },
+    {
+      "path": "ui/records-insights.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "e3537053f357ab4289b0bca58f9eb722ae13e2569068dcb5573f377c00fe7234"
+    },
+    {
+      "path": "ui/recovery-view.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "b3b916bc8fb78d55755669ff2076026313e77171853f1efeb15f25876eb9d6f3"
+    },
+    {
+      "path": "ui/screens/beans.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "c8e8f719ea3b4b639879c274f839b1f724ef9bc7335796dfedb5d073ff9c856d"
+    },
+    {
+      "path": "ui/screens/brew.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "657969432dedbf7881cccec61c34748a169fec3f6fb323b2e72b127cfce45f7a"
+    },
+    {
+      "path": "ui/screens/home.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "02690418cd0ad76ea7d3b427b4523889d6aeb9cdc2b3fab3ba0c2576060c8a31"
+    },
+    {
+      "path": "ui/screens/recipes.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "51053ae4fa7f6c4a68d17d0e6378f5220b2927be66645b15520e77591c694bf4"
+    },
+    {
+      "path": "ui/screens/records.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "139b1b01a7e9444ee22c18129768b150edbf3dd3b3b874b2097cd8c3ed14c817"
+    },
+    {
+      "path": "ui/shared/buttons.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "55e180a037693662c3881e5f2d73cc50cd6629dd6a9d68009730220910606c7f"
+    },
+    {
+      "path": "ui/shared/date.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "241acc0b6ab7ce250956ab446d72b78640e8c83a52b4900cc431288f796de665"
+    },
+    {
+      "path": "ui/shared/dialogs.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "584d80ff1e70150fe7de7ecf32badefc196e925af32cb2d3f0ba28793944ea65"
+    },
+    {
+      "path": "ui/shared/dom.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "e0baf7428cdc42ff75c429dc903d24f9d9250aa02d5e89c5ec6f40c3610c98fb"
+    },
+    {
+      "path": "ui/shared/favorite-button.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "32cd88dd452c96ee270d3c6739764714272ed7fb36e5dc832e265c3a64fa219e"
+    },
+    {
+      "path": "ui/shared/form-fields.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "deacfdd5bf80c5258dad7d685ae7940ce6688ffa07dafb7d0b3f7173368deb7a"
+    },
+    {
+      "path": "ui/shared/icons.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "8d369b6a02780e021aa04e1e9ace023249574845ed89e3b7306d86e2fea2f734"
+    },
+    {
+      "path": "ui/shared/recipe-presentation.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "66a2e23f725c28678458ab47e7d232718d98e06dffca45d46e32491de0d0aa18"
+    },
+    {
+      "path": "ui/shared/record-card.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "63573ca77c34867153db7f97d8f8cc48ae6fa0f78ae1e37b89b7dc095336b545"
+    },
+    {
+      "path": "ui/shared/route.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "a26dd061a17736fa125b0f908b91d80cac2e515fbaa944bdfa6ac382029cc7f7"
+    },
+    {
+      "path": "ui/star-rating.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "cdd94d749133c8ef7e5d9a5c857ac02f19fca9f9d9fae6d353fcb5dd0ef39b68"
+    },
+    {
+      "path": "ui/view.mjs",
+      "status": 200,
+      "match": true,
+      "sha256": "e577d5bd4d7af7d6e5866d33f629e63ae9928bf7369228b5cd7813f9dc79afa8"
+    }
+  ]
+}

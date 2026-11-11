@@ -134,7 +134,9 @@ export function createAppController({
     }
   }
 
-  function install(connection, nextClient, nextRepository, nextCommands) {
+  async function install(connection, nextClient, nextRepository, nextCommands) {
+    const draftScope = UUID.test(connection.revision) ? { revision: connection.revision,
+      targetFingerprint: await fingerprint(connection.dataSources) } : null;
     routeReadController?.abort();
     routeGeneration += 1;
     screenCache.clear();
@@ -147,12 +149,14 @@ export function createAppController({
     client = nextClient;
     repository = nextRepository;
     commands = nextCommands;
+    await view.setDraftScope?.(draftScope);
     view.clearSearchOptions?.();
     view.showConnection?.({ connected: true });
     stateChanged();
   }
 
-  function dropConnectionData() {
+  async function dropConnectionData() {
+    await view.setDraftScope?.(null);
     routeReadController?.abort();
     routeReadController = null;
     routeGeneration += 1;
@@ -610,12 +614,12 @@ export function createAppController({
       if (!loaded) {
         activeConnection = null;
         client = repository = commands = null;
-        dropConnectionData();
+        await dropConnectionData();
         view.showConnection?.({ connected: false });
         view.showStatus?.({ type: 'disconnected', message: 'Notion 연결 정보를 입력해 주세요.' });
         return null;
       }
-      install(loaded.connection, loaded.nextClient, loaded.nextRepository, loaded.nextCommands);
+      await install(loaded.connection, loaded.nextClient, loaded.nextRepository, loaded.nextCommands);
       try { await readLatest({ skipVerify: true }); } catch { /* A verified connection remains usable when its first read fails. */ }
       return true;
     } catch (error) {
@@ -631,7 +635,7 @@ export function createAppController({
       if (needsRecovery || error?.code === 'state-blocked') {
         activeConnection = null;
         client = repository = commands = null;
-        dropConnectionData();
+        await dropConnectionData();
       }
       view.showStatus?.({ type: 'connection-error', message: needsRecovery || error?.code === 'state-blocked'
         ? messageFor(error)
@@ -684,7 +688,7 @@ export function createAppController({
         await context.beginConnectionChange(candidate);
         await context.commitConnectionChange();
       });
-      install(candidate, stack.nextClient, stack.nextRepository, stack.nextCommands);
+      await install(candidate, stack.nextClient, stack.nextRepository, stack.nextCommands);
       view.clearSecret?.();
       dirtyKinds.delete('connection');
       view.showConnectionSuccess?.();
@@ -697,7 +701,7 @@ export function createAppController({
       if (uncertain) {
         activeConnection = null;
         client = repository = commands = null;
-        dropConnectionData();
+        await dropConnectionData();
       }
       view.showConnection?.({
         connected: !!activeConnection,

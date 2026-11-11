@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createAppView } from '../pwa/ui/view.mjs';
 import { createAppController } from '../pwa/ui/controller.mjs';
+import { createFormDraftStore } from '../pwa/state/form-drafts.mjs';
+import { memoryFormDraftStorage } from './fixtures/form-draft-storage.mjs';
 import { validateRecipe } from '../lib/domain.mjs';
 import { buildRecordsInsights } from '../pwa/ui/records-insights.mjs';
 import { renderHome } from '../pwa/ui/screens/home.mjs';
@@ -1443,6 +1445,70 @@ test('recipe edit drafts stay separate from create drafts and preserve the captu
   assert.equal(edit.querySelector('.step-row [name="stepName"]').value, '수정 중인 단계');
   assert.deepEqual(edit.querySelectorAll('.step-row').map(row => row.dataset.stepId),
     ['44444444-4444-4444-8444-444444444444', '55555555-5555-4555-8555-555555555555']);
+});
+
+test('bean form draft restores and reopens after a reload in the same connection generation', async () => {
+  const storage = memoryFormDraftStorage();
+  const draftStore = createFormDraftStore({ storage });
+  const scope = { revision: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', targetFingerprint: 'a'.repeat(64) };
+  const firstDocument = new TestDocument();
+  const firstView = createBeanView(firstDocument, { draftStore });
+  await firstView.setDraftScope(scope);
+  firstView.bind({ setDirty() {} });
+  firstView.renderData(data());
+  firstView.showBeanForm();
+  const firstForm = firstDocument.root.querySelector('form[data-form="beans"]');
+  firstForm.elements.name.value = '재실행 후 이어 쓸 원두';
+  fireBubbling(firstForm.elements.name, 'input');
+  await draftStore.flush();
+
+  const nextDocument = new TestDocument();
+  const nextView = createBeanView(nextDocument, { draftStore });
+  await nextView.setDraftScope(scope);
+  nextView.renderData(data());
+  const restored = nextDocument.root.querySelector('form[data-form="beans"]');
+  assert.equal(restored.elements.name.value, '재실행 후 이어 쓸 원두');
+  assert.equal(nextDocument.root.querySelector('dialog[data-entry-dialog="beans"]').open, true);
+});
+
+test('explicit form cancellation removes its persisted draft', async () => {
+  const storage = memoryFormDraftStorage();
+  const draftStore = createFormDraftStore({ storage });
+  const scope = { revision: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', targetFingerprint: 'a'.repeat(64) };
+  const document = new TestDocument();
+  const view = createBeanView(document, { draftStore });
+  await view.setDraftScope(scope);
+  view.bind({ setDirty() {} });
+  view.renderData(data());
+  view.showBeanForm();
+  const form = document.root.querySelector('form[data-form="beans"]');
+  form.elements.name.value = '취소할 원두 초안';
+  fireBubbling(form.elements.name, 'input');
+  await clickViewTarget(document, form.querySelector('[data-action="cancel-form"]'));
+  await draftStore.flush();
+
+  assert.equal((await draftStore.read(scope)).has('beans'), false);
+});
+
+test('successful form save removes its persisted draft', async () => {
+  const storage = memoryFormDraftStorage();
+  const draftStore = createFormDraftStore({ storage });
+  const scope = { revision: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', targetFingerprint: 'a'.repeat(64) };
+  const document = new TestDocument();
+  const view = createBeanView(document, { draftStore });
+  await view.setDraftScope(scope);
+  view.bind({ setDirty() {} });
+  view.renderData(data());
+  view.showBeanForm();
+  const form = document.root.querySelector('form[data-form="beans"]');
+  form.elements.name.value = '저장 완료 시 지울 원두 초안';
+  fireBubbling(form.elements.name, 'input');
+  await draftStore.flush();
+
+  assert.equal((await draftStore.read(scope)).has('beans'), true);
+  assert.equal(view.showEntrySuccess('beans'), true);
+  await draftStore.flush();
+  assert.equal((await draftStore.read(scope)).has('beans'), false);
 });
 
 test('dirty recipe edit cancellation asks before discarding and then returns to details', async () => {

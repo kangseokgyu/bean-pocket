@@ -57,6 +57,7 @@ const sourceFiles = [
   'platform/app-lifecycle.mjs',
   'platform/connection-file.mjs',
   'platform/update-coordinator.mjs',
+  'state/form-drafts.mjs',
   'state/submission-state.mjs',
   'styles.css',
   'sw.js',

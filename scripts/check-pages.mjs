@@ -63,6 +63,7 @@ const allowedFiles = new Set([
   'platform/app-lifecycle.mjs',
   'platform/connection-file.mjs',
   'platform/update-coordinator.mjs',
+  'state/form-drafts.mjs',
   'state/submission-state.mjs',
   'styles.css',
   'sw.js',
@@ -114,6 +115,7 @@ const requiredCacheFiles = [
   './platform/app-lifecycle.mjs',
   './platform/connection-file.mjs',
   './platform/update-coordinator.mjs',
+  './state/form-drafts.mjs',
   './state/submission-state.mjs',
   './styles.css',
   './manifest.webmanifest',
@@ -194,7 +196,7 @@ export async function checkPages(directory = defaultOutputDir, { allowIncomplete
   if (missing.length) return true;
 
   const textFiles = new Map();
-  for (const relativePath of ['brew-picker-demo.html', 'brew-picker-demo.css', 'brew-picker-demo.mjs', 'app.mjs', 'commands/index.mjs', 'recipe-edit.mjs', 'ui/controller.mjs', 'ui/controller/cache.mjs', 'ui/controller/loader.mjs', 'ui/controller/record-insights.mjs', 'ui/controller/search.mjs', 'ui/interactions/events.mjs', 'ui/interactions/pull-to-refresh.mjs', 'ui/interactions/search-picker.mjs', 'ui/interactions/status-toast.mjs', 'ui/records-insights.mjs', 'ui/records-insights-view.mjs', 'ui/star-rating.mjs', 'ui/view.mjs', 'ui/forms/bean-form.mjs', 'ui/forms/recipe-form.mjs', 'ui/forms/record-form.mjs', 'ui/screens/beans.mjs', 'ui/screens/brew.mjs', 'ui/screens/home.mjs', 'ui/screens/records.mjs', 'ui/screens/recipes.mjs', 'ui/shared/buttons.mjs', 'ui/shared/date.mjs', 'ui/shared/dialogs.mjs', 'ui/shared/dom.mjs', 'ui/shared/favorite-button.mjs', 'ui/shared/form-fields.mjs', 'ui/shared/icons.mjs', 'ui/shared/recipe-presentation.mjs', 'ui/shared/record-card.mjs', 'ui/shared/route.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs', 'data/notion-client.mjs', 'data/notion-properties.mjs', 'data/read-repository.mjs', 'domain.mjs', 'index.html', 'manifest.webmanifest', 'platform/connection-file.mjs', 'state/submission-state.mjs', 'styles.css', 'sw.js']) {
+  for (const relativePath of ['brew-picker-demo.html', 'brew-picker-demo.css', 'brew-picker-demo.mjs', 'app.mjs', 'commands/index.mjs', 'recipe-edit.mjs', 'ui/controller.mjs', 'ui/controller/cache.mjs', 'ui/controller/loader.mjs', 'ui/controller/record-insights.mjs', 'ui/controller/search.mjs', 'ui/interactions/events.mjs', 'ui/interactions/pull-to-refresh.mjs', 'ui/interactions/search-picker.mjs', 'ui/interactions/status-toast.mjs', 'ui/records-insights.mjs', 'ui/records-insights-view.mjs', 'ui/star-rating.mjs', 'ui/view.mjs', 'ui/forms/bean-form.mjs', 'ui/forms/recipe-form.mjs', 'ui/forms/record-form.mjs', 'ui/screens/beans.mjs', 'ui/screens/brew.mjs', 'ui/screens/home.mjs', 'ui/screens/records.mjs', 'ui/screens/recipes.mjs', 'ui/shared/buttons.mjs', 'ui/shared/date.mjs', 'ui/shared/dialogs.mjs', 'ui/shared/dom.mjs', 'ui/shared/favorite-button.mjs', 'ui/shared/form-fields.mjs', 'ui/shared/icons.mjs', 'ui/shared/recipe-presentation.mjs', 'ui/shared/record-card.mjs', 'ui/shared/route.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs', 'data/notion-client.mjs', 'data/notion-properties.mjs', 'data/read-repository.mjs', 'domain.mjs', 'index.html', 'manifest.webmanifest', 'platform/connection-file.mjs', 'state/form-drafts.mjs', 'state/submission-state.mjs', 'styles.css', 'sw.js']) {
     textFiles.set(relativePath, (await readFile(path.join(directory, relativePath))).toString('utf8'));
   }
   const checkedText = new Map(textFiles);

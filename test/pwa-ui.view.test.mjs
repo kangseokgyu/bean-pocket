@@ -5833,6 +5833,59 @@ test('same brew record draft survives leaving and returning to its URL', () => {
   assert.equal(form.elements.cupNote.value, '같은 흐름');
 });
 
+test('same brew route restores persisted conditions and stages after a fresh controller', async () => {
+  const storage = memoryFormDraftStorage();
+  const scope = await draftScope(DRAFT_TARGET_A);
+  const route = `/brew/run?beanId=${BEAN}&recipeId=${RECIPE}`;
+  const store = createFormDraftStore({ storage, locks: null });
+  const recipe = data().recipes[0];
+  const baseline = { name: recipe.name, dripper: recipe.dripper, dose: String(recipe.dose),
+    grind: recipe.grind, microns: String(recipe.microns), grinder: recipe.grinder,
+    grinderSetting: recipe.grinderSetting, temperature: String(recipe.temperature),
+    totalWater: String(recipe.totalWater), extractionGuide: recipe.extractionGuide,
+    steps: recipe.steps.map(step => ({ name: step.name, time: step.seconds === 0 ? '0:00' : '1:10',
+      water: String(step.water) })), date: '2026-11-12', rating: '', cupNote: '' };
+  await store.save(scope, 'brews', {
+    values: { beanId: BEAN, sourceRecipeId: RECIPE, sourceRecordId: '', name: 'CRITIC BREW DRAFT',
+      dripper: recipe.dripper, dose: String(recipe.dose), grind: recipe.grind, microns: String(recipe.microns),
+      grinder: recipe.grinder, grinderSetting: recipe.grinderSetting, temperature: String(recipe.temperature),
+      totalWater: String(recipe.totalWater), extractionGuide: recipe.extractionGuide,
+      date: '2026-11-12', rating: '', cupNote: '' },
+    steps: recipe.steps.map((step, index) => ({ id: step.id, stepName: step.name,
+      time: step.seconds === 0 ? '0:00' : '1:10', water: index === 0 ? '75' : String(step.water) })),
+    copyId: null, edited: true, route, baseline: JSON.stringify(baseline),
+  });
+  await store.flush();
+
+  const nextDocument = new TestDocument();
+  const nextView = createBeanView(nextDocument, { draftStore: store });
+  const app = controllerFor(nextView);
+  app.bind();
+  await app.connect(draftConnection(DRAFT_TARGET_A));
+  nextView.renderData(data());
+  nextView.renderRoute(route, { notify: false });
+
+  let restored = nextDocument.root.querySelector('form[data-form="brews"]');
+  assert.equal(restored.elements.name.value, 'CRITIC BREW DRAFT');
+  assert.equal(restored.querySelector('.brew-stage-row [name="water"]').value, '75');
+  assert.match(restored.querySelector('[data-brew-stage-total]').textContent, /275g/);
+  assert.equal(app.isDirty('brews'), true);
+  assert.equal(app.setFrozen(true), false);
+
+  const otherRoute = `${route}&date=2026-11-13`;
+  nextView.renderRoute(otherRoute, { notify: false });
+  let otherForm = nextDocument.root.querySelector('form[data-form="brews"]');
+  assert.equal(otherForm.elements.name.value, 'V60', 'a draft stays with its original brew route');
+  assert.equal(otherForm.querySelector('.brew-stage-row [name="water"]').value, 50);
+  nextView.renderData(data());
+  await store.flush();
+  assert.equal((await store.read(scope)).get('brews').route, route);
+  nextView.renderRoute(route, { notify: false });
+  restored = nextDocument.root.querySelector('form[data-form="brews"]');
+  assert.equal(restored.elements.name.value, 'CRITIC BREW DRAFT');
+  assert.equal(restored.querySelector('.brew-stage-row [name="water"]').value, '75');
+});
+
 test('critic: initial and later brew pages append uniquely without leaking into a search', () => {
   const document = new TestDocument();
   const view = createBeanView(document);

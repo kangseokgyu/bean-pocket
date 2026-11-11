@@ -1216,6 +1216,9 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
   }
   if (section === 'brew') {
     renderBrewFlow(pane, data, document, route, optionPages);
+    const form = pane.querySelector('form[data-form="brews"]');
+    const draft = drafts.get('brews');
+    if (form && sameBrewDraftFlow(form, draft)) restoreDraft(form, draft, data);
     parent.dataset.section = 'home';
     parent.replaceChildren(pane);
     updateNavigationCurrent(parent.ownerDocument, route);
@@ -1442,6 +1445,9 @@ function saveActiveDraft(content, drafts, draftStore, scope, transientDraftKeys,
   transientDraftOrigins, edited = false) {
   const form = content.querySelector('form[data-form]');
   if (!form || form.closest('dialog')?.dataset.saveState === 'success') return;
+  const key = draftKey(form);
+  const previousDraft = drafts.get(key);
+  if (form.dataset.form === 'brews' && previousDraft && !sameBrewDraftFlow(form, previousDraft) && !edited) return;
   const values = {};
   for (const field of form.querySelectorAll('input[name],textarea[name],select[name]')) {
     if (field.closest('.step-row, .brew-stage-row') || (field.type === 'radio' && !field.checked)) continue;
@@ -1460,8 +1466,7 @@ function saveActiveDraft(content, drafts, draftStore, scope, transientDraftKeys,
     ...Object.fromEntries([...row.querySelectorAll('[name]')].map(field => [field.name, field.value])),
   }));
   const draft = { values, steps, copyId: form.dataset.copyId || null };
-  const key = draftKey(form);
-  if (edited || drafts.get(key)?.edited === true) draft.edited = true;
+  if (edited || previousDraft?.edited === true) draft.edited = true;
   if (form.dataset.draftRoute) draft.route = form.dataset.draftRoute;
   if (form.dataset.draftFlow) draft.flowKey = form.dataset.draftFlow;
   if (form.dataset.editId) draft.baseline = form.dataset.editBaseline;
@@ -1487,6 +1492,12 @@ function saveActiveDraft(content, drafts, draftStore, scope, transientDraftKeys,
 }
 function draftKey(form) {
   return form.dataset.editId ? `recipe-edit:${form.dataset.editId}` : form.dataset.form;
+}
+
+function sameBrewDraftFlow(form, draft) {
+  return form?.dataset.form === 'brews' && !!draft && draft.route === form.dataset.draftRoute &&
+    ['beanId', 'sourceRecipeId', 'sourceRecordId'].every(name =>
+      String(form.elements[name]?.value ?? '') === String(draft.values?.[name] ?? ''));
 }
 
 function restoreDraft(form, draft, data) {

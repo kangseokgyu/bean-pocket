@@ -1,11 +1,11 @@
 const base=new URL(import.meta.url).searchParams.get('base');
 try {
-  const [{createAppView},{createAppController},{NotionClient},{createReadRepository},{createCommands},{createSubmissionState},{createConnectionFile},{memoryPlatform,fakePwaNotion}]=await Promise.all([
-    import(base+'/pwa/ui/view.mjs'),import(base+'/pwa/ui/controller.mjs'),import(base+'/pwa/data/notion-client.mjs'),import(base+'/pwa/data/read-repository.mjs'),import(base+'/pwa/commands/index.mjs'),import(base+'/pwa/state/submission-state.mjs'),import(base+'/pwa/platform/connection-file.mjs'),import(base+'/test/fixtures/pwa-environment.mjs')]);
+  const [{createAppView},{createAppController},{NotionClient},{createReadRepository},{createCommands},{createSubmissionState},{createConnectionFile},{createFormDraftStore},{memoryPlatform,fakePwaNotion}]=await Promise.all([
+    import(base+'/pwa/ui/view.mjs'),import(base+'/pwa/ui/controller.mjs'),import(base+'/pwa/data/notion-client.mjs'),import(base+'/pwa/data/read-repository.mjs'),import(base+'/pwa/commands/index.mjs'),import(base+'/pwa/state/submission-state.mjs'),import(base+'/pwa/platform/connection-file.mjs'),import(base+'/pwa/state/form-drafts.mjs'),import(base+'/test/fixtures/pwa-environment.mjs')]);
   const persisted=JSON.parse(sessionStorage.getItem('bean-pocket-browser-fixture-v1')||'null');
   const native=memoryPlatform(); const fake=fakePwaNotion({initialRows:persisted?.rows??[]});
   const state=createSubmissionState(native); const file=createConnectionFile(native);
-  const view=createAppView(document); let latest;
+  const draftStore=createFormDraftStore(); const view=createAppView(document,{draftStore}); let latest;
   const original=view.renderData;
   view.renderData=data=>{latest=data;return original(data);};
   const app=createAppController({view,state,file,makeClient:c=>new NotionClient(c.token,{dataSources:c.dataSources,connectionRevision:c.revision,fetchImpl:fake.fetch}),makeRepository:createReadRepository,makeCommands:createCommands});
@@ -21,6 +21,6 @@ try {
    bean=beanResult.value;recipe=recipeResult.value;record=recordResult.value;
    sessionStorage.setItem('bean-pocket-browser-fixture-v1',JSON.stringify({rows:fake.rows,bean,recipe,record}));
   }
-  window.harness={view,app,native,fake,bean,recipe,record,get latest(){return latest;}};
+  window.harness={view,app,native,fake,draftStore,bean,recipe,record,get latest(){return latest;}};
   view.clearStatus();window.harnessReady=true;
 } catch(error){window.harnessError=error.stack;console.error(error);}

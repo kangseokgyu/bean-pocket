@@ -109,6 +109,55 @@ try {
  assert.equal(await clearedDialog.locator('[name="name"]').inputValue(),'','cancel clears the persisted draft');
  await clearedDialog.locator('[data-action="cancel-form"]').click();
  results.push({draftRestoredAfterReload:true,cancelRemovesDraft:true,mobileModalNoOverflow:true});
+ const brewRoute=`/brew/run?beanId=${ids.bean}&recipeId=${ids.recipe}`;
+ await navigate(brewRoute);
+ await page.evaluate(route=>history.replaceState(null,'',location.pathname+location.search+'#'+route),brewRoute);
+ const brewForm=page.locator('form[data-form="brews"]');
+ await brewForm.locator('[name="name"]').fill('CRITIC BREW DRAFT');
+ await brewForm.locator('.brew-stage-row').first().locator('[name="water"]').fill('75');
+ await page.evaluate(()=>harness.draftStore.flush());
+ const persistedBrew=await page.evaluate(async()=>{
+  try{
+   const root=await navigator.storage.getDirectory();
+   const directory=await root.getDirectoryHandle('bean-pocket-private-v1');
+   for await(const [fileName,handle] of directory.entries()){
+    if(!fileName.startsWith('form-drafts-v1-'))continue;
+    const record=JSON.parse(await (await handle.getFile()).text());
+    if(record.drafts?.brews)return record.drafts.brews;
+   }
+  }catch{}
+  return null;
+ });
+ assert.equal(persistedBrew?.values?.name,'CRITIC BREW DRAFT');
+ assert.equal(persistedBrew?.steps?.[0]?.water,'75');
+ assert.equal(await page.evaluate(()=>harness.app.isDirty('brews')),true);
+ assert.equal(await page.evaluate(()=>harness.app.setFrozen(true)),false,'a persisted brew draft blocks update freeze');
+ await page.reload();
+ await page.waitForFunction(()=>window.harnessReady||window.harnessError);
+ assert.equal(await page.evaluate(()=>window.harnessError),undefined);
+ await page.locator('.startup-overlay').waitFor({state:'hidden',timeout:5000});
+ await navigate(brewRoute);
+ const restoredBrew=page.locator('form[data-form="brews"]');
+ assert.equal(await restoredBrew.locator('[name="name"]').inputValue(),'CRITIC BREW DRAFT');
+ assert.equal(await restoredBrew.locator('.brew-stage-row').first().locator('[name="water"]').inputValue(),'75');
+ assert.match(await restoredBrew.locator('[data-brew-stage-total]').textContent(),/275g/);
+ assert.equal(await page.evaluate(()=>harness.app.isDirty('brews')),true);
+ assert.equal(await page.evaluate(()=>harness.app.setFrozen(true)),false,'reload restores the dirty freeze barrier');
+ await restoredBrew.locator('[data-action="cancel-form"]').click();
+ await page.waitForFunction(()=>harness.view.currentRoute()==='/records');
+ await page.waitForFunction(async()=>{
+  try{
+   const root=await navigator.storage.getDirectory();
+   const directory=await root.getDirectoryHandle('bean-pocket-private-v1');
+   for await(const [fileName,handle] of directory.entries()){
+    if(!fileName.startsWith('form-drafts-v1-'))continue;
+    if(JSON.parse(await (await handle.getFile()).text()).drafts?.brews)return false;
+   }
+  }catch{}
+  return true;
+ },{},{timeout:5000});
+ assert.equal(await page.evaluate(()=>harness.app.isDirty('brews')),false);
+ results.push({brewDraftRestoredAfterReload:true,brewFieldsAndDerivedTotal:true,brewDirtyBarrierRestored:true,brewCancelClearsDraft:true});
  await navigate('/beans');
  const favorite=page.locator('.entity-favorite').first();const pressed=await favorite.getAttribute('aria-pressed');await favorite.click();await page.waitForFunction(old=>document.querySelector('.entity-favorite')?.getAttribute('aria-pressed')!==old,pressed);
  results.push({favoriteToggle:true});

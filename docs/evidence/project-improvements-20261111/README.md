@@ -49,6 +49,24 @@ Critic P1 재현에서는 다른 연결 대상으로 바꿔도 이전 입력 모
 
 선행 실패 원문은 [`failures/`](failures/)에 보관했다. 최종 전체 테스트가 통과하기 전에 실패한 실행을 성공으로 간주하지 않는다.
 
+## Critic P2 brew 복원 수정 (2026-11-12)
+
+Critic 재검토에서 `/brew/run` 분기가 공통 초안 복원 전에 반환하는 문제를 확인했다. 분기 안에서 복원을 실행하고, 저장된 route와 원두·레시피·기록 원본 ID가 현재 흐름과 일치할 때만 적용하도록 했다. 수정 전 Node 회귀는 기본 `V60`이 남아 실패했고, 수정 후 이름과 75g 단계·275g 합계가 복원되며 dirty 상태가 업데이트 동결을 막는다. 취소하면 저장 초안도 삭제된다.
+
+최종 검증 결과:
+
+| 명령 | 결과 |
+| --- | --- |
+| `node --test --test-name-pattern='same brew route restores persisted conditions and stages after a fresh controller' test/pwa-ui.view.test.mjs` | 1/1 통과 |
+| `npm test` | 802/802 통과 |
+| `npm run build:pages` | 통과, 산출물 ID `5627dbe9659f` |
+| `npm run check:pages` | 통과 |
+| `CHROME_EXECUTABLE='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' npm run test:browser` | Chromium 24개 시나리오 통과 |
+
+초점 테스트는 [`critic-brew-node-final.txt`](critic-brew-node-final.txt), 전체 명령 로그는 [`critic-final-npm-test.txt`](critic-final-npm-test.txt), [`critic-final-build-pages.txt`](critic-final-build-pages.txt), [`critic-final-check-pages.txt`](critic-final-check-pages.txt), [`critic-final-browser-test.txt`](critic-final-browser-test.txt)에 있다. 실제 Chromium 결과는 [`critic-final-browser-results.json`](critic-final-browser-results.json)에 보관했다. 이 시나리오는 브라우저 OPFS의 저장값을 확인한 뒤 test store의 pending writes를 flush하고 reload해 새 controller의 복원을 검증한다. flush 없이 실행한 초기 시도는 입력 직후 저장 큐가 끝나기 전에 reload해 이전 스냅샷을 읽었으며 [`failures/critic-brew-browser-before-flush.txt`](failures/critic-brew-browser-before-flush.txt)에 보존했다. 수정 전 Node 실패는 [`failures/critic-brew-restore-red.txt`](failures/critic-brew-restore-red.txt)에 있다.
+
+추가 Critic 재검토를 위해 변경을 커밋하며, 이 worktree에서는 push·Pages 게시를 실행하지 않았다. 원본 `/Users/kangseokgyu/workspace/AX-1day/pwa/styles.css`의 사용자 변경은 수정·스테이징하지 않았다. 전체 상세는 [`critic-rereview.md`](critic-rereview.md)에 갱신했다.
+
 ## 이력 보존과 게시 상태
 
 정규 브라우저 실행 코드는 `scripts/browser/`에 별도로 두었다. `docs/evidence/ui-refactor-browser-20261106/`의 원본 harness·결과는 수정하지 않았다. 과거의 21/22개 비교 결과는 해당 날짜의 증거로 남고 이번 23개 회귀 실행과 구분된다.

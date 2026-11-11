@@ -38,6 +38,7 @@ function validDraftKey(key) {
 function validDraft(value) {
   if (!isRecord(value) || !Object.hasOwn(value, 'values') || !Object.hasOwn(value, 'steps') ||
       !isRecord(value.values) || !Array.isArray(value.steps) || hasPrivateField(value)) return false;
+  if (Object.hasOwn(value, 'edited') && typeof value.edited !== 'boolean') return false;
   if (Object.keys(value.values).some(key => !/^[A-Za-z][A-Za-z0-9]*$/.test(key) ||
       typeof value.values[key] !== 'string')) return false;
   if (value.steps.some(step => !isRecord(step) || Object.keys(step).some(key =>

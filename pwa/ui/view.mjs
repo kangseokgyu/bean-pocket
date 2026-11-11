@@ -75,7 +75,6 @@ export function createAppView(document = globalThis.document, {
   let draftScope = null;
   const transientDraftKeys = new Set();
   const transientDraftOrigins = new Map();
-  let skipNextDraftCapture = false;
   const optionPages = new Map();
   const optionStates = new Map();
   let insightRecipeFilter = '';
@@ -366,10 +365,6 @@ export function createAppView(document = globalThis.document, {
   let entryPhase = 'idle';
   let entryTimer = null;
   const captureActiveDraft = () => {
-    if (skipNextDraftCapture) {
-      skipNextDraftCapture = false;
-      return;
-    }
     saveActiveDraft(content, drafts, draftStore, draftScope, transientDraftKeys, transientDraftOrigins);
   };
   const persistActiveDraft = () => saveActiveDraft(content, drafts, draftStore, draftScope,
@@ -737,6 +732,31 @@ export function createAppView(document = globalThis.document, {
     syncEntryDialogState();
   }
 
+  function retireDraftTarget() {
+    if (entryTimer !== null) {
+      cancelSchedule(entryTimer);
+      entryTimer = null;
+    }
+    if (resolveDiscardEdit) finishDiscardEdit(false);
+    for (const dialog of content.querySelectorAll('dialog[data-entry-dialog]')) {
+      if (dialog.open && typeof dialog.close === 'function') dialog.close();
+      else dialog.open = false;
+    }
+    activeEntryKind = null;
+    entryPhase = 'idle';
+    beanFormOpen = false;
+    recipeFormOpen = false;
+    recordFormOpen = false;
+    for (const child of routeHiddenChildren) child.hidden = false;
+    routeHiddenChildren.clear();
+    content.replaceChildren();
+    currentData = null;
+    renderedConnectionRevision = null;
+    routeNeedsDataRender = true;
+    renderStatus();
+    applyViewState();
+  }
+
   const view = {
     finishStartup,
     showStatus(value) {
@@ -839,22 +859,25 @@ export function createAppView(document = globalThis.document, {
     },
     async setDraftScope(scope) {
       const previousScope = draftScope;
-      const previousDrafts = new Map(drafts);
       if (draftScope) saveActiveDraft(content, drafts, draftStore, draftScope,
         transientDraftKeys, transientDraftOrigins);
+      const previousDrafts = new Map(drafts);
+      const sameTarget = !!scope && previousScope?.targetFingerprint === scope.targetFingerprint;
+      if (previousScope && !sameTarget) retireDraftTarget();
       if (!scope) {
-        skipNextDraftCapture = !!previousScope;
         await draftStore.flush();
         draftScope = null;
         drafts.clear();
         transientDraftKeys.clear();
         transientDraftOrigins.clear();
+        beanFormOpen = false;
+        recipeFormOpen = false;
+        recordFormOpen = false;
+        return [];
       } else {
         await draftStore.flush();
         const restored = await draftStore.read(scope);
-        const sameTarget = previousScope?.targetFingerprint === scope.targetFingerprint;
         const sameRevision = previousScope?.revision === scope.revision;
-        skipNextDraftCapture = !!previousScope && !sameTarget;
         draftScope = { revision: scope.revision, targetFingerprint: scope.targetFingerprint };
         drafts.clear();
         for (const [key, draft] of restored) drafts.set(key, draft);
@@ -876,6 +899,12 @@ export function createAppView(document = globalThis.document, {
         (currentPath === '/recipes' && drafts.has('recipes'));
       recordFormOpen = currentPath === '/records/new' ||
         (currentPath === '/records' && drafts.has('records'));
+      return meaningfulDraftKeys(drafts);
+    },
+    markDraftEdited(kind) {
+      const form = content.querySelector('form[data-form]');
+      if (!form || draftKey(form) !== kind) return false;
+      saveActiveDraft(content, drafts, draftStore, draftScope, transientDraftKeys, transientDraftOrigins, true);
       return true;
     },
     setFrozen(value) {
@@ -1329,6 +1358,86 @@ function removeDraft(drafts, draftStore, scope, transientDraftKeys, transientDra
   removePersistedDraft(draftStore, scope, key);
 }
 
+function meaningfulDraftKeys(drafts) {
+  return [...drafts].filter(([key, draft]) => isMeaningfulDraft(key, draft)).map(([key]) => key);
+}
+
+function isMeaningfulDraft(key, draft) {
+  if (draft.edited === true) return true;
+  if (key.startsWith('recipe-edit:')) return recipeEditDraftChanged(draft);
+  if (key === 'records') return recordDraftChanged(draft);
+  if (key === 'brews') return brewDraftChanged(draft);
+  if (key === 'recipes') {
+    return !!draft.copyId || hasDraftText(draft.values) || draft.steps.some(step =>
+      !!step.stepName?.trim() || !!step.water?.trim() || (!!step.time?.trim() && step.time !== '0:00'));
+  }
+  return key === 'beans' && hasDraftText(draft.values);
+}
+
+function hasDraftText(value) {
+  if (Array.isArray(value)) return value.some(hasDraftText);
+  if (!value || typeof value !== 'object') return typeof value === 'string' && value.trim() !== '';
+  return Object.values(value).some(hasDraftText);
+}
+
+function sameDraftValue(value, baseline) {
+  const current = String(value ?? '').trim();
+  const original = String(baseline ?? '').trim();
+  if (current === original) return true;
+  if (!current || !original) return false;
+  const currentNumber = Number(current);
+  const originalNumber = Number(original);
+  return Number.isFinite(currentNumber) && Number.isFinite(originalNumber) && currentNumber === originalNumber;
+}
+
+function readDraftBaseline(draft) {
+  try {
+    const value = JSON.parse(draft.baseline);
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : null;
+  } catch { return null; }
+}
+
+function recipeEditDraftChanged(draft) {
+  const baseline = readDraftBaseline(draft);
+  if (!baseline || !Array.isArray(baseline.steps)) return hasDraftText(draft);
+  for (const name of ['name', 'dripper', 'dose', 'grind', 'microns', 'grinder',
+    'grinderSetting', 'temperature', 'extractionGuide']) {
+    if (!sameDraftValue(draft.values[name], baseline[name])) return true;
+  }
+  return draftStepsChanged(draft.steps, baseline.steps, { id: 'id', name: 'name', time: 'seconds' });
+}
+
+function recordDraftChanged(draft) {
+  try {
+    const [beanId, recipeId, date] = JSON.parse(draft.flowKey);
+    if (!sameDraftValue(draft.values.beanId, beanId) || !sameDraftValue(draft.values.recipeId, recipeId) ||
+        !sameDraftValue(draft.values.date, date)) return true;
+    return !!draft.values.rating?.trim() || !!draft.values.cupNote?.trim();
+  } catch { return hasDraftText(draft); }
+}
+
+function brewDraftChanged(draft) {
+  const baseline = readDraftBaseline(draft);
+  if (!baseline) return hasDraftText(draft);
+  for (const name of ['name', 'dripper', 'dose', 'grind', 'microns', 'grinder', 'grinderSetting',
+    'temperature', 'totalWater', 'extractionGuide', 'date', 'rating', 'cupNote']) {
+    if (!sameDraftValue(draft.values[name], baseline[name])) return true;
+  }
+  return draftStepsChanged(draft.steps, baseline.steps, { id: null, name: 'name', time: 'time' });
+}
+
+function draftStepsChanged(steps, baseline, fields) {
+  if (!Array.isArray(baseline) || steps.length !== baseline.length) return true;
+  return steps.some((step, index) => {
+    const original = baseline[index];
+    if (fields.id && original[fields.id] && step.id !== original[fields.id]) return true;
+    const originalTime = fields.time === 'seconds' ? original[fields.time] : parseInputTime(original[fields.time]);
+    const currentTime = parseInputTime(step.time);
+    return !sameDraftValue(step.stepName, original[fields.name]) || currentTime === null ||
+      currentTime !== originalTime || !sameDraftValue(step.water, original.water);
+  });
+}
+
 function saveActiveDraft(content, drafts, draftStore, scope, transientDraftKeys,
   transientDraftOrigins, edited = false) {
   const form = content.querySelector('form[data-form]');
@@ -1351,10 +1460,18 @@ function saveActiveDraft(content, drafts, draftStore, scope, transientDraftKeys,
     ...Object.fromEntries([...row.querySelectorAll('[name]')].map(field => [field.name, field.value])),
   }));
   const draft = { values, steps, copyId: form.dataset.copyId || null };
+  const key = draftKey(form);
+  if (edited || drafts.get(key)?.edited === true) draft.edited = true;
   if (form.dataset.draftRoute) draft.route = form.dataset.draftRoute;
   if (form.dataset.draftFlow) draft.flowKey = form.dataset.draftFlow;
   if (form.dataset.editId) draft.baseline = form.dataset.editBaseline;
-  const key = draftKey(form);
+  else if (form.dataset.form === 'brews' && form.dataset.initialConditions) {
+    draft.baseline = form.dataset.initialConditions;
+  }
+  if (!isMeaningfulDraft(key, draft)) {
+    removeDraft(drafts, draftStore, scope, transientDraftKeys, transientDraftOrigins, key);
+    return;
+  }
   if (edited) {
     removePersistedDraft(draftStore, transientDraftOrigins.get(key), key);
     transientDraftOrigins.delete(key);
@@ -1375,6 +1492,7 @@ function draftKey(form) {
 function restoreDraft(form, draft, data) {
   if (!draft) return;
   if (form.dataset.editId && draft.baseline) form.dataset.editBaseline = draft.baseline;
+  if (form.dataset.form === 'brews' && draft.baseline) form.dataset.initialConditions = draft.baseline;
   for (const [name, value] of Object.entries(draft.values)) {
     const field = form.elements[name];
     if (field?.tagName?.toLowerCase() === 'select' && value &&

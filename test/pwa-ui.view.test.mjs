@@ -878,7 +878,7 @@ test('a new success gets a full display interval and empty messages hide immedia
   assert.equal(status.hidden, true);
 });
 
-function controllerFor(view) {
+function controllerFor(view, { readConnection = async () => null } = {}) {
   const context = {
     async inspect() { return { initialized: false, blocked: false }; },
     async readJournal() { return { operations: [], connectionGuard: null }; },
@@ -888,13 +888,31 @@ function controllerFor(view) {
   return createAppController({
     view,
     state: { withWriteLock: action => action(context) },
-    file: {},
+    file: { readConnection },
     makeClient: () => ({ async verify() {} }),
     makeRepository: () => ({ async listBeans() { return { items: data().beans, nextCursor: null, hasMore: false, complete: true }; },
       async readAll() { return data(); } }),
     makeCommands: () => ({}),
     uuid: () => 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
   });
+}
+
+const DRAFT_CONNECTION_REVISION = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+const DRAFT_TARGET_A = { beans: BEAN, recipes: RECIPE,
+  steps: '77777777-7777-4777-8777-777777777777', records: '88888888-8888-4888-8888-888888888888' };
+const DRAFT_TARGET_B = { beans: '99999999-9999-4999-8999-999999999999',
+  recipes: 'aaaaaaaa-bbbb-4aaa-8aaa-aaaaaaaaaaaa', steps: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+  records: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc' };
+
+async function draftScope(dataSources) {
+  const canonical = Object.fromEntries(Object.keys(dataSources).sort().map(key => [key, dataSources[key]]));
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(canonical)));
+  return { revision: DRAFT_CONNECTION_REVISION,
+    targetFingerprint: Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('') };
+}
+
+function draftConnection(dataSources) {
+  return { token: 'test-only-token', dataSources };
 }
 
 test('draft values survive tab navigation and a fresh data render', () => {
@@ -1197,6 +1215,124 @@ test('successful connection replacement preserves hidden drafts and their dirty 
   assert.equal(document.root.querySelector('form[data-form="beans"]').elements.name.value, 'hidden unsaved bean');
   assert.equal(app.getState().dirty, true);
   assert.equal(app.setFrozen(true), false);
+});
+
+test('changing targets retires an open form before a later render can persist its draft under the new target', async () => {
+  const storage = memoryFormDraftStorage();
+  const draftStore = createFormDraftStore({ storage, locks: null });
+  const document = new TestDocument();
+  const view = createBeanView(document, { draftStore });
+  const app = controllerFor(view);
+  app.bind();
+  const scopeA = await draftScope(DRAFT_TARGET_A);
+  const scopeB = await draftScope(DRAFT_TARGET_B);
+  await app.connect(draftConnection(DRAFT_TARGET_A));
+
+  view.showBeanForm();
+  const oldForm = document.root.querySelector('form[data-form="beans"]');
+  const oldDialog = document.root.querySelector('dialog[data-entry-dialog="beans"]');
+  oldForm.elements.name.value = 'TARGET A PRIVATE DRAFT';
+  fireBubbling(oldForm.elements.name, 'input');
+  await draftStore.flush();
+
+  await app.connect(draftConnection(DRAFT_TARGET_B));
+  view.renderData(data());
+  view.renderData(data());
+  await draftStore.flush();
+
+  const currentForm = document.root.querySelector('form[data-form="beans"]');
+  assert.equal(oldDialog.open, false, 'target replacement closes the old entry dialog');
+  assert.notEqual(currentForm, oldForm, 'the old form DOM is detached before target B renders');
+  assert.equal(currentForm.elements.name.value, '', 'target B never displays target A input');
+  assert.equal((await draftStore.read(scopeA)).get('beans').values.name, 'TARGET A PRIVATE DRAFT');
+  assert.equal((await draftStore.read(scopeB)).has('beans'), false, 'target A input is never persisted under B');
+
+  const reloadedDocument = new TestDocument();
+  const reloadedView = createBeanView(reloadedDocument, {
+    draftStore: createFormDraftStore({ storage, locks: null }),
+  });
+  await reloadedView.setDraftScope(scopeB);
+  reloadedView.renderData(data());
+  assert.equal(reloadedDocument.root.querySelector('form[data-form="beans"]').elements.name.value, '');
+  assert.equal(reloadedDocument.root.querySelector('dialog[data-entry-dialog="beans"]').open, false);
+});
+
+test('hidden drafts stay with their target across replacement, disconnect, and reconnect', async () => {
+  const storage = memoryFormDraftStorage();
+  const draftStore = createFormDraftStore({ storage, locks: null });
+  const document = new TestDocument();
+  const view = createBeanView(document, { draftStore });
+  const app = controllerFor(view);
+  app.bind();
+  const scopeA = await draftScope(DRAFT_TARGET_A);
+  const scopeB = await draftScope(DRAFT_TARGET_B);
+  await app.connect(draftConnection(DRAFT_TARGET_A));
+
+  const form = document.root.querySelector('form[data-form="beans"]');
+  form.elements.name.value = 'HIDDEN TARGET A DRAFT';
+  fireBubbling(form.elements.name, 'input');
+  view.renderRoute('/recipes', { notify: false });
+  await draftStore.flush();
+  assert.equal(document.root.querySelector('form[data-form="beans"]'), null);
+
+  await app.connect(draftConnection(DRAFT_TARGET_B));
+  assert.equal(app.getState().dirty, false, 'target A dirty state does not carry into target B');
+  assert.equal((await draftStore.read(scopeB)).has('beans'), false);
+
+  await app.initialize();
+  assert.equal(app.getState().connected, false);
+  assert.equal(app.getState().dirty, false, 'disconnect clears the active target dirty state');
+
+  await app.connect(draftConnection(DRAFT_TARGET_A));
+  assert.equal(app.getState().dirty, true, 'reconnecting A restores its hidden meaningful draft as dirty');
+  assert.equal((await draftStore.read(scopeA)).get('beans').values.name, 'HIDDEN TARGET A DRAFT');
+  view.renderRoute('/beans', { notify: false });
+  assert.equal(document.root.querySelector('form[data-form="beans"]').elements.name.value, 'HIDDEN TARGET A DRAFT');
+});
+
+test('reloaded meaningful drafts restore dirty state and protect hidden recipe edits from freeze and discard', async () => {
+  const storage = memoryFormDraftStorage();
+  const draftStore = createFormDraftStore({ storage, locks: null });
+  const scope = await draftScope(DRAFT_TARGET_A);
+  const recipe = data().recipes[0];
+  const editKey = `recipe-edit:${RECIPE}`;
+  await draftStore.save(scope, 'beans', { values: { name: 'RESTORED UNSAVED BEAN' }, steps: [], copyId: null });
+  await draftStore.save(scope, editKey, {
+    values: { name: 'RESTORED RECIPE EDIT', dripper: recipe.dripper, dose: String(recipe.dose),
+      grind: recipe.grind, microns: String(recipe.microns), grinder: recipe.grinder,
+      grinderSetting: recipe.grinderSetting, temperature: String(recipe.temperature),
+      extractionGuide: recipe.extractionGuide },
+    steps: recipe.steps.map(step => ({ id: step.id, stepName: step.name,
+      time: step.seconds === 0 ? '0:00' : '1:10', water: String(step.water) })),
+    copyId: null, route: `/recipes/${RECIPE}/edit`, baseline: JSON.stringify(recipe),
+  });
+
+  const document = new TestDocument();
+  const view = createBeanView(document, { draftStore: createFormDraftStore({ storage, locks: null }) });
+  const app = controllerFor(view);
+  app.bind();
+  await app.connect(draftConnection(DRAFT_TARGET_A));
+
+  assert.equal(document.root.querySelector('form[data-form="beans"]').elements.name.value, 'RESTORED UNSAVED BEAN');
+  assert.equal(app.isDirty('beans'), true);
+  assert.equal(app.isDirty(editKey), true, 'a hidden restored recipe edit retains its dirty key');
+  assert.equal(app.getState().dirty, true);
+  assert.equal(app.setFrozen(true), false, 'restored unsaved work blocks update freeze');
+
+  const editRoute = `/recipes/${RECIPE}/edit`;
+  view.renderData(data());
+  view.renderRoute(editRoute, { notify: false });
+  const editForm = document.root.querySelector('form[data-form="recipes"]');
+  assert.equal(editForm.elements.name.value, 'RESTORED RECIPE EDIT');
+  const cancel = editForm.querySelector('[data-action="cancel-form"]');
+  const cancelPending = clickViewTarget(document, cancel);
+  const confirmation = document.root.querySelector('.edit-discard-dialog');
+  assert.equal(confirmation.open, true, 'restored edit cancellation asks before discarding');
+  for (const listener of confirmation.querySelector('[data-action="keep-recipe-edit"]').listeners.get('click')) {
+    await listener();
+  }
+  await cancelPending;
+  assert.equal(view.currentRoute(), editRoute);
 });
 
 test('recipe input minimums allow every positive sub-cent value accepted by the domain', () => {

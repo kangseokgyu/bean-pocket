@@ -92,6 +92,21 @@ export function createAppController({
 
   function hasDirtyWork() { return dirtyKinds.size > 0; }
 
+  function reconcileDraftDirtyKinds(keys) {
+    if (!Array.isArray(keys)) return;
+    for (const kind of dirtyKinds) {
+      if (isFormDraftKey(kind)) dirtyKinds.delete(kind);
+    }
+    for (const kind of keys) {
+      if (isFormDraftKey(kind)) dirtyKinds.add(kind);
+    }
+  }
+
+  function isFormDraftKey(kind) {
+    return ['beans', 'recipes', 'records', 'brews'].includes(kind) ||
+      (typeof kind === 'string' && kind.startsWith('recipe-edit:'));
+  }
+
   function stateChanged() {
     view.setState?.({ dirty: hasDirtyWork(), pending, frozen, unresolved: unresolvedOperations.length > 0,
       connectionRevision: activeConnection?.revision ?? null });
@@ -100,7 +115,10 @@ export function createAppController({
 
   function setDirty(value, kind = 'form') {
     if (frozen && value) return false;
-    if (value) dirtyKinds.add(kind);
+    if (value) {
+      dirtyKinds.add(kind);
+      if (isFormDraftKey(kind)) view.markDraftEdited?.(kind);
+    }
     else dirtyKinds.delete(kind);
     stateChanged();
     return true;
@@ -153,14 +171,16 @@ export function createAppController({
     client = nextClient;
     repository = nextRepository;
     commands = nextCommands;
-    await view.setDraftScope?.(draftScope);
+    const restoredDraftKeys = await view.setDraftScope?.(draftScope);
+    reconcileDraftDirtyKinds(restoredDraftKeys);
     view.clearSearchOptions?.();
     view.showConnection?.({ connected: true });
     stateChanged();
   }
 
   async function dropConnectionData() {
-    await view.setDraftScope?.(null);
+    const remainingDraftKeys = await view.setDraftScope?.(null);
+    reconcileDraftDirtyKinds(remainingDraftKeys);
     routeReadController?.abort();
     routeReadController = null;
     routeGeneration += 1;

@@ -272,7 +272,8 @@ function renderBrewRun(pane, data, document, route, params) {
   form.append(createStarRating(document));
   form.append(label(document, '컵노트 (선택)', 'cupNote', 'textarea', false));
   form.elements.date.value = params.get('date') && isIsoDate(params.get('date')) ? params.get('date') : localDate();
-  form.dataset.initialConditions = JSON.stringify(brewRecipeInput(form));
+  form.dataset.initialConditions = JSON.stringify({ ...brewRecipeInput(form),
+    date: form.elements.date.value, rating: form.elements.rating.value, cupNote: form.elements.cupNote.value });
   addFormActions(document, form);
   const save = form.querySelector('[data-entry-submit]');
   if (save) { save.dataset.idleLabel = '추출 평가 저장'; setActionButton(save, '추출 평가 저장', 'idle'); }

@@ -1,0 +1,5 @@
+Command: npm run build:pages
+Result: exit 1
+Output: Pages 산출물 생성 실패: EPERM: operation not permitted, unlink '/Users/kangseokgyu/.codex/worktrees/project-improvements/AX-1day/dist/app.mjs'
+Cause: the requested worktree is outside the sandbox's writable roots, so the sandbox denied replacing the generated Pages artifact.
+Recovery: reran the same command with the reviewed filesystem escalation. It exited 0 and produced build ID c6f67c2ee464; npm run check:pages then exited 0.

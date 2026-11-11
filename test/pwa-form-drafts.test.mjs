@@ -45,6 +45,18 @@ test('explicit removal deletes only the selected form draft', async () => {
   assert.deepEqual([...remaining.keys()], ['beans']);
 });
 
+test('draft edit markers roundtrip and reject malformed values', async () => {
+  const storage = memoryFormDraftStorage();
+  const store = createFormDraftStore({ storage, locks: null });
+  const edited = { ...recipeDraft, edited: true };
+
+  assert.equal(await store.save(scopeA, 'recipes', edited), true);
+  assert.equal((await createFormDraftStore({ storage, locks: null }).read(scopeA)).get('recipes').edited, true);
+  await assert.rejects(store.save(scopeA, 'beans', {
+    values: { name: 'invalid marker' }, steps: [], edited: 'true',
+  }), /draft/i);
+});
+
 test('credentials cannot enter a draft scope or persisted form values', async () => {
   const storage = memoryFormDraftStorage();
   const store = createFormDraftStore({ storage, locks: null });

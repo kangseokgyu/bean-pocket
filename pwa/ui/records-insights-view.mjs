@@ -43,19 +43,18 @@ const button = (document, text, type = 'submit', action, variant = 'secondary') 
 const formatTime = seconds => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 
 export function renderRecordsInsights(pane, data, document, recipeFilter, ratingFilter, comparisonSort,
-  comparisonLeftId, comparisonRightId, management) {
+  comparisonLeftId, comparisonRightId, overview, management) {
+  const layout = make(document, 'div', undefined, 'records-demo-layout');
   const state = data.recordInsights;
   if (!state) {
-    if (management) pane.append(management);
+    layout.append(overview, management);
+    pane.append(layout);
     return;
   }
-  const layout = make(document, 'div', undefined, 'records-demo-layout');
   const trendSeries = state.trendSeries ?? [];
   const trend = make(document, 'section', undefined, 'record-insight-trend-section');
   trend.append(sectionHeader(document, '별점 추이', '최근 추출 기록 기준 상위 3종의 별점을 원두별 선으로 표시합니다.',
     '최근 추출 원두 Top 3', 'record-insight-trend-title'));
-  trend.append(make(document, 'p', '원두 선택은 요약에 적용되며, 아래 필터와 정렬은 비교 표에만 적용됩니다.',
-    'record-insight-filter-note'));
   if (trendSeries.some(series => series.points.length)) trend.append(renderRatingTrend(document, trendSeries));
   else {
     if (trendSeries.length) trend.append(renderTrendLegend(document, trendSeries));
@@ -162,8 +161,10 @@ export function renderRecordsInsights(pane, data, document, recipeFilter, rating
   if (comparisonRecords.length) comparisons.append(renderComparisonRecords(document, comparisonRecords));
   else comparisons.append(make(document, 'p', '조건에 맞는 비교 기록이 없습니다.', 'record-insight-empty'));
   content.append(best, comparisons);
-  if (management) content.append(management);
-  layout.append(trend, sidebar, content);
+  const details = make(document, 'div', undefined, 'record-insight-details');
+  details.append(sidebar, content);
+  management.append(details);
+  layout.append(trend, overview, management);
   pane.append(layout);
 }
 

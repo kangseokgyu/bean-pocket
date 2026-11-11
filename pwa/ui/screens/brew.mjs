@@ -4,7 +4,9 @@ import { decorativeSvg } from '../shared/icons.mjs';
 import { button, setActionButton } from '../shared/buttons.mjs';
 import { favoriteIcon } from '../shared/favorite-button.mjs';
 import { label, addFieldset, formBase, addFormActions } from '../shared/form-fields.mjs';
-import { formatTime } from '../shared/recipe-presentation.mjs';
+import {
+  createStageEditorRow, createStageEditorSummary, formatTime, updateStageEditorSummary,
+} from '../shared/recipe-presentation.mjs';
 import { routePath, routeParams } from '../shared/route.mjs';
 import { isIsoDate, localDate } from '../shared/date.mjs';
 
@@ -239,10 +241,10 @@ function renderBrewRun(pane, data, document, route, params) {
     ['드리퍼', 'dripper', 'text', false],
     ['원두량 (g)', 'dose', 'number', true, { min: 0, step: 'any' }],
     ['분쇄도 (레퍼런스 설정)', 'grind', 'text', false, { placeholder: '예: EK43 9, Comandante 24클릭' }],
+    ['분쇄 입자 (μm)', 'microns', 'text', false,
+      { inputMode: 'text', placeholder: '예: 900 또는 900~1000' }],
     ['그라인더', 'grinder', 'text', false],
     ['그라인더 설정', 'grinderSetting', 'text', false],
-    ['분쇄 입자 (μm 또는 범위)', 'microns', 'text', false,
-      { inputMode: 'text', placeholder: '예: 900 또는 900~1000' }],
     ['물 온도 (℃)', 'temperature', 'number', true, { min: 0, max: 100, step: 'any' }],
     ['총 물 양 (g)', 'totalWater', 'number', true, { min: 0, step: 'any' }],
   ], 'brew-condition-fields');
@@ -256,15 +258,13 @@ function renderBrewRun(pane, data, document, route, params) {
   changes.dataset.brewChanges = '';
   changes.setAttribute('aria-live', 'polite');
   form.append(changes);
-  const stages = make(document, 'section', undefined, 'brew-edit-stages');
+  const stages = make(document, 'section', undefined, 'brew-edit-stages stage-editor');
+  stages.dataset.stageEditor = 'brew';
   stages.append(make(document, 'h3', '물 붓기 단계'));
-  const stageList = make(document, 'div', undefined, 'brew-stage-list');
+  const stageList = make(document, 'div', undefined, 'brew-stage-list stage-editor-list');
   stageList.dataset.brewStages = '';
-  stages.append(stageList, button(document, '단계 추가', 'button', 'add-brew-stage', 'utility'));
-  const total = make(document, 'p', '', 'brew-stage-total');
-  total.dataset.brewStageTotal = '';
-  total.setAttribute('aria-live', 'polite');
-  stages.append(total);
+  stages.append(stageList, button(document, '단계 추가', 'button', 'add-brew-stage', 'utility'),
+    createStageEditorSummary(document, { totalClassName: 'brew-stage-total', totalDataset: 'brewStageTotal' }));
   form.append(stages);
   recipe.steps.forEach((step, index) => addBrewStage(document, stageList, step, index));
   form.append(make(document, 'h3', '추출 평가'));
@@ -281,18 +281,11 @@ function renderBrewRun(pane, data, document, route, params) {
 }
 
 export function addBrewStage(document, list, step = {}, index = list.children.length) {
-  const row = make(document, 'fieldset', undefined, 'brew-stage-row');
-  row.append(make(document, 'legend', `단계 ${index + 1}`));
-  row.append(label(document, '단계 이름', 'stepName', 'text', false));
-  row.append(label(document, '누적 시간 (분:초)', 'time', 'text', true,
-    { placeholder: index === 0 ? '0:00' : '0:30', inputMode: 'text', pattern: '\\d+:[0-5]\\d' }));
-  row.append(label(document, '이번 물 양 (g)', 'water', 'number', true, { min: 0, step: 'any' }));
-  const remove = button(document, '단계 제거', 'button', 'remove-brew-stage', 'utility');
-  remove.disabled = index === 0;
-  row.append(remove);
-  row.querySelector('[name="stepName"]').value = step.name ?? '';
-  row.querySelector('[name="time"]').value = formatTime(step.seconds ?? 0);
-  row.querySelector('[name="water"]').value = step.water ?? '';
+  const row = createStageEditorRow(document, {
+    number: index + 1, rowClass: 'brew-stage-row', name: step.name ?? '',
+    time: formatTime(step.seconds ?? 0), water: step.water ?? '',
+    removeAction: 'remove-brew-stage', removeDisabled: index === 0,
+  });
   list.append(row);
   return row;
 }
@@ -326,9 +319,7 @@ export function updateBrewConditions(form) {
   const changed = Object.keys(labels).filter(key => JSON.stringify(actual[key]) !== JSON.stringify(initial[key]));
   const status = form.querySelector('[data-brew-changes]');
   if (status) status.textContent = changed.length ? `공용 레시피에서 변경: ${changed.map(key => labels[key]).join(', ')}` : '공용 레시피 조건 그대로';
-  const sum = actual.steps.reduce((total, step) => total + (Number(step.water) || 0), 0);
-  const total = form.querySelector('[data-brew-stage-total]');
-  if (total) total.textContent = `단계 물 합 ${Number(sum.toFixed(3))}g · 총 물 ${actual.totalWater || '—'}g`;
+  updateStageEditorSummary(form.querySelector('[data-stage-editor="brew"]'), actual.totalWater);
 }
 
 export function renderBrewFlow(parent, data, document, route, optionPages) {

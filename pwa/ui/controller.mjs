@@ -1018,7 +1018,8 @@ export function createAppController({
     };
     pending = true;
     stateChanged();
-    const deleting = Boolean(DELETE_TARGET_BY_OPERATION[kind]);
+    const deleteSection = DELETE_TARGET_BY_OPERATION[kind];
+    const deleting = Boolean(deleteSection);
     view.showStatus?.({ type: 'saving', message: deleting ? '삭제 중입니다.' : '저장 중입니다.' });
     try {
       if (favorite) await client.verify([favoriteSource]);
@@ -1054,6 +1055,10 @@ export function createAppController({
           releasePending();
           void readLatest({ skipVerify: true, suppressCompletion: true }).catch(() => {});
           return result;
+        }
+        if ((deleteSection === 'beans' || deleteSection === 'recipes') &&
+            routeLocation(currentRoute()).path === `/${deleteSection}/${payload.id}`) {
+          view.renderRoute?.(`/${deleteSection}`, { replaceHistory: true, notify: false });
         }
         stateChanged();
         let deleteMessage = '삭제했습니다.';

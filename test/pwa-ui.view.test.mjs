@@ -10,6 +10,7 @@ import { buildRecordsInsights } from '../pwa/ui/records-insights.mjs';
 import { renderHome } from '../pwa/ui/screens/home.mjs';
 import { renderBeans, renderBeanDetail } from '../pwa/ui/screens/beans.mjs';
 import { renderRecipes, renderRecipeDetail } from '../pwa/ui/screens/recipes.mjs';
+import { updateBrewConditions } from '../pwa/ui/screens/brew.mjs';
 import { buildBeanForm } from '../pwa/ui/forms/bean-form.mjs';
 import { addStep, buildRecipeForm, recipePayload, setSteps, updatePreview } from '../pwa/ui/forms/recipe-form.mjs';
 
@@ -297,7 +298,7 @@ test('connection settings open only after no saved connection is found', () => {
   assert.equal(panel.open, true);
 });
 
-test('connection settings header control uses an accessible outlined gear button', () => {
+test('connection settings header control uses an accessible borderless gear button', () => {
   const document = new TestDocument();
   createBeanView(document);
   const toggle = document.root.querySelector('.connection-toggle');
@@ -325,6 +326,7 @@ test('connection settings header control uses an accessible outlined gear button
     /height:\s*44px/,
     /min-height:\s*44px/,
     /border:\s*0;/,
+    /border-radius:\s*50%;/,
     /background:\s*transparent;/,
     /color:\s*var\(--text\)/,
   ]) assert.match(buttonRule[1], declaration);
@@ -934,7 +936,7 @@ test('bean, recipe, and record detail text is rendered as text and retains brew 
   assert.match(detail.textContent, /꿀, 살구/);
 });
 
-test('pour tables group cumulative values before interval and current water in three columns', () => {
+test('recipe detail and historical pour tables lead with the same fields as the recipe form', () => {
   const document = new TestDocument();
   const view = createBeanView(document);
   const current = data();
@@ -944,22 +946,28 @@ test('pour tables group cumulative values before interval and current water in t
     { name: '2차', seconds: 70, interval: 40, water: 90.5, cumulativeWater: 150.5 },
   ];
   view.renderData(current);
-  for (const route of [`/recipes/${RECIPE}`]) {
-    view.renderRoute(route);
-    const tables = document.root.querySelectorAll('.steps-table');
-    const table = tables[0];
-    assert.deepEqual(table.querySelectorAll('th').map(cell => cell.textContent), ['단계', '누적 시간 (간격)', '누적 물 (이번 물)']);
-    assert.ok(table.querySelectorAll('th').every(cell => cell.getAttribute('scope') === 'col'));
-    assert.equal(tables.length, 2, 'live recipe and historical snapshot share the compact table');
-    const rows = table.querySelector('tbody').querySelectorAll('tr');
-    assert.deepEqual(rows.map(row => row.querySelectorAll('td').map(cell => cell.textContent)), [
-      ['뜸 <안전>', '0:00 (0초)', '30g (30g)'],
-      ['1차', '0:30 (30초)', '60g (30g)'],
-      ['2차', '1:10 (40초)', '150.5g (90.5g)'],
-    ]);
-    assert.equal(table.querySelector('img'), null);
-    assert.equal(tables[1].querySelector('tbody').textContent, '뜸0:00 (0초)50g (50g)');
+  view.renderRoute(`/recipes/${RECIPE}/edit`);
+  const labels = document.root.querySelector('.step-row').querySelectorAll('.form-field-label')
+    .map(label => label.textContent);
+  assert.deepEqual(labels, ['단계 이름', '시작 시간', '붓는 양 (g)']);
+
+  view.renderRoute(`/recipes/${RECIPE}`);
+  const tables = document.root.querySelectorAll('.steps-table');
+  assert.equal(tables.length, 2, 'live recipe and historical snapshot share the compact table');
+  for (const table of tables) {
+    const headers = table.querySelectorAll('th');
+    assert.deepEqual(headers.map(cell => cell.textContent), [labels[0], `${labels[1]} (간격)`, `${labels[2]} (누적 물)`]);
+    assert.ok(headers.every(cell => cell.getAttribute('scope') === 'col'));
   }
+  const rows = tables[0].querySelector('tbody').querySelectorAll('tr');
+  assert.deepEqual(rows.map(row => row.querySelectorAll('td').map(cell => cell.textContent)), [
+    ['뜸 <안전>', '0:00 (0초)', '30g (30g)'],
+    ['1차', '0:30 (30초)', '30g (60g)'],
+    ['2차', '1:10 (40초)', '90.5g (150.5g)'],
+  ]);
+  assert.equal(tables[0].querySelector('img'), null);
+  assert.equal(tables[1].querySelector('tbody').textContent, '뜸0:00 (0초)50g (50g)');
+  assert.equal(document.root.querySelector('.recipe-record-item').querySelector('h5').textContent, '당시 물 붓기 단계');
 });
 
 test('damaged historical records are excluded from bagless recipe views', () => {
@@ -1202,7 +1210,7 @@ test('recipe input minimums allow every positive sub-cent value accepted by the 
     steps: [{ time: '0:00', water: 0.005 }] });
   assert.equal(valid.dose, 0.005);
 
-  for (const name of ['dose', 'temperature', 'totalWater', 'water']) {
+  for (const name of ['dose', 'temperature', 'water']) {
     assert.ok(Number(form.elements[name].min) <= 0.005,
       `${name} must not use a native minimum above the domain's positive-number boundary`);
   }
@@ -1404,10 +1412,15 @@ test('recipe detail groups conditions, pour steps, guide, and records in reading
   const detail = document.root.querySelector('.recipe-card');
   const sections = detail.querySelectorAll('.recipe-detail-section');
   assert.deepEqual(sections.map(section => section.querySelector('h4')?.textContent),
-    ['추출 조건', '붓기 단계', '추출 가이드', '추출 기록']);
+    ['추출 조건', '물 붓기 단계', '추출 가이드', '추출 기록']);
   assert.ok(detail.querySelector('.recipe-steps-section').querySelector('.steps-table'));
   assert.ok(detail.querySelector('.recipe-records').querySelector('.record-summary-header'));
-  assert.equal(detail.querySelector('.recipe-card-actions').querySelectorAll('button').length, 2);
+  const titleRow = detail.querySelector('.detail-header');
+  assert.deepEqual(titleRow.querySelectorAll('button').map(node => node.dataset.action), ['new-record']);
+  assert.equal(detail.querySelectorAll('[data-action="new-record"]').length, 1);
+  const record = titleRow.querySelector('[data-action="new-record"]');
+  assert.equal(record.textContent, '추출 기록');
+  assert.equal(record.querySelector('svg')?.getAttribute('aria-hidden'), 'true');
   assert.match(detail.querySelector('.recipe-conditions').textContent, /900~1000μm/);
   assert.doesNotMatch(detail.querySelector('.recipe-conditions').textContent, /그라인더 설정/);
 });
@@ -1422,11 +1435,12 @@ test('recipe detail edit action opens a full prefilled edit form with stable ste
   view.renderData(current);
   view.renderRoute(`/recipes/${RECIPE}`);
 
-  const header = document.root.querySelector('.recipe-card .entity-card-header');
-  const group = header.querySelector('.recipe-header-actions');
-  assert.ok(group, 'detail header groups edit and delete');
-  assert.deepEqual(group.querySelectorAll('button').map(node => node.dataset.action), ['edit-recipe', 'delete-recipe']);
-  assert.equal(document.root.querySelector('.recipe-card-actions [data-action="edit-recipe"]'), null);
+  const header = document.root.querySelector('.list-view .list-header');
+  assert.equal(header.querySelector('.button--back').getAttribute('aria-label'), '레시피 목록');
+  const group = header.querySelector('.detail-header-actions');
+  assert.ok(group, 'edit, copy, and delete share the list return row');
+  assert.deepEqual(group.querySelectorAll('button').map(node => node.dataset.action), ['edit-recipe', 'copy-recipe', 'delete-recipe']);
+  assert.equal(document.root.querySelector('.recipe-card [data-action="edit-recipe"]'), null);
   const edit = group.querySelector('[data-action="edit-recipe"]');
   assert.ok(edit, 'recipe detail exposes an edit button');
   assert.equal(edit.textContent, '');
@@ -1441,6 +1455,10 @@ test('recipe detail edit action opens a full prefilled edit form with stable ste
   assert.equal(view.currentRoute(), `/recipes/${RECIPE}/edit`);
   const form = document.root.querySelector('form[data-form="recipes"]');
   assert.ok(form);
+  assert.deepEqual(document.root.querySelector('.list-view').querySelectorAll('h2').map(node => node.textContent),
+    ['레시피 수정']);
+  const back = form.querySelector('[aria-label="레시피로 돌아가기"]');
+  assert.equal(back?.type, 'button');
   assert.equal(form.dataset.editId, RECIPE);
   assert.equal(form.elements.name.value, beforeClick.recipes[0].name);
   assert.equal(form.elements.grind.value, 'EK43 9, Comandante 24클릭');
@@ -1451,6 +1469,8 @@ test('recipe detail edit action opens a full prefilled edit form with stable ste
   assert.deepEqual(form.querySelectorAll('.step-row').map(row => row.dataset.stepId),
     beforeClick.recipes[0].steps.map(step => step.id));
   assert.deepEqual(current, beforeClick, 'editing starts from the selected recipe without mutating loaded data');
+  await clickViewTarget(document, back);
+  assert.equal(view.currentRoute(), `/recipes/${RECIPE}`);
 });
 
 test('recipe edit drafts stay separate from create drafts and preserve the captured baseline', () => {
@@ -1586,7 +1606,11 @@ test('recipe detail places the guide below the pour table and copy preserves its
   const click = async target => {
     for (const listener of document.root.firstElementChild.listeners.get('click')) await listener({ target });
   };
-  await click(detail.querySelector('[data-action="copy-recipe"]'));
+  const copy = document.root.querySelector('.list-header [data-action="copy-recipe"]');
+  assert.equal(copy?.textContent, '');
+  assert.equal(copy.getAttribute('aria-label'), '이 레시피 복사');
+  assert.equal(copy.querySelector('svg')?.getAttribute('aria-hidden'), 'true');
+  await click(copy);
   const copyForm = document.root.querySelector('form[data-form="recipes"]');
   assert.equal(copyForm.elements.extractionGuide.value, data().recipes[0].extractionGuide);
 });
@@ -2224,6 +2248,7 @@ test('bean deletion opens a safe native dialog and restores focus after cancel o
   const document = new TestDocument(), view = createBeanView(document);
   view.showConnection({ connected: true });
   view.renderData(data());
+  view.renderRoute(`/beans/${BEAN}`);
   const calls = [];
   view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }), submit: async (...args) => calls.push(args) });
   const trash = document.root.querySelector('[data-action="delete-bean"]');
@@ -2281,6 +2306,7 @@ test('dismissing a deletion result preserves its notice for button and Escape', 
         const document = new TestDocument();
         const view = createBeanView(document, { schedule: callback => scheduled.push(callback) });
         view.renderData(data());
+        view.renderRoute(`/beans/${BEAN}`);
         view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }),
           submit: async () => {
             view.showStatus({ type: result.toastType, message: result.message });
@@ -2317,8 +2343,8 @@ test('bean, recipe, and record deletes submit only after the custom dialog is co
     submit: async (...args) => { calls.push(args); return { status: 'succeeded' }; } });
   assert.equal(Boolean(document.root.querySelector('[data-action="delete-bag"]')), false);
   const cases = [
-    ['/beans', 'delete-bean', '원두 <안전>', BEAN, '원두를 삭제할까요?'],
-    ['/recipes', 'delete-recipe', 'V60', RECIPE, '레시피를 삭제할까요?'],
+    [`/beans/${BEAN}`, 'delete-bean', '원두 <안전>', BEAN, '원두를 삭제할까요?'],
+    [`/recipes/${RECIPE}`, 'delete-recipe', 'V60', RECIPE, '레시피를 삭제할까요?'],
     ['/records', 'delete-record', '2026-06-15 · V60', '66666666-6666-4666-8666-666666666666', '추출 기록을 삭제할까요?'],
   ];
   for (const [route, action, name, id, heading] of cases) {
@@ -2329,7 +2355,7 @@ test('bean, recipe, and record deletes submit only after the custom dialog is co
     assert.equal(trash.getAttribute('aria-label'), `${name} 삭제`);
     assert.ok(trash.querySelector('svg'));
     assert.equal(trash.dataset.name, name);
-    assert.match(trash.parentElement.className, /entity-card-header/);
+    assert.match(trash.parentElement.className, action === 'delete-record' ? /entity-card-header/ : /detail-header-actions/);
 
     const dialog = document.root.querySelector('.delete-confirm-dialog');
     await clickViewTarget(document, trash.querySelector('svg'));
@@ -2365,7 +2391,7 @@ test('recipe deletion omits its success message and preserves warnings and error
     const document = new TestDocument();
     const view = createAppView(document, { schedule: () => 1 });
     view.renderData(data());
-    view.renderRoute('/recipes');
+    view.renderRoute(`/recipes/${RECIPE}`);
     view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }) });
     await clickViewTarget(document, document.root.querySelector('[data-action="delete-recipe"]'));
     assert.equal(view.showDeleteResult(result), true);
@@ -2384,6 +2410,7 @@ test('recipe deletion omits its success message and preserves warnings and error
 test('bean delete button spinner replaces its progress toast, locks duplicates, and renders failures', async () => {
   const document = new TestDocument(), view = createBeanView(document);
   view.renderData(data());
+  view.renderRoute(`/beans/${BEAN}`);
   let release;
   const pending = new Promise(resolve => { release = resolve; });
   const calls = [];
@@ -2423,7 +2450,7 @@ test('bean delete button spinner replaces its progress toast, locks duplicates, 
 });
 
 test('recipe and record delete spinners replace only their progress toast', async () => {
-  for (const [route, action] of [['/recipes', 'delete-recipe'], ['/records', 'delete-record']]) {
+  for (const [route, action] of [[`/recipes/${RECIPE}`, 'delete-recipe'], ['/records', 'delete-record']]) {
     const document = new TestDocument(), view = createBeanView(document);
     view.showConnection({ connected: true });
     view.renderData(data());
@@ -2489,6 +2516,43 @@ test('bean details group all bean metadata and records inside the recipe card hi
     ['2026-06-20 · 원두 <안전>', '2026-06-15 · 원두 <안전>']);
   assert.equal(detail.querySelector('[data-action="delete-bean"]'), null);
   assert.equal(detail.querySelector('[data-action="copy-recipe"]'), null);
+});
+
+test('bean detail shows management beside the list return and records with the bean selected', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const submitted = [];
+  view.bind({ setDirty() {}, submit: async (...args) => {
+    submitted.push(args);
+    return { status: 'succeeded' };
+  } });
+  view.renderData(data());
+  view.renderRoute(`/beans/${BEAN}`);
+
+  const header = document.root.querySelector('.list-view .list-header');
+  assert.equal(header.querySelector('.button--back').getAttribute('aria-label'), '원두 목록');
+  assert.deepEqual(header.querySelectorAll('button').map(button => button.dataset.action),
+    ['navigate', 'favorite-item', 'delete-bean']);
+  const favorite = header.querySelector('[data-action="favorite-item"]');
+  assert.equal(favorite.getAttribute('aria-pressed'), 'false');
+  await clickViewTarget(document, favorite);
+  assert.deepEqual(submitted, [['favorite-bean', { id: BEAN, favorite: true }]]);
+
+  await clickViewTarget(document, header.querySelector('[data-action="delete-bean"]'));
+  const confirm = document.root.querySelector('.delete-confirm-dialog');
+  assert.equal(confirm.open, true);
+  await clickViewTarget(document, confirm.querySelector('[data-action="cancel-delete"]'));
+  assert.equal(submitted.length, 1, 'cancelling deletion does not submit it');
+
+  const detail = document.root.querySelector('.bean-detail-card');
+  const record = detail.querySelector('.entity-card-header [data-action="new-record"]');
+  assert.equal(record?.textContent, '추출 기록');
+  await clickViewTarget(document, record);
+  const form = document.root.querySelector('form[data-form="records"]');
+  assert.equal(view.currentRoute(), '/records/new');
+  assert.equal(form.elements.beanId.value, BEAN);
+  assert.equal(form.elements.recipeId.value, '');
+  assert.match(form.querySelectorAll('[data-action="open-search-picker"]')[0].textContent, /원두 <안전>/);
 });
 
 test('bean details keep empty, loading, and incomplete record states distinct', () => {
@@ -2693,6 +2757,7 @@ test('inline entry and delete success stay in their dialogs without completion t
   assert.equal(entryDialog.open, false, 'the entry success dialog closes after its normal delay');
   assert.equal(status.hidden, true, 'closing the entry dialog does not restore a completion toast');
 
+  view.renderRoute(`/beans/${BEAN}`);
   for (const dismissal of ['automatic', 'manual']) {
     const trash = document.root.querySelector('[data-action="delete-bean"]');
     await clickViewTarget(document, trash);
@@ -3516,8 +3581,8 @@ test('bean cards open their records through a full-card native link without a re
   assert.ok(link, 'the bean title is a keyboard-accessible native link');
   assert.equal(link.getAttribute('href'), `#/beans/${BEAN}`);
   assert.equal(link.getAttribute('aria-label'), '원두 <안전> 추출 기록 보기');
-  assert.equal(card.querySelectorAll('button').length, 2, 'bookmark and delete remain independent of the card link');
-  assert.ok(card.querySelector('[data-action="delete-bean"]'));
+  assert.equal(card.querySelectorAll('button').length, 1, 'favorite is the only list card button');
+  assert.ok(card.querySelector('[data-action="favorite-item"]'));
   assert.ok(card.textContent.includes('추출 기록 1개'));
   const css = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
   assert.match(css, /\.bean-card-link::after\s*\{[^}]*inset:\s*0/s);
@@ -3526,16 +3591,21 @@ test('bean cards open their records through a full-card native link without a re
   assert.ok(document.root.textContent.includes('꿀, 살구'));
 });
 
-test('bean card deletion never opens records, including clicks on its icon', async () => {
-  const document = new TestDocument();
-  const view = createBeanView(document);
-  view.renderData(data());
-  view.bind({});
-  const trash = document.root.querySelector('[data-action="delete-bean"]');
-  await clickViewTarget(document, trash.querySelector('svg'));
-  assert.ok(document.root.querySelector('.bean-card'));
-  assert.equal(document.root.querySelectorAll('h4').some(node => node.textContent === '이 원두의 추출 기록'), false);
-  assert.equal(document.root.querySelector('.delete-confirm-dialog').open, true);
+test('list card stars toggle favorites without following the card link', async () => {
+  for (const [section, id, operation] of [['beans', BEAN, 'favorite-bean'], ['recipes', RECIPE, 'favorite-recipe']]) {
+    const document = new TestDocument();
+    const view = createBeanView(document);
+    view.renderData(data());
+    view.renderRoute(`/${section}`);
+    const calls = [];
+    view.bind({ submit: async (...args) => calls.push(args) });
+
+    await clickViewTarget(document, document.root.querySelector('[data-action="favorite-item"] svg'));
+
+    assert.equal(view.currentRoute(), `/${section}`);
+    assert.deepEqual(calls, [[operation, { id, favorite: true }]]);
+    assert.equal(document.root.querySelector('.delete-confirm-dialog').open, false);
+  }
 });
 
 test('legacy extraction records remain in raw input but are hidden from current lists and details', () => {
@@ -3589,8 +3659,8 @@ test('recipe list cards link their entire surface to details without a details b
   assert.ok(link, 'recipe title is a native keyboard-accessible link');
   assert.equal(link.getAttribute('href'), `#/recipes/${RECIPE}`);
   assert.equal(link.getAttribute('aria-label'), 'V60 상세 보기');
-  assert.equal(card.querySelectorAll('button').length, 2, 'bookmark and delete remain independent of the card link');
-  assert.ok(card.querySelector('[data-action="delete-recipe"]'));
+  assert.equal(card.querySelectorAll('button').length, 1, 'favorite is the only list card button');
+  assert.ok(card.querySelector('[data-action="favorite-item"]'));
   assert.deepEqual(Object.fromEntries(card.querySelectorAll('.recipe-metric').map(metric => [
     metric.dataset.metric, metric.querySelector('dd').textContent,
   ])), { dose: '15g', water: '250g', temperature: '93℃', ratio: '1 : 16.7' });
@@ -3599,23 +3669,6 @@ test('recipe list cards link their entire surface to details without a details b
   assert.ok(document.root.textContent.includes('교반 없음'));
   assert.equal(document.root.querySelector('.recipe-card-link'), null, 'detail card has no full-card overlay');
   assert.equal(document.root.querySelector('.recipe-summary-card'), null);
-});
-
-test('recipe list card delete icon stays independent of detail navigation', async () => {
-  const document = new TestDocument();
-  const view = createBeanView(document);
-  view.renderData(data());
-  view.renderRoute('/recipes');
-  const calls = [];
-  view.bind({ submit: async (...args) => { calls.push(args); return { status: 'succeeded' }; } });
-  const trash = document.root.querySelector('[data-action="delete-recipe"]');
-  await clickViewTarget(document, trash.querySelector('svg'));
-  assert.equal(document.root.querySelector('[data-action="copy-recipe"]'), null);
-  const dialog = document.root.querySelector('.delete-confirm-dialog');
-  assert.equal(dialog.open, true);
-  await clickViewTarget(document, dialog.querySelector('[data-action="confirm-delete"]'));
-  assert.equal(document.root.querySelector('[data-action="copy-recipe"]'), null);
-  assert.deepEqual(calls, [['delete-recipe', { id: RECIPE }]]);
 });
 
 test('view notifies the controller when the current route changes', () => {
@@ -3696,38 +3749,44 @@ test('records view keeps unfiltered bean insights separate from the filtered tab
     .find(label => label.textContent === '5점');
   assert.ok(Number(ratingFiveLabel.getAttribute('y')) > 10, 'top-axis rating labels stay inside the chart viewBox');
   assert.match(insightSection.textContent, /날짜별 별점 추이/);
-  assert.deepEqual(document.root.querySelectorAll('.record-card').map(card => card.textContent.includes('다른 원두')),
-    [true], 'only the table respects the active recipe filter');
+  const overview = document.root.querySelector('.record-overview-table');
+  assert.deepEqual(overview.querySelector('tbody').querySelectorAll('tr').map(row => row.querySelectorAll('td')[1].textContent),
+    ['다른 원두'], 'the table uses the filtered records while the graph uses unfiltered insights');
 });
 
-test('records page follows the demo hierarchy and keeps full record management collapsed below comparisons', () => {
+test('records page shows a four-column table below the trend and keeps details available on demand', () => {
   const document = new TestDocument();
   const view = createBeanView(document);
-  const older = { ...data().records[0], id: 'demo-align-older', date: '2026-10-01', rating: 3 };
-  const newer = { ...data().records[0], id: 'demo-align-newer', date: '2026-10-05', rating: 5 };
+  const current = data();
+  const older = { ...current.records[0], id: 'overview-older', date: '2026-10-01', rating: null,
+    beanId: 'archived-bean', recipeId: 'archived-recipe',
+    snapshot: { version: 2, recordGeneration: 'bagless-v1',
+      bean: { name: '기록 당시 원두' }, recipe: { name: '기록 당시 레시피' } } };
+  const newer = { ...current.records[0], id: 'overview-newer', date: '2026-10-05', rating: 4.3 };
   const records = [older, newer];
-  const insights = { ...buildRecordsInsights(records, data().beans, BEAN, data().recipes), status: 'ready',
-    loading: false, hasMore: true };
-  view.renderData({ ...data(), recordInsights: insights, screen: { route: '/records', complete: true, hasMore: true } });
+  const insights = { ...buildRecordsInsights(records, current.beans, BEAN, current.recipes), status: 'ready' };
+  view.renderData({ ...current, records, recordInsights: insights,
+    screen: { route: '/records', complete: false, hasMore: true } });
   view.renderRoute('/records');
 
   const layout = document.root.querySelector('.records-demo-layout');
-  assert.ok(layout);
-  assert.equal(layout.children[0].className, 'record-insight-trend-section');
-  assert.equal(layout.children[1].className, 'record-insight-sidebar');
-  assert.equal(layout.children[2].className, 'record-insights-content');
-  assert.deepEqual(layout.children[2].children.map(child => child.className), [
-    'record-insight-selected-bean', 'record-insight-best-section record-insight-best',
-    'record-insight-comparisons', 'record-management',
-  ]);
-  const table = layout.querySelector('.record-insight-comparison-table');
-  assert.ok(table);
-  assert.deepEqual(table.querySelector('tbody').querySelectorAll('tr')
-    .map(row => row.dataset.insightRecordId), ['demo-align-newer', 'demo-align-older']);
+  assert.ok(layout.children[0].querySelector('circle'));
+  const overview = layout.children[1];
+  const table = overview.querySelector('table');
+  assert.ok(table, 'the records table follows the graph');
   assert.deepEqual(table.querySelector('thead').querySelectorAll('th').map(cell => cell.textContent),
-    ['추출일', '레시피', '기록 당시 조건 · 분쇄 · 온도 · 도징 · 물', '평가', '컵노트']);
-  const management = layout.querySelector('.record-management');
+    ['날짜', '원두', '레시피', '별점']);
+  assert.deepEqual(table.querySelector('tbody').querySelectorAll('tr')
+    .map(row => row.querySelectorAll('td').map(cell => cell.textContent)), [
+    ['2026-10-05', '원두 <안전>', 'V60', '4.3/5'],
+    ['2026-10-01', '기록 당시 원두', '기록 당시 레시피', '—'],
+  ]);
+  assert.ok(overview.querySelector('[data-action="load-more"]'));
+
+  const management = layout.children[2];
+  assert.equal(management.tagName, 'details');
   assert.equal(management.open, false);
+  assert.ok(management.querySelector('.record-insight-comparison-table'));
   assert.ok(management.querySelector('[data-record-filter="recipeId"]'));
   assert.ok(management.querySelector('[data-action="delete-record"]'));
 });
@@ -3866,7 +3925,7 @@ test('bean detail names invalid and inaccessible persisted best relations separa
   }
 });
 
-test('top-three trend spans the records page before the sidebar and keeps each bean in its own series', () => {
+test('top-three trend stays at the top of the records page and keeps each bean in its own series', () => {
   const document = new TestDocument();
   const view = createBeanView(document);
   const source = data().records[0];
@@ -3887,10 +3946,7 @@ test('top-three trend spans the records page before the sidebar and keeps each b
   view.renderRoute('/records');
 
   const layout = document.root.querySelector('.records-demo-layout');
-  assert.equal(layout.children[0].className, 'record-insight-trend-section',
-    'the graph is the first DOM section across the sidebar and content columns');
-  assert.equal(layout.children[1].className, 'record-insight-sidebar');
-  const chart = layout.querySelector('.rating-trend-chart');
+  const chart = layout.children[0].querySelector('.rating-trend-chart');
   assert.match(chart.querySelector('title').textContent, /Top 3/);
   const points = chart.querySelectorAll('circle');
   assert.equal(points.length, 3, 'the graph includes the two rated beans and preserves same-date points');
@@ -3921,6 +3977,9 @@ test('legacy record management remains available when bounded insights have not 
   const management = document.root.querySelector('.record-management');
   assert.ok(management);
   assert.equal(management.open, false);
+  const table = document.root.querySelector('.record-overview-table');
+  assert.match(table.querySelector('tbody').textContent, /2026-06-15/);
+  assert.equal(table.closest('details'), null);
   assert.ok(management.querySelector('[data-record-filter="beanId"]'));
   assert.ok(management.querySelector('[data-record-filter="recipeId"]'));
   assert.ok(management.querySelector('.record-card'));
@@ -4794,16 +4853,19 @@ test('home screen keeps its hero action and decorative artwork contract', () => 
   assert.equal(pane.querySelector('.home-hero-art').getAttribute('src'), './icons/home-brew.png');
 });
 
-test('bean screen renders list fields, favorite/delete actions, and record count', () => {
+test('bean screen renders list fields, a favorite action, and record count', () => {
   const document = new TestDocument();
   const pane = document.createElement('div');
   const current = data();
   current.beans[0].recordCount = { status: 'ready', count: 2 };
   renderBeans(pane, current, document);
   const card = pane.querySelector('.bean-card');
+  const [title, favorite] = card.querySelector('.entity-card-header').children;
+  assert.equal(favorite.dataset.action, 'favorite-item');
+  assert.equal(title.tagName, 'h3');
   assert.equal(card.querySelector('.bean-card-link').dataset.route, `/beans/${BEAN}`);
   assert.equal(card.querySelector('[data-action="favorite-item"]').dataset.kind, 'beans');
-  assert.equal(card.querySelector('[data-action="delete-bean"]').dataset.id, BEAN);
+  assert.equal(card.querySelector('[data-action="delete-bean"]'), null);
   assert.equal(card.querySelector('.bean-overview').querySelector('.bean-metadata').textContent.includes('복숭아'), true);
   assert.equal(card.querySelector('.bean-summary-meta').textContent, '추출 기록 2개');
 });
@@ -4814,10 +4876,13 @@ test('bean detail keeps best and history record cards with missing-route fallbac
   const current = data();
   current.beans[0].bestRecordStatus = 'ready';
   current.beans[0].bestRecord = current.records[0];
-  renderBeanDetail(pane, current, document, BEAN);
+  const actions = document.createElement('div');
+  renderBeanDetail(pane, actions, current, document, BEAN);
   assert.equal(pane.querySelector('.bean-detail-card').querySelectorAll('.record-card').length, 2);
   const missing = document.createElement('div');
-  renderBeanDetail(missing, current, document, 'missing-bean');
+  const missingActions = document.createElement('div');
+  renderBeanDetail(missing, missingActions, current, document, 'missing-bean');
+  assert.equal(missingActions.children.length, 0);
   assert.equal(missing.textContent.includes('원두를 찾을 수 없습니다.'), true);
 });
 
@@ -4828,15 +4893,20 @@ test('recipe screens preserve summary actions, details, steps, and recorded snap
   const list = document.createElement('div');
   renderRecipes(list, current, document);
   const card = list.querySelector('.recipe-summary-card');
+  const [title, favorite] = card.querySelector('.entity-card-header').children;
+  assert.equal(favorite.dataset.action, 'favorite-item');
+  assert.equal(title.tagName, 'h3');
   assert.equal(card.querySelector('.recipe-card-link').dataset.route, `/recipes/${RECIPE}`);
   assert.equal(card.querySelector('[data-action="favorite-item"]').dataset.favorite, 'true');
+  assert.equal(card.querySelector('[data-action="delete-recipe"]'), null);
   assert.equal(card.querySelector('.recipe-step-count').textContent, '2단계');
 
   const detail = document.createElement('div');
-  renderRecipeDetail(detail, current, document, RECIPE);
+  const listActions = document.createElement('div');
+  renderRecipeDetail(detail, listActions, current, document, RECIPE);
   assert.equal(detail.querySelector('.recipe-card').querySelector('.steps-table').querySelector('tbody').children.length, 2);
   assert.equal(detail.querySelector('.recipe-records').querySelector('.record-snapshot-conditions') !== null, true);
-  assert.equal(detail.querySelector('[data-action="copy-recipe"]').disabled, false);
+  assert.equal(listActions.querySelector('[data-action="copy-recipe"]').disabled, false);
 });
 
 test('bean form preserves field names, required markers, and submit actions', () => {
@@ -4891,7 +4961,7 @@ test('wheel adjusts focused values by one unit and ratings by a tenth', () => {
 
   for (const [name, initial, expected] of [
     ['microns', '450', '451'], ['temperature', '92.5', '93.5'], ['temperature', '99.95', '100'],
-    ['totalWater', '250', '251'], ['grind', '5', '6'], ['grinderSetting', '24.25', '25.25'],
+    ['grind', '5', '6'], ['grinderSetting', '24.25', '25.25'],
   ]) {
     const field = recipe.elements[name];
     field.value = initial;
@@ -4909,6 +4979,7 @@ test('wheel adjusts focused values by one unit and ratings by a tenth', () => {
   for (const [field, initial, expected] of [
     [stage.querySelector('[name="time"]'), '0:59', '1:00'],
     [stage.querySelector('[name="water"]'), '50', '51'],
+    [brew.elements.totalWater, '250', '251'],
     [brew.elements.rating, '4.8', '4.9'],
   ]) {
     field.value = initial;
@@ -4926,10 +4997,18 @@ test('recipe number shortcuts set the editable fields and report input', () => {
   const inputs = [];
   form.addEventListener('input', event => inputs.push([event.target.name, event.target.value]));
 
+  const doseShortcuts = form.querySelector('[aria-label="원두 사용량 (g) 빠른 입력"]');
+  assert.deepEqual(doseShortcuts.querySelectorAll('button').map(control => control.textContent), ['10g', '15g', '20g']);
+  const temperatureShortcuts = form.querySelector('[aria-label="물 온도 (℃) 빠른 입력"]');
+  assert.deepEqual(temperatureShortcuts.querySelectorAll('button').map(control => control.textContent), ['88°C', '92°C', '96°C']);
+
   for (const [name, caption, expected] of [
-    ['dose', '18g', '18'],
+    ['dose', '10g', '10'],
+    ['dose', '15g', '15'],
+    ['dose', '20g', '20'],
+    ['temperature', '88°C', '88'],
     ['temperature', '92°C', '92'],
-    ['totalWater', '250g', '250'],
+    ['temperature', '96°C', '96'],
   ]) {
     const shortcut = form.querySelectorAll('button').find(control => control.textContent === caption);
     assert.ok(shortcut, `missing shortcut: ${caption}`);
@@ -4950,7 +5029,7 @@ test('recipe form step editor, preview, and payload preserve entered recipe valu
   form.elements.name.value = 'V60 복사';
   form.elements.dose.value = '15';
   form.elements.temperature.value = '93';
-  form.elements.totalWater.value = '250';
+  assert.equal(form.elements.totalWater, undefined);
   assert.equal(form.elements.microns.type, 'text');
   form.elements.microns.value = ' 900 ~ 1000 ';
   addStep(panel, document);
@@ -4965,7 +5044,7 @@ test('recipe form step editor, preview, and payload preserve entered recipe valu
   secondRow.querySelector('[name="water"]').value = '200';
   updatePreview(panel);
   assert.equal(form.querySelector('.steps-preview-table').querySelector('tbody').children.length, 2);
-  assert.equal(form.querySelector('.preview-total').textContent, '단계 물 합계 250g');
+  assert.equal(form.querySelector('.preview-total').textContent, '총 물 양 250g');
 
   const originalFormData = globalThis.FormData;
   globalThis.FormData = class { constructor(element) {
@@ -4975,6 +5054,7 @@ test('recipe form step editor, preview, and payload preserve entered recipe valu
     const payload = recipePayload(form);
     assert.equal(payload.name, 'V60 복사');
     assert.equal(payload.dose, 15);
+    assert.equal(Object.hasOwn(payload, 'totalWater'), false);
     assert.equal(payload.microns, '900~1000');
     assert.deepEqual(payload.steps, [
       { name: '뜸', time: '0:00', water: 50 },
@@ -4987,7 +5067,197 @@ test('recipe form step editor, preview, and payload preserve entered recipe valu
 
   setSteps(form, [{ name: '뜸', seconds: 0, water: 50 }, { name: '붓기', seconds: 70, water: 200 }]);
   assert.deepEqual(form.querySelectorAll('.step-row').map(row => row.querySelector('[name="time"]').value), ['0:00', '1:10']);
-  assert.equal(form.querySelector('.preview-total').textContent, '단계 물 합계 250g');
+  assert.equal(form.querySelector('.preview-total').textContent, '총 물 양 250g');
+});
+
+test('new and edited recipes group the pour steps under a title and an accessible plus button', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+
+  for (const route of ['/recipes/new', `/recipes/${RECIPE}/edit`]) {
+    view.renderRoute(route);
+    const form = document.root.querySelector('form[data-form="recipes"]');
+    const card = form.querySelector('[data-stage-editor="recipe"]');
+    const heading = card.querySelector('h3');
+    assert.equal(heading?.textContent, '물 붓기 단계', route);
+    assert.equal(card.getAttribute('aria-labelledby'), heading.id);
+    const add = card.querySelector('[data-action="add-step"]');
+    assert.equal(add.parentElement, heading.parentElement);
+    assert.equal(add.type, 'button');
+    assert.equal(add.getAttribute('aria-label'), '단계 추가');
+    assert.equal(add.textContent, '+');
+    const time = card.querySelector('.step-row [name="time"]');
+    assert.equal(time.parentElement.querySelector('.form-field-label').textContent, '시작 시간');
+    assert.equal(time.placeholder, '0:00');
+    assert.ok(card.querySelector('.preview-total'));
+    assert.ok(card.querySelector('details'));
+  }
+});
+
+test('recipe stage editor keeps its breakdown open and its focused input while totals update', () => {
+  const document = new TestDocument();
+  const form = buildRecipeForm(document, data(), data().recipes[0]);
+  assert.equal(form.elements.totalWater, undefined);
+  setSteps(form, [{ id: 'step-id', name: '뜸', seconds: 0, water: 50 }]);
+
+  const editor = form.querySelector('[data-stage-editor="recipe"]');
+  assert.ok(editor, 'recipe form exposes the shared stage editor');
+  const row = editor.querySelector('.step-row');
+  const details = editor.querySelector('details');
+  const total = editor.querySelector('.preview-total');
+  const water = row.querySelector('[name="water"]');
+  assert.equal(details.open, false);
+  assert.equal(row.dataset.stepId, 'step-id');
+  assert.equal(row.querySelector('[data-action="remove-step"]').getAttribute('aria-label'), '단계 1 제거');
+  assert.equal(total.textContent, '총 물 양 50g');
+  assert.equal(total.getAttribute('aria-live'), 'polite');
+
+  details.open = true;
+  water.focus();
+  water.value = '75';
+  updatePreview(form);
+
+  assert.equal(editor.querySelector('details'), details);
+  assert.equal(details.open, true);
+  assert.equal(document.activeElement, water);
+  assert.equal(total.textContent, '총 물 양 75g');
+  assert.deepEqual(editor.querySelector('.steps-preview-table').querySelector('tbody').children.map(line =>
+    line.children.map(cell => cell.textContent)), [['0:00', '0초', '75g', '75g']]);
+});
+
+test('stage breakdown hides intervals with invalid adjacent times or decreasing time', () => {
+  const document = new TestDocument();
+  const form = buildRecipeForm(document, data());
+  setSteps(form, [
+    { name: '뜸', seconds: 0, water: 40 },
+    { name: '1차', seconds: 30, water: 80 },
+    { name: '2차', seconds: 100, water: 80 },
+  ]);
+  const rows = form.querySelectorAll('.step-row');
+  const times = rows.map(row => row.querySelector('[name="time"]'));
+  const intervals = () => form.querySelector('.steps-preview-table').querySelector('tbody').children
+    .map(line => line.children[1].textContent);
+
+  times[1].value = '';
+  times[2].value = '1:40';
+  updatePreview(form);
+  assert.deepEqual(intervals(), ['0초', '—', '—']);
+
+  times[1].value = '2:00';
+  times[2].value = '1:40';
+  updatePreview(form);
+  assert.deepEqual(intervals(), ['0초', '120초', '—']);
+
+  times[2].value = '2:30';
+  updatePreview(form);
+  assert.deepEqual(intervals(), ['0초', '120초', '30초']);
+});
+
+test('brew stage editor keeps the first row protected and updates its persistent breakdown', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+  view.renderRoute(`/brew/run?beanId=${BEAN}&recipeId=${RECIPE}`);
+  const form = document.root.querySelector('form[data-form="brews"]');
+  const editor = form.querySelector('[data-stage-editor="brew"]');
+  assert.ok(editor, 'brew preparation exposes the shared stage editor');
+  const rows = editor.querySelectorAll('.brew-stage-row');
+  const details = editor.querySelector('details');
+  const total = editor.querySelector('[data-brew-stage-total]');
+  const water = rows[1].querySelector('[name="water"]');
+  assert.equal(details.open, false);
+  assert.equal(rows[0].querySelector('[data-action="remove-brew-stage"]').disabled, true,
+    `first-stage removal state: ${rows.map(row => row.querySelector('[data-action="remove-brew-stage"]').disabled)}`);
+  assert.equal(rows[1].querySelector('[data-action="remove-brew-stage"]').disabled, false);
+  assert.match(total.textContent, /250g.*250g/);
+
+  details.open = true;
+  water.focus();
+  water.value = '205';
+  updateBrewConditions(form);
+
+  assert.equal(editor.querySelector('details'), details);
+  assert.equal(details.open, true);
+  assert.equal(document.activeElement, water);
+  assert.match(total.textContent, /255g.*250g/);
+  assert.deepEqual(editor.querySelector('.steps-preview-table').querySelector('tbody').children.map(line =>
+    line.children.map(cell => cell.textContent)), [
+    ['0:00', '0초', '50g', '50g'],
+    ['1:10', '70초', '205g', '255g'],
+  ]);
+});
+
+test('recipe and brew stage add and remove actions keep their different defaults and rules', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.bind({ setDirty() {}, getState: () => ({ pending: false, frozen: false, unresolved: false }) });
+  view.renderData(data());
+  view.renderRoute('/recipes');
+
+  let recipe = document.root.querySelector('form[data-form="recipes"]');
+  const recipeDetails = recipe.querySelector('details');
+  recipeDetails.open = true;
+  const addRecipeStep = recipe.querySelector('[data-action="add-step"]');
+  addRecipeStep.focus();
+  await clickViewTarget(document, addRecipeStep);
+  let recipeRows = recipe.querySelectorAll('.step-row');
+  assert.equal(recipeRows.length, 2);
+  assert.equal(document.activeElement === recipeRows[1].querySelector('[name="stepName"]'), true,
+    'adding a recipe stage focuses its name');
+  assert.equal(recipe.querySelector('details'), recipeDetails);
+  assert.equal(recipeDetails.open, true);
+  assert.equal(recipeRows[1].querySelector('[name="time"]').value, '');
+  assert.equal(recipeRows[1].querySelector('[name="time"]').placeholder, '0:30');
+  assert.equal(recipeRows[1].querySelector('[name="water"]').value, '');
+  const removeFirstRecipeStep = recipeRows[0].querySelector('[data-action="remove-step"]');
+  removeFirstRecipeStep.focus();
+  await clickViewTarget(document, removeFirstRecipeStep);
+  assert.equal(recipe.querySelectorAll('.step-row').length, 1, 'recipe rows are all removable');
+  recipeRows = recipe.querySelectorAll('.step-row');
+  assert.equal(document.activeElement === recipeRows[0].querySelector('[name="stepName"]'), true,
+    'removing a recipe stage focuses the adjacent stage name');
+  assert.equal(recipe.querySelector('details'), recipeDetails);
+  assert.equal(recipeDetails.open, true);
+  const removeLastRecipeStep = recipeRows[0].querySelector('[data-action="remove-step"]');
+  removeLastRecipeStep.focus();
+  await clickViewTarget(document, removeLastRecipeStep);
+  assert.equal(recipe.querySelectorAll('.step-row').length, 0);
+  assert.equal(document.activeElement === recipe.querySelector('[data-action="add-step"]'), true,
+    'removing the last recipe stage focuses add stage');
+  assert.equal(recipe.querySelector('details'), recipeDetails);
+  assert.equal(recipeDetails.open, true);
+
+  view.renderRoute(`/brew/run?beanId=${BEAN}&recipeId=${RECIPE}`);
+  const brew = document.root.querySelector('form[data-form="brews"]');
+  const brewDetails = brew.querySelector('details');
+  brewDetails.open = true;
+  let brewRows = brew.querySelectorAll('.brew-stage-row');
+  assert.equal(brewRows[0].querySelector('[data-action="remove-brew-stage"]').disabled, true);
+  const addBrewStage = brew.querySelector('[data-action="add-brew-stage"]');
+  addBrewStage.focus();
+  await clickViewTarget(document, addBrewStage);
+  brewRows = brew.querySelectorAll('.brew-stage-row');
+  assert.equal(brewRows.length, 3);
+  assert.equal(document.activeElement === brewRows[2].querySelector('[name="stepName"]'), true,
+    'adding a brew stage focuses its name');
+  assert.equal(brew.querySelector('details'), brewDetails);
+  assert.equal(brewDetails.open, true);
+  assert.equal(brewRows[2].querySelector('[name="time"]').value, '1:40');
+  assert.equal(brewRows[2].querySelector('[name="water"]').value, 10);
+  assert.equal(brewRows[2].querySelector('[data-action="remove-brew-stage"]').getAttribute('aria-label'), '단계 3 제거');
+  await clickViewTarget(document, brewRows[0].querySelector('[data-action="remove-brew-stage"]'));
+  assert.equal(brew.querySelectorAll('.brew-stage-row').length, 3, 'the first brew row cannot be removed');
+  const removeSecondBrewStage = brewRows[1].querySelector('[data-action="remove-brew-stage"]');
+  removeSecondBrewStage.focus();
+  await clickViewTarget(document, removeSecondBrewStage);
+  brewRows = brew.querySelectorAll('.brew-stage-row');
+  assert.equal(brewRows.length, 2);
+  assert.equal(document.activeElement === brewRows[1].querySelector('[name="stepName"]'), true,
+    'removing a brew stage focuses the next stage name');
+  assert.equal(brew.querySelector('details'), brewDetails);
+  assert.equal(brewDetails.open, true);
+  assert.equal(brewRows[1].querySelector('[data-action="remove-brew-stage"]').getAttribute('aria-label'), '단계 2 제거');
 });
 
 for (const kind of ['beans', 'recipes']) {

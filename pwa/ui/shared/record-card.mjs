@@ -10,18 +10,23 @@ export function currentRecords(data) {
   return Array.isArray(data?.records) ? data.records.filter(isCurrentRecord) : [];
 }
 
-export function recordCard(document, record, data) {
-  const card = make(document, 'article', undefined, 'record-card');
+export function recordPresentation(record, data) {
   const bean = (data.beans ?? []).find(item => item.id === record.beanId);
   const recipe = (data.recipes ?? []).find(item => item.id === record.recipeId);
   const validSnapshot = record.snapshotStatus === 'valid' ? record.snapshot : null;
   const snapshotBean = validSnapshot?.version >= 2 ? validSnapshot.bean : null;
   const snapshotRecipe = validSnapshot?.version >= 2 ? validSnapshot.recipe : validSnapshot;
-  const validRating = isValidRating(record.rating);
   const beanName = bean?.name || snapshotBean?.name || (record.beanNameStatus === 'loading'
     ? '원두 이름 확인 중' : record.beanNameStatus === 'error' ? '원두 이름 불러오기 실패' : '원두 확인 필요');
   const recipeName = recipe?.name || snapshotRecipe?.name || (record.recipeNameStatus === 'loading'
     ? '레시피 이름 확인 중' : record.recipeNameStatus === 'error' ? '레시피 이름 불러오기 실패' : '확인할 수 없는 레시피');
+  return { bean, recipe, snapshotBean, snapshotRecipe, beanName, recipeName };
+}
+
+export function recordCard(document, record, data) {
+  const { bean, recipe, snapshotBean, snapshotRecipe, beanName, recipeName } = recordPresentation(record, data);
+  const validRating = isValidRating(record.rating);
+  const card = make(document, 'article', undefined, 'record-card');
   const header = make(document, 'div', undefined, 'entity-card-header');
   header.append(make(document, 'h3', `${record.date || '날짜 확인 필요'} · ${beanName}`),
     trashButton(document, 'records', record.id, recordName(record, recipe, snapshotRecipe)));

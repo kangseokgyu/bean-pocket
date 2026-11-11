@@ -1,8 +1,9 @@
+import { isValidRating } from '../../domain.mjs';
 import { renderRecordsInsights } from '../records-insights-view.mjs';
 import { make } from '../shared/dom.mjs';
 import { button } from '../shared/buttons.mjs';
 import { makeEntryDialog } from '../shared/dialogs.mjs';
-import { currentRecords, recordCard } from '../shared/record-card.mjs';
+import { currentRecords, recordCard, recordPresentation } from '../shared/record-card.mjs';
 import { preferredOptionPage, searchPicker, syncSearchPickerTrigger } from '../interactions/search-picker.mjs';
 
 export function renderRecords(pane, data, document, form, formOpen, optionPages, optionStates,
@@ -15,8 +16,8 @@ export function renderRecords(pane, data, document, form, formOpen, optionPages,
   management.open = managementOpen;
   management.addEventListener('toggle', () => setManagementOpen(management.open));
   const managementHeading = make(document, 'summary', undefined, 'record-management-summary');
-  managementHeading.append(make(document, 'strong', '전체 기록 조회·관리'));
-  managementHeading.append(make(document, 'span', `${data.records?.length ?? 0}건 표시 · 검색, 필터와 삭제`));
+  managementHeading.append(make(document, 'strong', '상세 분석 및 기록 관리'));
+  managementHeading.append(make(document, 'span', `${data.records?.length ?? 0}건 표시`));
   management.append(managementHeading);
   const managementBody = make(document, 'div', undefined, 'record-management-body');
 
@@ -45,33 +46,63 @@ export function renderRecords(pane, data, document, form, formOpen, optionPages,
   reset.disabled = !selectedFilters.beanId && !selectedFilters.recipeId;
   filters.append(reset);
   managementBody.append(filters);
-  managementBody.append(make(document, 'p', '아래 서버 필터와 페이지는 이 관리 목록에만 적용됩니다. 그래프와 비교 요약은 불러온 인사이트 범위를 사용합니다.',
+  managementBody.append(make(document, 'p', '원두·레시피 필터는 추출 기록 표와 관리 목록에 적용됩니다.',
     'record-insights-table-note'));
   managementBody.append(make(document, 'h3', '전체 기록 목록', 'record-table-heading'));
 
   const list = make(document, 'div', undefined, 'record-list');
   list.dataset.recordList = '';
   managementBody.append(list);
-  const pageMore = make(document, 'div', undefined, 'record-management-page-more');
-  pageMore.dataset.recordPageMore = '';
-  managementBody.append(pageMore);
-  management.append(managementBody);
-  renderRecordsInsights(pane, data, document, insightRecipeFilter, insightRatingFilter, insightComparisonSort,
-    comparisonLeftId, comparisonRightId, management);
-  renderRecordRows(list, data, selectedFilters.beanId ?? '', selectedFilters.recipeId ?? '');
-}
-
-function renderRecordRows(list, data, beanId, recipeId) {
   const visibleRecords = currentRecords(data);
   const records = visibleRecords
-    .filter(record => (!beanId || record.beanId === beanId) && (!recipeId || record.recipeId === recipeId))
+    .filter(record => (!selectedFilters.beanId || record.beanId === selectedFilters.beanId) &&
+      (!selectedFilters.recipeId || record.recipeId === selectedFilters.recipeId))
     .sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
-  list.replaceChildren();
-  if (!records.length) {
-    const pending = data.screen?.hasMore || data.screen?.complete === false;
-    list.append(make(list.ownerDocument, 'p', pending ? '기록을 더 확인 중입니다. 더 보기를 눌러 계속 확인해 주세요.'
-      : visibleRecords.length ? '선택한 조건에 맞는 기록이 없습니다.' : '새 버전에서 작성한 추출 기록이 없습니다.', 'empty-state'));
-    return;
+  const pending = data.screen?.hasMore || data.screen?.complete === false;
+  const emptyMessage = pending ? '기록을 더 확인 중입니다.'
+    : (visibleRecords.length || selectedFilters.beanId || selectedFilters.recipeId)
+      ? '선택한 조건에 맞는 기록이 없습니다.' : '새 버전에서 작성한 추출 기록이 없습니다.';
+  if (!records.length) list.append(make(document, 'p', emptyMessage, 'empty-state'));
+  for (const record of records) list.append(recordCard(document, record, data));
+
+  const overview = make(document, 'section', undefined, 'record-overview');
+  overview.append(renderRecordTable(document, records, data, emptyMessage));
+  const pageMore = make(document, 'div');
+  pageMore.dataset.recordPageMore = '';
+  overview.append(pageMore);
+  renderRecordsInsights(pane, data, document, insightRecipeFilter, insightRatingFilter, insightComparisonSort,
+    comparisonLeftId, comparisonRightId, overview, management);
+  management.append(managementBody);
+}
+
+function renderRecordTable(document, records, data, emptyMessage) {
+  const frame = make(document, 'div', undefined, 'table-scroll');
+  const table = make(document, 'table', undefined, 'record-overview-table');
+  const head = make(document, 'thead');
+  const headings = make(document, 'tr');
+  for (const label of ['날짜', '원두', '레시피', '별점']) {
+    const cell = make(document, 'th', label);
+    cell.setAttribute('scope', 'col');
+    headings.append(cell);
   }
-  for (const record of records) list.append(recordCard(list.ownerDocument, record, data));
+  head.append(headings);
+  const body = make(document, 'tbody');
+  for (const record of records) {
+    const { beanName, recipeName } = recordPresentation(record, data);
+    const row = make(document, 'tr');
+    const values = [record.invalidFields?.includes('date') ? '—' : record.date || '—', beanName, recipeName,
+      isValidRating(record.rating) ? `${record.rating}/5` : '—'];
+    row.append(...values.map(value => make(document, 'td', value)));
+    body.append(row);
+  }
+  if (!records.length) {
+    const row = make(document, 'tr');
+    const cell = make(document, 'td', emptyMessage, 'empty-state');
+    cell.setAttribute('colspan', '4');
+    row.append(cell);
+    body.append(row);
+  }
+  table.append(make(document, 'caption', '추출 기록', 'visually-hidden'), head, body);
+  frame.append(table);
+  return frame;
 }

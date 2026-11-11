@@ -26,7 +26,7 @@ npm run check:pages
 
 원두와 공용 레시피를 독립적으로 관리한다. 추출 준비에서 공용 레시피나 이전 기록의 조건을 조정하고, 날짜·별점·선택 컵노트와 전체 조건 스냅샷을 저장한다. 저장 기록은 같은 원두끼리 비교할 수 있다. 유용한 조건은 별도 공용 레시피로 저장하고 원두별 사용자 베스트를 지정할 수 있다.
 
-제품 계약은 [SPEC.md](SPEC.md), 용어는 [용어집](GLOSSARY.md), PWA 모듈 안내는 [UI 파일 안내](docs/ui-refactoring.md#where-to-start)에 있다.
+제품 계약은 [SPEC.md](SPEC.md), 용어는 [용어집](GLOSSARY.md), PWA 모듈 안내는 [UI 파일 안내](docs/ui-refactoring.md#where-to-start)에 있다. 버튼과 아이콘 기준은 [UI 가이드](docs/button-icon-guidelines.md)에 있다.
 
 ## 검증 범위
 

@@ -8,7 +8,7 @@ Status: R0-R6 are complete. The [general Pages build](https://kangseokgyu.github
 
 Move UI rendering, form construction, event interactions, and safe controller read coordination into small modules. Preserve all user-visible behavior, the current DOM and selectors, and the public createAppView and createAppController interfaces.
 
-The feature worktree started at `0e0c2f3` and later took `250198d` from `main`. The refactor preserves domain, data, submission, and platform behavior. The incoming wordmark and stylesheet are part of the `250198d` integration. Main owns browser baseline and candidate comparison. Worker owns Node tests and implementation.
+The original comparison assigned browser baseline/candidate ownership to main and Node tests/implementation to the worker; that split describes the 2026-11-06 comparison only. The historical baseline source and result files remain unchanged.
 
 ## Where to start
 
@@ -72,6 +72,11 @@ For every new file, update both build and check file lists, allowed directory se
 
 ## Browser evidence ownership
 
-Main reported that the baseline harness in docs/evidence/ui-refactor-browser-20261106/ passed 21 cases. The run covered nine screens at 390px and 1280px, two form cancel/no-write cases, dialog identity/input/focus through rerender, and a favorite toggle. It used createAppView, createAppController, memoryPlatform, and fakePwaNotion, with no live Notion access. Recipe-list statistics may remain in the lazy loading state until detail is opened; the comparison must not require that the entire recipe object omit loading status. Main owns the candidate replay and exact DOM comparison. Worker does not run or modify the browser scripts or their artifacts.
+The historical baseline harness in docs/evidence/ui-refactor-browser-20261106/ passed 21 cases. That run covered nine screens at 390px and 1280px, two form cancel/no-write cases, dialog identity/input/focus through rerender, and a favorite toggle. It used createAppView, createAppController, memoryPlatform, and fakePwaNotion, with no live Notion access. Recipe-list statistics may remain in the lazy loading state until detail is opened; the comparison must not require that the entire recipe object omit loading status. The baseline and result files remain historical evidence.
 
 Main recorded 22 passing Chromium cases through R3 in `482f2d7`. That run predates R4 and the `250198d` integration. The final browser comparison uses a new baseline at `250198d`.
+
+
+## Current browser regression
+
+The reusable Chromium regression now lives in scripts/browser/verify.mjs and runs with npm run test:browser. It checks the current checkout with fake Notion data, including 390px and 1280px layouts, bean and recipe dialogs, input/focus preservation, a draft restored after reload, and explicit cancel cleanup. It does not call live Notion. PR and main pushes run this command through .github/workflows/verify.yml. The dated comparison scripts and result files above are retained unchanged.

@@ -28,7 +28,7 @@ const SAFE_MESSAGES = Object.freeze({
   'unresolved-operation': '앞선 저장 결과를 먼저 원본에서 확인해 주세요.',
   'connection-mismatch': '연결 파일과 작업 기록이 일치하지 않습니다. 복구가 필요합니다.',
   'connection-save-uncertain': '연결 저장 결과를 확인해야 합니다. 원본 연결 파일을 확인해 주세요.',
-  'state-blocked': '저장 작업 상태를 확인할 수 없어 연결을 중단했습니다. 원본 journal을 확인해 주세요.',
+  'state-blocked': '저장 작업 상태를 확인할 수 없어 연결을 중단했습니다. Notion 원본의 실제 결과를 먼저 확인해 주세요.',
   unknown: '저장 여부 확인이 필요합니다. 다시 제출하지 말고 원본을 확인해 주세요.',
   partial: '일부 항목만 저장되었습니다. 원본을 확인한 뒤 복구를 진행해 주세요.',
   'read-failed': '최신 목록을 불러오지 못했습니다. 연결과 권한을 확인해 주세요.',
@@ -114,10 +114,14 @@ export function createAppController({
     unresolvedOperations = operations.filter(operation => ['unknown', 'partial'].includes(operation.status));
     view.showUnresolved?.(unresolvedOperations.map(operation => ({
       kind: operation.kind,
-      targetKind: operation.deleteTarget?.kind ?? operation.favoriteTarget?.kind,
+      targetKind: operation.deleteTarget?.kind ?? operation.favoriteTarget?.kind ??
+        (operation.editTarget ? 'recipes' : operation.updateTarget?.kind),
+      targetId: operation.deleteTarget?.id ?? operation.favoriteTarget?.id ?? operation.editTarget?.recipeId ?? operation.updateTarget?.id,
       favorite: operation.favoriteTarget?.favorite,
       editTarget: operation.editTarget ? { recipeId: operation.editTarget.recipeId,
         createdStepCount: operation.editTarget.pages.filter(page => page.action === 'create').length } : null,
+      createdPages: operation.createdPages.map(page => ({ kind: page.kind, id: page.id })),
+      updatedAt: operation.updatedAt,
       status: operation.status,
       knownPageCount: operation.createdPages.length,
       resolve: resolution => resolveOperation(operation.key, resolution),

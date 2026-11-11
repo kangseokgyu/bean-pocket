@@ -12,7 +12,7 @@ const modules = [...controllerModules, 'commands/index.mjs', 'ui/controller.mjs'
   'ui/interactions/search-picker.mjs', 'ui/interactions/status-toast.mjs',
   'ui/forms/record-form.mjs', 'ui/screens/brew.mjs', 'ui/screens/records.mjs',
   'ui/shared/date.mjs', 'ui/shared/route.mjs',
-  'ui/view.mjs', 'ui/forms/bean-form.mjs', 'ui/forms/recipe-form.mjs', 'ui/screens/beans.mjs',
+  'ui/view.mjs', 'ui/recovery-view.mjs', 'ui/forms/bean-form.mjs', 'ui/forms/recipe-form.mjs', 'ui/screens/beans.mjs',
   'ui/screens/home.mjs', 'ui/screens/recipes.mjs', 'ui/shared/buttons.mjs', 'ui/shared/dialogs.mjs', 'ui/shared/dom.mjs',
   'ui/shared/favorite-button.mjs', 'ui/shared/form-fields.mjs', 'ui/shared/icons.mjs',
   'ui/shared/recipe-presentation.mjs', 'ui/shared/record-card.mjs', 'platform/app-lifecycle.mjs', 'platform/update-coordinator.mjs', 'state/form-drafts.mjs'];
@@ -81,6 +81,16 @@ test('PWA view and controller import closures are acyclic and present in the pub
   for (const file of controllerModules) {
     assert.ok(controllerImports.has(file), `${file} must be reachable from the controller facade`);
   }
+});
+
+test('Pages permits only the fixed Notion page-link origin in the recovery renderer', async t => {
+  const f = await fixture(t);
+  await buildPages(f);
+  const file = path.join(f.outputDir, 'ui/recovery-view.mjs');
+  const original = await readFile(file, 'utf8');
+
+  await writeFile(file, original + "\nfetch('https://example.invalid');");
+  await assert.rejects(checkPages(f.outputDir), /외부 URL/);
 });
 
 test('production records insights resolve domain logic inside the Pages bundle', async t => {

@@ -1,0 +1,17 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+'' !== '브라우저 초안 복원'
+
+    at file:///Users/kangseokgyu/.codex/worktrees/project-improvements/AX-1day/docs/evidence/ui-refactor-browser-20261106/verify.mjs:100:9 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: '',
+  expected: '브라우저 초안 복원',
+  operator: 'strictEqual'
+}
+
+Node.js v22.17.0

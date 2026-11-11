@@ -1036,6 +1036,35 @@ test('resolution controls follow the native journal page-list contract', () => {
   assert.equal(unknownForm.elements.decision.querySelectorAll('option').some(option => option.value === 'not-saved'), true);
 });
 
+test('recovery cards show the user task, update time, checks, and only safe Notion page links', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.showUnresolved([{
+    kind: 'delete-bean', status: 'unknown', targetKind: 'beans', targetId: BEAN,
+    updatedAt: '2026-11-12T04:05:06.000Z', knownPageCount: 0, resolve() {},
+  }]);
+
+  const card = document.root.querySelector('.resolution-card');
+  assert.match(card.querySelector('h3').textContent, /원두 삭제/);
+  assert.doesNotMatch(card.textContent, /journal/i);
+  const time = card.querySelector('time[data-operation-time]');
+  assert.equal(time.getAttribute('datetime'), '2026-11-12T04:05:06.000Z');
+  assert.match(card.textContent, /마지막 변경 시각/);
+  assert.match(time.textContent, /2026/);
+  assert.ok(card.querySelectorAll('.resolution-checklist li').length > 0);
+  const link = card.querySelector('a[data-original-page]');
+  assert.equal(link.getAttribute('href'), 'https://www.notion.so/11111111111141118111111111111111');
+  assert.equal(link.getAttribute('target'), '_blank');
+  assert.equal(link.getAttribute('rel'), 'noopener noreferrer');
+  assert.equal(link.getAttribute('referrerpolicy'), 'no-referrer');
+
+  view.showUnresolved([{ kind: 'beans', status: 'unknown', targetId: 'https://attacker.example/page', updatedAt: '2026-11-12T04:05:06.000Z',
+    knownPageCount: 0, resolve() {} }]);
+  const unlinked = document.root.querySelector('.resolution-card');
+  assert.equal(unlinked.querySelector('a[data-original-page]'), null);
+  assert.match(unlinked.textContent, /원본 링크가 없습니다/);
+});
+
 test('uncertain recipe edits offer exact before or after verification and block blind retry', () => {
   const document = new TestDocument();
   const view = createBeanView(document);

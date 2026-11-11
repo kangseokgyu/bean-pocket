@@ -24,7 +24,7 @@ const sourceFiles = [
   'ui/records-insights.mjs',
   'ui/records-insights-view.mjs',
   'ui/star-rating.mjs',
-  'ui/view.mjs',
+  'ui/view.mjs', 'ui/recovery-view.mjs',
   'ui/forms/bean-form.mjs',
   'ui/forms/recipe-form.mjs',
   'ui/forms/record-form.mjs',

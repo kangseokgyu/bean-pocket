@@ -1,0 +1,37 @@
+name: Verify pull requests and main
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run regression tests
+        run: npm test
+      - name: Build static PWA
+        run: npm run build:pages
+      - name: Check publish artifact
+        run: npm run check:pages
+      - name: Run browser regression
+        run: npm run test:browser

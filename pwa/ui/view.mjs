@@ -15,6 +15,7 @@ import { renderRecords } from './screens/records.mjs';
 import { buildRecordForm, recordFlowKey } from './forms/record-form.mjs';
 import { routePath, routeParams, normalizeRoute } from './shared/route.mjs';
 import { createFormDraftStore } from '../state/form-drafts.mjs';
+import { buildResolutionForm } from './recovery-view.mjs';
 import { bindEvents } from './interactions/events.mjs';
 import { createStatusToast } from './interactions/status-toast.mjs';
 import { bindPullToRefresh } from './interactions/pull-to-refresh.mjs';
@@ -1306,77 +1307,6 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
   const form = pane.querySelector('form[data-form]');
   if (form) restoreDraft(form, drafts.get(draftKey(form)), data);
   updateNavigationCurrent(parent.ownerDocument, route);
-}
-
-function buildResolutionForm(document, operation) {
-  const deleting = operation.kind.startsWith('delete-');
-  const favoriting = operation.kind.startsWith('favorite-');
-  const editing = operation.kind === 'edit-recipe';
-  const deleteNames = { beans: '원두', recipes: '레시피', records: '추출 기록' };
-  const names = { beans: '원두', recipes: '레시피', records: '추출 기록' };
-  const targetName = deleteNames[operation.targetKind] ?? '항목';
-  const hasKnownPages = deleting || favoriting || editing || operation.knownPageCount > 0;
-  const card = make(document, 'article', undefined, 'resolution-card');
-  const status = deleting ? '삭제 여부 확인 필요' : editing ? '수정 결과 확인 필요' : operation.status === 'partial' ? '일부 저장' : '저장 여부 확인 필요';
-  card.append(make(document, 'h3', `${deleting ? `${targetName} 삭제` : editing ? '레시피 수정' : names[operation.kind] ?? '저장'} · ${status}`));
-  card.append(make(document, 'p', favoriting ? 'Notion 원본의 즐겨찾기 체크 상태를 확인해 주세요. 확인 과정에서는 저장을 다시 요청하지 않습니다.' : deleting ? `Notion 원본에서 삭제 대상(${targetName})의 휴지통 이동 여부를 직접 확인해 주세요. 확인 과정에서는 삭제를 다시 요청하지 않습니다.` : editing
-    ? '레시피와 모든 단계가 수정 전 상태 또는 수정 후 상태와 정확히 일치하는지 확인해 주세요. 일부만 반영되었거나 다른 내용이면 이 화면을 닫지 말고 Notion에서 레시피와 단계를 한쪽 상태로 맞춰 주세요. 저장을 다시 요청하지 마세요.' : hasKnownPages
-    ? `확인된 항목 ${operation.knownPageCount}개. 원본에서 이 항목의 상태를 확인해 저장됨 또는 모두 보관 취소됨을 선택해 주세요.`
-    : 'Notion 원본을 직접 확인하고, 이번 작업의 결과에 맞는 선택을 해 주세요.'));
-  if (!hasKnownPages) card.append(make(document, 'p', '저장됨을 선택할 때는 이번 작업으로 새로 만들어진 모든 페이지의 ID를 입력해 주세요. ID는 상태 메시지에 표시하지 않습니다.', 'muted-note'));
-
-  const form = make(document, 'form', undefined, 'form-grid resolution-form');
-  const confirmed = label(document, 'Notion 원본에서 이번 작업의 결과를 직접 확인했습니다.', 'originalConfirmed', 'checkbox', true);
-  form.append(confirmed);
-  const decision = label(document, '확인 결과', 'decision', 'select', true);
-  const select = decision.querySelector('select');
-  const decisions = editing ? [['saved', '레시피와 모든 단계가 수정 후 상태와 일치함'], ['not-saved', '레시피와 모든 단계가 수정 전 상태와 일치함']] : favoriting ? [['saved', `즐겨찾기가 요청한 상태(${operation.favorite ? '추가' : '해제'})임을 확인함`], ['not-saved', '즐겨찾기가 요청한 상태와 다름을 확인함']] : deleting ? [
-    ['saved', `${targetName}: 휴지통에 있음을 확인함`],
-    ['not-saved', `${targetName}: 삭제되지 않고 남아 있음을 확인함`],
-  ] : [
-    ['saved', '이번 작업의 저장을 확인함'],
-    ['cancelled', '이번 작업의 새 항목을 모두 보관 취소함'],
-  ];
-  if (!hasKnownPages) decisions.splice(1, 0, ['not-saved', '이번 작업이 저장되지 않았음을 확인함']);
-  for (const [value, title] of decisions) {
-    const option = document.createElement('option');
-    option.value = value;
-    option.textContent = title;
-    select.append(option);
-  }
-  form.append(decision);
-  if (!hasKnownPages) form.append(label(document, '확인한 새 페이지 ID (저장됨이면 쉼표로 구분)', 'pageIds', 'text', false,
-    { autocomplete: 'off', autocapitalize: 'off', spellcheck: false }));
-  const submit = actionButton(document, '확인 결과 저장', 'submit', 'save');
-  let resolving = false;
-  form.append(submit);
-  form.addEventListener('submit', async event => {
-    event.preventDefault();
-    if (resolving || submit.disabled) return;
-    resolving = true;
-    submit.disabled = true;
-    setActionButton(submit, '저장 중…', 'saving');
-    try {
-      const resolved = await operation.resolve({
-        originalConfirmed: confirmed.querySelector('input').checked,
-        decision: select.value,
-        pageIds: form.elements.pageIds?.value,
-      });
-      if (resolved === true) setActionButton(submit, '확인 완료', 'success');
-      else {
-        resolving = false;
-        submit.disabled = false;
-        setActionButton(submit, '확인 결과 저장', 'idle');
-      }
-    } catch {
-      // Controller status is deliberately fixed text and never includes IDs, tokens, or API bodies.
-      resolving = false;
-      submit.disabled = false;
-      setActionButton(submit, '확인 결과 저장', 'idle');
-    }
-  });
-  card.append(form);
-  return card;
 }
 
 function removePersistedDraft(draftStore, scope, key) {

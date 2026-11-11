@@ -1,0 +1,4774 @@
+
+> test
+> node --test
+
+TAP version 13
+# Subtest: C3-R1 checked connection-recovery checkbox reaches confirmCurrent
+ok 1 - C3-R1 checked connection-recovery checkbox reaches confirmCurrent
+  ---
+  duration_ms: 4.9095
+  type: 'test'
+  ...
+# Subtest: C3-R2 successful token replacement preserves the active unsaved product form
+ok 2 - C3-R2 successful token replacement preserves the active unsaved product form
+  ---
+  duration_ms: 41.268791
+  type: 'test'
+  ...
+# Subtest: C3-R2b hidden drafts must still prevent update freezing after token replacement
+ok 3 - C3-R2b hidden drafts must still prevent update freezing after token replacement
+  ---
+  duration_ms: 17.712708
+  type: 'test'
+  ...
+# Subtest: C3-R3 positive sub-cent values accepted by domain remain valid UI input
+ok 4 - C3-R3 positive sub-cent values accepted by domain remain valid UI input
+  ---
+  duration_ms: 14.142875
+  type: 'test'
+  ...
+# Subtest: C3-R4 incomplete partial recipe cannot be confirmed as fully saved
+ok 5 - C3-R4 incomplete partial recipe cannot be confirmed as fully saved
+  ---
+  duration_ms: 27.227334
+  type: 'test'
+  ...
+# Subtest: C3-native fresh-read failure keeps unknown journal locked
+ok 6 - C3-native fresh-read failure keeps unknown journal locked
+  ---
+  duration_ms: 6.150666
+  type: 'test'
+  ...
+# Subtest: PWA check path draws from the short stroke to the long stroke
+ok 7 - PWA check path draws from the short stroke to the long stroke
+  ---
+  duration_ms: 0.792333
+  type: 'test'
+  ...
+# Subtest: PWA action and status checks share the approved motion and reduced-motion behavior
+ok 8 - PWA action and status checks share the approved motion and reduced-motion behavior
+  ---
+  duration_ms: 0.376542
+  type: 'test'
+  ...
+# Subtest: stops at a failed local check, preserving the reason and exit code
+ok 9 - stops at a failed local check, preserving the reason and exit code
+  ---
+  duration_ms: 563.905
+  type: 'test'
+  ...
+# Subtest: refuses to deploy changes that are not committed
+ok 10 - refuses to deploy changes that are not committed
+  ---
+  duration_ms: 126.1855
+  type: 'test'
+  ...
+# Subtest: deploys the checked commit as the regular build and verifies the public version
+ok 11 - deploys the checked commit as the regular build and verifies the public version
+  ---
+  duration_ms: 231.405791
+  type: 'test'
+  ...
+# Subtest: shows the workflow failure log and skips the public check
+ok 12 - shows the workflow failure log and skips the public check
+  ---
+  duration_ms: 245.93225
+  type: 'test'
+  ...
+# Subtest: fails if the public build differs from the local build
+ok 13 - fails if the public build differs from the local build
+  ---
+  duration_ms: 225.210375
+  type: 'test'
+  ...
+# Subtest: 누적 시간·간격·물 양을 계산한다
+ok 14 - 누적 시간·간격·물 양을 계산한다
+  ---
+  duration_ms: 2.842375
+  type: 'test'
+  ...
+# Subtest: 필수값과 실제 날짜, 수량, 온도, 시간순서, 총량 검증
+ok 15 - 필수값과 실제 날짜, 수량, 온도, 시간순서, 총량 검증
+  ---
+  duration_ms: 1.808584
+  type: 'test'
+  ...
+# Subtest: 분쇄 입자는 기존 숫자와 정규화된 범위를 함께 보존한다
+ok 16 - 분쇄 입자는 기존 숫자와 정규화된 범위를 함께 보존한다
+  ---
+  duration_ms: 0.487875
+  type: 'test'
+  ...
+# Subtest: 레시피는 원두와 독립적이고 별점 기록에는 명시적 원두가 필요하다
+ok 17 - 레시피는 원두와 독립적이고 별점 기록에는 명시적 원두가 필요하다
+  ---
+  duration_ms: 0.175709
+  type: 'test'
+  ...
+# Subtest: 복사와 당시 조건 스냅샷은 독립적이다
+ok 18 - 복사와 당시 조건 스냅샷은 독립적이다
+  ---
+  duration_ms: 0.455792
+  type: 'test'
+  ...
+# Subtest: 실제 추출 스냅샷은 μm 범위 문자열을 원래 조건으로 보존한다
+ok 19 - 실제 추출 스냅샷은 μm 범위 문자열을 원래 조건으로 보존한다
+  ---
+  duration_ms: 0.248167
+  type: 'test'
+  ...
+# Subtest: copyRecipe와 createSnapshot은 favorite 속성을 상속하거나 스냅샷에 보존하지 않는다
+ok 20 - copyRecipe와 createSnapshot은 favorite 속성을 상속하거나 스냅샷에 보존하지 않는다
+  ---
+  duration_ms: 0.133666
+  type: 'test'
+  ...
+# Subtest: 평균은 현재 generation 기록만 중복 포함해 집계하고 빈 평균은 null
+ok 21 - 평균은 현재 generation 기록만 중복 포함해 집계하고 빈 평균은 null
+  ---
+  duration_ms: 0.163458
+  type: 'test'
+  ...
+# Subtest: 숫자처럼 변환되는 배열과 객체는 수량·별점으로 허용하지 않는다
+ok 22 - 숫자처럼 변환되는 배열과 객체는 수량·별점으로 허용하지 않는다
+  ---
+  duration_ms: 0.307583
+  type: 'test'
+  ...
+# Subtest: 새 snapshot에는 bagless generation marker를 붙이고 marker 없는 기록은 평점 집계에서 제외한다
+ok 23 - 새 snapshot에는 bagless generation marker를 붙이고 marker 없는 기록은 평점 집계에서 제외한다
+  ---
+  duration_ms: 0.366916
+  type: 'test'
+  ...
+# Subtest: 별점은 0.1부터 5.0까지 0.1 단위로 검증하고 숫자로 보존한다
+ok 24 - 별점은 0.1부터 5.0까지 0.1 단위로 검증하고 숫자로 보존한다
+  ---
+  duration_ms: 0.322042
+  type: 'test'
+  ...
+# Subtest: 유효 decimal 별점은 저장 검증과 레시피 평균 집계에서 제외되지 않는다
+ok 25 - 유효 decimal 별점은 저장 검증과 레시피 평균 집계에서 제외되지 않는다
+  ---
+  duration_ms: 0.093625
+  type: 'test'
+  ...
+# Subtest: test/fixtures/form-draft-storage.mjs
+ok 5 - test/fixtures/form-draft-storage.mjs
+  ---
+  duration_ms: 43.290917
+  type: 'test'
+  ...
+# Subtest: test/fixtures/notion-config.mjs
+ok 6 - test/fixtures/notion-config.mjs
+  ---
+  duration_ms: 45.071375
+  type: 'test'
+  ...
+# Subtest: test/fixtures/pwa-environment.mjs
+ok 7 - test/fixtures/pwa-environment.mjs
+  ---
+  duration_ms: 56.366958
+  type: 'test'
+  ...
+# Subtest: migration defaults to a read-only test dry-run and proposes a single-property records relation
+ok 29 - migration defaults to a read-only test dry-run and proposes a single-property records relation
+  ---
+  duration_ms: 21.888375
+  type: 'test'
+  ...
+# Subtest: apply preserves every existing property and a second run performs no PATCH
+ok 30 - apply preserves every existing property and a second run performs no PATCH
+  ---
+  duration_ms: 1.791875
+  type: 'test'
+  ...
+# Subtest: migration rejects a conflicting property before any write
+ok 31 - migration rejects a conflicting property before any write
+  ---
+  duration_ms: 0.526333
+  type: 'test'
+  ...
+# Subtest: post-write readback rejects any change to properties that existed before migration
+ok 32 - post-write readback rejects any change to properties that existed before migration
+  ---
+  duration_ms: 1.331708
+  type: 'test'
+  ...
+# Subtest: a lost PATCH response is reconciled by schema readback without issuing a second PATCH
+ok 33 - a lost PATCH response is reconciled by schema readback without issuing a second PATCH
+  ---
+  duration_ms: 1.733083
+  type: 'test'
+  ...
+# Subtest: command parsing keeps apply opt-in and restricts target environments
+ok 34 - command parsing keeps apply opt-in and restricts target environments
+  ---
+  duration_ms: 0.587375
+  type: 'test'
+  ...
+# Subtest: 긴 snapshot은 Notion rich_text 조각으로 나누고 원래 객체로 복원한다
+ok 35 - 긴 snapshot은 Notion rich_text 조각으로 나누고 원래 객체로 복원한다
+  ---
+  duration_ms: 2.639875
+  type: 'test'
+  ...
+# Subtest: 기록 codec은 bagless schema를 유지하고 legacy bag 입력을 wire에 넣지 않는다
+ok 36 - 기록 codec은 bagless schema를 유지하고 legacy bag 입력을 wire에 넣지 않는다
+  ---
+  duration_ms: 0.208083
+  type: 'test'
+  ...
+# Subtest: 레시피 codec은 단일 μm 숫자와 선택적 범위 rich_text를 상호 배타적으로 저장한다
+ok 37 - 레시피 codec은 단일 μm 숫자와 선택적 범위 rich_text를 상호 배타적으로 저장한다
+  ---
+  duration_ms: 0.918083
+  type: 'test'
+  ...
+# Subtest: bean deletion persists its target before PATCH and refreshes the list
+ok 38 - bean deletion persists its target before PATCH and refreshes the list
+  ---
+  duration_ms: 1075.971708
+  type: 'test'
+  ...
+# Subtest: bean deletion ignores an unqueried legacy bag and preserves its remote row
+ok 39 - bean deletion ignores an unqueried legacy bag and preserves its remote row
+  ---
+  duration_ms: 1057.860792
+  type: 'test'
+  ...
+# Subtest: bean deletion permits a legacy recipe relation without a record or bag dependency
+ok 40 - bean deletion permits a legacy recipe relation without a record or bag dependency
+  ---
+  duration_ms: 1409.168583
+  type: 'test'
+  ...
+# Subtest: bean deletion protects a known extraction record and an unresolved legacy record
+ok 41 - bean deletion protects a known extraction record and an unresolved legacy record
+  ---
+  duration_ms: 2485.525958
+  type: 'test'
+  ...
+# Subtest: bean deletion protects a v1 record when its legacy recipe has multiple bean candidates
+ok 42 - bean deletion protects a v1 record when its legacy recipe has multiple bean candidates
+  ---
+  duration_ms: 1784.905375
+  type: 'test'
+  ...
+# Subtest: bean deletion stays blocked when a truncated legacy relation exposes only one candidate
+ok 43 - bean deletion stays blocked when a truncated legacy relation exposes only one candidate
+  ---
+  duration_ms: 1787.849125
+  type: 'test'
+  ...
+# Subtest: unqueried malformed bag rows have no effect while failed fresh reads fail closed
+ok 44 - unqueried malformed bag rows have no effect while failed fresh reads fail closed
+  ---
+  duration_ms: 1071.10725
+  type: 'test'
+  ...
+# Subtest: archiveBean refuses another data source and validates the PATCH response
+ok 45 - archiveBean refuses another data source and validates the PATCH response
+  ---
+  duration_ms: 718.181709
+  type: 'test'
+  ...
+# Subtest: lost deletion response recovers after restart from actual target (true)
+ok 46 - lost deletion response recovers after restart from actual target (true)
+  ---
+  duration_ms: 1423.329167
+  type: 'test'
+  ...
+# Subtest: lost deletion response recovers after restart from actual target (false)
+ok 47 - lost deletion response recovers after restart from actual target (false)
+  ---
+  duration_ms: 1423.576667
+  type: 'test'
+  ...
+# Subtest: 404 cannot resolve an unknown deletion as success
+ok 48 - 404 cannot resolve an unknown deletion as success
+  ---
+  duration_ms: 713.866708
+  type: 'test'
+  ...
+# Subtest: pending, frozen and busy locks prevent deletion dispatch
+ok 49 - pending, frozen and busy locks prevent deletion dispatch
+  ---
+  duration_ms: 1069.975417
+  type: 'test'
+  ...
+# Subtest: delete target cannot use creation cleanup and stale connections cannot dispatch
+ok 50 - delete target cannot use creation cleanup and stale connections cannot dispatch
+  ---
+  duration_ms: 713.07975
+  type: 'test'
+  ...
+# Subtest: successful deletion with failed final refresh reports success separately
+ok 51 - successful deletion with failed final refresh reports success separately
+  ---
+  duration_ms: 1066.303792
+  type: 'test'
+  ...
+# Subtest: a rejected deletion remains active and does not retry automatically
+ok 52 - a rejected deletion remains active and does not retry automatically
+  ---
+  duration_ms: 720.86725
+  type: 'test'
+  ...
+# Subtest: a duplicate delete intent never dispatches twice and unsaved form state survives deletion
+ok 53 - a duplicate delete intent never dispatches twice and unsaved form state survives deletion
+  ---
+  duration_ms: 1424.182
+  type: 'test'
+  ...
+# Subtest: missing and invalid targets cannot dispatch a deletion
+ok 54 - missing and invalid targets cannot dispatch a deletion
+  ---
+  duration_ms: 710.157292
+  type: 'test'
+  ...
+# Subtest: malformed durable delete targets block all further writes
+ok 55 - malformed durable delete targets block all further writes
+  ---
+  duration_ms: 1065.66925
+  type: 'test'
+  ...
+# Subtest: delete write hooks reject a different target and arbitrary untracked writes
+ok 56 - delete write hooks reject a different target and arbitrary untracked writes
+  ---
+  duration_ms: 718.195792
+  type: 'test'
+  ...
+# Subtest: Pages 빌드는 삭제된 추출 기록 데모와 링크·캐시를 다시 공급하지 않는다
+ok 57 - Pages 빌드는 삭제된 추출 기록 데모와 링크·캐시를 다시 공급하지 않는다
+  ---
+  duration_ms: 190.823375
+  type: 'test'
+  ...
+# Subtest: Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록을 만든다
+ok 58 - Pages 빌드는 토큰 없는 하위 경로 PWA와 정확한 허용 목록을 만든다
+  ---
+  duration_ms: 64.91425
+  type: 'test'
+  ...
+# Subtest: 검사기는 공개 데모 자산의 외부 URL과 루트 절대 경로를 거부한다
+ok 59 - 검사기는 공개 데모 자산의 외부 URL과 루트 절대 경로를 거부한다
+  ---
+  duration_ms: 98.111875
+  type: 'test'
+  ...
+# Subtest: 검사기는 누락 파일과 허용 목록 밖 산출물을 거부한다
+ok 60 - 검사기는 누락 파일과 허용 목록 밖 산출물을 거부한다
+  ---
+  duration_ms: 109.770167
+  type: 'test'
+  ...
+# Subtest: 검사기는 루트 절대 경로와 허용 파일 안의 비밀값을 거부한다
+ok 61 - 검사기는 루트 절대 경로와 허용 파일 안의 비밀값을 거부한다
+  ---
+  duration_ms: 98.429667
+  type: 'test'
+  ...
+# Subtest: 검사기는 Service Worker가 API 경로를 앱 캐시에 넣는 변경을 거부한다
+ok 62 - 검사기는 Service Worker가 API 경로를 앱 캐시에 넣는 변경을 거부한다
+  ---
+  duration_ms: 47.820875
+  type: 'test'
+  ...
+# Subtest: 검사기는 scope별 캐시 namespace가 빠진 Service Worker를 거부한다
+ok 63 - 검사기는 scope별 캐시 namespace가 빠진 Service Worker를 거부한다
+  ---
+  duration_ms: 48.482667
+  type: 'test'
+  ...
+# Subtest: 검사기는 HTTP 캐시를 우회하지 않는 Service Worker precache를 거부한다
+ok 64 - 검사기는 HTTP 캐시를 우회하지 않는 Service Worker precache를 거부한다
+  ---
+  duration_ms: 49.138583
+  type: 'test'
+  ...
+# Subtest: 빌더는 필수 소스 누락과 소스 심볼릭 링크를 거부한다
+ok 65 - 빌더는 필수 소스 누락과 소스 심볼릭 링크를 거부한다
+  ---
+  duration_ms: 79.924291
+  type: 'test'
+  ...
+# Subtest: builder rejects a nested UI source directory symlink
+ok 66 - builder rejects a nested UI source directory symlink
+  ---
+  duration_ms: 42.157417
+  type: 'test'
+  ...
+# Subtest: builder rejects nested screen and form source directory symlinks
+ok 67 - builder rejects nested screen and form source directory symlinks
+  ---
+  duration_ms: 42.983042
+  type: 'test'
+  ...
+# Subtest: builder rejects a populated interactions source directory symlink
+ok 68 - builder rejects a populated interactions source directory symlink
+  ---
+  duration_ms: 38.620542
+  type: 'test'
+  ...
+# Subtest: checker rejects a populated interactions output directory symlink
+ok 69 - checker rejects a populated interactions output directory symlink
+  ---
+  duration_ms: 42.269333
+  type: 'test'
+  ...
+# Subtest: builder rejects a populated controller source directory symlink
+ok 70 - builder rejects a populated controller source directory symlink
+  ---
+  duration_ms: 40.125125
+  type: 'test'
+  ...
+# Subtest: checker rejects a populated controller output directory symlink
+ok 71 - checker rejects a populated controller output directory symlink
+  ---
+  duration_ms: 78.201334
+  type: 'test'
+  ...
+# Subtest: 빌더는 symlink 부모 경로로 소스를 출력 경로로 지정해도 원본을 보존한다
+ok 72 - 빌더는 symlink 부모 경로로 소스를 출력 경로로 지정해도 원본을 보존한다
+  ---
+  duration_ms: 23.710792
+  type: 'test'
+  ...
+# Subtest: 검사기는 산출물 심볼릭 링크와 잘못된 dist 루트를 거부한다
+ok 73 - 검사기는 산출물 심볼릭 링크와 잘못된 dist 루트를 거부한다
+  ---
+  duration_ms: 45.451083
+  type: 'test'
+  ...
+# Subtest: 실제 PWA 소스에는 API 호출이나 외부 요청이 없고 하위 경로 자원만 쓴다
+ok 74 - 실제 PWA 소스에는 API 호출이나 외부 요청이 없고 하위 경로 자원만 쓴다
+  ---
+  duration_ms: 47.77575
+  type: 'test'
+  ...
+# Subtest: Service Worker install·activate·fetch는 scope를 격리하고 앱 파일만 다룬다
+ok 75 - Service Worker install·activate·fetch는 scope를 격리하고 앱 파일만 다룬다
+  ---
+  duration_ms: 46.183625
+  type: 'test'
+  ...
+# Subtest: 빌드 hash는 같은 소스에서 재현되고 소스 변경 시 바뀐다
+ok 76 - 빌드 hash는 같은 소스에서 재현되고 소스 변경 시 바뀐다
+  ---
+  duration_ms: 88.7215
+  type: 'test'
+  ...
+# Subtest: BP logo is supplied byte-for-byte, cached offline, and changes the build version
+ok 77 - BP logo is supplied byte-for-byte, cached offline, and changes the build version
+  ---
+  duration_ms: 61.7865
+  type: 'test'
+  ...
+# Subtest: homepage brew illustration ships byte-for-byte, is cached offline, and changes the build version
+ok 78 - homepage brew illustration ships byte-for-byte, is cached offline, and changes the build version
+  ---
+  duration_ms: 56.318709
+  type: 'test'
+  ...
+# Subtest: paper card texture ships unchanged, is cached offline, and invalidates the build when replaced
+ok 79 - paper card texture ships unchanged, is cached offline, and invalidates the build when replaced
+  ---
+  duration_ms: 48.276417
+  type: 'test'
+  ...
+# Subtest: createCommands prepares an isolated bean draft and saves optional origin through the shared field
+ok 80 - createCommands prepares an isolated bean draft and saves optional origin through the shared field
+  ---
+  duration_ms: 13.093333
+  type: 'test'
+  ...
+# Subtest: a saved brew uses its edited actual conditions without changing the shared recipe
+ok 81 - a saved brew uses its edited actual conditions without changing the shared recipe
+  ---
+  duration_ms: 2.742542
+  type: 'test'
+  ...
+# Subtest: a bean best record can only point to a current record for the same bean
+ok 82 - a bean best record can only point to a current record for the same bean
+  ---
+  duration_ms: 3.699625
+  type: 'test'
+  ...
+# Subtest: an uncertain best update journals its before/after target for readback resolution
+ok 83 - an uncertain best update journals its before/after target for readback resolution
+  ---
+  duration_ms: 2.295875
+  type: 'test'
+  ...
+# Subtest: bean name is required before any operation is submitted
+ok 84 - bean name is required before any operation is submitted
+  ---
+  duration_ms: 0.566125
+  type: 'test'
+  ...
+# Subtest: bean name alone is sufficient and absent optional fields stay empty
+ok 85 - bean name alone is sufficient and absent optional fields stay empty
+  ---
+  duration_ms: 1.14775
+  type: 'test'
+  ...
+# Subtest: bean writes distinguish a clear rejection from an uncertain response
+    # Subtest: rejected
+    ok 1 - rejected
+      ---
+      duration_ms: 2.475042
+      type: 'test'
+      ...
+    # Subtest: unknown
+    ok 2 - unknown
+      ---
+      duration_ms: 1.838667
+      type: 'test'
+      ...
+    1..2
+ok 86 - bean writes distinguish a clear rejection from an uncertain response
+  ---
+  duration_ms: 4.744666
+  type: 'test'
+  ...
+# Subtest: legacy bag relation writes are rejected before creating a journal entry
+ok 87 - legacy bag relation writes are rejected before creating a journal entry
+  ---
+  duration_ms: 0.477042
+  type: 'test'
+  ...
+# Subtest: old connection revision blocks a prepared record before any Notion write
+ok 88 - old connection revision blocks a prepared record before any Notion write
+  ---
+  duration_ms: 3.352792
+  type: 'test'
+  ...
+# Subtest: recipe saves parent then all stages in reverse order after full preflight
+ok 89 - recipe saves parent then all stages in reverse order after full preflight
+  ---
+  duration_ms: 3.838
+  type: 'test'
+  ...
+# Subtest: legacy recipe schema blocks a nonempty guide before journal creation for create and copy
+ok 90 - legacy recipe schema blocks a nonempty guide before journal creation for create and copy
+  ---
+  duration_ms: 0.605208
+  type: 'test'
+  ...
+# Subtest: range schema is preflighted before command writes for create, copy, and edits with step patches
+ok 91 - range schema is preflighted before command writes for create, copy, and edits with step patches
+  ---
+  duration_ms: 2.218125
+  type: 'test'
+  ...
+# Subtest: an unrelated recipe edit omits both micron columns from its parent PATCH
+ok 92 - an unrelated recipe edit omits both micron columns from its parent PATCH
+  ---
+  duration_ms: 4.291334
+  type: 'test'
+  ...
+# Subtest: particle-changing recipe edits persist the raw before and after micron assertion
+ok 93 - particle-changing recipe edits persist the raw before and after micron assertion
+  ---
+  duration_ms: 3.540084
+  type: 'test'
+  ...
+# Subtest: any recipe payload over a Notion transport limit is rejected before the parent write
+ok 94 - any recipe payload over a Notion transport limit is rejected before the parent write
+  ---
+  duration_ms: 2.493208
+  type: 'test'
+  ...
+# Subtest: known stage rejection archives the confirmed parent before known stages in reverse order
+ok 95 - known stage rejection archives the confirmed parent before known stages in reverse order
+  ---
+  duration_ms: 2.807833
+  type: 'test'
+  ...
+# Subtest: unknown stage response stops immediately without further create or cleanup writes
+ok 96 - unknown stage response stops immediately without further create or cleanup writes
+  ---
+  duration_ms: 2.241208
+  type: 'test'
+  ...
+# Subtest: failed parent archive prevents child cleanup and preserves the partial recipe
+ok 97 - failed parent archive prevents child cleanup and preserves the partial recipe
+  ---
+  duration_ms: 2.438
+  type: 'test'
+  ...
+# Subtest: a rejected child archive leaves only that child active and still cleans later known children
+ok 98 - a rejected child archive leaves only that child active and still cleans later known children
+  ---
+  duration_ms: 2.457375
+  type: 'test'
+  ...
+# Subtest: copy creates a new independent recipe with changed values and rejects a stale source snapshot
+ok 99 - copy creates a new independent recipe with changed values and rejects a stale source snapshot
+  ---
+  duration_ms: 2.328416
+  type: 'test'
+  ...
+# Subtest: copy blocks when only the source extraction guide changes after preparation
+ok 100 - copy blocks when only the source extraction guide changes after preparation
+  ---
+  duration_ms: 0.59625
+  type: 'test'
+  ...
+# Subtest: copy treats legacy undefined and empty extraction guides as equivalent
+ok 101 - copy treats legacy undefined and empty extraction guides as equivalent
+  ---
+  duration_ms: 2.681708
+  type: 'test'
+  ...
+# Subtest: recipe edits keep page identity and favorites, update stable steps, add and archive steps, and preserve record snapshots
+ok 102 - recipe edits keep page identity and favorites, update stable steps, add and archive steps, and preserve record snapshots
+  ---
+  duration_ms: 3.063958
+  type: 'test'
+  ...
+# Subtest: recipe edits reject stale parent or step membership before any write
+ok 103 - recipe edits reject stale parent or step membership before any write
+  ---
+  duration_ms: 1.855875
+  type: 'test'
+  ...
+# Subtest: unchanged recipe edits complete without an operation or Notion writes
+ok 104 - unchanged recipe edits complete without an operation or Notion writes
+  ---
+  duration_ms: 0.756875
+  type: 'test'
+  ...
+# Subtest: copied recipes stay independent of the legacy bean relation
+ok 105 - copied recipes stay independent of the legacy bean relation
+  ---
+  duration_ms: 2.792625
+  type: 'test'
+  ...
+# Subtest: a recipe can be created without selecting or storing a bean
+ok 106 - a recipe can be created without selecting or storing a bean
+  ---
+  duration_ms: 4.30225
+  type: 'test'
+  ...
+# Subtest: record stores a fresh complete recipe snapshot and permits repeated same-day intent
+ok 107 - record stores a fresh complete recipe snapshot and permits repeated same-day intent
+  ---
+  duration_ms: 2.1355
+  type: 'test'
+  ...
+# Subtest: legacy bagId record payloads are rejected before journaling or writes
+ok 108 - legacy bagId record payloads are rejected before journaling or writes
+  ---
+  duration_ms: 0.137292
+  type: 'test'
+  ...
+# Subtest: record requires a valid date and a tenth-point rating from 0.1 to 5
+ok 109 - record requires a valid date and a tenth-point rating from 0.1 to 5
+  ---
+  duration_ms: 0.222583
+  type: 'test'
+  ...
+# Subtest: old record drafts without a bean and unresolved journal entries cannot be resent
+ok 110 - old record drafts without a bean and unresolved journal entries cannot be resent
+  ---
+  duration_ms: 1.349375
+  type: 'test'
+  ...
+# Subtest: records writes fail before journal creation when the connected legacy schema lacks records.bean
+ok 111 - records writes fail before journal creation when the connected legacy schema lacks records.bean
+  ---
+  duration_ms: 0.129541
+  type: 'test'
+  ...
+# Subtest: T20 rereads the real T15 repository under lock and the saved record round-trips its snapshot
+ok 112 - T20 rereads the real T15 repository under lock and the saved record round-trips its snapshot
+  ---
+  duration_ms: 5.137583
+  type: 'test'
+  ...
+# Subtest: T18 partial recipe remains hidden by the real T15 completeness check
+ok 113 - T18 partial recipe remains hidden by the real T15 completeness check
+  ---
+  duration_ms: 2.335417
+  type: 'test'
+  ...
+# Subtest: bag operations are unavailable and a legacy bagId record payload is rejected before journal creation
+ok 114 - bag operations are unavailable and a legacy bagId record payload is rejected before journal creation
+  ---
+  duration_ms: 0.143375
+  type: 'test'
+  ...
+# Subtest: favorite commands save an explicit value under the lock and reject missing latest targets
+ok 115 - favorite commands save an explicit value under the lock and reject missing latest targets
+  ---
+  duration_ms: 2.6475
+  type: 'test'
+  ...
+# Subtest: 연결 파일 저장소 모듈을 실제 배포 파일·앱 캐시·버전 해시에 포함한다
+ok 116 - 연결 파일 저장소 모듈을 실제 배포 파일·앱 캐시·버전 해시에 포함한다
+  ---
+  duration_ms: 207.457041
+  type: 'test'
+  ...
+# Subtest: 파일 보관 소스 디렉터리 symlink는 허용 목록으로 우회하지 못한다
+ok 117 - 파일 보관 소스 디렉터리 symlink는 허용 목록으로 우회하지 못한다
+  ---
+  duration_ms: 40.568458
+  type: 'test'
+  ...
+# Subtest: 모듈은 factory와 readConnection/writeConnection만 제공한다
+ok 118 - 모듈은 factory와 readConnection/writeConnection만 제공한다
+  ---
+  duration_ms: 0.938791
+  type: 'test'
+  ...
+# Subtest: readConnection은 전용 경로를 생성하지 않고 실제 부재만 null로 반환한다
+ok 119 - readConnection은 전용 경로를 생성하지 않고 실제 부재만 null로 반환한다
+  ---
+  duration_ms: 0.361666
+  type: 'test'
+  ...
+# Subtest: write/read 재실행은 고정 경로의 schema v1 연결을 정규화해 깊은 복사·불변 반환한다
+ok 120 - write/read 재실행은 고정 경로의 schema v1 연결을 정규화해 깊은 복사·불변 반환한다
+  ---
+  duration_ms: 0.971875
+  type: 'test'
+  ...
+# Subtest: 기존 파일 read는 내용을 바꾸거나 native write stream을 만들지 않는다
+ok 121 - 기존 파일 read는 내용을 바꾸거나 native write stream을 만들지 않는다
+  ---
+  duration_ms: 0.142417
+  type: 'test'
+  ...
+# Subtest: writeConnection snapshots input before awaiting native staging
+ok 122 - writeConnection snapshots input before awaiting native staging
+  ---
+  duration_ms: 0.2125
+  type: 'test'
+  ...
+# Subtest: 잘못된 입력은 native 파일 접근 전에 안전 오류로 거부한다
+ok 123 - 잘못된 입력은 native 파일 접근 전에 안전 오류로 거부한다
+  ---
+  duration_ms: 2.130667
+  type: 'test'
+  ...
+# Subtest: write 단계의 close 전 실패는 abort를 시도하고 기존 유효 바이트를 보존한다
+    # Subtest: createWritable
+    ok 1 - createWritable
+      ---
+      duration_ms: 0.274417
+      type: 'test'
+      ...
+    # Subtest: write
+    ok 2 - write
+      ---
+      duration_ms: 0.230833
+      type: 'test'
+      ...
+    1..2
+ok 124 - write 단계의 close 전 실패는 abort를 시도하고 기존 유효 바이트를 보존한다
+  ---
+  duration_ms: 0.87125
+  type: 'test'
+  ...
+# Subtest: close를 시작한 뒤 예외가 나면 저장 여부를 unknown으로 표시하고 차단 정보를 준다
+ok 125 - close를 시작한 뒤 예외가 나면 저장 여부를 unknown으로 표시하고 차단 정보를 준다
+  ---
+  duration_ms: 0.292125
+  type: 'test'
+  ...
+# Subtest: close가 commit 전에 실패해도 기존 파일 보존을 단정하지 않고 unknown을 반환한다
+ok 126 - close가 commit 전에 실패해도 기존 파일 보존을 단정하지 않고 unknown을 반환한다
+  ---
+  duration_ms: 0.194625
+  type: 'test'
+  ...
+# Subtest: commit 후 readback 오류나 불일치는 save-uncertain/unknown으로 보고한다
+    # Subtest: readback-error
+    ok 1 - readback-error
+      ---
+      duration_ms: 0.192333
+      type: 'test'
+      ...
+    # Subtest: mismatch
+    ok 2 - mismatch
+      ---
+      duration_ms: 0.106375
+      type: 'test'
+      ...
+    1..2
+ok 127 - commit 후 readback 오류나 불일치는 save-uncertain/unknown으로 보고한다
+  ---
+  duration_ms: 0.420792
+  type: 'test'
+  ...
+# Subtest: 최초 저장의 close 전 실패로 남은 0바이트 파일은 다음 읽기에서 손상으로 구분한다
+ok 128 - 최초 저장의 close 전 실패로 남은 0바이트 파일은 다음 읽기에서 손상으로 구분한다
+  ---
+  duration_ms: 0.2375
+  type: 'test'
+  ...
+# Subtest: read 오류는 부재와 구분하고 원문 NotFound는 storage-error로 안전 변환한다
+    # Subtest: NotAllowedError
+    ok 1 - NotAllowedError
+      ---
+      duration_ms: 0.139167
+      type: 'test'
+      ...
+    # Subtest: SecurityError
+    ok 2 - SecurityError
+      ---
+      duration_ms: 0.096417
+      type: 'test'
+      ...
+    # Subtest: QuotaExceededError
+    ok 3 - QuotaExceededError
+      ---
+      duration_ms: 0.16275
+      type: 'test'
+      ...
+    # Subtest: NotSupportedError
+    ok 4 - NotSupportedError
+      ---
+      duration_ms: 0.109542
+      type: 'test'
+      ...
+    # Subtest: TypeMismatchError
+    ok 5 - TypeMismatchError
+      ---
+      duration_ms: 0.729167
+      type: 'test'
+      ...
+    # Subtest: UnknownError
+    ok 6 - UnknownError
+      ---
+      duration_ms: 0.095458
+      type: 'test'
+      ...
+    1..6
+ok 129 - read 오류는 부재와 구분하고 원문 NotFound는 storage-error로 안전 변환한다
+  ---
+  duration_ms: 1.680833
+  type: 'test'
+  ...
+# Subtest: 파일 손상과 미지원 schema version을 서로 구분한다
+    # Subtest: corrupt
+    ok 1 - corrupt
+      ---
+      duration_ms: 0.085958
+      type: 'test'
+      ...
+    # Subtest: corrupt
+    ok 2 - corrupt
+      ---
+      duration_ms: 0.053208
+      type: 'test'
+      ...
+    # Subtest: corrupt
+    ok 3 - corrupt
+      ---
+      duration_ms: 0.208125
+      type: 'test'
+      ...
+    # Subtest: unsupported-version
+    ok 4 - unsupported-version
+      ---
+      duration_ms: 0.052875
+      type: 'test'
+      ...
+    # Subtest: corrupt
+    ok 5 - corrupt
+      ---
+      duration_ms: 0.067375
+      type: 'test'
+      ...
+    # Subtest: corrupt
+    ok 6 - corrupt
+      ---
+      duration_ms: 0.052333
+      type: 'test'
+      ...
+    # Subtest: corrupt
+    ok 7 - corrupt
+      ---
+      duration_ms: 0.062292
+      type: 'test'
+      ...
+    # Subtest: corrupt
+    ok 8 - corrupt
+      ---
+      duration_ms: 0.057667
+      type: 'test'
+      ...
+    1..8
+ok 130 - 파일 손상과 미지원 schema version을 서로 구분한다
+  ---
+  duration_ms: 0.873042
+  type: 'test'
+  ...
+# Subtest: 미지원 OPFS는 안전 오류로 실패하며 fallback 경로나 브라우저 저장소를 쓰지 않는다
+ok 131 - 미지원 OPFS는 안전 오류로 실패하며 fallback 경로나 브라우저 저장소를 쓰지 않는다
+  ---
+  duration_ms: 0.100417
+  type: 'test'
+  ...
+# Subtest: native 접근 오류 레코드는 code/writeState만 노출하고 원문·token·ID·cause·stack을 숨긴다
+ok 132 - native 접근 오류 레코드는 code/writeState만 노출하고 원문·token·ID·cause·stack을 숨긴다
+  ---
+  duration_ms: 0.188042
+  type: 'test'
+  ...
+# Subtest: connection verifies under the write lock before durable commit and never exposes the token
+ok 133 - connection verifies under the write lock before durable commit and never exposes the token
+  ---
+  duration_ms: 5.393
+  type: 'test'
+  ...
+# Subtest: active connection scopes form drafts by revision and source fingerprint
+ok 134 - active connection scopes form drafts by revision and source fingerprint
+  ---
+  duration_ms: 8.290375
+  type: 'test'
+  ...
+# Subtest: recovery UI receives the operation target, known pages, and recorded update time
+ok 135 - recovery UI receives the operation target, known pages, and recorded update time
+  ---
+  duration_ms: 1.01925
+  type: 'test'
+  ...
+# Subtest: a rejected connection replacement keeps the previously verified connection active
+ok 136 - a rejected connection replacement keeps the previously verified connection active
+  ---
+  duration_ms: 0.570459
+  type: 'test'
+  ...
+# Subtest: a verification failure never writes or reports an active connection
+ok 137 - a verification failure never writes or reports an active connection
+  ---
+  duration_ms: 0.363709
+  type: 'test'
+  ...
+# Subtest: a successful connection remains active when the first full read fails
+ok 138 - a successful connection remains active when the first full read fails
+  ---
+  duration_ms: 0.748333
+  type: 'test'
+  ...
+# Subtest: lifecycle freeze refuses dirty or pending work and freezes clean state
+ok 139 - lifecycle freeze refuses dirty or pending work and freezes clean state
+  ---
+  duration_ms: 0.14975
+  type: 'test'
+  ...
+# Subtest: frozen lifecycle rejects refresh and connection replacement before side effects
+ok 140 - frozen lifecycle rejects refresh and connection replacement before side effects
+  ---
+  duration_ms: 0.2455
+  type: 'test'
+  ...
+# Subtest: dirty drafts prevent lifecycle freeze and are reported to the coordinator
+ok 141 - dirty drafts prevent lifecycle freeze and are reported to the coordinator
+  ---
+  duration_ms: 0.435625
+  type: 'test'
+  ...
+# Subtest: manual refresh owns the pending state and refuses a second read until it finishes
+ok 142 - manual refresh owns the pending state and refuses a second read until it finishes
+  ---
+  duration_ms: 1.153291
+  type: 'test'
+  ...
+# Subtest: current-connection recovery keeps pending through reinitialization and its final read
+ok 143 - current-connection recovery keeps pending through reinitialization and its final read
+  ---
+  duration_ms: 0.845875
+  type: 'test'
+  ...
+# Subtest: initialization fails closed when state is blocked without a journal-visible recovery
+ok 144 - initialization fails closed when state is blocked without a journal-visible recovery
+  ---
+  duration_ms: 0.212375
+  type: 'test'
+  ...
+# Subtest: initialization does not offer a fresh connection setup for an unexplained blocked state
+ok 145 - initialization does not offer a fresh connection setup for an unexplained blocked state
+  ---
+  duration_ms: 0.208042
+  type: 'test'
+  ...
+# Subtest: initialization keeps the verified connection available to resolve a journaled unknown write
+ok 146 - initialization keeps the verified connection available to resolve a journaled unknown write
+  ---
+  duration_ms: 1.398042
+  type: 'test'
+  ...
+# Subtest: initialization retries only startup lock acquisition and becomes ready when the lock clears
+ok 147 - initialization retries only startup lock acquisition and becomes ready when the lock clears
+  ---
+  duration_ms: 302.387583
+  type: 'test'
+  ...
+# Subtest: exhausted startup lock contention offers a saved-state retry without connection entry
+ok 148 - exhausted startup lock contention offers a saved-state retry without connection entry
+  ---
+  duration_ms: 1805.041625
+  type: 'test'
+  ...
+# Subtest: startup does not retry a lock-busy error thrown after entering the native lock callback
+ok 149 - startup does not retry a lock-busy error thrown after entering the native lock callback
+  ---
+  duration_ms: 0.203917
+  type: 'test'
+  ...
+# Subtest: resolution rejects extra page IDs when the journal already records created pages
+ok 150 - resolution rejects extra page IDs when the journal already records created pages
+  ---
+  duration_ms: 1.345375
+  type: 'test'
+  ...
+# Subtest: controller read caches separate revision, filter, cursor, and favorite scopes
+ok 151 - controller read caches separate revision, filter, cursor, and favorite scopes
+  ---
+  duration_ms: 0.810875
+  type: 'test'
+  ...
+# Subtest: recipe edit invalidates detail, list, brew, record, and recipe option caches
+ok 152 - recipe edit invalidates detail, list, brew, record, and recipe option caches
+  ---
+  duration_ms: 0.1
+  type: 'test'
+  ...
+# Subtest: screen loader forwards brew search and pagination and preserves the first copy on append
+ok 153 - screen loader forwards brew search and pagination and preserves the first copy on append
+  ---
+  duration_ms: 0.993708
+  type: 'test'
+  ...
+# Subtest: 공용 데이터 모듈 두 개를 실제 산출물과 앱 캐시에 공급한다
+ok 154 - 공용 데이터 모듈 두 개를 실제 산출물과 앱 캐시에 공급한다
+  ---
+  duration_ms: 121.9545
+  type: 'test'
+  ...
+# Subtest: 데이터 모듈 변경은 앱 빌드 버전을 바꾼다
+ok 155 - 데이터 모듈 변경은 앱 빌드 버전을 바꾼다
+  ---
+  duration_ms: 136.347917
+  type: 'test'
+  ...
+# Subtest: Notion 고정 origin 예외는 클라이언트에만 허용하며 추가 URL·비밀값은 거부한다
+ok 156 - Notion 고정 origin 예외는 클라이언트에만 허용하며 추가 URL·비밀값은 거부한다
+  ---
+  duration_ms: 118.548083
+  type: 'test'
+  ...
+# Subtest: 데이터 디렉터리 symlink를 통해 소스 허용 목록을 우회할 수 없다
+ok 157 - 데이터 디렉터리 symlink를 통해 소스 허용 목록을 우회할 수 없다
+  ---
+  duration_ms: 30.006167
+  type: 'test'
+  ...
+# Subtest: 배포된 domain.mjs는 lib/domain.mjs 원본과 바이트가 같다
+ok 158 - 배포된 domain.mjs는 lib/domain.mjs 원본과 바이트가 같다
+  ---
+  duration_ms: 1.653459
+  type: 'test'
+  ...
+# Subtest: 공급한 원본 도메인 변경이 배포 버전에 반영된다
+ok 159 - 공급한 원본 도메인 변경이 배포 버전에 반영된다
+  ---
+  duration_ms: 53.799875
+  type: 'test'
+  ...
+# Subtest: 정적 모듈의 시간·간격·누적 물 양과 입력 검증이 유지된다
+ok 160 - 정적 모듈의 시간·간격·누적 물 양과 입력 검증이 유지된다
+  ---
+  duration_ms: 4.249375
+  type: 'test'
+  ...
+# Subtest: 정적 모듈의 날짜·0.1점 별점·원두 관계와 빈 평균 의미가 유지된다
+ok 161 - 정적 모듈의 날짜·0.1점 별점·원두 관계와 빈 평균 의미가 유지된다
+  ---
+  duration_ms: 4.286417
+  type: 'test'
+  ...
+# Subtest: 공급 모듈의 복사·스냅샷은 원본 조건·단계·평가를 공유하지 않는다
+ok 162 - 공급 모듈의 복사·스냅샷은 원본 조건·단계·평가를 공유하지 않는다
+  ---
+  duration_ms: 1.062667
+  type: 'test'
+  ...
+# Subtest: 완성 조건과 출처를 담은 v3 기록 snapshot은 기존 세대 표식과 0초 단계 검증을 유지한다
+ok 163 - 완성 조건과 출처를 담은 v3 기록 snapshot은 기존 세대 표식과 0초 단계 검증을 유지한다
+  ---
+  duration_ms: 0.975542
+  type: 'test'
+  ...
+# Subtest: a hidden historical record still blocks recipe deletion
+ok 164 - a hidden historical record still blocks recipe deletion
+  ---
+  duration_ms: 1432.463708
+  type: 'test'
+  ...
+# Subtest: an incomplete record relation protects unrelated recipe deletion
+ok 165 - an incomplete record relation protects unrelated recipe deletion
+  ---
+  duration_ms: 1760.788625
+  type: 'test'
+  ...
+# Subtest: excluded historical record rows keep recipe deletion fail-closed
+ok 166 - excluded historical record rows keep recipe deletion fail-closed
+  ---
+  duration_ms: 1.428666
+  type: 'test'
+  ...
+# Subtest: bag deletion commands are unavailable and raw bag pages remain active
+ok 167 - bag deletion commands are unavailable and raw bag pages remain active
+  ---
+  duration_ms: 704.551166
+  type: 'test'
+  ...
+# Subtest: recipe deletion trashes only the parent and removes it from fresh recipe choices
+ok 168 - recipe deletion trashes only the parent and removes it from fresh recipe choices
+  ---
+  duration_ms: 1423.05275
+  type: 'test'
+  ...
+# Subtest: record deletion refreshes rating totals and keeps unsaved draft state
+ok 169 - record deletion refreshes rating totals and keeps unsaved draft state
+  ---
+  duration_ms: 6362.078375
+  type: 'test'
+  ...
+# Subtest: lost record deletion response recovers from the fresh target without a second PATCH
+ok 170 - lost record deletion response recovers from the fresh target without a second PATCH
+  ---
+  duration_ms: 2145.809125
+  type: 'test'
+  ...
+# Subtest: 레시피 입력은 선택 추출 가이드를 정규화하고 복사와 새 snapshot에 보존한다
+ok 171 - 레시피 입력은 선택 추출 가이드를 정규화하고 복사와 새 snapshot에 보존한다
+  ---
+  duration_ms: 0.718917
+  type: 'test'
+  ...
+# Subtest: 추출 가이드가 없는 과거 recipe와 version 1/2 snapshot은 계속 유효하다
+ok 172 - 추출 가이드가 없는 과거 recipe와 version 1/2 snapshot은 계속 유효하다
+  ---
+  duration_ms: 0.286167
+  type: 'test'
+  ...
+# Subtest: 추출 가이드는 Notion rich_text로 왕복하고 과거 레시피 행은 빈 값으로 읽힌다
+ok 173 - 추출 가이드는 Notion rich_text로 왕복하고 과거 레시피 행은 빈 값으로 읽힌다
+  ---
+  duration_ms: 0.813958
+  type: 'test'
+  ...
+# Subtest: PWA schema 검증은 추출 가이드 속성이 없는 구버전 DB를 허용하고 타입 오류는 거부한다
+ok 174 - PWA schema 검증은 추출 가이드 속성이 없는 구버전 DB를 허용하고 타입 오류는 거부한다
+  ---
+  duration_ms: 13.439417
+  type: 'test'
+  ...
+# Subtest: PWA는 지원 schema에 rich_text 가이드를 저장하고 구버전에는 값 손실 없이 fail-closed 한다
+ok 175 - PWA는 지원 schema에 rich_text 가이드를 저장하고 구버전에는 값 손실 없이 fail-closed 한다
+  ---
+  duration_ms: 3.298417
+  type: 'test'
+  ...
+# Subtest: favorite save updates the visible value and unlocks before a slow refresh fails
+ok 176 - favorite save updates the visible value and unlocks before a slow refresh fails
+  ---
+  duration_ms: 5.833916
+  type: 'test'
+  ...
+# Subtest: a later favorite save wins over an older refresh response
+ok 177 - a later favorite save wins over an older refresh response
+  ---
+  duration_ms: 1.242167
+  type: 'test'
+  ...
+# Subtest: an older favorite refresh cannot clear a later failed save notice
+ok 178 - an older favorite refresh cannot clear a later failed save notice
+  ---
+  duration_ms: 2.516334
+  type: 'test'
+  ...
+# Subtest: an older favorite refresh cannot clear an ambiguous save warning or its recovery lock
+ok 179 - an older favorite refresh cannot clear an ambiguous save warning or its recovery lock
+  ---
+  duration_ms: 2.117416
+  type: 'test'
+  ...
+# Subtest: a screen transition ignores the previous screen favorite refresh
+ok 180 - a screen transition ignores the previous screen favorite refresh
+  ---
+  duration_ms: 0.87875
+  type: 'test'
+  ...
+# Subtest: a connection replacement ignores the previous connection favorite refresh
+ok 181 - a connection replacement ignores the previous connection favorite refresh
+  ---
+  duration_ms: 2.010958
+  type: 'test'
+  ...
+# Subtest: release modules: connection → bean/recipe → copy → repeated records → fresh data
+ok 182 - release modules: connection → bean/recipe → copy → repeated records → fresh data
+  ---
+  duration_ms: 119.088459
+  type: 'test'
+  ...
+# Subtest: release modules: partial recipe is hidden and rejected writes cancel only known new pages
+ok 183 - release modules: partial recipe is hidden and rejected writes cancel only known new pages
+  ---
+  duration_ms: 53.141583
+  type: 'test'
+  ...
+# Subtest: release modules: lost response persists unknown and blocks a new intent after restart
+ok 184 - release modules: lost response persists unknown and blocks a new intent after restart
+  ---
+  duration_ms: 49.689792
+  type: 'test'
+  ...
+# Subtest: form drafts survive a new store instance for the same connection generation and target
+ok 185 - form drafts survive a new store instance for the same connection generation and target
+  ---
+  duration_ms: 7.422625
+  type: 'test'
+  ...
+# Subtest: form drafts are isolated by both connection generation and data-source target
+ok 186 - form drafts are isolated by both connection generation and data-source target
+  ---
+  duration_ms: 0.694416
+  type: 'test'
+  ...
+# Subtest: explicit removal deletes only the selected form draft
+ok 187 - explicit removal deletes only the selected form draft
+  ---
+  duration_ms: 1.83875
+  type: 'test'
+  ...
+# Subtest: credentials cannot enter a draft scope or persisted form values
+ok 188 - credentials cannot enter a draft scope or persisted form values
+  ---
+  duration_ms: 1.147625
+  type: 'test'
+  ...
+# Subtest: 새 레시피는 원두 관계 없이 검증된다
+ok 189 - 새 레시피는 원두 관계 없이 검증된다
+  ---
+  duration_ms: 1.486084
+  type: 'test'
+  ...
+# Subtest: 추출 기록은 선택한 원두와 레시피를 각각 보관하며 봉지 필드가 없다
+ok 190 - 추출 기록은 선택한 원두와 레시피를 각각 보관하며 봉지 필드가 없다
+  ---
+  duration_ms: 3.330375
+  type: 'test'
+  ...
+# Subtest: 기록 snapshot v2는 당시 원두 전체 정보와 레시피 조건·단계를 함께 보존한다
+ok 191 - 기록 snapshot v2는 당시 원두 전체 정보와 레시피 조건·단계를 함께 보존한다
+  ---
+  duration_ms: 0.208459
+  type: 'test'
+  ...
+# Subtest: v3 actual snapshot은 삭제된 출처 레시피 관계가 없어도 수정 조건으로 다시 읽힌다
+ok 192 - v3 actual snapshot은 삭제된 출처 레시피 관계가 없어도 수정 조건으로 다시 읽힌다
+  ---
+  duration_ms: 1.8235
+  type: 'test'
+  ...
+# Subtest: 원두 best relation codec은 Notion의 0/1/다중 cardinality를 보존한다
+ok 193 - 원두 best relation codec은 Notion의 0/1/다중 cardinality를 보존한다
+  ---
+  duration_ms: 0.297792
+  type: 'test'
+  ...
+# Subtest: best relation schema가 없는 기존 원두 데이터베이스도 읽기 검증은 성공하고 기능만 비활성 상태로 둔다
+ok 194 - best relation schema가 없는 기존 원두 데이터베이스도 읽기 검증은 성공하고 기능만 비활성 상태로 둔다
+  ---
+  duration_ms: 0.786125
+  type: 'test'
+  ...
+# Subtest: records codec writes the selected bean relation and decodes old rows without it
+ok 195 - records codec writes the selected bean relation and decodes old rows without it
+  ---
+  duration_ms: 0.245583
+  type: 'test'
+  ...
+# Subtest: legacy v1 snapshot resolves a record bean when both new relations are absent
+ok 196 - legacy v1 snapshot resolves a record bean when both new relations are absent
+  ---
+  duration_ms: 0.789125
+  type: 'test'
+  ...
+# Subtest: unresolved legacy bean remains readable but does not enter current ratings
+ok 197 - unresolved legacy bean remains readable but does not enter current ratings
+  ---
+  duration_ms: 1.113625
+  type: 'test'
+  ...
+# Subtest: legacy data-source verification accepts a missing records.bean relation for read compatibility
+ok 198 - legacy data-source verification accepts a missing records.bean relation for read compatibility
+  ---
+  duration_ms: 12.058083
+  type: 'test'
+  ...
+# Subtest: visible PWA text-entry controls keep a 16px minimum font size
+ok 199 - visible PWA text-entry controls keep a 16px minimum font size
+  ---
+  duration_ms: 3.630667
+  type: 'test'
+  ...
+# Subtest: N1: restarted active worker explicitly recovers two product controllers and the shared write lock
+ok 200 - N1: restarted active worker explicitly recovers two product controllers and the shared write lock
+  ---
+  duration_ms: 25.659875
+  type: 'test'
+  ...
+# Subtest: late retry delivered to an already active worker cannot freeze a product controller without a new activation
+ok 201 - late retry delivered to an already active worker cannot freeze a product controller without a new activation
+  ---
+  duration_ms: 1.731875
+  type: 'test'
+  ...
+# Subtest: waiting-worker restart aborts its old owned generation before preparing a fresh generation
+ok 202 - waiting-worker restart aborts its old owned generation before preparing a fresh generation
+  ---
+  duration_ms: 4.412292
+  type: 'test'
+  ...
+# Subtest: recovery from a different worker instance cannot release the owned generation
+ok 203 - recovery from a different worker instance cannot release the owned generation
+  ---
+  duration_ms: 3.224958
+  type: 'test'
+  ...
+# Subtest: recovery releases only the lifecycle lock and preserves an unresolved journal barrier without navigation
+ok 204 - recovery releases only the lifecycle lock and preserves an unresolved journal barrier without navigation
+  ---
+  duration_ms: 3.403083
+  type: 'test'
+  ...
+# Subtest: controllerchange and the committed watchdog ask the active owner for explicit recovery without local thaw
+ok 205 - controllerchange and the committed watchdog ask the active owner for explicit recovery without local thaw
+  ---
+  duration_ms: 33.119292
+  type: 'test'
+  ...
+# Subtest: safe activation reloads a hash-routed product document instead of completing a same-document fragment replace
+ok 206 - safe activation reloads a hash-routed product document instead of completing a same-document fragment replace
+  ---
+  duration_ms: 3.709333
+  type: 'test'
+  ...
+# Subtest: active recovery defers a new document transition if the product becomes dirty after thaw, then resumes on clean
+ok 207 - active recovery defers a new document transition if the product becomes dirty after thaw, then resumes on clean
+  ---
+  duration_ms: 4.866875
+  type: 'test'
+  ...
+# Subtest: a fresh product client can join the active recovery handshake alongside a committed iframe
+ok 208 - a fresh product client can join the active recovery handshake alongside a committed iframe
+  ---
+  duration_ms: 1811.068625
+  type: 'test'
+  ...
+# Subtest: membership abort after commit preserves active transition intent and revalidates clean state
+ok 209 - membership abort after commit preserves active transition intent and revalidates clean state
+  ---
+  duration_ms: 3.982291
+  type: 'test'
+  ...
+# Subtest: membership abort after commit preserves active transition intent and revalidates dirty state
+ok 210 - membership abort after commit preserves active transition intent and revalidates dirty state
+  ---
+  duration_ms: 2.803709
+  type: 'test'
+  ...
+# Subtest: membership abort after commit preserves active transition intent and revalidates pending state
+ok 211 - membership abort after commit preserves active transition intent and revalidates pending state
+  ---
+  duration_ms: 4.869875
+  type: 'test'
+  ...
+# Subtest: membership abort after commit preserves active transition intent and revalidates journal state
+ok 212 - membership abort after commit preserves active transition intent and revalidates journal state
+  ---
+  duration_ms: 5.535333
+  type: 'test'
+  ...
+# Subtest: R1: SW prepare timeout must unfreeze the recipient even when inspect completes late
+ok 213 - R1: SW prepare timeout must unfreeze the recipient even when inspect completes late
+  ---
+  duration_ms: 19.320291
+  type: 'test'
+  ...
+# Subtest: R2: abort received during a pending prepare must tombstone the generation
+ok 214 - R2: abort received during a pending prepare must tombstone the generation
+  ---
+  duration_ms: 0.631375
+  type: 'test'
+  ...
+# Subtest: R3: stop while prepare is awaiting setFrozen must not leave a live freeze
+ok 215 - R3: stop while prepare is awaiting setFrozen must not leave a live freeze
+  ---
+  duration_ms: 0.898209
+  type: 'test'
+  ...
+# Subtest: R4: invalidation after recheck must prevent skipWaiting with an unfrozen, unlocked dirty leader
+ok 216 - R4: invalidation after recheck must prevent skipWaiting with an unfrozen, unlocked dirty leader
+  ---
+  duration_ms: 1.847667
+  type: 'test'
+  ...
+# Subtest: R5: activation from an unrelated generation must not release current freeze/leader lock
+ok 217 - R5: activation from an unrelated generation must not release current freeze/leader lock
+  ---
+  duration_ms: 0.496167
+  type: 'test'
+  ...
+# Subtest: R7: aborting an older overlapping generation must not unfreeze an ACKed newer one
+ok 218 - R7: aborting an older overlapping generation must not unfreeze an ACKed newer one
+  ---
+  duration_ms: 0.603333
+  type: 'test'
+  ...
+# Subtest: R8: activation from newly active B is accepted while the open A page still has controller A
+ok 219 - R8: activation from newly active B is accepted while the open A page still has controller A
+  ---
+  duration_ms: 0.503375
+  type: 'test'
+  ...
+# Subtest: R9: stop waits for an in-flight freeze and applies its unfreeze after the late completion
+ok 220 - R9: stop waits for an in-flight freeze and applies its unfreeze after the late completion
+  ---
+  duration_ms: 0.4225
+  type: 'test'
+  ...
+# Subtest: R10: invalidation racing the commit ACK prevents skipWaiting and releases only after abort
+ok 221 - R10: invalidation racing the commit ACK prevents skipWaiting and releases only after abort
+  ---
+  duration_ms: 1.8335
+  type: 'test'
+  ...
+# Subtest: C1: real submission-state blocks incoherent/guarded/unknown/processing journals, and accepts empty first run
+ok 222 - C1: real submission-state blocks incoherent/guarded/unknown/processing journals, and accepts empty first run
+  ---
+  duration_ms: 6.1525
+  type: 'test'
+  ...
+# Subtest: C2: source validation rejects foreign origin and a sibling scope worker
+ok 223 - C2: source validation rejects foreign origin and a sibling scope worker
+  ---
+  duration_ms: 0.400333
+  type: 'test'
+  ...
+# Subtest: C3: actual submission-state holds shared lock adapter until activation and blocks another instance
+ok 224 - C3: actual submission-state holds shared lock adapter until activation and blocks another instance
+  ---
+  duration_ms: 2.544834
+  type: 'test'
+  ...
+# Subtest: F3: committed active build B conditionally replaces the open build A while still frozen
+ok 225 - F3: committed active build B conditionally replaces the open build A while still frozen
+  ---
+  duration_ms: 1.774542
+  type: 'test'
+  ...
+# Subtest: same script URL with a different worker instance cannot abort an owned generation
+ok 226 - same script URL with a different worker instance cannot abort an owned generation
+  ---
+  duration_ms: 0.685459
+  type: 'test'
+  ...
+# Subtest: abort before prepare leaves a tombstone that prevents a late prepare from freezing
+ok 227 - abort before prepare leaves a tombstone that prevents a late prepare from freezing
+  ---
+  duration_ms: 0.458042
+  type: 'test'
+  ...
+# Subtest: dirty invalidation after commit retains freeze and native lock until a terminal abort
+ok 228 - dirty invalidation after commit retains freeze and native lock until a terminal abort
+  ---
+  duration_ms: 0.821667
+  type: 'test'
+  ...
+# Subtest: prepare freezes first and ACKs only after a clean-state recheck
+ok 229 - prepare freezes first and ACKs only after a clean-state recheck
+  ---
+  duration_ms: 1.523791
+  type: 'test'
+  ...
+# Subtest: dirty state or failed freeze refuses prepare and leaves no window frozen
+ok 230 - dirty state or failed freeze refuses prepare and leaves no window frozen
+  ---
+  duration_ms: 0.373666
+  type: 'test'
+  ...
+# Subtest: prepare checks journal under lock, then native write lock stays held through recheck and releases on apply or abort
+ok 231 - prepare checks journal under lock, then native write lock stays held through recheck and releases on apply or abort
+  ---
+  duration_ms: 3.122625
+  type: 'test'
+  ...
+# Subtest: journal with unresolved work refuses prepare and leaves the window unfrozen
+ok 232 - journal with unresolved work refuses prepare and leaves the window unfrozen
+  ---
+  duration_ms: 0.285125
+  type: 'test'
+  ...
+# Subtest: a clean first-run state with no connection or journal can safely update
+ok 233 - a clean first-run state with no connection or journal can safely update
+  ---
+  duration_ms: 0.235958
+  type: 'test'
+  ...
+# Subtest: a dirty transition after prepare invalidates that generation before apply
+ok 234 - a dirty transition after prepare invalidates that generation before apply
+  ---
+  duration_ms: 0.529666
+  type: 'test'
+  ...
+# Subtest: worker source must match the registered scope exactly
+ok 235 - worker source must match the registered scope exactly
+  ---
+  duration_ms: 0.164625
+  type: 'test'
+  ...
+# Subtest: install applies only after every window is clean, frozen, rechecked, and lock-protected
+ok 236 - install applies only after every window is clean, frozen, rechecked, and lock-protected
+  ---
+  duration_ms: 16.688
+  type: 'test'
+  ...
+# Subtest: two scoped windows freeze and recheck while only one holds the origin-wide native lock
+ok 237 - two scoped windows freeze and recheck while only one holds the origin-wide native lock
+  ---
+  duration_ms: 2.330959
+  type: 'test'
+  ...
+# Subtest: dirty, unresolved, or membership-changing windows abort without skipWaiting
+ok 238 - dirty, unresolved, or membership-changing windows abort without skipWaiting
+  ---
+  duration_ms: 4.50325
+  type: 'test'
+  ...
+# Subtest: unresponsive windows time out, abort, and never trigger skipWaiting
+ok 239 - unresponsive windows time out, abort, and never trigger skipWaiting
+  ---
+  duration_ms: 10008.73825
+  type: 'test'
+  ...
+# Subtest: app lifecycle retries a waiting worker on start and state changes, without forcing reload
+ok 240 - app lifecycle retries a waiting worker on start and state changes, without forcing reload
+  ---
+  duration_ms: 3.132417
+  type: 'test'
+  ...
+# Subtest: app lifecycle start wires the coordinator into the service worker handshake
+ok 241 - app lifecycle start wires the coordinator into the service worker handshake
+  ---
+  duration_ms: 1.761
+  type: 'test'
+  ...
+# Subtest: validateNotionToken checks only the token bot endpoint and returns safe outcomes
+ok 242 - validateNotionToken checks only the token bot endpoint and returns safe outcomes
+  ---
+  duration_ms: 0.969375
+  type: 'test'
+  ...
+# Subtest: validateNotionToken marks only 401 as invalid and treats permission, rate, and server errors as unavailable
+ok 243 - validateNotionToken marks only 401 as invalid and treats permission, rate, and server errors as unavailable
+  ---
+  duration_ms: 0.351375
+  type: 'test'
+  ...
+# Subtest: validateNotionToken times out and caller cancellation never becomes an invalid token result
+ok 244 - validateNotionToken times out and caller cancellation never becomes an invalid token result
+  ---
+  duration_ms: 5.646166
+  type: 'test'
+  ...
+# Subtest: validateCreatePayload reuses the create transport limits without issuing a request
+ok 245 - validateCreatePayload reuses the create transport limits without issuing a request
+  ---
+  duration_ms: 4.541625
+  type: 'test'
+  ...
+# Subtest: verify can validate only the current screen source while verify() keeps full onboarding checks
+ok 246 - verify can validate only the current screen source while verify() keeps full onboarding checks
+  ---
+  duration_ms: 2.474834
+  type: 'test'
+  ...
+# Subtest: verify는 설정된 네 스키마와 forward 관계 타입·대상을 읽기만 검증한다
+ok 247 - verify는 설정된 네 스키마와 forward 관계 타입·대상을 읽기만 검증한다
+  ---
+  duration_ms: 0.515125
+  type: 'test'
+  ...
+# Subtest: verify는 object/id/속성 누락·다른 타입·관계의 다른 데이터 소스를 거부한다
+ok 248 - verify는 object/id/속성 누락·다른 타입·관계의 다른 데이터 소스를 거부한다
+  ---
+  duration_ms: 1.31275
+  type: 'test'
+  ...
+# Subtest: legacy 설정은 records.bean 관계 없이 조회 검증을 통과하지만 기록 쓰기는 보내지 않는다
+ok 249 - legacy 설정은 records.bean 관계 없이 조회 검증을 통과하지만 기록 쓰기는 보내지 않는다
+  ---
+  duration_ms: 0.494125
+  type: 'test'
+  ...
+# Subtest: 설정을 복사·정규화하고 client revision·데이터 소스를 불변 캡처한다
+ok 250 - 설정을 복사·정규화하고 client revision·데이터 소스를 불변 캡처한다
+  ---
+  duration_ms: 0.354542
+  type: 'test'
+  ...
+# Subtest: constructor의 잘못된 설정은 원문 없는 not-sent 오류다
+ok 251 - constructor의 잘못된 설정은 원문 없는 not-sent 오류다
+  ---
+  duration_ms: 0.577459
+  type: 'test'
+  ...
+# Subtest: 조회는 전체 페이지의 원시 객체를 반환하고 cursor를 body로만 보낸다
+ok 252 - 조회는 전체 페이지의 원시 객체를 반환하고 cursor를 body로만 보낸다
+  ---
+  duration_ms: 0.25525
+  type: 'test'
+  ...
+# Subtest: query는 매 page incomplete를 확인하며 has_more=false여도 부분 성공을 반환하지 않는다
+ok 253 - query는 매 page incomplete를 확인하며 has_more=false여도 부분 성공을 반환하지 않는다
+  ---
+  duration_ms: 0.252792
+  type: 'test'
+  ...
+# Subtest: query는 cursor 없음·공백·반복·순환을 끝내고 누적 배열을 반환하지 않는다
+ok 254 - query는 cursor 없음·공백·반복·순환을 끝내고 누적 배열을 반환하지 않는다
+  ---
+  duration_ms: 0.500334
+  type: 'test'
+  ...
+# Subtest: query는 잘못된 목록·페이지·음수 개수 형태와 중간 HTTP 오류를 거부한다
+ok 255 - query는 잘못된 목록·페이지·음수 개수 형태와 중간 HTTP 오류를 거부한다
+  ---
+  duration_ms: 0.678
+  type: 'test'
+  ...
+# Subtest: queryPage sends one scoped filtered page and returns continuation metadata
+ok 256 - queryPage sends one scoped filtered page and returns continuation metadata
+  ---
+  duration_ms: 0.491917
+  type: 'test'
+  ...
+# Subtest: queryPage rejects bad limits and malformed or incomplete pages, and retries 429 only a finite number of times
+ok 257 - queryPage rejects bad limits and malformed or incomplete pages, and retries 429 only a finite number of times
+  ---
+  duration_ms: 1053.989542
+  type: 'test'
+  ...
+# Subtest: read-only page reads retry rate limits finitely before returning the validated page
+ok 258 - read-only page reads retry rate limits finitely before returning the validated page
+  ---
+  duration_ms: 0.6445
+  type: 'test'
+  ...
+# Subtest: kind와 UUID의 URL/path 주입은 fetch 전에 차단한다
+ok 259 - kind와 UUID의 URL/path 주입은 fetch 전에 차단한다
+  ---
+  duration_ms: 0.376584
+  type: 'test'
+  ...
+# Subtest: 생성은 domain 입력을 공유 encode로 직렬화하며 호출 뒤 입력 변경과 분리한다
+ok 260 - 생성은 domain 입력을 공유 encode로 직렬화하며 호출 뒤 입력 변경과 분리한다
+  ---
+  duration_ms: 0.678375
+  type: 'test'
+  ...
+# Subtest: getPage 정규화와 archiveCreatedPage 고정 body·취소 확인
+ok 261 - getPage 정규화와 archiveCreatedPage 고정 body·취소 확인
+  ---
+  duration_ms: 0.156
+  type: 'test'
+  ...
+# Subtest: archivePage verifies the target data source for each user-deletable entity
+ok 262 - archivePage verifies the target data source for each user-deletable entity
+  ---
+  duration_ms: 0.528167
+  type: 'test'
+  ...
+# Subtest: create/get/archive의 잘못된 성공 body·식별자는 성공으로 취급하지 않는다
+ok 263 - create/get/archive의 잘못된 성공 body·식별자는 성공으로 취급하지 않는다
+  ---
+  duration_ms: 0.853667
+  type: 'test'
+  ...
+# Subtest: HTTP 400 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다
+ok 264 - HTTP 400 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다
+  ---
+  duration_ms: 0.291
+  type: 'test'
+  ...
+# Subtest: HTTP 401 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다
+ok 265 - HTTP 401 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다
+  ---
+  duration_ms: 0.63825
+  type: 'test'
+  ...
+# Subtest: HTTP 403 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다
+ok 266 - HTTP 403 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다
+  ---
+  duration_ms: 0.155625
+  type: 'test'
+  ...
+# Subtest: HTTP 404 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다
+ok 267 - HTTP 404 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다
+  ---
+  duration_ms: 0.174958
+  type: 'test'
+  ...
+# Subtest: HTTP 409 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다
+ok 268 - HTTP 409 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다
+  ---
+  duration_ms: 0.360375
+  type: 'test'
+  ...
+# Subtest: HTTP 413 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다
+ok 269 - HTTP 413 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다
+  ---
+  duration_ms: 0.151375
+  type: 'test'
+  ...
+# Subtest: HTTP 415 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다
+ok 270 - HTTP 415 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다
+  ---
+  duration_ms: 0.159333
+  type: 'test'
+  ...
+# Subtest: HTTP 422 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다
+ok 271 - HTTP 422 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다
+  ---
+  duration_ms: 0.125
+  type: 'test'
+  ...
+# Subtest: HTTP 429 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다
+ok 272 - HTTP 429 쓰기는 rejected, query POST는 not-sent이며 오류 body를 읽지 않는다
+  ---
+  duration_ms: 0.118125
+  type: 'test'
+  ...
+# Subtest: HTTP 408 쓰기는 unknown이고 재시도하지 않는다
+ok 273 - HTTP 408 쓰기는 unknown이고 재시도하지 않는다
+  ---
+  duration_ms: 0.110042
+  type: 'test'
+  ...
+# Subtest: HTTP 500 쓰기는 unknown이고 재시도하지 않는다
+ok 274 - HTTP 500 쓰기는 unknown이고 재시도하지 않는다
+  ---
+  duration_ms: 0.059208
+  type: 'test'
+  ...
+# Subtest: HTTP 503 쓰기는 unknown이고 재시도하지 않는다
+ok 275 - HTTP 503 쓰기는 unknown이고 재시도하지 않는다
+  ---
+  duration_ms: 0.073458
+  type: 'test'
+  ...
+# Subtest: HTTP 599 쓰기는 unknown이고 재시도하지 않는다
+ok 276 - HTTP 599 쓰기는 unknown이고 재시도하지 않는다
+  ---
+  duration_ms: 0.060625
+  type: 'test'
+  ...
+# Subtest: Retry-After의 잘못된 값은 안전 오류에서 생략한다
+ok 277 - Retry-After의 잘못된 값은 안전 오류에서 생략한다
+  ---
+  duration_ms: 0.418833
+  type: 'test'
+  ...
+# Subtest: 네트워크 예외와 JSON 해석 실패는 원문·cause 없이 요청 성격에 맞게 변환한다
+ok 278 - 네트워크 예외와 JSON 해석 실패는 원문·cause 없이 요청 성격에 맞게 변환한다
+  ---
+  duration_ms: 0.487792
+  type: 'test'
+  ...
+# Subtest: abort 무시 fetch 대기도 전체 timeout 종료 / 읽기
+ok 279 - abort 무시 fetch 대기도 전체 timeout 종료 / 읽기
+  ---
+  duration_ms: 4.974875
+  type: 'test'
+  ...
+# Subtest: abort 무시 fetch 대기도 전체 timeout 종료 / 쓰기
+ok 280 - abort 무시 fetch 대기도 전체 timeout 종료 / 쓰기
+  ---
+  duration_ms: 5.927416
+  type: 'test'
+  ...
+# Subtest: abort 무시 json 대기도 전체 timeout 종료 / 읽기
+ok 281 - abort 무시 json 대기도 전체 timeout 종료 / 읽기
+  ---
+  duration_ms: 6.173916
+  type: 'test'
+  ...
+# Subtest: abort 무시 json 대기도 전체 timeout 종료 / 쓰기
+ok 282 - abort 무시 json 대기도 전체 timeout 종료 / 쓰기
+  ---
+  duration_ms: 6.054167
+  type: 'test'
+  ...
+# Subtest: rich_text 100조각은 허용하고 101조각과 실제 wire의 2001자 text는 전송 전에 거부한다
+ok 283 - rich_text 100조각은 허용하고 101조각과 실제 wire의 2001자 text는 전송 전에 거부한다
+  ---
+  duration_ms: 2.184334
+  type: 'test'
+  ...
+# Subtest: 배열·UTF-8 500000byte 한도와 stringify 오류는 fetch 전 안전하게 끝난다
+ok 284 - 배열·UTF-8 500000byte 한도와 stringify 오류는 fetch 전 안전하게 끝난다
+  ---
+  duration_ms: 1.334292
+  type: 'test'
+  ...
+# Subtest: canonical 35속성과 긴 snapshot codec 왕복을 유지한다
+ok 285 - canonical 35속성과 긴 snapshot codec 왕복을 유지한다
+  ---
+  duration_ms: 0.427917
+  type: 'test'
+  ...
+# Subtest: 주입된 fetch는 브라우저 global receiver로 호출된다
+ok 286 - 주입된 fetch는 브라우저 global receiver로 호출된다
+  ---
+  duration_ms: 0.117834
+  type: 'test'
+  ...
+# Subtest: 5xx·408은 거절로 오해시키는 code가 아닌 http-error로 표시한다
+ok 287 - 5xx·408은 거절로 오해시키는 code가 아닌 http-error로 표시한다
+  ---
+  duration_ms: 0.219583
+  type: 'test'
+  ...
+# Subtest: 실제 wire payload의 500000byte 경계를 정확히 적용한다
+ok 288 - 실제 wire payload의 500000byte 경계를 정확히 적용한다
+  ---
+  duration_ms: 5.489958
+  type: 'test'
+  ...
+# Subtest: 잘못된 응답 getter·json 없음은 원문을 누설하지 않는다
+ok 289 - 잘못된 응답 getter·json 없음은 원문을 누설하지 않는다
+  ---
+  duration_ms: 0.337417
+  type: 'test'
+  ...
+# Subtest: 동기 JSON 해석이 timer를 지연해도 전체 기한을 넘기면 timeout이다
+ok 290 - 동기 JSON 해석이 timer를 지연해도 전체 기한을 넘기면 timeout이다
+  ---
+  duration_ms: 11.976709
+  type: 'test'
+  ...
+# Subtest: client의 긴 스냅샷 wire 분할·응답 raw page·shared decode 왕복을 확인한다
+ok 291 - client의 긴 스냅샷 wire 분할·응답 raw page·shared decode 왕복을 확인한다
+  ---
+  duration_ms: 0.418375
+  type: 'test'
+  ...
+# Subtest: bag create/archive and bagId record writes stop before fetch
+ok 292 - bag create/archive and bagId record writes stop before fetch
+  ---
+  duration_ms: 0.194625
+  type: 'test'
+  ...
+# Subtest: bagless generation writes no legacy bag relation property
+ok 293 - bagless generation writes no legacy bag relation property
+  ---
+  duration_ms: 0.223542
+  type: 'test'
+  ...
+# Subtest: favorite checkbox encodes, decodes with boolean, and supports updateFavorite
+ok 294 - favorite checkbox encodes, decodes with boolean, and supports updateFavorite
+  ---
+  duration_ms: 0.38275
+  type: 'test'
+  ...
+# Subtest: recipe page edits patch only editable fields after a fresh comparison
+ok 295 - recipe page edits patch only editable fields after a fresh comparison
+  ---
+  duration_ms: 0.918334
+  type: 'test'
+  ...
+# Subtest: recipe page edit refuses a stale before-value without a PATCH
+ok 296 - recipe page edit refuses a stale before-value without a PATCH
+  ---
+  duration_ms: 0.167375
+  type: 'test'
+  ...
+# Subtest: recipe step archival checks its recipe relation and every stored value first
+ok 297 - recipe step archival checks its recipe relation and every stored value first
+  ---
+  duration_ms: 0.336042
+  type: 'test'
+  ...
+# Subtest: recipe step archival refuses a changed relation before moving a page to trash
+ok 298 - recipe step archival refuses a changed relation before moving a page to trash
+  ---
+  duration_ms: 0.10875
+  type: 'test'
+  ...
+# Subtest: a favorite save verifies one schema, reads its target page, and patches only the checkbox
+ok 299 - a favorite save verifies one schema, reads its target page, and patches only the checkbox
+  ---
+  duration_ms: 0.183125
+  type: 'test'
+  ...
+# Subtest: favorite writes reject a foreign, archived, or trashed page before patching
+ok 300 - favorite writes reject a foreign, archived, or trashed page before patching
+  ---
+  duration_ms: 0.410042
+  type: 'test'
+  ...
+# Subtest: createPage omits favorite when schema does not support favorite
+ok 301 - createPage omits favorite when schema does not support favorite
+  ---
+  duration_ms: 0.190375
+  type: 'test'
+  ...
+# Subtest: favorite PATCH rejects an unconfirmed checkbox value as unknown
+ok 302 - favorite PATCH rejects an unconfirmed checkbox value as unknown
+  ---
+  duration_ms: 0.194542
+  type: 'test'
+  ...
+# Subtest: schemas without favorite keep bean and recipe creation available and omit unknown property
+ok 303 - schemas without favorite keep bean and recipe creation available and omit unknown property
+  ---
+  duration_ms: 0.520792
+  type: 'test'
+  ...
+# Subtest: optional range schema gates range writes but leaves numeric writes compatible with older databases
+ok 304 - optional range schema gates range writes but leaves numeric writes compatible with older databases
+  ---
+  duration_ms: 0.273625
+  type: 'test'
+  ...
+# Subtest: range writes encode the optional text property and edits clear the stale alternative column
+ok 305 - range writes encode the optional text property and edits clear the stale alternative column
+  ---
+  duration_ms: 0.649542
+  type: 'test'
+  ...
+# Subtest: an incompatible optional best relation disables only best updates
+ok 306 - an incompatible optional best relation disables only best updates
+  ---
+  duration_ms: 0.446417
+  type: 'test'
+  ...
+# Subtest: queryPage omits absent optional schema properties and refreshes projections after re-verification
+ok 307 - queryPage omits absent optional schema properties and refreshes projections after re-verification
+  ---
+  duration_ms: 2463.33725
+  type: 'test'
+  ...
+# Subtest: 일반 빌드는 probes를 제외하고 오염된 probes 폴더는 무검사로 통과하지 않는다
+ok 308 - 일반 빌드는 probes를 제외하고 오염된 probes 폴더는 무검사로 통과하지 않는다
+  ---
+  duration_ms: 79.432375
+  type: 'test'
+  ...
+# Subtest: 명시적 실험 빌드는 정확한 네 파일·메뉴를 공급하고 일반 검사에서는 거부한다
+ok 309 - 명시적 실험 빌드는 정확한 네 파일·메뉴를 공급하고 일반 검사에서는 거부한다
+  ---
+  duration_ms: 78.729583
+  type: 'test'
+  ...
+# Subtest: 실험 파일 변경은 버전에 반영되고 일반 빌드로 돌아가면 실험 파일은 제거된다
+ok 310 - 실험 파일 변경은 버전에 반영되고 일반 빌드로 돌아가면 실험 파일은 제거된다
+  ---
+  duration_ms: 145.665208
+  type: 'test'
+  ...
+# Subtest: 실험 산출물의 비밀값·외부 URL·추가 파일·symlink는 거부한다
+ok 311 - 실험 산출물의 비밀값·외부 URL·추가 파일·symlink는 거부한다
+  ---
+  duration_ms: 280.774875
+  type: 'test'
+  ...
+# Subtest: 실험 소스의 symlink와 미허용 파일은 게시에 포함하지 않는다
+ok 312 - 실험 소스의 symlink와 미허용 파일은 게시에 포함하지 않는다
+  ---
+  duration_ms: 73.341125
+  type: 'test'
+  ...
+# Subtest: 조회와 401 실험은 생성 없이 독립 실행되고 정상 스키마와 명시 확인이 생성 조건이다
+ok 313 - 조회와 401 실험은 생성 없이 독립 실행되고 정상 스키마와 명시 확인이 생성 조건이다
+  ---
+  duration_ms: 1.527
+  type: 'test'
+  ...
+# Subtest: UUID 외 입력과 다른 스키마는 차단하고 설정은 복사한다
+ok 314 - UUID 외 입력과 다른 스키마는 차단하고 설정은 복사한다
+  ---
+  duration_ms: 0.336791
+  type: 'test'
+  ...
+# Subtest: 명시 생성 한 번에 POST 한 번, 처리 중 중복과 설정 변경을 막고 요청을 고정한다
+ok 315 - 명시 생성 한 번에 POST 한 번, 처리 중 중복과 설정 변경을 막고 요청을 고정한다
+  ---
+  duration_ms: 0.350834
+  type: 'test'
+  ...
+# Subtest: 불확실 생성 network는 설정 교체로 풀리지 않으며 원본 확인 뒤 정상 재조회만 잠금을 푼다
+ok 316 - 불확실 생성 network는 설정 교체로 풀리지 않으며 원본 확인 뒤 정상 재조회만 잠금을 푼다
+  ---
+  duration_ms: 0.560416
+  type: 'test'
+  ...
+# Subtest: 불확실 생성 timeout는 설정 교체로 풀리지 않으며 원본 확인 뒤 정상 재조회만 잠금을 푼다
+ok 317 - 불확실 생성 timeout는 설정 교체로 풀리지 않으며 원본 확인 뒤 정상 재조회만 잠금을 푼다
+  ---
+  duration_ms: 5.238208
+  type: 'test'
+  ...
+# Subtest: 불확실 생성 json는 설정 교체로 풀리지 않으며 원본 확인 뒤 정상 재조회만 잠금을 푼다
+ok 318 - 불확실 생성 json는 설정 교체로 풀리지 않으며 원본 확인 뒤 정상 재조회만 잠금을 푼다
+  ---
+  duration_ms: 0.206208
+  type: 'test'
+  ...
+# Subtest: 불확실 생성 server는 설정 교체로 풀리지 않으며 원본 확인 뒤 정상 재조회만 잠금을 푼다
+ok 319 - 불확실 생성 server는 설정 교체로 풀리지 않으며 원본 확인 뒤 정상 재조회만 잠금을 푼다
+  ---
+  duration_ms: 0.213333
+  type: 'test'
+  ...
+# Subtest: 불확실 생성 http408는 설정 교체로 풀리지 않으며 원본 확인 뒤 정상 재조회만 잠금을 푼다
+ok 320 - 불확실 생성 http408는 설정 교체로 풀리지 않으며 원본 확인 뒤 정상 재조회만 잠금을 푼다
+  ---
+  duration_ms: 0.224958
+  type: 'test'
+  ...
+# Subtest: 원본 확인 후 실패한 재조회나 401 실험은 불확실 잠금을 풀지 않는다
+ok 321 - 원본 확인 후 실패한 재조회나 401 실험은 불확실 잠금을 풀지 않는다
+  ---
+  duration_ms: 0.344792
+  type: 'test'
+  ...
+# Subtest: 생성 성공 후 재조회 실패는 저장 성공으로 남고 자동 재전송하지 않는다
+ok 322 - 생성 성공 후 재조회 실패는 저장 성공으로 남고 자동 재전송하지 않는다
+  ---
+  duration_ms: 0.429209
+  type: 'test'
+  ...
+# Subtest: 확정 4xx 거부는 안전한 상태로 표시하고 원문·토큰·ID를 노출하지 않는다
+ok 323 - 확정 4xx 거부는 안전한 상태로 표시하고 원문·토큰·ID를 노출하지 않는다
+  ---
+  duration_ms: 0.295167
+  type: 'test'
+  ...
+# Subtest: OPFS는 전용 하위 경로에 시험 문자열의 버전 JSON만 쓰고 읽기는 생성하지 않는다
+ok 324 - OPFS는 전용 하위 경로에 시험 문자열의 버전 JSON만 쓰고 읽기는 생성하지 않는다
+  ---
+  duration_ms: 3.089583
+  type: 'test'
+  ...
+# Subtest: OPFS 오류 분류 QuotaExceededError
+ok 325 - OPFS 오류 분류 QuotaExceededError
+  ---
+  duration_ms: 0.358708
+  type: 'test'
+  ...
+# Subtest: OPFS 오류 분류 NotAllowedError
+ok 326 - OPFS 오류 분류 NotAllowedError
+  ---
+  duration_ms: 0.293208
+  type: 'test'
+  ...
+# Subtest: OPFS 오류 분류 SecurityError
+ok 327 - OPFS 오류 분류 SecurityError
+  ---
+  duration_ms: 0.266208
+  type: 'test'
+  ...
+# Subtest: OPFS 오류 분류 NotSupportedError
+ok 328 - OPFS 오류 분류 NotSupportedError
+  ---
+  duration_ms: 0.72625
+  type: 'test'
+  ...
+# Subtest: OPFS 오류 분류 TypeMismatchError
+ok 329 - OPFS 오류 분류 TypeMismatchError
+  ---
+  duration_ms: 0.247834
+  type: 'test'
+  ...
+# Subtest: OPFS 오류 분류 UnknownError
+ok 330 - OPFS 오류 분류 UnknownError
+  ---
+  duration_ms: 0.270125
+  type: 'test'
+  ...
+# Subtest: OPFS 미지원·손상·다른 스키마·실제 비밀 형태를 구분하고 기존 파일을 보존한다
+ok 331 - OPFS 미지원·손상·다른 스키마·실제 비밀 형태를 구분하고 기존 파일을 보존한다
+  ---
+  duration_ms: 0.679417
+  type: 'test'
+  ...
+# Subtest: OPFS 처리 중 중복 쓰기를 막는다
+ok 332 - OPFS 처리 중 중복 쓰기를 막는다
+  ---
+  duration_ms: 0.266667
+  type: 'test'
+  ...
+# Subtest: 모듈은 DOM 없이 import되고 HTML은 외부 모듈·확인 UI·안전한 입력·버전 표식을 제공한다
+ok 333 - 모듈은 DOM 없이 import되고 HTML은 외부 모듈·확인 UI·안전한 입력·버전 표식을 제공한다
+  ---
+  duration_ms: 1.486792
+  type: 'test'
+  ...
+# Subtest: 비정상 스키마 JSON은 스키마 불일치이다
+ok 334 - 비정상 스키마 JSON은 스키마 불일치이다
+  ---
+  duration_ms: 0.104416
+  type: 'test'
+  ...
+# Subtest: 비문자열 생성 ID는 확인 잠금이다
+ok 335 - 비문자열 생성 ID는 확인 잠금이다
+  ---
+  duration_ms: 0.105834
+  type: 'test'
+  ...
+# Subtest: Notion DOM은 별도 버튼과 확인을 적용하며 응답 오류를 안전한 텍스트로만 표시한다
+ok 336 - Notion DOM은 별도 버튼과 확인을 적용하며 응답 오류를 안전한 텍스트로만 표시한다
+  ---
+  duration_ms: 0.427333
+  type: 'test'
+  ...
+# Subtest: 파일 DOM은 새 시험 확인으로만 쓰고 보관 재조회에는 바이트 변경이 없다
+ok 337 - 파일 DOM은 새 시험 확인으로만 쓰고 보관 재조회에는 바이트 변경이 없다
+  ---
+  duration_ms: 1.388416
+  type: 'test'
+  ...
+# Subtest: 실행 환경 표시는 브라우저 API receiver를 보존하고 조회 불가에도 실험 UI를 유지한다
+ok 338 - 실행 환경 표시는 브라우저 API receiver를 보존하고 조회 불가에도 실험 UI를 유지한다
+  ---
+  duration_ms: 0.690917
+  type: 'test'
+  ...
+# Subtest: OPFS 작성·읽기·모듈 재생성의 지문은 같고 다른 유효 시험 파일은 구별한다
+ok 339 - OPFS 작성·읽기·모듈 재생성의 지문은 같고 다른 유효 시험 파일은 구별한다
+  ---
+  duration_ms: 1.504375
+  type: 'test'
+  ...
+# SHA-256 write=ad077529f639942263f1b5c0bf2d757832a95e4d2dec07c30892b484e44ae980 read=ad077529f639942263f1b5c0bf2d757832a95e4d2dec07c30892b484e44ae980 reopened=ad077529f639942263f1b5c0bf2d757832a95e4d2dec07c30892b484e44ae980 other=011fa717a17eef8ebfe4591ba574e7cddb52ceeb30d8d1712ec936b564037c28
+# Subtest: 지문 기능 미지원·실패 때 원문으로 대체하지 않고 파일도 새로 쓰지 않는다
+ok 340 - 지문 기능 미지원·실패 때 원문으로 대체하지 않고 파일도 새로 쓰지 않는다
+  ---
+  duration_ms: 0.434709
+  type: 'test'
+  ...
+# Subtest: 가짜 marker는 끝 개행도 허용하지 않고 유효하지 않은 파일에는 지문을 제공하지 않는다
+ok 341 - 가짜 marker는 끝 개행도 허용하지 않고 유효하지 않은 파일에는 지문을 제공하지 않는다
+  ---
+  duration_ms: 0.300625
+  type: 'test'
+  ...
+# Subtest: product commands, UI and lifecycle ship byte-for-byte and all affect the release version
+ok 342 - product commands, UI and lifecycle ship byte-for-byte and all affect the release version
+  ---
+  duration_ms: 1585.484333
+  type: 'test'
+  ...
+# Subtest: PWA view and controller import closures are acyclic and present in the published precache
+ok 343 - PWA view and controller import closures are acyclic and present in the published precache
+  ---
+  duration_ms: 79.768583
+  type: 'test'
+  ...
+# Subtest: Pages permits only the fixed Notion page-link origin in the recovery renderer
+ok 344 - Pages permits only the fixed Notion page-link origin in the recovery renderer
+  ---
+  duration_ms: 72.803
+  type: 'test'
+  ...
+# Subtest: production records insights resolve domain logic inside the Pages bundle
+ok 345 - production records insights resolve domain logic inside the Pages bundle
+  ---
+  duration_ms: 67.6655
+  type: 'test'
+  ...
+# Subtest: commands/UI directory symlinks cannot bypass the source boundary
+ok 346 - commands/UI directory symlinks cannot bypass the source boundary
+  ---
+  duration_ms: 64.269917
+  type: 'test'
+  ...
+# Subtest: release checker rejects activation moved outside the handshake, aliases and removed guards
+ok 347 - release checker rejects activation moved outside the handshake, aliases and removed guards
+  ---
+  duration_ms: 127.245292
+  type: 'test'
+  ...
+# Subtest: SVG namespace is allowed only for literal elements in the icon module, never as a request URL
+ok 348 - SVG namespace is allowed only for literal elements in the icon module, never as a request URL
+  ---
+  duration_ms: 137.959125
+  type: 'test'
+  ...
+# Subtest: 모듈은 공개 factory와 repository methods만 제공한다
+ok 349 - 모듈은 공개 factory와 repository methods만 제공한다
+  ---
+  duration_ms: 2.150833
+  type: 'test'
+  ...
+# Subtest: factory는 네 source ID를 검증하고 생성 시점 값을 복사한다
+ok 350 - factory는 네 source ID를 검증하고 생성 시점 값을 복사한다
+  ---
+  duration_ms: 3.438333
+  type: 'test'
+  ...
+# Subtest: 레시피 조회는 선택적 μm 범위 속성을 숫자 대체 필드로 읽는다
+ok 351 - 레시피 조회는 선택적 μm 범위 속성을 숫자 대체 필드로 읽는다
+  ---
+  duration_ms: 0.894416
+  type: 'test'
+  ...
+# Subtest: listBeans reads one metadata page without touching other sources or re-reading recipe parents
+ok 352 - listBeans reads one metadata page without touching other sources or re-reading recipe parents
+  ---
+  duration_ms: 0.503167
+  type: 'test'
+  ...
+# Subtest: catalog reads sort favorites then newest registrations and keep missing schemas readable
+ok 353 - catalog reads sort favorites then newest registrations and keep missing schemas readable
+  ---
+  duration_ms: 0.540958
+  type: 'test'
+  ...
+# Subtest: beans favorites and newest registrations sort before the page boundary
+ok 354 - beans favorites and newest registrations sort before the page boundary
+  ---
+  duration_ms: 7.706167
+  type: 'test'
+  ...
+# Subtest: recipes favorites and newest registrations sort before the page boundary
+ok 355 - recipes favorites and newest registrations sort before the page boundary
+  ---
+  duration_ms: 1.022042
+  type: 'test'
+  ...
+# Subtest: listBeans and listRecipeSummaries accept favoriteOnly filter and combine with search query
+ok 356 - listBeans and listRecipeSummaries accept favoriteOnly filter and combine with search query
+  ---
+  duration_ms: 0.244958
+  type: 'test'
+  ...
+# Subtest: favorite cursor belongs to the favorite filter and search query
+ok 357 - favorite cursor belongs to the favorite filter and search query
+  ---
+  duration_ms: 0.562958
+  type: 'test'
+  ...
+# Subtest: favorite filter fails clearly when the connected schema has no checkbox
+ok 358 - favorite filter fails clearly when the connected schema has no checkbox
+  ---
+  duration_ms: 0.385625
+  type: 'test'
+  ...
+# Subtest: listRecipeSummaries reads only one metadata page and leaves stage validation marked pending
+ok 359 - listRecipeSummaries reads only one metadata page and leaves stage validation marked pending
+  ---
+  duration_ms: 0.26925
+  type: 'test'
+  ...
+# Subtest: getRecipeDetail fetches and validates only the selected parent and its complete relation-filtered stages
+ok 360 - getRecipeDetail fetches and validates only the selected parent and its complete relation-filtered stages
+  ---
+  duration_ms: 0.653417
+  type: 'test'
+  ...
+# Subtest: listRecords scans one globally sorted stream and locally matches bagless-v1 snapshots
+ok 361 - listRecords scans one globally sorted stream and locally matches bagless-v1 snapshots
+  ---
+  duration_ms: 0.639541
+  type: 'test'
+  ...
+# Subtest: listRecords preserves continuation after bounded raw pages with no visible bagless rows
+ok 362 - listRecords preserves continuation after bounded raw pages with no visible bagless rows
+  ---
+  duration_ms: 0.2695
+  type: 'test'
+  ...
+# Subtest: searchOptions applies the typed title filter and binds continuation to the query
+ok 363 - searchOptions applies the typed title filter and binds continuation to the query
+  ---
+  duration_ms: 0.365875
+  type: 'test'
+  ...
+# Subtest: bean counts and recipe stats scan exact current-generation snapshots on demand
+ok 364 - bean counts and recipe stats scan exact current-generation snapshots on demand
+  ---
+  duration_ms: 0.93975
+  type: 'test'
+  ...
+# Subtest: 네 source를 모두 읽고 단계 정렬·기록 snapshot·별점 집계를 만든 뒤 깊게 고정한다
+ok 365 - 네 source를 모두 읽고 단계 정렬·기록 snapshot·별점 집계를 만든 뒤 깊게 고정한다
+  ---
+  duration_ms: 0.802875
+  type: 'test'
+  ...
+# Subtest: 진짜 빈 네 source는 빈 데이터로 반환하고 조회 실패와 구분한다
+ok 366 - 진짜 빈 네 source는 빈 데이터로 반환하고 조회 실패와 구분한다
+  ---
+  duration_ms: 0.615125
+  type: 'test'
+  ...
+# Subtest: queryAll beans 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+ok 367 - queryAll beans 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+  ---
+  duration_ms: 0.399125
+  type: 'test'
+  ...
+# Subtest: queryAll recipes 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+ok 368 - queryAll recipes 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+  ---
+  duration_ms: 0.232458
+  type: 'test'
+  ...
+# Subtest: queryAll steps 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+ok 369 - queryAll steps 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+  ---
+  duration_ms: 0.448125
+  type: 'test'
+  ...
+# Subtest: queryAll records 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+ok 370 - queryAll records 실패는 부분 데이터를 반환하지 않고 원문 오류를 감춘다
+  ---
+  duration_ms: 0.355084
+  type: 'test'
+  ...
+# Subtest: 삭제·잘못된 ID·source·parent 페이지는 codec 전에 제외한다
+ok 371 - 삭제·잘못된 ID·source·parent 페이지는 codec 전에 제외한다
+  ---
+  duration_ms: 1.313167
+  type: 'test'
+  ...
+# Subtest: raw history is retained while only bagless-generation snapshots affect aggregates
+ok 372 - raw history is retained while only bagless-generation snapshots affect aggregates
+  ---
+  duration_ms: 0.558042
+  type: 'test'
+  ...
+# Subtest: 잘리거나 다중인 관계가 있어도 기존 기록과 평가는 보존하고 불확실성을 표시한다
+ok 373 - 잘리거나 다중인 관계가 있어도 기존 기록과 평가는 보존하고 불확실성을 표시한다
+  ---
+  duration_ms: 0.888583
+  type: 'test'
+  ...
+# Subtest: 기록의 폐기된 봉지 관계는 원두 판독에 사용하지 않고 평가를 보존한다
+ok 374 - 기록의 폐기된 봉지 관계는 원두 판독에 사용하지 않고 평가를 보존한다
+  ---
+  duration_ms: 0.586958
+  type: 'test'
+  ...
+# Subtest: records.bean 관계가 없어도 snapshot·legacy recipe·bag 근거를 읽고 모순은 확인 대상으로 보존한다
+ok 375 - records.bean 관계가 없어도 snapshot·legacy recipe·bag 근거를 읽고 모순은 확인 대상으로 보존한다
+  ---
+  duration_ms: 0.518875
+  type: 'test'
+  ...
+# Subtest: 버전 1 snapshot 전체·기록 날짜·별점을 검증한다
+ok 376 - 버전 1 snapshot 전체·기록 날짜·별점을 검증한다
+  ---
+  duration_ms: 0.974583
+  type: 'test'
+  ...
+# Subtest: multi-bean legacy recipe candidates conflict with a v1 snapshot and remain unresolved
+ok 377 - multi-bean legacy recipe candidates conflict with a v1 snapshot and remain unresolved
+  ---
+  duration_ms: 0.622167
+  type: 'test'
+  ...
+# Subtest: truncated legacy relations preserve observed candidates and force confirmation
+ok 378 - truncated legacy relations preserve observed candidates and force confirmation
+  ---
+  duration_ms: 0.505667
+  type: 'test'
+  ...
+# Subtest: invalid v1/v2 snapshots remain attached to the record as damage status, not renderable data
+ok 379 - invalid v1/v2 snapshots remain attached to the record as damage status, not renderable data
+  ---
+  duration_ms: 0.536541
+  type: 'test'
+  ...
+# Subtest: 잘못된 recipe 속성은 recipe만 제외하고 손상된 record 필드도 원본 평가를 보존한다
+ok 380 - 잘못된 recipe 속성은 recipe만 제외하고 손상된 record 필드도 원본 평가를 보존한다
+  ---
+  duration_ms: 0.4125
+  type: 'test'
+  ...
+# Subtest: order 1 부재·순서 gap/중복·파생값 손상·tiny-water 자식 삭제는 완성 레시피로 노출하지 않는다
+ok 381 - order 1 부재·순서 gap/중복·파생값 손상·tiny-water 자식 삭제는 완성 레시피로 노출하지 않는다
+  ---
+  duration_ms: 1.484792
+  type: 'test'
+  ...
+# Subtest: epsilon 경계에서 손상된 마지막 자식이 남은 prefix를 완성 레시피로 만들지 않는다
+ok 382 - epsilon 경계에서 손상된 마지막 자식이 남은 prefix를 완성 레시피로 만들지 않는다
+  ---
+  duration_ms: 0.367208
+  type: 'test'
+  ...
+# Subtest: 식별 가능한 부모 관계가 있는 잘못된 자식은 그 부모를 taint한다
+    # Subtest: 잘못된 number 값
+    ok 1 - 잘못된 number 값
+      ---
+      duration_ms: 0.345917
+      type: 'test'
+      ...
+    # Subtest: 잘못된 property type
+    ok 2 - 잘못된 property type
+      ---
+      duration_ms: 0.316083
+      type: 'test'
+      ...
+    # Subtest: 복수 부모 관계
+    ok 3 - 복수 부모 관계
+      ---
+      duration_ms: 0.354709
+      type: 'test'
+      ...
+    # Subtest: 잘린 부모 관계
+    ok 4 - 잘린 부모 관계
+      ---
+      duration_ms: 0.329791
+      type: 'test'
+      ...
+    # Subtest: 관계 배열이 남은 잘못된 relation type
+    ok 5 - 관계 배열이 남은 잘못된 relation type
+      ---
+      duration_ms: 0.508416
+      type: 'test'
+      ...
+    # Subtest: 관계 배열이 남은 잘못된 child ID
+    ok 6 - 관계 배열이 남은 잘못된 child ID
+      ---
+      duration_ms: 0.334583
+      type: 'test'
+      ...
+    # Subtest: 관계 배열이 남은 잘못된 child source
+    ok 7 - 관계 배열이 남은 잘못된 child source
+      ---
+      duration_ms: 0.303167
+      type: 'test'
+      ...
+    1..7
+ok 383 - 식별 가능한 부모 관계가 있는 잘못된 자식은 그 부모를 taint한다
+  ---
+  duration_ms: 2.85525
+  type: 'test'
+  ...
+# Subtest: parent 조회 뒤 parent archive 또는 조건·bean·last_edited_time 변경은 전체 조회를 stale-read로 끝낸다
+    # Subtest: archive
+    ok 1 - archive
+      ---
+      duration_ms: 0.518708
+      type: 'test'
+      ...
+    # Subtest: trash
+    ok 2 - trash
+      ---
+      duration_ms: 0.572708
+      type: 'test'
+      ...
+    # Subtest: name
+    ok 3 - name
+      ---
+      duration_ms: 0.481042
+      type: 'test'
+      ...
+    # Subtest: dripper
+    ok 4 - dripper
+      ---
+      duration_ms: 0.36375
+      type: 'test'
+      ...
+    # Subtest: dose
+    ok 5 - dose
+      ---
+      duration_ms: 0.616166
+      type: 'test'
+      ...
+    # Subtest: grind
+    ok 6 - grind
+      ---
+      duration_ms: 0.381459
+      type: 'test'
+      ...
+    # Subtest: grinder
+    ok 7 - grinder
+      ---
+      duration_ms: 0.37075
+      type: 'test'
+      ...
+    # Subtest: grinder setting
+    ok 8 - grinder setting
+      ---
+      duration_ms: 0.38175
+      type: 'test'
+      ...
+    # Subtest: microns
+    ok 9 - microns
+      ---
+      duration_ms: 0.413875
+      type: 'test'
+      ...
+    # Subtest: temperature
+    ok 10 - temperature
+      ---
+      duration_ms: 0.926417
+      type: 'test'
+      ...
+    # Subtest: total water
+    ok 11 - total water
+      ---
+      duration_ms: 0.381083
+      type: 'test'
+      ...
+    # Subtest: bean relation
+    ok 12 - bean relation
+      ---
+      duration_ms: 0.624417
+      type: 'test'
+      ...
+    # Subtest: last edited
+    ok 13 - last edited
+      ---
+      duration_ms: 0.342667
+      type: 'test'
+      ...
+    # Subtest: source
+    ok 14 - source
+      ---
+      duration_ms: 0.398541
+      type: 'test'
+      ...
+    1..14
+ok 384 - parent 조회 뒤 parent archive 또는 조건·bean·last_edited_time 변경은 전체 조회를 stale-read로 끝낸다
+  ---
+  duration_ms: 7.275375
+  type: 'test'
+  ...
+# Subtest: parent 비교는 첫 rich text 조각 뒤의 변경도 stale-read로 감지한다
+ok 385 - parent 비교는 첫 rich text 조각 뒤의 변경도 stale-read로 감지한다
+  ---
+  duration_ms: 0.52525
+  type: 'test'
+  ...
+# Subtest: parent 최종 getPage 실패와 ID 불일치는 안전 stale-read로 전환한다
+    # Subtest: failure
+    ok 1 - failure
+      ---
+      duration_ms: 0.395125
+      type: 'test'
+      ...
+    # Subtest: id-mismatch
+    ok 2 - id-mismatch
+      ---
+      duration_ms: 0.398667
+      type: 'test'
+      ...
+    1..2
+ok 386 - parent 최종 getPage 실패와 ID 불일치는 안전 stale-read로 전환한다
+  ---
+  duration_ms: 0.906542
+  type: 'test'
+  ...
+# Subtest: 현재 recipe가 삭제되어도 유효한 과거 record snapshot은 저장된 값 그대로 읽는다
+ok 387 - 현재 recipe가 삭제되어도 유효한 과거 record snapshot은 저장된 값 그대로 읽는다
+  ---
+  duration_ms: 0.336458
+  type: 'test'
+  ...
+# Subtest: 손상되거나 버전이 다른 record snapshot은 제외하고 원본을 공개하지 않는다
+ok 388 - 손상되거나 버전이 다른 record snapshot은 제외하고 원본을 공개하지 않는다
+  ---
+  duration_ms: 0.782042
+  type: 'test'
+  ...
+# Subtest: readRecipeForSnapshot은 매 호출마다 네 source와 parent를 새로 확인한다
+ok 389 - readRecipeForSnapshot은 매 호출마다 네 source와 parent를 새로 확인한다
+  ---
+  duration_ms: 0.88225
+  type: 'test'
+  ...
+# Subtest: 관계 부재와 완전 조회 실패는 빈 collection으로 위장하지 않는다
+ok 390 - 관계 부재와 완전 조회 실패는 빈 collection으로 위장하지 않는다
+  ---
+  duration_ms: 0.215208
+  type: 'test'
+  ...
+# Subtest: recipe statistics reuse the exact recently validated detail when supplied by its caller
+ok 391 - recipe statistics reuse the exact recently validated detail when supplied by its caller
+  ---
+  duration_ms: 0.648625
+  type: 'test'
+  ...
+# Subtest: listRecords retains valid raw rows beyond the visible page for its continuation
+ok 392 - listRecords retains valid raw rows beyond the visible page for its continuation
+  ---
+  duration_ms: 3.94875
+  type: 'test'
+  ...
+# Subtest: recipe search options retain the validated bean parent for scoped selection
+ok 393 - recipe search options retain the validated bean parent for scoped selection
+  ---
+  duration_ms: 0.672875
+  type: 'test'
+  ...
+# Subtest: successful recipe edit reaches the controller and reloads the latest full recipe
+ok 394 - successful recipe edit reaches the controller and reloads the latest full recipe
+  ---
+  duration_ms: 6.723417
+  type: 'test'
+  ...
+# Subtest: unsupported range reports the missing Notion rich_text property
+ok 395 - unsupported range reports the missing Notion rich_text property
+  ---
+  duration_ms: 0.995292
+  type: 'test'
+  ...
+# Subtest: unknown recipe edit remains unresolved and cannot be blindly resubmitted
+ok 396 - unknown recipe edit remains unresolved and cannot be blindly resubmitted
+  ---
+  duration_ms: 0.617
+  type: 'test'
+  ...
+# Subtest: partial recipe edit remains unresolved and cannot be blindly resubmitted
+ok 397 - partial recipe edit remains unresolved and cannot be blindly resubmitted
+  ---
+  duration_ms: 0.38725
+  type: 'test'
+  ...
+# Subtest: edit recovery checks every journaled step page state before resolving an exact after-state
+ok 398 - edit recovery checks every journaled step page state before resolving an exact after-state
+  ---
+  duration_ms: 2.84125
+  type: 'test'
+  ...
+# Subtest: edit recovery checks all ledger pages for an exact before-state and rejects an extra active new step
+ok 399 - edit recovery checks all ledger pages for an exact before-state and rejects an extra active new step
+  ---
+  duration_ms: 1.786375
+  type: 'test'
+  ...
+# Subtest: edit recovery rejects an archived step that remains active outside the full recipe projection
+ok 400 - edit recovery rejects an archived step that remains active outside the full recipe projection
+  ---
+  duration_ms: 1.526292
+  type: 'test'
+  ...
+# Subtest: pre-upgrade edit journals still recognize the exact saved recipe fingerprint
+ok 401 - pre-upgrade edit journals still recognize the exact saved recipe fingerprint
+  ---
+  duration_ms: 1.483333
+  type: 'test'
+  ...
+# Subtest: particle edit recovery rejects a stale numeric alternate on the first parent read
+ok 402 - particle edit recovery rejects a stale numeric alternate on the first parent read
+  ---
+  duration_ms: 0.912625
+  type: 'test'
+  ...
+# Subtest: particle edit recovery rejects a stale numeric alternate on the direct parent GET
+ok 403 - particle edit recovery rejects a stale numeric alternate on the direct parent GET
+  ---
+  duration_ms: 1.383167
+  type: 'test'
+  ...
+# Subtest: all comparison beans are ordered by newest valid record with a stable tie break
+ok 404 - all comparison beans are ordered by newest valid record with a stable tie break
+  ---
+  duration_ms: 9.776458
+  type: 'test'
+  ...
+# Subtest: trend series always cover the three most recently recorded beans independently of selection
+ok 405 - trend series always cover the three most recently recorded beans independently of selection
+  ---
+  duration_ms: 0.5185
+  type: 'test'
+  ...
+# Subtest: selection, best record, and comparison values use only valid current snapshots without mutating inputs
+ok 406 - selection, best record, and comparison values use only valid current snapshots without mutating inputs
+  ---
+  duration_ms: 0.438833
+  type: 'test'
+  ...
+# Subtest: bean summaries prefer recipe snapshots and only use live recipe names as a fallback
+ok 407 - bean summaries prefer recipe snapshots and only use live recipe names as a fallback
+  ---
+  duration_ms: 0.885542
+  type: 'test'
+  ...
+# Subtest: selected bean statistics and comparison choices describe only loaded snapshot records
+ok 408 - selected bean statistics and comparison choices describe only loaded snapshot records
+  ---
+  duration_ms: 0.297417
+  type: 'test'
+  ...
+# Subtest: brew comparison uses actual snapshots and includes changed conditions, stages, decimal rating, and cup note
+ok 409 - brew comparison uses actual snapshots and includes changed conditions, stages, decimal rating, and cup note
+  ---
+  duration_ms: 0.462167
+  type: 'test'
+  ...
+# Subtest: brew comparison renders and compares a μm range from actual snapshots
+ok 410 - brew comparison renders and compares a μm range from actual snapshots
+  ---
+  duration_ms: 0.117625
+  type: 'test'
+  ...
+# Subtest: brew comparison refuses records from different beans and damaged snapshots
+ok 411 - brew comparison refuses records from different beans and damaged snapshots
+  ---
+  duration_ms: 0.063584
+  type: 'test'
+  ...
+# Subtest: chart coordinates use real date spacing and a zero-to-five rating scale
+ok 412 - chart coordinates use real date spacing and a zero-to-five rating scale
+  ---
+  duration_ms: 0.555584
+  type: 'test'
+  ...
+# Subtest: multiple bean trends use one shared date range even when bean series are not date ordered
+ok 413 - multiple bean trends use one shared date range even when bean series are not date ordered
+  ---
+  duration_ms: 0.420666
+  type: 'test'
+  ...
+# Subtest: decimal ratings remain available to insight averages, filters, and ranking
+ok 414 - decimal ratings remain available to insight averages, filters, and ranking
+  ---
+  duration_ms: 0.200167
+  type: 'test'
+  ...
+# Subtest: saved-connection startup verifies and reads only the current beans page
+ok 415 - saved-connection startup verifies and reads only the current beans page
+  ---
+  duration_ms: 5.539708
+  type: 'test'
+  ...
+# Subtest: route reads stay scoped, record filters query the server, and name options load on form use
+ok 416 - route reads stay scoped, record filters query the server, and name options load on form use
+  ---
+  duration_ms: 1.86475
+  type: 'test'
+  ...
+# Subtest: search picker requests expose retryable errors and ignore superseded results and failures
+ok 417 - search picker requests expose retryable errors and ignore superseded results and failures
+  ---
+  duration_ms: 0.858042
+  type: 'test'
+  ...
+# Subtest: route transition loading is independent from writes and ends after the first page
+ok 418 - route transition loading is independent from writes and ends after the first page
+  ---
+  duration_ms: 0.935916
+  type: 'test'
+  ...
+# Subtest: route read failure and cancellation clear loading without rendering previous-route data
+ok 419 - route read failure and cancellation clear loading without rendering previous-route data
+  ---
+  duration_ms: 0.994292
+  type: 'test'
+  ...
+# Subtest: returning to the current route clears a cancelled transition skeleton
+ok 420 - returning to the current route clears a cancelled transition skeleton
+  ---
+  duration_ms: 0.533792
+  type: 'test'
+  ...
+# Subtest: late response from a previous route cannot replace the current screen
+ok 421 - late response from a previous route cannot replace the current screen
+  ---
+  duration_ms: 0.646708
+  type: 'test'
+  ...
+# Subtest: home startup performs no screen reads and brew routes use scoped repository methods
+ok 422 - home startup performs no screen reads and brew routes use scoped repository methods
+  ---
+  duration_ms: 1.428792
+  type: 'test'
+  ...
+# Subtest: brew completion hands the selected bean and recipe to a new record without waiting for Notion
+ok 423 - brew completion hands the selected bean and recipe to a new record without waiting for Notion
+  ---
+  duration_ms: 1.706916
+  type: 'test'
+  ...
+# Subtest: direct new-record routes keep selected-item fallback reads and skip the record list
+ok 424 - direct new-record routes keep selected-item fallback reads and skip the record list
+  ---
+  duration_ms: 0.938667
+  type: 'test'
+  ...
+# Subtest: 조회·작업 상태 모듈은 앱 파일로만 공급하고 변경을 버전에 반영한다
+ok 425 - 조회·작업 상태 모듈은 앱 파일로만 공급하고 변경을 버전에 반영한다
+  ---
+  duration_ms: 198.168083
+  type: 'test'
+  ...
+# Subtest: state 소스 디렉터리 symlink를 통한 허용 목록 우회는 차단한다
+ok 426 - state 소스 디렉터리 symlink를 통한 허용 목록 우회는 차단한다
+  ---
+  duration_ms: 30.761541
+  type: 'test'
+  ...
+# Subtest: 소스의 개발용 도메인 경유 모듈과 배포 원본은 같은 함수다
+ok 427 - 소스의 개발용 도메인 경유 모듈과 배포 원본은 같은 함수다
+  ---
+  duration_ms: 1.205667
+  type: 'test'
+  ...
+# Subtest: draft canonical hash, isolated deep freeze, new intent key and ordered arrays
+ok 428 - draft canonical hash, isolated deep freeze, new intent key and ordered arrays
+  ---
+  duration_ms: 5.592916
+  type: 'test'
+  ...
+# Subtest: draft rejects non-JSON/getters/cycles and invalid target/revision without exposing input
+ok 429 - draft rejects non-JSON/getters/cycles and invalid target/revision without exposing input
+  ---
+  duration_ms: 0.911083
+  type: 'test'
+  ...
+# Subtest: processing and known ID durable before subsequent dispatch, exact secret-free journal, success
+ok 430 - processing and known ID durable before subsequent dispatch, exact secret-free journal, success
+  ---
+  duration_ms: 3.481791
+  type: 'test'
+  ...
+# Subtest: recipe edit journal records a per-page outcome before dispatch and after confirmation
+ok 431 - recipe edit journal records a per-page outcome before dispatch and after confirmation
+  ---
+  duration_ms: 2.586125
+  type: 'test'
+  ...
+# Subtest: unknown recipe edit resolves only from an exact fresh after-state
+ok 432 - unknown recipe edit resolves only from an exact fresh after-state
+  ---
+  duration_ms: 1.735541
+  type: 'test'
+  ...
+# Subtest: same succeeded key never reruns, fresh intent same payload allowed
+ok 433 - same succeeded key never reruns, fresh intent same payload allowed
+  ---
+  duration_ms: 2.55975
+  type: 'test'
+  ...
+# Subtest: failed key never reruns; altered or forged same-key payload rejected
+ok 434 - failed key never reruns; altered or forged same-key payload rejected
+  ---
+  duration_ms: 1.737625
+  type: 'test'
+  ...
+# Subtest: native contention, unsupported locks, lock failure, reentry and expired context fail closed
+ok 435 - native contention, unsupported locks, lock failure, reentry and expired context fail closed
+  ---
+  duration_ms: 0.354708
+  type: 'test'
+  ...
+# Subtest: distinct state instances contend through the shared native lock
+ok 436 - distinct state instances contend through the shared native lock
+  ---
+  duration_ms: 0.3565
+  type: 'test'
+  ...
+# Subtest: callback return closes context admission and drains admitted work before native unlock
+ok 437 - callback return closes context admission and drains admitted work before native unlock
+  ---
+  duration_ms: 1.071333
+  type: 'test'
+  ...
+# Subtest: runOperation drains an in-flight hook and expires escaped hooks before releasing the lock
+ok 438 - runOperation drains an in-flight hook and expires escaped hooks before releasing the lock
+  ---
+  duration_ms: 0.871083
+  type: 'test'
+  ...
+# Subtest: storage failure at root prevents network and fails closed
+ok 439 - storage failure at root prevents network and fails closed
+  ---
+  duration_ms: 0.357875
+  type: 'test'
+  ...
+# Subtest: storage failure at directory prevents network and fails closed
+ok 440 - storage failure at directory prevents network and fails closed
+  ---
+  duration_ms: 0.237833
+  type: 'test'
+  ...
+# Subtest: storage failure at handle prevents network and fails closed
+ok 441 - storage failure at handle prevents network and fails closed
+  ---
+  duration_ms: 0.61675
+  type: 'test'
+  ...
+# Subtest: storage failure at createWritable prevents network and fails closed
+ok 442 - storage failure at createWritable prevents network and fails closed
+  ---
+  duration_ms: 0.455166
+  type: 'test'
+  ...
+# Subtest: storage failure at write prevents network and fails closed
+ok 443 - storage failure at write prevents network and fails closed
+  ---
+  duration_ms: 0.309042
+  type: 'test'
+  ...
+# Subtest: storage failure at close prevents network and fails closed
+ok 444 - storage failure at close prevents network and fails closed
+  ---
+  duration_ms: 0.28425
+  type: 'test'
+  ...
+# Subtest: storage failure at afterClose prevents network and fails closed
+ok 445 - storage failure at afterClose prevents network and fails closed
+  ---
+  duration_ms: 0.685917
+  type: 'test'
+  ...
+# Subtest: storage failure at getFile prevents network and fails closed
+ok 446 - storage failure at getFile prevents network and fails closed
+  ---
+  duration_ms: 0.245417
+  type: 'test'
+  ...
+# Subtest: storage failure at text prevents network and fails closed
+ok 447 - storage failure at text prevents network and fails closed
+  ---
+  duration_ms: 0.232834
+  type: 'test'
+  ...
+# Subtest: result persistence failure latches memory and restart processing becomes unknown
+ok 448 - result persistence failure latches memory and restart processing becomes unknown
+  ---
+  duration_ms: 0.850333
+  type: 'test'
+  ...
+# Subtest: successful close with altered readback blocks dispatch and latches uncertainty
+ok 449 - successful close with altered readback blocks dispatch and latches uncertainty
+  ---
+  duration_ms: 0.414916
+  type: 'test'
+  ...
+# Subtest: unknown and partial globally block new keys and connection changes, no auto retry
+ok 450 - unknown and partial globally block new keys and connection changes, no auto retry
+  ---
+  duration_ms: 2.086709
+  type: 'test'
+  ...
+# Subtest: caught write errors retain unknown or rejected outcome instead of succeeding
+ok 451 - caught write errors retain unknown or rejected outcome instead of succeeding
+  ---
+  duration_ms: 0.818791
+  type: 'test'
+  ...
+# Subtest: connection and journal revision reread before every write blocks stale client/draft
+ok 452 - connection and journal revision reread before every write blocks stale client/draft
+  ---
+  duration_ms: 0.936333
+  type: 'test'
+  ...
+# Subtest: one file missing refuses first connection and mutation: connection.json
+ok 453 - one file missing refuses first connection and mutation: connection.json
+  ---
+  duration_ms: 0.393458
+  type: 'test'
+  ...
+# Subtest: one file missing refuses first connection and mutation: submission-journal.json
+ok 454 - one file missing refuses first connection and mutation: submission-journal.json
+  ---
+  duration_ms: 0.354917
+  type: 'test'
+  ...
+# Subtest: first connection guard, commit readback, replacement, stale old client and interrupted guard
+ok 455 - first connection guard, commit readback, replacement, stale old client and interrupted guard
+  ---
+  duration_ms: 0.974292
+  type: 'test'
+  ...
+# Subtest: connection recovery requires a persisted guard and both files
+ok 456 - connection recovery requires a persisted guard and both files
+  ---
+  duration_ms: 0.344583
+  type: 'test'
+  ...
+# Subtest: confirmConnection adopts the original active revision after an interrupted replacement
+ok 457 - confirmConnection adopts the original active revision after an interrupted replacement
+  ---
+  duration_ms: 1.244667
+  type: 'test'
+  ...
+# Subtest: close/readback uncertainty in connection change retains blocking guard
+ok 458 - close/readback uncertainty in connection change retains blocking guard
+  ---
+  duration_ms: 0.481667
+  type: 'test'
+  ...
+# Subtest: resolution requires original confirmation, concrete decision and fresh same-target read callback
+ok 459 - resolution requires original confirmation, concrete decision and fresh same-target read callback
+  ---
+  duration_ms: 1.178417
+  type: 'test'
+  ...
+# Subtest: resolution compares the original durable connection snapshot after fresh read
+ok 460 - resolution compares the original durable connection snapshot after fresh read
+  ---
+  duration_ms: 0.921167
+  type: 'test'
+  ...
+# Subtest: journal UUID identity is canonical and returned snapshots are deeply immutable
+ok 461 - journal UUID identity is canonical and returned snapshots are deeply immutable
+  ---
+  duration_ms: 0.446042
+  type: 'test'
+  ...
+# Subtest: raw Error returned from a dispatched callback is redacted and marked unknown
+ok 462 - raw Error returned from a dispatched callback is redacted and marked unknown
+  ---
+  duration_ms: 0.437292
+  type: 'test'
+  ...
+# Subtest: clock and crypto feature failures use fixed safe errors
+ok 463 - clock and crypto feature failures use fixed safe errors
+  ---
+  duration_ms: 0.382708
+  type: 'test'
+  ...
+# Subtest: archive only current-operation known pages; rejected archive preserves partial and unknown archive blocks
+ok 464 - archive only current-operation known pages; rejected archive preserves partial and unknown archive blocks
+  ---
+  duration_ms: 0.653458
+  type: 'test'
+  ...
+# Subtest: uncertain archive callback durably changes the page archive state to unknown
+ok 465 - uncertain archive callback durably changes the page archive state to unknown
+  ---
+  duration_ms: 0.571
+  type: 'test'
+  ...
+# Subtest: corrupt/extra-field journal never overwritten or exposed
+ok 466 - corrupt/extra-field journal never overwritten or exposed
+  ---
+  duration_ms: 0.911709
+  type: 'test'
+  ...
+# Subtest: unknown favorite journal retains target and intended value and resolves only matching fresh evidence
+ok 467 - unknown favorite journal retains target and intended value and resolves only matching fresh evidence
+  ---
+  duration_ms: 0.966792
+  type: 'test'
+  ...
+# Subtest: shared DOM helper creates text nodes with the requested class
+ok 468 - shared DOM helper creates text nodes with the requested class
+  ---
+  duration_ms: 0.47225
+  type: 'test'
+  ...
+# Subtest: shared SVG helpers preserve local icon paths and decorative markers
+ok 469 - shared SVG helpers preserve local icon paths and decorative markers
+  ---
+  duration_ms: 0.176917
+  type: 'test'
+  ...
+# Subtest: shared buttons preserve action selectors and accessible progress states
+ok 470 - shared buttons preserve action selectors and accessible progress states
+  ---
+  duration_ms: 0.519417
+  type: 'test'
+  ...
+# Subtest: shared form helpers preserve field names, labels, fieldsets, and action controls
+ok 471 - shared form helpers preserve field names, labels, fieldsets, and action controls
+  ---
+  duration_ms: 0.49
+  type: 'test'
+  ...
+# Subtest: shared dialog helpers retain entry dialog semantics and native fallback
+ok 472 - shared dialog helpers retain entry dialog semantics and native fallback
+  ---
+  duration_ms: 0.110417
+  type: 'test'
+  ...
+# Subtest: pull refresh spinner keeps twelve decorative spokes
+ok 473 - pull refresh spinner keeps twelve decorative spokes
+  ---
+  duration_ms: 0.128375
+  type: 'test'
+  ...
+# Subtest: the shipped page has a real UI mount point
+ok 474 - the shipped page has a real UI mount point
+  ---
+  duration_ms: 3.351833
+  type: 'test'
+  ...
+# Subtest: controller public flows use real Notion, repository, commands and journal adapters
+ok 475 - controller public flows use real Notion, repository, commands and journal adapters
+  ---
+  duration_ms: 4954.831208
+  type: 'test'
+  ...
+# Subtest: record replay loads the saved actual snapshot even when its source recipe was deleted
+ok 476 - record replay loads the saved actual snapshot even when its source recipe was deleted
+  ---
+  duration_ms: 2841.344625
+  type: 'test'
+  ...
+# Subtest: source and result pair loads directly when the source record is outside the current page
+ok 477 - source and result pair loads directly when the source record is outside the current page
+  ---
+  duration_ms: 3919.852708
+  type: 'test'
+  ...
+# Subtest: successful entity writes keep inline completion and omit saved or post-write loaded toasts
+ok 478 - successful entity writes keep inline completion and omit saved or post-write loaded toasts
+  ---
+  duration_ms: 5342.337375
+  type: 'test'
+  ...
+# Subtest: successful write refetch failures keep save and delete recovery notices
+ok 479 - successful write refetch failures keep save and delete recovery notices
+  ---
+  duration_ms: 1767.024917
+  type: 'test'
+  ...
+# Subtest: unknown writes preserve the draft state and prevent a second UI submission
+ok 480 - unknown writes preserve the draft state and prevent a second UI submission
+  ---
+  duration_ms: 9.850666
+  type: 'test'
+  ...
+# Subtest: unknown write resolution requires explicit confirmation and a fresh read before writes resume
+ok 481 - unknown write resolution requires explicit confirmation and a fresh read before writes resume
+  ---
+  duration_ms: 11.857042
+  type: 'test'
+  ...
+# Subtest: lost best relation response is resolved by rereading the bean and record from Notion
+ok 482 - lost best relation response is resolved by rereading the bean and record from Notion
+  ---
+  duration_ms: 1774.378625
+  type: 'test'
+  ...
+# Subtest: bean detail resolves its persisted best record by ID instead of deriving it from the loaded history page
+ok 483 - bean detail resolves its persisted best record by ID instead of deriving it from the loaded history page
+  ---
+  duration_ms: 3889.66275
+  type: 'test'
+  ...
+# Subtest: a second native UI client waits for startup lock release and reads the saved connection
+ok 484 - a second native UI client waits for startup lock release and reads the saved connection
+  ---
+  duration_ms: 107.595167
+  type: 'test'
+  ...
+# Subtest: home startup verifies a saved connection through the real Notion client
+ok 485 - home startup verifies a saved connection through the real Notion client
+  ---
+  duration_ms: 5.866708
+  type: 'test'
+  ...
+# Subtest: home startup keeps the saved settings on a temporary verify failure and restores them on retry
+ok 486 - home startup keeps the saved settings on a temporary verify failure and restores them on retry
+  ---
+  duration_ms: 2.915084
+  type: 'test'
+  ...
+# Subtest: home startup shows a safe retry state when saved connection storage cannot be read
+ok 487 - home startup shows a safe retry state when saved connection storage cannot be read
+  ---
+  duration_ms: 0.6595
+  type: 'test'
+  ...
+# Subtest: home startup opens first-time connection entry only when the connection file is absent
+ok 488 - home startup opens first-time connection entry only when the connection file is absent
+  ---
+  duration_ms: 0.45575
+  type: 'test'
+  ...
+# Subtest: saved connection authorization failures keep retry and settings edit entry available
+ok 489 - saved connection authorization failures keep retry and settings edit entry available
+  ---
+  duration_ms: 0.584541
+  type: 'test'
+  ...
+# Subtest: startup recovery guards remain repair-only and block connection replacement
+ok 490 - startup recovery guards remain repair-only and block connection replacement
+  ---
+  duration_ms: 1.612416
+  type: 'test'
+  ...
+# Subtest: saved startup keeps route-specific verification and query loading lazy
+ok 491 - saved startup keeps route-specific verification and query loading lazy
+  ---
+  duration_ms: 354.676208
+  type: 'test'
+  ...
+# Subtest: unreadable saved storage can recover on retry without replacing settings
+ok 492 - unreadable saved storage can recover on retry without replacing settings
+  ---
+  duration_ms: 4.659584
+  type: 'test'
+  ...
+# Subtest: legacy bag journals stay unresolved after startup and never auto-send
+ok 493 - legacy bag journals stay unresolved after startup and never auto-send
+  ---
+  duration_ms: 711.385959
+  type: 'test'
+  ...
+# Subtest: saved resolution rejects a recipe parent that is absent from the complete fresh projection
+ok 494 - saved resolution rejects a recipe parent that is absent from the complete fresh projection
+  ---
+  duration_ms: 18.596833
+  type: 'test'
+  ...
+# Subtest: favorites persist through real adapters, remain out of copies and snapshots, and filter catalog and brew routes
+ok 495 - favorites persist through real adapters, remain out of copies and snapshots, and filter catalog and brew routes
+  ---
+  duration_ms: 3198.524833
+  type: 'test'
+  ...
+# Subtest: an uncertain favorite PATCH blocks writes and fresh original value resolves without another PATCH
+ok 496 - an uncertain favorite PATCH blocks writes and fresh original value resolves without another PATCH
+  ---
+  duration_ms: 1071.794
+  type: 'test'
+  ...
+# Subtest: favorite recovery stays blocked when the original checkbox schema is removed
+ok 497 - favorite recovery stays blocked when the original checkbox schema is removed
+  ---
+  duration_ms: 713.531125
+  type: 'test'
+  ...
+# Subtest: favorite PATCH HTTP 401 preserves safe next-action guidance without retry
+ok 498 - favorite PATCH HTTP 401 preserves safe next-action guidance without retry
+  ---
+  duration_ms: 713.641917
+  type: 'test'
+  ...
+# Subtest: favorite PATCH HTTP 403 preserves safe next-action guidance without retry
+ok 499 - favorite PATCH HTTP 403 preserves safe next-action guidance without retry
+  ---
+  duration_ms: 716.307458
+  type: 'test'
+  ...
+# Subtest: favorite PATCH HTTP 429 preserves safe next-action guidance without retry
+ok 500 - favorite PATCH HTTP 429 preserves safe next-action guidance without retry
+  ---
+  duration_ms: 706.798167
+  type: 'test'
+  ...
+# Subtest: late favorite catalog response cannot populate the replacement connection or cache
+ok 501 - late favorite catalog response cannot populate the replacement connection or cache
+  ---
+  duration_ms: 2120.182333
+  type: 'test'
+  ...
+# Subtest: late favorite picker response cannot populate the replacement connection or cache
+ok 502 - late favorite picker response cannot populate the replacement connection or cache
+  ---
+  duration_ms: 1775.819125
+  type: 'test'
+  ...
+# Subtest: unknown favorite recovery rejects changed connection revision and data-source identity
+ok 503 - unknown favorite recovery rejects changed connection revision and data-source identity
+  ---
+  duration_ms: 716.038708
+  type: 'test'
+  ...
+# Subtest: favorite and best updates preserve each other and actual snapshots omit catalog preferences
+ok 504 - favorite and best updates preserve each other and actual snapshots omit catalog preferences
+  ---
+  duration_ms: 1793.682791
+  type: 'test'
+  ...
+# Subtest: legacy schemas without optional properties keep catalogs and brew pickers readable
+ok 505 - legacy schemas without optional properties keep catalogs and brew pickers readable
+  ---
+  duration_ms: 7404.719041
+  type: 'test'
+  ...
+# Subtest: records insights keep their own bounded cursor and selection outside recipe filters and table paging
+ok 506 - records insights keep their own bounded cursor and selection outside recipe filters and table paging
+  ---
+  duration_ms: 13.815666
+  type: 'test'
+  ...
+# Subtest: insight read failures stay inline and do not replace the filtered records page
+ok 507 - insight read failures stay inline and do not replace the filtered records page
+  ---
+  duration_ms: 2.620291
+  type: 'test'
+  ...
+# Subtest: record create and delete reset and reload the bounded insights cursor
+ok 508 - record create and delete reset and reload the bounded insights cursor
+  ---
+  duration_ms: 1.276875
+  type: 'test'
+  ...
+# Subtest: reconnection clears prior overview selection and stale aborted pages cannot cross the connection boundary
+ok 509 - reconnection clears prior overview selection and stale aborted pages cannot cross the connection boundary
+  ---
+  duration_ms: 0.867708
+  type: 'test'
+  ...
+# Subtest: filtered entry initializes the unfiltered overview and later pages preserve manual selection
+ok 510 - filtered entry initializes the unfiltered overview and later pages preserve manual selection
+  ---
+  duration_ms: 1.950541
+  type: 'test'
+  ...
+# Subtest: filtered explicit comparison initializes its older bean then insight paging respects a manual switch
+ok 511 - filtered explicit comparison initializes its older bean then insight paging respects a manual switch
+  ---
+  duration_ms: 1.929792
+  type: 'test'
+  ...
+# (node:44948) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: connection settings open only after no saved connection is found
+ok 512 - connection settings open only after no saved connection is found
+  ---
+  duration_ms: 4.912541
+  type: 'test'
+  ...
+# Subtest: connection settings header control uses an accessible outlined gear button
+ok 513 - connection settings header control uses an accessible outlined gear button
+  ---
+  duration_ms: 1.156833
+  type: 'test'
+  ...
+# Subtest: startup checking shows the status toast outside the locked page until retry is needed
+ok 514 - startup checking shows the status toast outside the locked page until retry is needed
+  ---
+  duration_ms: 5.603042
+  type: 'test'
+  ...
+# Subtest: initialization toast reaches the saved outcome and releases startup lock
+ok 515 - initialization toast reaches the saved outcome and releases startup lock
+  ---
+  duration_ms: 6.718
+  type: 'test'
+  ...
+# Subtest: initialization toast reaches the missing outcome and releases startup lock
+ok 516 - initialization toast reaches the missing outcome and releases startup lock
+  ---
+  duration_ms: 4.618834
+  type: 'test'
+  ...
+# Subtest: initialization toast reaches the error outcome and releases startup lock
+ok 517 - initialization toast reaches the error outcome and releases startup lock
+  ---
+  duration_ms: 2.157625
+  type: 'test'
+  ...
+# Subtest: initialization toast reaches the recovery outcome and releases startup lock
+ok 518 - initialization toast reaches the recovery outcome and releases startup lock
+  ---
+  duration_ms: 3.949333
+  type: 'test'
+  ...
+# Subtest: initialization toast reaches the busy outcome and releases startup lock
+ok 519 - initialization toast reaches the busy outcome and releases startup lock
+  ---
+  duration_ms: 2.029167
+  type: 'test'
+  ...
+# Subtest: initialization toast reaches the read-error outcome and releases startup lock
+ok 520 - initialization toast reaches the read-error outcome and releases startup lock
+  ---
+  duration_ms: 4.962292
+  type: 'test'
+  ...
+# Subtest: pending work keeps its toast and startup lock through ready completion
+ok 521 - pending work keeps its toast and startup lock through ready completion
+  ---
+  duration_ms: 1.181084
+  type: 'test'
+  ...
+# Subtest: saved connection opens settings modally and closing discards unsaved secrets
+ok 522 - saved connection opens settings modally and closing discards unsaved secrets
+  ---
+  duration_ms: 1.542792
+  type: 'test'
+  ...
+# Subtest: controller screen loading toast reaches the navigation outcome
+ok 523 - controller screen loading toast reaches the navigation outcome
+  ---
+  duration_ms: 22.719875
+  type: 'test'
+  ...
+# Subtest: controller screen loading toast reaches the refresh outcome
+ok 524 - controller screen loading toast reaches the refresh outcome
+  ---
+  duration_ms: 8.59
+  type: 'test'
+  ...
+# Subtest: controller screen loading toast reaches the error outcome
+ok 525 - controller screen loading toast reaches the error outcome
+  ---
+  duration_ms: 8.001917
+  type: 'test'
+  ...
+# Subtest: controller screen loading toast reaches the cancelled outcome
+ok 526 - controller screen loading toast reaches the cancelled outcome
+  ---
+  duration_ms: 5.121541
+  type: 'test'
+  ...
+# Subtest: toast trailing icon changes from loading to completion without replacing its message
+ok 527 - toast trailing icon changes from loading to completion without replacing its message
+  ---
+  duration_ms: 2.280417
+  type: 'test'
+  ...
+# Subtest: toast loading fallback resets on errors and neutral messages
+ok 528 - toast loading fallback resets on errors and neutral messages
+  ---
+  duration_ms: 0.817167
+  type: 'test'
+  ...
+# Subtest: successful status messages stay visible for one second then hide
+ok 529 - successful status messages stay visible for one second then hide
+  ---
+  duration_ms: 0.58975
+  type: 'test'
+  ...
+# Subtest: errors and recovery notices hide one second after replacing success
+ok 530 - errors and recovery notices hide one second after replacing success
+  ---
+  duration_ms: 1.917791
+  type: 'test'
+  ...
+# Subtest: checking and saving feedback stays visible while work is in progress
+ok 531 - checking and saving feedback stays visible while work is in progress
+  ---
+  duration_ms: 0.510291
+  type: 'test'
+  ...
+# Subtest: status messages share one bottom safe-area toast above native modal dialogs
+ok 532 - status messages share one bottom safe-area toast above native modal dialogs
+  ---
+  duration_ms: 3.257792
+  type: 'test'
+  ...
+# Subtest: toast clears the actual action row of a centered modal
+ok 533 - toast clears the actual action row of a centered modal
+  ---
+  duration_ms: 1.741792
+  type: 'test'
+  ...
+# Subtest: native form validation marks its field and reports the error in the shared toast
+ok 534 - native form validation marks its field and reports the error in the shared toast
+  ---
+  duration_ms: 2.333708
+  type: 'test'
+  ...
+# Subtest: pending operations use the existing toast and retain the top pull-to-refresh spinner
+ok 535 - pending operations use the existing toast and retain the top pull-to-refresh spinner
+  ---
+  duration_ms: 1.07425
+  type: 'test'
+  ...
+# Subtest: pending toast stays visible through success, ready and timeout, then clears after completion or failure
+ok 536 - pending toast stays visible through success, ready and timeout, then clears after completion or failure
+  ---
+  duration_ms: 2.149834
+  type: 'test'
+  ...
+# Subtest: clearing successful operation progress does not restore it after pending work or modal close
+ok 537 - clearing successful operation progress does not restore it after pending work or modal close
+  ---
+  duration_ms: 1.752542
+  type: 'test'
+  ...
+# Subtest: a new success gets a full display interval and empty messages hide immediately
+ok 538 - a new success gets a full display interval and empty messages hide immediately
+  ---
+  duration_ms: 0.502208
+  type: 'test'
+  ...
+# Subtest: draft values survive tab navigation and a fresh data render
+ok 539 - draft values survive tab navigation and a fresh data render
+  ---
+  duration_ms: 3.753625
+  type: 'test'
+  ...
+# Subtest: bean, recipe, and record detail text is rendered as text and retains brew details
+ok 540 - bean, recipe, and record detail text is rendered as text and retains brew details
+  ---
+  duration_ms: 3.162041
+  type: 'test'
+  ...
+# Subtest: pour tables group cumulative values before interval and current water in three columns
+ok 541 - pour tables group cumulative values before interval and current water in three columns
+  ---
+  duration_ms: 2.19225
+  type: 'test'
+  ...
+# Subtest: damaged historical records are excluded from bagless recipe views
+ok 542 - damaged historical records are excluded from bagless recipe views
+  ---
+  duration_ms: 2.06225
+  type: 'test'
+  ...
+# Subtest: invalid stored date and rating remain visible with field-specific warnings
+ok 543 - invalid stored date and rating remain visible with field-specific warnings
+  ---
+  duration_ms: 5.767917
+  type: 'test'
+  ...
+# Subtest: recipes have no bean selector and records require both bean and shared recipe with browse filters
+ok 544 - recipes have no bean selector and records require both bean and shared recipe with browse filters
+  ---
+  duration_ms: 9.994875
+  type: 'test'
+  ...
+# Subtest: resolution controls follow the native journal page-list contract
+ok 545 - resolution controls follow the native journal page-list contract
+  ---
+  duration_ms: 1.23525
+  type: 'test'
+  ...
+# Subtest: recovery cards show the user task, update time, checks, and only safe Notion page links
+ok 546 - recovery cards show the user task, update time, checks, and only safe Notion page links
+  ---
+  duration_ms: 11.971584
+  type: 'test'
+  ...
+# Subtest: uncertain recipe edits offer exact before or after verification and block blind retry
+ok 547 - uncertain recipe edits offer exact before or after verification and block blind retry
+  ---
+  duration_ms: 0.508625
+  type: 'test'
+  ...
+# Subtest: recipe step time permits a keyboard with colon while retaining minute-second validation
+ok 548 - recipe step time permits a keyboard with colon while retaining minute-second validation
+  ---
+  duration_ms: 2.196041
+  type: 'test'
+  ...
+# Subtest: the bean origin label uses user-facing wording rather than the storage field name
+ok 549 - the bean origin label uses user-facing wording rather than the storage field name
+  ---
+  duration_ms: 0.932209
+  type: 'test'
+  ...
+# Subtest: the record date default follows the device calendar across the KST UTC boundary
+ok 550 - the record date default follows the device calendar across the KST UTC boundary
+  ---
+  duration_ms: 4.460125
+  type: 'test'
+  ...
+# Subtest: checked connection-recovery checkbox reaches the current-connection verifier
+ok 551 - checked connection-recovery checkbox reaches the current-connection verifier
+  ---
+  duration_ms: 1.106167
+  type: 'test'
+  ...
+# Subtest: startup lock contention hides connection entry and retries the saved connection read
+ok 552 - startup lock contention hides connection entry and retries the saved connection read
+  ---
+  duration_ms: 1.042125
+  type: 'test'
+  ...
+# Subtest: successful connection replacement preserves the active product draft
+ok 553 - successful connection replacement preserves the active product draft
+  ---
+  duration_ms: 12.02825
+  type: 'test'
+  ...
+# Subtest: successful connection replacement preserves hidden drafts and their dirty signal
+ok 554 - successful connection replacement preserves hidden drafts and their dirty signal
+  ---
+  duration_ms: 7.999417
+  type: 'test'
+  ...
+# Subtest: recipe input minimums allow every positive sub-cent value accepted by the domain
+ok 555 - recipe input minimums allow every positive sub-cent value accepted by the domain
+  ---
+  duration_ms: 2.98425
+  type: 'test'
+  ...
+# Subtest: recipe history never displays legacy bag relations
+ok 556 - recipe history never displays legacy bag relations
+  ---
+  duration_ms: 2.432667
+  type: 'test'
+  ...
+# Subtest: bean creation starts hidden, opens from the plus button, and closes on cancel
+ok 557 - bean creation starts hidden, opens from the plus button, and closes on cancel
+  ---
+  duration_ms: 4.675416
+  type: 'test'
+  ...
+# Subtest: bag route has no entry, delete or relation selection surface
+ok 558 - bag route has no entry, delete or relation selection surface
+  ---
+  duration_ms: 3.112834
+  type: 'test'
+  ...
+# Subtest: recipe creation opens from plus, preserves drafts, and closes on cancel
+ok 559 - recipe creation opens from plus, preserves drafts, and closes on cancel
+  ---
+  duration_ms: 18.734792
+  type: 'test'
+  ...
+# Subtest: recipe validation state remains visible in list and detail views
+ok 560 - recipe validation state remains visible in list and detail views
+  ---
+  duration_ms: 7.25
+  type: 'test'
+  ...
+# Subtest: recipe summaries separate the primary values, ratio, step count, and guide preview
+ok 561 - recipe summaries separate the primary values, ratio, step count, and guide preview
+  ---
+  duration_ms: 1.78125
+  type: 'test'
+  ...
+# Subtest: recipe screens show zero and missing values distinctly and omit an invalid ratio
+ok 562 - recipe screens show zero and missing values distinctly and omit an invalid ratio
+  ---
+  duration_ms: 3.984333
+  type: 'test'
+  ...
+# Subtest: recipe detail groups conditions, pour steps, guide, and records in reading order
+ok 563 - recipe detail groups conditions, pour steps, guide, and records in reading order
+  ---
+  duration_ms: 1.65325
+  type: 'test'
+  ...
+# Subtest: recipe detail edit action opens a full prefilled edit form with stable step IDs
+ok 564 - recipe detail edit action opens a full prefilled edit form with stable step IDs
+  ---
+  duration_ms: 6.501125
+  type: 'test'
+  ...
+# Subtest: recipe edit drafts stay separate from create drafts and preserve the captured baseline
+ok 565 - recipe edit drafts stay separate from create drafts and preserve the captured baseline
+  ---
+  duration_ms: 14.154417
+  type: 'test'
+  ...
+# Subtest: bean form draft restores and reopens after a reload in the same connection generation
+ok 566 - bean form draft restores and reopens after a reload in the same connection generation
+  ---
+  duration_ms: 2.725375
+  type: 'test'
+  ...
+# Subtest: explicit form cancellation removes its persisted draft
+ok 567 - explicit form cancellation removes its persisted draft
+  ---
+  duration_ms: 2.686708
+  type: 'test'
+  ...
+# Subtest: successful form save removes its persisted draft
+ok 568 - successful form save removes its persisted draft
+  ---
+  duration_ms: 1.788417
+  type: 'test'
+  ...
+# Subtest: dirty recipe edit cancellation asks before discarding and then returns to details
+ok 569 - dirty recipe edit cancellation asks before discarding and then returns to details
+  ---
+  duration_ms: 7.357
+  type: 'test'
+  ...
+# Subtest: recipe detail places the guide below the pour table and copy preserves its text
+ok 570 - recipe detail places the guide below the pour table and copy preserves its text
+  ---
+  duration_ms: 5.902
+  type: 'test'
+  ...
+# Subtest: record creation opens from plus, preserves drafts, and closes on cancel or save
+ok 571 - record creation opens from plus, preserves drafts, and closes on cancel or save
+  ---
+  duration_ms: 24.928875
+  type: 'test'
+  ...
+# Subtest: background data updates defer pane replacement while an entry dialog is open
+ok 572 - background data updates defer pane replacement while an entry dialog is open
+  ---
+  duration_ms: 13.448208
+  type: 'test'
+  ...
+# Subtest: collection headers omit refresh and retain their add buttons
+ok 573 - collection headers omit refresh and retain their add buttons
+  ---
+  duration_ms: 8.736292
+  type: 'test'
+  ...
+# Subtest: an open native dialog blocks page refresh without cancelling its touch gesture
+ok 574 - an open native dialog blocks page refresh without cancelling its touch gesture
+  ---
+  duration_ms: 2.149833
+  type: 'test'
+  ...
+# Subtest: touches in a nested native dialog stay native at every scroll boundary
+ok 575 - touches in a nested native dialog stay native at every scroll boundary
+  ---
+  duration_ms: 2.040792
+  type: 'test'
+  ...
+# Subtest: open dialogs track visible viewport size and offset while nested modals remain open
+ok 576 - open dialogs track visible viewport size and offset while nested modals remain open
+  ---
+  duration_ms: 1.561667
+  type: 'test'
+  ...
+# Subtest: wide dialogs treat only an unzoomed viewport shrink as keyboard geometry
+ok 577 - wide dialogs treat only an unzoomed viewport shrink as keyboard geometry
+  ---
+  duration_ms: 1.023459
+  type: 'test'
+  ...
+# Subtest: opening and dismissing a dialog during a pull cancels that gesture
+ok 578 - opening and dismissing a dialog during a pull cancels that gesture
+  ---
+  duration_ms: 1.624417
+  type: 'test'
+  ...
+# Subtest: opening a dialog before the refresh timer fires cancels the queued reload
+ok 579 - opening a dialog before the refresh timer fires cancels the queued reload
+  ---
+  duration_ms: 1.624167
+  type: 'test'
+  ...
+# Subtest: pulling from the top reloads the entire page once on release
+ok 580 - pulling from the top reloads the entire page once on release
+  ---
+  duration_ms: 2.570083
+  type: 'test'
+  ...
+# Subtest: pulling progressively reveals a twelve-spoke spinner and moves the page down
+ok 581 - pulling progressively reveals a twelve-spoke spinner and moves the page down
+  ---
+  duration_ms: 1.418666
+  type: 'test'
+  ...
+# Subtest: work starting while the released spinner paints cancels the scheduled reload
+ok 582 - work starting while the released spinner paints cancels the scheduled reload
+  ---
+  duration_ms: 3.738542
+  type: 'test'
+  ...
+# Subtest: short pulls, retracted pulls and cancelled gestures do not reload
+ok 583 - short pulls, retracted pulls and cancelled gestures do not reload
+  ---
+  duration_ms: 5.0765
+  type: 'test'
+  ...
+# Subtest: normal scrolling and horizontal or upward swipes do not trigger reload
+ok 584 - normal scrolling and horizontal or upward swipes do not trigger reload
+  ---
+  duration_ms: 5.970125
+  type: 'test'
+  ...
+# Subtest: multitouch never reloads and a later single finger gesture can refresh
+ok 585 - multitouch never reloads and a later single finger gesture can refresh
+  ---
+  duration_ms: 2.195583
+  type: 'test'
+  ...
+# Subtest: downward pulls from controls and their child elements reload the whole page
+ok 586 - downward pulls from controls and their child elements reload the whole page
+  ---
+  duration_ms: 12.591
+  type: 'test'
+  ...
+# Subtest: control taps keep their normal action and short drags suppress accidental taps
+ok 587 - control taps keep their normal action and short drags suppress accidental taps
+  ---
+  duration_ms: 1.821541
+  type: 'test'
+  ...
+# Subtest: horizontal gestures and scrollable controls away from their top keep native scrolling
+ok 588 - horizontal gestures and scrollable controls away from their top keep native scrolling
+  ---
+  duration_ms: 5.016542
+  type: 'test'
+  ...
+# Subtest: saving and update freeze prevent a reload even when they begin during a pull
+ok 589 - saving and update freeze prevent a reload even when they begin during a pull
+  ---
+  duration_ms: 5.959917
+  type: 'test'
+  ...
+# Subtest: refresh requires a 240px downward pull and checks the release position
+ok 590 - refresh requires a 240px downward pull and checks the release position
+  ---
+  duration_ms: 8.873166
+  type: 'test'
+  ...
+# Subtest: navigation exposes a guarded center action beside its four accessible routes
+ok 591 - navigation exposes a guarded center action beside its four accessible routes
+  ---
+  duration_ms: 2.429833
+  type: 'test'
+  ...
+# Subtest: brewing routes select only the center action and restore route selection on exit
+ok 592 - brewing routes select only the center action and restore route selection on exit
+  ---
+  duration_ms: 11.600292
+  type: 'test'
+  ...
+# Subtest: narrow-screen navigation stays outside the page pull transform
+ok 593 - narrow-screen navigation stays outside the page pull transform
+  ---
+  duration_ms: 0.331625
+  type: 'test'
+  ...
+# Subtest: bean deletion opens a safe native dialog and restores focus after cancel or Escape
+ok 594 - bean deletion opens a safe native dialog and restores focus after cancel or Escape
+  ---
+  duration_ms: 3.329333
+  type: 'test'
+  ...
+# Subtest: dismissing a deletion result preserves its notice for button and Escape
+    # Subtest: unknown result dismissed with button
+    ok 1 - unknown result dismissed with button
+      ---
+      duration_ms: 1.919375
+      type: 'test'
+      ...
+    # Subtest: unknown result dismissed with Escape
+    ok 2 - unknown result dismissed with Escape
+      ---
+      duration_ms: 1.398042
+      type: 'test'
+      ...
+    # Subtest: partial result dismissed with button
+    ok 3 - partial result dismissed with button
+      ---
+      duration_ms: 1.37475
+      type: 'test'
+      ...
+    # Subtest: partial result dismissed with Escape
+    ok 4 - partial result dismissed with Escape
+      ---
+      duration_ms: 1.364583
+      type: 'test'
+      ...
+    # Subtest: succeeded result dismissed with button
+    ok 5 - succeeded result dismissed with button
+      ---
+      duration_ms: 2.12875
+      type: 'test'
+      ...
+    # Subtest: succeeded result dismissed with Escape
+    ok 6 - succeeded result dismissed with Escape
+      ---
+      duration_ms: 1.411833
+      type: 'test'
+      ...
+    1..6
+ok 595 - dismissing a deletion result preserves its notice for button and Escape
+  ---
+  duration_ms: 9.956958
+  type: 'test'
+  ...
+# Subtest: bean, recipe, and record deletes submit only after the custom dialog is confirmed
+ok 596 - bean, recipe, and record deletes submit only after the custom dialog is confirmed
+  ---
+  duration_ms: 7.661333
+  type: 'test'
+  ...
+# Subtest: recipe deletion omits its success message and preserves warnings and errors
+ok 597 - recipe deletion omits its success message and preserves warnings and errors
+  ---
+  duration_ms: 13.1295
+  type: 'test'
+  ...
+# Subtest: bean delete button spinner replaces its progress toast, locks duplicates, and renders failures
+ok 598 - bean delete button spinner replaces its progress toast, locks duplicates, and renders failures
+  ---
+  duration_ms: 2.87025
+  type: 'test'
+  ...
+# Subtest: recipe and record delete spinners replace only their progress toast
+ok 599 - recipe and record delete spinners replace only their progress toast
+  ---
+  duration_ms: 9.082042
+  type: 'test'
+  ...
+# Subtest: bean cards lead with origin and roastery, then retain every labeled metadata value
+ok 600 - bean cards lead with origin and roastery, then retain every labeled metadata value
+  ---
+  duration_ms: 0.862708
+  type: 'test'
+  ...
+# Subtest: bean details group all bean metadata and records inside the recipe card hierarchy
+ok 601 - bean details group all bean metadata and records inside the recipe card hierarchy
+  ---
+  duration_ms: 2.040541
+  type: 'test'
+  ...
+# Subtest: bean details keep empty, loading, and incomplete record states distinct
+ok 602 - bean details keep empty, loading, and incomplete record states distinct
+  ---
+  duration_ms: 2.7775
+  type: 'test'
+  ...
+# Subtest: bean cards keep missing metadata explicit and render values as text
+ok 603 - bean cards keep missing metadata explicit and render values as text
+  ---
+  duration_ms: 0.772917
+  type: 'test'
+  ...
+# Subtest: header navigation changes routes and remains locked while work is pending
+ok 604 - header navigation changes routes and remains locked while work is pending
+  ---
+  duration_ms: 4.154834
+  type: 'test'
+  ...
+# Subtest: bean entry opens and closes as a native modal without saving on cancel
+ok 605 - bean entry opens and closes as a native modal without saving on cancel
+  ---
+  duration_ms: 3.465416
+  type: 'test'
+  ...
+# Subtest: available entry forms open as native dialogs and cancel without submitting
+ok 606 - available entry forms open as native dialogs and cancel without submitting
+  ---
+  duration_ms: 14.510416
+  type: 'test'
+  ...
+# Subtest: save and cancel actions use the compact save and close icons across product forms
+ok 607 - save and cancel actions use the compact save and close icons across product forms
+  ---
+  duration_ms: 2.622125
+  type: 'test'
+  ...
+# Subtest: save buttons show loading and success only when their async operation changes state
+ok 608 - save buttons show loading and success only when their async operation changes state
+  ---
+  duration_ms: 3.819042
+  type: 'test'
+  ...
+# Subtest: inline entry and delete success stay in their dialogs without completion toasts after close
+ok 609 - inline entry and delete success stay in their dialogs without completion toasts after close
+  ---
+  duration_ms: 3.420833
+  type: 'test'
+  ...
+# Subtest: entry save spinners replace only saving toasts across beans, recipes, records, and recipe copies
+ok 610 - entry save spinners replace only saving toasts across beans, recipes, records, and recipe copies
+  ---
+  duration_ms: 23.946875
+  type: 'test'
+  ...
+# Subtest: saving progress remains visible when no matching modal spinner is active
+ok 611 - saving progress remains visible when no matching modal spinner is active
+  ---
+  duration_ms: 1.852709
+  type: 'test'
+  ...
+# Subtest: confirmation-result save disables duplicate submits and reflects its resolved result
+ok 612 - confirmation-result save disables duplicate submits and reflects its resolved result
+  ---
+  duration_ms: 0.671916
+  type: 'test'
+  ...
+# Subtest: pending entry saves lock controls and Escape; success stays visible until the 1000ms close
+ok 613 - pending entry saves lock controls and Escape; success stays visible until the 1000ms close
+  ---
+  duration_ms: 3.820084
+  type: 'test'
+  ...
+# Subtest: a failed modal save preserves its fields and enables a retry
+ok 614 - a failed modal save preserves its fields and enables a retry
+  ---
+  duration_ms: 14.20675
+  type: 'test'
+  ...
+# Subtest: success delay locks every entry field and recipe step after refresh finishes
+ok 615 - success delay locks every entry field and recipe step after refresh finishes
+  ---
+  duration_ms: 17.69
+  type: 'test'
+  ...
+# Subtest: success delay ignores late input events and closes without a dirty draft
+ok 616 - success delay ignores late input events and closes without a dirty draft
+  ---
+  duration_ms: 2.929458
+  type: 'test'
+  ...
+# Subtest: reduced motion overrides modal entrance and the pull-to-refresh spinner
+ok 617 - reduced motion overrides modal entrance and the pull-to-refresh spinner
+  ---
+  duration_ms: 0.509917
+  type: 'test'
+  ...
+# Subtest: first route data keeps an open recipe modal node and focus while updating its list
+ok 618 - first route data keeps an open recipe modal node and focus while updating its list
+  ---
+  duration_ms: 17.257125
+  type: 'test'
+  ...
+# Subtest: route loading-ready restores only list siblings hidden for the open modal
+ok 619 - route loading-ready restores only list siblings hidden for the open modal
+  ---
+  duration_ms: 4.525625
+  type: 'test'
+  ...
+# Subtest: initial card load shows decorative skeletons until real data replaces them
+ok 620 - initial card load shows decorative skeletons until real data replaces them
+  ---
+  duration_ms: 3.09125
+  type: 'test'
+  ...
+# Subtest: route transition skeleton hides stale data and exposes an error until a fresh page arrives
+ok 621 - route transition skeleton hides stale data and exposes an error until a fresh page arrives
+  ---
+  duration_ms: 4.240583
+  type: 'test'
+  ...
+# Subtest: route loading preserves an open modal, draft DOM, and focus
+ok 622 - route loading preserves an open modal, draft DOM, and focus
+  ---
+  duration_ms: 3.875542
+  type: 'test'
+  ...
+# Subtest: card skeleton clears after disconnected
+ok 623 - card skeleton clears after disconnected
+  ---
+  duration_ms: 0.690666
+  type: 'test'
+  ...
+# Subtest: card skeleton clears after startup-busy
+ok 624 - card skeleton clears after startup-busy
+  ---
+  duration_ms: 0.595458
+  type: 'test'
+  ...
+# Subtest: card skeleton clears after connection-error
+ok 625 - card skeleton clears after connection-error
+  ---
+  duration_ms: 0.592042
+  type: 'test'
+  ...
+# Subtest: card skeleton clears after read-error
+ok 626 - card skeleton clears after read-error
+  ---
+  duration_ms: 0.611916
+  type: 'test'
+  ...
+# Subtest: persistent error toast follows the settings modal opened and closed without a new status
+ok 627 - persistent error toast follows the settings modal opened and closed without a new status
+  ---
+  duration_ms: 0.684333
+  type: 'test'
+  ...
+# Subtest: connection modal opens from settings and Escape clears secrets, draft and restores focus
+ok 628 - connection modal opens from settings and Escape clears secrets, draft and restores focus
+  ---
+  duration_ms: 0.914375
+  type: 'test'
+  ...
+# Subtest: connection modal protects pending and success phases across product rerenders
+ok 629 - connection modal protects pending and success phases across product rerenders
+  ---
+  duration_ms: 2.740708
+  type: 'test'
+  ...
+# Subtest: token field waits one second, trims pasted tokens, and announces results without exposing the token
+ok 630 - token field waits one second, trims pasted tokens, and announces results without exposing the token
+  ---
+  duration_ms: 0.76075
+  type: 'test'
+  ...
+# Subtest: each token edit restarts the one-second wait without checking a guessed token length
+ok 631 - each token edit restarts the one-second wait without checking a guessed token length
+  ---
+  duration_ms: 0.559375
+  type: 'test'
+  ...
+# Subtest: token validation ignores stale responses and resets on edit, save, and modal close
+ok 632 - token validation ignores stale responses and resets on edit, save, and modal close
+  ---
+  duration_ms: 0.870417
+  type: 'test'
+  ...
+# Subtest: connection success closes at 1000ms and defers focus until settings is enabled
+ok 633 - connection success closes at 1000ms and defers focus until settings is enabled
+  ---
+  duration_ms: 1.8625
+  type: 'test'
+  ...
+# Subtest: connection modal preserves failed inputs for retry and exposes safe errors inside the dialog
+ok 634 - connection modal preserves failed inputs for retry and exposes safe errors inside the dialog
+  ---
+  duration_ms: 3.515166
+  type: 'test'
+  ...
+# Subtest: startup retry and recovery remain reachable after dismissing and reopening connection settings
+ok 635 - startup retry and recovery remain reachable after dismissing and reopening connection settings
+  ---
+  duration_ms: 0.921375
+  type: 'test'
+  ...
+# Subtest: saved connection retry keeps the form closed and exposes editing only when allowed
+ok 636 - saved connection retry keeps the form closed and exposes editing only when allowed
+  ---
+  duration_ms: 0.665375
+  type: 'test'
+  ...
+# Subtest: bean cards open their records through a full-card native link without a records button
+ok 637 - bean cards open their records through a full-card native link without a records button
+  ---
+  duration_ms: 1.979875
+  type: 'test'
+  ...
+# Subtest: bean card deletion never opens records, including clicks on its icon
+ok 638 - bean card deletion never opens records, including clicks on its icon
+  ---
+  duration_ms: 1.840542
+  type: 'test'
+  ...
+# Subtest: legacy extraction records remain in raw input but are hidden from current lists and details
+ok 639 - legacy extraction records remain in raw input but are hidden from current lists and details
+  ---
+  duration_ms: 4.255708
+  type: 'test'
+  ...
+# Subtest: PWA removes bag navigation, entry and record selection or display surfaces
+ok 640 - PWA removes bag navigation, entry and record selection or display surfaces
+  ---
+  duration_ms: 4.668917
+  type: 'test'
+  ...
+# Subtest: recipe list cards link their entire surface to details without a details button
+ok 641 - recipe list cards link their entire surface to details without a details button
+  ---
+  duration_ms: 4.538334
+  type: 'test'
+  ...
+# Subtest: recipe list card delete icon stays independent of detail navigation
+ok 642 - recipe list card delete icon stays independent of detail navigation
+  ---
+  duration_ms: 2.601375
+  type: 'test'
+  ...
+# Subtest: view notifies the controller when the current route changes
+ok 643 - view notifies the controller when the current route changes
+  ---
+  duration_ms: 0.14975
+  type: 'test'
+  ...
+# Subtest: record page shows continuation state instead of claiming the database is empty
+ok 644 - record page shows continuation state instead of claiming the database is empty
+  ---
+  duration_ms: 2.794208
+  type: 'test'
+  ...
+# Subtest: records view keeps unfiltered bean insights separate from the filtered table and uses snapshot conditions
+ok 645 - records view keeps unfiltered bean insights separate from the filtered table and uses snapshot conditions
+  ---
+  duration_ms: 11.697334
+  type: 'test'
+  ...
+# Subtest: records page follows the demo hierarchy and keeps full record management collapsed below comparisons
+ok 646 - records page follows the demo hierarchy and keeps full record management collapsed below comparisons
+  ---
+  duration_ms: 6.482292
+  type: 'test'
+  ...
+# Subtest: records page defaults to the brew source pair and lets the user compare any two records for that bean
+ok 647 - records page defaults to the brew source pair and lets the user compare any two records for that bean
+  ---
+  duration_ms: 17.243584
+  type: 'test'
+  ...
+# Subtest: bean detail distinguishes the manually selected best from highest rating and offers record actions
+ok 648 - bean detail distinguishes the manually selected best from highest rating and offers record actions
+  ---
+  duration_ms: 1.556
+  type: 'test'
+  ...
+# Subtest: record actions replay the source snapshot and create separate shared-recipe and best operations
+ok 649 - record actions replay the source snapshot and create separate shared-recipe and best operations
+  ---
+  duration_ms: 7.471542
+  type: 'test'
+  ...
+# Subtest: missing best relation explains the schema requirement and blocks only best selection
+ok 650 - missing best relation explains the schema requirement and blocks only best selection
+  ---
+  duration_ms: 3.316167
+  type: 'test'
+  ...
+# Subtest: bean detail names invalid and inaccessible persisted best relations separately
+ok 651 - bean detail names invalid and inaccessible persisted best relations separately
+  ---
+  duration_ms: 2.363208
+  type: 'test'
+  ...
+# Subtest: top-three trend spans the records page before the sidebar and keeps each bean in its own series
+ok 652 - top-three trend spans the records page before the sidebar and keeps each bean in its own series
+  ---
+  duration_ms: 6.107
+  type: 'test'
+  ...
+# Subtest: legacy record management remains available when bounded insights have not loaded
+ok 653 - legacy record management remains available when bounded insights have not loaded
+  ---
+  duration_ms: 3.617583
+  type: 'test'
+  ...
+# Subtest: insight bean cards expose visible summaries and selected state; empty or unrated trends have explicit text
+ok 654 - insight bean cards expose visible summaries and selected state; empty or unrated trends have explicit text
+  ---
+  duration_ms: 11.803125
+  type: 'test'
+  ...
+# Subtest: record input star fill uses the visible SVG path bounds for tenths
+ok 655 - record input star fill uses the visible SVG path bounds for tenths
+  ---
+  duration_ms: 3.511292
+  type: 'test'
+  ...
+# Subtest: insight decimal rating fills use the same visible SVG bounds at tenths
+ok 656 - insight decimal rating fills use the same visible SVG bounds at tenths
+  ---
+  duration_ms: 18.972333
+  type: 'test'
+  ...
+# Subtest: insight bean cards, comparison filter, and sort controls update the production view through delegated events
+ok 657 - insight bean cards, comparison filter, and sort controls update the production view through delegated events
+  ---
+  duration_ms: 39.449292
+  type: 'test'
+  ...
+# Subtest: changing the selected bean clears a recipe filter that does not belong to the new bean
+ok 658 - changing the selected bean clears a recipe filter that does not belong to the new bean
+  ---
+  duration_ms: 20.781667
+  type: 'test'
+  ...
+# Subtest: removing the last record for the filtered recipe resets comparison controls and rows together
+ok 659 - removing the last record for the filtered recipe resets comparison controls and rows together
+  ---
+  duration_ms: 15.169083
+  type: 'test'
+  ...
+# Subtest: production records insight DOM refreshes after a real controller save and confirmed delete
+ok 660 - production records insight DOM refreshes after a real controller save and confirmed delete
+  ---
+  duration_ms: 42.822042
+  type: 'test'
+  ...
+# Subtest: record cards show snapshot names while current parent names are loading
+ok 661 - record cards show snapshot names while current parent names are loading
+  ---
+  duration_ms: 2.886625
+  type: 'test'
+  ...
+# Subtest: record name pickers load on focus and preserve filter selection across option pages
+ok 662 - record name pickers load on focus and preserve filter selection across option pages
+  ---
+  duration_ms: 8.861958
+  type: 'test'
+  ...
+# Subtest: record form uses accessible searchable picker dialogs and restores focus without closing its parent
+ok 663 - record form uses accessible searchable picker dialogs and restores focus without closing its parent
+  ---
+  duration_ms: 4.176125
+  type: 'test'
+  ...
+# Subtest: record filters share the picker, reset both selections, and expose search loading, errors, empty states, and paging
+ok 664 - record filters share the picker, reset both selections, and expose search loading, errors, empty states, and paging
+  ---
+  duration_ms: 6.371708
+  type: 'test'
+  ...
+# Subtest: record picker validation focuses the first required selector without native hidden-select errors
+ok 665 - record picker validation focuses the first required selector without native hidden-select errors
+  ---
+  duration_ms: 3.453375
+  type: 'test'
+  ...
+# Subtest: home is the default and root route, with the requested hero and four menu destinations
+ok 666 - home is the default and root route, with the requested hero and four menu destinations
+  ---
+  duration_ms: 1.03175
+  type: 'test'
+  ...
+# Subtest: catalog details put a visible list return in the header and navigate back to the list
+ok 667 - catalog details put a visible list return in the header and navigate back to the list
+  ---
+  duration_ms: 6.269208
+  type: 'test'
+  ...
+# Subtest: brew routes preserve selected parents and show the saved recipe guide without an automatic timer
+ok 668 - brew routes preserve selected parents and show the saved recipe guide without an automatic timer
+  ---
+  duration_ms: 7.080875
+  type: 'test'
+  ...
+# Subtest: brew bean and recipe option cards are full-area buttons and preserve selection and readiness
+ok 669 - brew bean and recipe option cards are full-area buttons and preserve selection and readiness
+  ---
+  duration_ms: 2.197875
+  type: 'test'
+  ...
+# Subtest: brew overview marks the active step and aligns selection, conditions, and pour amounts
+ok 670 - brew overview marks the active step and aligns selection, conditions, and pour amounts
+  ---
+  duration_ms: 14.499834
+  type: 'test'
+  ...
+# Subtest: brew preparation submits edited conditions, stages, decimal rating, date, and cup note together
+ok 671 - brew preparation submits edited conditions, stages, decimal rating, date, and cup note together
+  ---
+  duration_ms: 7.789084
+  type: 'test'
+  ...
+# Subtest: bean selection omits the home button with populated and empty lists
+ok 672 - bean selection omits the home button with populated and empty lists
+  ---
+  duration_ms: 2.060792
+  type: 'test'
+  ...
+# Subtest: empty bean selection explains registration and provides routes to register or return
+ok 673 - empty bean selection explains registration and provides routes to register or return
+  ---
+  duration_ms: 1.073334
+  type: 'test'
+  ...
+# Subtest: brew search pages render validated options and keep pagination controls
+ok 674 - brew search pages render validated options and keep pagination controls
+  ---
+  duration_ms: 4.431542
+  type: 'test'
+  ...
+# Subtest: brew beans same-route refresh and option results keep the focused search subtree
+ok 675 - brew beans same-route refresh and option results keep the focused search subtree
+  ---
+  duration_ms: 2.410958
+  type: 'test'
+  ...
+# Subtest: brew recipes same-route refresh and option results keep the focused search subtree
+ok 676 - brew recipes same-route refresh and option results keep the focused search subtree
+  ---
+  duration_ms: 3.138083
+  type: 'test'
+  ...
+# Subtest: home screen keeps its hero action and decorative artwork contract
+ok 677 - home screen keeps its hero action and decorative artwork contract
+  ---
+  duration_ms: 0.136167
+  type: 'test'
+  ...
+# Subtest: bean screen renders list fields, favorite/delete actions, and record count
+ok 678 - bean screen renders list fields, favorite/delete actions, and record count
+  ---
+  duration_ms: 0.161
+  type: 'test'
+  ...
+# Subtest: bean detail keeps best and history record cards with missing-route fallback
+ok 679 - bean detail keeps best and history record cards with missing-route fallback
+  ---
+  duration_ms: 0.12475
+  type: 'test'
+  ...
+# Subtest: recipe screens preserve summary actions, details, steps, and recorded snapshots
+ok 680 - recipe screens preserve summary actions, details, steps, and recorded snapshots
+  ---
+  duration_ms: 0.37775
+  type: 'test'
+  ...
+# Subtest: bean form preserves field names, required markers, and submit actions
+ok 681 - bean form preserves field names, required markers, and submit actions
+  ---
+  duration_ms: 0.114708
+  type: 'test'
+  ...
+# Subtest: wheel adjusts focused values by one unit and ratings by a tenth
+ok 682 - wheel adjusts focused values by one unit and ratings by a tenth
+  ---
+  duration_ms: 17.149042
+  type: 'test'
+  ...
+# Subtest: recipe number shortcuts set the editable fields and report input
+ok 683 - recipe number shortcuts set the editable fields and report input
+  ---
+  duration_ms: 0.5185
+  type: 'test'
+  ...
+# Subtest: recipe form step editor, preview, and payload preserve entered recipe values
+ok 684 - recipe form step editor, preview, and payload preserve entered recipe values
+  ---
+  duration_ms: 2.5835
+  type: 'test'
+  ...
+# Subtest: brew beans same-route refresh ignores expired search option pages
+ok 685 - brew beans same-route refresh ignores expired search option pages
+  ---
+  duration_ms: 3.970958
+  type: 'test'
+  ...
+# Subtest: brew recipes same-route refresh ignores expired search option pages
+ok 686 - brew recipes same-route refresh ignores expired search option pages
+  ---
+  duration_ms: 2.801292
+  type: 'test'
+  ...
+# Subtest: brew search ignores a response for the previous query during the next debounce
+ok 687 - brew search ignores a response for the previous query during the next debounce
+  ---
+  duration_ms: 278.815041
+  type: 'test'
+  ...
+# Subtest: brew search defers composition results and scopes the ended composition to its route
+ok 688 - brew search defers composition results and scopes the ended composition to its route
+  ---
+  duration_ms: 835.268125
+  type: 'test'
+  ...
+# Subtest: brew selection navigation and connection changes still replace the route content
+ok 689 - brew selection navigation and connection changes still replace the route content
+  ---
+  duration_ms: 8.554625
+  type: 'test'
+  ...
+# Subtest: brew name search is visibly labeled and a no-result query can return to the full list
+ok 690 - brew name search is visibly labeled and a no-result query can return to the full list
+  ---
+  duration_ms: 10.305125
+  type: 'test'
+  ...
+# Subtest: brew completion preselects bean and recipe and defaults the record date to today
+ok 691 - brew completion preselects bean and recipe and defaults the record date to today
+  ---
+  duration_ms: 5.900667
+  type: 'test'
+  ...
+# Subtest: brew completion immediately shows selected names and defaults without loaded record options
+ok 692 - brew completion immediately shows selected names and defaults without loaded record options
+  ---
+  duration_ms: 12.275458
+  type: 'test'
+  ...
+# Subtest: a new connection does not prefill the record form from the previous connection selection
+ok 693 - a new connection does not prefill the record form from the previous connection selection
+  ---
+  duration_ms: 10.853833
+  type: 'test'
+  ...
+# Subtest: brew clicks preserve bean and recipe in browser history and open actual-condition evaluation
+ok 694 - brew clicks preserve bean and recipe in browser history and open actual-condition evaluation
+  ---
+  duration_ms: 9.706625
+  type: 'test'
+  ...
+# Subtest: critic: shared recipes remain selectable and usable with an explicitly selected bean
+ok 695 - critic: shared recipes remain selectable and usable with an explicitly selected bean
+  ---
+  duration_ms: 6.170417
+  type: 'test'
+  ...
+# Subtest: critic: visiting the record list does not overwrite later brew prefill with an empty form
+ok 696 - critic: visiting the record list does not overwrite later brew prefill with an empty form
+  ---
+  duration_ms: 6.974417
+  type: 'test'
+  ...
+# Subtest: record draft conflicts require an explicit resume or new-record choice
+ok 697 - record draft conflicts require an explicit resume or new-record choice
+  ---
+  duration_ms: 12.942667
+  type: 'test'
+  ...
+# Subtest: same brew record draft survives leaving and returning to its URL
+ok 698 - same brew record draft survives leaving and returning to its URL
+  ---
+  duration_ms: 6.704292
+  type: 'test'
+  ...
+# Subtest: critic: initial and later brew pages append uniquely without leaking into a search
+ok 699 - critic: initial and later brew pages append uniquely without leaking into a search
+  ---
+  duration_ms: 4.890875
+  type: 'test'
+  ...
+# Subtest: record draft keeps selected IDs while its option pages reload after navigation
+ok 700 - record draft keeps selected IDs while its option pages reload after navigation
+  ---
+  duration_ms: 9.40275
+  type: 'test'
+  ...
+# Subtest: integration: first record response hydrates prefills without replacing the live modal (edited=false)
+ok 701 - integration: first record response hydrates prefills without replacing the live modal (edited=false)
+  ---
+  duration_ms: 8.865708
+  type: 'test'
+  ...
+# Subtest: integration: first record response hydrates prefills without replacing the live modal (edited=true)
+ok 702 - integration: first record response hydrates prefills without replacing the live modal (edited=true)
+  ---
+  duration_ms: 6.153125
+  type: 'test'
+  ...
+# Subtest: integration: invalid record prefill closes the initial modal and exposes the validated error
+ok 703 - integration: invalid record prefill closes the initial modal and exposes the validated error
+  ---
+  duration_ms: 3.118417
+  type: 'test'
+  ...
+# Subtest: record rating lets vertical swipes scroll and commits taps and horizontal drags at the same precision
+ok 704 - record rating lets vertical swipes scroll and commits taps and horizontal drags at the same precision
+  ---
+  duration_ms: 3.150459
+  type: 'test'
+  ...
+# Subtest: a second touch outside the stars cancels rating changes and restores focus
+ok 705 - a second touch outside the stars cancels rating changes and restores focus
+  ---
+  duration_ms: 3.360583
+  type: 'test'
+  ...
+# Subtest: a non-primary touch cannot start or finish a rating gesture
+ok 706 - a non-primary touch cannot start or finish a rating gesture
+  ---
+  duration_ms: 2.302541
+  type: 'test'
+  ...
+# Subtest: detaching a rating widget releases its document gesture listener
+ok 707 - detaching a rating widget releases its document gesture listener
+  ---
+  duration_ms: 2.993375
+  type: 'test'
+  ...
+# Subtest: record rating supports tenth-point pointer, keyboard, cancellation, and draft interaction
+ok 708 - record rating supports tenth-point pointer, keyboard, cancellation, and draft interaction
+  ---
+  duration_ms: 11.060041
+  type: 'test'
+  ...
+# Subtest: critic regression: initial server option page remains visible after loading the next picker page
+ok 709 - critic regression: initial server option page remains visible after loading the next picker page
+  ---
+  duration_ms: 2.69975
+  type: 'test'
+  ...
+# Subtest: critic regression: restored draft and route-prefilled IDs update visible picker labels
+ok 710 - critic regression: restored draft and route-prefilled IDs update visible picker labels
+  ---
+  duration_ms: 11.092959
+  type: 'test'
+  ...
+# Subtest: critic regression: selected filter options survive a search and unrelated rerender
+ok 711 - critic regression: selected filter options survive a search and unrelated rerender
+  ---
+  duration_ms: 5.367792
+  type: 'test'
+  ...
+# Subtest: bean and recipe lists expose accessible star toggles without favorite-only controls
+ok 712 - bean and recipe lists expose accessible star toggles without favorite-only controls
+  ---
+  duration_ms: 2.464834
+  type: 'test'
+  ...
+# Subtest: star submits a desired boolean and restores keyboard focus
+ok 713 - star submits a desired boolean and restores keyboard focus
+  ---
+  duration_ms: 1.609833
+  type: 'test'
+  ...
+# Subtest: star ignores a repeated click while its save is pending
+ok 714 - star ignores a repeated click while its save is pending
+  ---
+  duration_ms: 1.493167
+  type: 'test'
+  ...
+# Subtest: critic focus leaves no detached toggle after page-boundary reorder
+ok 715 - critic focus leaves no detached toggle after page-boundary reorder
+  ---
+  duration_ms: 1.548
+  type: 'test'
+  ...
+# Subtest: explicit comparison selects an older fourth bean despite a previous different selection and renders both actual snapshots
+ok 716 - explicit comparison selects an older fourth bean despite a previous different selection and renders both actual snapshots
+  ---
+  duration_ms: 116.572
+  type: 'test'
+  ...
+# Subtest: brew beans show favorites first and preserve source order
+ok 717 - brew beans show favorites first and preserve source order
+  ---
+  duration_ms: 1.570375
+  type: 'test'
+  ...
+# Subtest: brew recipes show favorites first and preserve source order
+ok 718 - brew recipes show favorites first and preserve source order
+  ---
+  duration_ms: 1.817667
+  type: 'test'
+  ...
+# Subtest: startup uses the register() result and checks for an update once
+ok 719 - startup uses the register() result and checks for an update once
+  ---
+  duration_ms: 0.754125
+  type: 'test'
+  ...
+# Subtest: installed worker retries safe apply after updatefound and statechange
+ok 720 - installed worker retries safe apply after updatefound and statechange
+  ---
+  duration_ms: 2.572208
+  type: 'test'
+  ...
+# Subtest: startup and one visibility return coalesce overlapping update checks
+ok 721 - startup and one visibility return coalesce overlapping update checks
+  ---
+  duration_ms: 0.488333
+  type: 'test'
+  ...
+# Subtest: a rejected update check can be retried after returning to the app
+ok 722 - a rejected update check can be retried after returning to the app
+  ---
+  duration_ms: 0.190292
+  type: 'test'
+  ...
+# Subtest: stop removes registration and installing-worker listeners and closes a pending update race
+ok 723 - stop removes registration and installing-worker listeners and closes a pending update race
+  ---
+  duration_ms: 0.539625
+  type: 'test'
+  ...
+# Subtest: PWA Notion client ignores an extra legacy bags source key during verification
+ok 724 - PWA Notion client ignores an extra legacy bags source key during verification
+  ---
+  duration_ms: 11.919292
+  type: 'test'
+  ...
+# Subtest: PWA read repository queries only four sources and omits bags from its model
+ok 725 - PWA read repository queries only four sources and omits bags from its model
+  ---
+  duration_ms: 0.39925
+  type: 'test'
+  ...
+# Subtest: legacy connection data with a bags key is read without rewriting it
+ok 726 - legacy connection data with a bags key is read without rewriting it
+  ---
+  duration_ms: 0.362
+  type: 'test'
+  ...
+# Subtest: old bag create/archive and record bagId input never reach the network
+ok 727 - old bag create/archive and record bagId input never reach the network
+  ---
+  duration_ms: 0.283417
+  type: 'test'
+  ...
+# Subtest: bag-only legacy evidence does not resolve a bean in the PWA repository
+ok 728 - bag-only legacy evidence does not resolve a bean in the PWA repository
+  ---
+  duration_ms: 2.242292
+  type: 'test'
+  ...
+# Subtest: missing or malformed legacy bag properties do not exclude PWA history
+ok 729 - missing or malformed legacy bag properties do not exclude PWA history
+  ---
+  duration_ms: 0.739708
+  type: 'test'
+  ...
+# Subtest: records model and every record encoding omit the legacy bag relation
+ok 730 - records model and every record encoding omit the legacy bag relation
+  ---
+  duration_ms: 0.077125
+  type: 'test'
+  ...
+# Subtest: domain record model contains no bag field
+ok 731 - domain record model contains no bag field
+  ---
+  duration_ms: 0.185458
+  type: 'test'
+  ...
+# Subtest: critic: records render before deferred live names arrive and then merge them
+ok 732 - critic: records render before deferred live names arrive and then merge them
+  ---
+  duration_ms: 17.717042
+  type: 'test'
+  ...
+# Subtest: critic: preserve the search query for fresh, cached, and continued options
+ok 733 - critic: preserve the search query for fresh, cached, and continued options
+  ---
+  duration_ms: 1.233375
+  type: 'test'
+  ...
+# Subtest: critic: loading more restarts aborted validation for still visible summary cards
+ok 734 - critic: loading more restarts aborted validation for still visible summary cards
+  ---
+  duration_ms: 13.445584
+  type: 'test'
+  ...
+# Subtest: critic: loading more restarts aborted counts for all visible beans in bounded batches
+ok 735 - critic: loading more restarts aborted counts for all visible beans in bounded batches
+  ---
+  duration_ms: 13.3495
+  type: 'test'
+  ...
+# ORDER {"first":["2026-10-26","2026-10-25","2026-10-24","2026-10-23","2026-10-22","2026-10-21","2026-10-20","2026-10-19","2026-10-18","2026-10-17","2026-10-16","2026-10-15","2026-10-14","2026-10-13","2026-10-12","2026-10-11","2026-10-10","2026-10-09","2026-10-08","2026-10-07"],"second":["2026-10-06","2026-10-05","2026-10-04","2026-10-03","2026-10-02","2026-10-01","2026-09-30","2026-09-29","2026-09-28","2026-09-27","2026-09-26","2026-09-25","2026-09-24","2026-09-23","2026-09-22","2026-09-21","2026-09-20","2026-09-19","2026-09-18","2026-09-17"]}
+# DAMAGED {"legacyReadVisible":1,"pagedVisible":1,"counts":{"status":"ready","complete":true,"counts":{"b1111111-1111-4111-8111-111111111111":1}}}
+# Subtest: critic: a cached first-page cursor must remain usable after its continuation was read
+ok 736 - critic: a cached first-page cursor must remain usable after its continuation was read
+  ---
+  duration_ms: 13.83975
+  type: 'test'
+  ...
+# Subtest: critic: filtered fallback records retain global descending date order across pages
+ok 737 - critic: filtered fallback records retain global descending date order across pages
+  ---
+  duration_ms: 13.659417
+  type: 'test'
+  ...
+# Subtest: critic: a current-generation record with damaged rating metadata stays visible with a warning
+ok 738 - critic: a current-generation record with damaged rating metadata stays visible with a warning
+  ---
+  duration_ms: 1.030666
+  type: 'test'
+  ...
+# Subtest: critic: records render from validated snapshots before bounded parent-name hydration
+ok 739 - critic: records render from validated snapshots before bounded parent-name hydration
+  ---
+  duration_ms: 9.452375
+  type: 'test'
+  ...
+# Subtest: pull requests and main pushes run verification without publishing Pages
+ok 740 - pull requests and main pushes run verification without publishing Pages
+  ---
+  duration_ms: 0.453541
+  type: 'test'
+  ...
+# Subtest: Pages publishing remains manually dispatched
+ok 741 - Pages publishing remains manually dispatched
+  ---
+  duration_ms: 0.128125
+  type: 'test'
+  ...
+# Subtest: browser runner stays outside Node test auto-discovery
+ok 742 - browser runner stays outside Node test auto-discovery
+  ---
+  duration_ms: 0.06075
+  type: 'test'
+  ...
+1..742
+# tests 791
+# suites 0
+# pass 791
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 49924.632292

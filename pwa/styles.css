@@ -79,8 +79,9 @@ html { overscroll-behavior-y: contain; }
 }
 
 [data-pull-state] {
-  transform: translateY(var(--pull-offset, 0px));
-  transition: transform 180ms ease-out;
+  position: relative;
+  top: var(--pull-offset, 0px);
+  transition: top 180ms ease-out;
 }
 [data-pull-state="pulling"] { transition: none; }
 

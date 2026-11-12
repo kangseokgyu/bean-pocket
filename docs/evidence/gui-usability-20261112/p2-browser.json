@@ -1,0 +1,78 @@
+{
+  "tool": "cua_repl",
+  "fixture": "scripts/browser/server.mjs",
+  "route": "/candidate/pwa/index.html#/brew/run?recordId=cccccccc-cccc-4ccc-8ccc-000000000006",
+  "reproduction": "Records → 이 조건으로 다시 추출 → Notion 연결 설정 → 취소. Dialog observer sets page pull state to idle.",
+  "before": {
+    "viewport": [
+      390,
+      844
+    ],
+    "pullState": "idle",
+    "pageTransform": "matrix(1, 0, 0, 1, 0, 0)",
+    "actionsTop": 965.59375,
+    "actionsBottom": 1031.59375,
+    "height": 66,
+    "navTop": 769.5078125,
+    "visible": false
+  },
+  "after": [
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "collapsed",
+      "pullState": "idle",
+      "pageTransform": "none",
+      "actionsTop": 702,
+      "actionsBottom": 768,
+      "height": 66,
+      "navTop": 769.5078125,
+      "visible": true
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "expanded",
+      "actionsTop": 702,
+      "actionsBottom": 768,
+      "height": 66,
+      "saveTop": 713,
+      "saveBottom": 757,
+      "navTop": 769.5078125,
+      "visible": true
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "expanded, scrolled",
+      "scrollY": 884,
+      "actionsTop": 702,
+      "actionsBottom": 768,
+      "navTop": 769.5078125,
+      "visible": true
+    },
+    {
+      "viewport": [
+        1280,
+        900
+      ],
+      "state": "expanded",
+      "actionsPosition": "static",
+      "actionsWidth": 726,
+      "actionsHeight": 44,
+      "pageTransform": "none"
+    }
+  ],
+  "cleanup": "Viewport override reset; tab closed.",
+  "limitations": [
+    "Actual touchscreen pull gesture was not performed in CUA; existing node tests cover gesture state and reload sequencing.",
+    "Real Notion, iPhone Safari, and on-screen keyboard were not tested.",
+    "Screenshots were viewed in CUA output but not saved as files."
+  ]
+}

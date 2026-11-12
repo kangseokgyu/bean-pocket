@@ -75,3 +75,26 @@
 추가 에이전트 없이 Worker 작업을 마쳤다. Critic은 `cua_repl`만으로 변경 후 GUI를 확인한다. 가상 Notion fixture에서 390×844 및 넓은 화면의 저장 액션·키보드/접기 편집, 수정 후 스냅샷 저장, 새로고침 후 초안 복원, 기록 목록/분석 전환과 필터·페이지 유지, 0~1건 및 다건 분석, 44px 대상과 삭제 확인·취소, 성공 1초/오류 지속을 확인한다. 특히 최신 main에서 들어온 4열 표와 관리 카드가 기본 목록에 함께 있고 상세 관리 버튼은 카드 내부가 아닌 화면 상단에 있는 점을 검토한다. 실제 Notion 및 iPhone Safari는 미확인이다.
 
 Orchestrator는 독립 Critic 결과를 확인한 후 main 통합·push·일반판 게시 및 공개 파일 반영을 담당한다. 현재 브랜치는 `codex/gui-usability`이며 원본 사용자 CSS를 계속 보호해야 한다. 검증 뒤 제품 소스가 바뀌면 영향받는 검증 결과를 갱신한다.
+
+## Critic P2 저장바 위치 수정
+
+[독립 검토](critic-review.md)의 P2를 Worker가 수정했다. `.page[data-pull-state]`의 `translateY(0)`도 fixed 자손의 기준을 전체 페이지로 바꿨다. 페이지 이동을 `position: relative`와 `top: var(--pull-offset)`으로 바꿔 같은 당김 오프셋·복귀 전환을 유지하고 저장바는 뷰포트를 기준으로 배치한다. 저장바나 폼을 다른 DOM 부모로 옮기지 않아 제출·입력·초안 경로를 유지한다.
+
+선행 회귀 테스트 `pull refresh page offset preserves the viewport containing block of fixed controls`는 `transform` 선언 때문에 종료 1로 실패했다 ([red](p2-red.log)). 수정 후 관련 4개 테스트가 통과했다 ([green](p2-green-targeted.log)). 이 테스트는 CSS에서 fixed 기준을 바꾸는 속성을 검사하는 보조 검증이다. 실제 위치의 증거는 `cua_repl`의 DOM rect 측정과 스크린샷 관찰이다.
+
+390×844 가상 Notion fixture의 기록에서 **이 조건으로 다시 추출**로 진입했다. 첫 진입에서는 `data-pull-state`가 없어 문제가 나타나지 않았다. **Notion 연결 설정 → 취소**를 통해 dialog observer가 `idle`로 바꾸는 실제 경로로 실패를 재현했다. 수정 전 저장바 top/bottom은 `965.59375/1031.59375px`, 조상 transform은 단위 행렬이었다. 수정 후 같은 경로에서 조상 transform은 `none`이다.
+
+| 수정 후 CUA 상태 | 저장바 top/bottom | 하단 메뉴 top | 결과 |
+| --- | --- | --- | --- |
+| 390×844, 조건 접힘 | 702/768px | 769.5078125px | 화면 안, 메뉴 위 |
+| 390×844, 조건 펼침 | 702/768px | 769.5078125px | 화면 안, 메뉴 위 |
+| 390×844, 펼친 뒤 scrollY=884 | 702/768px | 769.5078125px | 스크롤에도 같은 위치 |
+| 1280×900, 조건 펼침 | position static, 726×44px | 해당 없음 | 넓은 화면은 일반 흐름 |
+
+[측정 원문](p2-browser.json)에 수치·재현 경로와 미검증 범위를 남겼다. CUA 스크린샷으로 저장바와 메뉴가 분리돼 보이는 것을 확인했으며 파일로 저장하지는 않았다. 뷰포트 임시 설정을 해제하고 탭과 로컬 서버를 종료했다. 실제 터치 당김은 CUA에서 수행하지 않았으며 상태 전환·240px 임계값·reload·짧은 당김 취소는 기존 Node 테스트로 확인한다. 실제 Notion·iPhone Safari·화면 키보드는 미검증이다.
+
+기존 증거 TAP 파일의 trailing whitespace 지적은 제품 결함과 별개다. 앞선 `git diff --check` 기록은 당시 작업트리 diff 검사이며 `e271245..c281cd2` 전체 커밋 비교 검사를 뜻하지 않는다. 이번 새 로그는 내용과 수치를 유지하면서 줄 끝 공백만 제거해 보관한다.
+
+P2 최종 검증은 수정 후 제품 소스에서 실행했다. `npm test` 종료 0: 811개 통과, 실패·취소·건너뜀 0 ([로그](p2-npm-test.log)). `npm run build:pages` 종료 0: 로컬 버전 `4248ea82c3e9` ([로그](p2-build-pages.log)). `npm run check:pages` 종료 0 ([로그](p2-check-pages.log)). `git diff --check HEAD -- pwa test`도 종료 0이다. 이후 제품 소스 변경은 없다. 원본 CSS SHA-256과 사용자 변경 17줄 추가·5줄 삭제 상태는 이전과 동일하다.
+
+Worker는 코드 수정과 검증을 마쳤으며 Critic의 P2 GUI 재검토를 기다린다. 이번 수정에서는 merge·push·게시를 실행하지 않았다. 공개 사이트와 공개 빌드 버전은 미확인이다.

@@ -6622,3 +6622,12 @@ test('record comparison links open analysis while plain records navigation opens
   view.renderRoute('/records');
   assert.equal(document.root.querySelector('[data-records-panel="list"]').hidden, false);
 });
+
+test('pull refresh page offset preserves the viewport containing block of fixed controls', () => {
+  const stylesheet = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
+  const pullRule = stylesheet.match(/\[data-pull-state\]\s*\{([^}]*)\}/s)?.[1];
+  assert.ok(pullRule, 'the page still responds to pull refresh offsets');
+  assert.match(pullRule, /var\(--pull-offset/);
+  assert.doesNotMatch(pullRule, /(?:transform|translate|perspective|filter|contain|will-change)\s*:/,
+    'pull refresh must not establish a containing block for viewport-fixed controls');
+});

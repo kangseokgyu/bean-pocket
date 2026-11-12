@@ -98,3 +98,11 @@ Orchestrator는 독립 Critic 결과를 확인한 후 main 통합·push·일반�
 P2 최종 검증은 수정 후 제품 소스에서 실행했다. `npm test` 종료 0: 811개 통과, 실패·취소·건너뜀 0 ([로그](p2-npm-test.log)). `npm run build:pages` 종료 0: 로컬 버전 `4248ea82c3e9` ([로그](p2-build-pages.log)). `npm run check:pages` 종료 0 ([로그](p2-check-pages.log)). `git diff --check HEAD -- pwa test`도 종료 0이다. 이후 제품 소스 변경은 없다. 원본 CSS SHA-256과 사용자 변경 17줄 추가·5줄 삭제 상태는 이전과 동일하다.
 
 Worker는 코드 수정과 검증을 마쳤으며 Critic의 P2 GUI 재검토를 기다린다. 이번 수정에서는 merge·push·게시를 실행하지 않았다. 공개 사이트와 공개 빌드 버전은 미확인이다.
+
+## 일반판 게시 완료
+
+- main 통합·push 커밋: `7ce8cdf` (검증 대상 소스 `67179bd`와 동일, 재검토 증거만 추가).
+- [Pages 실행](https://github.com/kangseokgyu/bean-pocket/actions/runs/43133186027)은 `probes=false`로 성공했다. [실행 결과](deployment.json) 참조.
+- [공개 사이트](https://kangseokgyu.github.io/bean-pocket/)의 빌드 `4248ea82c3e9`를 확인했고 정적 파일 57개가 로컬 dist와 바이트 단위로 모두 일치했다. [대조 결과](public-files.json) 참조.
+- 원본 main 작업 폴더의 사용자 CSS는 stash와 `/tmp/gui-usability-user-styles.patch`에 보관 후 복원했다. 최신 main에 이미 포함된 단계 편집기 구조는 유지하고, 사용자 글자 크기 선언 4개는 미커밋 변경으로 유지했다. stash도 복구용으로 남겼으며 게시 커밋에 포함하지 않았다.
+- 실제 Notion, iPhone Safari, 화면 키보드와 실제 터치 당김은 확인하지 않았다. 독립 GUI 검토는 모의 Notion과 390×844 Chromium 화면 기준이다.

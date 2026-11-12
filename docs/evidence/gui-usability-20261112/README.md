@@ -18,10 +18,10 @@
 
 - [x] Read the Principles section of the poteto-mode skill.
 - [x] Phase A: Frame
-- [ ] Phase B: Design the workflow
-- [ ] Phase C: Run the loop
-- [ ] Phase D: Keep the audit trail
-- [ ] Phase E: Verify and hand back
+- [x] Phase B: Design the workflow
+- [x] Phase C: Run the loop
+- [x] Phase D: Keep the audit trail
+- [x] Phase E: Verify and hand back (자동 검증 완료, GUI는 Critic 인계)
 
 변경 전 범위는 화면 동작 7개, PWA UI 모듈 약 5개, UI 테스트와 CSS다. 저장된 추출 조건과 삭제 확인에 영향이 있으므로 rigor는 높게 두고, 작은 단위마다 회귀 확인을 한다. 기능을 분리하면 기록 폼, 목록·분석 전환, 희소 데이터, 관리 조작, 원두 요약, 안내 글씨, 토스트가 각각 독립 검증 가능하다.
 
@@ -45,7 +45,7 @@
 
 추출 조건은 기본 요약과 접기 편집으로 바꿨고 기존 입력과 실제 조건 payload를 유지한다. 모바일 저장 액션은 화면 아래에 둔다. 기록은 목록으로 시작하며 분석 전환과 기존 필터·페이지·삭제 확인을 유지한다. 비교 링크는 분석 패널로 바로 연결한다. 0~1건 분석에서 차트와 두 기록 선택을 생략한다. 목록 삭제는 원두·레시피 상세와 기록 더보기로 옮겼다. 조작 대상은 최소 44px이며 원두 목록의 빈 메타데이터와 반복 안내를 줄였다. 기록 보조 글씨는 13px, 성공 토스트는 1초, 오류·복구 안내는 해소까지 유지한다.
 
-- 선행 실패: `test-red-targeted.log`, `test-red.log`.
+- 선행 실패: `test-red.log`. 인계된 `test-red-targeted.log`는 TAP 헤더만 있어 실패 근거로 사용하지 않는다.
 - 인계 시 실패: `test-green-targeted.log`의 7개 중 2개 실패. 첫 h3가 붓기 단계 제목인 점과 테스트 클릭 helper가 버튼 자체 listener를 호출하지 않는 점을 수정했다. `test-green-targeted-fixed.log`: 7개 통과, 종료 0.
 - 삭제 테스트를 새 상세/더보기 경로로 옮겨 확인·취소·오류·중복 잠금 검증을 유지했다. 토스트와 희소 분석의 옛 기대값도 승인된 동작에 맞췄다.
 - `node --test test/pwa-ui.view.test.mjs`: 215개 통과, 종료 0 (`test-ui.log`). 이후 비교 링크 회귀 테스트를 추가했다. 추가 테스트의 의도한 실패는 `test-red-comparison-route.log`, 수정 후 1개 통과는 `test-green-comparison-route.log`에 남겼다.
@@ -53,3 +53,25 @@
 - 추가 에이전트를 생성하지 않았다. 사용자가 허용한 luna/max 429 이후 sol/medium fallback Worker 인계다. 이 채팅에서 모델 설정을 변경하는 생성 도구는 호출하지 않았으므로 적용 설정을 별도로 검증했다고 주장하지 않는다.
 - 변경 후 CUA GUI 검증은 사용자 지시에 따라 Critic에게 인계한다. Worker는 실제 Notion 및 iPhone Safari 검증을 수행하지 않았다.
 - 구현 커밋 후 `origin/main`을 병합하고 통합 상태에서 `npm test`, `npm run build:pages`, `npm run check:pages`를 실행한다. main 병합·push·게시와 독립 검토는 Orchestrator/Critic 담당이다.
+
+## origin/main 통합과 최종 검증
+
+- 구현 커밋: `2ccf405` (`feat: simplify brew and records interactions`).
+- 통합 커밋: `1cbb3ce` (`origin/main`의 `e271245`를 기능 브랜치에 병합).
+- 충돌 6개 파일을 해결했다. 최신 main의 원두·레시피 상세 상단 액션, 초안 복원과 단계 편집을 유지했다. 최신 4열 기록 표는 기본 목록 패널에 두고 기존 카드·필터·더보기를 유지했다. 분석 패널에는 추이와 원두 요약·비교를 둔다.
+- 중간 통합 UI 검증은 230개 중 4개 실패했다 (`test-ui-integrated.log`). 상세 액션의 최신 위치와 표의 목록 패널 이동을 테스트에 반영했다. 해당 기대값 수정 후 전체 검증을 실행했다.
+
+| 명령 | 종료 코드 | 결과 | 증거 |
+| --- | --- | --- | --- |
+| `npm test` | 0 | 810개 통과, 실패·취소·건너뜀 0, 약 57초 | [전체 테스트](npm-test-integrated.log) |
+| `npm run build:pages` | 0 | 빌드 버전 `8ede26dc0362` | [빌드](build-pages-integrated.log) |
+| `npm run check:pages` | 0 | 정적 산출물 검사 통과 | [산출물 검사](check-pages-integrated.log) |
+| `git diff --check` | 0 | 공백·충돌 표식 오류 없음 | 터미널 실행 |
+
+테스트 후 제품 소스를 변경하지 않았다. 원본 CSS의 최종 SHA-256과 17줄 추가·5줄 삭제 상태는 시작 때와 동일하다. Worker는 push·main merge·게시를 실행하지 않았다. 공개 빌드 버전은 확인하지 않았으며 위 버전은 로컬 산출물이다.
+
+## Critic / Orchestrator 인계
+
+추가 에이전트 없이 Worker 작업을 마쳤다. Critic은 `cua_repl`만으로 변경 후 GUI를 확인한다. 가상 Notion fixture에서 390×844 및 넓은 화면의 저장 액션·키보드/접기 편집, 수정 후 스냅샷 저장, 새로고침 후 초안 복원, 기록 목록/분석 전환과 필터·페이지 유지, 0~1건 및 다건 분석, 44px 대상과 삭제 확인·취소, 성공 1초/오류 지속을 확인한다. 특히 최신 main에서 들어온 4열 표와 관리 카드가 기본 목록에 함께 있고 상세 관리 버튼은 카드 내부가 아닌 화면 상단에 있는 점을 검토한다. 실제 Notion 및 iPhone Safari는 미확인이다.
+
+Orchestrator는 독립 Critic 결과를 확인한 후 main 통합·push·일반판 게시 및 공개 파일 반영을 담당한다. 현재 브랜치는 `codex/gui-usability`이며 원본 사용자 CSS를 계속 보호해야 한다. 검증 뒤 제품 소스가 바뀌면 영향받는 검증 결과를 갱신한다.

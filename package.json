@@ -10,6 +10,10 @@
     "build:pages": "node scripts/build-pages.mjs",
     "check:pages": "node scripts/check-pages.mjs",
     "build:probes": "node scripts/build-probes.mjs",
-    "check:probes": "node scripts/check-pages.mjs --probes"
+    "check:probes": "node scripts/check-pages.mjs --probes",
+    "test:browser": "node scripts/browser/run.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
   }
 }

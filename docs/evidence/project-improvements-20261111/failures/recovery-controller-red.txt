@@ -1,0 +1,55 @@
+TAP version 13
+# Subtest: recovery UI receives the operation target, known pages, and recorded update time
+not ok 1 - recovery UI receives the operation target, known pages, and recorded update time
+  ---
+  duration_ms: 6.387417
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/project-improvements/AX-1day/test/pwa-connection.test.mjs:55:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + undefined
+    - '11111111-1111-4111-8111-111111111111'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '11111111-1111-4111-8111-111111111111'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/project-improvements/AX-1day/test/pwa-connection.test.mjs:75:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: initialization does not offer a fresh connection setup for an unexplained blocked state
+not ok 2 - initialization does not offer a fresh connection setup for an unexplained blocked state
+  ---
+  duration_ms: 0.611
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/project-improvements/AX-1day/test/pwa-connection.test.mjs:221:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /Notion 원본/. Input:
+
+    '저장 작업 상태를 확인할 수 없어 연결을 중단했습니다. 원본 journal을 확인해 주세요.'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: '저장 작업 상태를 확인할 수 없어 연결을 중단했습니다. 원본 journal을 확인해 주세요.'
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/project-improvements/AX-1day/test/pwa-connection.test.mjs:228:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 0
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 64.546083

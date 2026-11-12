@@ -1,11 +1,11 @@
 import { isValidRating } from '../../domain.mjs';
 import { actionIcon } from '../shared/icons.mjs';
 import { make } from '../shared/dom.mjs';
-import { button, iconButton, trashButton } from '../shared/buttons.mjs';
+import { detailRecordButton, iconButton, trashButton } from '../shared/buttons.mjs';
 import { favoriteButton } from '../shared/favorite-button.mjs';
 import { currentRecords, recordName } from '../shared/record-card.mjs';
 import {
-  hasRecipeValue, makeStepTable, recipeMeasure, recipeOverview, recipeReady,
+  RECIPE_POUR_LABELS, hasRecipeValue, makeStepTable, recipeMeasure, recipeOverview, recipeReady,
   recipeSectionHeading, recipeStepCount, recipeValidationMessage,
 } from '../shared/recipe-presentation.mjs';
 
@@ -39,29 +39,33 @@ export function renderRecipes(pane, data, document) {
   }
 }
 
-export function renderRecipeDetail(pane, data, document, recipeId) {
+export function renderRecipeDetail(pane, listActions, data, document, recipeId) {
   const recipe = data.recipes.find(row => row.id === recipeId);
   if (!recipe) {
     pane.append(make(document, 'p', '레시피를 찾을 수 없습니다. 최신 목록을 새로고침해 주세요.'));
     return;
   }
-  pane.append(recipeCard(document, recipe, data, true));
+  const ready = recipeReady(recipe);
+  listActions.className += ' detail-header-actions';
+  const edit = iconButton(document, '', `${recipe.name} 수정`, 'edit-recipe');
+  edit.className += ' entity-edit';
+  edit.dataset.id = recipe.id;
+  edit.replaceChildren(actionIcon(document, 'edit'));
+
+  const copy = iconButton(document, '', '이 레시피 복사', 'copy-recipe');
+  copy.replaceChildren(actionIcon(document, 'copy'));
+  copy.dataset.id = recipe.id;
+  copy.disabled = !ready;
+  listActions.append(edit, copy, trashButton(document, 'recipes', recipe.id, recipe.name));
+  pane.append(recipeCard(document, recipe, data, ready));
 }
 
-function recipeCard(document, recipe, data, detailed = false) {
+function recipeCard(document, recipe, data, ready) {
   const article = make(document, 'article', undefined, 'recipe-card');
-  const header = make(document, 'div', undefined, 'entity-card-header');
-  header.append(make(document, 'h2', recipe.name));
-  const headerActions = make(document, 'div', undefined, 'recipe-header-actions');
-  if (detailed) {
-    const edit = iconButton(document, '', `${recipe.name} 수정`, 'edit-recipe');
-    edit.className += ' entity-edit';
-    edit.dataset.id = recipe.id;
-    edit.replaceChildren(actionIcon(document, 'edit'));
-    headerActions.append(edit);
-  }
-  headerActions.append(trashButton(document, 'recipes', recipe.id, recipe.name));
-  header.append(headerActions);
+  const header = make(document, 'div', undefined, 'entity-card-header detail-header');
+  const record = detailRecordButton(document, 'recipes', recipe.id);
+  record.disabled = !ready;
+  header.append(make(document, 'h2', recipe.name), record);
   article.append(header, recipeOverview(document, recipe));
 
   const validation = recipeValidationMessage(recipe);
@@ -95,10 +99,10 @@ function recipeCard(document, recipe, data, detailed = false) {
   const stepLabel = Array.isArray(recipe.steps) ? `${steps.length}단계`
     : recipe.validationStatus === 'checking' ? '확인 중'
       : recipe.validationStatus === 'error' ? '확인 실패' : '단계 미기록';
-  stepsSection.append(recipeSectionHeading(document, '붓기 단계', stepLabel));
+  stepsSection.append(recipeSectionHeading(document, RECIPE_POUR_LABELS.title, stepLabel));
   if (steps.length) stepsSection.append(makeStepTable(document, steps));
   else stepsSection.append(make(document, 'p', recipe.validationStatus === 'checking' ? '레시피 단계를 확인 중입니다.'
-    : recipe.validationStatus === 'error' ? '레시피 단계 확인에 실패했습니다.' : '등록된 붓기 단계가 없습니다.', 'muted-note'));
+    : recipe.validationStatus === 'error' ? '레시피 단계 확인에 실패했습니다.' : `등록된 ${RECIPE_POUR_LABELS.title}가 없습니다.`, 'muted-note'));
   article.append(stepsSection);
 
   if (typeof recipe.extractionGuide === 'string' && recipe.extractionGuide.trim()) {
@@ -135,7 +139,7 @@ function recipeCard(document, recipe, data, detailed = false) {
       const dripper = hasRecipeValue(snapshot.dripper) ? snapshot.dripper : '드리퍼 미기록';
       const conditions = `기록 당시 조건: ${dripper} · ${recipeMeasure(snapshot.dose, 'g')} · ${recipeMeasure(snapshot.temperature, '℃')} · 물 ${recipeMeasure(snapshot.totalWater, 'g')}`;
       recordItem.append(make(document, 'p', conditions, 'record-snapshot-conditions'));
-      recordItem.append(make(document, 'h5', '당시 단계'));
+      recordItem.append(make(document, 'h5', `당시 ${RECIPE_POUR_LABELS.title}`));
       recordItem.append(makeStepTable(document, snapshot.steps));
       if (typeof snapshot.extractionGuide === 'string' && snapshot.extractionGuide.trim()) {
         recordItem.append(make(document, 'p', `기록 당시 추출 가이드: ${snapshot.extractionGuide}`, 'record-extraction-guide'));
@@ -145,17 +149,5 @@ function recipeCard(document, recipe, data, detailed = false) {
   }
   article.append(recordsSection);
 
-  const actions = make(document, 'div', undefined, 'recipe-card-actions');
-  if (detailed) {
-    const record = button(document, '이 레시피로 추출 기록', 'button', 'new-record', 'primary');
-    record.dataset.id = recipe.id;
-    record.disabled = !recipeReady(recipe);
-    actions.append(record);
-  }
-  const copy = button(document, '이 레시피 복사', 'button', 'copy-recipe');
-  copy.dataset.id = recipe.id;
-  copy.disabled = !recipeReady(recipe);
-  actions.append(copy);
-  article.append(actions);
   return article;
 }

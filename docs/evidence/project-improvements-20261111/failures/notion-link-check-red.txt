@@ -1,0 +1,27 @@
+TAP version 13
+# Subtest: Pages permits only the fixed Notion page-link origin in the recovery renderer
+not ok 1 - Pages permits only the fixed Notion page-link origin in the recovery renderer
+  ---
+  duration_ms: 90.818167
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/project-improvements/AX-1day/test/pwa-product-build.test.mjs:86:1'
+  failureType: 'testCodeFailure'
+  error: '외부 URL 참조가 산출물에 있습니다.'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    rejectUnsafeContents (file:///Users/kangseokgyu/.codex/worktrees/project-improvements/AX-1day/scripts/check-pages.mjs:178:42)
+    checkPages (file:///Users/kangseokgyu/.codex/worktrees/project-improvements/AX-1day/scripts/check-pages.mjs:221:3)
+    async buildPages (file:///Users/kangseokgyu/.codex/worktrees/project-improvements/AX-1day/scripts/build-pages.mjs:236:3)
+    async TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/project-improvements/AX-1day/test/pwa-product-build.test.mjs:88:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 135.883583

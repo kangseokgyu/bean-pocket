@@ -339,11 +339,13 @@ test('old connection revision blocks a prepared record before any Notion write',
   assert.equal(env.calls.length, 0);
 });
 
-test('recipe saves parent then all stages in reverse order after full preflight', async () => {
+test('recipe saves the derived total and all stages in reverse order after full preflight', async () => {
   const env = harness({ rows: { ...blankRows(), beans: [bean()] } });
-  const draft = await env.commands.prepareRecipe(recipeInput());
+  const { totalWater, ...input } = recipeInput();
+  const draft = await env.commands.prepareRecipe(input);
   const result = await env.commands.execute(draft);
   assert.equal(result.status, 'succeeded');
+  assert.equal(env.calls[0].data.totalWater, 250);
   assert.deepEqual(env.calls.map(call => call.kind), ['recipes', 'steps', 'steps', 'steps']);
   assert.deepEqual(env.calls.slice(1).map(call => call.data.order), [3, 2, 1]);
   assert.ok(env.calls.slice(1).every(call => call.data.recipeId === env.calls[0].id));
@@ -497,16 +499,18 @@ test('copy creates a new independent recipe with changed values and rejects a st
     recipeId: IDS.recipe,
   }));
   const env = harness({ rows: { ...blankRows(), beans: [bean()], recipes: [source] } });
-  const changes = { temperature: 90 };
+  const changes = { temperature: 90, steps: source.steps.map((step, index) =>
+    index === 0 ? { ...step, water: 55 } : step) };
   const draft = await env.commands.prepareCopy(IDS.recipe, changes);
   changes.temperature = 80;
   assert.equal(draft.payload.temperature, 90);
-  assert.equal(draft.payload.steps[0].water, 50);
+  assert.equal(draft.payload.steps[0].water, 55);
   assert.ok(draft.payload.steps.every(step => !Object.hasOwn(step, 'id') && !Object.hasOwn(step, 'recipeId')));
   assert.equal(source.steps[0].water, 50);
   const result = await env.commands.execute(draft);
   assert.equal(result.status, 'succeeded');
   assert.equal(env.calls[0].data.temperature, 90);
+  assert.equal(env.calls[0].data.totalWater, 255);
   assert.deepEqual(env.calls.slice(1).map(call => call.data.order), [3, 2, 1]);
   assert.ok(env.calls.slice(1).every(call => call.data.recipeId === env.calls[0].id));
   assert.equal('stats' in env.calls[0].data, false);
@@ -560,11 +564,12 @@ test('recipe edits keep page identity and favorites, update stable steps, add an
   const record = { id: 'eeeeeeee-5555-4555-8555-111111111111', recipeId: IDS.recipe, snapshot };
   const env = harness({ rows: { ...blankRows(), beans: [bean()], recipes: [source], records: [record] } });
   const baseline = structuredClone(source);
+  const { totalWater, ...fields } = recipeInput(IDS.bean, { name: 'V60 편집', temperature: 91 });
   const updated = {
-    ...recipeInput(IDS.bean, { name: 'V60 편집', temperature: 91 }),
+    ...fields,
     steps: [
       { id: source.steps[0].id, name: '뜸', time: '0:00', water: 45 },
-      { name: '붓기', time: '0:35', water: 205 },
+      { name: '붓기', time: '0:35', water: 215 },
     ],
   };
   const draft = await env.commands.prepareEditRecipe(IDS.recipe, baseline, updated);
@@ -574,10 +579,11 @@ test('recipe edits keep page identity and favorites, update stable steps, add an
   assert.equal(env.rows.recipes[0].id, IDS.recipe, 'the recipe keeps its Notion page ID');
   assert.equal(env.rows.recipes[0].name, 'V60 편집');
   assert.equal(env.rows.recipes[0].temperature, 91);
+  assert.equal(env.rows.recipes[0].totalWater, 260);
   assert.equal(env.rows.recipes[0].favorite, true, 'the favorite checkbox is preserved');
   assert.equal(env.rows.recipes[0].beanId, IDS.bean, 'the legacy bean relation is preserved');
   assert.deepEqual(env.rows.recipes[0].steps.map(step => [step.id, step.order, step.seconds, step.water]), [
-    [stepIds[0], 1, 0, 45], [env.calls.find(call => call.kind === 'steps').id, 2, 35, 205],
+    [stepIds[0], 1, 0, 45], [env.calls.find(call => call.kind === 'steps').id, 2, 35, 215],
   ]);
   assert.deepEqual(env.rows.records[0], record, 'historical record snapshots remain unchanged');
   assert.equal(env.calls.filter(call => call.kind === 'recipes').length, 0, 'editing never creates a replacement recipe');

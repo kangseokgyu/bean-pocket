@@ -1,10 +1,16 @@
 # 구현 상태
 
-## 현재 소스 구조 — 2026-11-06
+## 현재 개발·게시 상태 — 2026-11-12
+
+현재 기능 후보는 `codex/project-improvements` 브랜치다. 이번 검증은 로컬 후보에 한정하며 main 통합·원격 push·Pages 게시를 포함하지 않는다. 로컬 Pages 빌드 ID는 `e90b853a89e4`이며 공개 빌드 ID가 아니다. PR/main 검증 workflow는 배포하지 않고, 공개 Pages workflow는 수동 실행을 유지한다.
+
+최종 검증: `npm test` 791/791, `npm run build:pages`, `npm run check:pages`, Chromium `npm run test:browser` 23개 시나리오 통과. 실제 명령과 결과는 [이번 개선 증거](evidence/project-improvements-20261111/README.md)에 있다. 이 로컬 브라우저 검증은 fake Notion 데이터를 사용하며 실제 Notion·실기기 검증이 아니다.
+
+## 현재 소스 구조 — 2026-11-12
 
 현재 앱은 `pwa/`의 브라우저 PWA다. GitHub Pages 빌드는 허용 목록에 든 정적 `dist/` 파일만 만든다. 브라우저는 `pwa/data/notion-client.mjs`로 Notion에 직접 연결하고, `lib/domain.mjs`를 도메인 원본으로 사용한다. 저장소에는 Node 웹 서버, 프로젝트 소유 `/api/*` 백엔드, `npm start` 명령이 없다. Node.js는 테스트와 빌드, 유지 중인 데이터 마이그레이션 스크립트에 사용한다.
 
-검증 명령은 `npm test`, `npm run build:pages`, `npm run check:pages`다. 각 실행의 실제 결과는 작업별 증거에 기록한다. 이 페이지 아래의 배포·실기기 기록은 해당 날짜의 이력이며, 현재 소스 구조나 새 변경의 검증으로 해석하지 않는다.
+검증 명령은 `npm test`, `npm run build:pages`, `npm run check:pages`, `npm run test:browser`다. 브라우저 회귀는 `scripts/browser/`에 있고 Node 테스트 자동 수집 경로 밖에서 실행한다. 각 실행의 실제 결과는 작업별 증거에 기록한다. 이 페이지 아래의 배포·실기기 기록은 해당 날짜의 이력이며, 현재 소스 구조나 새 변경의 검증으로 해석하지 않는다.
 
 ## 이전 구현 상태 기록
 
@@ -16,11 +22,11 @@
 
 [최종 인계](evidence/T30/README.md) · [사용 안내](pwa-usage.md).
 
-# PLAN 실행 상태
+## 2026-11-06 UI 리팩터링 후보 기록
 
 2026-11-06 UI 리팩터링 후보: R0–R6 구현과 문서 정리를 완료했다. 기능 브랜치에 `250198d`를 통합한 후보의 Node 테스트 769개와 Pages 빌드 `9b8bf554b507` 검사가 통과했다. 최종 Chromium 비교와 게시는 별도다. [파일 안내](ui-refactoring.md#where-to-start) · [후보 검증 기록](evidence/ui-refactor-20261106/README.md).
 
-갱신일: 2026-10-21 (Asia/Seoul). 최종 인계는 [T30](evidence/T30/README.md), 실기기 판정은 [T29](evidence/T29/README.md)를 따른다. 아래 표는 최신 상태이며 초기 실험과 최종 제품의 확인 범위를 구분한다.
+아래 T00–T30 표는 2026-10-21 (Asia/Seoul) 기준의 과거 상태 스냅샷이다. 그 시점의 최종 인계는 [T30](evidence/T30/README.md), 실기기 판정은 [T29](evidence/T29/README.md)에 있다. 표의 완료·대기 상태를 현재 기능 브랜치나 공개 제품의 검증 결과로 해석하지 않는다.
 
 | 작업 | 상태 | 근거 / 다음 조건 |
 |---|---|---|
@@ -48,7 +54,7 @@
 | T29 실기기 통합 | 지정 시나리오 사용자 보고 범위 통과 | 홈 화면·Safari·셀룰러·기기 간 조회·두 봉지·업데이트·삭제 수명 확인。 [최종 판정](evidence/T29/README.md) |
 | T30 운영 연결·인수인계 | 완료 — 사용자 보고 범위 | 기존 운영 데이터5종·레시피 단계 조회 확인。[최종 인계](evidence/T30/README.md) |
 
-## 남은 사항
+## 2026-10-21 당시 남은 사항 — 과거 기록
 
 필수 구현·지정 실기기 확인·운영 읽기는 완료했다. 현재 제품에서 호출하지 않는 lifecycle stop/start 동시 호출의 P3 참고만 [기존 독립 검토](evidence/T29/update-recovery-20261020/critic-review.md)에 남아 있다. 해당 API 사용을 추가할 때 검토하며 현재 릴리스 차단 항목은 아니다.
 

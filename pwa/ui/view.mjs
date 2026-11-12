@@ -14,6 +14,8 @@ import { addBrewStage, brewOptionScope, cachedBrewOptionPage,
 import { renderRecords } from './screens/records.mjs';
 import { buildRecordForm, recordFlowKey } from './forms/record-form.mjs';
 import { routePath, routeParams, normalizeRoute } from './shared/route.mjs';
+import { createFormDraftStore } from '../state/form-drafts.mjs';
+import { buildResolutionForm } from './recovery-view.mjs';
 import { bindEvents } from './interactions/events.mjs';
 import { createStatusToast } from './interactions/status-toast.mjs';
 import { bindPullToRefresh } from './interactions/pull-to-refresh.mjs';
@@ -45,6 +47,7 @@ export function createAppView(document = globalThis.document, {
   schedule = setTimeout,
   cancelSchedule = clearTimeout,
   validateToken,
+  draftStore = createFormDraftStore(),
 } = {}) {
   const root = document.querySelector('#app-root');
   if (!root) throw new Error('앱 화면을 만들 수 없습니다.');
@@ -69,6 +72,9 @@ export function createAppView(document = globalThis.document, {
   const routeHiddenChildren = new Set();
   let routeChangeListener = null;
   const drafts = new Map();
+  let draftScope = null;
+  const transientDraftKeys = new Set();
+  const transientDraftOrigins = new Map();
   const optionPages = new Map();
   const optionStates = new Map();
   let insightRecipeFilter = '';
@@ -358,6 +364,18 @@ export function createAppView(document = globalThis.document, {
   let activeEntryKind = null;
   let entryPhase = 'idle';
   let entryTimer = null;
+  const captureActiveDraft = () => {
+    saveActiveDraft(content, drafts, draftStore, draftScope, transientDraftKeys, transientDraftOrigins);
+  };
+  const persistActiveDraft = () => saveActiveDraft(content, drafts, draftStore, draftScope,
+    transientDraftKeys, transientDraftOrigins, true);
+  content.addEventListener('input', persistActiveDraft);
+  content.addEventListener('change', persistActiveDraft);
+  content.addEventListener('click', event => {
+    const action = event.target?.closest?.('[data-action]')?.dataset.action;
+    if (!['add-step', 'remove-step', 'add-brew-stage', 'remove-brew-stage'].includes(action)) return;
+    schedule(persistActiveDraft, 0);
+  });
 
   const deleteDialog = make(document, 'dialog', undefined, 'entry-dialog delete-confirm-dialog');
   deleteDialog.id = 'delete-confirm-dialog';
@@ -715,6 +733,31 @@ export function createAppView(document = globalThis.document, {
     syncEntryDialogState();
   }
 
+  function retireDraftTarget() {
+    if (entryTimer !== null) {
+      cancelSchedule(entryTimer);
+      entryTimer = null;
+    }
+    if (resolveDiscardEdit) finishDiscardEdit(false);
+    for (const dialog of content.querySelectorAll('dialog[data-entry-dialog]')) {
+      if (dialog.open && typeof dialog.close === 'function') dialog.close();
+      else dialog.open = false;
+    }
+    activeEntryKind = null;
+    entryPhase = 'idle';
+    beanFormOpen = false;
+    recipeFormOpen = false;
+    recordFormOpen = false;
+    for (const child of routeHiddenChildren) child.hidden = false;
+    routeHiddenChildren.clear();
+    content.replaceChildren();
+    currentData = null;
+    renderedConnectionRevision = null;
+    routeNeedsDataRender = true;
+    renderStatus();
+    applyViewState();
+  }
+
   const view = {
     finishStartup,
     showStatus(value) {
@@ -815,18 +858,69 @@ export function createAppView(document = globalThis.document, {
       if (currentState.pending) toast.cancelHide();
       else if (wasPending) toast.scheduleHide();
     },
+    async setDraftScope(scope) {
+      const previousScope = draftScope;
+      if (draftScope) saveActiveDraft(content, drafts, draftStore, draftScope,
+        transientDraftKeys, transientDraftOrigins);
+      const previousDrafts = new Map(drafts);
+      const sameTarget = !!scope && previousScope?.targetFingerprint === scope.targetFingerprint;
+      if (previousScope && !sameTarget) retireDraftTarget();
+      if (!scope) {
+        await draftStore.flush();
+        draftScope = null;
+        drafts.clear();
+        transientDraftKeys.clear();
+        transientDraftOrigins.clear();
+        beanFormOpen = false;
+        recipeFormOpen = false;
+        recordFormOpen = false;
+        return [];
+      } else {
+        await draftStore.flush();
+        const restored = await draftStore.read(scope);
+        const sameRevision = previousScope?.revision === scope.revision;
+        draftScope = { revision: scope.revision, targetFingerprint: scope.targetFingerprint };
+        drafts.clear();
+        for (const [key, draft] of restored) drafts.set(key, draft);
+        transientDraftKeys.clear();
+        transientDraftOrigins.clear();
+        if (sameTarget) {
+          for (const [key, draft] of previousDrafts) {
+            drafts.set(key, draft);
+            if (!sameRevision) {
+              transientDraftKeys.add(key);
+              if (previousScope) transientDraftOrigins.set(key, previousScope);
+            }
+          }
+        }
+      }
+      const currentPath = routePath(route);
+      beanFormOpen = currentPath === '/beans' && drafts.has('beans');
+      recipeFormOpen = currentPath === '/recipes/new' ||
+        (currentPath === '/recipes' && drafts.has('recipes'));
+      recordFormOpen = currentPath === '/records/new' ||
+        (currentPath === '/records' && drafts.has('records'));
+      return meaningfulDraftKeys(drafts);
+    },
+    markDraftEdited(kind) {
+      const form = content.querySelector('form[data-form]');
+      if (!form || draftKey(form) !== kind) return false;
+      saveActiveDraft(content, drafts, draftStore, draftScope, transientDraftKeys, transientDraftOrigins, true);
+      return true;
+    },
     setFrozen(value) {
       currentState.frozen = !!value;
       page.dataset.frozen = value ? 'true' : 'false';
       applyViewState();
     },
     clearForm(kind) {
-      drafts.delete(kind);
+      removeDraft(drafts, draftStore, draftScope, transientDraftKeys, transientDraftOrigins, kind);
       const form = content.querySelector(`form[data-form="${kind}"]`);
       form?.reset();
     },
     clearDraft(kind, recipeId = null) {
-      drafts.delete(recipeId && kind === 'recipes' ? `recipe-edit:${recipeId}` : kind);
+      const key = recipeId && kind === 'recipes' ? 'recipe-edit:' + recipeId : kind;
+      removeDraft(drafts, draftStore, draftScope, transientDraftKeys, transientDraftOrigins, key);
       const wasOpen = !recipeId && activeEntryKind === kind;
       if (entryDialogFor(kind)?.open) entryDialogFor(kind).close();
       if (kind === 'beans') beanFormOpen = false;
@@ -884,7 +978,7 @@ export function createAppView(document = globalThis.document, {
       renderStatus();
     },
     renderData(nextData) {
-      saveActiveDraft(content, drafts);
+      captureActiveDraft();
       currentData = nextData;
       syncInsightComparisonSelection();
       const insightRecipeOptions = currentData.recordInsights?.recipeOptions;
@@ -935,23 +1029,27 @@ export function createAppView(document = globalThis.document, {
     },
     currentRoute() { return route; },
     onRouteChange(handler) { routeChangeListener = typeof handler === 'function' ? handler : null; },
-    renderRoute(nextRoute) {
+    renderRoute(nextRoute, { replaceHistory = false, notify = true } = {}) {
       const next = normalizeRoute(nextRoute || '/home');
+      const { history, location } = globalThis.window ?? {};
+      if (replaceHistory && history?.replaceState && location) {
+        history.replaceState(null, '', `${location.pathname}${location.search}#${next}`);
+      }
       if (next !== route) routeNeedsDataRender = true;
       if (routePath(next) === '/records' && routePath(route) !== '/records') recordManagementOpen = false;
       route = next;
       if (routePath(route) === '/recipes/new') recipeFormOpen = true;
       if (routePath(route) === '/records/new') recordFormOpen = true;
       if (currentData) {
-        saveActiveDraft(content, drafts);
+        captureActiveDraft();
         renderCurrentContent();
       }
-      routeChangeListener?.(route);
+      if (notify) routeChangeListener?.(route);
     },
     resolveRecordDraft(startNew = false) {
       const previousRoute = drafts.get('records')?.route ?? '/records';
       if (startNew) {
-        drafts.delete('records');
+        removeDraft(drafts, draftStore, draftScope, transientDraftKeys, transientDraftOrigins, 'records');
         renderCurrentContent();
       }
       return previousRoute;
@@ -1040,7 +1138,7 @@ export function createAppView(document = globalThis.document, {
     },
     showEntrySuccess(kind) {
       if (activeEntryKind !== kind || !entryDialogFor(kind)?.open) return false;
-      drafts.delete(kind);
+      removeDraft(drafts, draftStore, draftScope, transientDraftKeys, transientDraftOrigins, kind);
       entryPhase = 'success';
       syncEntryDialogState();
       if (entryTimer !== null) cancelSchedule(entryTimer);
@@ -1120,6 +1218,9 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
   }
   if (section === 'brew') {
     renderBrewFlow(pane, data, document, route, optionPages);
+    const form = pane.querySelector('form[data-form="brews"]');
+    const draft = drafts.get('brews');
+    if (form && sameBrewDraftFlow(form, draft)) restoreDraft(form, draft, data);
     parent.dataset.section = 'home';
     parent.replaceChildren(pane);
     updateNavigationCurrent(parent.ownerDocument, route);
@@ -1135,7 +1236,9 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
   const titles = { beans: '원두', recipes: '레시피', records: '추출 기록' };
   const header = make(document, 'div', undefined, 'list-header');
   const beanDetail = section === 'beans' && parts[1];
-  const recipeDetail = section === 'recipes' && parts[1] && parts[1] !== 'new' && parts[2] !== 'edit';
+  const recipePage = section === 'recipes' && parts[1] && parts[1] !== 'new';
+  const recipeEdit = recipePage && parts[2] === 'edit';
+  const recipeDetail = recipePage && !recipeEdit;
   if (beanDetail || recipeDetail) {
     const label = `${titles[section]} 목록`;
     const back = button(document, label, 'button', 'navigate', 'back');
@@ -1165,11 +1268,11 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
     actions.append(add);
   }
   header.append(actions);
-  pane.append(header);
+  if (!recipeEdit) pane.append(header);
 
   if (beanDetail) {
-    renderBeanDetail(pane, data, document, parts[1]);
-  } else if (section === 'recipes' && parts[1] && parts[1] !== 'new' && parts[2] === 'edit') {
+    renderBeanDetail(pane, actions, data, document, parts[1]);
+  } else if (recipeEdit) {
     const recipe = data.recipes?.find(row => row.id === parts[1]);
     if (data.screen?.error || !recipe || !Array.isArray(recipe.steps)) {
       pane.append(make(document, 'h1', '레시피를 수정할 수 없습니다.'));
@@ -1178,9 +1281,6 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
       back.dataset.route = '/recipes';
       pane.append(back);
     } else {
-      const back = button(document, '레시피로 돌아가기', 'button', 'navigate', 'back');
-      back.dataset.route = `/recipes/${encodeURIComponent(recipe.id)}`;
-      pane.append(back);
       const form = buildRecipeForm(document, data, recipe);
       form.id = `edit-recipe-form-${recipe.id}`;
       form.dataset.draftRoute = route;
@@ -1190,7 +1290,7 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
       updatePreview(pane);
     }
   } else if (recipeDetail) {
-    renderRecipeDetail(pane, data, document, parts[1]);
+    renderRecipeDetail(pane, actions, data, document, parts[1]);
   } else if (section === 'beans') {
     const form = buildBeanForm(document);
     form.id = 'new-bean-form';
@@ -1246,80 +1346,110 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
   updateNavigationCurrent(parent.ownerDocument, route);
 }
 
-function buildResolutionForm(document, operation) {
-  const deleting = operation.kind.startsWith('delete-');
-  const favoriting = operation.kind.startsWith('favorite-');
-  const editing = operation.kind === 'edit-recipe';
-  const deleteNames = { beans: '원두', recipes: '레시피', records: '추출 기록' };
-  const names = { beans: '원두', recipes: '레시피', records: '추출 기록' };
-  const targetName = deleteNames[operation.targetKind] ?? '항목';
-  const hasKnownPages = deleting || favoriting || editing || operation.knownPageCount > 0;
-  const card = make(document, 'article', undefined, 'resolution-card');
-  const status = deleting ? '삭제 여부 확인 필요' : editing ? '수정 결과 확인 필요' : operation.status === 'partial' ? '일부 저장' : '저장 여부 확인 필요';
-  card.append(make(document, 'h3', `${deleting ? `${targetName} 삭제` : editing ? '레시피 수정' : names[operation.kind] ?? '저장'} · ${status}`));
-  card.append(make(document, 'p', favoriting ? 'Notion 원본의 즐겨찾기 체크 상태를 확인해 주세요. 확인 과정에서는 저장을 다시 요청하지 않습니다.' : deleting ? `Notion 원본에서 삭제 대상(${targetName})의 휴지통 이동 여부를 직접 확인해 주세요. 확인 과정에서는 삭제를 다시 요청하지 않습니다.` : editing
-    ? '레시피와 모든 단계가 수정 전 상태 또는 수정 후 상태와 정확히 일치하는지 확인해 주세요. 일부만 반영되었거나 다른 내용이면 이 화면을 닫지 말고 Notion에서 레시피와 단계를 한쪽 상태로 맞춰 주세요. 저장을 다시 요청하지 마세요.' : hasKnownPages
-    ? `확인된 항목 ${operation.knownPageCount}개. 원본에서 이 항목의 상태를 확인해 저장됨 또는 모두 보관 취소됨을 선택해 주세요.`
-    : 'Notion 원본을 직접 확인하고, 이번 작업의 결과에 맞는 선택을 해 주세요.'));
-  if (!hasKnownPages) card.append(make(document, 'p', '저장됨을 선택할 때는 이번 작업으로 새로 만들어진 모든 페이지의 ID를 입력해 주세요. ID는 상태 메시지에 표시하지 않습니다.', 'muted-note'));
-
-  const form = make(document, 'form', undefined, 'form-grid resolution-form');
-  const confirmed = label(document, 'Notion 원본에서 이번 작업의 결과를 직접 확인했습니다.', 'originalConfirmed', 'checkbox', true);
-  form.append(confirmed);
-  const decision = label(document, '확인 결과', 'decision', 'select', true);
-  const select = decision.querySelector('select');
-  const decisions = editing ? [['saved', '레시피와 모든 단계가 수정 후 상태와 일치함'], ['not-saved', '레시피와 모든 단계가 수정 전 상태와 일치함']] : favoriting ? [['saved', `즐겨찾기가 요청한 상태(${operation.favorite ? '추가' : '해제'})임을 확인함`], ['not-saved', '즐겨찾기가 요청한 상태와 다름을 확인함']] : deleting ? [
-    ['saved', `${targetName}: 휴지통에 있음을 확인함`],
-    ['not-saved', `${targetName}: 삭제되지 않고 남아 있음을 확인함`],
-  ] : [
-    ['saved', '이번 작업의 저장을 확인함'],
-    ['cancelled', '이번 작업의 새 항목을 모두 보관 취소함'],
-  ];
-  if (!hasKnownPages) decisions.splice(1, 0, ['not-saved', '이번 작업이 저장되지 않았음을 확인함']);
-  for (const [value, title] of decisions) {
-    const option = document.createElement('option');
-    option.value = value;
-    option.textContent = title;
-    select.append(option);
-  }
-  form.append(decision);
-  if (!hasKnownPages) form.append(label(document, '확인한 새 페이지 ID (저장됨이면 쉼표로 구분)', 'pageIds', 'text', false,
-    { autocomplete: 'off', autocapitalize: 'off', spellcheck: false }));
-  const submit = actionButton(document, '확인 결과 저장', 'submit', 'save');
-  let resolving = false;
-  form.append(submit);
-  form.addEventListener('submit', async event => {
-    event.preventDefault();
-    if (resolving || submit.disabled) return;
-    resolving = true;
-    submit.disabled = true;
-    setActionButton(submit, '저장 중…', 'saving');
-    try {
-      const resolved = await operation.resolve({
-        originalConfirmed: confirmed.querySelector('input').checked,
-        decision: select.value,
-        pageIds: form.elements.pageIds?.value,
-      });
-      if (resolved === true) setActionButton(submit, '확인 완료', 'success');
-      else {
-        resolving = false;
-        submit.disabled = false;
-        setActionButton(submit, '확인 결과 저장', 'idle');
-      }
-    } catch {
-      // Controller status is deliberately fixed text and never includes IDs, tokens, or API bodies.
-      resolving = false;
-      submit.disabled = false;
-      setActionButton(submit, '확인 결과 저장', 'idle');
-    }
-  });
-  card.append(form);
-  return card;
+function removePersistedDraft(draftStore, scope, key) {
+  if (!scope) return;
+  try {
+    const removal = draftStore.remove(scope, key);
+    if (removal && typeof removal.catch === 'function') void removal.catch(() => {});
+  } catch { /* The in-memory removal still takes effect. */ }
 }
 
-function saveActiveDraft(content, drafts) {
+function removeDraft(drafts, draftStore, scope, transientDraftKeys, transientDraftOrigins, key) {
+  drafts.delete(key);
+  transientDraftKeys.delete(key);
+  const origin = transientDraftOrigins.get(key);
+  transientDraftOrigins.delete(key);
+  removePersistedDraft(draftStore, origin, key);
+  removePersistedDraft(draftStore, scope, key);
+}
+
+function meaningfulDraftKeys(drafts) {
+  return [...drafts].filter(([key, draft]) => isMeaningfulDraft(key, draft)).map(([key]) => key);
+}
+
+function isMeaningfulDraft(key, draft) {
+  if (draft.edited === true) return true;
+  if (key.startsWith('recipe-edit:')) return recipeEditDraftChanged(draft);
+  if (key === 'records') return recordDraftChanged(draft);
+  if (key === 'brews') return brewDraftChanged(draft);
+  if (key === 'recipes') {
+    return !!draft.copyId || hasDraftText(draft.values) || draft.steps.some(step =>
+      !!step.stepName?.trim() || !!step.water?.trim() || (!!step.time?.trim() && step.time !== '0:00'));
+  }
+  return key === 'beans' && hasDraftText(draft.values);
+}
+
+function hasDraftText(value) {
+  if (Array.isArray(value)) return value.some(hasDraftText);
+  if (!value || typeof value !== 'object') return typeof value === 'string' && value.trim() !== '';
+  return Object.values(value).some(hasDraftText);
+}
+
+function sameDraftValue(value, baseline) {
+  const current = String(value ?? '').trim();
+  const original = String(baseline ?? '').trim();
+  if (current === original) return true;
+  if (!current || !original) return false;
+  const currentNumber = Number(current);
+  const originalNumber = Number(original);
+  return Number.isFinite(currentNumber) && Number.isFinite(originalNumber) && currentNumber === originalNumber;
+}
+
+function readDraftBaseline(draft) {
+  try {
+    const value = JSON.parse(draft.baseline);
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : null;
+  } catch { return null; }
+}
+
+function recipeEditDraftChanged(draft) {
+  const baseline = readDraftBaseline(draft);
+  if (!baseline || !Array.isArray(baseline.steps)) return hasDraftText(draft);
+  for (const name of ['name', 'dripper', 'dose', 'grind', 'microns', 'grinder',
+    'grinderSetting', 'temperature', 'extractionGuide']) {
+    if (!sameDraftValue(draft.values[name], baseline[name])) return true;
+  }
+  return draftStepsChanged(draft.steps, baseline.steps, { id: 'id', name: 'name', time: 'seconds' });
+}
+
+function recordDraftChanged(draft) {
+  try {
+    const [beanId, recipeId, date] = JSON.parse(draft.flowKey);
+    if (!sameDraftValue(draft.values.beanId, beanId) || !sameDraftValue(draft.values.recipeId, recipeId) ||
+        !sameDraftValue(draft.values.date, date)) return true;
+    return !!draft.values.rating?.trim() || !!draft.values.cupNote?.trim();
+  } catch { return hasDraftText(draft); }
+}
+
+function brewDraftChanged(draft) {
+  const baseline = readDraftBaseline(draft);
+  if (!baseline) return hasDraftText(draft);
+  for (const name of ['name', 'dripper', 'dose', 'grind', 'microns', 'grinder', 'grinderSetting',
+    'temperature', 'totalWater', 'extractionGuide', 'date', 'rating', 'cupNote']) {
+    if (!sameDraftValue(draft.values[name], baseline[name])) return true;
+  }
+  return draftStepsChanged(draft.steps, baseline.steps, { id: null, name: 'name', time: 'time' });
+}
+
+function draftStepsChanged(steps, baseline, fields) {
+  if (!Array.isArray(baseline) || steps.length !== baseline.length) return true;
+  return steps.some((step, index) => {
+    const original = baseline[index];
+    if (fields.id && original[fields.id] && step.id !== original[fields.id]) return true;
+    const originalTime = fields.time === 'seconds' ? original[fields.time] : parseInputTime(original[fields.time]);
+    const currentTime = parseInputTime(step.time);
+    return !sameDraftValue(step.stepName, original[fields.name]) || currentTime === null ||
+      currentTime !== originalTime || !sameDraftValue(step.water, original.water);
+  });
+}
+
+function saveActiveDraft(content, drafts, draftStore, scope, transientDraftKeys,
+  transientDraftOrigins, edited = false) {
   const form = content.querySelector('form[data-form]');
   if (!form || form.closest('dialog')?.dataset.saveState === 'success') return;
+  const key = draftKey(form);
+  const previousDraft = drafts.get(key);
+  if (form.dataset.form === 'brews' && previousDraft && !sameBrewDraftFlow(form, previousDraft) && !edited) return;
   const values = {};
   for (const field of form.querySelectorAll('input[name],textarea[name],select[name]')) {
     if (field.closest('.step-row, .brew-stage-row') || (field.type === 'radio' && !field.checked)) continue;
@@ -1329,7 +1459,7 @@ function saveActiveDraft(content, drafts) {
     values.rating = form.elements.rating.value;
     const initial = JSON.parse(form.dataset.initialValues || '{}');
     if (Object.keys(initial).every(name => values[name] === initial[name])) {
-      drafts.delete(form.dataset.form);
+      removeDraft(drafts, draftStore, scope, transientDraftKeys, transientDraftOrigins, form.dataset.form);
       return;
     }
   }
@@ -1337,19 +1467,45 @@ function saveActiveDraft(content, drafts) {
     ...(row.dataset.stepId ? { id: row.dataset.stepId } : {}),
     ...Object.fromEntries([...row.querySelectorAll('[name]')].map(field => [field.name, field.value])),
   }));
-  const draft = { values, steps, copyId: form.dataset.copyId || null,
-    route: form.dataset.draftRoute, flowKey: form.dataset.draftFlow };
+  const draft = { values, steps, copyId: form.dataset.copyId || null };
+  if (edited || previousDraft?.edited === true) draft.edited = true;
+  if (form.dataset.draftRoute) draft.route = form.dataset.draftRoute;
+  if (form.dataset.draftFlow) draft.flowKey = form.dataset.draftFlow;
   if (form.dataset.editId) draft.baseline = form.dataset.editBaseline;
-  drafts.set(draftKey(form), draft);
+  else if (form.dataset.form === 'brews' && form.dataset.initialConditions) {
+    draft.baseline = form.dataset.initialConditions;
+  }
+  if (!isMeaningfulDraft(key, draft)) {
+    removeDraft(drafts, draftStore, scope, transientDraftKeys, transientDraftOrigins, key);
+    return;
+  }
+  if (edited) {
+    removePersistedDraft(draftStore, transientDraftOrigins.get(key), key);
+    transientDraftOrigins.delete(key);
+    transientDraftKeys.delete(key);
+  }
+  drafts.set(key, draft);
+  if (scope && !transientDraftKeys.has(key)) {
+    try {
+      const saving = draftStore.save(scope, key, draft);
+      if (saving && typeof saving.catch === 'function') void saving.catch(() => {});
+    } catch { /* Unsafe values stay in memory only. */ }
+  }
 }
-
 function draftKey(form) {
   return form.dataset.editId ? `recipe-edit:${form.dataset.editId}` : form.dataset.form;
+}
+
+function sameBrewDraftFlow(form, draft) {
+  return form?.dataset.form === 'brews' && !!draft && draft.route === form.dataset.draftRoute &&
+    ['beanId', 'sourceRecipeId', 'sourceRecordId'].every(name =>
+      String(form.elements[name]?.value ?? '') === String(draft.values?.[name] ?? ''));
 }
 
 function restoreDraft(form, draft, data) {
   if (!draft) return;
   if (form.dataset.editId && draft.baseline) form.dataset.editBaseline = draft.baseline;
+  if (form.dataset.form === 'brews' && draft.baseline) form.dataset.initialConditions = draft.baseline;
   for (const [name, value] of Object.entries(draft.values)) {
     const field = form.elements[name];
     if (field?.tagName?.toLowerCase() === 'select' && value &&

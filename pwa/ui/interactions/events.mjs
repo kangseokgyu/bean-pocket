@@ -348,22 +348,31 @@ export function bindEvents({ page, nav, connectionForm, tokenInput, scheduleToke
       const stages = form?.querySelector('[data-brew-stages]');
       if (!form || !stages) return;
       const lastTime = parseInputTime(stages.lastElementChild?.querySelector('[name="time"]')?.value ?? '') ?? 0;
-      addBrewStage(document, stages, { name: '', seconds: lastTime + 30, water: 10 }, stages.children.length);
+      const row = addBrewStage(document, stages, { name: '', seconds: lastTime + 30, water: 10 }, stages.children.length);
       updateBrewConditions(form);
       actions.setDirty(true, 'brews');
+      row.querySelector('[name="stepName"]')?.focus();
       return;
     }
     if (action === 'remove-brew-stage') {
       const row = target.closest('.brew-stage-row');
       const form = target.form;
       if (!row || !form || row.querySelector('[name="time"]') === form.querySelector('.brew-stage-row [name="time"]')) return;
+      const restoreFocus = document.activeElement === target;
+      const removedIndex = [...form.querySelectorAll('.brew-stage-row')].indexOf(row);
       row.remove();
-      [...form.querySelectorAll('.brew-stage-row')].forEach((stage, index) => {
+      const remainingRows = [...form.querySelectorAll('.brew-stage-row')];
+      remainingRows.forEach((stage, index) => {
         stage.querySelector('legend').textContent = `단계 ${index + 1}`;
-        stage.querySelector('[data-action="remove-brew-stage"]').disabled = index === 0;
+        const remove = stage.querySelector('[data-action="remove-brew-stage"]');
+        remove.disabled = index === 0;
+        remove.dataset.actionDisabled = String(index === 0);
+        remove.setAttribute('aria-label', `단계 ${index + 1} 제거`);
       });
       updateBrewConditions(form);
       actions.setDirty(true, 'brews');
+      if (restoreFocus) remainingRows[Math.min(removedIndex, remainingRows.length - 1)]
+        ?.querySelector('[name="stepName"]')?.focus();
       return;
     }
     if (action === 'cancel-connection') {
@@ -427,16 +436,20 @@ export function bindEvents({ page, nav, connectionForm, tokenInput, scheduleToke
       return;
     }
     if (action === 'new-record') {
-      const recipeId = target.dataset.id;
+      const { kind, id } = target.dataset;
       const form = navigateAndGetForm(view, content, '/records/new', 'records');
       if (form) {
-        const option = document.createElement('option');
-        const recipe = windowData?.recipes.find(item => item.id === recipeId);
-        option.value = recipeId;
-        option.textContent = recipe?.name ?? '선택한 레시피';
-        if (!Array.from(form.elements.recipeId.options).some(item => item.value === recipeId)) form.elements.recipeId.append(option);
-        form.elements.recipeId.value = recipeId;
-        syncSearchPickerTrigger(form.elements.recipeId.closest('[data-search-picker]'), windowData);
+        const isBean = kind === 'beans';
+        const select = form.elements[isBean ? 'beanId' : 'recipeId'];
+        if (!Array.from(select.options).some(option => option.value === id)) {
+          const item = windowData?.[kind]?.find(entry => entry.id === id);
+          const option = document.createElement('option');
+          option.value = id;
+          option.textContent = item?.name ?? (isBean ? '선택한 원두' : '선택한 레시피');
+          select.append(option);
+        }
+        select.value = id;
+        syncSearchPickerTrigger(select.closest('[data-search-picker]'), windowData);
         actions.setDirty(true, 'records');
       }
       return;
@@ -456,17 +469,26 @@ export function bindEvents({ page, nav, connectionForm, tokenInput, scheduleToke
       return;
     }
     if (action === 'add-step') {
-      addStep(content, document);
+      const row = addStep(content, document);
       updatePreview(content);
       actions.setDirty(true, formDirtyKey(target.closest('form')));
+      row?.querySelector('[name="stepName"]')?.focus();
       return;
     }
     if (action === 'remove-step') {
       const form = target.closest('form');
-      target.closest('.step-row')?.remove();
+      const row = target.closest('.step-row');
+      const restoreFocus = document.activeElement === target;
+      const removedIndex = [...form.querySelectorAll('.step-row')].indexOf(row);
+      row?.remove();
       renumberSteps(content);
       updatePreview(content);
       actions.setDirty(true, formDirtyKey(form));
+      if (restoreFocus) {
+        const remainingRows = [...form.querySelectorAll('.step-row')];
+        const nextRow = remainingRows[Math.min(removedIndex, remainingRows.length - 1)];
+        (nextRow?.querySelector('[name="stepName"]') ?? form.querySelector('[data-action="add-step"]'))?.focus();
+      }
       return;
     }
     if (action === 'copy-recipe') {
@@ -474,7 +496,7 @@ export function bindEvents({ page, nav, connectionForm, tokenInput, scheduleToke
       if (!source) return;
       const form = navigateAndGetForm(view, content, '/recipes/new', 'recipes');
       if (!form) return;
-      for (const key of ['name', 'dripper', 'dose', 'grind', 'grinder', 'grinderSetting', 'extractionGuide', 'microns', 'temperature', 'totalWater']) {
+      for (const key of ['name', 'dripper', 'dose', 'grind', 'grinder', 'grinderSetting', 'extractionGuide', 'microns', 'temperature']) {
         if (form.elements[key]) form.elements[key].value = source[key] ?? '';
       }
       form.elements.name.value = `${source.name} 복사`;

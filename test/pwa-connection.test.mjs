@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { createAppController } from '../pwa/ui/controller.mjs';
 
 const CONNECTION = { token: 'secret-token', dataSources: { beans: '11111111-1111-4111-8111-111111111111', bags: '22222222-2222-4222-8222-222222222222', recipes: '33333333-3333-4333-8333-333333333333', steps: '44444444-4444-4444-8444-444444444444', records: '55555555-5555-4555-8555-555555555555' } };
@@ -10,7 +11,7 @@ function harness({ verify = async () => true, readAll = async () => ({ beans: []
   lockBusyCount = 0, lockBusyAlways = false, inspectionError = null } = {}) {
   const events = [];
   let lockAttempts = 0;
-  const view = { currentRoute() { return '/beans'; }, showConnection(value) { events.push(['connection', value]); }, showStatus(value) { events.push(['status', value]); }, renderData() {}, clearSecret() { events.push(['clear']); }, showConnectionSuccess() { events.push(['connection-success']); } };
+  const view = { currentRoute() { return '/beans'; }, showConnection(value) { events.push(['connection', value]); }, showStatus(value) { events.push(['status', value]); }, renderData() {}, clearSecret() { events.push(['clear']); }, showConnectionSuccess() { events.push(['connection-success']); }, showUnresolved(value) { events.push(['unresolved', value]); }, setDraftScope(scope) { events.push(['draft-scope', scope]); } };
   const context = { async inspect() { events.push(['inspect']); if (inspectionError) throw Object.freeze({ code: inspectionError }); return inspection; }, async readJournal() { return journal; }, async beginConnectionChange(value) { events.push(['begin', value.revision]); }, async commitConnectionChange() { events.push(['commit']); }, async confirmConnection(value) { events.push(['confirm', value.originalConfirmed]); }, async confirmResolution(key, options) { events.push(['confirm-resolution']); return options.freshRead(resolutionOperation); } };
   const state = { async withWriteLock(action) {
     events.push(['lock']);
@@ -38,6 +39,51 @@ test('connection verifies under the write lock before durable commit and never e
   assert.ok(names.indexOf('commit') < names.indexOf('connection-success'), 'feedback follows the durable commit');
   assert.equal(env.controller.getState().connected, true);
   assert.equal(JSON.stringify(env.events).includes('secret-token'), false);
+});
+
+test('active connection scopes form drafts by revision and source fingerprint', async () => {
+  const env = harness();
+  assert.equal(await env.controller.connect(CONNECTION), true);
+
+  const canonical = Object.fromEntries(['beans', 'recipes', 'steps', 'records']
+    .map(key => [key, CONNECTION.dataSources[key]]).sort(([left], [right]) => left.localeCompare(right)));
+  const expectedFingerprint = createHash('sha256').update(JSON.stringify(canonical)).digest('hex');
+  const scope = env.events.findLast(([type]) => type === 'draft-scope')?.[1];
+  assert.deepEqual(scope, { revision: REVISION, targetFingerprint: expectedFingerprint });
+});
+
+test('recovery UI receives the operation target, known pages, and recorded update time', async () => {
+  const updatedAt = '2026-11-12T04:05:06.000Z';
+  const env = harness({
+    connection: { ...CONNECTION, revision: REVISION },
+    inspection: { initialized: true, blocked: true },
+    journal: {
+      operations: [{
+        kind: 'delete-bean', status: 'unknown', key: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+        connectionRevision: REVISION, targetFingerprint: 'a'.repeat(64), payloadFingerprint: 'b'.repeat(64),
+        deleteTarget: { kind: 'beans', id: '11111111-1111-4111-8111-111111111111', archiveState: 'unknown' },
+        createdPages: [], updatedAt,
+      }, {
+        kind: 'edit-recipe', status: 'unknown', key: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+        connectionRevision: REVISION, targetFingerprint: 'a'.repeat(64), payloadFingerprint: 'b'.repeat(64),
+        editTarget: { recipeId: '22222222-2222-4222-8222-222222222222', pages: [] },
+        createdPages: [], updatedAt,
+      }],
+      connectionGuard: null, activeConnectionRevision: REVISION,
+    },
+  });
+
+  await env.controller.initialize();
+
+  const operations = env.events.findLast(([type]) => type === 'unresolved')?.[1];
+  const operation = operations[0];
+  assert.equal(operation.targetKind, 'beans');
+  assert.equal(operation.targetId, '11111111-1111-4111-8111-111111111111');
+  assert.deepEqual(operation.createdPages, []);
+  assert.equal(operation.updatedAt, updatedAt);
+  assert.equal(operations[1].targetKind, 'recipes');
+  assert.equal(operations[1].targetId, '22222222-2222-4222-8222-222222222222');
+  assert.equal(JSON.stringify(operation).includes('secret-token'), false);
 });
 
 test('a rejected connection replacement keeps the previously verified connection active', async () => {
@@ -187,7 +233,8 @@ test('initialization does not offer a fresh connection setup for an unexplained 
   assert.equal(await env.controller.initialize(), false);
 
   const latestStatus = env.events.filter(([type]) => type === 'status').at(-1)[1];
-  assert.match(latestStatus.message, /journal/);
+  assert.match(latestStatus.message, /Notion 원본/);
+  assert.doesNotMatch(latestStatus.message, /journal/i);
   assert.equal(env.events.some(([type]) => type === 'verify'), false);
 });
 

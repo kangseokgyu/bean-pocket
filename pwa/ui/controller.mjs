@@ -28,7 +28,7 @@ const SAFE_MESSAGES = Object.freeze({
   'unresolved-operation': '앞선 저장 결과를 먼저 원본에서 확인해 주세요.',
   'connection-mismatch': '연결 파일과 작업 기록이 일치하지 않습니다. 복구가 필요합니다.',
   'connection-save-uncertain': '연결 저장 결과를 확인해야 합니다. 원본 연결 파일을 확인해 주세요.',
-  'state-blocked': '저장 작업 상태를 확인할 수 없어 연결을 중단했습니다. 원본 journal을 확인해 주세요.',
+  'state-blocked': '저장 작업 상태를 확인할 수 없어 연결을 중단했습니다. Notion 원본의 실제 결과를 먼저 확인해 주세요.',
   unknown: '저장 여부 확인이 필요합니다. 다시 제출하지 말고 원본을 확인해 주세요.',
   partial: '일부 항목만 저장되었습니다. 원본을 확인한 뒤 복구를 진행해 주세요.',
   'read-failed': '최신 목록을 불러오지 못했습니다. 연결과 권한을 확인해 주세요.',
@@ -92,6 +92,21 @@ export function createAppController({
 
   function hasDirtyWork() { return dirtyKinds.size > 0; }
 
+  function reconcileDraftDirtyKinds(keys) {
+    if (!Array.isArray(keys)) return;
+    for (const kind of dirtyKinds) {
+      if (isFormDraftKey(kind)) dirtyKinds.delete(kind);
+    }
+    for (const kind of keys) {
+      if (isFormDraftKey(kind)) dirtyKinds.add(kind);
+    }
+  }
+
+  function isFormDraftKey(kind) {
+    return ['beans', 'recipes', 'records', 'brews'].includes(kind) ||
+      (typeof kind === 'string' && kind.startsWith('recipe-edit:'));
+  }
+
   function stateChanged() {
     view.setState?.({ dirty: hasDirtyWork(), pending, frozen, unresolved: unresolvedOperations.length > 0,
       connectionRevision: activeConnection?.revision ?? null });
@@ -100,7 +115,10 @@ export function createAppController({
 
   function setDirty(value, kind = 'form') {
     if (frozen && value) return false;
-    if (value) dirtyKinds.add(kind);
+    if (value) {
+      dirtyKinds.add(kind);
+      if (isFormDraftKey(kind)) view.markDraftEdited?.(kind);
+    }
     else dirtyKinds.delete(kind);
     stateChanged();
     return true;
@@ -114,10 +132,14 @@ export function createAppController({
     unresolvedOperations = operations.filter(operation => ['unknown', 'partial'].includes(operation.status));
     view.showUnresolved?.(unresolvedOperations.map(operation => ({
       kind: operation.kind,
-      targetKind: operation.deleteTarget?.kind ?? operation.favoriteTarget?.kind,
+      targetKind: operation.deleteTarget?.kind ?? operation.favoriteTarget?.kind ??
+        (operation.editTarget ? 'recipes' : operation.updateTarget?.kind),
+      targetId: operation.deleteTarget?.id ?? operation.favoriteTarget?.id ?? operation.editTarget?.recipeId ?? operation.updateTarget?.id,
       favorite: operation.favoriteTarget?.favorite,
       editTarget: operation.editTarget ? { recipeId: operation.editTarget.recipeId,
         createdStepCount: operation.editTarget.pages.filter(page => page.action === 'create').length } : null,
+      createdPages: operation.createdPages.map(page => ({ kind: page.kind, id: page.id })),
+      updatedAt: operation.updatedAt,
       status: operation.status,
       knownPageCount: operation.createdPages.length,
       resolve: resolution => resolveOperation(operation.key, resolution),
@@ -134,7 +156,9 @@ export function createAppController({
     }
   }
 
-  function install(connection, nextClient, nextRepository, nextCommands) {
+  async function install(connection, nextClient, nextRepository, nextCommands) {
+    const draftScope = UUID.test(connection.revision) ? { revision: connection.revision,
+      targetFingerprint: await fingerprint(connection.dataSources) } : null;
     routeReadController?.abort();
     routeGeneration += 1;
     screenCache.clear();
@@ -147,12 +171,16 @@ export function createAppController({
     client = nextClient;
     repository = nextRepository;
     commands = nextCommands;
+    const restoredDraftKeys = await view.setDraftScope?.(draftScope);
+    reconcileDraftDirtyKinds(restoredDraftKeys);
     view.clearSearchOptions?.();
     view.showConnection?.({ connected: true });
     stateChanged();
   }
 
-  function dropConnectionData() {
+  async function dropConnectionData() {
+    const remainingDraftKeys = await view.setDraftScope?.(null);
+    reconcileDraftDirtyKinds(remainingDraftKeys);
     routeReadController?.abort();
     routeReadController = null;
     routeGeneration += 1;
@@ -610,12 +638,12 @@ export function createAppController({
       if (!loaded) {
         activeConnection = null;
         client = repository = commands = null;
-        dropConnectionData();
+        await dropConnectionData();
         view.showConnection?.({ connected: false });
         view.showStatus?.({ type: 'disconnected', message: 'Notion 연결 정보를 입력해 주세요.' });
         return null;
       }
-      install(loaded.connection, loaded.nextClient, loaded.nextRepository, loaded.nextCommands);
+      await install(loaded.connection, loaded.nextClient, loaded.nextRepository, loaded.nextCommands);
       try { await readLatest({ skipVerify: true }); } catch { /* A verified connection remains usable when its first read fails. */ }
       return true;
     } catch (error) {
@@ -631,7 +659,7 @@ export function createAppController({
       if (needsRecovery || error?.code === 'state-blocked') {
         activeConnection = null;
         client = repository = commands = null;
-        dropConnectionData();
+        await dropConnectionData();
       }
       view.showStatus?.({ type: 'connection-error', message: needsRecovery || error?.code === 'state-blocked'
         ? messageFor(error)
@@ -684,7 +712,7 @@ export function createAppController({
         await context.beginConnectionChange(candidate);
         await context.commitConnectionChange();
       });
-      install(candidate, stack.nextClient, stack.nextRepository, stack.nextCommands);
+      await install(candidate, stack.nextClient, stack.nextRepository, stack.nextCommands);
       view.clearSecret?.();
       dirtyKinds.delete('connection');
       view.showConnectionSuccess?.();
@@ -697,7 +725,7 @@ export function createAppController({
       if (uncertain) {
         activeConnection = null;
         client = repository = commands = null;
-        dropConnectionData();
+        await dropConnectionData();
       }
       view.showConnection?.({
         connected: !!activeConnection,
@@ -1010,7 +1038,8 @@ export function createAppController({
     };
     pending = true;
     stateChanged();
-    const deleting = Boolean(DELETE_TARGET_BY_OPERATION[kind]);
+    const deleteSection = DELETE_TARGET_BY_OPERATION[kind];
+    const deleting = Boolean(deleteSection);
     view.showStatus?.({ type: 'saving', message: deleting ? '삭제 중입니다.' : '저장 중입니다.' });
     try {
       if (favorite) await client.verify([favoriteSource]);
@@ -1046,6 +1075,10 @@ export function createAppController({
           releasePending();
           void readLatest({ skipVerify: true, suppressCompletion: true }).catch(() => {});
           return result;
+        }
+        if ((deleteSection === 'beans' || deleteSection === 'recipes') &&
+            routeLocation(currentRoute()).path === `/${deleteSection}/${payload.id}`) {
+          view.renderRoute?.(`/${deleteSection}`, { replaceHistory: true, notify: false });
         }
         stateChanged();
         let deleteMessage = '삭제했습니다.';

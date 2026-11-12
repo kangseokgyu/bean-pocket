@@ -146,7 +146,7 @@ function sameRecipeSource(first, second) {
 function normalizedRecipeInput(value) {
   const input = inputObject(value, '레시피');
   delete input.beanId;
-  return validateRecipe(input);
+  return validateRecipe(input, { deriveTotalWater: true });
 }
 
 function normalizedRecordInput(value) {
@@ -265,7 +265,7 @@ export function createCommands({ client, repository, submissionState } = {}) {
       step && Object.hasOwn(step, 'id') && step.id !== '' ? normalizedId(step.id, '레시피 단계') : null) : null;
     delete changes.beanId;
     delete changes.id;
-    const validated = validateRecipe(changes);
+    const validated = validateRecipe(changes, { deriveTotalWater: true });
     if (!requestedStepIds || requestedStepIds.length !== validated.steps.length) throw new InputError('레시피 단계를 확인해 주세요.');
     const knownStepIds = new Set(originalSteps.map(step => step.id));
     const reusedStepIds = requestedStepIds.filter(Boolean);

@@ -48,10 +48,10 @@ function matchesFilter(row, filter) {
   return true;
 }
 
-export function fakePwaNotion({ missingProperties = {}, strictProjection = false } = {}) {
-  const rows = [];
+export function fakePwaNotion({ missingProperties = {}, strictProjection = false, initialRows = [] } = {}) {
+  const rows = initialRows.map(row => JSON.parse(JSON.stringify(row)));
   const calls = [];
-  let sequence = 0;
+  let sequence = rows.reduce((largest, row) => Math.max(largest, Number(String(row.id).slice(-12)) || 0), 0);
   const fake = { rows, calls, intercept: null, async fetch(url, options = {}) {
     const requestUrl = new URL(url);
     const pathname = requestUrl.pathname;

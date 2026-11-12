@@ -1,0 +1,16 @@
+TAP version 13
+# Subtest: record comparison links open analysis while plain records navigation opens the list
+ok 1 - record comparison links open analysis while plain records navigation opens the list
+  ---
+  duration_ms: 44.155208
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 167.16525

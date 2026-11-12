@@ -108,7 +108,7 @@ export function createStatusToast(document, page, { isPending, hideForDialog, on
 
   function scheduleHide() {
     cancelHide();
-    if (isPending() || IN_PROGRESS_STATUS_TYPES.has(statusType) || !statusMessageText) return;
+    if (isPending() || !COMPLETED_STATUS_TYPES.has(statusType) || !statusMessageText) return;
     statusHideTimer = setTimeout(() => {
       if (isPending()) return;
       statusMessageText = '';

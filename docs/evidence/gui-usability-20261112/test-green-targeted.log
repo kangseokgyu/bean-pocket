@@ -1,0 +1,87 @@
+TAP version 13
+# (node:77890) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: errors and recovery notices stay visible until cleared or replaced
+ok 1 - errors and recovery notices stay visible until cleared or replaced
+  ---
+  duration_ms: 14.956292
+  type: 'test'
+  ...
+# Subtest: brew conditions start summarized while assessment and save remain reachable
+not ok 2 - brew conditions start summarized while assessment and save remain reachable
+  ---
+  duration_ms: 31.603709
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/gui-usability/AX-1day/test/pwa-ui.view.test.mjs:5897:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(form.querySelector('h3').textContent.includes('이번 추출과 평가 기록'))
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/gui-usability/AX-1day/test/pwa-ui.view.test.mjs:5908:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+  ...
+# Subtest: records opens on the list tab and keeps filters and management available beside analysis
+not ok 3 - records opens on the list tab and keeps filters and management available beside analysis
+  ---
+  duration_ms: 18.79575
+  type: 'test'
+  location: '/Users/kangseokgyu/.codex/worktrees/gui-usability/AX-1day/test/pwa-ui.view.test.mjs:5928:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/gui-usability/AX-1day/test/pwa-ui.view.test.mjs:5950:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: one or zero records use short analysis guidance instead of a chart and two-record selectors
+ok 4 - one or zero records use short analysis guidance instead of a chart and two-record selectors
+  ---
+  duration_ms: 13.931166
+  type: 'test'
+  ...
+# Subtest: deletion moves from list cards to detail or more, with 44px action targets
+ok 5 - deletion moves from list cards to detail or more, with 44px action targets
+  ---
+  duration_ms: 11.95225
+  type: 'test'
+  ...
+# Subtest: bean list omits empty metadata while bean detail still identifies unrecorded fields
+ok 6 - bean list omits empty metadata while bean detail still identifies unrecorded fields
+  ---
+  duration_ms: 2.82775
+  type: 'test'
+  ...
+# Subtest: record helper text uses a readable 13px size without duplicate scope instructions
+ok 7 - record helper text uses a readable 13px size without duplicate scope instructions
+  ---
+  duration_ms: 8.934083
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 5
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 269.188584

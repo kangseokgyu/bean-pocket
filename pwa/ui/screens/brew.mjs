@@ -223,7 +223,7 @@ function renderBrewRun(pane, data, document, route, params) {
     brewSelectionSummary(document, 'recipe', '출처 조건', recipe.name || '기록 당시 조건', '레시피 선택',
       `/brew/recipe?beanId=${encodeURIComponent(bean.id)}&selectedRecipeId=${encodeURIComponent(recipeId ?? '')}`, 'back-to-recipes'),
   );
-  pane.append(make(document, 'p', '이번 추출에 실제로 사용할 조건을 확인하고 바꾸세요. 저장된 기록에는 아래 전체 조건이 들어갑니다.', 'brew-edit-intro'));
+  pane.append(make(document, 'p', '조건을 확인한 뒤 추출 평가를 저장하세요.', 'brew-edit-intro'));
   const form = formBase(document, 'brews', '이번 추출과 평가 기록');
   form.dataset.draftRoute = route;
   const hidden = (name, value) => {
@@ -234,7 +234,14 @@ function renderBrewRun(pane, data, document, route, params) {
   const sourceId = sourceRecord ? recipeIdFromRecord(sourceRecord) : recipeId;
   form.append(hidden('beanId', bean.id), hidden('sourceRecipeId', sourceId),
     hidden('sourceRecordId', sourceRecord?.id ?? params.get('sourceRecordId') ?? ''));
-  addFieldset(document, form, '추출 조건', [
+  const conditions = make(document, 'details', undefined, 'brew-conditions');
+  conditions.dataset.brewConditions = '';
+  conditions.open = false;
+  const summary = make(document, 'summary');
+  summary.dataset.brewSummary = '';
+  conditions.append(summary);
+  form.append(conditions);
+  addFieldset(document, conditions, '추출 조건', [
     ['조건 이름', 'name', 'text', true],
     ['드리퍼', 'dripper', 'text', false],
     ['원두량 (g)', 'dose', 'number', true, { min: 0, step: 'any' }],
@@ -250,12 +257,12 @@ function renderBrewRun(pane, data, document, route, params) {
   for (const key of ['dripper', 'dose', 'grind', 'grinder', 'grinderSetting', 'microns', 'temperature', 'totalWater']) {
     form.elements[key].value = recipe[key] ?? '';
   }
-  form.append(label(document, '추출 가이드', 'extractionGuide', 'textarea', false, { rows: 3 }));
+  conditions.append(label(document, '추출 가이드', 'extractionGuide', 'textarea', false, { rows: 3 }));
   form.elements.extractionGuide.value = recipe.extractionGuide ?? '';
   const changes = make(document, 'p', '공용 레시피 조건 그대로', 'brew-condition-changes');
   changes.dataset.brewChanges = '';
   changes.setAttribute('aria-live', 'polite');
-  form.append(changes);
+  conditions.append(changes);
   const stages = make(document, 'section', undefined, 'brew-edit-stages');
   stages.append(make(document, 'h3', '물 붓기 단계'));
   const stageList = make(document, 'div', undefined, 'brew-stage-list');
@@ -265,9 +272,9 @@ function renderBrewRun(pane, data, document, route, params) {
   total.dataset.brewStageTotal = '';
   total.setAttribute('aria-live', 'polite');
   stages.append(total);
-  form.append(stages);
+  conditions.append(stages);
   recipe.steps.forEach((step, index) => addBrewStage(document, stageList, step, index));
-  form.append(make(document, 'h3', '추출 평가'));
+  form.append(make(document, 'h3', '이번 추출과 평가 기록'));
   form.append(label(document, '추출 날짜', 'date', 'date', true));
   form.append(createStarRating(document));
   form.append(label(document, '컵노트 (선택)', 'cupNote', 'textarea', false));
@@ -275,6 +282,8 @@ function renderBrewRun(pane, data, document, route, params) {
   form.dataset.initialConditions = JSON.stringify(brewRecipeInput(form));
   addFormActions(document, form);
   const save = form.querySelector('[data-entry-submit]');
+  if (save) save.parentElement.className += ' brew-run-actions';
+  form.addEventListener('invalid', () => { conditions.open = true; }, true);
   if (save) { save.dataset.idleLabel = '추출 평가 저장'; setActionButton(save, '추출 평가 저장', 'idle'); }
   updateBrewConditions(form);
   pane.append(form);
@@ -319,6 +328,8 @@ function brewRecipeInput(form) {
 
 export function updateBrewConditions(form) {
   const actual = brewRecipeInput(form);
+  const summary = form.querySelector('[data-brew-summary]');
+  if (summary) summary.textContent = `${actual.dose || '—'}g · ${actual.temperature || '—'}℃ · 물 ${actual.totalWater || '—'}g · 조건 수정`;
   const initial = JSON.parse(form.dataset.initialConditions || '{}');
   const labels = { name: '조건 이름', dripper: '드리퍼', dose: '원두량', grind: '분쇄도', grinder: '그라인더',
     grinderSetting: '그라인더 설정', microns: '분쇄 입자', temperature: '물 온도', totalWater: '총 물 양',

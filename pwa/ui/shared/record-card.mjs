@@ -23,8 +23,11 @@ export function recordCard(document, record, data) {
   const recipeName = recipe?.name || snapshotRecipe?.name || (record.recipeNameStatus === 'loading'
     ? '레시피 이름 확인 중' : record.recipeNameStatus === 'error' ? '레시피 이름 불러오기 실패' : '확인할 수 없는 레시피');
   const header = make(document, 'div', undefined, 'entity-card-header');
-  header.append(make(document, 'h3', `${record.date || '날짜 확인 필요'} · ${beanName}`),
+  header.append(make(document, 'h3', `${record.date || '날짜 확인 필요'} · ${beanName}`));
+  const more = make(document, 'details', undefined, 'record-card-more');
+  more.append(make(document, 'summary', '더보기'),
     trashButton(document, 'records', record.id, recordName(record, recipe, snapshotRecipe)));
+  header.append(more);
   card.append(header);
   card.append(make(document, 'p', `레시피: ${recipeName} · ${record.rating ?? '별점 확인 필요'}/5 ${validRating ? '★'.repeat(record.rating) : ''}`));
   const nameNotes = [

@@ -11,13 +11,28 @@ export function renderRecords(pane, data, document, form, formOpen, optionPages,
   setManagementOpen = () => {}) {
   form.id = 'new-record-form';
   pane.append(makeEntryDialog(document, 'records', form, formOpen));
-  const management = make(document, 'details', undefined, 'record-management');
-  management.open = managementOpen;
-  management.addEventListener('toggle', () => setManagementOpen(management.open));
-  const managementHeading = make(document, 'summary', undefined, 'record-management-summary');
-  managementHeading.append(make(document, 'strong', '전체 기록 조회·관리'));
-  managementHeading.append(make(document, 'span', `${data.records?.length ?? 0}건 표시 · 검색, 필터와 삭제`));
-  management.append(managementHeading);
+  const tabs = make(document, 'div', undefined, 'records-tabs');
+  tabs.setAttribute('aria-label', '기록 보기');
+  const management = make(document, 'section', undefined, 'record-management');
+  management.dataset.recordsPanel = 'list';
+  const analysis = make(document, 'section');
+  analysis.dataset.recordsPanel = 'analysis';
+  const controls = [];
+  const selectPanel = name => {
+    management.hidden = name !== 'list';
+    analysis.hidden = name !== 'analysis';
+    for (const control of controls) control.setAttribute('aria-pressed', String(control.dataset.recordsTab === name));
+    setManagementOpen(name === 'analysis');
+  };
+  for (const [name, title] of [['list', '목록'], ['analysis', '분석']]) {
+    const control = button(document, title, 'button', undefined, 'secondary');
+    control.dataset.recordsTab = name;
+    control.addEventListener('click', () => selectPanel(name));
+    controls.push(control);
+    tabs.append(control);
+  }
+  selectPanel(managementOpen ? 'analysis' : 'list');
+  pane.append(tabs, management, analysis);
   const managementBody = make(document, 'div', undefined, 'record-management-body');
 
   const filters = make(document, 'fieldset', undefined, 'record-filters');
@@ -45,8 +60,6 @@ export function renderRecords(pane, data, document, form, formOpen, optionPages,
   reset.disabled = !selectedFilters.beanId && !selectedFilters.recipeId;
   filters.append(reset);
   managementBody.append(filters);
-  managementBody.append(make(document, 'p', '아래 서버 필터와 페이지는 이 관리 목록에만 적용됩니다. 그래프와 비교 요약은 불러온 인사이트 범위를 사용합니다.',
-    'record-insights-table-note'));
   managementBody.append(make(document, 'h3', '전체 기록 목록', 'record-table-heading'));
 
   const list = make(document, 'div', undefined, 'record-list');
@@ -56,8 +69,8 @@ export function renderRecords(pane, data, document, form, formOpen, optionPages,
   pageMore.dataset.recordPageMore = '';
   managementBody.append(pageMore);
   management.append(managementBody);
-  renderRecordsInsights(pane, data, document, insightRecipeFilter, insightRatingFilter, insightComparisonSort,
-    comparisonLeftId, comparisonRightId, management);
+  renderRecordsInsights(analysis, data, document, insightRecipeFilter, insightRatingFilter, insightComparisonSort,
+    comparisonLeftId, comparisonRightId);
   renderRecordRows(list, data, selectedFilters.beanId ?? '', selectedFilters.recipeId ?? '');
 }
 

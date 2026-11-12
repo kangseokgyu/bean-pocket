@@ -10,6 +10,7 @@ import { renderBeans, renderBeanDetail } from '../pwa/ui/screens/beans.mjs';
 import { renderRecipes, renderRecipeDetail } from '../pwa/ui/screens/recipes.mjs';
 import { buildBeanForm } from '../pwa/ui/forms/bean-form.mjs';
 import { addStep, buildRecipeForm, recipePayload, setSteps, updatePreview } from '../pwa/ui/forms/recipe-form.mjs';
+import { brewPayload } from '../pwa/ui/screens/brew.mjs';
 
 const BEAN = '11111111-1111-4111-8111-111111111111';
 const RECIPE = '33333333-3333-4333-8333-333333333333';
@@ -557,7 +558,7 @@ for (const outcome of ['navigation', 'refresh', 'error', 'cancelled']) {
     t.mock.timers.tick(999);
     assert.equal(status.hidden, false);
     t.mock.timers.tick(1);
-    assert.equal(status.hidden, true);
+    assert.equal(status.hidden, outcome !== 'error' && outcome !== 'cancelled');
   });
 }
 
@@ -614,7 +615,7 @@ test('successful status messages stay visible for one second then hide', t => {
   const document = new TestDocument();
   const view = createBeanView(document);
   const status = document.root.querySelector('.app-status');
-  for (const type of ['connected', 'saved', 'resolved', 'cancelled']) {
+  for (const type of ['connected', 'saved', 'resolved']) {
     view.showStatus({ type, message: '완료했습니다.' });
     assert.equal(status.hidden, false);
     assert.equal(status.textContent, '완료했습니다.');
@@ -626,7 +627,7 @@ test('successful status messages stay visible for one second then hide', t => {
   }
 });
 
-test('errors and recovery notices hide one second after replacing success', t => {
+test('errors and recovery notices stay visible until cleared or replaced', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const document = new TestDocument();
   const view = createBeanView(document);
@@ -637,10 +638,10 @@ test('errors and recovery notices hide one second after replacing success', t =>
     view.showStatus({ type: 'connected', message: '완료' });
     t.mock.timers.tick(500);
     view.showStatus({ type, message: '확인이 필요합니다.' });
-    t.mock.timers.tick(999);
+    t.mock.timers.tick(10000);
     assert.equal(status.hidden, false, type);
     assert.equal(status.textContent, '확인이 필요합니다.');
-    t.mock.timers.tick(1);
+    view.clearStatus();
     assert.equal(status.hidden, true, type);
     assert.equal(status.popoverOpen, false, type);
   }
@@ -786,7 +787,7 @@ test('pending operations use the existing toast and retain the top pull-to-refre
   assert.equal(connectionToggle.disabled, true, 'pending work still disables connection controls');
 });
 
-test('pending toast stays visible through success, ready and timeout, then clears after completion or failure', t => {
+test('pending toast stays visible through success, ready and timeout, then clears success and retains failure', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const document = new TestDocument();
   const { body, page } = mountInPage(document);
@@ -827,7 +828,9 @@ test('pending toast stays visible through success, ready and timeout, then clear
   assert.equal(status.textContent, '입력 내용을 확인해 주세요.');
   t.mock.timers.tick(999);
   assert.equal(status.hidden, false);
-  t.mock.timers.tick(1);
+  t.mock.timers.tick(10000);
+  assert.equal(status.hidden, false);
+  view.clearStatus();
   assert.equal(status.hidden, true);
 });
 
@@ -2131,6 +2134,7 @@ test('bean deletion opens a safe native dialog and restores focus after cancel o
   view.renderData(data());
   const calls = [];
   view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }), submit: async (...args) => calls.push(args) });
+  view.renderRoute(`/beans/${BEAN}`);
   const trash = document.root.querySelector('[data-action="delete-bean"]');
   assert.ok(trash);
   assert.equal(trash.type, 'button');
@@ -2191,7 +2195,8 @@ test('dismissing a deletion result preserves its notice for button and Escape', 
             view.showStatus({ type: result.toastType, message: result.message });
             return { status: result.status, message: result.message };
           } });
-        const trash = document.root.querySelector('[data-action="delete-bean"]');
+        view.renderRoute(`/beans/${BEAN}`);
+  const trash = document.root.querySelector('[data-action="delete-bean"]');
         const dialog = document.root.querySelector('.delete-confirm-dialog');
         await clickViewTarget(document, trash);
         await clickViewTarget(document, dialog.querySelector('[data-action="confirm-delete"]'));
@@ -2222,8 +2227,8 @@ test('bean, recipe, and record deletes submit only after the custom dialog is co
     submit: async (...args) => { calls.push(args); return { status: 'succeeded' }; } });
   assert.equal(Boolean(document.root.querySelector('[data-action="delete-bag"]')), false);
   const cases = [
-    ['/beans', 'delete-bean', '원두 <안전>', BEAN, '원두를 삭제할까요?'],
-    ['/recipes', 'delete-recipe', 'V60', RECIPE, '레시피를 삭제할까요?'],
+    [`/beans/${BEAN}`, 'delete-bean', '원두 <안전>', BEAN, '원두를 삭제할까요?'],
+    [`/recipes/${RECIPE}`, 'delete-recipe', 'V60', RECIPE, '레시피를 삭제할까요?'],
     ['/records', 'delete-record', '2026-06-15 · V60', '66666666-6666-4666-8666-666666666666', '추출 기록을 삭제할까요?'],
   ];
   for (const [route, action, name, id, heading] of cases) {
@@ -2234,7 +2239,7 @@ test('bean, recipe, and record deletes submit only after the custom dialog is co
     assert.equal(trash.getAttribute('aria-label'), `${name} 삭제`);
     assert.ok(trash.querySelector('svg'));
     assert.equal(trash.dataset.name, name);
-    assert.match(trash.parentElement.className, /entity-card-header/);
+    assert.match(trash.parentElement.className, action === 'delete-record' ? /record-card-more/ : /recipe-header-actions|entity-card-header/);
 
     const dialog = document.root.querySelector('.delete-confirm-dialog');
     await clickViewTarget(document, trash.querySelector('svg'));
@@ -2270,7 +2275,7 @@ test('recipe deletion omits its success message and preserves warnings and error
     const document = new TestDocument();
     const view = createAppView(document, { schedule: () => 1 });
     view.renderData(data());
-    view.renderRoute('/recipes');
+    view.renderRoute(`/recipes/${RECIPE}`);
     view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }) });
     await clickViewTarget(document, document.root.querySelector('[data-action="delete-recipe"]'));
     assert.equal(view.showDeleteResult(result), true);
@@ -2299,6 +2304,7 @@ test('bean delete button spinner replaces its progress toast, locks duplicates, 
       view.showStatus({ type: 'saving', message: '삭제 중입니다.' });
       return pending;
     } });
+  view.renderRoute(`/beans/${BEAN}`);
   const trash = document.root.querySelector('[data-action="delete-bean"]');
   const dialog = document.root.querySelector('.delete-confirm-dialog');
   await clickViewTarget(document, trash);
@@ -2328,7 +2334,7 @@ test('bean delete button spinner replaces its progress toast, locks duplicates, 
 });
 
 test('recipe and record delete spinners replace only their progress toast', async () => {
-  for (const [route, action] of [['/recipes', 'delete-recipe'], ['/records', 'delete-record']]) {
+  for (const [route, action] of [[`/recipes/${RECIPE}`, 'delete-recipe'], ['/records', 'delete-record']]) {
     const document = new TestDocument(), view = createBeanView(document);
     view.showConnection({ connected: true });
     view.renderData(data());
@@ -2392,7 +2398,7 @@ test('bean details group all bean metadata and records inside the recipe card hi
     ['품종', '프로세싱', '향미 노트']);
   assert.deepEqual(detail.querySelectorAll('.record-card').map(card => card.querySelector('h3').textContent),
     ['2026-06-20 · 원두 <안전>', '2026-06-15 · 원두 <안전>']);
-  assert.equal(detail.querySelector('[data-action="delete-bean"]'), null);
+  assert.ok(detail.querySelector('[data-action="delete-bean"]'));
   assert.equal(detail.querySelector('[data-action="copy-recipe"]'), null);
 });
 
@@ -2410,7 +2416,7 @@ test('bean details keep empty, loading, and incomplete record states distinct', 
   }
 });
 
-test('bean cards keep missing metadata explicit and render values as text', () => {
+test('bean cards omit missing metadata and render recorded values as text', () => {
   const document = new TestDocument();
   const view = createBeanView(document);
   const rows = data();
@@ -2418,7 +2424,7 @@ test('bean cards keep missing metadata explicit and render values as text', () =
   view.renderData(rows);
   const card = document.root.querySelector('.bean-card');
   assert.deepEqual(card.querySelectorAll('dd').map(node => node.textContent),
-    ['기록 없음', '<img src=x onerror=alert(1)>', '기록 없음', '기록 없음', '기록 없음']);
+    ['<img src=x onerror=alert(1)>']);
   assert.equal(card.querySelector('img'), null);
 });
 
@@ -2599,7 +2605,8 @@ test('inline entry and delete success stay in their dialogs without completion t
   assert.equal(status.hidden, true, 'closing the entry dialog does not restore a completion toast');
 
   for (const dismissal of ['automatic', 'manual']) {
-    const trash = document.root.querySelector('[data-action="delete-bean"]');
+    view.renderRoute(`/beans/${BEAN}`);
+  const trash = document.root.querySelector('[data-action="delete-bean"]');
     await clickViewTarget(document, trash);
     const dialog = document.root.querySelector('.delete-confirm-dialog');
     await clickViewTarget(document, dialog.querySelector('[data-action="confirm-delete"]'));
@@ -3421,8 +3428,8 @@ test('bean cards open their records through a full-card native link without a re
   assert.ok(link, 'the bean title is a keyboard-accessible native link');
   assert.equal(link.getAttribute('href'), `#/beans/${BEAN}`);
   assert.equal(link.getAttribute('aria-label'), '원두 <안전> 추출 기록 보기');
-  assert.equal(card.querySelectorAll('button').length, 2, 'bookmark and delete remain independent of the card link');
-  assert.ok(card.querySelector('[data-action="delete-bean"]'));
+  assert.equal(card.querySelectorAll('button').length, 1, 'bookmark remains independent of the card link');
+  assert.equal(card.querySelector('[data-action="delete-bean"]'), null);
   assert.ok(card.textContent.includes('추출 기록 1개'));
   const css = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
   assert.match(css, /\.bean-card-link::after\s*\{[^}]*inset:\s*0/s);
@@ -3431,15 +3438,16 @@ test('bean cards open their records through a full-card native link without a re
   assert.ok(document.root.textContent.includes('꿀, 살구'));
 });
 
-test('bean card deletion never opens records, including clicks on its icon', async () => {
+test('bean detail deletion stays on the detail surface, including clicks on its icon', async () => {
   const document = new TestDocument();
   const view = createBeanView(document);
   view.renderData(data());
   view.bind({});
+  view.renderRoute(`/beans/${BEAN}`);
   const trash = document.root.querySelector('[data-action="delete-bean"]');
   await clickViewTarget(document, trash.querySelector('svg'));
-  assert.ok(document.root.querySelector('.bean-card'));
-  assert.equal(document.root.querySelectorAll('h4').some(node => node.textContent === '이 원두의 추출 기록'), false);
+  assert.ok(document.root.querySelector('.bean-detail-card'));
+  assert.equal(document.root.querySelectorAll('h4').some(node => node.textContent === '이 원두의 추출 기록'), true);
   assert.equal(document.root.querySelector('.delete-confirm-dialog').open, true);
 });
 
@@ -3494,8 +3502,8 @@ test('recipe list cards link their entire surface to details without a details b
   assert.ok(link, 'recipe title is a native keyboard-accessible link');
   assert.equal(link.getAttribute('href'), `#/recipes/${RECIPE}`);
   assert.equal(link.getAttribute('aria-label'), 'V60 상세 보기');
-  assert.equal(card.querySelectorAll('button').length, 2, 'bookmark and delete remain independent of the card link');
-  assert.ok(card.querySelector('[data-action="delete-recipe"]'));
+  assert.equal(card.querySelectorAll('button').length, 1, 'bookmark remains independent of the card link');
+  assert.equal(card.querySelector('[data-action="delete-recipe"]'), null);
   assert.deepEqual(Object.fromEntries(card.querySelectorAll('.recipe-metric').map(metric => [
     metric.dataset.metric, metric.querySelector('dd').textContent,
   ])), { dose: '15g', water: '250g', temperature: '93℃', ratio: '1 : 16.7' });
@@ -3506,20 +3514,21 @@ test('recipe list cards link their entire surface to details without a details b
   assert.equal(document.root.querySelector('.recipe-summary-card'), null);
 });
 
-test('recipe list card delete icon stays independent of detail navigation', async () => {
+test('recipe detail delete icon keeps the detail surface open', async () => {
   const document = new TestDocument();
   const view = createBeanView(document);
   view.renderData(data());
   view.renderRoute('/recipes');
   const calls = [];
   view.bind({ submit: async (...args) => { calls.push(args); return { status: 'succeeded' }; } });
+  view.renderRoute(`/recipes/${RECIPE}`);
   const trash = document.root.querySelector('[data-action="delete-recipe"]');
   await clickViewTarget(document, trash.querySelector('svg'));
-  assert.equal(document.root.querySelector('[data-action="copy-recipe"]'), null);
+  assert.ok(document.root.querySelector('[data-action="copy-recipe"]'));
   const dialog = document.root.querySelector('.delete-confirm-dialog');
   assert.equal(dialog.open, true);
   await clickViewTarget(document, dialog.querySelector('[data-action="confirm-delete"]'));
-  assert.equal(document.root.querySelector('[data-action="copy-recipe"]'), null);
+  assert.ok(document.root.querySelector('[data-action="copy-recipe"]'));
   assert.deepEqual(calls, [['delete-recipe', { id: RECIPE }]]);
 });
 
@@ -3605,7 +3614,7 @@ test('records view keeps unfiltered bean insights separate from the filtered tab
     [true], 'only the table respects the active recipe filter');
 });
 
-test('records page follows the demo hierarchy and keeps full record management collapsed below comparisons', () => {
+test('records keeps the analysis hierarchy separate from the default management list', () => {
   const document = new TestDocument();
   const view = createBeanView(document);
   const older = { ...data().records[0], id: 'demo-align-older', date: '2026-10-01', rating: 3 };
@@ -3623,7 +3632,7 @@ test('records page follows the demo hierarchy and keeps full record management c
   assert.equal(layout.children[2].className, 'record-insights-content');
   assert.deepEqual(layout.children[2].children.map(child => child.className), [
     'record-insight-selected-bean', 'record-insight-best-section record-insight-best',
-    'record-insight-comparisons', 'record-management',
+    'record-insight-comparisons',
   ]);
   const table = layout.querySelector('.record-insight-comparison-table');
   assert.ok(table);
@@ -3631,8 +3640,8 @@ test('records page follows the demo hierarchy and keeps full record management c
     .map(row => row.dataset.insightRecordId), ['demo-align-newer', 'demo-align-older']);
   assert.deepEqual(table.querySelector('thead').querySelectorAll('th').map(cell => cell.textContent),
     ['추출일', '레시피', '기록 당시 조건 · 분쇄 · 온도 · 도징 · 물', '평가', '컵노트']);
-  const management = layout.querySelector('.record-management');
-  assert.equal(management.open, false);
+  const management = document.root.querySelector('.record-management');
+  assert.equal(management.hidden, false);
   assert.ok(management.querySelector('[data-record-filter="recipeId"]'));
   assert.ok(management.querySelector('[data-action="delete-record"]'));
 });
@@ -3825,7 +3834,7 @@ test('legacy record management remains available when bounded insights have not 
 
   const management = document.root.querySelector('.record-management');
   assert.ok(management);
-  assert.equal(management.open, false);
+  assert.equal(management.hidden, false);
   assert.ok(management.querySelector('[data-record-filter="beanId"]'));
   assert.ok(management.querySelector('[data-record-filter="recipeId"]'));
   assert.ok(management.querySelector('.record-card'));
@@ -3847,7 +3856,7 @@ test('insight bean cards expose visible summaries and selected state; empty or u
   assert.match(selectedCard.textContent, /2026-06-15/);
   assert.match(selectedCard.textContent, /V60/);
   assert.match(selectedCard.textContent, /별점 없음/);
-  assert.match(document.root.querySelector('.record-insight-chart-empty').textContent, /유효한 별점 기록이 없습니다/);
+  assert.match(document.root.querySelector('.record-insight-sparse-note').textContent, /두 건 이상/);
   assert.match(document.root.querySelector('.record-insight-best').textContent, /최고 평가 기록이 없습니다/);
 
   const singleDocument = new TestDocument();
@@ -3857,9 +3866,8 @@ test('insight bean cards expose visible summaries and selected state; empty or u
     screen: { route: '/records', complete: true, hasMore: false } });
   singleView.renderRoute('/records');
   const singleChart = singleDocument.root.querySelectorAll('svg').find(svg => svg.getAttribute('role') === 'img');
-  assert.equal(singleChart.querySelectorAll('circle').length, 1);
-  assert.equal(singleChart.querySelector('path'), null,
-    'a one-point trend displays a point without inventing a line');
+  assert.equal(singleChart, undefined, 'one record uses short guidance instead of a chart');
+  assert.ok(singleDocument.root.querySelector('.record-insight-sparse-note'));
 
   const emptyDocument = new TestDocument();
   const emptyView = createBeanView(emptyDocument);
@@ -4708,7 +4716,7 @@ test('bean screen renders list fields, favorite/delete actions, and record count
   const card = pane.querySelector('.bean-card');
   assert.equal(card.querySelector('.bean-card-link').dataset.route, `/beans/${BEAN}`);
   assert.equal(card.querySelector('[data-action="favorite-item"]').dataset.kind, 'beans');
-  assert.equal(card.querySelector('[data-action="delete-bean"]').dataset.id, BEAN);
+  assert.equal(card.querySelector('[data-action="delete-bean"]'), null);
   assert.equal(card.querySelector('.bean-overview').querySelector('.bean-metadata').textContent.includes('복숭아'), true);
   assert.equal(card.querySelector('.bean-summary-meta').textContent, '추출 기록 2개');
 });
@@ -5858,8 +5866,8 @@ test('explicit comparison selects an older fourth bean despite a previous differ
     view.renderRoute(invalidRoute);
     await controller.loadRoute(invalidRoute, { force: true });
     assert.equal(document.root.querySelector('.record-insight-selected-bean').querySelector('h3').textContent, '원두 b');
-    assert.equal(document.root.querySelector('[data-brew-condition-comparison]').querySelector('[data-brew-condition-table]'), null);
-    assert.doesNotMatch(document.root.querySelector('[data-brew-condition-comparison]').textContent, /16 g.*18 g/);
+    assert.equal(document.root.querySelector('[data-brew-condition-table]'), null);
+    assert.doesNotMatch(document.root.querySelector('[data-records-panel="analysis"]').textContent, /16 g.*18 g/);
   }
 });
 
@@ -5892,3 +5900,162 @@ for (const kind of ['beans', 'recipes']) {
     assert.deepEqual(current[kind].map(item => item.id), sourceOrder);
   });
 }
+
+test('brew conditions start summarized while assessment and save remain reachable', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+  view.renderRoute(`/brew/run?beanId=${BEAN}&recipeId=${RECIPE}`);
+  const form = document.root.querySelector('form[data-form="brews"]');
+  const conditions = form.querySelector('[data-brew-conditions]');
+  assert.ok(conditions, 'brew conditions use a disclosure');
+  assert.equal(conditions.open, false, 'long condition fields start collapsed');
+  assert.match(conditions.querySelector('[data-brew-summary]').textContent, /조건 수정/);
+  assert.match(conditions.querySelector('[data-brew-summary]').textContent, /15g.*93℃.*250g/);
+  assert.ok([...form.querySelectorAll('h3')].some(heading => heading.textContent === '이번 추출과 평가 기록'));
+  assert.ok(form.querySelector('[data-entry-submit]').parentElement.className.includes('brew-run-actions'));
+  assert.match(form.querySelector('[data-entry-submit]').textContent, /추출 평가 저장/);
+
+  view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }), setDirty() {} });
+  conditions.open = true;
+  form.elements.dose.value = '16';
+  form.elements.temperature.value = '91';
+  fireBubbling(form.elements.dose, 'input');
+  assert.match(conditions.querySelector('[data-brew-summary]').textContent, /16g.*91℃/);
+  conditions.open = false;
+  assert.equal(form.elements.dose.value, '16', 'collapsing conditions keeps edited inputs');
+  assert.equal(brewPayload(form).actualRecipe.dose, '16', 'the saved actual-condition payload uses the edited value');
+  assert.equal(brewPayload(form).actualRecipe.temperature, '91');
+
+  const stylesheet = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
+  assert.match(stylesheet, /\.brew-run-actions\s*\{[^}]*position:\s*fixed/s,
+    'the mobile assessment action stays reachable while scrolling');
+});
+
+test('records opens on the list tab and keeps filters and management available beside analysis', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  const insights = { ...buildRecordsInsights(current.records, current.beans, BEAN, current.recipes),
+    status: 'ready', loading: false, hasMore: false };
+  view.renderData({ ...current, recordInsights: insights,
+    screen: { route: '/records', complete: true, hasMore: false, filters: {} } });
+  view.renderRoute('/records');
+
+  const listPanel = document.root.querySelector('[data-records-panel="list"]');
+  const analysisPanel = document.root.querySelector('[data-records-panel="analysis"]');
+  assert.ok(listPanel, 'the records list has its own panel');
+  assert.equal(listPanel.hidden, false, 'the list opens by default');
+  assert.equal(analysisPanel.hidden, true, 'analysis is separate from the default list');
+  assert.ok(listPanel.querySelector('[data-record-filter="beanId"]'));
+  assert.ok(listPanel.querySelector('[data-record-filter="recipeId"]'));
+  assert.ok(listPanel.querySelector('.record-card'));
+  assert.ok(listPanel.querySelector('[data-record-page-more]'));
+
+  view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }), setRecordFilters() {} });
+  fireBubbling(document.root.querySelector('[data-records-tab="analysis"]'), 'click');
+  assert.equal(listPanel.hidden, true);
+  assert.equal(analysisPanel.hidden, false);
+  assert.equal(document.root.querySelector('[data-records-tab="analysis"]').getAttribute('aria-pressed'), 'true');
+  view.renderData({ ...current, recordInsights: insights,
+    screen: { route: '/records', complete: true, hasMore: false, filters: {} } });
+  assert.equal(document.root.querySelector('[data-records-panel="analysis"]').hidden, false,
+    'data refresh preserves the active analysis tab');
+  view.renderRoute('/beans');
+  view.renderRoute('/records');
+  assert.equal(document.root.querySelector('[data-records-panel="list"]').hidden, false,
+    'entering records starts on the list tab');
+});
+
+test('one or zero records use short analysis guidance instead of a chart and two-record selectors', () => {
+  for (const records of [[data().records[0]], []]) {
+    const document = new TestDocument();
+    const view = createBeanView(document);
+    const current = data();
+    const insights = { ...buildRecordsInsights(records, current.beans, BEAN, current.recipes),
+      status: 'ready', loading: false, hasMore: false };
+    view.renderData({ ...current, records, recordInsights: insights,
+      screen: { route: '/records', complete: true, hasMore: false } });
+    view.renderRoute('/records');
+    assert.ok(document.root.querySelector('.record-insight-sparse-note'));
+    assert.equal(document.root.querySelector('.rating-trend-chart'), null);
+    assert.equal(document.root.querySelector('[data-brew-condition-comparison]'), null);
+    assert.equal(document.root.querySelector('[data-insight-compare-left]'), null);
+  }
+});
+
+test('deletion moves from list cards to detail or more, with 44px action targets', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderData(data());
+  view.renderRoute('/beans');
+  assert.equal(document.root.querySelector('.bean-card [data-action="delete-bean"]'), null);
+  view.renderRoute(`/beans/${BEAN}`);
+  assert.ok(document.root.querySelector('.bean-detail-card [data-action="delete-bean"]'));
+  view.renderRoute('/recipes');
+  assert.equal(document.root.querySelector('.recipe-summary-card [data-action="delete-recipe"]'), null);
+  view.renderRoute(`/recipes/${RECIPE}`);
+  assert.ok(document.root.querySelector('.recipe-card [data-action="edit-recipe"]'));
+  assert.ok(document.root.querySelector('.recipe-card [data-action="delete-recipe"]'));
+  view.renderRoute('/records');
+  const more = document.root.querySelector('.record-card-more');
+  assert.ok(more, 'record deletion is under a disclosure menu');
+  assert.ok(more.querySelector('[data-action="delete-record"]'));
+
+  const stylesheet = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
+  const actions = stylesheet.match(/\.entity-delete,\s*\.entity-favorite,\s*\.entity-edit\s*\{([^}]*)\}/s);
+  assert.ok(actions);
+  for (const declaration of [
+    /width:\s*44px/,
+    /min-width:\s*44px/,
+    /height:\s*44px/,
+    /min-height:\s*44px/,
+  ]) assert.match(actions[1], declaration);
+  assert.match(stylesheet, /\.record-card-more\s*>\s*summary\s*\{[^}]*min-height:\s*44px/s);
+});
+
+test('bean list omits empty metadata while bean detail still identifies unrecorded fields', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  const sparseBean = { ...current.beans[0], variety: '', process: '', tastingNotes: '' };
+  view.renderData({ ...current, beans: [sparseBean] });
+  view.renderRoute('/beans');
+  const listCard = document.root.querySelector('.bean-card');
+  assert.doesNotMatch(listCard.textContent, /기록 없음|원두 특징/);
+  view.renderRoute(`/beans/${BEAN}`);
+  const detail = document.root.querySelector('.bean-detail-card');
+  assert.match(detail.textContent, /품종.*기록 없음/);
+  assert.match(detail.textContent, /프로세싱.*기록 없음/);
+});
+
+test('record helper text uses a readable 13px size without duplicate scope instructions', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  const insights = { ...buildRecordsInsights(current.records, current.beans, BEAN, current.recipes),
+    status: 'ready', loading: false, hasMore: false };
+  view.renderData({ ...current, recordInsights: insights,
+    screen: { route: '/records', complete: true, hasMore: false } });
+  view.renderRoute('/records');
+  assert.equal(document.root.querySelector('.record-insights-table-note'), null,
+    'the filter scope is not repeated in the management block');
+  const stylesheet = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
+  assert.match(stylesheet, /\.record-insight-sparse-note\s*\{[^}]*font-size:\s*13px/s);
+  assert.match(stylesheet, /\.record-insight-sidebar-help[^\{]*\{[^}]*font-size:\s*13px/s);
+});
+
+test('record comparison links open analysis while plain records navigation opens the list', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  const records = [current.records[0], { ...current.records[0], id: 'comparison-second' }];
+  view.renderData({ ...current, records, recordInsights: {
+    ...buildRecordsInsights(records, current.beans, BEAN, current.recipes), status: 'ready', loading: false,
+  } });
+  view.renderRoute(`/records?compareSourceRecordId=${records[0].id}&compareRecordId=comparison-second`);
+  assert.equal(document.root.querySelector('[data-records-panel="analysis"]').hidden, false);
+  view.renderRoute('/beans');
+  view.renderRoute('/records');
+  assert.equal(document.root.querySelector('[data-records-panel="list"]').hidden, false);
+});

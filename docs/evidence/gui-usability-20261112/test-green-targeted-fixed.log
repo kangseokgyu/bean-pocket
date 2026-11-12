@@ -1,0 +1,54 @@
+TAP version 13
+# (node:81432) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: errors and recovery notices stay visible until cleared or replaced
+ok 1 - errors and recovery notices stay visible until cleared or replaced
+  ---
+  duration_ms: 6.682875
+  type: 'test'
+  ...
+# Subtest: brew conditions start summarized while assessment and save remain reachable
+ok 2 - brew conditions start summarized while assessment and save remain reachable
+  ---
+  duration_ms: 22.246791
+  type: 'test'
+  ...
+# Subtest: records opens on the list tab and keeps filters and management available beside analysis
+ok 3 - records opens on the list tab and keeps filters and management available beside analysis
+  ---
+  duration_ms: 31.471458
+  type: 'test'
+  ...
+# Subtest: one or zero records use short analysis guidance instead of a chart and two-record selectors
+ok 4 - one or zero records use short analysis guidance instead of a chart and two-record selectors
+  ---
+  duration_ms: 12.615917
+  type: 'test'
+  ...
+# Subtest: deletion moves from list cards to detail or more, with 44px action targets
+ok 5 - deletion moves from list cards to detail or more, with 44px action targets
+  ---
+  duration_ms: 14.618208
+  type: 'test'
+  ...
+# Subtest: bean list omits empty metadata while bean detail still identifies unrecorded fields
+ok 6 - bean list omits empty metadata while bean detail still identifies unrecorded fields
+  ---
+  duration_ms: 4.8725
+  type: 'test'
+  ...
+# Subtest: record helper text uses a readable 13px size without duplicate scope instructions
+ok 7 - record helper text uses a readable 13px size without duplicate scope instructions
+  ---
+  duration_ms: 4.989792
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 195.805084

@@ -487,6 +487,7 @@ export function createAppView(document = globalThis.document, {
       insightCompareLeftId = params.get('compareSourceRecordId') || params.get('compareLeftId') || '';
       insightCompareRightId = params.get('compareRecordId') || params.get('compareRightId') || '';
       insightCompareRouteDefaultsPending = !!(insightCompareLeftId && insightCompareRightId);
+      if (insightCompareRouteDefaultsPending) recordManagementOpen = true;
       insightCompareRoute = route;
       insightCompareBeanId = currentData?.recordInsights?.selectedBeanId ?? '';
     }
@@ -937,6 +938,7 @@ export function createAppView(document = globalThis.document, {
     renderRoute(nextRoute) {
       const next = normalizeRoute(nextRoute || '/home');
       if (next !== route) routeNeedsDataRender = true;
+      if (routePath(next) === '/records' && routePath(route) !== '/records') recordManagementOpen = false;
       route = next;
       if (routePath(route) === '/recipes/new') recipeFormOpen = true;
       if (routePath(route) === '/records/new') recordFormOpen = true;

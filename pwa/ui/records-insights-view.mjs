@@ -56,7 +56,9 @@ export function renderRecordsInsights(pane, data, document, recipeFilter, rating
     '최근 추출 원두 Top 3', 'record-insight-trend-title'));
   trend.append(make(document, 'p', '원두 선택은 요약에 적용되며, 아래 필터와 정렬은 비교 표에만 적용됩니다.',
     'record-insight-filter-note'));
-  if (trendSeries.some(series => series.points.length)) trend.append(renderRatingTrend(document, trendSeries));
+  const sparse = (state.loadedCount ?? 0) < 2;
+  if (sparse) trend.append(make(document, 'p', '기록이 두 건 이상 쌓이면 별점 추이와 조건 비교를 볼 수 있습니다.', 'record-insight-sparse-note'));
+  else if (trendSeries.some(series => series.points.length)) trend.append(renderRatingTrend(document, trendSeries));
   else {
     if (trendSeries.length) trend.append(renderTrendLegend(document, trendSeries));
     trend.append(make(document, 'p', trendSeries.length
@@ -150,7 +152,8 @@ export function renderRecordsInsights(pane, data, document, recipeFilter, rating
     [['', '모든 별점'], ...(state.ratingOptions ?? []).map(rating => [String(rating), `${rating.toFixed(1)}점`])]));
   comparisons.append(controls);
   const allComparisonRecords = [...(state.comparisonRecords ?? [])];
-  comparisons.append(renderSelectedRecordComparison(document, allComparisonRecords, comparisonLeftId, comparisonRightId));
+  if (allComparisonRecords.length >= 2) comparisons.append(renderSelectedRecordComparison(document, allComparisonRecords, comparisonLeftId, comparisonRightId));
+  else if (!sparse) comparisons.append(make(document, 'p', '선택한 원두의 기록이 두 건 이상이면 조건을 비교할 수 있습니다.', 'record-insight-sparse-note'));
   let comparisonRecords = [...allComparisonRecords];
   if (recipeFilter) comparisonRecords = comparisonRecords.filter(record => record.recipeId === recipeFilter ||
     recipeForRecord(record)?.id === recipeFilter);

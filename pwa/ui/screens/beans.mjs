@@ -18,9 +18,9 @@ export function renderBeans(pane, data, document) {
     link.dataset.action = 'navigate';
     link.dataset.route = `/beans/${bean.id}`;
     title.append(link);
-    header.append(title, favoriteButton(document, data, 'beans', bean), trashButton(document, 'beans', bean.id, bean.name));
+    header.append(title, favoriteButton(document, data, 'beans', bean));
     card.append(header);
-    card.append(beanOverview(document, bean));
+    card.append(beanOverview(document, bean, true));
     const records = currentRecords(data).filter(record => record.beanId === bean.id);
     const count = bean.recordCount;
     const countLabel = count?.status === 'ready' ? `${count.count}개`
@@ -31,26 +31,28 @@ export function renderBeans(pane, data, document) {
   }
 }
 
-function beanOverview(document, bean) {
+function beanOverview(document, bean, compact = false) {
   const overview = make(document, 'div', undefined, 'bean-overview');
   const primary = make(document, 'dl', undefined, 'bean-primary-metadata');
   for (const [label, value] of [
     ['산지·농장', bean.origin],
     ['로스터리', bean.roaster],
   ]) {
+    if (compact && !value) continue;
     const field = make(document, 'div', undefined, 'bean-primary-field');
     field.append(make(document, 'dt', label), make(document, 'dd', value || '기록 없음'));
     primary.append(field);
   }
   const secondary = make(document, 'section', undefined, 'bean-secondary-info');
   const heading = make(document, 'div', undefined, 'bean-section-heading');
-  heading.append(make(document, 'h4', '원두 특징'));
+  if (!compact) heading.append(make(document, 'h4', '원두 특징'));
   const metadata = make(document, 'dl', undefined, 'bean-metadata');
   for (const [label, value] of [
     ['품종', bean.variety],
     ['프로세싱', bean.process],
     ['향미 노트', bean.tastingNotes],
   ]) {
+    if (compact && !value) continue;
     metadata.append(make(document, 'dt', label), make(document, 'dd', value || '기록 없음'));
   }
   secondary.append(heading, metadata);
@@ -74,7 +76,7 @@ export function renderBeanDetail(pane, data, document, beanId) {
   }
   const detail = make(document, 'article', undefined, 'bean-detail-card');
   const header = make(document, 'div', undefined, 'entity-card-header');
-  header.append(make(document, 'h2', bean.name));
+  header.append(make(document, 'h2', bean.name), trashButton(document, 'beans', bean.id, bean.name));
   detail.append(header);
   const information = beanDetailSection(document, '원두 정보');
   information.append(beanOverview(document, bean));

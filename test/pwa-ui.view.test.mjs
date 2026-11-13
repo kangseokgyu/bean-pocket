@@ -6543,7 +6543,7 @@ test('brew conditions show a live summary outside the collapsed editor', async (
   assert.equal(brewPayload(form).actualRecipe.temperature, '91');
 
   const stylesheet = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
-  assert.match(stylesheet, /\.brew-run-actions\s*\{[^}]*position:\s*fixed/s,
+  assert.match(stylesheet, /\.brew-run-actions\s*\{[^}]*position:\s*sticky/s,
     'the mobile assessment action stays reachable while scrolling');
 });
 

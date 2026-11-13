@@ -13,3 +13,11 @@
 검증 로그는 `/tmp/record-buttons-test.log`, `/tmp/record-buttons-browser.log`, `/tmp/record-buttons-regression.log`에 보관했다. 화면은 `/tmp/records-final-390.png`에 보관했다.
 
 통합 검증 로그는 `/tmp/record-buttons-integrated-test.log`, `/tmp/record-buttons-integrated-browser.log`에 보관했다.
+
+## 공개 반영 확인
+
+- 게시 실행 https://github.com/kangseokgyu/bean-pocket/actions/runs/43453756070 은 성공했다. `pages.yml`, `main`, `probes=false`로 실행했다.
+- 배포 커밋은 `8b5dcf363026c42123e1a40fd82234234b3a2c8d`이다.
+- https://kangseokgyu.github.io/bean-pocket/ 의 공개 빌드 `feb2496ac6d0`를 확인했다.
+- 공개 `styles.css`와 검증한 `dist/styles.css`가 바이트 단위로 일치했다. SHA-256은 `8bc1643af2b58f7b330bc0cb400993cbdc81cb162ef856a4b691080ae5afd2d7`이다.
+- 기존 작업 폴더의 미커밋 CSS 변경은 배포에서 제외하고 내용 그대로 보존했다.

@@ -95,7 +95,9 @@ export function renderBrewOptionResults(document, kind, selectedBean, selectedId
       if (!ready) card.append(make(document, 'span', item.status === 'error' || item.validationStatus === 'error'
         ? '레시피를 확인할 수 없어 선택할 수 없습니다.' : '레시피 단계를 확인 중입니다.', 'muted-note brew-option-status'));
       if (item.id === selectedId) card.append(make(document, 'span', '선택한 레시피', 'brew-selected-label'));
-      card.append(make(document, 'span', ready ? '이 레시피로 준비하기 →' : '레시피 단계 확인 후 선택 가능', 'brew-option-action'));
+      card.append(make(document, 'span', ready ? '이 레시피로 준비하기 →'
+        : item.status === 'error' || item.validationStatus === 'error'
+          ? '추출 단계를 불러오지 못했습니다' : '추출 단계 불러오는 중', 'brew-option-action'));
     }
     list.append(card);
   }

@@ -4776,6 +4776,26 @@ test('brew bean and recipe option cards are full-area buttons and preserve selec
   }
 });
 
+test('brew recipe options distinguish checking and failed validation', () => {
+  for (const field of ['status', 'validationStatus']) {
+    for (const [state, message] of [
+      ['checking', '추출 단계 불러오는 중'],
+      ['error', '추출 단계를 불러오지 못했습니다'],
+      ['ready', '이 레시피로 준비하기 →'],
+    ]) {
+      const document = new TestDocument();
+      const view = createBeanView(document);
+      const current = data();
+      current.recipes[0][field] = state;
+      view.renderData(current);
+      view.renderRoute(`/brew/recipe?beanId=${BEAN}`);
+      const card = document.root.querySelector('.brew-option-card');
+      assert.equal(card.querySelector('.brew-option-action').textContent, message);
+      assert.equal(card.disabled, state !== 'ready');
+    }
+  }
+});
+
 test('brew overview marks the active step and aligns selection, conditions, and pour amounts', () => {
   const document = new TestDocument();
   const view = createBeanView(document);

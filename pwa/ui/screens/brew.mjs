@@ -5,7 +5,7 @@ import { button, setActionButton } from '../shared/buttons.mjs';
 import { favoriteIcon } from '../shared/favorite-button.mjs';
 import { label, addFieldset, formBase, addFormActions } from '../shared/form-fields.mjs';
 import {
-  createStageEditorRow, createStageEditorSummary, formatTime, updateStageEditorSummary,
+  createStageEditorRow, createStageEditorSummary, formatTime, recipeMeasure, updateStageEditorSummary,
 } from '../shared/recipe-presentation.mjs';
 import { routePath, routeParams } from '../shared/route.mjs';
 import { isIsoDate, localDate } from '../shared/date.mjs';
@@ -236,10 +236,19 @@ function renderBrewRun(pane, data, document, route, params) {
   const sourceId = sourceRecord ? recipeIdFromRecord(sourceRecord) : recipeId;
   form.append(hidden('beanId', bean.id), hidden('sourceRecipeId', sourceId),
     hidden('sourceRecordId', sourceRecord?.id ?? params.get('sourceRecordId') ?? ''));
+  const overview = make(document, 'section', undefined, 'brew-condition-overview');
+  overview.dataset.brewConditionOverview = '';
+  overview.setAttribute('aria-label', '현재 추출 조건');
+  const metrics = make(document, 'p', undefined, 'brew-overview-metrics');
+  metrics.dataset.brewOverviewMetrics = '';
+  const pours = make(document, 'ol', undefined, 'brew-overview-pours');
+  pours.dataset.brewPourSummary = '';
+  overview.append(metrics, make(document, 'p', '물 붓기', 'brew-overview-label'), pours);
+  form.append(overview);
   const conditions = make(document, 'details', undefined, 'brew-conditions');
   conditions.dataset.brewConditions = '';
   conditions.open = false;
-  const summary = make(document, 'summary');
+  const summary = make(document, 'summary', '조건 수정');
   summary.dataset.brewSummary = '';
   conditions.append(summary);
   form.append(conditions);
@@ -322,8 +331,15 @@ function brewRecipeInput(form) {
 
 export function updateBrewConditions(form) {
   const actual = brewRecipeInput(form);
-  const summary = form.querySelector('[data-brew-summary]');
-  if (summary) summary.textContent = `${actual.dose || '—'}g · ${actual.temperature || '—'}℃ · 물 ${actual.totalWater || '—'}g · 조건 수정`;
+  const metrics = form.querySelector('[data-brew-overview-metrics]');
+  if (metrics) metrics.textContent = `원두량 ${recipeMeasure(actual.dose, 'g')} · 물 온도 ${recipeMeasure(actual.temperature, '℃')} · 총 물 ${recipeMeasure(actual.totalWater, 'g')}`;
+  const pours = form.querySelector('[data-brew-pour-summary]');
+  if (pours) pours.replaceChildren(...actual.steps.map((step, index) => {
+    const label = `${index + 1}단계`;
+    const name = String(step.name ?? '').trim();
+    const title = name && name !== label ? `${label} ${name}` : label;
+    return make(form.ownerDocument, 'li', `${title} · ${recipeMeasure(step.time, '')} · ${recipeMeasure(step.water, 'g')}`);
+  }));
   const initial = JSON.parse(form.dataset.initialConditions || '{}');
   const labels = { name: '조건 이름', dripper: '드리퍼', dose: '원두량', grind: '분쇄도', grinder: '그라인더',
     grinderSetting: '그라인더 설정', microns: '분쇄 입자', temperature: '물 온도', totalWater: '총 물 양',

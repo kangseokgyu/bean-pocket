@@ -113,8 +113,26 @@ try {
  await navigate(brewRoute);
  await page.evaluate(route=>history.replaceState(null,'',location.pathname+location.search+'#'+route),brewRoute);
  const brewForm=page.locator('form[data-form="brews"]');
+ const brewOverview=brewForm.locator('[data-brew-condition-overview]');
+ assert.equal(await brewOverview.isVisible(),true,'collapsed conditions leave the summary visible');
+ assert.equal(await brewOverview.evaluate(node=>!!node.closest('[data-brew-conditions]')),false);
+ assert.match(await brewOverview.textContent(),/원두량 15g.*물 온도 93℃.*250g/);
+ assert.equal(await brewOverview.locator('li').count(),3);
+ assert.equal(await brewOverview.locator('li').first().textContent(),'1단계 · 0:00 · 50g');
+ await brewForm.locator('[data-brew-summary]').click();
  await brewForm.locator('[name="name"]').fill('CRITIC BREW DRAFT');
+ await brewForm.locator('[name="dose"]').fill('16');
+ await brewForm.locator('[name="temperature"]').fill('91');
  await brewForm.locator('.brew-stage-row').first().locator('[name="water"]').fill('75');
+ assert.match(await brewOverview.textContent(),/원두량 16g.*물 온도 91℃.*75g/);
+ await brewForm.locator('[data-action="add-brew-stage"]').click();
+ assert.equal(await brewOverview.locator('li').count(),4);
+ assert.match(await brewOverview.locator('li').last().textContent(),/10g/);
+ await brewForm.locator('.brew-stage-row').last().locator('[data-action="remove-brew-stage"]').click();
+ assert.equal(await brewOverview.locator('li').count(),3);
+ await brewForm.locator('[data-brew-summary]').click();
+ assert.equal(await brewOverview.isVisible(),true);
+ await page.screenshot({path:out+'/brew-run-edited-390.png',fullPage:true,animations:'disabled'});
  await page.evaluate(()=>harness.draftStore.flush());
  const persistedBrew=await page.evaluate(async()=>{
   try{
@@ -141,6 +159,10 @@ try {
  assert.equal(await restoredBrew.locator('[name="name"]').inputValue(),'CRITIC BREW DRAFT');
  assert.equal(await restoredBrew.locator('.brew-stage-row').first().locator('[name="water"]').inputValue(),'75');
  assert.match(await restoredBrew.locator('[data-brew-stage-total]').textContent(),/275g/);
+ const restoredOverview=restoredBrew.locator('[data-brew-condition-overview]');
+ assert.equal(await restoredOverview.isVisible(),true);
+ assert.match(await restoredOverview.textContent(),/원두량 16g.*물 온도 91℃.*75g/);
+ assert.equal(await restoredOverview.locator('li').count(),3);
  assert.equal(await page.evaluate(()=>harness.app.isDirty('brews')),true);
  assert.equal(await page.evaluate(()=>harness.app.setFrozen(true)),false,'reload restores the dirty freeze barrier');
  await restoredBrew.locator('[data-action="cancel-form"]').click();

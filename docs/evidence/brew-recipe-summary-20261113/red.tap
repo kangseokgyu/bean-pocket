@@ -1,0 +1,71 @@
+✖ same brew route restores persisted conditions and stages after a fresh controller (36.38375ms)
+  TypeError [Error]: Cannot read properties of null (reading 'textContent')
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/brew-recipe-summary/AX-1day/test/pwa-ui.view.test.mjs:5890:25)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3)
+
+✖ brew conditions show a live summary outside the collapsed editor (8.157208ms)
+  AssertionError [ERR_ASSERTION]: actual conditions stay visible outside the editor
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/brew-recipe-summary/AX-1day/test/pwa-ui.view.test.mjs:6481:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '=='
+  }
+
+✖ record rebrew summarizes the recorded snapshot rather than the current recipe (7.389833ms)
+  TypeError [Error]: Cannot read properties of null (reading 'textContent')
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/brew-recipe-summary/AX-1day/test/pwa-ui.view.test.mjs:6537:25)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7)
+
+ℹ tests 3
+ℹ suites 0
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1142.8755
+
+✖ failing tests:
+
+test at test/pwa-ui.view.test.mjs:5853:1
+✖ same brew route restores persisted conditions and stages after a fresh controller (36.38375ms)
+  TypeError [Error]: Cannot read properties of null (reading 'textContent')
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/brew-recipe-summary/AX-1day/test/pwa-ui.view.test.mjs:5890:25)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3)
+
+test at test/pwa-ui.view.test.mjs:6471:1
+✖ brew conditions show a live summary outside the collapsed editor (8.157208ms)
+  AssertionError [ERR_ASSERTION]: actual conditions stay visible outside the editor
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/brew-recipe-summary/AX-1day/test/pwa-ui.view.test.mjs:6481:10)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '=='
+  }
+
+test at test/pwa-ui.view.test.mjs:6524:1
+✖ record rebrew summarizes the recorded snapshot rather than the current recipe (7.389833ms)
+  TypeError [Error]: Cannot read properties of null (reading 'textContent')
+      at TestContext.<anonymous> (file:///Users/kangseokgyu/.codex/worktrees/brew-recipe-summary/AX-1day/test/pwa-ui.view.test.mjs:6537:25)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7)

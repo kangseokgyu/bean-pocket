@@ -1,0 +1,11 @@
+✔ same brew route restores persisted conditions and stages after a fresh controller (57.470541ms)
+✔ brew conditions show a live summary outside the collapsed editor (31.620959ms)
+✔ record rebrew summarizes the recorded snapshot rather than the current recipe (7.029458ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1119.231625

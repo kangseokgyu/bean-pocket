@@ -5864,8 +5864,8 @@ test('same brew route restores persisted conditions and stages after a fresh con
       water: String(step.water) })), date: '2026-11-12', rating: '', cupNote: '' };
   await store.save(scope, 'brews', {
     values: { beanId: BEAN, sourceRecipeId: RECIPE, sourceRecordId: '', name: 'CRITIC BREW DRAFT',
-      dripper: recipe.dripper, dose: String(recipe.dose), grind: recipe.grind, microns: String(recipe.microns),
-      grinder: recipe.grinder, grinderSetting: recipe.grinderSetting, temperature: String(recipe.temperature),
+      dripper: recipe.dripper, dose: '17', grind: recipe.grind, microns: String(recipe.microns),
+      grinder: recipe.grinder, grinderSetting: recipe.grinderSetting, temperature: '90',
       totalWater: String(recipe.totalWater), extractionGuide: recipe.extractionGuide,
       date: '2026-11-12', rating: '', cupNote: '' },
     steps: recipe.steps.map((step, index) => ({ id: step.id, stepName: step.name,
@@ -5886,6 +5886,10 @@ test('same brew route restores persisted conditions and stages after a fresh con
   assert.equal(restored.elements.name.value, 'CRITIC BREW DRAFT');
   assert.equal(restored.querySelector('.brew-stage-row [name="water"]').value, '75');
   assert.match(restored.querySelector('[data-brew-stage-total]').textContent, /275g/);
+  const overview = restored.querySelector('[data-brew-condition-overview]');
+  assert.match(overview.textContent, /원두량.*17g.*물 온도.*90℃/);
+  assert.deepEqual(overview.querySelectorAll('li').map(item => item.textContent),
+    ['1단계 뜸 · 0:00 · 75g', '2단계 붓기 · 1:10 · 200g']);
   assert.equal(app.isDirty('brews'), true);
   assert.equal(app.setFrozen(true), false);
 
@@ -6464,27 +6468,55 @@ for (const kind of ['beans', 'recipes']) {
   });
 }
 
-test('brew conditions start summarized while assessment and save remain reachable', () => {
+test('brew conditions show a live summary outside the collapsed editor', async () => {
   const document = new TestDocument();
   const view = createBeanView(document);
   view.renderData(data());
   view.renderRoute(`/brew/run?beanId=${BEAN}&recipeId=${RECIPE}`);
   const form = document.root.querySelector('form[data-form="brews"]');
   const conditions = form.querySelector('[data-brew-conditions]');
+  const overview = form.querySelector('[data-brew-condition-overview]');
   assert.ok(conditions, 'brew conditions use a disclosure');
   assert.equal(conditions.open, false, 'long condition fields start collapsed');
+  assert.ok(overview, 'actual conditions stay visible outside the editor');
+  assert.equal(overview.closest('[data-brew-conditions]'), null);
+  assert.match(overview.textContent, /원두량.*15g.*물 온도.*93℃.*250g/);
+  const stages = () => overview.querySelectorAll('li').map(item => item.textContent);
+  assert.deepEqual(stages(), ['1단계 뜸 · 0:00 · 50g', '2단계 붓기 · 1:10 · 200g']);
   assert.match(conditions.querySelector('[data-brew-summary]').textContent, /조건 수정/);
-  assert.match(conditions.querySelector('[data-brew-summary]').textContent, /15g.*93℃.*250g/);
   assert.ok([...form.querySelectorAll('h3')].some(heading => heading.textContent === '이번 추출과 평가 기록'));
   assert.ok(form.querySelector('[data-entry-submit]').parentElement.className.includes('brew-run-actions'));
   assert.match(form.querySelector('[data-entry-submit]').textContent, /추출 평가 저장/);
 
   view.bind({ getState: () => ({ pending: false, frozen: false, unresolved: false }), setDirty() {} });
   conditions.open = true;
+  const firstName = form.querySelector('.brew-stage-row [name="stepName"]');
+  firstName.value = '1단계';
+  fireBubbling(firstName, 'input');
+  assert.equal(stages()[0], '1단계 · 0:00 · 50g', 'default stage names are not duplicated');
+  firstName.value = '뜸';
+  fireBubbling(firstName, 'input');
   form.elements.dose.value = '16';
   form.elements.temperature.value = '91';
-  fireBubbling(form.elements.dose, 'input');
-  assert.match(conditions.querySelector('[data-brew-summary]').textContent, /16g.*91℃/);
+  const second = form.querySelectorAll('.brew-stage-row')[1];
+  second.querySelector('[name="stepName"]').value = '2차';
+  second.querySelector('[name="time"]').value = '1:20';
+  const water = second.querySelector('[name="water"]');
+  water.value = '205';
+  fireBubbling(water, 'input');
+  assert.match(overview.textContent, /원두량.*16g.*물 온도.*91℃/);
+  assert.deepEqual(stages(), ['1단계 뜸 · 0:00 · 50g', '2단계 2차 · 1:20 · 205g']);
+
+  await clickViewTarget(document, form.querySelector('[data-action="add-brew-stage"]'));
+  assert.deepEqual(stages(), ['1단계 뜸 · 0:00 · 50g', '2단계 2차 · 1:20 · 205g', '3단계 · 1:50 · 10g']);
+  await clickViewTarget(document, second.querySelector('[data-action="remove-brew-stage"]'));
+  assert.deepEqual(stages(), ['1단계 뜸 · 0:00 · 50g', '2단계 · 1:50 · 10g']);
+  const last = form.querySelectorAll('.brew-stage-row')[1];
+  last.querySelector('[name="water"]').value = '';
+  last.querySelector('[name="time"]').value = '';
+  fireBubbling(last.querySelector('[name="water"]'), 'input');
+  assert.deepEqual(stages(), ['1단계 뜸 · 0:00 · 50g', '2단계 · — · —']);
+
   conditions.open = false;
   assert.equal(form.elements.dose.value, '16', 'collapsing conditions keeps edited inputs');
   assert.equal(brewPayload(form).actualRecipe.dose, '16', 'the saved actual-condition payload uses the edited value');
@@ -6493,6 +6525,24 @@ test('brew conditions start summarized while assessment and save remain reachabl
   const stylesheet = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
   assert.match(stylesheet, /\.brew-run-actions\s*\{[^}]*position:\s*fixed/s,
     'the mobile assessment action stays reachable while scrolling');
+});
+
+test('record rebrew summarizes the recorded snapshot rather than the current recipe', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const current = data();
+  current.records[0] = { ...current.records[0], snapshot: {
+    version: 3, recordGeneration: 'bagless-v1', source: { recipeId: RECIPE },
+    recipe: { ...current.recipes[0], name: '기록 조건', dose: 18, temperature: 87, totalWater: 300,
+      steps: [{ name: '기록 뜸', seconds: 0, water: 70 }, { name: '기록 붓기', seconds: 45, water: 230 }] },
+  } };
+  view.renderData(current);
+  view.renderRoute(`/brew/run?beanId=${BEAN}&recordId=${current.records[0].id}`);
+  const form = document.root.querySelector('form[data-form="brews"]');
+  const overview = form.querySelector('[data-brew-condition-overview]');
+  assert.match(overview.textContent, /원두량.*18g.*물 온도.*87℃.*300g/);
+  assert.deepEqual(overview.querySelectorAll('li').map(item => item.textContent),
+    ['1단계 기록 뜸 · 0:00 · 70g', '2단계 기록 붓기 · 0:45 · 230g']);
 });
 
 test('records opens on the list tab and keeps filters and management available beside analysis', async () => {

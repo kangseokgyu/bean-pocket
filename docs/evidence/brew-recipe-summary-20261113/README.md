@@ -19,3 +19,11 @@ Worker 생성 설정: `gpt-6.1-terra` / `max` (Chandrasekhar). Critic 생성 설
 ## 독립 검토
 
 Critic 승인: 차단 지적 없음. 관련 테스트 3/3 및 diff 검사 통과. 390px 화면, 전체 테스트·브라우저·빌드 로그 확인. 전체 검증의 불필요한 재실행은 하지 않았다.
+
+## 게시 완료
+
+- 게시 커밋: `23fcc8cecbbe48038c326bf4b1f463c23e748bb6`.
+- [Pages 실행 43444537019](https://github.com/kangseokgyu/bean-pocket/actions/runs/43444537019): 성공. `probes=false`, main 통합 테스트·빌드·검사 및 배포 통과.
+- 공개 주소: https://kangseokgyu.github.io/bean-pocket/
+- 공개 빌드 `93e1a8758660` 확인. `index.html`, `ui/screens/brew.mjs`, `styles.css` 모두 HTTP 200 및 검증한 dist와 바이트 일치 (`public.json`).
+- 기존 사용자 CSS diff는 통합 전후 Git blob 식별자를 제외하고 동일함을 확인했다.

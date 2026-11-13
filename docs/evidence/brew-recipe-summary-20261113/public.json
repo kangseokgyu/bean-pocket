@@ -1,0 +1,17 @@
+{
+  "index.html": {
+    "status": 200,
+    "sha256": "b390be2cc06e1e724c45988c65f5cdd17ee35400ae841ec42231165abb0eea51",
+    "matches_local": true
+  },
+  "ui/screens/brew.mjs": {
+    "status": 200,
+    "sha256": "35668a4822b004e1c3810db5781534425aeb3347718856eed05270d74d545168",
+    "matches_local": true
+  },
+  "styles.css": {
+    "status": 200,
+    "sha256": "abfc267f1a71805e16b9baa463044b75a94fe9eb10c7e802af5fbfbd293a35f9",
+    "matches_local": true
+  }
+}

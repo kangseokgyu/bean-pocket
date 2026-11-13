@@ -573,7 +573,7 @@ export function createAppView(document = globalThis.document, {
     applyViewState();
   }
   function restoreEntryFocus(kind) {
-    const action = { beans: 'show-bean-form', recipes: 'show-recipe-form', records: 'show-record-form' }[kind];
+    const action = { beans: 'show-bean-form', recipes: 'show-recipe-form' }[kind];
     (content.querySelector(`[data-action="${action}"]`) ?? nav.querySelector('[data-route="/beans"]'))?.focus?.();
   }
 
@@ -721,7 +721,6 @@ export function createAppView(document = globalThis.document, {
     if (!form || !dialog || currentState.pending || currentState.frozen || currentState.unresolved) return;
     if (kind === 'beans') beanFormOpen = true;
     if (kind === 'recipes') recipeFormOpen = true;
-    if (kind === 'records') recordFormOpen = true;
     activeEntryKind = kind;
     entryPhase = 'idle';
     const opener = content.querySelector('[data-action="' + action + '"]');
@@ -1056,7 +1055,6 @@ export function createAppView(document = globalThis.document, {
     },
     showBeanForm() { openEntryForm('beans', 'show-bean-form', 'name'); },
     showRecipeForm() { openEntryForm('recipes', 'show-recipe-form', 'name'); },
-    showRecordForm() { openEntryForm('records', 'show-record-form', 'date'); },
     setSearchOptions(target, kind, page, append = false, query = '') {
       const optionKey = `${target}:${kind}`;
       const cachedPage = optionPages.get(optionKey);
@@ -1259,12 +1257,6 @@ function renderPane(parent, data, document, route = '/home', drafts = new Map(),
     const add = iconButton(document, '+', '새 레시피 추가', 'show-recipe-form');
     add.setAttribute('aria-controls', 'recipes-entry-dialog');
     add.setAttribute('aria-expanded', String(recipeFormOpen));
-    actions.append(add);
-  }
-  if (section === 'records') {
-    const add = iconButton(document, '+', '새 추출 기록 추가', 'show-record-form');
-    add.setAttribute('aria-controls', 'records-entry-dialog');
-    add.setAttribute('aria-expanded', String(recordFormOpen));
     actions.append(add);
   }
   header.append(actions);

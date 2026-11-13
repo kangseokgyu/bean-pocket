@@ -393,12 +393,6 @@ export function bindEvents({ page, nav, connectionForm, tokenInput, scheduleToke
       view.showRecipeForm();
       return;
     }
-    if (action === 'show-record-form') {
-      view.showRecordForm();
-      loadOptions('form', 'beans');
-      loadOptions('form', 'recipes');
-      return;
-    }
     if (action === 'load-more') {
       try { await actions.loadMore?.(); } catch { /* Controller supplies a safe status. */ }
       return;

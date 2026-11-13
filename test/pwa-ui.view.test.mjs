@@ -1754,7 +1754,7 @@ test('recipe detail places the guide below the pour table and copy preserves its
   assert.equal(copyForm.elements.extractionGuide.value, data().recipes[0].extractionGuide);
 });
 
-test('record creation opens from plus, preserves drafts, and closes on cancel or save', async () => {
+test('record creation has no duplicate plus and preserves route-based drafts', async () => {
   const document = new TestDocument();
   const view = createBeanView(document);
   const dirty = [];
@@ -1769,14 +1769,10 @@ test('record creation opens from plus, preserves drafts, and closes on cancel or
   await click(tab);
   let form = document.root.querySelector('form[data-form="records"]');
   assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"records\"]').open, false);
-  const add = document.root.querySelector('[data-action="show-record-form"]');
-  assert.equal(add.getAttribute('aria-label'), '새 추출 기록 추가');
-  assert.equal(add.querySelector('[aria-hidden="true"]').textContent, '+');
-  assert.equal(add.getAttribute('aria-controls'), document.root.querySelector('dialog[data-entry-dialog=\"records\"]').id);
-  assert.equal(add.getAttribute('aria-expanded'), 'false');
-  await click(add);
-  assert.equal(document.root.querySelector('dialog[data-entry-dialog=\"records\"]').open, true);
-  assert.equal(add.getAttribute('aria-expanded'), 'true');
+  assert.equal(!!document.root.querySelector('[data-action="show-record-form"]'), false);
+  view.renderRoute('/records/new');
+  form = document.root.querySelector('form[data-form="records"]');
+  assert.equal(document.root.querySelector('dialog[data-entry-dialog="records"]').open, true);
   assert.equal(dirty.length, 0);
   form.elements.cupNote.value = '보존할 컵노트';
   view.renderData(data());
@@ -1793,11 +1789,11 @@ test('record creation opens from plus, preserves drafts, and closes on cancel or
   view.renderRoute('/records/new');
   assert.equal(document.root.querySelector('dialog[data-entry-dialog="records"]').open, true);
   view.setState({ pending: true });
-  assert.equal(document.root.querySelector('[data-action="show-record-form"]').disabled, true);
+  assert.equal(!!document.root.querySelector('[data-action="show-record-form"]'), false);
   view.setState({ pending: false });
   view.clearDraft('records');
   assert.equal(document.root.querySelector('dialog[data-entry-dialog="records"]').open, false);
-  assert.equal(document.root.querySelector('[data-action="show-record-form"]').getAttribute('aria-expanded'), 'false');
+  assert.equal(!!document.root.querySelector('[data-action="show-record-form"]'), false);
   view.renderRoute(`/recipes/${RECIPE}`);
   await click(document.root.querySelector('[data-action="new-record"]'));
   form = document.root.querySelector('form[data-form="records"]');
@@ -1811,7 +1807,8 @@ test('background data updates defer pane replacement while an entry dialog is op
   const view = createBeanView(document);
   view.renderRoute('/records');
   view.renderData(data());
-  view.showRecordForm();
+  view.renderRoute('/records/new');
+  view.renderRoute('/records');
   const form = document.root.querySelector('form[data-form="records"]');
   const cupNote = form.elements.cupNote;
   const assertFormPreserved = label => {
@@ -1864,7 +1861,7 @@ test('collection headers omit refresh and retain their add buttons', () => {
   const document = new TestDocument();
   const view = createBeanView(document);
   view.renderData(data());
-  for (const [section, kind] of [['beans', 'bean'], ['recipes', 'recipe'], ['records', 'record']]) {
+  for (const [section, kind] of [['beans', 'bean'], ['recipes', 'recipe']]) {
     view.renderRoute(`/${section}`);
     assert.ok(document.root.querySelector('[data-action="refresh"]') === null, `${section}: refresh button must be absent`);
     assert.ok(document.root.querySelector(`[data-action="show-${kind}-form"]`), section);
@@ -2778,7 +2775,6 @@ test('available entry forms open as native dialogs and cancel without submitting
   const cases = [
     ['/beans', 'show-bean-form', 'beans'],
     ['/recipes', 'show-recipe-form', 'recipes'],
-    ['/records', 'show-record-form', 'records'],
   ];
   let writes = 0;
   for (const [route, action, kind] of cases) {
@@ -2920,14 +2916,15 @@ test('inline entry and delete success stay in their dialogs without completion t
 
 test('entry save spinners replace only saving toasts across beans, recipes, records, and recipe copies', async () => {
   for (const [kind, open] of [
-    ['beans', 'showBeanForm'], ['recipes', 'showRecipeForm'], ['records', 'showRecordForm'],
+    ['beans', 'showBeanForm'], ['recipes', 'showRecipeForm'], ['records', null],
   ]) {
     const document = new TestDocument();
     const view = createAppView(document, { schedule: () => 1 });
     view.bind({ setDirty() {} });
     view.renderData(data());
     view.renderRoute('/' + kind);
-    view[open]();
+    if (kind === 'records') view.renderRoute('/records/new');
+    else view[open]();
     const dialog = document.root.querySelector(`dialog[data-entry-dialog="${kind}"]`);
     const save = dialog.querySelector('[data-entry-submit]');
 
@@ -3130,14 +3127,15 @@ test('a failed modal save preserves its fields and enables a retry', async () =>
 
 test('success delay locks every entry field and recipe step after refresh finishes', async () => {
   for (const [kind, open] of [
-    ['beans', 'showBeanForm'], ['recipes', 'showRecipeForm'], ['records', 'showRecordForm'],
+    ['beans', 'showBeanForm'], ['recipes', 'showRecipeForm'], ['records', null],
   ]) {
     const document = new TestDocument();
     const view = createAppView(document, { schedule: () => 1 });
     view.bind({ setDirty() {} });
     view.renderData(data());
     view.renderRoute('/' + kind);
-    view[open]();
+    if (kind === 'records') view.renderRoute('/records/new');
+    else view[open]();
     view.setState({ pending: true });
     view.showEntrySuccess(kind);
     view.renderData(data());
@@ -3325,7 +3323,7 @@ test('route loading preserves an open modal, draft DOM, and focus', () => {
   const view = createAppView(document);
   view.renderData(data());
   view.renderRoute('/records/new');
-  view.showRecordForm();
+  view.renderRoute('/records/new');
 
   const panel = document.root.querySelector('.data-panel');
   const dialog = panel.querySelector('dialog[data-entry-dialog="records"]');
@@ -4409,7 +4407,8 @@ test('production records insight DOM refreshes after a real controller save and 
 
     const content = document.root.querySelector('.data-panel');
     assert.match(content.querySelector('.record-insight-scope').textContent, /불러온 기록 1건/);
-    await clickViewTarget(document, content.querySelector('[data-action="show-record-form"]'));
+    view.renderRoute('/records/new');
+    view.renderRoute('/records');
     const form = content.querySelector('form[data-form="records"]');
     form.elements.beanId.value = BEAN;
     form.elements.recipeId.value = RECIPE;
@@ -5814,7 +5813,8 @@ test('record draft conflicts require an explicit resume or new-record choice', a
   current.options = { beans: { items: current.beans }, recipes: { items: current.recipes } };
   view.renderData(current);
   view.renderRoute('/records');
-  view.showRecordForm();
+  view.renderRoute('/records/new');
+  view.renderRoute('/records');
   const form = document.root.querySelector('form[data-form="records"]');
   form.elements.beanId.value = BEAN;
   form.elements.recipeId.value = RECIPE;
@@ -6057,6 +6057,7 @@ test('record rating lets vertical swipes scroll and commits taps and horizontal 
   const view = createBeanView(document);
   view.renderData(data());
   view.renderRoute('/records/new');
+  view.renderRoute('/records');
   const form = document.root.querySelector('form[data-form="records"]');
   const slider = form.elements.rating;
   const previousFocus = form.elements.cupNote;
@@ -6093,6 +6094,7 @@ test('a second touch outside the stars cancels rating changes and restores focus
   const view = createBeanView(document);
   view.renderData(data());
   view.renderRoute('/records/new');
+  view.renderRoute('/records');
   const form = document.root.querySelector('form[data-form="records"]');
   const slider = form.elements.rating;
   const previousFocus = form.elements.cupNote;
@@ -6118,6 +6120,7 @@ test('a non-primary touch cannot start or finish a rating gesture', () => {
   const view = createBeanView(document);
   view.renderData(data());
   view.renderRoute('/records/new');
+  view.renderRoute('/records');
   const form = document.root.querySelector('form[data-form="records"]');
   const slider = form.elements.rating;
   const previousFocus = form.elements.cupNote;

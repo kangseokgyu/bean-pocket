@@ -15,3 +15,11 @@ Laziness Protocol에 따라 사용처가 사라진 코드만 삭제했다. Model
 - iPhone 실기기와 실제 Notion 저장은 확인하지 않았다. 브라우저 검사는 가짜 저장소를 사용했다.
 
 원래 작업 폴더의 pwa/styles.css 미커밋 변경을 보존했다. 원격 main의 최신 변경을 기능 브랜치에 반영한 뒤 다시 검증했다.
+
+## 게시 결과
+
+- 기능 커밋 1adcf98과 검증 문서를 main에 반영했다. 게시 대상은 c1142ce399cd45d9efda2ac14744eec818f65a75다.
+- https://github.com/kangseokgyu/bean-pocket/actions/runs/43524066054 성공. pages.yml을 main에서 probes=false로 실행했다.
+- https://kangseokgyu.github.io/bean-pocket/ 공개 빌드 2518db12f4a7을 확인했다.
+- 공개 정적 파일 57개를 로컬 dist와 바이트 단위로 비교해 모두 일치했다. 파일별 SHA-256은 public-files.json에 남겼다.
+- 게시 직전 다른 작업의 문서 커밋 때문에 최초 push가 거절됐다. 문서만 rebase한 뒤 정상 push했다. 코드와 빌드 입력은 바뀌지 않았다.

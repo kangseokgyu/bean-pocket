@@ -97,7 +97,7 @@ class TestElement {
     if (this.capturedPointerId === pointerId) this.capturedPointerId = null;
   }
   dispatchEvent(event) {
-    const dispatched = { type: event.type, bubbles: event.bubbles, target: this,
+    const dispatched = { ...event, type: event.type, bubbles: event.bubbles, target: this,
       preventDefault() { this.defaultPrevented = true; } };
     for (let current = this; current; current = dispatched.bubbles ? current.parentElement : null) {
       for (const listener of current.listeners.get(dispatched.type) ?? []) listener(dispatched);
@@ -562,7 +562,17 @@ for (const outcome of ['navigation', 'refresh', 'error', 'cancelled']) {
     t.mock.timers.tick(999);
     assert.equal(status.hidden, false);
     t.mock.timers.tick(1);
-    assert.equal(status.hidden, outcome !== 'error' && outcome !== 'cancelled');
+    if (outcome === 'error' || outcome === 'cancelled') {
+      assert.equal(status.hidden, false);
+      assert.notEqual(status.dataset.motion, 'exiting');
+    } else {
+      assert.equal(status.hidden, false);
+      assert.equal(status.dataset.motion, 'exiting');
+      assert.equal(status.textContent, '화면을 불러왔습니다.');
+      status.dispatchEvent({ type: 'animationend', animationName: 'toast-out' });
+      assert.equal(status.hidden, true);
+      assert.equal(status.dataset.motion, 'hidden');
+    }
   });
 }
 
@@ -591,8 +601,15 @@ test('toast trailing icon changes from loading to completion without replacing i
     t.mock.timers.tick(999);
     assert.equal(status.hidden, false);
     t.mock.timers.tick(1);
+    assert.equal(status.hidden, false);
+    assert.equal(status.dataset.motion, 'exiting');
+    assert.equal(icon.hidden, false);
+    assert.equal(icon.dataset.state, 'success');
+    assert.equal(status.textContent, '완료했습니다.');
+    t.mock.timers.tick(240);
     assert.equal(status.hidden, true);
     assert.equal(icon.hidden, true);
+    assert.equal(status.dataset.motion, 'hidden');
   }
 });
 
@@ -626,8 +643,14 @@ test('successful status messages stay visible for one second then hide', t => {
     t.mock.timers.tick(999);
     assert.equal(status.hidden, false);
     t.mock.timers.tick(1);
+    assert.equal(status.hidden, false, type);
+    assert.equal(status.dataset.motion, 'exiting', type);
+    assert.equal(status.textContent, '완료했습니다.', type);
+    status.dispatchEvent({ type: 'animationend', animationName: 'toast-out' });
     assert.equal(status.hidden, true, type);
     assert.equal(status.popoverOpen, false, type);
+    assert.equal(status.dataset.motion, 'hidden', type);
+    assert.equal(status.textContent, '', type);
   }
 });
 
@@ -874,11 +897,171 @@ test('a new success gets a full display interval and empty messages hide immedia
   t.mock.timers.tick(500);
   assert.equal(status.hidden, false);
   t.mock.timers.tick(500);
+  assert.equal(status.hidden, false);
+  assert.equal(status.dataset.motion, 'exiting');
+  t.mock.timers.tick(240);
   assert.equal(status.hidden, true);
+  assert.equal(status.dataset.motion, 'hidden');
   view.showStatus({ type: 'error', message: '오류' });
   assert.equal(status.hidden, false);
   view.showStatus();
   assert.equal(status.hidden, true);
+  assert.equal(status.dataset.motion, 'hidden');
+});
+
+test('toast follows hidden -> entering -> visible -> exiting -> hidden lifecycle without flicker on updates or child animations', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const status = document.root.querySelector('.app-status');
+  const icon = status.querySelector('.status-icon');
+  const checkPath = icon.querySelector('path');
+
+  assert.equal(status.hidden, true);
+  assert.equal(status.dataset.motion, 'hidden');
+
+  view.setState({ pending: true });
+  view.showStatus({ type: 'saving', message: '저장 중입니다.' });
+  assert.equal(status.hidden, false);
+  assert.equal(status.dataset.motion, 'entering');
+
+  // Updating message/state while entering keeps the current entrance without restarting.
+  view.showStatus({ type: 'saved', message: '저장했습니다.' });
+  assert.equal(status.dataset.motion, 'entering');
+  assert.equal(status.textContent, '저장했습니다.');
+  assert.equal(icon.dataset.state, 'success');
+
+  // Child icon animations bubbling up must not prematurely settle toast motion.
+  checkPath.dispatchEvent({ type: 'animationend', bubbles: true, animationName: 'check-draw' });
+  icon.dispatchEvent({ type: 'animationend', bubbles: true, animationName: 'check-settle' });
+  assert.equal(status.dataset.motion, 'entering');
+
+  status.dispatchEvent({ type: 'animationend', animationName: 'toast-in' });
+  assert.equal(status.dataset.motion, 'visible');
+
+  // Updating while visible stays visible without re-triggering entrance.
+  view.showStatus({ type: 'connected', message: '연결했습니다.' });
+  assert.equal(status.dataset.motion, 'visible');
+  assert.equal(status.textContent, '연결했습니다.');
+
+  // Moving the toast into/out of a modal dialog while visible keeps it settled.
+  view.showConnection({ connected: true });
+  const toggle = document.root.querySelector('.connection-toggle');
+  toggle.listeners.get('click').forEach(listener => listener());
+  assert.equal(status.dataset.motion, 'visible');
+  toggle.listeners.get('click').forEach(listener => listener());
+  assert.equal(status.dataset.motion, 'visible');
+
+  view.setState({ pending: false });
+  t.mock.timers.tick(1000);
+  assert.equal(status.hidden, false);
+  assert.equal(status.dataset.motion, 'exiting');
+  assert.equal(status.textContent, '연결했습니다.');
+  assert.equal(icon.hidden, false);
+  assert.equal(icon.dataset.state, 'success');
+
+  // Unrelated render while exiting must not cancel exit or prematurely hide.
+  view.setState({ pending: false, frozen: false });
+  assert.equal(status.hidden, false);
+  assert.equal(status.dataset.motion, 'exiting');
+
+  // Child icon animationend must not prematurely finish exit.
+  checkPath.dispatchEvent({ type: 'animationend', bubbles: true, animationName: 'check-draw' });
+  assert.equal(status.hidden, false);
+  assert.equal(status.dataset.motion, 'exiting');
+
+  status.dispatchEvent({ type: 'animationend', animationName: 'toast-out' });
+  assert.equal(status.hidden, true);
+  assert.equal(status.dataset.motion, 'hidden');
+  assert.equal(status.textContent, '');
+  assert.equal(icon.hidden, true);
+  assert.equal(status.popoverOpen, false);
+
+  // Fallback timers still settle entering and complete exiting without animationend events.
+  view.showStatus({ type: 'loaded', message: '불러왔습니다.' });
+  assert.equal(status.dataset.motion, 'entering');
+  t.mock.timers.tick(280);
+  assert.equal(status.dataset.motion, 'visible');
+  t.mock.timers.tick(720);
+  assert.equal(status.dataset.motion, 'exiting');
+  t.mock.timers.tick(240);
+  assert.equal(status.hidden, true);
+  assert.equal(status.dataset.motion, 'hidden');
+});
+
+test('interruption during exit cancels exit timer and immediate hides skip exit motion', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  const status = document.root.querySelector('.app-status');
+
+  // 1. New status (even identical) during exit cancels exit and re-enters cleanly.
+  view.showStatus({ type: 'saved', message: '저장했습니다.' });
+  t.mock.timers.tick(1000);
+  assert.equal(status.dataset.motion, 'exiting');
+  view.showStatus({ type: 'saved', message: '저장했습니다.' });
+  assert.equal(status.hidden, false);
+  assert.equal(status.dataset.motion, 'entering');
+  assert.equal(status.textContent, '저장했습니다.');
+  t.mock.timers.tick(400);
+  assert.equal(status.hidden, false, 'cancelled exit fallback must not wipe out the new toast');
+  assert.equal(status.dataset.motion, 'visible');
+
+  // 2. routeLoading during exit cancels exit and announces loading.
+  t.mock.timers.tick(600);
+  assert.equal(status.dataset.motion, 'exiting');
+  view.setRouteReadState('loading');
+  assert.equal(status.hidden, false);
+  assert.equal(status.dataset.motion, 'entering');
+  assert.equal(status.textContent, '화면을 불러오는 중…');
+  t.mock.timers.tick(400);
+  assert.equal(status.hidden, false);
+  view.setRouteReadState('ready');
+  assert.equal(status.hidden, true);
+  assert.equal(status.dataset.motion, 'hidden');
+
+  // 3. pending state during exit cancels exit and clears stale completed text.
+  view.showStatus({ type: 'saved', message: '저장했습니다.' });
+  t.mock.timers.tick(1000);
+  assert.equal(status.dataset.motion, 'exiting');
+  view.setState({ pending: true });
+  assert.equal(status.hidden, false);
+  assert.equal(status.dataset.motion, 'entering');
+  assert.equal(status.textContent, '불러오는 중…');
+  view.showStatus({ type: 'ready', message: '' });
+  view.setState({ pending: false });
+  assert.equal(status.hidden, true, 'ready after pending finishes immediately without exit motion');
+  assert.equal(status.dataset.motion, 'hidden');
+
+  // 4. clearStatus during exit hides immediately without lingering exit.
+  view.showStatus({ type: 'saved', message: '저장했습니다.' });
+  t.mock.timers.tick(1000);
+  assert.equal(status.dataset.motion, 'exiting');
+  view.clearStatus();
+  assert.equal(status.hidden, true);
+  assert.equal(status.dataset.motion, 'hidden');
+  assert.equal(status.textContent, '');
+});
+
+test('toast skips enter and exit waits when prefers-reduced-motion is reduce', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const document = new TestDocument();
+  document.defaultView = {
+    matchMedia(query) {
+      return { matches: query === '(prefers-reduced-motion: reduce)' };
+    },
+  };
+  const view = createBeanView(document);
+  const status = document.root.querySelector('.app-status');
+
+  view.showStatus({ type: 'saved', message: '저장했습니다.' });
+  assert.equal(status.hidden, false);
+  assert.equal(status.dataset.motion, 'visible');
+  t.mock.timers.tick(999);
+  assert.equal(status.hidden, false);
+  t.mock.timers.tick(1);
+  assert.equal(status.hidden, true);
+  assert.equal(status.dataset.motion, 'hidden');
 });
 
 function controllerFor(view, { readConnection = async () => null } = {}) {
@@ -3176,10 +3359,13 @@ test('reduced motion overrides modal entrance and the pull-to-refresh spinner', 
   const reduceAt = css.lastIndexOf('@media (prefers-reduced-motion: reduce)');
   for (const rule of [
     '.entry-dialog[open] { animation: entry-dialog-in',
+    '.app-status[data-motion="entering"] { animation: toast-in',
+    '.app-status[data-motion="exiting"] { animation: toast-out',
     '.pull-refresh[data-state="reloading"] .pull-refresh-spinner { animation: pull-refresh-spin',
   ]) assert.ok(reduceAt > css.indexOf(rule), 'reduced motion must win the cascade for ' + rule);
   const reduced = css.slice(reduceAt);
   assert.match(reduced, /\.entry-dialog\[open\].*animation: none/s);
+  assert.match(reduced, /\.app-status\[data-motion="entering"\][\s\S]*?\.app-status\[data-motion="exiting"\][\s\S]*?animation: none;/);
   assert.match(reduced, /\.pull-refresh\[data-state="reloading"\] \.pull-refresh-spinner[\s\S]*?animation: none;/);
 });
 
@@ -3448,7 +3634,9 @@ test('connection modal protects pending and success phases across product rerend
   assert.equal(dialog.open, false);
   assert.equal(status.parentElement, document.root.firstElementChild, 'success toast remains visible after the modal closes');
   assert.equal(status.hidden, false);
-  t.mock.timers.tick(3000);
+  t.mock.timers.tick(1000);
+  assert.equal(status.dataset.motion, 'exiting');
+  t.mock.timers.tick(2000);
   assert.equal(status.hidden, true, 'the shared success toast keeps its existing auto-hide policy');
 });
 

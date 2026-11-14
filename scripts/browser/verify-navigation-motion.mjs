@@ -117,7 +117,7 @@ try {
   await page.waitForFunction(() => document.querySelector('.tabs .tabs-start-brew').hasAttribute('aria-current'));
   const brew = await settled();
   assert.equal(brew.itemBackground, 'rgba(0, 0, 0, 0)');
-  assert.notEqual(brew.color, results[0].color);
+  assert.notEqual(brew.color, start.color);
   results.push({ check: 'brew accent color', ...brew });
   await page.screenshot({ path: `${out}/brew.png` });
   await page.emulateMedia({ reducedMotion: 'reduce' });

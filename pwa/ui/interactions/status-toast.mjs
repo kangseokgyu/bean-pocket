@@ -4,8 +4,8 @@ import { actionIcon } from '../shared/icons.mjs';
 const IN_PROGRESS_STATUS_TYPES = new Set(['startup-checking', 'checking', 'saving', 'loading']);
 const COMPLETED_STATUS_TYPES = new Set(['saved', 'connected', 'resolved', 'loaded']);
 const STATUS_DISPLAY_MS = 1000;
-const ENTER_FALLBACK_MS = 280;
-const EXIT_FALLBACK_MS = 240;
+const ENTER_FALLBACK_MS = 380;
+const EXIT_FALLBACK_MS = 280;
 
 export function createStatusToast(document, page, { isPending, hideForDialog, onHide }) {
   let suppressPendingStatus = false;

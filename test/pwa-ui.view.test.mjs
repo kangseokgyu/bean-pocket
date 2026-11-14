@@ -607,6 +607,9 @@ test('toast trailing icon changes from loading to completion without replacing i
     assert.equal(icon.dataset.state, 'success');
     assert.equal(status.textContent, '완료했습니다.');
     t.mock.timers.tick(240);
+    assert.equal(status.hidden, false);
+    assert.equal(status.dataset.motion, 'exiting');
+    t.mock.timers.tick(40);
     assert.equal(status.hidden, true);
     assert.equal(icon.hidden, true);
     assert.equal(status.dataset.motion, 'hidden');
@@ -899,7 +902,7 @@ test('a new success gets a full display interval and empty messages hide immedia
   t.mock.timers.tick(500);
   assert.equal(status.hidden, false);
   assert.equal(status.dataset.motion, 'exiting');
-  t.mock.timers.tick(240);
+  t.mock.timers.tick(280);
   assert.equal(status.hidden, true);
   assert.equal(status.dataset.motion, 'hidden');
   view.showStatus({ type: 'error', message: '오류' });
@@ -981,10 +984,15 @@ test('toast follows hidden -> entering -> visible -> exiting -> hidden lifecycle
   view.showStatus({ type: 'loaded', message: '불러왔습니다.' });
   assert.equal(status.dataset.motion, 'entering');
   t.mock.timers.tick(280);
+  assert.equal(status.dataset.motion, 'entering');
+  t.mock.timers.tick(100);
   assert.equal(status.dataset.motion, 'visible');
-  t.mock.timers.tick(720);
+  t.mock.timers.tick(620);
   assert.equal(status.dataset.motion, 'exiting');
   t.mock.timers.tick(240);
+  assert.equal(status.hidden, false);
+  assert.equal(status.dataset.motion, 'exiting');
+  t.mock.timers.tick(40);
   assert.equal(status.hidden, true);
   assert.equal(status.dataset.motion, 'hidden');
 });
@@ -3367,6 +3375,31 @@ test('reduced motion overrides modal entrance and the pull-to-refresh spinner', 
   assert.match(reduced, /\.entry-dialog\[open\].*animation: none/s);
   assert.match(reduced, /\.app-status\[data-motion="entering"\][\s\S]*?\.app-status\[data-motion="exiting"\][\s\S]*?animation: none;/);
   assert.match(reduced, /\.pull-refresh\[data-state="reloading"\] \.pull-refresh-spinner[\s\S]*?animation: none;/);
+});
+
+test('toast CSS keyframes reach full opacity before completion across a visible upward slide and exit to the same offset', () => {
+  const css = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
+  const toastIn = css.match(/@keyframes\s+toast-in\s*\{([\s\S]*?)\n\}/);
+  const toastOut = css.match(/@keyframes\s+toast-out\s*\{([\s\S]*?)\n\}/);
+  assert.ok(toastIn, 'toast-in keyframes exist');
+  assert.ok(toastOut, 'toast-out keyframes exist');
+
+  const startYMatch = toastIn[1].match(/0%\s*\{[^}]*opacity:\s*0;[^}]*transform:\s*translateY\((\d+)px\)/s);
+  assert.ok(startYMatch, 'toast-in starts hidden and shifted downward');
+  const offsetPx = Number(startYMatch[1]);
+  assert.ok(offsetPx >= 32, 'toast-in downward offset (' + offsetPx + 'px) must be >= 32px so the rise is clearly visible');
+
+  const midOpacityMatch = toastIn[1].match(/(\d+)%\s*\{[^}]*opacity:\s*1;/s);
+  assert.ok(midOpacityMatch, 'toast-in reaches full opacity at an intermediate keyframe before completion');
+  const midPercent = Number(midOpacityMatch[1]);
+  assert.ok(midPercent > 0 && midPercent < 100, 'toast-in full opacity keyframe (' + midPercent + '%) precedes 100%');
+  assert.match(toastIn[1], /100%\s*\{[^}]*opacity:\s*1;[^}]*transform:\s*translateY\(0\)/s);
+  assert.match(css, /\.app-status\[data-motion="entering"\]\s*\{\s*animation:\s*toast-in\s+320ms\s+cubic-bezier\(0\.16,\s*1,\s*0\.3,\s*1\)\s+both;\s*\}/);
+
+  assert.match(toastOut[1], /0%\s*\{[^}]*opacity:\s*1;[^}]*transform:\s*translateY\(0\)/s);
+  assert.match(toastOut[1], /30%\s*\{[^}]*opacity:\s*1;/s);
+  assert.match(toastOut[1], new RegExp('100%\\s*\\{[^}]*opacity:\\s*0;[^}]*transform:\\s*translateY\\(' + offsetPx + 'px\\)', 's'));
+  assert.match(css, /\.app-status\[data-motion="exiting"\]\s*\{\s*animation:\s*toast-out\s+220ms\s+cubic-bezier\(0\.4,\s*0,\s*1,\s*1\)\s+both;\s*\}/);
 });
 
 

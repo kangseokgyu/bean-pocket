@@ -232,29 +232,35 @@ p { line-height: 1.6; }
 }
 
 @keyframes toast-in {
-  from {
+  0% {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(36px);
   }
-  to {
+  35% {
+    opacity: 1;
+  }
+  100% {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
 @keyframes toast-out {
-  from {
+  0% {
     opacity: 1;
     transform: translateY(0);
   }
-  to {
+  30% {
+    opacity: 1;
+  }
+  100% {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(36px);
   }
 }
 
-.app-status[data-motion="entering"] { animation: toast-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both; }
-.app-status[data-motion="exiting"] { animation: toast-out 180ms cubic-bezier(0.4, 0, 1, 1) both; }
+.app-status[data-motion="entering"] { animation: toast-in 320ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.app-status[data-motion="exiting"] { animation: toast-out 220ms cubic-bezier(0.4, 0, 1, 1) both; }
 
 .panel, .data-panel, .unresolved-panel, .card-skeletons {
   min-width: 0;

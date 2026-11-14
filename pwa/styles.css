@@ -1246,6 +1246,7 @@ footer {
     line-height: 1.2;
     text-decoration: none;
     white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
   }
   .tabs .button:hover { color: var(--text); background: var(--surface-hover); }
   .tabs .button[aria-current="page"] {
@@ -1268,10 +1269,10 @@ footer {
     pointer-events: none;
   }
   .tabs[data-indicator-animate="true"]::before {
-    transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1), width 280ms cubic-bezier(0.22, 1, 0.36, 1), background-color 180ms ease;
+    transition: transform 380ms cubic-bezier(0.4, 0, 0.2, 1), width 380ms cubic-bezier(0.4, 0, 0.2, 1), background-color 180ms ease;
   }
   .tabs[data-indicator-ready="true"] .nav-item { position: relative; }
-  .tabs[data-indicator-ready="true"] .button[aria-current="page"] { background: transparent; }
+  .tabs[data-indicator-ready="true"] .button { background: transparent; }
   .tabs[data-indicator-ready="true"]:has(.tabs-start-brew[aria-current="page"])::before {
     background: var(--accent);
     box-shadow: 0 2px 6px rgb(var(--shadow-rgb) / 18%);
@@ -1305,6 +1306,8 @@ footer {
     box-shadow: 0 2px 6px rgb(var(--shadow-rgb) / 18%);
   }
   .tabs .tabs-start-brew[aria-current="page"]:hover { background: var(--accent-hover); color: var(--accent-text); }
+  .tabs[data-indicator-ready="true"] .tabs-start-brew,
+  .tabs[data-indicator-ready="true"] .tabs-start-brew:hover,
   .tabs[data-indicator-ready="true"] .tabs-start-brew[aria-current="page"] {
     background: transparent;
     box-shadow: none;

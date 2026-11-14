@@ -55,3 +55,20 @@ test('hidden or desktop navigation resets placement and leaves native selection 
   syncNavigationIndicator(nav);
   assert.equal(nav.dataset.indicatorReady, undefined);
 });
+
+test('rapid retargeting preserves the active CSS transition without a layout snap', () => {
+  const { nav, selected } = fixture();
+  syncNavigationIndicator(nav);
+  let layoutReads = 0;
+  const animationChanges = [];
+  Object.defineProperty(nav, 'offsetWidth', { get() { layoutReads++; return 344; } });
+  nav.dataset = new Proxy(nav.dataset, {
+    set(target, key, value) { animationChanges.push([key, value]); target[key] = value; return true; },
+  });
+  for (const x of [7, 270, 65]) {
+    selected.offsetLeft = x;
+    syncNavigationIndicator(nav);
+  }
+  assert.equal(layoutReads, 0, 'retargeting never flushes a snapped position');
+  assert.ok(animationChanges.every(([key, value]) => key !== 'indicatorAnimate' || value === 'true'));
+});

@@ -17,3 +17,11 @@
 - 공개 빌드: `8dda0ee2e45b` (로컬 빌드와 일치).
 - 공개 styles.css, ui/screens/records.mjs, ui/interactions/events.mjs를 dist와 바이트 단위 비교하여 모두 일치. SHA-256은 public-files.json에 기록.
 - 자동 승인 검토 사용량 한도로 결과 조회가 한 차례 실행되지 않았으나, 사용자 계속 진행 요청 후 조회 및 공개 반영 검증 완료.
+
+## 후속: 필터 상하 간격 축소
+
+- 필터 margin 12px 0 → 0, 관리 본문 margin-top 12px → 0, 목록 제목 margin-top 8px → 0. 위쪽 24px 및 아래쪽 20px 감소.
+- Chrome 320/390/768px: 버튼 44px 높이와 한 줄 배치 유지, 가로 넘침 없음. 실제 필터–목록 제목 간격 8px 확인. 390px 스크린샷 시각 검토 완료.
+- `npm test`: exit 0, 817/817 통과 (`/tmp/record-filter-spacing-tests.log`).
+- `npm run build:pages`, `npm run check:pages`: exit 0. 빌드 `9a385d5477b3`.
+- CSS 여백만 변경. 실제 iPhone Safari는 미검증.

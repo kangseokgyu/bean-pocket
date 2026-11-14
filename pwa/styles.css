@@ -952,7 +952,7 @@ button:focus-visible, .table-scroll:focus-visible {
 .record-summary-header { align-items: center; }
 .record-summary-header p { min-width: 0; margin: 0 0 12px; overflow-wrap: anywhere; }
 :is(.recipe-card, .record-card) .entity-card-header + p { margin-top: 0; }
-.record-filters { display: flex; align-items: center; gap: 8px; min-width: 0; margin: 12px 0; padding: 0; border: 0; }
+.record-filters { display: flex; align-items: center; gap: 8px; min-width: 0; margin: 0; padding: 0; border: 0; }
 .record-filters > .search-picker { flex: 1 1 0; min-width: 0; margin: 0; }
 .record-filters .search-picker-trigger { min-height: 44px; padding: 8px 10px; gap: 6px; border-radius: 999px; }
 .record-filters .search-picker-value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1106,7 +1106,7 @@ button:focus-visible, .table-scroll:focus-visible {
 .record-management { color: var(--text); }
 .record-management > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; color: #76543a; cursor: pointer; }
 .record-management > summary span { color: var(--text-muted); text-align: right; }
-.record-management-body { display: grid; gap: 8px; margin-top: 12px; }
+.record-management-body { display: grid; gap: 8px; margin-top: 0; }
 .record-overview { min-width: 0; }
 .record-overview-table { width: 100%; border-collapse: collapse; }
 .record-overview-table th, .record-overview-table td {
@@ -1123,7 +1123,7 @@ button:focus-visible, .table-scroll:focus-visible {
   white-space: nowrap;
 }
 .record-insights-table-note { margin: 0; color: var(--text-muted); }
-.record-table-heading { margin: 8px 0 0; }
+.record-table-heading { margin: 0; }
 .record-insights-more { width: 100%; }
 .muted-note, .empty-state { color: var(--text-muted); }
 .repair-panel { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }

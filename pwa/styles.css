@@ -1255,6 +1255,30 @@ footer {
     font-weight: 700;
     text-decoration: none;
   }
+  .tabs[data-indicator-ready="true"]::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: var(--nav-indicator-y);
+    width: var(--nav-indicator-width);
+    height: var(--nav-indicator-height);
+    transform: translateX(var(--nav-indicator-x));
+    border-radius: 20px;
+    background: var(--selection);
+    pointer-events: none;
+  }
+  .tabs[data-indicator-animate="true"]::before {
+    transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1), width 280ms cubic-bezier(0.22, 1, 0.36, 1), background-color 180ms ease;
+  }
+  .tabs[data-indicator-ready="true"] .nav-item { position: relative; }
+  .tabs[data-indicator-ready="true"] .button[aria-current="page"] { background: transparent; }
+  .tabs[data-indicator-ready="true"]:has(.tabs-start-brew[aria-current="page"])::before {
+    background: var(--accent);
+    box-shadow: 0 2px 6px rgb(var(--shadow-rgb) / 18%);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tabs[data-indicator-animate="true"]::before { transition: none; }
+  }
   .tabs .nav-label { font-size: calc(1em - 2px); }
   .tabs .nav-icon {
     display: block;
@@ -1281,6 +1305,10 @@ footer {
     box-shadow: 0 2px 6px rgb(var(--shadow-rgb) / 18%);
   }
   .tabs .tabs-start-brew[aria-current="page"]:hover { background: var(--accent-hover); color: var(--accent-text); }
+  .tabs[data-indicator-ready="true"] .tabs-start-brew[aria-current="page"] {
+    background: transparent;
+    box-shadow: none;
+  }
   .tabs .button:focus-visible { outline-color: var(--focus); }
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     .tabs {

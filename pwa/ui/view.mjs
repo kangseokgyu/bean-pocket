@@ -325,7 +325,16 @@ export function createAppView(document = globalThis.document, {
     (header ?? page).append(nav);
   }
   placeNavigation();
-  narrowNavigation?.addEventListener?.('change', placeNavigation);
+  narrowNavigation?.addEventListener?.('change', () => {
+    placeNavigation();
+    syncNavigationIndicator(nav, false);
+  });
+  const NavigationResizeObserver = document.defaultView?.ResizeObserver;
+  if (NavigationResizeObserver) {
+    const navigationResize = new NavigationResizeObserver(() => syncNavigationIndicator(nav, false));
+    navigationResize.observe(nav);
+    nav.querySelectorAll('.nav-item').forEach(item => navigationResize.observe(item));
+  }
 
   function applyViewState() {
     applyState(page, currentState);
@@ -780,6 +789,7 @@ export function createAppView(document = globalThis.document, {
       editConnection.hidden = !retryInitialization || !value?.canEditConnection;
       repair.hidden = !value?.needsRecovery;
       nav.hidden = !connected;
+      syncNavigationIndicator(nav, false);
       unresolved.hidden = !connected || unresolved.dataset.count === '0';
       content.hidden = !connected;
       const keepFeedback = connection.open && (currentState.pending || connectionPhase !== 'idle');
@@ -1556,4 +1566,25 @@ function updateNavigationCurrent(document, route) {
     if (key === section) item.setAttribute('aria-current', 'page');
     else item.removeAttribute('aria-current');
   });
+  document.querySelectorAll('.tabs').forEach(nav => syncNavigationIndicator(nav));
+}
+
+export function syncNavigationIndicator(nav, animate = true) {
+  if (!nav.getBoundingClientRect) return;
+  const mobile = nav.ownerDocument.defaultView?.matchMedia?.('(max-width: 600px)')?.matches;
+  const selected = nav.querySelector('[aria-current="page"]');
+  if (!mobile || !selected || !nav.getBoundingClientRect().width) {
+    delete nav.dataset.indicatorReady;
+    delete nav.dataset.indicatorAnimate;
+    return;
+  }
+  const snap = !animate || nav.dataset.indicatorReady !== 'true';
+  if (snap) nav.dataset.indicatorAnimate = 'false';
+  nav.style.setProperty('--nav-indicator-x', `${selected.offsetLeft}px`);
+  nav.style.setProperty('--nav-indicator-y', `${selected.offsetTop}px`);
+  nav.style.setProperty('--nav-indicator-width', `${selected.offsetWidth}px`);
+  nav.style.setProperty('--nav-indicator-height', `${selected.offsetHeight}px`);
+  nav.dataset.indicatorReady = 'true';
+  if (snap) void nav.offsetWidth;
+  nav.dataset.indicatorAnimate = 'true';
 }

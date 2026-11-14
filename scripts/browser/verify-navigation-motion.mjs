@@ -15,6 +15,24 @@ try {
   browser = await chromium.launch({ headless: true,
     ...(process.env.CHROME_EXECUTABLE ? { executablePath: process.env.CHROME_EXECUTABLE } : {}) });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.addInitScript(() => {
+    window.navigationPhase = 'initial';
+    window.navigationPlacements = [];
+    new MutationObserver(records => {
+      const snapped = records.some(record => record.attributeName === 'data-indicator-animate' && record.oldValue === 'false');
+      const nav = document.querySelector('.tabs');
+      if (!snapped || nav?.dataset.indicatorReady !== 'true') return;
+      const selected = nav.querySelector('[aria-current="page"]');
+      const style = getComputedStyle(nav, '::before');
+      window.navigationPlacements.push({ phase: window.navigationPhase,
+        reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
+        x: new DOMMatrixReadOnly(style.transform).m41, width: parseFloat(style.width),
+        targetX: selected.offsetLeft, targetWidth: selected.offsetWidth,
+        animations: nav.getAnimations({ subtree: true }).length });
+    }).observe(document, { subtree: true, attributes: true, attributeOldValue: true,
+      attributeFilter: ['data-indicator-animate'] });
+  });
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto(`http://127.0.0.1:${server.address().port}/regression/pwa/index.html`);
@@ -43,12 +61,21 @@ try {
     assert.equal(value.currentCount, 1);
     return value;
   };
+  const assertSnap = async phase => {
+    await page.waitForFunction(phase => window.navigationPlacements.some(value => value.phase === phase), phase);
+    const value = await page.evaluate(phase => window.navigationPlacements.find(value => value.phase === phase), phase);
+    assert.equal(value.reducedMotion, false, `${phase} uses normal motion`);
+    assert.equal(value.animations, 0, `${phase} has no transition immediately after placement`);
+    assert.ok(Math.abs(value.x - value.targetX) < 1, JSON.stringify(value));
+    assert.ok(Math.abs(value.width - value.targetWidth) < 1, JSON.stringify(value));
+    results.push({ check: `${phase} immediate placement with normal motion`, ...value });
+  };
   const click = async route => {
     await page.locator(`.tabs [data-route="${route}"]`).click();
     await page.waitForFunction(route => document.querySelector('.tabs [aria-current]')?.dataset.route === route, route);
   };
   await page.waitForFunction(() => document.querySelector('.tabs').dataset.indicatorReady === 'true');
-  results.push({ check: 'initial placement', ...await settled() });
+  await assertSnap('initial');
   const start = await snapshot();
   await click('/records');
   await page.waitForFunction(startX => {
@@ -63,15 +90,26 @@ try {
   results.push({ check: 'moving between menu buttons', ...middle });
   results.push({ check: 'settled destination', ...await settled() });
   await click('/beans');
-  await click('/recipes');
-  await click('/home');
-  results.push({ check: 'rapid selection ends on home', ...await settled() });
+  const interruption = await page.evaluate(() => {
+    const nav = document.querySelector('.tabs');
+    const active = nav.getAnimations({ subtree: true });
+    const x = new DOMMatrixReadOnly(getComputedStyle(nav, '::before').transform).m41;
+    const targetX = nav.querySelector('[aria-current]').offsetLeft;
+    const before = { activeAnimations: active.length, x, targetX };
+    document.querySelector('.tabs [data-route="/home"]').click();
+    return before;
+  });
+  assert.ok(interruption.activeAnimations > 0, 'next click occurs during the previous animation');
+  assert.ok(Math.abs(interruption.x - interruption.targetX) > 1, 'previous destination has not been reached');
+  await page.waitForFunction(() => document.querySelector('.tabs [aria-current]')?.dataset.route === '/home');
+  results.push({ check: 'rapid selection interrupts an active transition', interruption, ...await settled() });
+  await page.evaluate(() => { window.navigationPhase = 'resize'; });
   await page.setViewportSize({ width: 320, height: 844 });
   await page.waitForFunction(() => {
     const nav = document.querySelector('.tabs');
     return parseFloat(nav.style.getPropertyValue('--nav-indicator-width')) === nav.querySelector('[aria-current]').offsetWidth;
   });
-  results.push({ check: '320px resize', ...await settled() });
+  await assertSnap('resize');
   await click('/records');
   results.push({ check: '320px unequal column destination', ...await settled() });
   await page.screenshot({ path: `${out}/320px.png` });
@@ -96,9 +134,11 @@ try {
   await click('/beans');
   assert.equal(await page.locator('.tabs [aria-current]').getAttribute('data-route'), '/beans');
   results.push({ check: 'desktop navigation retains original placement and selection' });
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.evaluate(() => { window.navigationPhase = 'mobile-return'; });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForFunction(() => document.querySelector('.tabs').dataset.indicatorReady === 'true');
-  results.push({ check: 'mobile return', ...await settled() });
+  await assertSnap('mobile-return');
   await page.screenshot({ path: `${out}/390px.png` });
   assert.deepEqual(errors, []);
   await writeFile(`${out}/results.json`, JSON.stringify({ results, errors }, null, 2));

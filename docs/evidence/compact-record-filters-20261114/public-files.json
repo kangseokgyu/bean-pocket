@@ -1,0 +1,17 @@
+[
+  {
+    "file": "styles.css",
+    "matches": true,
+    "sha256": "db3c50b713c89053ab6b120a108883b7dd07c247d981995cbe01a0b864fa9029"
+  },
+  {
+    "file": "ui/screens/records.mjs",
+    "matches": true,
+    "sha256": "4469342fba7e802d8cee1b0d68d1a95bf540298fee8084c1303b4c529a9be7d8"
+  },
+  {
+    "file": "ui/interactions/events.mjs",
+    "matches": true,
+    "sha256": "b6fb6866f481ed1682227e5c7d467291bb3d1817ddb9b507aff429583775de81"
+  }
+]

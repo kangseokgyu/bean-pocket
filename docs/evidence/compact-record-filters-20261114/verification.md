@@ -8,3 +8,12 @@
 - Chrome/Playwright: 320/390/768px에서 필터 높이 44px, 버튼 같은 행, 화면 가로 넘침 없음. 320px 긴 이름 말줄임과 선택/초기화 확인.
 - 브라우저 harness의 검색 목록 공급이 로딩 상태에서 지연되어 고정 원두 데이터를 view.setSearchOptions로 공급해 UI 조작을 검증함. 실제 Notion 검색 통합 및 iPhone Safari/설치 PWA는 미검증.
 - 기존 작업 폴더의 미커밋 pwa/styles.css는 포함하거나 수정하지 않음.
+
+## 공개 반영 확인
+
+- 배포 커밋: `21a6327599f65199b99e808df455b8cee210c882`.
+- 일반판 workflow (`probes=false`): https://github.com/kangseokgyu/bean-pocket/actions/runs/43532817735 — completed / success.
+- 공개 주소: https://kangseokgyu.github.io/bean-pocket/
+- 공개 빌드: `8dda0ee2e45b` (로컬 빌드와 일치).
+- 공개 styles.css, ui/screens/records.mjs, ui/interactions/events.mjs를 dist와 바이트 단위 비교하여 모두 일치. SHA-256은 public-files.json에 기록.
+- 자동 승인 검토 사용량 한도로 결과 조회가 한 차례 실행되지 않았으나, 사용자 계속 진행 요청 후 조회 및 공개 반영 검증 완료.

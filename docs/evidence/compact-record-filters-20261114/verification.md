@@ -25,3 +25,6 @@
 - `npm test`: exit 0, 817/817 통과 (`/tmp/record-filter-spacing-tests.log`).
 - `npm run build:pages`, `npm run check:pages`: exit 0. 빌드 `9a385d5477b3`.
 - CSS 여백만 변경. 실제 iPhone Safari는 미검증.
+
+- 후속 게시 성공: https://github.com/kangseokgyu/bean-pocket/actions/runs/43575020332
+- 공개 빌드 `9a385d5477b3` 확인. 공개 styles.css는 dist와 바이트 단위 일치 (SHA-256 `cc36fb1deb4c9505388b4d974a221d24a1af91048f492348d79dd1303d374eb2`).

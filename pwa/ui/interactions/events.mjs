@@ -575,8 +575,8 @@ export function bindEvents({ page, nav, connectionForm, tokenInput, scheduleToke
       if (missingName) {
         const picker = Array.from(form.querySelectorAll('[data-search-picker]'))
           .find(item => item.dataset.optionKind === (missingName[0] === 'beanId' ? 'beans' : 'recipes'));
-        view.showStatus({ type: 'validation-error', message: `${missingName[1]}를 선택해 주세요.` });
         openPicker(picker);
+        view.showStatus({ type: 'validation-error', message: `${missingName[1]}를 선택해 주세요.` });
         return;
       }
     }

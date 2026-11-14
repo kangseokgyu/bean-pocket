@@ -4,8 +4,8 @@ import { actionIcon } from '../shared/icons.mjs';
 const IN_PROGRESS_STATUS_TYPES = new Set(['startup-checking', 'checking', 'saving', 'loading']);
 const COMPLETED_STATUS_TYPES = new Set(['saved', 'connected', 'resolved', 'loaded']);
 const STATUS_DISPLAY_MS = 1000;
-const ENTER_FALLBACK_MS = 380;
-const EXIT_FALLBACK_MS = 280;
+const ENTER_FALLBACK_MS = 420;
+const EXIT_FALLBACK_MS = 300;
 
 export function createStatusToast(document, page, { isPending, hideForDialog, onHide }) {
   let suppressPendingStatus = false;
@@ -117,7 +117,7 @@ export function createStatusToast(document, page, { isPending, hideForDialog, on
   function sync(promote = false, { allowReenter = false } = {}) {
     const visible = !status.hidden;
     const statusHost = isPending() && statusType === 'startup-checking' ? document.body ?? page : page;
-    const openDialog = [...page.querySelectorAll('dialog')].find(dialog => dialog.open);
+    const openDialog = [...page.querySelectorAll('dialog')].filter(dialog => dialog.open).at(-1);
     const actionRowRect = openDialog?.querySelector('.form-actions')?.getBoundingClientRect?.();
     const actionsRect = actionRowRect?.height > 0 ? actionRowRect
       : [...(openDialog?.querySelectorAll('button') ?? [])]
@@ -165,9 +165,14 @@ export function createStatusToast(document, page, { isPending, hideForDialog, on
     }
 
     if (status.parentElement !== statusHost) {
-      if (!allowReenter) {
+      const fromDialog = status.parentElement?.tagName?.toLowerCase() === 'dialog';
+      if (!allowReenter && fromDialog) {
         if (motionState === 'entering') settleEnter();
         else if (motionState === 'exiting') { finishExit({ notify: false }); return; }
+      }
+      if (statusPopoverOpen) {
+        status.hidePopover();
+        statusPopoverOpen = false;
       }
       statusHost.append(status);
     }

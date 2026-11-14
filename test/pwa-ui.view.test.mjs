@@ -356,6 +356,8 @@ test('startup checking shows the status toast outside the locked page until retr
   assert.equal(status.hidden, false);
   assert.equal(status.textContent, '저장된 연결 확인 중');
   assert.equal(status.parentElement === body, true, 'the toast stays outside the inert startup surface');
+  assert.equal(status.popoverOpen, true, 'startup toast re-opens its popover on document.body');
+  assert.equal(status.dataset.motion, 'entering', 'reparenting startup toast to document.body preserves enter motion');
   assert.equal(status.getAttribute('aria-busy'), 'true');
   assert.equal(status.getAttribute('role'), 'status');
   assert.equal(status.querySelector('.status-icon').dataset.state, 'saving');
@@ -606,10 +608,10 @@ test('toast trailing icon changes from loading to completion without replacing i
     assert.equal(icon.hidden, false);
     assert.equal(icon.dataset.state, 'success');
     assert.equal(status.textContent, '완료했습니다.');
-    t.mock.timers.tick(240);
+  t.mock.timers.tick(280);
     assert.equal(status.hidden, false);
     assert.equal(status.dataset.motion, 'exiting');
-    t.mock.timers.tick(40);
+  t.mock.timers.tick(20);
     assert.equal(status.hidden, true);
     assert.equal(icon.hidden, true);
     assert.equal(status.dataset.motion, 'hidden');
@@ -902,7 +904,7 @@ test('a new success gets a full display interval and empty messages hide immedia
   t.mock.timers.tick(500);
   assert.equal(status.hidden, false);
   assert.equal(status.dataset.motion, 'exiting');
-  t.mock.timers.tick(280);
+  t.mock.timers.tick(300);
   assert.equal(status.hidden, true);
   assert.equal(status.dataset.motion, 'hidden');
   view.showStatus({ type: 'error', message: '오류' });
@@ -983,16 +985,16 @@ test('toast follows hidden -> entering -> visible -> exiting -> hidden lifecycle
   // Fallback timers still settle entering and complete exiting without animationend events.
   view.showStatus({ type: 'loaded', message: '불러왔습니다.' });
   assert.equal(status.dataset.motion, 'entering');
-  t.mock.timers.tick(280);
+  t.mock.timers.tick(380);
   assert.equal(status.dataset.motion, 'entering');
-  t.mock.timers.tick(100);
+  t.mock.timers.tick(40);
   assert.equal(status.dataset.motion, 'visible');
-  t.mock.timers.tick(620);
+  t.mock.timers.tick(580);
   assert.equal(status.dataset.motion, 'exiting');
-  t.mock.timers.tick(240);
+  t.mock.timers.tick(280);
   assert.equal(status.hidden, false);
   assert.equal(status.dataset.motion, 'exiting');
-  t.mock.timers.tick(40);
+  t.mock.timers.tick(20);
   assert.equal(status.hidden, true);
   assert.equal(status.dataset.motion, 'hidden');
 });
@@ -1011,18 +1013,18 @@ test('interruption during exit cancels exit timer and immediate hides skip exit 
   assert.equal(status.hidden, false);
   assert.equal(status.dataset.motion, 'entering');
   assert.equal(status.textContent, '저장했습니다.');
-  t.mock.timers.tick(400);
+  t.mock.timers.tick(420);
   assert.equal(status.hidden, false, 'cancelled exit fallback must not wipe out the new toast');
   assert.equal(status.dataset.motion, 'visible');
 
   // 2. routeLoading during exit cancels exit and announces loading.
-  t.mock.timers.tick(600);
+  t.mock.timers.tick(580);
   assert.equal(status.dataset.motion, 'exiting');
   view.setRouteReadState('loading');
   assert.equal(status.hidden, false);
   assert.equal(status.dataset.motion, 'entering');
   assert.equal(status.textContent, '화면을 불러오는 중…');
-  t.mock.timers.tick(400);
+  t.mock.timers.tick(420);
   assert.equal(status.hidden, false);
   view.setRouteReadState('ready');
   assert.equal(status.hidden, true);
@@ -3393,13 +3395,41 @@ test('toast CSS keyframes reach full opacity before completion across a visible 
   assert.ok(midOpacityMatch, 'toast-in reaches full opacity at an intermediate keyframe before completion');
   const midPercent = Number(midOpacityMatch[1]);
   assert.ok(midPercent > 0 && midPercent < 100, 'toast-in full opacity keyframe (' + midPercent + '%) precedes 100%');
+  assert.equal(offsetPx, 56, 'toast-in slides up from 56px');
+  assert.equal(midPercent, 25, 'toast-in reaches full opacity at 25%');
   assert.match(toastIn[1], /100%\s*\{[^}]*opacity:\s*1;[^}]*transform:\s*translateY\(0\)/s);
-  assert.match(css, /\.app-status\[data-motion="entering"\]\s*\{\s*animation:\s*toast-in\s+320ms\s+cubic-bezier\(0\.16,\s*1,\s*0\.3,\s*1\)\s+both;\s*\}/);
+  assert.match(css, /\.app-status\[data-motion="entering"\]\s*\{\s*animation:\s*toast-in\s+360ms\s+ease-out\s+both;\s*\}/);
 
   assert.match(toastOut[1], /0%\s*\{[^}]*opacity:\s*1;[^}]*transform:\s*translateY\(0\)/s);
   assert.match(toastOut[1], /30%\s*\{[^}]*opacity:\s*1;/s);
   assert.match(toastOut[1], new RegExp('100%\\s*\\{[^}]*opacity:\\s*0;[^}]*transform:\\s*translateY\\(' + offsetPx + 'px\\)', 's'));
-  assert.match(css, /\.app-status\[data-motion="exiting"\]\s*\{\s*animation:\s*toast-out\s+220ms\s+cubic-bezier\(0\.4,\s*0,\s*1,\s*1\)\s+both;\s*\}/);
+  assert.match(css, /\.app-status\[data-motion="exiting"\]\s*\{\s*animation:\s*toast-out\s+240ms\s+cubic-bezier\(0\.4,\s*0,\s*1,\s*1\)\s+both;\s*\}/);
+});
+
+test('record submit validation error opens the picker dialog and mounts the toast inside that topmost dialog', async () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.bind({ loadSearchOptions() {}, setDirty() {}, getState: () => ({ pending: false, frozen: false, unresolved: false }) });
+  view.renderData(data());
+  view.renderRoute('/records/new');
+
+  const entryDialog = document.root.querySelector('dialog[data-entry-dialog="records"]');
+  const form = entryDialog.querySelector('form[data-form="records"]');
+  const beanPicker = form.querySelectorAll('[data-search-picker]').find(item => item.dataset.optionKind === 'beans');
+  const beanPickerDialog = beanPicker.querySelector('[data-option-picker]');
+  const status = document.root.querySelector('.app-status');
+  assert.equal(entryDialog.open, true);
+
+  const submitEvent = { target: form, preventDefault() {} };
+  for (const listener of document.root.querySelector('.data-panel').listeners.get('submit') ?? []) {
+    await listener(submitEvent);
+  }
+
+  assert.equal(beanPickerDialog.open, true);
+  assert.equal(status.hidden, false);
+  assert.equal(status.textContent, '원두를 선택해 주세요.');
+  assert.equal(status.dataset.motion, 'entering');
+  assert.equal(status.parentElement, beanPickerDialog, 'validation toast mounts inside the topmost opened picker dialog');
 });
 
 

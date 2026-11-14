@@ -952,9 +952,14 @@ button:focus-visible, .table-scroll:focus-visible {
 .record-summary-header { align-items: center; }
 .record-summary-header p { min-width: 0; margin: 0 0 12px; overflow-wrap: anywhere; }
 :is(.recipe-card, .record-card) .entity-card-header + p { margin-top: 0; }
-.record-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 14px 0; padding: 0; border: 0; }
-.record-filters legend { grid-column: 1 / -1; padding: 0; color: var(--text-muted); font-weight: 700; }
-.record-filter-reset { grid-column: 1 / -1; justify-self: start; }
+.record-filters { display: flex; align-items: center; gap: 8px; min-width: 0; margin: 12px 0; padding: 0; border: 0; }
+.record-filters > .search-picker { flex: 1 1 0; min-width: 0; margin: 0; }
+.record-filters .search-picker-trigger { min-height: 44px; padding: 8px 10px; gap: 6px; border-radius: 999px; }
+.record-filters .search-picker-value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.record-filters .search-picker-chevron { margin-inline-start: auto; }
+.record-filters .search-picker-selection-details { display: none; }
+.record-filter-reset { flex: 0 0 auto; min-height: 44px; padding: 8px; }
+.record-filter-reset[hidden] { display: none; }
 .page-load-more { width: 100%; margin-top: 12px; }
 .records-demo-layout, .record-insight-details {
   display: grid;
@@ -1194,8 +1199,6 @@ footer {
       min-width: 36px;
     }
   }
-  .record-filters { grid-template-columns: minmax(0, 1fr); gap: 10px; }
-  .record-filters legend { grid-column: auto; }
   .record-insights { padding: 12px; }
   .record-insight-controls { grid-template-columns: minmax(0, 1fr); }
   .record-insight-recipe-conditions { grid-template-columns: minmax(0, 1fr); gap: 1px; }

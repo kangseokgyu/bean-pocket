@@ -37,7 +37,7 @@ export function renderRecords(pane, data, document, form, formOpen, optionPages,
   const managementBody = make(document, 'div', undefined, 'record-management-body');
 
   const filters = make(document, 'fieldset', undefined, 'record-filters');
-  filters.append(make(document, 'legend', '기록 필터'));
+  filters.append(make(document, 'legend', '기록 필터', 'visually-hidden'));
   const beanPicker = searchPicker(document, '원두별 조회', 'beans', 'filters', preferredOptionPage(data.options?.filterBeans, optionPages.get('filters:beans')),
     '모든 원두', true, optionStates.get('filters:beans'));
   const beanSearch = beanPicker.querySelector('[data-option-search-kind]');
@@ -49,6 +49,9 @@ export function renderRecords(pane, data, document, form, formOpen, optionPages,
   recipeSearch.dataset.recordFilterSearch = 'recipeId';
   recipePicker.querySelector('select').dataset.recordFilter = 'recipeId';
   const selectedFilters = data.screen?.filters ?? {};
+  for (const picker of [beanPicker, recipePicker]) {
+    picker.querySelector('.form-field-label').className = 'form-field-label visually-hidden';
+  }
   filters.append(beanPicker, recipePicker);
   const beanSelect = beanPicker.querySelector('select');
   const recipeSelect = recipePicker.querySelector('select');
@@ -56,9 +59,11 @@ export function renderRecords(pane, data, document, form, formOpen, optionPages,
   if (selectedFilters.recipeId) recipeSelect.value = selectedFilters.recipeId;
   syncSearchPickerTrigger(beanPicker, data);
   syncSearchPickerTrigger(recipePicker, data);
-  const reset = button(document, '필터 초기화', 'button', 'clear-record-filters', 'utility');
+  const reset = button(document, '초기화', 'button', 'clear-record-filters', 'utility');
   reset.className = 'button button--utility record-filter-reset';
   reset.disabled = !selectedFilters.beanId && !selectedFilters.recipeId;
+  reset.setAttribute('aria-label', '기록 필터 초기화');
+  reset.hidden = reset.disabled;
   filters.append(reset);
   managementBody.append(filters);
   managementBody.append(make(document, 'h3', '전체 기록 목록', 'record-table-heading'));

@@ -127,7 +127,10 @@ export function bindEvents({ page, nav, connectionForm, tokenInput, scheduleToke
     const beanId = content.querySelector('[data-record-filter="beanId"]')?.value ?? '';
     const recipeId = content.querySelector('[data-record-filter="recipeId"]')?.value ?? '';
     const reset = content.querySelector('[data-action="clear-record-filters"]');
-    if (reset) reset.disabled = !beanId && !recipeId;
+    if (reset) {
+      reset.disabled = !beanId && !recipeId;
+      reset.hidden = reset.disabled;
+    }
     const update = actions.setRecordFilters?.({ beanId, recipeId });
     if (update?.catch) void update.catch(() => {});
   };

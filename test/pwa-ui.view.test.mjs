@@ -4601,8 +4601,10 @@ test('record filters share the picker, reset both selections, and expose search 
   const reset = content.querySelector('[data-action="clear-record-filters"]');
   assert.ok(reset);
   assert.equal(reset.disabled, false);
+  assert.equal(reset.hidden, false);
   await clickViewTarget(document, reset);
   assert.equal(beanSelect.value, '');
+  assert.equal(reset.hidden, true);
   assert.deepEqual(filterUpdates.at(-1), { beanId: '', recipeId: '' });
   assert.equal(beanTrigger.textContent, '모든 원두');
   assert.equal(content.querySelector('[data-record-filter="recipeId"]').value, '');
@@ -6703,4 +6705,12 @@ test('pull refresh page offset preserves the viewport containing block of fixed 
   assert.match(pullRule, /var\(--pull-offset/);
   assert.doesNotMatch(pullRule, /(?:transform|translate|perspective|filter|contain|will-change)\s*:/,
     'pull refresh must not establish a containing block for viewport-fixed controls');
+});
+
+test('record filter reset stays hidden until a filter is active', () => {
+  const document = new TestDocument();
+  const view = createBeanView(document);
+  view.renderRoute('/records');
+  view.renderData(data());
+  assert.equal(document.root.querySelector('[data-action="clear-record-filters"]').hidden, true);
 });

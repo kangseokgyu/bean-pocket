@@ -33,7 +33,8 @@ export function renderRecords(pane, data, document, form, formOpen, optionPages,
     tabs.append(control);
   }
   selectPanel(managementOpen ? 'analysis' : 'list');
-  pane.append(tabs, management, analysis);
+  (pane.querySelector('.list-actions') ?? pane).append(tabs);
+  pane.append(management, analysis);
   const managementBody = make(document, 'div', undefined, 'record-management-body');
 
   const filters = make(document, 'fieldset', undefined, 'record-filters');

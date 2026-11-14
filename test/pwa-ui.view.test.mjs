@@ -6580,6 +6580,18 @@ test('records opens on the list tab and keeps filters and management available b
     screen: { route: '/records', complete: true, hasMore: false, filters: {} } });
   view.renderRoute('/records');
 
+  const header = document.root.querySelector('.list-view .list-header');
+  assert.equal(header?.querySelector('h2')?.textContent, '추출 기록');
+  const headerActions = header?.querySelector('.list-actions');
+  const headerTabs = headerActions?.querySelector('.records-tabs');
+  assert.ok(headerTabs, 'list and analysis tabs live inside the header actions beside the title');
+  assert.deepEqual(headerTabs.querySelectorAll('[data-records-tab]').map(node => node.dataset.recordsTab),
+    ['list', 'analysis']);
+  const stylesheet = readFileSync(new URL('../pwa/styles.css', import.meta.url), 'utf8');
+  const tabsRule = stylesheet.match(/\.records-tabs\s*\{([^}]*)\}/s)?.[1] ?? '';
+  assert.doesNotMatch(tabsRule, /margin-bottom\s*:/,
+    'header tabs must not carry bottom margin that misaligns them from the title');
+
   const listPanel = document.root.querySelector('[data-records-panel="list"]');
   const analysisPanel = document.root.querySelector('[data-records-panel="analysis"]');
   assert.ok(listPanel, 'the records list has its own panel');
